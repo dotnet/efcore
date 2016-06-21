@@ -33,9 +33,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .BuildServiceProvider())
                 .UseSqlServer(_testStore.ConnectionString).Options;
 
-        public override NorthwindContext CreateContext()
+        public override NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
         {
-            var context = new SqlServerNorthwindContext(_options);
+            var context = new SqlServerNorthwindContext(_options, queryTrackingBehavior);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

@@ -36,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                         .AddSingleton<ILoggerFactory>(_testLoggerFactory)
                         .BuildServiceProvider()).Options;
 
-        public override NorthwindContext CreateContext()
-            => new NorthwindContext(_options);
+        public override NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            => new NorthwindContext(_options, queryTrackingBehavior);
     }
 
     public class TestLoggerFactory : ILoggerFactory

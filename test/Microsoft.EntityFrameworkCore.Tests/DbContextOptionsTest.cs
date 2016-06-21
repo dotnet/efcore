@@ -1,11 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests
@@ -22,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
         }
-        
+
         [Fact]
         public void Model_can_be_set_explicitly_in_options()
         {
@@ -120,6 +124,62 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseModel(model));
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
+        }
+
+        [Fact]
+        public void UseLoggerFactory_on_generic_builder_returns_generic_builder()
+        {
+            var loggerFactory = new LoggerFactory();
+
+            var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseLoggerFactory(loggerFactory));
+
+            Assert.Same(loggerFactory, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().LoggerFactory);
+        }
+
+        [Fact]
+        public void UseMemoryCache_on_generic_builder_returns_generic_builder()
+        {
+            var memoryCache = Mock.Of<IMemoryCache>();
+
+            var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseMemoryCache(memoryCache));
+
+            Assert.Same(memoryCache, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().MemoryCache);
+        }
+
+        [Fact]
+        public void UseInternalServiceProvider_on_generic_builder_returns_generic_builder()
+        {
+            var serviceProvider = Mock.Of<IServiceProvider>();
+
+            var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseInternalServiceProvider(serviceProvider));
+
+            Assert.Same(serviceProvider, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().InternalServiceProvider);
+        }
+
+        [Fact]
+        public void EnableSensitiveDataLogging_on_generic_builder_returns_generic_builder()
+        {
+            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableSensitiveDataLogging());
+        }
+
+        [Fact]
+        public void UseQueryTrackingBehavior_on_generic_builder_returns_generic_builder()
+        {
+            var optionsBuilder = GenericCheck(
+                new DbContextOptionsBuilder<UnkoolContext>().UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+
+            Assert.Equal(QueryTrackingBehavior.NoTracking, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().QueryTrackingBehavior);
+        }
+
+        [Fact]
+        public void ConfigureWarnings_on_generic_builder_returns_generic_builder()
+        {
+            var optionsBuilder = GenericCheck(
+                new DbContextOptionsBuilder<UnkoolContext>().ConfigureWarnings(c => c.Default(WarningBehavior.Throw)));
+
+            var warningConfiguration = optionsBuilder.Options.FindExtension<CoreOptionsExtension>().WarningsConfiguration;
+
+            Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
         }
 
         private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder) => optionsBuilder;

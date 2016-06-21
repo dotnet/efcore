@@ -43,8 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         protected virtual SqliteDbContextOptionsBuilder ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
             => sqliteDbContextOptionsBuilder;
 
-        public override NorthwindContext CreateContext()
-            => new SqliteNorthwindContext(_options);
+        public override NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            => new SqliteNorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
 

@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -22,9 +23,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private IStateManager _stateManager;
         private IChangeDetector _changeDetector;
         private IEntityEntryGraphIterator _graphIterator;
+        private QueryTrackingBehavior _queryTrackingBehavior;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ChangeTracker([NotNull] DbContext context)
@@ -32,6 +34,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Check.NotNull(context, nameof(context));
 
             Context = context;
+            _queryTrackingBehavior = context
+                .GetService<IDbContextOptions>()
+                .Extensions
+                .OfType<CoreOptionsExtension>()
+                .FirstOrDefault()
+                ?.QueryTrackingBehavior
+                                     ?? QueryTrackingBehavior.TrackAll;
         }
 
         /// <summary>
@@ -67,7 +76,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
-        public virtual QueryTrackingBehavior QueryTrackingBehavior { get; set; }
+        public virtual QueryTrackingBehavior QueryTrackingBehavior
+        {
+            get { return _queryTrackingBehavior; }
+            set { _queryTrackingBehavior = value; }
+        }
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context.
@@ -184,13 +197,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     });
         }
 
-        private IStateManager StateManager 
+        private IStateManager StateManager
             => _stateManager ?? (_stateManager = Context.GetService<IStateManager>());
 
-        private IChangeDetector ChangeDetector 
+        private IChangeDetector ChangeDetector
             => _changeDetector ?? (_changeDetector = Context.GetService<IChangeDetector>());
 
-        private IEntityEntryGraphIterator GraphIterator 
+        private IEntityEntryGraphIterator GraphIterator
             => _graphIterator ?? (_graphIterator = Context.GetService<IEntityEntryGraphIterator>());
     }
 }

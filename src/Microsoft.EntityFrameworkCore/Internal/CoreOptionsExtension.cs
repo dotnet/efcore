@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IMemoryCache _memoryCache;
         private bool _isSensitiveDataLoggingEnabled;
         private WarningsConfiguration _warningsConfiguration;
+        private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -44,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _memoryCache = copyFrom.MemoryCache;
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
+            _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
         }
 
         /// <summary>
@@ -110,6 +112,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             get { return _warningsConfiguration; }
             [param: CanBeNull] set { _warningsConfiguration = value; }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual QueryTrackingBehavior QueryTrackingBehavior
+        {
+            get { return _queryTrackingBehavior; }
+            set { _queryTrackingBehavior = value; }
         }
 
         /// <summary>

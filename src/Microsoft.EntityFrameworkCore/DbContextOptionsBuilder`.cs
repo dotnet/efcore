@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Caching.Memory;
@@ -59,28 +61,28 @@ namespace Microsoft.EntityFrameworkCore
             => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
 
         /// <summary>
-        ///     Sets the <see cref="ILoggerFactory"/> used for logging information from the context.
+        ///     Sets the <see cref="ILoggerFactory" /> used for logging information from the context.
         /// </summary>
-        /// <param name="loggerFactory"> The <see cref="ILoggerFactory"/> to be used. </param>
+        /// <param name="loggerFactory"> The <see cref="ILoggerFactory" /> to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
 
         /// <summary>
-        ///     Sets the <see cref="IMemoryCache"/> used to cache information such as query translations. If none is specified, then
-        ///     Entity Framework will maintain its own internal <see cref="IMemoryCache"/>.
+        ///     Sets the <see cref="IMemoryCache" /> used to cache information such as query translations. If none is specified, then
+        ///     Entity Framework will maintain its own internal <see cref="IMemoryCache" />.
         /// </summary>
-        /// <param name="memoryCache"> The <see cref="IMemoryCache"/> to be used. </param>
+        /// <param name="memoryCache"> The <see cref="IMemoryCache" /> to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
             => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
 
         /// <summary>
-        ///     Sets the <see cref="IServiceProvider"/> that the context will resolve its internal services from. If none is specified, then
-        ///     Entity Framework will maintain its own internal <see cref="IServiceProvider"/>. By default, we recommend allowing Entity Framework
-        ///     to create and maintain its own <see cref="IServiceProvider"/> for internal services.
+        ///     Sets the <see cref="IServiceProvider" /> that the context will resolve its internal services from. If none is specified, then
+        ///     Entity Framework will maintain its own internal <see cref="IServiceProvider" />. By default, we recommend allowing Entity Framework
+        ///     to create and maintain its own <see cref="IServiceProvider" /> for internal services.
         /// </summary>
-        /// <param name="serviceProvider"> The <see cref="IServiceProvider"/> to be used. </param>
+        /// <param name="serviceProvider"> The <see cref="IServiceProvider" /> to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
@@ -93,6 +95,27 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging()
             => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the tracking behavior for LINQ queries run against the context. Disabling change tracking
+        ///         is useful for read-only scenarios because it avoids the overhead of setting up change tracking for each
+        ///         entity instance. You should not disable change tracking if you want to manipulate entity instances and
+        ///         persist those changes to the database using <see cref="DbContext.SaveChanges()" />.
+        ///     </para>
+        ///     <para>
+        ///         This method sets the default behavior for all contexts created with these options, but you can override this
+        ///         behavior for a context instance using <see cref="ChangeTracker.QueryTrackingBehavior" /> or on individual
+        ///         queries using the <see cref="EntityFrameworkQueryableExtensions.AsNoTracking{TEntity}(IQueryable{TEntity})" />
+        ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
+        ///     </para>
+        ///     <para>
+        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the change tracker will
+        ///         keep track of changes for all entities that are returned from a LINQ query.
+        ///     </para>
+        /// </summary>
+        public new virtual DbContextOptionsBuilder<TContext> UseQueryTrackingBehavior(QueryTrackingBehavior queryTrackingBehavior)
+            => (DbContextOptionsBuilder<TContext>)base.UseQueryTrackingBehavior(queryTrackingBehavior);
 
         /// <summary>
         ///     Configures the runtime behavior of warnings generated by Entity Framework. You can set a default behavior and behaviors for
