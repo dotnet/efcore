@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
@@ -15,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture>
     {
+        private const string FileLineEnding = @"
+";
+
         [Fact]
         public virtual void Queryable_simple()
         {
@@ -37,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     , 
     shaper: UnbufferedEntityShaper<Customer>
 )",
-                    TestSqlLoggerFactory.Log);
+                    TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
 
@@ -111,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     , 
     querySourceRequiresTracking: True
 )",
-                    TestSqlLoggerFactory.Log);
+                    TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
 
