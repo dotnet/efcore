@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Globalization;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
     ""MetadataFile"": ""C:/MetadataFile.cs"",
     ""SnapshotFile"": """ + "\\\"C:\\\\Folder A\\\\SnapshotFile.cs\\\"" + @"""
 }"
-            , actual);
+            , actual.Replace(Environment.NewLine, FileLineEnding));
             Assert.NotNull(JsonConvert.DeserializeObject(actual));
         }
 
@@ -60,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
         ""fullName"": ""System.String""
     }
 ]"
-               , actual);
+               , actual.Replace(Environment.NewLine, FileLineEnding));
             Assert.NotNull(JsonConvert.DeserializeObject(actual));
         }
 
@@ -103,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
     ""emptyArray"": [
     ]
 }"
-                , actual);
+                , actual.Replace(Environment.NewLine, FileLineEnding));
             Assert.NotNull(JsonConvert.DeserializeObject(actual));
         }
 
@@ -146,8 +147,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
     ""emptyArray"": [
     ]
 }"
-                , actual);
+                , actual.Replace(Environment.NewLine, FileLineEnding));
             Assert.NotNull(JsonConvert.DeserializeObject(actual));
         }
+
+        private const string FileLineEnding = @"
+";
     }
 }
