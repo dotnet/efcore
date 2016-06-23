@@ -25,6 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Storage
             Assert.Equal("'2015-03-12 13:36:37.371-07:00'", literal);
         }
 
+        public override void GenerateLiteral_returns_Guid_literal()
+        {
+            var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
+            var literal = CreateSqlGenerationHelper().GenerateLiteral(value);
+            Assert.Equal("X'9E3AF4C6E191EF45A320832EA23B7292'", literal);
+        }
+
         protected override ISqlGenerationHelper CreateSqlGenerationHelper()
             => new SqliteSqlGenerationHelper();
     }
