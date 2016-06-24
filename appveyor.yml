@@ -15,4 +15,7 @@ branches:
     - dev
     - /^(.*\/)?ci-.*$/
 environment:
-  Test__SqlServer__DefaultConnection: Server=(local)\SQL2014;Database=master;User ID=sa;Password=Password12!
+  global:
+    Test__SqlServer__DefaultConnection: Server=(local)\SQL2014;Database=master;User ID=sa;Password=Password12!
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1

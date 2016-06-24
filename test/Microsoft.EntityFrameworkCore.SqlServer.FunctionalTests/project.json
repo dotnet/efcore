@@ -3,8 +3,14 @@
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "copyToOutput": {
-      "include": "**/*.sql",
-      "includeFiles": "config.json"
+      "include": [
+        "**/*.sql",
+        "config.json"
+      ],
+      "exclude": [
+        "obj/**",
+        "bin/**"
+      ]
     }
   },
   "dependencies": {
@@ -15,8 +21,10 @@
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0"
   },
   "publishOptions": {
-    "include": "**/*.sql",
-    "includeFiles": "config.json",
+    "include": [
+      "**/*.sql",
+      "config.json"
+    ],
     "exclude": [
       "obj/**",
       "bin/**"
