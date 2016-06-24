@@ -229,27 +229,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Ignore([NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-        {
-            Check.NotNull(type, nameof(type));
-            Ignore(type.DisplayName(), configurationSource);
-        }
+        public virtual void Ignore([NotNull] Type type,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+            => Ignore(Check.NotNull(type, nameof(type)).DisplayName(), type, configurationSource, runConventions);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-        {
-            Check.NotNull(name, nameof(name));
+        public virtual void Ignore([NotNull] string name,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+            => Ignore(Check.NotNull(name, nameof(name)), null, configurationSource, runConventions);
 
+        private void Ignore([NotNull] string name,
+            [CanBeNull] Type type,
+            ConfigurationSource configurationSource,
+            bool runConventions)
+        {
             ConfigurationSource existingIgnoredConfigurationSource;
             if (_ignoredEntityTypeNames.TryGetValue(name, out existingIgnoredConfigurationSource))
             {
                 configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
+                runConventions = false;
             }
 
             _ignoredEntityTypeNames[name] = configurationSource;
+
+            if (runConventions)
+            {
+                ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
+            }
         }
 
         /// <summary>

@@ -421,11 +421,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations.Remove(discriminatorValueAnnotation);
             }
 
-            var navigationCandidatesAnnotation = annotations
-                .FirstOrDefault(a => a.Name == RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName);
-            if (navigationCandidatesAnnotation != null)
+            foreach (var annotationToRemove in annotations.Where(a =>
+                a.Name == RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName
+                || a.Name == RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName
+                || a.Name == InversePropertyAttributeConvention.InverseNavigationsAnnotationName)
+                .ToList())
             {
-                annotations.Remove(navigationCandidatesAnnotation);
+                annotations.Remove(annotationToRemove);
             }
 
             if (annotations.Any())

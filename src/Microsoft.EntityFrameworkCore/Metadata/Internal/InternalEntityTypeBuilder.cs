@@ -662,7 +662,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(target, source, to.Name, to.PropertyInfo);
                 }
 
-                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(dependentEntityType, relationshipToBeRemoved.ForeignKey);
+                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(
+                    relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder, relationshipToBeRemoved.ForeignKey);
             }
 
             ModelBuilder.Metadata.ConventionDispatcher.OnBaseEntityTypeSet(this, originalBaseType);

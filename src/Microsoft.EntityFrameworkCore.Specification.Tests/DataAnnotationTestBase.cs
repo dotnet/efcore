@@ -7,7 +7,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -1110,6 +1112,345 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Null(context.Model.GetEntityTypes().First(e => e.Name == typeof(One).FullName).FindProperty("IgnoredProperty"));
             }
+        }
+
+        [Fact]
+        public virtual void NotMappedAttribute_ignores_explicit_interface_implementation_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<EntityAnnotationBase>();
+
+            Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityAnnotationBase)).GetProperties());
+        }
+
+        protected interface IEntityBase
+        {
+            int Target { get; set; }
+        }
+
+        protected class EntityAnnotationBase : IEntityBase
+        {
+            [NotMapped]
+            int IEntityBase.Target { get; set; }
+        }
+
+        [Fact]
+        public virtual void NotMappedAttribute_removes_ambiguity_in_relationship_building()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<Book>();
+
+            Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+            Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+            Assert.DoesNotContain("Book", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+        }
+
+        [Fact]
+        public virtual void NotMappedAttribute_removes_ambiguity_in_relationship_building_with_base()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<BookDetailsBase>();
+            modelBuilder.Entity<Book>();
+
+            Assert.Same(model.FindEntityType(typeof(BookDetailsBase)), model.FindEntityType(typeof(BookDetails)).BaseType);
+            Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+            Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetailsBase)).GetNavigations().Select(nav => nav.Name));
+            Assert.DoesNotContain("Book", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+
+            modelBuilder.Entity<BookDetails>().HasBaseType((Type)null);
+
+            Assert.Same(model.FindEntityType(typeof(BookDetails)),
+                model.FindEntityType(typeof(Book)).GetNavigations().Single(n => n.Name == "Details").ForeignKey.DeclaringEntityType);
+            Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+            Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetailsBase)).GetNavigations().Select(nav => nav.Name));
+            Assert.DoesNotContain("Book", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Entity<Book>();
+
+            Assert.Equal(nameof(Book.Label),
+                model.FindEntityType(typeof(BookLabel)).FindNavigation(nameof(BookLabel.Book)).FindInverse()?.Name);
+
+            Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).FindInverse());
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity_with_base_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<SpecialBookLabel>();
+
+            Assert.Same(model.FindEntityType(typeof(BookLabel)), model.FindEntityType(typeof(SpecialBookLabel)).BaseType);
+
+            Assert.Equal(nameof(Book.Label), model.FindEntityType(typeof(SpecialBookLabel))
+                .FindNavigation(nameof(SpecialBookLabel.Book)).FindInverse()?.Name);
+            Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).FindInverse());
+
+            modelBuilder.Entity<SpecialBookLabel>().HasBaseType((Type)null);
+
+            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book))?.FindInverse());
+            Assert.Null(model.FindEntityType(typeof(BookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)));
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity_with_base_type_ignored()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Entity<SpecialBookLabel>();
+            modelBuilder.Ignore<BookLabel>();
+
+            Assert.Null(model.FindEntityType(typeof(BookLabel)));
+            Assert.Equal(nameof(Book.Label), model.FindEntityType(typeof(SpecialBookLabel))
+                .FindNavigation(nameof(SpecialBookLabel.Book)).FindInverse()?.Name);
+            Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)));
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_from_ignored_base_causes_ambiguity()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Ignore<BookDetails>();
+            modelBuilder.Entity<SpecialBookLabel>();
+            modelBuilder.Ignore<BookLabel>();
+
+            Assert.Null(model.FindEntityType(typeof(BookLabel)));
+            Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(AnotherBookLabel.Book)).FindInverse());
+            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)).FindInverse());
+            Assert.Equal(0, model.FindEntityType(typeof(Book)).GetNavigations().Count());
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_from_ignored_base_can_be_ignored_to_remove_ambiguity()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<AnotherBookLabel>().Ignore(e => e.Book);
+            modelBuilder.Entity<SpecialBookLabel>();
+            modelBuilder.Ignore<BookLabel>();
+
+            Assert.Null(model.FindEntityType(typeof(BookLabel)));
+            Assert.Equal(nameof(Book.Label), model.FindEntityType(typeof(SpecialBookLabel))
+                .FindNavigation(nameof(SpecialBookLabel.Book)).FindInverse()?.Name);
+            Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)));
+        }
+
+        private class Book
+        {
+            public static readonly PropertyInfo BookdDetailsNavigation = typeof(Book).GetProperty("Details");
+
+            public int Id { get; set; }
+
+            public BookLabel Label { get; set; }
+
+            public BookLabel AlternateLabel { get; set; }
+
+            public BookDetails Details { get; set; }
+        }
+
+        private abstract class BookDetailsBase
+        {
+            public int Id { get; set; }
+
+            public int AnotherBookId { get; set; }
+
+            public Book AnotherBook { get; set; }
+        }
+
+        private class BookDetails : BookDetailsBase
+        {
+            [NotMapped]
+            public Book Book { get; set; }
+        }
+
+        private class BookLabel
+        {
+            public int Id { get; set; }
+
+            [InverseProperty("Label")]
+            public Book Book { get; set; }
+
+            public int BookId { get; set; }
+
+            public SpecialBookLabel SpecialBookLabel { get; set; }
+
+            public AnotherBookLabel AnotherBookLabel { get; set; }
+        }
+
+        private class SpecialBookLabel : BookLabel
+        {
+            public BookLabel BookLabel { get; set; }
+        }
+
+        private class ExtraSpecialBookLabel : SpecialBookLabel
+        {
+        }
+
+        private class AnotherBookLabel : BookLabel
+        {
+        }
+
+        [Fact]
+        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_property_on_both_side()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<Post>();
+
+            Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
+            Assert.Equal("PostDetailsId", model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.Properties.First().Name);
+
+            Assert.Null(model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
+            Assert.Equal("PostId", model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+        }
+
+        [Fact]
+        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigations_on_both_side_and_values_do_not_match()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<Post>();
+
+            Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
+            Assert.Equal("AuthorId", model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+
+            Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
+            Assert.Equal("PostId", model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+        }
+
+        [Fact]
+        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigation_and_property_on_different_side_and_values_do_not_match()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<Author>();
+
+            var authorDetails = model.FindEntityType(typeof(AuthorDetails));
+            var firstFk = authorDetails.FindNavigation(nameof(AuthorDetails.Author)).ForeignKey;
+            Assert.Equal(typeof(AuthorDetails), firstFk.DeclaringEntityType.ClrType);
+            Assert.Equal("AuthorId", firstFk.Properties.First().Name);
+
+            var author = model.FindEntityType(typeof(Author));
+            var secondFk = author.FindNavigation(nameof(Author.AuthorDetails)).ForeignKey;
+            Assert.Equal(typeof(Author), secondFk.DeclaringEntityType.ClrType);
+            Assert.Equal("AuthorDetailsIdByAttribute", secondFk.Properties.First().Name);
+
+            Assert.Equal(new[] { "Id" , "AuthorId"}, authorDetails.GetProperties().Select(p => p.Name));
+            Assert.Equal(new[] { "Id", "AuthorDetailsIdByAttribute", "PostId" }, author.GetProperties().Select(p => p.Name));
+        }
+
+        private class Post
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("PostDetails")]
+            public int PostDetailsId { get; set; }
+
+            public PostDetails PostDetails { get; set; }
+
+            [ForeignKey("AuthorId")]
+            public Author Author { get; set; }
+        }
+
+        private class PostDetails
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("Post")]
+            public int PostId { get; set; }
+
+            public Post Post { get; set; }
+        }
+
+        private class Author
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("PostId")]
+            public Post Post { get; set; }
+
+            [ForeignKey("AuthorDetailsIdByAttribute")]
+            public AuthorDetails AuthorDetails { get; set; }
+        }
+
+        private class AuthorDetails
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("Author")]
+            public int AuthorId { get; set; }
+
+            public Author Author { get; set; }
+        }
+
+        [Fact]
+        public virtual void ForeignKeyAttribute_throws_if_applied_on_property_on_both_side_but_navigations_are_connected_by_inverse_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("B", typeof(A).DisplayName(), "A", typeof(B).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
+        }
+
+        [Fact]
+        public virtual void ForeignKeyAttribute_throws_if_applied_on_both_navigations_connected_by_inverse_property_but_values_do_not_match()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("C", typeof(D).DisplayName(), "D", typeof(C).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
+        }
+
+
+        private class A
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("B")]
+            public int BId { get; set; }
+
+            public B B { get; set; }
+        }
+
+        private class B
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("A")]
+            public int AId { get; set; }
+
+            [InverseProperty("B")]
+            public A A { get; set; }
+        }
+
+        private class C
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("DId")]
+            [InverseProperty("C")]
+            public D D { get; set; }
+        }
+
+        private class D
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("CId")]
+            public C C { get; set; }
         }
 
         [Fact]

@@ -463,6 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+            new ModelCleanupConvention().Apply(modelBuilder);
 
             VerifyRelationship(entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.Base)),
                 expectedInverseName: nameof(Base.BaseNavigation), unique: true);

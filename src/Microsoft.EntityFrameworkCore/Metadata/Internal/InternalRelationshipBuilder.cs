@@ -1909,10 +1909,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                var inverted = !newRelationshipBuilder.Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityType)
-                    && !newRelationshipBuilder.Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityType);
-                if ((dependentToPrincipalIsNew && !inverted)
-                    || (principalToDependentIsNew && inverted))
+                if (newRelationshipBuilder.Metadata.DependentToPrincipal != null)
                 {
                     newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnNavigationAdded(
                         newRelationshipBuilder, newRelationshipBuilder.Metadata.DependentToPrincipal);
@@ -1937,8 +1934,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if ((principalToDependentIsNew && !inverted)
-                    || (dependentToPrincipalIsNew && inverted))
+                if (newRelationshipBuilder.Metadata.PrincipalToDependent != null)
                 {
                     newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnNavigationAdded(
                         newRelationshipBuilder, newRelationshipBuilder.Metadata.PrincipalToDependent);

@@ -1127,6 +1127,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual Navigation FindNavigation([NotNull] PropertyInfo propertyInfo)
+            => FindNavigation(Check.NotNull(propertyInfo, nameof(propertyInfo)).Name);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Navigation FindDeclaredNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
