@@ -23,7 +23,7 @@
     "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.0-*",
-    "Microsoft.Extensions.DependencyModel": "1.0.0-*",
+    "Microsoft.Extensions.DependencyModel": "1.0.1-*",
     "Microsoft.CodeAnalysis.CSharp": "1.3.0-*"
   },
   "frameworks": {
