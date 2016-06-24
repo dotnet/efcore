@@ -539,32 +539,111 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = relatedEntitiesLoaderFactories.Select(f => f(queryContext))
                     .ToArray();
 
-            return innerResults
-                .Select(
-                    async (result, cancellationToken) =>
-                        {
-                            await queryContext.QueryBuffer
-                                .IncludeAsync(
-                                    queryContext,
-                                    entityAccessor == null
-                                        ? result
-                                        : entityAccessor(result), // TODO: Compile time?
-                                    navigationPath,
-                                    relatedEntitiesLoaders,
-                                    querySourceRequiresTracking,
-                                    cancellationToken);
+            return new IncludeAsyncEnumerable<T>(
+                queryContext,
+                innerResults,
+                entityAccessor,
+                navigationPath,
+                relatedEntitiesLoaders,
+                querySourceRequiresTracking);
+        }
 
-                            return result;
-                        })
-                .Finally(() =>
+        private sealed class IncludeAsyncEnumerable<T> : IAsyncEnumerable<T>
+        {
+            private readonly RelationalQueryContext _queryContext;
+            private readonly IAsyncEnumerable<T> _innerResults;
+            private readonly Func<T, object> _entityAccessor;
+            private readonly IReadOnlyList<INavigation> _navigationPath;
+            private readonly IAsyncRelatedEntitiesLoader[] _relatedEntitiesLoaders;
+            private readonly bool _querySourceRequiresTracking;
+
+            public IncludeAsyncEnumerable(
+                RelationalQueryContext queryContext,
+                IAsyncEnumerable<T> innerResults,
+                Func<T, object> entityAccessor,
+                IReadOnlyList<INavigation> navigationPath,
+                IAsyncRelatedEntitiesLoader[] relatedEntitiesLoaders,
+                bool querySourceRequiresTracking)
+            {
+                _queryContext = queryContext;
+                _innerResults = innerResults;
+                _entityAccessor = entityAccessor;
+                _navigationPath = navigationPath;
+                _relatedEntitiesLoaders = relatedEntitiesLoaders;
+                _querySourceRequiresTracking = querySourceRequiresTracking;
+            }
+
+            public IAsyncEnumerator<T> GetEnumerator()
+                => new IncludeAsyncEnumerator<T>(
+                    _queryContext,
+                    _innerResults.GetEnumerator(),
+                    _entityAccessor,
+                    _navigationPath,
+                    _relatedEntitiesLoaders,
+                    _querySourceRequiresTracking);
+
+            private class IncludeAsyncEnumerator<T1> : IAsyncEnumerator<T>
+            {
+                private readonly RelationalQueryContext _queryContext;
+                private readonly IAsyncEnumerator<T> _innerResults;
+                private readonly Func<T, object> _entityAccessor;
+                private readonly IReadOnlyList<INavigation> _navigationPath;
+                private readonly IAsyncRelatedEntitiesLoader[] _relatedEntitiesLoaders;
+                private readonly bool _querySourceRequiresTracking;
+
+                public IncludeAsyncEnumerator(
+                    RelationalQueryContext queryContext,
+                    IAsyncEnumerator<T> innerResults,
+                    Func<T, object> entityAccessor,
+                    IReadOnlyList<INavigation> navigationPath,
+                    IAsyncRelatedEntitiesLoader[] relatedEntitiesLoaders,
+                    bool querySourceRequiresTracking)
+                {
+                    _queryContext = queryContext;
+                    _innerResults = innerResults;
+                    _entityAccessor = entityAccessor;
+                    _navigationPath = navigationPath;
+                    _relatedEntitiesLoaders = relatedEntitiesLoaders;
+                    _querySourceRequiresTracking = querySourceRequiresTracking;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (await _innerResults.MoveNext(cancellationToken))
                     {
-                        foreach (var relatedEntitiesLoader in relatedEntitiesLoaders)
-                        {
-                            relatedEntitiesLoader.Dispose();
-                        }
+                        Current = _innerResults.Current;
 
-                        queryContext.EndIncludeScope();
-                    });
+                        await _queryContext.QueryBuffer
+                            .IncludeAsync(
+                                _queryContext,
+                                _entityAccessor == null
+                                    ? Current
+                                    : _entityAccessor(Current), // TODO: Compile time?
+                                _navigationPath,
+                                _relatedEntitiesLoaders,
+                                _querySourceRequiresTracking,
+                                cancellationToken);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                public T Current { get; private set; }
+
+                public void Dispose()
+                {
+                    _innerResults.Dispose();
+
+                    foreach (var relatedEntitiesLoader in _relatedEntitiesLoaders)
+                    {
+                        relatedEntitiesLoader.Dispose();
+                    }
+
+                    _queryContext.EndIncludeScope();
+                }
+            }
         }
 
         /// <summary>
@@ -575,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The create reference related entities loader method.
         /// </summary>
-        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod 
+        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod
             => _createReferenceRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createReferenceRelatedEntitiesLoaderMethod
@@ -667,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The create collection related entities loader method.
         /// </summary>
-        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod 
+        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod
             => _createCollectionRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createCollectionRelatedEntitiesLoaderMethod

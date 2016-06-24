@@ -18,7 +18,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class QueryBuffer : IQueryBuffer
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = new ConditionalWeakTable<object, object>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryBuffer(
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetEntity(
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetPropertyValue(object entity, IProperty property)
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void StartTracking(object entity, EntityTrackingInfo entityTrackingInfo)
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             entityTrackingInfo
                 .StartTracking(_stateManager.Value, entity, (ValueBuffer)boxedValueBuffer);
 
-            foreach (var includedEntity 
+            foreach (var includedEntity
                 in entityTrackingInfo.GetIncludedEntities(entity)
                     .Where(includedEntity
                         => _valueBuffers.TryGetValue(includedEntity.Entity, out boxedValueBuffer)))
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Include(
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task IncludeAsync(
@@ -245,29 +245,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var keyComparer = IncludeCore(entity, navigation);
             var key = navigation.GetTargetType().FindPrimaryKey();
 
+            var relatedEntityLoadInfos
+                = relatedEntitiesLoaders[currentNavigationIndex]
+                    .Load(queryContext, keyComparer);
+
+            var relatedObjects = new List<object>();
+
+            using (var asyncEnumerator = relatedEntityLoadInfos.GetEnumerator())
+            {
+                while (await asyncEnumerator.MoveNext(cancellationToken))
+                {
+                    var targetEntity
+                        = GetEntity(key, asyncEnumerator.Current, queryStateManager, throwOnNullKey: false);
+
+                    if (targetEntity != null)
+                    {
+                        await IncludeAsync(
+                            queryContext,
+                            targetEntity,
+                            navigationPath,
+                            relatedEntitiesLoaders,
+                            currentNavigationIndex + 1,
+                            queryStateManager,
+                            cancellationToken);
+
+                        relatedObjects.Add(targetEntity);
+                    }
+                }
+            }
+
             LoadNavigationProperties(
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await relatedEntitiesLoaders[currentNavigationIndex]
-                    .Load(queryContext, keyComparer)
-                    .Select(async (eli, ct) =>
-                        {
-                            var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
-
-                            await IncludeAsync(
-                                queryContext,
-                                targetEntity,
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                currentNavigationIndex + 1,
-                                queryStateManager,
-                                ct);
-
-                            return targetEntity;
-                        })
-                    .Where(e => e != null)
-                    .ToList(cancellationToken),
+                relatedObjects,
                 queryStateManager);
         }
 

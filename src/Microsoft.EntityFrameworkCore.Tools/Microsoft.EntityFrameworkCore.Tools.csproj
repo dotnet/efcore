@@ -44,9 +44,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
-      <Link>AsyncEnumerableExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Check.cs</Link>
     </Compile>
