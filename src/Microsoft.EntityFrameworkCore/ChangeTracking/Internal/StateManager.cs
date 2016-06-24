@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
         private bool _needsUnsubscribe;
-        private bool? _singleQueryMode;
+        private bool _queryIsTracked;
+        private TrackingQueryMode _trackingQueryMode = TrackingQueryMode.Simple;
         private IEntityType _singleQueryModeEntityType;
 
         private readonly IInternalEntityEntryFactory _factory;
@@ -69,38 +70,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsSingleQueryMode(IEntityType entityType)
+        public virtual TrackingQueryMode GetTrackingQueryMode(IEntityType entityType)
         {
-            if (_singleQueryMode == false)
+            if (_trackingQueryMode == TrackingQueryMode.Simple
+                && _singleQueryModeEntityType != entityType)
             {
-                // Once we are out of SQM we are always out.
-                return false;
+                // Drop out if SQM for change of entity type or self-refs since query may not fix them up.
+                if (_singleQueryModeEntityType != null
+                    || entityType.GetNavigations().Any(n => entityType.IsSameHierarchy(n.GetTargetType())))
+                {
+                    _trackingQueryMode = TrackingQueryMode.Single;
+                }
+
+                _singleQueryModeEntityType = entityType;
             }
 
-            // If we already checked for self-refs then don't check again.
-            if (_singleQueryModeEntityType == entityType)
-            {
-                return true;
-            }
-
-            // Drop out if SQM for change of entity type or self-refs since query may not fix them up.
-            if (_singleQueryModeEntityType != null
-                || entityType.GetNavigations().Any(n => entityType.IsSameHierarchy(n.GetTargetType())))
-            {
-                _singleQueryMode = false;
-                return false;
-            }
-
-            _singleQueryModeEntityType = entityType;
-
-            return true;
+            return _trackingQueryMode;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void EndSingleQueryMode() => _singleQueryMode = false;
+        public virtual void EndSingleQueryMode() => _trackingQueryMode = TrackingQueryMode.Multiple;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -123,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity);
             if (entry == null)
             {
-                _singleQueryMode = false;
+                _trackingQueryMode = TrackingQueryMode.Multiple;
 
                 var entityType = _model.FindEntityType(entity.GetType());
 
@@ -143,7 +135,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void BeginTrackingQuery() => _singleQueryMode = _singleQueryMode == null;
+        public virtual void BeginTrackingQuery()
+        {
+            if (_queryIsTracked)
+            {
+                _trackingQueryMode = TrackingQueryMode.Multiple;
+            }
+            else
+            {
+                _queryIsTracked = true;
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -152,7 +154,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual InternalEntityEntry StartTrackingFromQuery(
             IEntityType baseEntityType,
             object entity,
-            ValueBuffer valueBuffer)
+            ValueBuffer valueBuffer,
+            ISet<IForeignKey> handledForeignKeys)
         {
             var existingEntry = TryGetEntry(entity);
             if (existingEntry != null)
@@ -175,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             _entityReferenceMap[entity] = newEntry;
 
-            newEntry.MarkUnchangedFromQuery();
+            newEntry.MarkUnchangedFromQuery(handledForeignKeys);
 
             if (_subscriber.SnapshotAndSubscribe(newEntry))
             {

@@ -391,13 +391,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void TrackedFromQuery(
+            InternalEntityEntry entry, 
+            ISet<IForeignKey> handledForeignKeys)
+        {
+            try
+            {
+                _inFixup = true;
+
+                InitialFixup(entry, handledForeignKeys, fromQuery: true);
+            }
+            finally
+            {
+                _inFixup = false;
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void StateChanged(
             InternalEntityEntry entry,
             EntityState oldState,
-            bool skipInitialFixup,
             bool fromQuery)
         {
-            if (_inFixup)
+            if (fromQuery || _inFixup)
             {
                 return;
             }
@@ -406,12 +425,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _inFixup = true;
 
-                if (oldState == EntityState.Detached
-                    && !skipInitialFixup)
+                if (oldState == EntityState.Detached)
                 {
-                    InitialFixup(entry, fromQuery);
+                    InitialFixup(entry, null, fromQuery: false);
                 }
-
                 else if (entry.EntityState == EntityState.Detached
                          && oldState == EntityState.Deleted)
                 {
@@ -470,60 +487,71 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void InitialFixup(InternalEntityEntry entry, bool fromQuery)
+        private void InitialFixup(
+            InternalEntityEntry entry,
+            ISet<IForeignKey> handledForeignKeys, 
+            bool fromQuery)
         {
             var entityType = entry.EntityType;
             var stateManager = entry.StateManager;
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
-                var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
-                if (principalEntry != null)
+                if (handledForeignKeys == null
+                    || !handledForeignKeys.Contains(foreignKey))
                 {
-                    // Set navigation to principal based on FK properties
-                    SetNavigation(entry, foreignKey.DependentToPrincipal, principalEntry.Entity);
-
-                    // Add this entity to principal's collection, or set inverse for 1:1
-                    var principalToDependent = foreignKey.PrincipalToDependent;
-                    if (principalToDependent != null)
+                    var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                    if (principalEntry != null)
                     {
-                        SetReferenceOrAddToCollection(
-                            principalEntry,
-                            principalToDependent,
-                            principalToDependent.IsCollection() ? principalToDependent.GetCollectionAccessor() : null,
-                            entry.Entity);
+                        // Set navigation to principal based on FK properties
+                        SetNavigation(entry, foreignKey.DependentToPrincipal, principalEntry.Entity);
+
+                        // Add this entity to principal's collection, or set inverse for 1:1
+                        var principalToDependent = foreignKey.PrincipalToDependent;
+                        if (principalToDependent != null)
+                        {
+                            SetReferenceOrAddToCollection(
+                                principalEntry,
+                                principalToDependent,
+                                principalToDependent.IsCollection() ? principalToDependent.GetCollectionAccessor() : null,
+                                entry.Entity);
+                        }
                     }
                 }
             }
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
             {
-                var dependents = stateManager.GetDependents(entry, foreignKey).ToList();
-                if (dependents.Any())
+                if (handledForeignKeys == null
+                    || !handledForeignKeys.Contains(foreignKey))
                 {
-                    var dependentToPrincipal = foreignKey.DependentToPrincipal;
-                    var principalToDependent = foreignKey.PrincipalToDependent;
-
-                    if (foreignKey.IsUnique)
+                    var dependents = stateManager.GetDependents(entry, foreignKey).ToList();
+                    if (dependents.Any())
                     {
-                        var dependentEntry = dependents.First();
+                        var dependentToPrincipal = foreignKey.DependentToPrincipal;
+                        var principalToDependent = foreignKey.PrincipalToDependent;
 
-                        // Set navigations to and from principal entity that is indicated by FK
-                        SetNavigation(entry, principalToDependent, dependentEntry.Entity);
-                        SetNavigation(dependentEntry, dependentToPrincipal, entry.Entity);
-                    }
-                    else
-                    {
-                        var collectionAccessor = principalToDependent?.GetCollectionAccessor();
-
-                        foreach (var dependentEntry in dependents)
+                        if (foreignKey.IsUnique)
                         {
-                            var dependentEntity = dependentEntry.Entity;
+                            var dependentEntry = dependents.First();
 
-                            // Add to collection on principal indicated by FK and set inverse navigation
-                            AddToCollection(entry, principalToDependent, collectionAccessor, dependentEntity);
-
+                            // Set navigations to and from principal entity that is indicated by FK
+                            SetNavigation(entry, principalToDependent, dependentEntry.Entity);
                             SetNavigation(dependentEntry, dependentToPrincipal, entry.Entity);
+                        }
+                        else
+                        {
+                            var collectionAccessor = principalToDependent?.GetCollectionAccessor();
+
+                            foreach (var dependentEntry in dependents)
+                            {
+                                var dependentEntity = dependentEntry.Entity;
+
+                                // Add to collection on principal indicated by FK and set inverse navigation
+                                AddToCollection(entry, principalToDependent, collectionAccessor, dependentEntity);
+
+                                SetNavigation(dependentEntry, dependentToPrincipal, entry.Entity);
+                            }
                         }
                     }
                 }

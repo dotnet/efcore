@@ -180,18 +180,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.StopTracking(this);
             }
 
-            StateManager.Notify.StateChanged(this, oldState, StateManager.IsSingleQueryMode(EntityType), fromQuery: false);
+            StateManager.Notify.StateChanged(this, oldState, fromQuery: false);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void MarkUnchangedFromQuery()
+        public virtual void MarkUnchangedFromQuery([CanBeNull] ISet<IForeignKey> handledForeignKeys)
         {
             StateManager.Notify.StateChanging(this, EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
-            StateManager.Notify.StateChanged(this, EntityState.Detached, StateManager.IsSingleQueryMode(EntityType), fromQuery: true);
+            StateManager.Notify.StateChanged(this, EntityState.Detached, fromQuery: true);
+
+            var trackingQueryMode = StateManager.GetTrackingQueryMode(EntityType);
+            if (trackingQueryMode != TrackingQueryMode.Simple)
+            {
+                StateManager.Notify.TrackedFromQuery(
+                    this,
+                    trackingQueryMode == TrackingQueryMode.Single
+                        ? handledForeignKeys
+                        : null);
+            }
         }
 
         /// <summary>
@@ -276,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (changeState)
                 {
-                    StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false, fromQuery: false);
+                    StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
                 }
             }
             else if (changeState
@@ -285,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 StateManager.Notify.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
-                StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false, fromQuery: false);
+                StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
             }
         }
 

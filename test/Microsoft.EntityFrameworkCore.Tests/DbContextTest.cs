@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public bool SaveChangesCalled { get; set; }
             public bool SaveChangesAsyncCalled { get; set; }
 
-            public bool IsSingleQueryMode(IEntityType entityType) => false;
+            public TrackingQueryMode GetTrackingQueryMode(IEntityType entityType) => TrackingQueryMode.Multiple;
 
             public void EndSingleQueryMode()
             {
@@ -278,7 +278,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public InternalEntityEntry StartTrackingFromQuery(
                 IEntityType baseEntityType,
                 object entity,
-                ValueBuffer valueBuffer)
+                ValueBuffer valueBuffer,
+                ISet<IForeignKey> handledForeignKeys)
             {
                 throw new NotImplementedException();
             }

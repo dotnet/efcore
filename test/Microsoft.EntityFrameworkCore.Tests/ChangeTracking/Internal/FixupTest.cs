@@ -3244,34 +3244,34 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
                 stateManager.BeginTrackingQuery();
 
-                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 11 }, new ValueBuffer(new object[] { 11 }));
-                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 12 }, new ValueBuffer(new object[] { 12 }));
-                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 13 }, new ValueBuffer(new object[] { 13 }));
+                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 11 }, new ValueBuffer(new object[] { 11 }), null);
+                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 12 }, new ValueBuffer(new object[] { 12 }), null);
+                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 13 }, new ValueBuffer(new object[] { 13 }), null);
 
                 stateManager.BeginTrackingQuery();
 
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 21, CategoryId = 11 }, new ValueBuffer(new object[] { 21, 11 }));
+                stateManager.StartTrackingFromQuery(productType, new Product { Id = 21, CategoryId = 11 }, new ValueBuffer(new object[] { 21, 11 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 22, CategoryId = 11 }, new ValueBuffer(new object[] { 22, 11 }));
+                stateManager.StartTrackingFromQuery(productType, new Product { Id = 22, CategoryId = 11 }, new ValueBuffer(new object[] { 22, 11 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 23, CategoryId = 11 }, new ValueBuffer(new object[] { 23, 11 }));
+                stateManager.StartTrackingFromQuery(productType, new Product { Id = 23, CategoryId = 11 }, new ValueBuffer(new object[] { 23, 11 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 24, CategoryId = 12 }, new ValueBuffer(new object[] { 24, 12 }));
+                stateManager.StartTrackingFromQuery(productType, new Product { Id = 24, CategoryId = 12 }, new ValueBuffer(new object[] { 24, 12 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 25, CategoryId = 12 }, new ValueBuffer(new object[] { 25, 12 }));
+                stateManager.StartTrackingFromQuery(productType, new Product { Id = 25, CategoryId = 12 }, new ValueBuffer(new object[] { 25, 12 }), null);
                 AssertAllFixedUp(context);
 
                 stateManager.BeginTrackingQuery();
 
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 31, ProductId = 22 }, new ValueBuffer(new object[] { 31, 22 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 31, ProductId = 22 }, new ValueBuffer(new object[] { 31, 22 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 32, ProductId = 22 }, new ValueBuffer(new object[] { 32, 22 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 32, ProductId = 22 }, new ValueBuffer(new object[] { 32, 22 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 33, ProductId = 24 }, new ValueBuffer(new object[] { 33, 24 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 33, ProductId = 24 }, new ValueBuffer(new object[] { 33, 24 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 34, ProductId = 24 }, new ValueBuffer(new object[] { 34, 24 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 34, ProductId = 24 }, new ValueBuffer(new object[] { 34, 24 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 35, ProductId = 24 }, new ValueBuffer(new object[] { 35, 24 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 35, ProductId = 24 }, new ValueBuffer(new object[] { 35, 24 }), null);
 
                 AssertAllFixedUp(context);
 

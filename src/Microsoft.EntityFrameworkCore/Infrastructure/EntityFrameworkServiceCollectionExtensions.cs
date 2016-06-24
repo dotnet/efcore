@@ -76,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<IEntityStateListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<INavigationListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IQueryTrackingListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>()));
 
             serviceCollection.TryAdd(new ServiceCollection()

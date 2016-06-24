@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
 
             var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(principalEntry, EntityState.Detached, skipInitialFixup: false, fromQuery: false);
+            fixer.StateChanged(principalEntry, EntityState.Detached, fromQuery: false);
 
             Assert.Same(dependent1.Category, principal);
             Assert.Null(dependent2.Category);

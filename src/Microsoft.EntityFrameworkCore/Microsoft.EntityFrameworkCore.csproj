@@ -100,6 +100,7 @@
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\IPrincipalKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IPropertyListener.cs" />
+    <Compile Include="ChangeTracking\Internal\IQueryTrackingListener.cs" />
     <Compile Include="ChangeTracking\Internal\ISnapshot.cs" />
     <Compile Include="ChangeTracking\Internal\IStateManager.cs" />
     <Compile Include="ChangeTracking\Internal\IValueGenerationManager.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="ChangeTracking\Internal\StateData.cs" />
     <Compile Include="ChangeTracking\Internal\StateManager.cs" />
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
+    <Compile Include="ChangeTracking\Internal\TrackingQueryMode.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
     <Compile Include="ChangeTracking\ObservableHashSet.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
