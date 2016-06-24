@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7067BD06-DEBE-49A0-BC78-AB99B06424FC}"
 EndProject
@@ -53,12 +53,6 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests", "test\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.xproj", "{2C86E799-111F-4D68-B063-2370CFAC4408}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.InMemory.Tests", "test\Microsoft.EntityFrameworkCore.InMemory.Tests\Microsoft.EntityFrameworkCore.InMemory.Tests.xproj", "{014E03D0-04BE-40C4-956C-FA9A22DEA54A}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Microbenchmarks", "test\Microsoft.EntityFrameworkCore.Microbenchmarks\Microsoft.EntityFrameworkCore.Microbenchmarks.xproj", "{0E9BE372-3D92-408C-9AB9-458ED4809F56}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Microbenchmarks.Core", "test\Microsoft.EntityFrameworkCore.Microbenchmarks.Core\Microsoft.EntityFrameworkCore.Microbenchmarks.Core.xproj", "{B11597BD-1251-4929-9B29-85A901FA53C4}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Microbenchmarks.EF6", "test\Microsoft.EntityFrameworkCore.Microbenchmarks.EF6\Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.xproj", "{2B3DBDFA-734C-4406-9385-F4EADCC6B096}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Sqlite.Design.Tests", "test\Microsoft.EntityFrameworkCore.Sqlite.Design.Tests\Microsoft.EntityFrameworkCore.Sqlite.Design.Tests.xproj", "{6190D3C5-806B-4B80-93E9-50B96ACD9788}"
 EndProject
@@ -176,18 +170,6 @@ Global
 		{014E03D0-04BE-40C4-956C-FA9A22DEA54A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{014E03D0-04BE-40C4-956C-FA9A22DEA54A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{014E03D0-04BE-40C4-956C-FA9A22DEA54A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E9BE372-3D92-408C-9AB9-458ED4809F56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E9BE372-3D92-408C-9AB9-458ED4809F56}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E9BE372-3D92-408C-9AB9-458ED4809F56}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E9BE372-3D92-408C-9AB9-458ED4809F56}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B11597BD-1251-4929-9B29-85A901FA53C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B11597BD-1251-4929-9B29-85A901FA53C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B11597BD-1251-4929-9B29-85A901FA53C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B11597BD-1251-4929-9B29-85A901FA53C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2B3DBDFA-734C-4406-9385-F4EADCC6B096}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B3DBDFA-734C-4406-9385-F4EADCC6B096}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B3DBDFA-734C-4406-9385-F4EADCC6B096}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B3DBDFA-734C-4406-9385-F4EADCC6B096}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6190D3C5-806B-4B80-93E9-50B96ACD9788}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6190D3C5-806B-4B80-93E9-50B96ACD9788}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6190D3C5-806B-4B80-93E9-50B96ACD9788}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -266,9 +248,6 @@ Global
 		{8440AF57-4DF9-486E-AD3D-6275B7AEECD8} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{2C86E799-111F-4D68-B063-2370CFAC4408} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{014E03D0-04BE-40C4-956C-FA9A22DEA54A} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
-		{0E9BE372-3D92-408C-9AB9-458ED4809F56} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
-		{B11597BD-1251-4929-9B29-85A901FA53C4} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
-		{2B3DBDFA-734C-4406-9385-F4EADCC6B096} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{6190D3C5-806B-4B80-93E9-50B96ACD9788} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{0DDE3770-1B24-451A-8F1A-CD340EFFE966} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{84464962-619B-4E29-B196-FBEB73DCE1D3} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
