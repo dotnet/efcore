@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -149,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 AppendValues(
                     commandStringBuilder,
                     modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList(),
-                    i.ToString());
+                    i.ToString(CultureInfo.InvariantCulture));
             }
             commandStringBuilder
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
@@ -265,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             commandStringBuilder
                 .Append(" USING ")
                 .Append(toInsertTableName)
-                .Append(toInsertTableIndex)
+                .Append(toInsertTableIndex.ToString(CultureInfo.InvariantCulture))
                 .Append(" AS ").Append(toInsertTableAlias).AppendLine(" ON 1=0")
                 .AppendLine("WHEN NOT MATCHED THEN");
 
@@ -472,6 +473,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("@@ROWCOUNT = ")
-                .Append(expectedRowsAffected);
+                .Append(expectedRowsAffected.ToString(CultureInfo.InvariantCulture));
     }
 }

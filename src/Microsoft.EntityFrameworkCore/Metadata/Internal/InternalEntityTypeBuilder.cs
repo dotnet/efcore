@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -1574,7 +1575,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var index = -1;
             while (true)
             {
-                var name = baseName + (++index > 0 ? index.ToString() : "");
+                var name = baseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
                 var entityType = entityTypeBuilder.Metadata;
                 if (entityType.FindPropertiesInHierarchy(name).Any()
                     || (entityType.ClrType?.GetRuntimeProperties().FirstOrDefault(p => p.Name == name) != null))

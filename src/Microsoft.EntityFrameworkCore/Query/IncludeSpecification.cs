@@ -62,9 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>
         ///     A string that represents this object.
         /// </returns>
-        public override string ToString()
-        {
-            return $"{QuerySource.ItemName}.{NavigationPath.Select(n => n.Name).Join(".")}";
-        }
+        public override string ToString() 
+            => $"{QuerySource.ItemName}.{NavigationPath.Select(n => n.Name).Join(".")}"; // Interpolation okay; strings
     }
 }

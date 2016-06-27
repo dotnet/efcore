@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Globalization;
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Generates the next unique parameter name.
         /// </summary>
         /// <returns> The generated name. </returns>
-        public virtual string GenerateNext() => $"p{_count++}";
+        public virtual string GenerateNext() => string.Format(CultureInfo.InvariantCulture, "p{0}", _count++);
 
         /// <summary>
         ///     Resets the generator, meaning it can reuse previously generated names.

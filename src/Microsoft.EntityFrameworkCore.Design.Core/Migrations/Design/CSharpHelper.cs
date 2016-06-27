@@ -302,8 +302,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
 
-        public virtual string Literal(DateTime value) =>
-            $"new DateTime({value.Year}, {value.Month}, {value.Day}, {value.Hour}, {value.Minute}, {value.Second}, {value.Millisecond}, DateTimeKind.{value.Kind})";
+        public virtual string Literal(DateTime value) 
+            => string.Format(
+                CultureInfo.InvariantCulture, 
+                "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})", 
+                value.Year, 
+                value.Month, 
+                value.Day, 
+                value.Hour, 
+                value.Minute, 
+                value.Second, 
+                value.Millisecond, 
+                value.Kind);
 
         public virtual string Literal(DateTimeOffset value) =>
             "new DateTimeOffset(" + Literal(value.DateTime) + ", " + Literal(value.Offset) + ")";
@@ -313,13 +323,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private string EnsureDecimalPlaces(string number) => number.IndexOf('.') >= 0 ? number : number + ".0";
         public virtual string Literal(float value) => value.ToString(CultureInfo.InvariantCulture) + "f";
         public virtual string Literal(Guid value) => "new Guid(\"" + value + "\")";
-        public virtual string Literal(int value) => value.ToString();
+        public virtual string Literal(int value) => value.ToString(CultureInfo.InvariantCulture);
         public virtual string Literal(long value) => value + "L";
         public virtual string Literal(sbyte value) => "(sbyte)" + value;
         public virtual string Literal(short value) => "(short)" + value;
 
-        public virtual string Literal(TimeSpan value) =>
-            $"new TimeSpan({value.Days}, {value.Hours}, {value.Minutes}, {value.Seconds}, {value.Milliseconds})";
+        public virtual string Literal(TimeSpan value) 
+            => string.Format(
+                CultureInfo.InvariantCulture,
+                "new TimeSpan({0}, {1}, {2}, {3}, {4})", 
+                value.Days, 
+                value.Hours, 
+                value.Minutes, 
+                value.Seconds, 
+                value.Milliseconds);
 
         public virtual string Literal(uint value) => value + "u";
         public virtual string Literal(ulong value) => value + "ul";

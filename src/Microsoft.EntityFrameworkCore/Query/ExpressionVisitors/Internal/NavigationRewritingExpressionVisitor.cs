@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -824,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var joinClause
                 = new JoinClause(
-                    $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}",
+                    $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}", // Interpolation okay; strings
                     targetEntityType.ClrType,
                     CreateEntityQueryable(targetEntityType),
                     outerKeySelector,
@@ -1182,7 +1183,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 private static Expression InjectSubquery(Expression expression, INavigation collectionNavigation)
                 {
                     var targetType = collectionNavigation.GetTargetType().ClrType;
-                    var mainFromClause = new MainFromClause(targetType.Name.Substring(0, 1).ToLower(), targetType, expression);
+                    var mainFromClause = new MainFromClause(targetType.Name.Substring(0, 1).ToLower(CultureInfo.InvariantCulture), targetType, expression);
                     var selector = new QuerySourceReferenceExpression(mainFromClause);
 
                     var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));

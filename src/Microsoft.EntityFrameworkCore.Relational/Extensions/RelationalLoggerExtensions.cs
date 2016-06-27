@@ -63,8 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
 
                             return RelationalStrings.RelationalLoggerExecutedCommand(
-                                string.Format($"{elapsedMilliseconds:N0}"),
+                                string.Format(
+                                    CultureInfo.InvariantCulture, 
+                                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", elapsedMilliseconds)),
                                 state.Parameters
+                                    // Interpolation okay here because value is always a string.
                                     .Select(p => $"{p.Name}={FormatParameter(p)}")
                                     .Join(),
                                 state.CommandType,
@@ -105,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(" (Size = ")
-                    .Append(parameterData.Size)
+                    .Append(parameterData.Size.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
@@ -113,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(" (Precision = ")
-                    .Append(parameterData.Precision)
+                    .Append(parameterData.Precision.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
@@ -121,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(" (Scale = ")
-                    .Append(parameterData.Scale)
+                    .Append(parameterData.Scale.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 

@@ -517,6 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (substitutions != null)
             {
                 // ReSharper disable once CoVariantArrayConversion
+                // InvariantCulture not needed since substitutions are all strings
                 sql = string.Format(sql, substitutions);
             }
 
