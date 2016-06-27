@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -1076,7 +1077,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             IQuerySource fromClause, QueryModel queryModel, int index, Type transparentIdentifierType)
         {
             CurrentParameter
-                = Expression.Parameter(transparentIdentifierType, $"t{_transparentParameterCounter++}");
+                = Expression.Parameter(
+                    transparentIdentifierType, 
+                    string.Format(CultureInfo.InvariantCulture, "t{0}", _transparentParameterCounter++));
 
             var outerAccessExpression
                 = AccessOuterTransparentField(transparentIdentifierType, CurrentParameter);

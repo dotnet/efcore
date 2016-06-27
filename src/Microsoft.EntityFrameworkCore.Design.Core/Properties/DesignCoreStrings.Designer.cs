@@ -378,6 +378,14 @@ namespace Microsoft.EntityFrameworkCore
             return string.Format(CultureInfo.CurrentCulture, GetString("InvokeStartupMethodFailed", "method", "startupClass", "error"), method, startupClass, error);
         }
 
+        /// <summary>
+        /// Could not serialize {obj} [{name}]
+        /// </summary>
+        public static string CouldNotSerialize ([CanBeNull] object obj, [CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CouldNotSerialize ", "obj", "name"), obj, name);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

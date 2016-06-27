@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         // => "namespace $(rootnamespace).A.B.C"
         private string SubnamespaceFromOutputPath(string outputDir)
         {
-            if (outputDir == null || !outputDir.StartsWith(_projectDir))
+            if (outputDir == null || !outputDir.StartsWith(_projectDir, StringComparison.Ordinal))
             {
                 return null;
             }

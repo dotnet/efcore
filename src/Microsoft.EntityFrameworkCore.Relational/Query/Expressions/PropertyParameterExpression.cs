@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <summary>
         ///     Name of the property parameter when used in DbCommands.
         /// </summary>
-        public virtual string PropertyParameterName => $"{Name}_{Property.Name}";
+        public virtual string PropertyParameterName => $"{Name}_{Property.Name}"; // Interpolation okay; strings.
 
         /// <summary>
         /// Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public override string ToString() => Name;
 
         /// <summary>
-        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
+        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the
         ///     reduced expression.
         ///     Throws an exception if the node isn't reducible.
         /// </summary>

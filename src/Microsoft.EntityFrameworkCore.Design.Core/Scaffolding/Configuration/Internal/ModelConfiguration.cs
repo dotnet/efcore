@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -205,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                         _configurationFactory.CreateFluentApiConfiguration(
                             false,
                             nameof(RelationalSequenceBuilder.StartsAt),
-                            sequence.StartValue.ToString()));
+                            sequence.StartValue.ToString(CultureInfo.InvariantCulture)));
                 }
                 if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
                 {
@@ -213,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                         _configurationFactory.CreateFluentApiConfiguration(
                             false,
                             nameof(RelationalSequenceBuilder.IncrementsBy),
-                            sequence.IncrementBy.ToString()));
+                            sequence.IncrementBy.ToString(CultureInfo.InvariantCulture)));
                 }
 
                 if (sequence.MinValue != Sequence.DefaultMinValue)
@@ -222,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                         _configurationFactory.CreateFluentApiConfiguration(
                             false,
                             nameof(RelationalSequenceBuilder.HasMin),
-                            sequence.MinValue.ToString()));
+                            sequence.MinValue?.ToString(CultureInfo.InvariantCulture) ?? ""));
                 }
 
                 if (sequence.MaxValue != Sequence.DefaultMaxValue)
@@ -231,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                         _configurationFactory.CreateFluentApiConfiguration(
                             false,
                             nameof(RelationalSequenceBuilder.HasMax),
-                            sequence.MaxValue.ToString()));
+                            sequence.MaxValue?.ToString(CultureInfo.InvariantCulture) ?? ""));
                 }
 
                 if (sequence.IsCyclic != Sequence.DefaultIsCyclic)

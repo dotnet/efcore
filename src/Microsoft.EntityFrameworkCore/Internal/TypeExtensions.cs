@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
 
                 var name = part.Substring(0, num);
-                var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));
+                var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1), CultureInfo.InvariantCulture);
                 sb.Append(fullName ? name : genericSimpleName.Substring(0, genericSimpleName.IndexOf('`')));
                 AppendGenericArguments(genericArguments, index, numberOfGenericTypeArgs, sb, fullName);
                 return;
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 if (num != -1)
                 {
                     var name = part.Substring(0, num);
-                    var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));
+                    var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1), CultureInfo.InvariantCulture);
                     if (fullName || (i == totalParts - 1))
                     {
                         sb.Append(name);
