@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -13,6 +14,74 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact]
+        public override ModelBuilder Non_public_annotations_are_enabled()
+        {
+            var modelBuilder = base.Non_public_annotations_are_enabled();
+
+            var relational = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Key_and_column_work_together()
+        {
+            var modelBuilder = base.Key_and_column_work_together();
+
+            var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Key_and_MaxLength_64_produce_nvarchar_64()
+        {
+            var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
+
+            var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
+            Assert.Equal("nvarchar(64)", new SqlServerTypeMapper().FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength()
+        {
+            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
+
+            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
+            Assert.Equal("rowversion", new SqlServerTypeMapper().FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength_with_value()
+        {
+            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
+
+            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp");
+            Assert.Equal("rowversion", new SqlServerTypeMapper().FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
+        {
+            var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
+
+            var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).Relational();
+            Assert.Equal("A", relational.TableName);
+
+            return modelBuilder;
         }
 
         public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()

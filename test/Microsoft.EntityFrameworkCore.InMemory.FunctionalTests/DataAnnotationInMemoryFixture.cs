@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +19,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                .AddSingleton<ThrowingModelValidator>()
                 .BuildServiceProvider();
+        }
+
+        public override ModelValidator ThrowingValidator
+            => _serviceProvider.GetService<ThrowingModelValidator>();
+
+        private class ThrowingModelValidator : ModelValidator
+        {
+            protected override void ShowWarning(string message)
+            {
+                throw new InvalidOperationException(message);
+            }
         }
 
         public override InMemoryTestStore CreateTestStore()
