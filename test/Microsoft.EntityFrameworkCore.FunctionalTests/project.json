@@ -10,8 +10,8 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*"
+    "dotnet-test-xunit": "1.0.0-rc3-000000-00",
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -22,10 +22,10 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0",
           "type": "platform"
         },
-        "Microsoft.CSharp": "4.0.1-*"
+        "Microsoft.CSharp": "4.0.1"
       }
     },
     "net451": {

@@ -16,10 +16,10 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0",
           "type": "platform"
         },
-        "System.Threading.Tasks.Parallel": "4.0.1-*"
+        "System.Threading.Tasks.Parallel": "4.0.1"
       }
     },
     "net451": {}
