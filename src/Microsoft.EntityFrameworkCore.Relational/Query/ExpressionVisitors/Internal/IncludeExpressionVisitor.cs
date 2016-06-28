@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var targetTableName = _relationalAnnotationProvider.For(targetEntityType).TableName;
                 var targetTableAlias
                     = _queryCompilationContext
-                        .CreateUniqueTableAlias(targetTableName[0].ToString().ToLower(CultureInfo.InvariantCulture));
+                        .CreateUniqueTableAlias(targetTableName[0].ToString().ToLowerInvariant());
 
                 if (!navigation.IsCollection())
                 {
