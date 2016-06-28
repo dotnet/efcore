@@ -69,15 +69,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 });
 
         [Fact]
-        public virtual void AddColumnOperation_with_unicode_overridden()
+        public virtual void AddColumnOperation_with_unicode()
             => Generate(
-                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name"),
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
                 new AddColumnOperation
                 {
                     Table = "Person",
                     Name = "Name",
                     ClrType = typeof(string),
                     IsUnicode = false,
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_unicode_overridden()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsUnicode = true,
                     IsNullable = true
                 });
 

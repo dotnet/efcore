@@ -807,6 +807,28 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         }
 
         [ConditionalFact]
+        public void Property_unicodeness_is_stored_in_snapshot()
+        {
+            Test(
+                builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsUnicode(false); },
+                @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Name"")
+            .HasAnnotation(""Unicode"", false);
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithStringProperty"");
+    });
+",
+                o => { Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()); });
+        }
+
+        [ConditionalFact]
         public void Property_RequiresValueGenerator_is_not_stored_in_snapshot()
         {
             Test(

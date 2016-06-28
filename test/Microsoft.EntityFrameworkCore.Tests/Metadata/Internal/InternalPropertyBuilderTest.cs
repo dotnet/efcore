@@ -156,6 +156,37 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Can_only_override_lower_or_equal_source_unicode()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.True(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.IsUnicode(false, ConfigurationSource.DataAnnotation));
+
+            Assert.False(metadata.IsUnicode().Value);
+
+            Assert.False(builder.IsUnicode(true, ConfigurationSource.Convention));
+            Assert.False(metadata.IsUnicode().Value);
+        }
+
+        [Fact]
+        public void Can_only_override_existing_unicode_value_explicitly()
+        {
+            var metadata = CreateProperty();
+            metadata.IsUnicode(true);
+            var builder = CreateInternalPropertyBuilder(metadata);
+
+            Assert.True(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.IsUnicode(false, ConfigurationSource.DataAnnotation));
+
+            Assert.True(metadata.IsUnicode().Value);
+
+            Assert.True(builder.IsUnicode(false, ConfigurationSource.Explicit));
+            Assert.False(metadata.IsUnicode().Value);
+        }
+
+        [Fact]
         public void Can_only_override_lower_or_equal_source_Required()
         {
             var builder = CreateInternalPropertyBuilder();

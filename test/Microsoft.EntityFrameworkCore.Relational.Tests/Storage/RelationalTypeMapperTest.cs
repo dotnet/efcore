@@ -172,6 +172,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         }
 
         [Fact]
+        public void String_key_with_unicode_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "ansi_string(900)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "ansi_string(900)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
         public void Key_store_type_if_preferred_if_specified()
         {
             var model = CreateModel();
@@ -214,6 +229,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             Assert.Equal(
                 "just_binary(767)",
                 mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
+        }
+
+        [Fact]
+        public void String_FK_unicode_is_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "ansi_string(900)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "just_string(450)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
         }
     }
 }

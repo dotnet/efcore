@@ -6,8 +6,6 @@ using System.Data;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Storage;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -129,10 +127,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal("decimal(18, 2)", typeMapping.StoreType);
         }
 
-        [Fact]
-        public void Does_non_key_SQL_Server_string_mapping()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_non_key_SQL_Server_string_mapping(bool? unicode)
         {
-            var typeMapping = GetTypeMapping(typeof(string));
+            var typeMapping = GetTypeMapping(typeof(string), unicode: unicode);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
@@ -141,10 +141,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        [Fact]
-        public void Does_non_key_SQL_Server_string_mapping_with_max_length()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_non_key_SQL_Server_string_mapping_with_max_length(bool? unicode)
         {
-            var typeMapping = GetTypeMapping(typeof(string), null, 3);
+            var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(3)", typeMapping.StoreType);
@@ -153,10 +155,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        [Fact]
-        public void Does_non_key_SQL_Server_string_mapping_with_long_string()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_non_key_SQL_Server_string_mapping_with_long_string(bool? unicode)
         {
-            var typeMapping = GetTypeMapping(typeof(string));
+            var typeMapping = GetTypeMapping(typeof(string), unicode: unicode);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
@@ -165,10 +169,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 4001)).Size);
         }
 
-        [Fact]
-        public void Does_non_key_SQL_Server_string_mapping_with_max_length_with_long_string()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_non_key_SQL_Server_string_mapping_with_max_length_with_long_string(bool? unicode)
         {
-            var typeMapping = GetTypeMapping(typeof(string), null, 3);
+            var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(3)", typeMapping.StoreType);
@@ -177,10 +183,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 4001)).Size);
         }
 
-        [Fact]
-        public void Does_non_key_SQL_Server_required_string_mapping()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_non_key_SQL_Server_required_string_mapping(bool? unicode)
         {
-            var typeMapping = GetTypeMapping(typeof(string), isNullable: false);
+            var typeMapping = GetTypeMapping(typeof(string), nullable: false, unicode: unicode);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
@@ -189,11 +197,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        [Fact]
-        public void Does_key_SQL_Server_string_mapping()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_key_SQL_Server_string_mapping(bool? unicode)
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
             property.IsNullable = false;
+            property.IsUnicode(unicode);
             property.DeclaringEntityType.SetPrimaryKey(property);
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
@@ -205,11 +216,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        [Fact]
-        public void Does_foreign_key_SQL_Server_string_mapping()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_foreign_key_SQL_Server_string_mapping(bool? unicode)
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
             property.IsNullable = false;
+            property.IsUnicode(unicode);
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
@@ -223,11 +237,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        [Fact]
-        public void Does_required_foreign_key_SQL_Server_string_mapping()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_required_foreign_key_SQL_Server_string_mapping(bool? unicode)
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
             property.IsNullable = false;
+            property.IsUnicode(unicode);
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
@@ -242,11 +259,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        [Fact]
-        public void Does_indexed_column_SQL_Server_string_mapping()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void Does_indexed_column_SQL_Server_string_mapping(bool? unicode)
         {
             var entityType = CreateEntityType();
             var property = entityType.AddProperty("MyProp", typeof(string));
+            property.IsUnicode(unicode);
             entityType.AddIndex(property);
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
@@ -256,6 +276,139 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(450, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
             Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [Fact]
+        public void Does_non_key_SQL_Server_string_mapping_ansi()
+        {
+            var typeMapping = GetTypeMapping(typeof(string), unicode: false);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(max)", typeMapping.StoreType);
+            Assert.Equal(8000, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [Fact]
+        public void Does_non_key_SQL_Server_string_mapping_with_max_length_ansi()
+        {
+            var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(3)", typeMapping.StoreType);
+            Assert.Equal(3, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [Fact]
+        public void Does_non_key_SQL_Server_string_mapping_with_long_string_ansi()
+        {
+            var typeMapping = GetTypeMapping(typeof(string), unicode: false);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(max)", typeMapping.StoreType);
+            Assert.Equal(8000, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 8001)).Size);
+        }
+
+        [Fact]
+        public void Does_non_key_SQL_Server_string_mapping_with_max_length_with_long_string_ansi()
+        {
+            var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(3)", typeMapping.StoreType);
+            Assert.Equal(3, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 8001)).Size);
+        }
+
+        [Fact]
+        public void Does_non_key_SQL_Server_required_string_mapping_ansi()
+        {
+            var typeMapping = GetTypeMapping(typeof(string), nullable: false, unicode: false);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(max)", typeMapping.StoreType);
+            Assert.Equal(8000, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [Fact]
+        public void Does_key_SQL_Server_string_mapping_ansi()
+        {
+            var property = CreateEntityType().AddProperty("MyProp", typeof(string));
+            property.IsNullable = false;
+            property.IsUnicode(false);
+            property.DeclaringEntityType.SetPrimaryKey(property);
+
+            var typeMapping = new SqlServerTypeMapper().GetMapping(property);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(900)", typeMapping.StoreType);
+            Assert.Equal(900, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [Fact]
+        public void Does_foreign_key_SQL_Server_string_mapping_ansi()
+        {
+            var property = CreateEntityType().AddProperty("MyProp", typeof(string));
+            property.IsUnicode(false);
+            property.IsNullable = false;
+            var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
+            var pk = property.DeclaringEntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+
+            var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(900)", typeMapping.StoreType);
+            Assert.Equal(900, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [Fact]
+        public void Does_required_foreign_key_SQL_Server_string_mapping_ansi()
+        {
+            var property = CreateEntityType().AddProperty("MyProp", typeof(string));
+            property.IsUnicode(false);
+            property.IsNullable = false;
+            var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
+            var pk = property.DeclaringEntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+            fkProperty.IsNullable = false;
+
+            var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(900)", typeMapping.StoreType);
+            Assert.Equal(900, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [Fact]
+        public void Does_indexed_column_SQL_Server_string_mapping_ansi()
+        {
+            var entityType = CreateEntityType();
+            var property = entityType.AddProperty("MyProp", typeof(string));
+            property.IsUnicode(false);
+            entityType.AddIndex(property);
+
+            var typeMapping = new SqlServerTypeMapper().GetMapping(property);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(900)", typeMapping.StoreType);
+            Assert.Equal(900, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
         [Fact]
@@ -281,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
-        public void Does_non_key_SQL_Server_binary_mapping_with_long_string()
+        public void Does_non_key_SQL_Server_binary_mapping_with_long_array()
         {
             var typeMapping = GetTypeMapping(typeof(byte[]));
 
@@ -292,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
-        public void Does_non_key_SQL_Server_binary_mapping_with_max_length_with_long_string()
+        public void Does_non_key_SQL_Server_binary_mapping_with_max_length_with_long_array()
         {
             var typeMapping = GetTypeMapping(typeof(byte[]), null, 3);
 
@@ -305,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Does_non_key_SQL_Server_required_binary_mapping()
         {
-            var typeMapping = GetTypeMapping(typeof(byte[]), isNullable: false);
+            var typeMapping = GetTypeMapping(typeof(byte[]), nullable: false);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(max)", typeMapping.StoreType);
@@ -429,18 +582,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal("varbinary(max)", typeMapping.StoreType);
         }
 
-        private static RelationalTypeMapping GetTypeMapping(Type propertyType, bool? isNullable = null, int? maxLength = null)
+        private static RelationalTypeMapping GetTypeMapping(
+            Type propertyType,
+            bool? nullable = null,
+            int? maxLength = null,
+            bool? unicode = null)
         {
             var property = CreateEntityType().AddProperty("MyProp", propertyType);
 
-            if (isNullable.HasValue)
+            if (nullable.HasValue)
             {
-                property.IsNullable = isNullable.Value;
+                property.IsNullable = nullable.Value;
             }
 
             if (maxLength.HasValue)
             {
                 property.SetMaxLength(maxLength);
+            }
+
+            if (unicode.HasValue)
+            {
+                property.IsUnicode(unicode);
             }
 
             return new SqlServerTypeMapper().GetMapping(property);
@@ -608,6 +770,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
+        public void String_key_with_unicode_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "varchar(900)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "varchar(900)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
         public void Key_store_type_if_preferred_if_specified()
         {
             var model = CreateModel();
@@ -650,6 +827,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(
                 "varbinary(767)",
                 mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
+        }
+
+        [Fact]
+        public void String_FK_unicode_is_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "varchar(900)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "nvarchar(450)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
         }
 
         private enum LongEnum : long

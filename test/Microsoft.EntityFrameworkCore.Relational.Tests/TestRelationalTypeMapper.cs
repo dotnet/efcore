@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("just_string(2000)", typeof(string));
         private static readonly RelationalTypeMapping _unboundedString = new RelationalTypeMapping("just_string(max)", typeof(string));
         private static readonly RelationalTypeMapping _stringKey = new RelationalTypeMapping("just_string(450)", typeof(string), dbType: null, unicode: true, size: 450);
+        private static readonly RelationalTypeMapping _ansiStringKey = new RelationalTypeMapping("ansi_string(900)", typeof(string), dbType: null, unicode: true, size: 450);
         private static readonly RelationalTypeMapping _unboundedBinary = new RelationalTypeMapping("just_binary(max)", typeof(byte[]), DbType.Binary);
         private static readonly RelationalTypeMapping _binary = new RelationalTypeMapping("just_binary(max)", typeof(byte[]), DbType.Binary);
         private static readonly RelationalTypeMapping _binaryKey = new RelationalTypeMapping("just_binary(900)", typeof(byte[]), DbType.Binary, unicode: true, size: 900);
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 2000,
                 _string,
                 _unboundedString,
-                _stringKey,
+                _ansiStringKey,
                 size => new RelationalTypeMapping(
                     "just_string(" + size + ")",
                     typeof(string),

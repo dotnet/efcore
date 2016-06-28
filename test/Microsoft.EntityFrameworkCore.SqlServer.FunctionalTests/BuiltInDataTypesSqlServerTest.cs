@@ -20,6 +20,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public virtual void Can_perform_query_with_ansi_strings()
+        {
+            Can_perform_query_with_ansi_strings(supportsAnsi: true);
+        }
+
+        [Fact]
         public void Sql_translation_uses_type_mapper_when_constant()
         {
             using (var context = CreateContext())
@@ -2005,6 +2011,12 @@ MaxLengthDataTypes.String9000 ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
+UnicodeDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
+UnicodeDataTypes.StringAnsi ---> [nullable varchar] [MaxLength = -1]
+UnicodeDataTypes.StringAnsi3 ---> [nullable varchar] [MaxLength = 3]
+UnicodeDataTypes.StringAnsi9000 ---> [nullable varchar] [MaxLength = -1]
+UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
+UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
             Assert.Equal(expected, actual);

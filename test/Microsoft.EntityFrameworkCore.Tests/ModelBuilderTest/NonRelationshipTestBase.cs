@@ -617,6 +617,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Can_set_unicode_for_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                    {
+                        b.Property(e => e.Up).IsUnicode();
+                        b.Property(e => e.Down).IsUnicode(false);
+                        b.Property<int>("Charm").IsUnicode();
+                        b.Property<string>("Strange").IsUnicode(false);
+                        b.Property<int>("Top").IsUnicode();
+                        b.Property<string>("Bottom").IsUnicode(false);
+                    });
+
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty(Customer.IdProperty.Name).IsUnicode());
+                Assert.Equal(true, entityType.FindProperty("Up").IsUnicode());
+                Assert.Equal(false, entityType.FindProperty("Down").IsUnicode());
+                Assert.Equal(true, entityType.FindProperty("Charm").IsUnicode());
+                Assert.Equal(false, entityType.FindProperty("Strange").IsUnicode());
+                Assert.Equal(true, entityType.FindProperty("Top").IsUnicode());
+                Assert.Equal(false, entityType.FindProperty("Bottom").IsUnicode());
+            }
+
+            [Fact]
             public virtual void PropertyBuilder_methods_can_be_chained()
             {
                 CreateModelBuilder()
@@ -628,6 +655,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .ValueGeneratedNever()
                     .ValueGeneratedOnAdd()
                     .ValueGeneratedOnAddOrUpdate()
+                    .IsUnicode()
                     .HasMaxLength(100)
                     .IsRequired();
             }

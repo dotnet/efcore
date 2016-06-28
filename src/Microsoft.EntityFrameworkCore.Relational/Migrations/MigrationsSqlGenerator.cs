@@ -677,8 +677,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = FindProperty(model, schema, table, name);
             if (property != null)
             {
-                // TODO: Allow unicode to be overridden with #3420
-                if (maxLength == property.GetMaxLength()
+                if (unicode == property.IsUnicode()
+                    && maxLength == property.GetMaxLength()
                     && rowVersion == (property.IsConcurrencyToken && (property.ValueGenerated == ValueGenerated.OnAddOrUpdate)))
                 {
                     return TypeMapper.GetMapping(property).StoreType;

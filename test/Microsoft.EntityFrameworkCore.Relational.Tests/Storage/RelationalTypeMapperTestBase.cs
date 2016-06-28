@@ -21,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             builder.Entity<MyRelatedType1>().Property(e => e.Relationship2Id).HasColumnType("dec");
             builder.Entity<MyRelatedType2>().Property(e => e.Id).HasMaxLength(100);
             builder.Entity<MyRelatedType2>().Property(e => e.Relationship2Id).HasMaxLength(787);
+            builder.Entity<MyRelatedType3>().Property(e => e.Id).IsUnicode(false);
             builder.Entity<MyRelatedType3>().Property(e => e.Relationship2Id).HasMaxLength(767);
+            builder.Entity<MyRelatedType4>().Property(e => e.Relationship2Id).IsUnicode();
 
             return builder.Model;
         }
@@ -62,6 +64,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 
             public byte[] Relationship2Id { get; set; }
             public MyRelatedType2 Relationship2 { get; set; }
+        }
+
+        protected class MyRelatedType4
+        {
+            public string Id { get; set; }
+
+            public string Relationship1Id { get; set; }
+            public MyRelatedType3 Relationship1 { get; set; }
+
+            public string Relationship2Id { get; set; }
+            public MyRelatedType3 Relationship2 { get; set; }
         }
     }
 }

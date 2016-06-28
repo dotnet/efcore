@@ -197,11 +197,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            // TODO: Use unicode-ness defined in property metadata
+            var principal = property.FindPrincipal();
+
             return StringMapper?.FindMapping(
-                true,
+                property.IsUnicode() ?? principal?.IsUnicode() ?? true,
                 RequiresKeyMapping(property),
-                property.GetMaxLength() ?? property.FindPrincipal()?.GetMaxLength());
+                property.GetMaxLength() ?? principal?.GetMaxLength());
         }
 
         /// <summary>
