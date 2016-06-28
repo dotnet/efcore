@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         private static readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("rowversion", typeof(byte[]), DbType.Binary, unicode: true, size: 8);
         private static readonly RelationalTypeMapping _defaultIntMapping = new RelationalTypeMapping("default_int_mapping", typeof(int));
         private static readonly RelationalTypeMapping _someIntMapping = new RelationalTypeMapping("some_int_mapping", typeof(int));
+        private static readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(decimal));
 
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
@@ -35,7 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 { "some_int_mapping", _someIntMapping },
                 { "some_string(max)", _string },
-                { "some_binary(max)", _binary }
+                { "some_binary(max)", _binary },
+                { "money", _decimal },
+                { "dec", _decimal }
             };
 
         public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }

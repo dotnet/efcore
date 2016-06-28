@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 {
-    public class RelationalTypeMapperTest
+    public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     {
         [Fact]
         public void Does_simple_mapping_from_CLR_type()
@@ -127,6 +126,94 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             return new TestRelationalTypeMapper().GetMapping(property);
         }
 
-        private static EntityType CreateEntityType() => new Model().AddEntityType("MyType");
+        [Fact]
+        public void Key_with_store_type_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "money",
+                mapper.FindMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "money",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
+        public void String_key_with_max_length_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "just_string(200)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "just_string(200)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
+        public void Binary_key_with_max_length_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "just_binary(100)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "just_binary(100)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
+        public void Key_store_type_if_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "money",
+                mapper.FindMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "dec",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
+        }
+
+        [Fact]
+        public void String_FK_max_length_is_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "just_string(200)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "just_string(787)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
+        }
+
+        [Fact]
+        public void Binary_FK_max_length_is_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new TestRelationalTypeMapper();
+
+            Assert.Equal(
+                "just_binary(100)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "just_binary(767)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
+        }
     }
 }

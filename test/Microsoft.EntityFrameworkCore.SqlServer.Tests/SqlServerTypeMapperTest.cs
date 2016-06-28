@@ -7,13 +7,15 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests;
+using Microsoft.EntityFrameworkCore.Relational.Tests.Storage;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
-    public class SqlServerTypeMapperTest
+    public class SqlServerTypeMapperTest : RelationalTypeMapperTestBase
     {
         [Fact]
         public void Does_simple_SQL_Server_mappings_to_DDL_types()
@@ -444,8 +446,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             return new SqlServerTypeMapper().GetMapping(property);
         }
 
-        private static EntityType CreateEntityType() => new Model().AddEntityType("MyType");
-
         [Fact]
         public void Does_default_mappings_for_sequence_types()
         {
@@ -560,6 +560,96 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(size, mapping.Size);
             Assert.Equal(unicode, mapping.IsUnicode);
             Assert.Equal(typeName.ToLowerInvariant(), mapping.StoreType);
+        }
+
+        [Fact]
+        public void Key_with_store_type_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "money",
+                mapper.FindMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "money",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
+        public void String_key_with_max_length_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "nvarchar(200)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "nvarchar(200)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
+        public void Binary_key_with_max_length_is_picked_up_by_FK()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "varbinary(100)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "varbinary(100)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
+        }
+
+        [Fact]
+        public void Key_store_type_if_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "money",
+                mapper.FindMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "dec",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
+        }
+
+        [Fact]
+        public void String_FK_max_length_is_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "nvarchar(200)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "nvarchar(787)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
+        }
+
+        [Fact]
+        public void Binary_FK_max_length_is_preferred_if_specified()
+        {
+            var model = CreateModel();
+            var mapper = new SqlServerTypeMapper();
+
+            Assert.Equal(
+                "varbinary(100)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+
+            Assert.Equal(
+                "varbinary(767)",
+                mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
         }
 
         private enum LongEnum : long
