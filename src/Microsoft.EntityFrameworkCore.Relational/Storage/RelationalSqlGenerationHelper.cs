@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="value">The literal value.</param>
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, char value)
-            => builder.Append("'").Append(value.ToString(CultureInfo.InvariantCulture)).Append("'");
+            => builder.Append("'").Append(value.ToString()).Append("'");
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
