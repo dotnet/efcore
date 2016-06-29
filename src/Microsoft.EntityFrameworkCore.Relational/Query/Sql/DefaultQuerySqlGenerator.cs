@@ -1312,7 +1312,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (typeMapping == null)
             {
-                throw new InvalidOperationException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.Name));
+                throw new InvalidOperationException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.ShortDisplayName()));
             }
 
             _relationalCommandBuilder.Append(typeMapping.StoreType);

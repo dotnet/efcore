@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
             {
-                throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().DisplayName()));
+                throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().ShortDisplayName()));
             }
 
             _options = options;
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (_disposed)
                 {
-                    throw new ObjectDisposedException(GetType().Name, CoreStrings.ContextDisposed);
+                    throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
                 }
                 return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
             }
@@ -791,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (Model.FindEntityType(typeof(TEntity)) == null)
             {
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).Name));
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
             }
 
             return (_setInitializer

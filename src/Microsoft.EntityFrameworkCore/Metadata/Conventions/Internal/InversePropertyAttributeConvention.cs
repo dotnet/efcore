@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     .IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.InvalidNavigationWithInverseProperty(navigationPropertyInfo.Name, entityType.Name, attribute.Property, targetClrType.FullName));
+                    CoreStrings.InvalidNavigationWithInverseProperty(
+					    navigationPropertyInfo.Name, entityType.DisplayName(), attribute.Property, targetClrType.ShortDisplayName()));
             }
 
             if (inverseNavigationPropertyInfo == navigationPropertyInfo)
@@ -78,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 throw new InvalidOperationException(
                     CoreStrings.SelfReferencingNavigationWithInverseProperty(
                         navigationPropertyInfo.Name,
-                        entityType.Name,
+                        entityType.DisplayName(),
                         navigationPropertyInfo.Name,
-                        entityType.Name));
+                        entityType.DisplayName()));
             }
 
             // Check for InversePropertyAttribute on the inverseNavigation to verify that it matches.
@@ -91,9 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 throw new InvalidOperationException(
                     CoreStrings.InversePropertyMismatch(
                         navigationPropertyInfo.Name,
-                        entityType.Name,
+                        entityType.DisplayName(),
                         inverseNavigationPropertyInfo.Name,
-                        targetEntityTypeBuilder.Metadata.Name));
+                        targetEntityTypeBuilder.Metadata.DisplayName()));
             }
 
             var inverseNavigationsList = AddInverseNavigation(

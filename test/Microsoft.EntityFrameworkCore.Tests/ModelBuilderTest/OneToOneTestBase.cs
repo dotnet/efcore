@@ -2333,7 +2333,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
+                Assert.Equal(CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
@@ -2373,7 +2373,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
+                Assert.Equal(CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
@@ -2414,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
+                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
@@ -2454,7 +2454,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
+                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)

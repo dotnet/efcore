@@ -62,12 +62,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         FieldInfo fieldInfo;
                         if (!fields.TryGetValue(fieldName, out fieldInfo))
                         {
-                            throw new InvalidOperationException(CoreStrings.MissingBackingField(entityType.Name, propertyName, fieldName));
+                            throw new InvalidOperationException(
+                                CoreStrings.MissingBackingField(entityType.DisplayName(), propertyName, fieldName));
                         }
                         if (!fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(property.ClrType.GetTypeInfo()))
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.BadBackingFieldType(fieldName, fieldInfo.FieldType.Name, entityType.Name, propertyName, property.ClrType.Name));
+                                CoreStrings.BadBackingFieldType(
+                                    fieldName, 
+                                    fieldInfo.FieldType.ShortDisplayName(), 
+                                    entityType.DisplayName(), 
+                                    propertyName, 
+                                    property.ClrType.ShortDisplayName()));
                         }
                         memberInfo = fieldInfo;
                     }
@@ -89,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (memberInfo == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NoFieldOrSetter(entityType.Name, propertyName));
+                    throw new InvalidOperationException(CoreStrings.NoFieldOrSetter(entityType.DisplayName(), propertyName));
                 }
 
                 propertyMappings.Add(Tuple.Create(property, memberInfo));

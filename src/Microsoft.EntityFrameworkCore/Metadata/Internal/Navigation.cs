@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(CoreStrings.NoClrNavigation(
-                        navigationProperty.Name, sourceClrType.DisplayName(fullName: false)));
+                        navigationProperty.Name, sourceClrType.ShortDisplayName()));
                 }
                 return false;
             }
@@ -153,9 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         throw new InvalidOperationException(CoreStrings.NavigationCollectionWrongClrType(
                             navigationProperty.Name,
-                            sourceClrType.DisplayName(fullName: false),
-                            navigationProperty.PropertyType.DisplayName(fullName: false),
-                            targetClrType.DisplayName(fullName: false)));
+                            sourceClrType.ShortDisplayName(),
+                            navigationProperty.PropertyType.ShortDisplayName(),
+                            targetClrType.ShortDisplayName()));
                     }
                     return false;
                 }
@@ -166,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         throw new InvalidOperationException(CoreStrings.NavigationSingleWrongClrType(
                             navigationProperty.Name,
-                            sourceClrType.DisplayName(fullName: false),
-                            navigationProperty.PropertyType.DisplayName(fullName: false),
-                            targetClrType.DisplayName(fullName: false)));
+                            sourceClrType.ShortDisplayName(),
+                            navigationProperty.PropertyType.ShortDisplayName(),
+                            targetClrType.ShortDisplayName()));
                     }
                     return false;
                 }

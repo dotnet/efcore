@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType());
             if (firstShadowEntity != null)
             {
-                ShowError(CoreStrings.ShadowEntity(firstShadowEntity.Name));
+                ShowError(CoreStrings.ShadowEntity(firstShadowEntity.DisplayName()));
             }
         }
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var entityTypeWithNullPk = model.GetEntityTypes().FirstOrDefault(et => et.FindPrimaryKey() == null);
             if (entityTypeWithNullPk != null)
             {
-                ShowError(CoreStrings.EntityRequiresKey(entityTypeWithNullPk.Name));
+                ShowError(CoreStrings.EntityRequiresKey(entityTypeWithNullPk.DisplayName()));
             }
         }
 

@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(".");
             }
 
-            builder.Append(type.DisplayName(fullName: false));
+            builder.Append(type.ShortDisplayName());
 
             return builder.ToString();
         }

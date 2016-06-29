@@ -451,15 +451,15 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Quarks>(b =>
                     {
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Up", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Up", "Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Charm", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Charm", "Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Top", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Top", "Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 

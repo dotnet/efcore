@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             model.AddEntityType(typeof(Customer));
 
             Assert.Equal(
-                CoreStrings.DuplicateEntityType(typeof(Customer).FullName),
+                CoreStrings.DuplicateEntityType(nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer))).Message);
         }
 

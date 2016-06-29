@@ -235,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
                     else
                     {
-                        _logger.Value.LogWarning(DesignCoreStrings.NoMigrationFile(migrationFileName, migration.GetType().FullName));
+                        _logger.Value.LogWarning(
+                            DesignCoreStrings.NoMigrationFile(migrationFileName, migration.GetType().ShortDisplayName()));
                     }
 
                     var migrationMetadataFileName = migration.GetId() + ".Designer" + language;
@@ -274,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 else
                 {
                     _logger.Value.LogWarning(
-                        DesignCoreStrings.NoSnapshotFile(modelSnapshotFileName, modelSnapshot.GetType().FullName));
+                        DesignCoreStrings.NoSnapshotFile(modelSnapshotFileName, modelSnapshot.GetType().ShortDisplayName()));
                 }
             }
             else
@@ -341,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var lastNamespace = siblingType.Namespace;
                 if (lastNamespace != defaultNamespace)
                 {
-                    _logger.Value.LogDebug(DesignCoreStrings.ReusingNamespace(siblingType.Name));
+                    _logger.Value.LogDebug(DesignCoreStrings.ReusingNamespace(siblingType.ShortDisplayName()));
 
                     return lastNamespace;
                 }

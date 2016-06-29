@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (!entityType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                     {
-                        throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this.DisplayName(), entityType.DisplayName(), ClrType.DisplayName(fullName: false), entityType.ClrType.DisplayName(fullName: false)));
+                        throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this.DisplayName(), entityType.DisplayName(), ClrType.ShortDisplayName(), entityType.ClrType.ShortDisplayName()));
                     }
                 }
 
@@ -640,7 +640,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKey = key.GetReferencingForeignKeys().FirstOrDefault();
             if (foreignKey != null)
             {
-                throw new InvalidOperationException(CoreStrings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.DeclaringEntityType.Name));
+                throw new InvalidOperationException(
+                    CoreStrings.KeyInUse(Property.Format(key.Properties), this.DisplayName(), foreignKey.DeclaringEntityType.DisplayName()));
             }
         }
 
@@ -1388,8 +1389,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(
                             name,
                             this.DisplayName(),
-                            clrProperty.PropertyType.DisplayName(fullName: false),
-                            propertyType.DisplayName(fullName: false)));
+                            clrProperty.PropertyType.ShortDisplayName(),
+                            propertyType.ShortDisplayName()));
                     }
 
                     return AddProperty(clrProperty, configurationSource, runConventions);
@@ -1436,7 +1437,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || !propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
             {
                 throw new ArgumentException(CoreStrings.PropertyWrongEntityClrType(
-                    propertyInfo.Name, this.DisplayName(), propertyInfo.DeclaringType?.Name));
+                    propertyInfo.Name, this.DisplayName(), propertyInfo.DeclaringType?.ShortDisplayName()));
             }
 
             return AddProperty(new Property(propertyInfo, this, configurationSource), runConventions);

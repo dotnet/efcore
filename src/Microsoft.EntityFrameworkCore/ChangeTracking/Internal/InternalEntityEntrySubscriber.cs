@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.ChangeTrackingInterfaceMissing(
-                        entityType.DisplayName(), changeTrackingStrategy, typeof(INotifyPropertyChanged).Name));
+                        entityType.DisplayName(), changeTrackingStrategy, nameof(INotifyPropertyChanged)));
             }
 
             return changed;
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.ChangeTrackingInterfaceMissing(
-                        entityType.DisplayName(), changeTrackingStrategy, typeof(INotifyPropertyChanging).Name));
+                        entityType.DisplayName(), changeTrackingStrategy, nameof(INotifyPropertyChanging)));
             }
 
             return changing;

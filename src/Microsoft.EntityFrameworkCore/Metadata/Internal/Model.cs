@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _entityTypes[entityType.Name] = entityType;
             if (previousLength == _entityTypes.Count)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
             }
 
             if (runConventions)

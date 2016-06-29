@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (!entityType.HasClrType())
             {
-                throw new InvalidOperationException(CoreStrings.NoClrType(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.NoClrType(entityType.DisplayName()));
             }
 
             if (entityType.IsAbstract())

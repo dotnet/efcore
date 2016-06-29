@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (entityType == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().DisplayName(false)));
+                    throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
                 }
 
                 entry = _factory.Create(this, entityType, entity);
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (entry.StateManager != this)
             {
-                throw new InvalidOperationException(CoreStrings.WrongStateManager(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.WrongStateManager(entityType.DisplayName()));
             }
 
             var mapKey = entry.Entity ?? entry;
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else
             {
-                throw new InvalidOperationException(CoreStrings.MultipleEntries(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.MultipleEntries(entityType.DisplayName()));
             }
 
             foreach (var key in entityType.GetKeys())

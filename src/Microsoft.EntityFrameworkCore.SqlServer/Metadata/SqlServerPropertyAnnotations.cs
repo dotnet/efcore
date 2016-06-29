@@ -109,14 +109,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         || propertyType == typeof(byte?)))
                 {
                     throw new ArgumentException(SqlServerStrings.IdentityBadType(
-                        Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
+                        Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
                 }
 
                 if ((value == SqlServerValueGenerationStrategy.SequenceHiLo)
                     && !propertyType.IsInteger())
                 {
                     throw new ArgumentException(SqlServerStrings.SequenceBadType(
-                        Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
+                        Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
                 }
             }
 

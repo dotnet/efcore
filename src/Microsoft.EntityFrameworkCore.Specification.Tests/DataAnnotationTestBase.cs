@@ -1401,7 +1401,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             var modelBuilder = CreateModelBuilder();
 
-            Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("B", typeof(A).DisplayName(), "A", typeof(B).DisplayName()),
+            Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("B", nameof(A), "A", nameof(B)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
         }
 
@@ -1410,7 +1410,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             var modelBuilder = CreateModelBuilder();
 
-            Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("C", typeof(D).DisplayName(), "D", typeof(C).DisplayName()),
+            Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("C", nameof(D), "D", nameof(C)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
         }
 

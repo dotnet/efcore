@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.In
             entityTypeBuilder.Property("LongProperty", typeof(long), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.PropertyNotMapped(
-                typeof(NonPrimitiveAsPropertyEntity).DisplayName(fullName: false), "LongProperty", typeof(long).DisplayName(fullName: false)),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(), "LongProperty", typeof(long).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.In
             entityTypeBuilder.Property("LongProperty", typeof(long), ConfigurationSource.Convention).Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
 
             Assert.Equal(CoreStrings.PropertyNotMapped(
-                typeof(NonPrimitiveAsPropertyEntity).DisplayName(fullName: false), "LongProperty", typeof(long).DisplayName(fullName: false)),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(), "LongProperty", typeof(long).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 

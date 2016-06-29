@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(new Category());
 
             Assert.Equal(
-                CoreStrings.WrongStateManager(typeof(Category).FullName),
+                CoreStrings.WrongStateManager(nameof(Category)),
                 Assert.Throws<InvalidOperationException>(() => stateManager2.StartTracking(entry)).Message);
         }
 

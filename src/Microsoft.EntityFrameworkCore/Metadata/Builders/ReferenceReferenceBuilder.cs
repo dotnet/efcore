@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
                     _declaringEntityType.DisplayName(),
                     _relatedEntityType.DisplayName(),
-                    dependentEntityType.DisplayName()));
+                    dependentEntityType.ShortDisplayName()));
             }
 
             return Builder.RelatedEntityTypes(GetOtherEntityType(entityType), entityType, ConfigurationSource.Explicit);
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
                     _declaringEntityType.DisplayName(),
                     _relatedEntityType.DisplayName(),
-                    principalEntityType.DisplayName()));
+                    principalEntityType.ShortDisplayName()));
             }
 
             return Builder.RelatedEntityTypes(entityType, GetOtherEntityType(entityType), ConfigurationSource.Explicit);

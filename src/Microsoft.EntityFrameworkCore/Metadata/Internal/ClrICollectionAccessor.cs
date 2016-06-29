@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (_createCollection == null)
             {
                 throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
-                    _propertyName, typeof(TEntity).Name, typeof(TCollection).Name));
+                    _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
             }
 
             var collection = (ICollection<TElement>)_createCollection();
@@ -115,13 +115,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (_setCollection == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).Name));
+                    throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).ShortDisplayName()));
                 }
 
                 if (_createAndSetCollection == null)
                 {
                     throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
-                        _propertyName, typeof(TEntity).Name, typeof(TCollection).Name));
+                        _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
                 }
 
                 collection = (ICollection<TElement>)_createAndSetCollection((TEntity)instance, _setCollection);
@@ -140,7 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
-                        _propertyName, typeof(TEntity).Name, enumerable.GetType().Name, typeof(TElement).Name));
+                        _propertyName, 
+                        typeof(TEntity).ShortDisplayName(), 
+                        enumerable.GetType().ShortDisplayName(), 
+                        typeof(TElement).ShortDisplayName()));
             }
 
             return collection;

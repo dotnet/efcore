@@ -4483,7 +4483,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .Options;
 
             Assert.Equal(
-                CoreStrings.NonGenericOptions("Microsoft.EntityFrameworkCore.Tests.DbContextTest+NonGenericOptions2"),
+                CoreStrings.NonGenericOptions(nameof(NonGenericOptions2)),
                 Assert.Throws<InvalidOperationException>(() => new NonGenericOptions2(options)).Message);
         }
 
@@ -4500,7 +4500,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .CreateScope())
             {
                 Assert.Equal(
-                    CoreStrings.NonGenericOptions("Microsoft.EntityFrameworkCore.Tests.DbContextTest+NonGenericOptions2"),
+                    CoreStrings.NonGenericOptions(nameof(NonGenericOptions2)),
                     Assert.Throws<InvalidOperationException>(() =>
                         {
                             serviceScope.ServiceProvider.GetService<NonGenericOptions1>();
