@@ -125,6 +125,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public override void AddColumnOperation_with_ansi()
+        {
+            base.AddColumnOperation_with_ansi();
+
+            Assert.Equal(
+                "ALTER TABLE [Person] ADD [Name] varchar(max);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public override void AddColumnOperation_with_unicode_overridden()
+        {
+            base.AddColumnOperation_with_unicode_overridden();
+
+            Assert.Equal(
+                "ALTER TABLE [Person] ADD [Name] nvarchar(max);" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void AddColumnOperation_with_rowversion_overridden()
         {
             Generate(

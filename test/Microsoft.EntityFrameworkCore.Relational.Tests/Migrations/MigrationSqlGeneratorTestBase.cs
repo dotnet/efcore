@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 });
 
         [Fact]
-        public virtual void AddColumnOperation_with_unicode()
+        public virtual void AddColumnOperation_with_ansi()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
                 new AddColumnOperation
