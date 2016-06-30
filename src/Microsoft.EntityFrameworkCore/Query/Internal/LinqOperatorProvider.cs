@@ -209,16 +209,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IEnumerable<IGrouping<TKey, TOut>> _TrackGroupedEntities<TKey, TOut, TIn>(
-            IEnumerable<IGrouping<TKey, TOut>> groupings,
+        private static IEnumerable<IGrouping<TKey, TElement>> _TrackGroupedEntities<TKey, TElement>(
+            IEnumerable<IGrouping<TKey, TElement>> groupings,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
-            IList<Func<TIn, object>> entityAccessors)
-            where TIn : class
+            IList<Func<TElement, object>> entityAccessors)
         {
             return groupings
                 .Select(g =>
-                    new TrackingGrouping<TKey, TOut, TIn>(
+                    new TrackingGrouping<TKey, TElement>(
                         g,
                         queryContext,
                         entityTrackingInfos,
@@ -231,19 +230,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual MethodInfo TrackGroupedEntities => _trackGroupedEntities;
 
-        private class TrackingGrouping<TKey, TOut, TIn> : IGrouping<TKey, TOut>
-            where TIn : class
+        private class TrackingGrouping<TKey, TElement> : IGrouping<TKey, TElement>
         {
-            private readonly IGrouping<TKey, TOut> _grouping;
+            private readonly IGrouping<TKey, TElement> _grouping;
             private readonly QueryContext _queryContext;
             private readonly IList<EntityTrackingInfo> _entityTrackingInfos;
-            private readonly IList<Func<TIn, object>> _entityAccessors;
+            private readonly IList<Func<TElement, object>> _entityAccessors;
 
             public TrackingGrouping(
-                IGrouping<TKey, TOut> grouping,
+                IGrouping<TKey, TElement> grouping,
                 QueryContext queryContext,
                 IList<EntityTrackingInfo> entityTrackingInfos,
-                IList<Func<TIn, object>> entityAccessors)
+                IList<Func<TElement, object>> entityAccessors)
             {
                 _grouping = grouping;
                 _queryContext = queryContext;
@@ -253,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public TKey Key => _grouping.Key;
 
-            public IEnumerator<TOut> GetEnumerator()
+            public IEnumerator<TElement> GetEnumerator()
             {
                 _queryContext.BeginTrackingQuery();
 
@@ -263,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         for (var i = 0; i < _entityTrackingInfos.Count; i++)
                         {
-                            var entity = _entityAccessors[i](result as TIn);
+                            var entity = _entityAccessors[i](result);
 
                             if (entity != null)
                             {

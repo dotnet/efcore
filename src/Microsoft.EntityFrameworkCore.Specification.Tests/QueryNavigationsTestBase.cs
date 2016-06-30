@@ -9,8 +9,13 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable ReplaceWithSingleCallToFirstOrDefault
+// ReSharper disable ReplaceWithSingleCallToAny
+// ReSharper disable ReplaceWithSingleCallToFirst
+// ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable UseCollectionCountProperty
-
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleUnintendedReferenceComparison
 
@@ -43,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             using (var context = CreateContext())
@@ -59,8 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
             using (var context = CreateContext())
@@ -186,8 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 6);
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Equals_Navigation()
         {
             using (var context = CreateContext())
@@ -616,11 +618,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 );
         }
 
-        // #5427
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby()
         {
             AssertQuery<Customer, Order, string>(
+                // ReSharper disable once StringStartsWithIsCultureSpecific
                 (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
                     .Select(c => os.OrderBy(o => o.CustomerID).FirstOrDefault(o =>o.CustomerID == "ALFKI").Customer.City));
         }
@@ -728,13 +730,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 1);
         }
 
-        private int ClientMethod(int argument)
-        {
-            return argument;
-        }
+        // ReSharper disable once MemberCanBeMadeStatic.Local
+        private int ClientMethod(int argument) => argument;
 
-        // issue #4547
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query()
         {
             using (var context = CreateContext())
@@ -794,15 +793,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        // issue #3676
-        //// [ConditionalFact]
+        [ConditionalFact]
         public virtual void Let_group_by_nav_prop()
         {
             AssertQuery<OrderDetail, IGrouping<string, OrderDetail>>(
                 ods => from od in ods
                        let customer = od.Order.CustomerID
-                       group od by customer
-                       into odg
+                       group od by customer into odg
                        select odg,
                 asserter: (l2oItems, efItems) =>
                 {
@@ -836,10 +833,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             bool assertOrder = false,
             int entryCount = 0,
             Action<IList<object>, IList<object>> asserter = null)
-            where TItem : class
-        {
-            AssertQuery(query, query, assertOrder, entryCount, asserter);
-        }
+            where TItem : class 
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> query,
@@ -847,21 +842,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int entryCount = 0,
             Action<IList<TResult>, IList<TResult>> asserter = null)
             where TItem1 : class
-            where TItem2 : class
-        {
-            AssertQuery(query, query, assertOrder, entryCount, asserter);
-        }
-
+            where TItem2 : class 
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem, TResult>(
             Func<IQueryable<TItem>, IQueryable<TResult>> query,
             bool assertOrder = false,
             int entryCount = 0,
             Action<IList<TResult>, IList<TResult>> asserter = null)
-            where TItem : class
-        {
-            AssertQuery(query, query, assertOrder, entryCount, asserter);
-        }
+            where TItem : class 
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<object>> efQuery,
