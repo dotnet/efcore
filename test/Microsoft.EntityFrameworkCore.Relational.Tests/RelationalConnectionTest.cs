@@ -471,7 +471,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
+                Assert.Null(connection.CurrentTransaction);
+
                 var transaction = connection.BeginTransaction();
+
+                Assert.Same(transaction, connection.CurrentTransaction);
 
                 Assert.Equal(1, connection.DbConnections.Count);
                 var dbConnection = connection.DbConnections[0];
@@ -484,6 +488,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
 
                 transaction.Dispose();
+
+                Assert.Null(connection.CurrentTransaction);
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
@@ -498,7 +504,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
+                Assert.Null(connection.CurrentTransaction);
+
                 var transaction = await connection.BeginTransactionAsync();
+
+                Assert.Same(transaction, connection.CurrentTransaction);
 
                 Assert.Equal(1, connection.DbConnections.Count);
                 var dbConnection = connection.DbConnections[0];
@@ -511,6 +521,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
 
                 transaction.Dispose();
+
+                Assert.Null(connection.CurrentTransaction);
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
@@ -525,8 +537,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
+                Assert.Null(connection.CurrentTransaction);
+
                 using (var transaction = connection.BeginTransaction(IsolationLevel.Chaos))
                 {
+                    Assert.Same(transaction, connection.CurrentTransaction);
+
                     Assert.Equal(1, connection.DbConnections.Count);
                     var dbConnection = connection.DbConnections[0];
 
@@ -535,6 +551,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
                     Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
                 }
+
+                Assert.Null(connection.CurrentTransaction);
             }
         }
 
@@ -546,8 +564,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
+                Assert.Null(connection.CurrentTransaction);
+
                 using (var transaction = await connection.BeginTransactionAsync(IsolationLevel.Chaos))
                 {
+                    Assert.Same(transaction, connection.CurrentTransaction);
+
                     Assert.Equal(1, connection.DbConnections.Count);
                     var dbConnection = connection.DbConnections[0];
 
@@ -556,6 +578,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
                     Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
                 }
+
+                Assert.Null(connection.CurrentTransaction);
             }
         }
 
@@ -568,7 +592,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
             Assert.Equal(0, connection.DbConnections.Count);
 
+            Assert.Null(connection.CurrentTransaction);
+
             var transaction = connection.BeginTransaction();
+
+            Assert.Same(transaction, connection.CurrentTransaction);
 
             Assert.Equal(1, connection.DbConnections.Count);
             var dbConnection = connection.DbConnections[0];
@@ -592,10 +620,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             using (var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
             {
+                Assert.Null(connection.CurrentTransaction);
+
                 using (connection.UseTransaction(dbTransaction))
                 {
                     Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
                 }
+
+                Assert.Null(connection.CurrentTransaction);
             }
         }
 
@@ -607,8 +639,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
+                Assert.Null(connection.CurrentTransaction);
+
                 using (var transaction = connection.BeginTransaction())
                 {
+                    Assert.Same(transaction, connection.CurrentTransaction);
+
                     Assert.Equal(1, connection.DbConnections.Count);
                     var dbConnection = connection.DbConnections[0];
 
@@ -619,6 +655,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
                     Assert.Equal(1, dbTransaction.CommitCount);
                 }
+
+                Assert.Null(connection.CurrentTransaction);
             }
         }
 
@@ -630,8 +668,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
+                Assert.Null(connection.CurrentTransaction);
+
                 using (var transaction = connection.BeginTransaction())
                 {
+                    Assert.Same(transaction, connection.CurrentTransaction);
+
                     Assert.Equal(1, connection.DbConnections.Count);
                     var dbConnection = connection.DbConnections[0];
 
@@ -642,6 +684,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
                     Assert.Equal(1, dbTransaction.RollbackCount);
                 }
+
+                Assert.Null(connection.CurrentTransaction);
             }
         }
 

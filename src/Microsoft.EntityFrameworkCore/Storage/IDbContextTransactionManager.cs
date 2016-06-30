@@ -41,5 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Discards all changes made to the database in the current transaction.
         /// </summary>
         void RollbackTransaction();
+
+        /// <summary>
+        ///     Gets the current transaction.
+        /// </summary>
+        IDbContextTransaction CurrentTransaction { get; }
     }
 }
