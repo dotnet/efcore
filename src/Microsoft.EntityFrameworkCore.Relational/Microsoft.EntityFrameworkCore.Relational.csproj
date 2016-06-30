@@ -67,7 +67,6 @@
     <Compile Include="Extensions\DbCommandLogData.cs" />
     <Compile Include="Extensions\DbParameterLogData.cs" />
     <Compile Include="Extensions\RelationalExpressionExtensions.cs" />
-    <Compile Include="Extensions\RelationalLoggerExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
@@ -303,11 +302,13 @@
     <Compile Include="Storage\DbContextTransactionExtensions.cs" />
     <Compile Include="Storage\IByteArrayRelationalTypeMapper.cs" />
     <Compile Include="Storage\Internal\CompositeRelationalParameter.cs" />
+    <Compile Include="Storage\Internal\DbParameterLogDataExtensions.cs" />
     <Compile Include="Storage\Internal\DynamicRelationalParameter.cs" />
     <Compile Include="Storage\Internal\RawSqlCommandBuilder.cs" />
     <Compile Include="Storage\Internal\RelationalCommand.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilder.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilderFactory.cs" />
+    <Compile Include="Storage\Internal\RelationalLoggerExtensions.cs" />
     <Compile Include="Storage\Internal\RelationalParameterBuilder.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
