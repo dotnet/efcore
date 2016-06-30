@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable PossibleInvalidOperationException
@@ -359,7 +360,7 @@ WHERE [e].[Time] = @__timeSpan_0",
             => string.Join(
                 FileLineEnding, 
                 TestSqlLoggerFactory.CommandLogData.Single().Parameters
-                .Select(p => p.Name + ": " + TestSqlLoggerFactory.FormatParameter(p)));
+                .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {
