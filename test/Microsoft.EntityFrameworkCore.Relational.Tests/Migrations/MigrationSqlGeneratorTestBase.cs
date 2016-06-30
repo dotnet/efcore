@@ -168,6 +168,38 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 });
 
         [Fact]
+        public virtual void AddColumnOperation_with_shared_column()
+            => Generate(
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity<Base>();
+                        modelBuilder.Entity<Derived1>();
+                        modelBuilder.Entity<Derived2>();
+                    },
+                new AddColumnOperation
+                {
+                    Table = "Base",
+                    Name = "Foo",
+                    ClrType = typeof(string),
+                    IsNullable = true
+                });
+
+        private class Base
+        {
+            public int Id { get; set; }
+        }
+
+        private class Derived1 : Base
+        {
+            public string Foo { get; set; }
+        }
+
+        private class Derived2 : Base
+        {
+            public string Foo { get; set; }
+        }
+
+        [Fact]
         public virtual void AddForeignKeyOperation_with_name()
             => Generate(
                 new AddForeignKeyOperation

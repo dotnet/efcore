@@ -144,6 +144,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_shared_column()
+        {
+            base.AddColumnOperation_with_shared_column();
+
+            Assert.Equal(
+                "ALTER TABLE [Base] ADD [Foo] nvarchar(max);" + EOL,
+                Sql);
+        }
+
         [Fact]
         public virtual void AddColumnOperation_with_rowversion_overridden()
         {
