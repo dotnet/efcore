@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the current transaction.
         /// </summary>
-        public virtual IDbContextTransaction CurrentTransaction { get; [param: NotNull] protected set; }
+        public virtual IDbContextTransaction CurrentTransaction { get; [param: CanBeNull] protected set; }
 
         /// <summary>
         ///     Gets the timeout for executing a command against the database.

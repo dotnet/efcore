@@ -136,6 +136,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
+        ///         Gets the current <see cref="IDbContextTransaction" /> being used by the context, or null
+        ///         if no transaction is in use.
+        ///     </para>
+        ///     <para>
+        ///         This property will be null unless one of the 'BeginTransaction' or 'UseTransaction' methods has
+        ///         been called, some of which are available as extension methods installed by EF providers.
+        ///         No attempt is made to obtain a transaction from the current DbConnection or similar.
+        ///     </para>
+        ///     <para>
+        ///         For relational databases, the underlying DbTransaction can be obtained using the
+        ///         'Microsoft.EntityFrameworkCore.Storage.GetDbTransaction'extension method
+        ///         on the returned <see cref="IDbContextTransaction" />.
+        ///     </para>
+        /// </summary>
+        public virtual IDbContextTransaction CurrentTransaction
+            => TransactionManager.CurrentTransaction;
+
+        /// <summary>
+        ///     <para>
         ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
         ///     </para>
         ///     <para>
@@ -145,10 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => ((IInfrastructure<IServiceProvider>)_context).Instance;
 
-        private IDbContextTransactionManager TransactionManager 
+        private IDbContextTransactionManager TransactionManager
             => _transactionManager ?? (_transactionManager = this.GetService<IDbContextTransactionManager>());
 
-        private IDatabaseCreator DatabaseCreator 
+        private IDatabaseCreator DatabaseCreator
             => _databaseCreator ?? (_databaseCreator = this.GetService<IDatabaseCreator>());
     }
 }

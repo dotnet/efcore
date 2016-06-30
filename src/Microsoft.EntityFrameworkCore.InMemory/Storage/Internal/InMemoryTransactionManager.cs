@@ -43,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual void RollbackTransaction() => LogWarning();
 
+        public virtual IDbContextTransaction CurrentTransaction => null;
+
         private void LogWarning()
         {
             _logger.LogWarning(

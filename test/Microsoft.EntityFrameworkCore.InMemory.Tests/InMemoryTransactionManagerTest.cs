@@ -4,7 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -13,6 +12,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 {
     public class InMemoryTransactionManagerTest
     {
+        [Fact]
+        public void CurrentTransaction_returns_null()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryDatabase();
+
+            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
+
+            Assert.Null(transactionManager.CurrentTransaction);
+        }
+
         [Fact]
         public void Throws_on_BeginTransaction()
         {
@@ -24,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 Assert.Throws<InvalidOperationException>(
-                () => transactionManager.BeginTransaction()).Message);
+                    () => transactionManager.BeginTransaction()).Message);
         }
 
         [Fact]
@@ -38,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                     async () => await transactionManager.BeginTransactionAsync())).Message);
+                    async () => await transactionManager.BeginTransactionAsync())).Message);
         }
 
         [Fact]
@@ -52,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 Assert.Throws<InvalidOperationException>(
-                () => transactionManager.CommitTransaction()).Message);
+                    () => transactionManager.CommitTransaction()).Message);
         }
 
         [Fact]
@@ -66,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 Assert.Throws<InvalidOperationException>(
-                () => transactionManager.RollbackTransaction()).Message);
+                    () => transactionManager.RollbackTransaction()).Message);
         }
 
         private class FakeLogger : ILogger<InMemoryTransactionManager>
