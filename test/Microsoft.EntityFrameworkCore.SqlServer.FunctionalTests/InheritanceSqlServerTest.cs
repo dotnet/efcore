@@ -2,12 +2,66 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class InheritanceSqlServerTest : InheritanceTestBase<InheritanceSqlServerFixture>
     {
+        [Fact]
+        public virtual void Common_property_shares_column()
+        {
+            using (var context = CreateContext())
+            {
+                var liltType = context.Model.FindEntityType(typeof(Lilt));
+                var cokeType = context.Model.FindEntityType(typeof(Coke));
+                var teaType = context.Model.FindEntityType(typeof(Tea));
+
+                Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").Relational().ColumnName);
+                Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").Relational().ColumnName);
+                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbination").Relational().ColumnName);
+
+                Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").Relational().ColumnName);
+                Assert.Equal("LiltCO2", liltType.FindProperty("Carbination").Relational().ColumnName);
+
+                Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").Relational().ColumnName);
+                Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").Relational().ColumnName);
+            }
+        }
+
+        [Fact]
+        public override void Can_query_when_shared_column()
+        {
+            base.Can_query_when_shared_column();
+
+            Assert.Equal(
+                @"SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams]
+FROM [Drink] AS [d]
+WHERE [d].[Discriminator] = N'Coke'
+
+SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[LiltCO2], [d].[SugarGrams]
+FROM [Drink] AS [d]
+WHERE [d].[Discriminator] = N'Lilt'
+
+SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[HasMilk]
+FROM [Drink] AS [d]
+WHERE [d].[Discriminator] = N'Tea'",
+                Sql);
+        }
+
+        [Fact]
+        public override void Can_query_all_types_when_shared_column()
+        {
+            base.Can_query_all_types_when_shared_column();
+
+            Assert.Equal(
+                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[SugarGrams], [d].[CaffeineGrams], [d].[HasMilk]
+FROM [Drink] AS [d]
+WHERE [d].[Discriminator] IN (N'Tea', N'Lilt', N'Coke', N'Drink')",
+                Sql);
+        }
+
         public override void Can_use_of_type_animal()
         {
             base.Can_use_of_type_animal();

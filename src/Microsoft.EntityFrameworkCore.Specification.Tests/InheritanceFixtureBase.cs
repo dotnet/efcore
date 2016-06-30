@@ -18,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Flower>();
             modelBuilder.Entity<Plant>().HasKey(e => e.Species);
             modelBuilder.Entity<Country>();
+            modelBuilder.Entity<Drink>();
+            modelBuilder.Entity<Tea>();
+            modelBuilder.Entity<Lilt>();
+            modelBuilder.Entity<Coke>();
         }
 
         public abstract InheritanceContext CreateContext();
@@ -68,6 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             context.Set<Country>().Add(usa);
             context.Set<Rose>().Add(rose);
             context.Set<Daisy>().Add(daisy);
+
+            context.AddRange(
+                new Tea { HasMilk = true, CaffeineGrams = 1 },
+                new Lilt { SugarGrams = 4, Carbination = 7 },
+                new Coke { SugarGrams = 6, CaffeineGrams = 4, Carbination = 5 });
 
             context.SaveChanges();
         }

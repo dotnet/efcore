@@ -88,6 +88,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_shared_column()
+        {
+            base.AddColumnOperation_with_shared_column();
+
+            Assert.Equal(
+                "ALTER TABLE \"Base\" ADD \"Foo\" nvarchar(max);" + EOL,
+                Sql);
+        }
+
         public override void AddForeignKeyOperation_with_name()
         {
             base.AddForeignKeyOperation_with_name();

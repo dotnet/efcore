@@ -235,6 +235,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_shared_column()
+        {
+            base.AddColumnOperation_with_shared_column();
+
+            Assert.Equal(
+                "ALTER TABLE \"Base\" ADD \"Foo\" TEXT;" + EOL,
+                Sql);
+        }
+
         [Fact]
         public override void AddColumnOperation_with_computed_column_SQL()
         {
