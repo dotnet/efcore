@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return _tables.FirstOrDefault(te
                 => te.QuerySource == querySource
                    || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
-                   ?? _tables.Single();
+                   ?? _tables.Last();
         }
 
         /// <summary>
@@ -816,7 +816,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(orderings, nameof(orderings));
 
-            _orderBy.InsertRange(0, orderings);
+            var oldOrderBy = _orderBy.ToList();
+
+            _orderBy.Clear();
+            _orderBy.AddRange(orderings);
+
+            foreach (var ordering in oldOrderBy)
+            {
+                AddToOrderBy(ordering);
+            }
         }
 
         /// <summary>

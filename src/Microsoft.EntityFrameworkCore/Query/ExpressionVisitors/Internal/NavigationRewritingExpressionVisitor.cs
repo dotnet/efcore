@@ -53,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 INavigation navigation,
                 JoinClause joinClause,
                 IEnumerable<IBodyClause> additionalBodyClauses,
-                bool optionalNavigationInChain,
                 bool dependentToPrincipal,
                 QuerySourceReferenceExpression querySourceReferenceExpression)
                 : this(
@@ -62,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     joinClause,
                     null,
                     additionalBodyClauses,
-                    optionalNavigationInChain,
                     dependentToPrincipal,
                     querySourceReferenceExpression)
             {
@@ -73,7 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 INavigation navigation,
                 GroupJoinClause groupJoinClause,
                 IEnumerable<IBodyClause> additionalBodyClauses,
-                bool optionalNavigationInChain,
                 bool dependentToPrincipal,
                 QuerySourceReferenceExpression querySourceReferenceExpression)
                 : this(
@@ -82,7 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     null,
                     groupJoinClause,
                     additionalBodyClauses,
-                    optionalNavigationInChain,
                     dependentToPrincipal,
                     querySourceReferenceExpression)
             {
@@ -94,7 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 JoinClause joinClause,
                 GroupJoinClause groupJoinClause,
                 IEnumerable<IBodyClause> additionalBodyClauses,
-                bool optionalNavigationInChain,
                 bool dependentToPrincipal,
                 QuerySourceReferenceExpression querySourceReferenceExpression)
             {
@@ -103,7 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 JoinClause = joinClause;
                 GroupJoinClause = groupJoinClause;
                 AdditionalBodyClauses = additionalBodyClauses;
-                OptionalNavigationInChain = optionalNavigationInChain;
                 DependentToPrincipal = dependentToPrincipal;
                 QuerySourceReferenceExpression = querySourceReferenceExpression;
             }
@@ -113,7 +107,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public JoinClause JoinClause { get; }
             public GroupJoinClause GroupJoinClause { get; }
             public IEnumerable<IBodyClause> AdditionalBodyClauses { get; }
-            public bool OptionalNavigationInChain { get; }
             public bool DependentToPrincipal { get; }
             public QuerySourceReferenceExpression QuerySourceReferenceExpression { get; }
             public readonly List<NavigationJoin> NavigationJoins = new List<NavigationJoin>();
@@ -423,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             ps.ToList(),
                             qs,
                             node.Arguments[0],
-                            (string)(node.Arguments[1] as ConstantExpression).Value,
+                            (string)((ConstantExpression)node.Arguments[1]).Value,
                             node.Type,
                             e => Expression.Call(node.Method, e, node.Arguments[1]));
                     })
@@ -692,7 +685,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     navigation,
                                     groupJoinClause,
                                     additionalBodyClauses,
-                                    optionalNavigationInChain,
                                     navigation.IsDependentToPrincipal(),
                                     new QuerySourceReferenceExpression(defaultIfEmptyAdditionalFromClause)));
                     }
@@ -705,7 +697,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     navigation,
                                     joinClause,
                                     additionalBodyClauses,
-                                    optionalNavigationInChain,
                                     navigation.IsDependentToPrincipal(),
                                     innerQuerySourceReferenceExpression));
                     }
@@ -722,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (optionalNavigationInChain)
             {
-                Expression memberAccessExpression = propertyCreator(querySourceReferenceExpression);
+                var memberAccessExpression = propertyCreator(querySourceReferenceExpression);
                 if (!propertyType.IsNullableType())
                 {
                     memberAccessExpression = Expression.Convert(memberAccessExpression, propertyType.MakeNullable());
@@ -1056,7 +1047,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<AllResultOperator, Expression> expressionExtractor = o => o.Predicate;
                     Action<AllResultOperator, Expression> adjuster = (o, e) => o.Predicate = e;
-                    VisitAndAdjustResultOperatorType(allResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(allResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1066,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<ContainsResultOperator, Expression> expressionExtractor = o => o.Item;
                     Action<ContainsResultOperator, Expression> adjuster = (o, e) => o.Item = e;
-                    VisitAndAdjustResultOperatorType(containsResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(containsResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1076,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<SkipResultOperator, Expression> expressionExtractor = o => o.Count;
                     Action<SkipResultOperator, Expression> adjuster = (o, e) => o.Count = e;
-                    VisitAndAdjustResultOperatorType(skipResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(skipResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1086,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<TakeResultOperator, Expression> expressionExtractor = o => o.Count;
                     Action<TakeResultOperator, Expression> adjuster = (o, e) => o.Count = e;
-                    VisitAndAdjustResultOperatorType(takeResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(takeResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1127,9 +1118,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             private void VisitAndAdjustResultOperatorType<TResultOperator>(
                 TResultOperator resultOperator,
                 Func<TResultOperator, Expression> expressionExtractor,
-                Action<TResultOperator, Expression> adjuster,
-                QueryModel queryModel,
-                int index)
+                Action<TResultOperator, Expression> adjuster)
                 where TResultOperator : ResultOperatorBase
             {
                 var originalExpression = expressionExtractor(resultOperator);

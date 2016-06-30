@@ -2974,6 +2974,32 @@ ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
+        public override void GroupJoin_Where()
+        {
+            base.GroupJoin_Where();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_DefaultIfEmpty_Where_OrderBy()
+        {
+            base.GroupJoin_DefaultIfEmpty_Where_OrderBy();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE ([o].[CustomerID] = N'ALFKI') OR ([c].[CustomerID] = N'ANATR')
+ORDER BY [c].[City], [c].[CustomerID]",
+                Sql);
+        }
+
         public override void GroupJoin_simple()
         {
             base.GroupJoin_simple();

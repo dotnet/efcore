@@ -416,6 +416,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
 
             base.VisitAdditionalFromClause(fromClause, queryModel, index);
+            
+            var fromQuerySourceReferenceExpression 
+                = fromClause.FromExpression as QuerySourceReferenceExpression;
+
+            if (fromQuerySourceReferenceExpression != null)
+            {
+                var previousQuerySource = FindPreviousQuerySource(queryModel, index - 1);
+
+                if (previousQuerySource != null
+                    && !RequiresClientJoin)
+                {
+                    var previousSelectExpression = TryGetQuery(previousQuerySource);
+
+                    if (previousSelectExpression != null)
+                    {
+                        AddQuery(fromClause, previousSelectExpression);
+                    }
+                }
+
+                return;
+            }
 
             RequiresClientSelectMany = true;
 
@@ -582,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(operatorToFlatten, nameof(operatorToFlatten));
 
             RequiresClientJoin = true;
-
+            
             var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
             var previousSelectExpression
@@ -594,8 +615,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = previousSelectExpression?.Projection.Count ?? -1;
 
             baseVisitAction();
-
-            if (previousSelectExpression != null)
+            
+            if (!RequiresClientSelectMany 
+                && previousSelectExpression != null)
             {
                 var selectExpression = TryGetQuery(joinClause);
 

@@ -275,19 +275,41 @@ ORDER BY [o].[CustomerID]",
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();
-
+#if NET451
             Assert.StartsWith(
-                @"",
+                @"SELECT [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
+FROM [Customers] AS [o.Customer0]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[OrderID] < 10300
+ORDER BY [o].[CustomerID]
+
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]",
                 Sql);
+#endif
         }
 
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
-
+#if NET451
             Assert.StartsWith(
-                @"",
+                @"SELECT [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
+FROM [Customers] AS [o.Customer0]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[OrderID] < 10300
+ORDER BY [o].[CustomerID]
+
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]",
                 Sql);
+#endif
         }
 
         public override void Select_Where_Navigation_Equals_Navigation()
@@ -762,8 +784,16 @@ ORDER BY [oo].[CustomerID]",
         {
             base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby();
 
-            Assert.Equal(
-                @"",
+            Assert.StartsWith(
+                @"SELECT 1
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] LIKE N'A' + N'%'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -884,17 +914,17 @@ FROM [Orders] AS [o3]",
         {
             base.Navigation_in_subquery_referencing_outer_query();
 
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[Country]
+            Assert.StartsWith(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
-INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE (
-    SELECT COUNT(*)
-    FROM [Order Details] AS [od]
-    INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
-    INNER JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
-    WHERE ([o.Customer].[Country] = [od.Order.Customer].[Country]) OR ([o.Customer].[Country] IS NULL AND [od.Order.Customer].[Country] IS NULL)
-) > 0",
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+ORDER BY [o].[CustomerID]
+
+SELECT [od.Order0].[OrderID], [od.Order0].[CustomerID], [od.Order0].[EmployeeID], [od.Order0].[OrderDate], [od.Order.Customer0].[CustomerID], [od.Order.Customer0].[Address], [od.Order.Customer0].[City], [od.Order.Customer0].[CompanyName], [od.Order.Customer0].[ContactName], [od.Order.Customer0].[ContactTitle], [od.Order.Customer0].[Country], [od.Order.Customer0].[Fax], [od.Order.Customer0].[Phone], [od.Order.Customer0].[PostalCode], [od.Order.Customer0].[Region]
+FROM [Order Details] AS [od0]
+INNER JOIN [Orders] AS [od.Order0] ON [od0].[OrderID] = [od.Order0].[OrderID]
+LEFT JOIN [Customers] AS [od.Order.Customer0] ON [od.Order0].[CustomerID] = [od.Order.Customer0].[CustomerID]
+ORDER BY [od.Order0].[CustomerID]",
                 Sql);
         }
 
@@ -928,7 +958,10 @@ ORDER BY [od].[Quantity]",
             base.Let_group_by_nav_prop();
 
             Assert.Equal(
-                @"",
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order].[CustomerID]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+ORDER BY [od.Order].[CustomerID]",
                 Sql);
         }
 

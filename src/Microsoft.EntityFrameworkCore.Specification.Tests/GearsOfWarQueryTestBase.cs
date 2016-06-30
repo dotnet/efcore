@@ -985,8 +985,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             List<KeyValuePair<Guid, Guid>> expected;
@@ -1014,8 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
             List<KeyValuePair<Guid, Guid>> expected;
@@ -1112,8 +1110,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Equals_Navigation()
         {
             using (var context = CreateContext())
