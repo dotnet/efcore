@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0-preview3-*",
+  "description": "Abstractions for Entity Framework Core design-time tools.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework Core",
+      "entity-framework-core",
+      "EF",
+      "Data",
+      "O/RM"
+    ]
+  },
+  "buildOptions": {
+    "warningsAsErrors": true, 
+    "keyFile": "../../tools/Key.snk"
+  },
+  "frameworks": {
+    "net451": {},
+    "netstandard1.3": {
+      "dependencies": {
+        "System.Collections": "4.0.11-*"
+      }
+    }
+  }
+}

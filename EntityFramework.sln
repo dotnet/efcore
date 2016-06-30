@@ -65,6 +65,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.csproj", "{A0B496FE-1E59-4262-A5F5-101CBBA42738}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Design.Core", "src\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj", "{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Design.Abstractions", "src\Microsoft.EntityFrameworkCore.Design.Abstractions\Microsoft.EntityFrameworkCore.Design.Abstractions.csproj", "{AF5EA360-4AB2-422A-9EBF-58EA094E17B5}"
+EndProject
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Tools.Core.Tests", "test\Microsoft.EntityFrameworkCore.Tools.Core.Tests\Microsoft.EntityFrameworkCore.Tools.Core.Tests.csproj", "{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}"
 EndProject
@@ -204,6 +206,10 @@ Global
 		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF5EA360-4AB2-422A-9EBF-58EA094E17B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF5EA360-4AB2-422A-9EBF-58EA094E17B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF5EA360-4AB2-422A-9EBF-58EA094E17B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF5EA360-4AB2-422A-9EBF-58EA094E17B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
