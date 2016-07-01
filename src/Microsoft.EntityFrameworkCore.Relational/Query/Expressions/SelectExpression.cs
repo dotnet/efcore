@@ -430,9 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             if (projectionIndex == -1)
             {
-                projectionIndex = _projection.Count;
-
-                AddAliasToProjection(
+                projectionIndex = AddAliasToProjection(
                     alias: null,
                     expression: new ColumnExpression(column, property, GetTableForQuerySource(querySource)));
             }
@@ -516,13 +514,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             var ae = e as AliasExpression;
                             var ce = e.TryGetColumnExpression();
 
-                            return ce != null && ce.Property == columnExpression?.Property
-                                   && ce.TableAlias == columnExpression?.TableAlias
-                                   || ae?.Expression == expression;
+                            return (ce != null
+                                    && columnExpression != null
+                                    && (ce.Property == columnExpression.Property || ce.Name == columnExpression.Name)
+                                    && ce.TableAlias == columnExpression.TableAlias)
+                                || ae?.Expression == expression;
                         });
 
             if (projectionIndex == -1)
             {
+                // Alias != null means SelectExpression in subquery which needs projections to have unique aliases
                 if (Alias != null
                     || columnExpression == null)
                 {
@@ -580,15 +581,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                         {
                             var ce = e.TryGetColumnExpression();
 
-                            return ce?.Property == columnExpression.Property
-                                   && ce?.Type == columnExpression.Type
-                                   && ce.TableAlias == columnExpression.TableAlias;
+                            return ce != null
+                                && ce.Property == columnExpression.Property
+                                && ce.Name == columnExpression.Name
+                                && ce.TableAlias == columnExpression.TableAlias;
                         });
 
             if (projectionIndex == -1)
             {
                 var aliasExpression = new AliasExpression(columnExpression);
 
+                // Alias != null means SelectExpression in subquery which needs projections to have unique aliases
                 if (Alias != null)
                 {
                     var currentAlias = columnExpression.Name;

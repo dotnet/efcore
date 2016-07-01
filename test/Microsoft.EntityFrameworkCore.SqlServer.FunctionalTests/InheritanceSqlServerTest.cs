@@ -57,7 +57,7 @@ WHERE [d].[Discriminator] = N'Tea'",
             base.Can_query_all_types_when_shared_column();
 
             Assert.Equal(
-                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[SugarGrams], [d].[CaffeineGrams], [d].[HasMilk]
+                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk]
 FROM [Drink] AS [d]
 WHERE [d].[Discriminator] IN (N'Tea', N'Lilt', N'Coke', N'Drink')",
                 Sql);
