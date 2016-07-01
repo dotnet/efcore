@@ -4,23 +4,33 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "dotnet-test-xunit": "2.2.0-*",
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.AspNetCore.Testing": "1.1.0-*",
     "Microsoft.Data.Sqlite": "1.1.0-*",
     "Microsoft.Extensions.PlatformAbstractions": "1.1.0-*",
-    "xunit": "2.2.0-*"
+    "xunit": "2.1.0"
   },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        }
+        },
+        "System.Diagnostics.Process": "4.1.0-*"
       }
     },
-    "net451": {}
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Runtime": "",
+        "System.Threading.Tasks": ""
+      }
+    }
   }
 }
