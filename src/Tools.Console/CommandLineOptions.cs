@@ -1,0 +1,165 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Microsoft.Extensions.CommandLineUtils;
+using System;
+
+// ReSharper disable ArgumentsStyleLiteral
+namespace Microsoft.EntityFrameworkCore.Tools
+{
+    public class CommandLineOptions
+    {
+        public ICommand Command { get; set; }
+        public bool IsHelp { get; set; }
+        public bool Verbose { get; set; }
+        public string EnvironmentName { get; set; }
+        public string Assembly { get; set; }
+        public string RootNamespace { get; set; }
+        public string ContentRootPath { get; set; }
+        public string DispatcherVersion { get; set; }
+        public string ProjectDirectory { get; set; }
+        public string DataDirectory { get; set; }
+        public string StartupAssembly { get; set; }
+        public string AppConfigFile { get; set; }
+
+        public static CommandLineOptions Parse(params string[] args)
+        {
+            var options = new CommandLineOptions();
+
+            var app = new CommandLineApplication
+            {
+#if NET451
+                Name = "ef.exe",
+#else
+                Name = "ef.dll",
+#endif
+                FullName = "Entity Framework Core Console Commands"
+            };
+
+            app.HelpOption();
+            app.VersionOption(Program.GetVersion);
+            var verbose = app.Option("--verbose", "Show verbose output", inherited: true);
+
+            // required
+            var assembly = app.Option("--assembly <assembly>",
+                "The assembly file to load.", inherited: true);
+#if NET451
+            var appConfig = app.Option("--config <configfile>",
+                "The application config file", inherited: true);
+#endif
+
+            // common options
+            var startupAssembly = app.Option("--startup-assembly <assembly>",
+                "The assembly file containing the startup class.", inherited: true);
+            var dataDirectory = app.Option("--data-dir <dir>",
+                "The folder used as the data directory (defaults to current working directory).", inherited: true);
+            var projectDirectory = app.Option("--project-dir <dir>",
+                "The folder used as the project directory (defaults to current working directory).", inherited: true);
+            var contentRootPath = app.Option("--content-root-path <dir>",
+                "The folder used as the content root path for the application (defaults to application base directory).", inherited: true);
+            var rootNamespace = app.Option("--root-namespace <namespace>",
+                "The root namespace of the target project (defaults to the project assembly name).", inherited: true);
+            var environment = app.Option(
+                "-e|--environment <environment>",
+                "The environment to use. If omitted, \"Development\" is used.", inherited: true);
+
+            // inherited
+            var dispatcherVersion = app.Option("--dispatcher-version <version>",
+                "The dispatcher version", inherited: true);
+            dispatcherVersion.ShowInHelpText = false;
+
+            app.Command("database", command =>
+                {
+                    command.Description = "Commands to manage your database";
+                    command.HelpOption();
+
+                    command.Command("update", c => DatabaseUpdateCommand.ParseOptions(c, options));
+                    command.Command("drop", c => DatabaseDropCommand.ParseOptions(c, options));
+                    command.OnExecute(() =>
+                    {
+                        WriteLogo();
+                        app.ShowHelp("database");
+                    });
+                });
+
+            app.Command("dbcontext", command =>
+                {
+                    command.Description = "Commands to manage your DbContext types";
+                    command.HelpOption();
+
+                    command.Command("list", c => DbContextListCommand.ParseOptions(c, options));
+                    command.Command("scaffold", c => DbContextScaffoldCommand.ParseOptions(c, options));
+                    command.OnExecute(() =>
+                    {
+                        WriteLogo();
+                        command.ShowHelp();
+                    });
+                });
+
+            app.Command("migrations", command =>
+                {
+                    command.Description = "Commands to manage your migrations";
+                    command.HelpOption();
+
+                    command.Command("add", c => MigrationsAddCommand.ParseOptions(c, options));
+                    command.Command("list", c => MigrationsListCommand.ParseOptions(c, options));
+                    command.Command("remove", c => MigrationsRemoveCommand.ParseOptions(c, options));
+                    command.Command("script", c => MigrationsScriptCommand.ParseOptions(c, options));
+                    command.OnExecute(() =>
+                    {
+                        WriteLogo();
+                        command.ShowHelp();
+                    });
+                });
+
+            app.OnExecute(() =>
+            {
+                WriteLogo();
+                app.ShowHelp();
+            });
+
+            var result = app.Execute(args);
+
+            if (result != 0)
+            {
+                return null;
+            }
+
+            options.IsHelp = app.IsShowingInformation;
+
+            options.Verbose = verbose.HasValue();
+            options.DispatcherVersion = dispatcherVersion.Value();
+
+            options.Assembly = assembly.Value();
+            options.StartupAssembly = startupAssembly.Value();
+            options.DataDirectory = dataDirectory.Value();
+            options.ProjectDirectory = projectDirectory.Value();
+            options.ContentRootPath = rootNamespace.Value();
+            options.RootNamespace = contentRootPath.Value();
+            options.EnvironmentName = environment.Value();
+#if NET451
+            options.AppConfigFile = appConfig.Value();
+#endif
+
+            return options;
+        }
+
+        private static void WriteLogo()
+        {
+            const string Bold = "\x1b[1m";
+            const string Normal = "\x1b[22m";
+            const string Magenta = "\x1b[35m";
+            const string White = "\x1b[37m";
+            const string Default = "\x1b[39m";
+
+            Console.WriteLine();
+            Console.WriteLine(@"                     _/\__       ".Insert(21, Bold + White));
+            Console.WriteLine(@"               ---==/    \\      ".Insert(20, Bold + White));
+            Console.WriteLine(@"         ___  ___   |.    \|\    ".Insert(26, Bold).Insert(21, Normal).Insert(20, Bold + White).Insert(9, Normal + Magenta));
+            Console.WriteLine(@"        | __|| __|  |  )   \\\   ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
+            Console.WriteLine(@"        | _| | _|   \_/ |  //|\\ ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
+            Console.WriteLine(@"        |___||_|       /   \\\/\\".Insert(33, Normal + Default).Insert(23, Bold + White).Insert(8, Normal + Magenta));
+            Console.WriteLine();
+        }
+    }
+}

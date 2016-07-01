@@ -4,14 +4,14 @@
 #if NET451
 
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities;
-using Xunit;
-using System.Collections;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Tools.Internal;
+using Xunit;
+using Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
 {
@@ -122,6 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 Assert.Equal(1, migrations.Count());
             }
 
+            [Fact]
+            public void FindDatabase_returns_connection_string()
+            {
+                var connectionString = _project.Executor.GetDatabase("SimpleContext");
+                Assert.Equal(@"(localdb)\MSSQLLocalDB", connectionString["DataSource"]);
+                Assert.Equal("SimpleProject.SimpleContext", connectionString["DatabaseName"]);
+            }
+
             public class SimpleProject : IDisposable
             {
                 private readonly TempDirectory _directory = new TempDirectory();
@@ -183,7 +191,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                             }" }
                     };
                     var build = source.Build();
-                    Executor = new AppDomainOperationExecutor(TargetDir, build.TargetName, TargetDir, TargetDir, "SimpleProject");
+                    Executor = new AppDomainOperationExecutor(build.TargetPath,
+                        build.TargetPath,
+                        build.TargetDir,
+                        build.TargetDir,
+                        build.TargetDir,
+                        "SimpleProject",
+                        null,
+                        AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
                 }
 
                 public string TargetDir => _directory.Path;
@@ -278,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         }" }
                 };
                 var build = source.Build();
-                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(build.TargetPath, build.TargetPath, build.TargetDir, null, null, "MyProject", null, null))
                 {
                     var migrations = executor.GetMigrations("Context1");
 
@@ -378,8 +393,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                             }
                         }" }
                 };
-                var migrationsBuild = migrationsSource.Build();
-                using (var executor = new AppDomainOperationExecutor(targetDir, migrationsBuild.TargetName, targetDir, targetDir, "MyProject"))
+                var build = migrationsSource.Build();
+                using (var executor = new AppDomainOperationExecutor(build.TargetPath, build.TargetPath, build.TargetDir, build.TargetDir, build.TargetDir, null, null, null))
                 {
                     var contextTypes = executor.GetContextTypes();
 
@@ -457,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                             }" }
                 };
                 var build = source.Build();
-                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(build.TargetPath, build.TargetPath, build.TargetDir, build.TargetDir, build.TargetDir, "MyProject", null, null))
                 {
                     var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
                     Assert.Equal(3, artifacts.Keys.Count);
@@ -512,9 +527,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                             }" }
                 };
                 var build = source.Build();
-                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(build.TargetPath, build.TargetPath, build.TargetDir, build.TargetDir, build.TargetDir, "MyProject", null, null))
                 {
-                    var ex = Assert.Throws<OperationException>(
+                    var ex = Assert.Throws<OperationErrorException>(
                         () => executor.GetMigrations("MyContext"));
 
                     Assert.Equal(
@@ -588,9 +603,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                             }" }
                 };
                 var build = source.Build();
-                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(build.TargetPath, build.TargetPath, build.TargetDir, build.TargetDir, build.TargetDir, "MyProject", null, null))
                 {
-                    var ex = Assert.Throws<OperationException>(
+                    var ex = Assert.Throws<OperationErrorException>(
                         () => executor.GetMigrations("MyContext"));
 
                     Assert.Equal(
@@ -604,12 +619,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
         public void Assembly_load_errors_are_wrapped()
         {
             var targetDir = AppDomain.CurrentDomain.BaseDirectory;
-            using (var executor = new AppDomainOperationExecutor(targetDir, "Unknown", targetDir, targetDir, "Unknown"))
+            using (var executor = new AppDomainOperationExecutor(Assembly.GetExecutingAssembly().Location, Path.Combine(targetDir, "Unknown.dll"), targetDir, null, null, null, null, null))
             {
-                Assert.Throws<OperationException>(() => executor.GetContextTypes());
+                Assert.Throws<OperationErrorException>(() => executor.GetContextTypes());
             }
         }
     }
 }
-
 #endif

@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0-preview3-*",
+  "dependencies": {
+    "Microsoft.Extensions.CommandLineUtils.Sources": {
+      "version": "1.1.0-*",
+      "type": "build"
+    }
+  },
+  "buildOptions": {
+    "outputName": "ef", 
+    "emitEntryPoint": true,
+    "platform": "anycpu",
+    "keyFile": "../../tools/Key.snk", 
+    "compile": {
+      "include": [
+        "../Shared/CodeAnnotations.cs"
+      ]
+    }
+  },
+  "configurations": {
+    "debug_x86": {
+      "buildOptions": {
+        "platform": "anycpu32bitpreferred",
+        "define": [
+          "DEBUG"
+        ]
+      }
+    },
+    "release_x86": {
+      "buildOptions": {
+        "platform": "anycpu32bitpreferred"
+      }
+    }
+  },
+  "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Runtime": {
+          "type": "build"
+        }
+      }
+    },
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-*"
+        }
+      },
+      "buildOptions": {
+        "compile": {
+          "exclude": "**/*.net451.cs",
+          "include": [
+            "../Shared/CodeAnnotations.cs"
+          ]
+        }
+      } 
+    } 
+  }
+}

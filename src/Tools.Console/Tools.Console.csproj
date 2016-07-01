@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{74A7774B-270E-4D7F-8735-BECB05CACA71}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
+    <AssemblyName>ef</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET451</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\MigrationsScriptCommand.cs" />
+    <Compile Include="Extensions\CommandLineApplicationExtensions.cs" />
+    <Compile Include="Internal\IOperationLogHandler.cs" />
+    <Compile Include="Internal\IOperationResultHandler.cs" />
+    <Compile Include="Internal\IOperationExecutor.cs" />
+    <Compile Include="Internal\OperationLogHandler.cs" />
+    <Compile Include="Internal\OperationResultHandler.cs" />
+    <Compile Include="Internal\ReflectionOperationExecutor.cs" />
+    <Compile Include="Internal\DesignMarshalByRefObject.cs" />
+    <Compile Include="Internal\OperationExecutorBase.cs" />
+    <Compile Include="OperationErrorException.cs" />
+    <Compile Include="Reporter.cs" />
+    <Compile Include="Commands\DatabaseDropCommand.cs" />
+    <Compile Include="Commands\DatabaseUpdateCommand.cs" />
+    <Compile Include="Commands\DbContextListCommand.cs" />
+    <Compile Include="Commands\DbContextScaffoldCommand.cs" />
+    <Compile Include="CommandLineOptions.cs" />
+    <Compile Include="Extensions\AnsiColorExtensions.cs" />
+    <Compile Include="Internal\AppDomainOperationExecutor.net451.cs" />
+    <Compile Include="Commands\MigrationsAddCommand.cs" />
+    <Compile Include="Commands\MigrationsListCommand.cs" />
+    <Compile Include="Commands\MigrationsRemoveCommand.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Design.Abstractions\Microsoft.EntityFrameworkCore.Design.Abstractions.csproj">
+      <Project>{AF5EA360-4AB2-422A-9EBF-58EA094E17B5}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Design.Abstractions</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

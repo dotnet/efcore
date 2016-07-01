@@ -74,6 +74,10 @@
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Tools.Console\Tools.Console.csproj">
+      <Project>{74A7774B-270E-4D7F-8735-BECB05CACA71}</Project>
+      <Name>Tools.Console</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests\Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.csproj">
       <Project>{93f36377-39c6-48a2-8c01-fd72373a34a9}</Project>
       <Name>Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests</Name>
@@ -82,7 +86,6 @@
   <ItemGroup>
     <Compile Include="Design\OperationExecutorTest.cs" />
     <Compile Include="Design\Internal\ForwardingProxyTest.cs" />
-    <Compile Include="TestUtilities\AppDomainOperationExecutor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

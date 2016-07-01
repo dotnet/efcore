@@ -70,6 +70,7 @@
     <Compile Include="Design\Internal\HostingEnvironment.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
     <Compile Include="Design\Internal\StartupInvoker.cs" />
+    <Compile Include="Design\DatabaseInfo.cs" />
     <Compile Include="Design\MigrationInfo.cs" />
     <Compile Include="Design\MigrationsOperations.cs" />
     <Compile Include="Design\OperationException.cs" />

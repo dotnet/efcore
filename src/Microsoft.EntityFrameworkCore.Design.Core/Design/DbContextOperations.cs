@@ -49,26 +49,19 @@ namespace Microsoft.EntityFrameworkCore.Design
             _runtimeServices = startup.ConfigureServices();
         }
 
-        public virtual void DropDatabase([CanBeNull] string contextType, [NotNull] Func<string, string, bool> confirmCheck)
+        public virtual void DropDatabase([CanBeNull] string contextType)
         {
             using (var context = CreateContext(contextType))
             {
                 var connection = context.Database.GetDbConnection();
-                if (confirmCheck(connection.Database, connection.DataSource))
+                _logger.Value.LogInformation(DesignCoreStrings.LogDroppingDatabase(connection.Database));
+                if (context.Database.EnsureDeleted())
                 {
-                    _logger.Value.LogInformation(DesignCoreStrings.LogDroppingDatabase(connection.Database));
-                    if (context.Database.EnsureDeleted())
-                    {
-                        _logger.Value.LogInformation(DesignCoreStrings.LogDatabaseDropped(connection.Database));
-                    }
-                    else
-                    {
-                        _logger.Value.LogInformation(DesignCoreStrings.LogNotExistDatabase(connection.Database));
-                    }
+                    _logger.Value.LogInformation(DesignCoreStrings.LogDatabaseDropped(connection.Database));
                 }
                 else
                 {
-                    _logger.Value.LogInformation(DesignCoreStrings.Cancelled);
+                    _logger.Value.LogInformation(DesignCoreStrings.LogNotExistDatabase(connection.Database));
                 }
             }
         }
@@ -157,6 +150,19 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
 
             return contexts;
+        }
+
+        public DatabaseInfo GetDatabaseInfo([CanBeNull] string contextType)
+        {
+            using (var context = CreateContext(contextType))
+            {
+                var connection = context.Database.GetDbConnection();
+                return new DatabaseInfo
+                {
+                    DatabaseName = connection.Database,
+                    DataSource = connection.DataSource
+                };
+            }
         }
 
         private Func<DbContext> FindContextFactory(Type contextType)

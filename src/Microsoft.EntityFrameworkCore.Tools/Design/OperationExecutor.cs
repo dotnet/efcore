@@ -155,6 +155,29 @@ namespace Microsoft.EntityFrameworkCore.Design
             };
         }
 
+        public class GetDatabase : OperationBase
+        {
+            public GetDatabase([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                :base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                var contextType = (string)args["contextType"];
+                Execute(() => executor.GetDatabaseImpl(contextType));
+            }
+        }
+
+        private IDictionary GetDatabaseImpl([CanBeNull] string contextType)
+        {
+            var databaseInfo = _contextOperations.Value.GetDatabaseInfo(contextType);
+            return new Hashtable
+            {
+                ["DatabaseName"] = databaseInfo.DatabaseName,
+                ["DataSource"] = databaseInfo.DataSource
+            };
+        }
+
         public class UpdateDatabase : OperationBase
         {
             public UpdateDatabase([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
@@ -368,14 +391,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(args, nameof(args));
 
                 var contextType = (string)args["contextType"];
-                var confirmCheck = (Func<string, string, bool>)args["confirmCheck"];
 
-                Execute(() => executor.DropDatabaseImpl(contextType, confirmCheck));
+                Execute(() => executor.DropDatabaseImpl(contextType));
             }
         }
 
-        private void DropDatabaseImpl(string contextType, Func<string, string, bool> confirmCheck)
-            => _contextOperations.Value.DropDatabase(contextType, confirmCheck);
+        private void DropDatabaseImpl(string contextType)
+            => _contextOperations.Value.DropDatabase(contextType);
 
         public abstract partial class OperationBase
         {
