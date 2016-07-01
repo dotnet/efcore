@@ -79,10 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("{");
             using (_sb.Indent())
             {
-                AddOnConfiguring();
-                AddOnModelCreating();
                 AddDbSetProperties();
                 AddEntityTypeErrors();
+                AddOnConfiguring();
+                _sb.AppendLine();
+                AddOnModelCreating();
             }
             _sb.AppendLine("}");
         }
@@ -128,7 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual void AddOnModelCreating()
         {
-            _sb.AppendLine();
             _sb.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
             _sb.AppendLine("{");
 
@@ -314,20 +314,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual void AddDbSetProperties()
         {
-            var first = true;
+            if (!_model.EntityConfigurations.Any())
+            {
+                return;
+            }
+
             foreach (var entityConfig in _model.EntityConfigurations)
             {
-                if (first)
-                {
-                    _sb.AppendLine();
-                    first = false;
-                }
-
                 _sb.AppendLine("public virtual DbSet<"
                                + entityConfig.EntityType.Name
                                + "> " + entityConfig.EntityType.Name
                                + " { get; set; }");
             }
+
+            _sb.AppendLine();
         }
 
         /// <summary>
@@ -341,13 +341,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return;
             }
 
-            _sb.AppendLine();
             foreach (var entityConfig in _model.Model.Scaffolding().EntityTypeErrors)
             {
                 _sb.Append("// ")
                     .Append(entityConfig.Value)
                     .AppendLine(" Please see the warning messages.");
             }
+
+            _sb.AppendLine();
         }
     }
 }
