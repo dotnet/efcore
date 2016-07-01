@@ -88,7 +88,6 @@
     <Compile Include="Migrations\Design\MigrationScaffolderTest.cs" />
     <Compile Include="Scaffolding\Internal\ReverseEngineeringConfigurationTests.cs" />
     <Compile Include="Scaffolding\Internal\ReverseEngineeringGeneratorTests.cs" />
-    <Compile Include="Utilities\JsonUtilityTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

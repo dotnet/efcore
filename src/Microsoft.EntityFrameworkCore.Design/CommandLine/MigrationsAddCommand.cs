@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -71,6 +72,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         }
 
         private static void ReportJson(MigrationFiles files)
-            => ConsoleCommandLogger.Json(files);
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("//BEGIN");
+            sb.AppendLine("{");
+            sb.AppendLine("  \"MigrationFile\": \""+ SerializePath(files.MigrationFile) +"\",");
+            sb.AppendLine("  \"MetadataFile\": \"" + SerializePath(files.MetadataFile) + "\",");
+            sb.AppendLine("  \"SnapshotFile\": \"" + SerializePath(files.SnapshotFile) + "\"");
+            sb.AppendLine("}");
+            sb.AppendLine("//END");
+            ConsoleCommandLogger.Output(sb.ToString());
+        }
+
+
+        private static string SerializePath(string path)
+            => path?.Replace("\\", "\\\\");
     }
 }
