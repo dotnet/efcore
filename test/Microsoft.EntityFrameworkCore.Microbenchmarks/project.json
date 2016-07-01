@@ -3,8 +3,8 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
+    "dotnet-test-xunit": "1.0.0-rc3-000000-00",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
   "publishOptions": {
@@ -19,11 +19,11 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0",
           "type": "platform"
         }
       }
     },
-    "net451": { }
+    "net451": {}
   }
 }

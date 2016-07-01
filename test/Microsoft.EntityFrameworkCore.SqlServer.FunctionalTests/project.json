@@ -8,11 +8,11 @@
     }
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*"
+    "dotnet-test-xunit": "1.0.0-rc3-000000-00",
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.0",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0"
   },
   "publishOptions": {
     "include": "**/*.sql",
@@ -31,7 +31,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0",
           "type": "platform"
         }
       }

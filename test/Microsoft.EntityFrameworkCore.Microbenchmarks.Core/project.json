@@ -3,11 +3,11 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "System.Runtime.InteropServices.RuntimeInformation": "4.0.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*",
+    "System.Runtime.InteropServices.RuntimeInformation": "4.0.0",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
     "Microsoft.Extensions.RuntimeEnvironment.Sources": {
-      "version": "1.0.0-*",
+      "version": "1.0.0-rtm-21431",
       "type": "build"
     },
     "xunit": "2.1.0"
@@ -20,10 +20,10 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0",
           "type": "platform"
         },
-        "System.Data.SqlClient": "4.1.0-*"
+        "System.Data.SqlClient": "4.1.0"
       }
     },
     "net451": {

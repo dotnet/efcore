@@ -5,10 +5,10 @@
     "preserveCompilationContext": true
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.0-*"
+    "dotnet-test-xunit": "1.0.0-rc3-000000-00",
+    "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-preview2-final",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.0"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -19,7 +19,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0",
           "type": "platform"
         }
       }
