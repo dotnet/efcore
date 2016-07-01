@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         private IEntityGraphAttacher _graphAttacher;
         private IModel _model;
         private ILogger _logger;
+        private IAsyncQueryProvider _queryProvider;
 
         private bool _initializing;
         private IServiceScope _serviceScope;
@@ -101,6 +103,9 @@ namespace Microsoft.EntityFrameworkCore
         private IStateManager StateManager
             => _stateManager
                ?? (_stateManager = InternalServiceProvider.GetRequiredService<IStateManager>());
+
+        internal IAsyncQueryProvider QueryProvider 
+            => _queryProvider ?? (_queryProvider = this.GetService<IAsyncQueryProvider>());
 
         private IServiceProvider InternalServiceProvider
         {

@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             // set is used and services will be obtained from the correctly scoped container when this happens.
             _entityQueryable
                 = new LazyRef<EntityQueryable<TEntity>>(
-                    () => new EntityQueryable<TEntity>(_context.GetService<IAsyncQueryProvider>()));
+                    () => new EntityQueryable<TEntity>(_context.QueryProvider));
         }
 
         /// <summary>
