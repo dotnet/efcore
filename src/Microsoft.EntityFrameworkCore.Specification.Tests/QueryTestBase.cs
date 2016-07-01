@@ -4936,7 +4936,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(
                     "ari",
-                    context.Set<Customer>().Select(c => c.ContactName.Substring(1, 3)).First());
+                    context.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.ContactName.Substring(1, 3)).First());
             }
         }
 
@@ -4949,7 +4949,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(
                     "ria",
-                    context.Set<Customer>().Select(c => c.ContactName.Substring(start, 3)).First());
+                    context.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.ContactName.Substring(start, 3)).First());
             }
         }
 
@@ -4960,7 +4960,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(
                     "ari",
-                    context.Set<Customer>().Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)).First());
+                    context.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)).First());
             }
         }
 

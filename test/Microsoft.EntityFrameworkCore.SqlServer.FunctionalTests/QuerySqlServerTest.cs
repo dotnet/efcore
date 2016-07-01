@@ -5232,7 +5232,8 @@ END",
 
             Assert.Equal(
                 @"SELECT TOP(1) SUBSTRING([c].[ContactName], 2, 3)
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -5244,7 +5245,8 @@ FROM [Customers] AS [c]",
                 @"@__start_0: 2
 
 SELECT TOP(1) SUBSTRING([c].[ContactName], @__start_0 + 1, 3)
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -5254,7 +5256,8 @@ FROM [Customers] AS [c]",
 
             Assert.Equal(
                 @"SELECT TOP(1) [c].[ContactName]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
