@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0-preview3-*",
+  "buildOptions": {
+    "keyFile": "../../tools/Key.snk",
+    "warningsAsErrors": true,
+    "outputName": "Microsoft.EntityFrameworkCore.Tools.VisualStudio"
+  },
+  "dependencies": {
+    "Microsoft.PowerShell.3.ReferenceAssemblies": {
+      "type": "build",
+      "version": "1.0.0"
+    }
+  },
+  "frameworks": {
+    "net451": {}
+  }
+}
