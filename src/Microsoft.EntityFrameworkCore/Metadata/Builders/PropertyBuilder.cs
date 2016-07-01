@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public class PropertyBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalPropertyBuilder>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyBuilder([NotNull] InternalPropertyBuilder builder)
@@ -98,6 +100,94 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder IsUnicode(bool unicode = true)
         {
             Builder.IsUnicode(unicode, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the <see cref="ValueGenerator" /> that will generate values for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned 
+        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///     </para>
+        ///     <para>
+        ///         A single instance of this type will be created and used to generate values for this property in all
+        ///         instances of the entity type. The type must be instantiable and have a parameterless constructor.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasValueGenerator<TGenerator>()
+            where TGenerator : ValueGenerator
+        {
+            Builder.HasValueGenerator(typeof(TGenerator), ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the <see cref="ValueGenerator" /> that will generate values for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned 
+        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///     </para>
+        ///     <para>
+        ///         A single instance of this type will be created and used to generate values for this property in all
+        ///         instances of the entity type. The type must be instantiable and have a parameterless constructor.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        ///     <para>
+        ///         Setting null does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" /> </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasValueGenerator([CanBeNull] Type valueGeneratorType)
+        {
+            Builder.HasValueGenerator(valueGeneratorType, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a factory for creating a <see cref="ValueGenerator" /> to use to generate values
+        ///         for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned 
+        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///     </para>
+        ///     <para>
+        ///         This factory will be invoked once to create a single instance of the value generator, and
+        ///         this will be used to generate values for this property in all instances of the entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        /// </summary>
+        /// <param name="factory"> A delegate that will be used to create value generator instances. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasValueGenerator([NotNull] Func<IProperty, IEntityType, ValueGenerator> factory)
+        {
+            Check.NotNull(factory, nameof(factory));
+
+            Builder.HasValueGenerator(factory, ConfigurationSource.Explicit);
 
             return this;
         }

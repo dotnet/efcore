@@ -3,9 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
@@ -478,6 +480,66 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                             x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
                         }),
                 Assert.Empty);
+        }
+
+        [Fact]
+        public void Add_custom_value_generator()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name");
+                        }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name")
+                                .HasValueGenerator<CustomValueGenerator>();
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(0, operations.Count);
+                    });
+        }
+
+        [Fact]
+        public void Remove_custom_value_generator()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasValueGenerator<CustomValueGenerator>();
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(0, operations.Count);
+                });
+        }
+
+        private class CustomValueGenerator : ValueGenerator<string>
+        {
+            public override string Next(EntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool GeneratesTemporaryValues => false;
         }
 
         [Fact]

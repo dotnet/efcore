@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -22,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
+
+            Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
 
             Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Id"), entityType));
             Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Long"), entityType));
@@ -85,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder();
             builder.Ignore<Random>();
-            builder.Entity<AnEntity>();
+            builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
             var model = builder.Model;
             var entityType = model.FindEntityType(typeof(AnEntity));
             entityType.AddProperty("Random", typeof(Random), shadow: false);
@@ -101,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
         private class AnEntity
         {
             public int Id { get; set; }
+            public int Custom { get; set; }
             public long Long { get; set; }
             public short Short { get; set; }
             public byte Byte { get; set; }
@@ -131,6 +135,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             public DateTimeOffset DateTimeOffset { get; set; }
             public DateTimeOffset? NullableDateTimeOffset { get; set; }
             public Random Random { get; set; }
+        }
+
+        private class CustomValueGenerator : ValueGenerator<int>
+        {
+            public override int Next(EntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool GeneratesTemporaryValues => false;
         }
     }
 }

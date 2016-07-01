@@ -207,6 +207,12 @@
   <data name="NoValueGenerator" xml:space="preserve">
     <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
   </data>
+  <data name="BadValueGeneratorType" xml:space="preserve">
+    <value>The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.</value>
+  </data>
+  <data name="CannotCreateValueGenerator" xml:space="preserve">
+    <value>Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.</value>
+  </data>
   <data name="TempValuePersists" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>

@@ -3,9 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -617,6 +619,92 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Can_set_custom_value_generator_for_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up).HasValueGenerator<CustomValueGenerator>();
+                    b.Property(e => e.Down).HasValueGenerator(typeof(CustomValueGenerator));
+                    b.Property<int>("Charm").HasValueGenerator((_, __) => new CustomValueGenerator());
+                    b.Property<string>("Strange").HasValueGenerator<CustomValueGenerator>();
+                    b.Property<int>("Top").HasValueGenerator(typeof(CustomValueGenerator));
+                    b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
+                });
+
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty(Customer.IdProperty.Name).GetValueGeneratorFactory());
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Up").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Down").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Charm").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Strange").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Top").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Bottom").GetValueGeneratorFactory()(null, null));
+            }
+
+            private class CustomValueGenerator : ValueGenerator<int>
+            {
+                public override int Next(EntityEntry entry)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public override bool GeneratesTemporaryValues => false;
+            }
+
+            [Fact]
+            public virtual void Throws_for_bad_value_generator_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Quarks>(b =>
+                {
+                    Assert.Equal(
+                        CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                        Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
+                });
+            }
+
+            [Fact]
+            public virtual void Throws_for_value_generator_that_cannot_be_constructed()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
+                    b.Property(e => e.Down).HasValueGenerator<BadCustomValueGenerator2>();
+                });
+
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Equal(
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => entityType.FindProperty("Up").GetValueGeneratorFactory()(null, null)).Message);
+
+                Assert.Equal(
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator2)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => entityType.FindProperty("Down").GetValueGeneratorFactory()(null, null)).Message);
+            }
+
+            private class BadCustomValueGenerator1 : CustomValueGenerator
+            {
+                public BadCustomValueGenerator1(string foo)
+                {
+                }
+            }
+
+            private abstract class BadCustomValueGenerator2 : CustomValueGenerator
+            {
+            }
+
+            [Fact]
             public virtual void Can_set_unicode_for_properties()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -657,6 +745,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .ValueGeneratedOnAddOrUpdate()
                     .IsUnicode()
                     .HasMaxLength(100)
+                    .HasValueGenerator<CustomValueGenerator>()
+                    .HasValueGenerator(typeof(CustomValueGenerator))
+                    .HasValueGenerator((_, __) => null)
                     .IsRequired();
             }
 

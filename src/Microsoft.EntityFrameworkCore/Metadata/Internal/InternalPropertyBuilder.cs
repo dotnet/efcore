@@ -4,7 +4,10 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -73,6 +76,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsUnicode(bool unicode, ConfigurationSource configurationSource)
             => HasAnnotation(CoreAnnotationNames.UnicodeAnnotation, unicode, configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool HasValueGenerator([CanBeNull] Type valueGeneratorType, ConfigurationSource configurationSource)
+        {
+            if (valueGeneratorType == null)
+            {
+                return HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, configurationSource);
+            }
+
+            if (!typeof(ValueGenerator).GetTypeInfo().IsAssignableFrom(valueGeneratorType.GetTypeInfo()))
+            {
+                throw new ArgumentException(
+                    CoreStrings.BadValueGeneratorType(valueGeneratorType.ShortDisplayName(), typeof(ValueGenerator).ShortDisplayName()));
+            }
+
+            return HasValueGenerator((_, __)
+                =>
+                {
+                    try
+                    {
+                        return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
+                    }
+                }, configurationSource);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool HasValueGenerator(
+            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory, 
+            ConfigurationSource configurationSource)
+        {
+            if (HasAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation, factory, configurationSource))
+            {
+                RequiresValueGenerator(factory != null, ConfigurationSource.Convention);
+                return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

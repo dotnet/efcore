@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -17,6 +18,30 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class MutablePropertyExtensions
     {
+        /// <summary>
+        ///     <para>
+        ///         Sets the factory to use for generating values for this property, or null to clear any previously set factory.
+        ///     </para>
+        ///     <para>
+        ///         Setting null does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property to set the value generator for. </param>
+        /// <param name="valueGeneratorFactory">
+        ///     A factory that will be used to create the value generator, or null to
+        ///     clear any previously set factory.
+        /// </param>
+        public static void SetValueGeneratorFactory(
+            [NotNull] this IMutableProperty property,
+            [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
+        {
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(valueGeneratorFactory, nameof(valueGeneratorFactory));
+
+            property[CoreAnnotationNames.ValueGeneratorFactoryAnnotation] = valueGeneratorFactory;
+        }
+
         /// <summary>
         ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
         ///     then this is the maximum number of characters.

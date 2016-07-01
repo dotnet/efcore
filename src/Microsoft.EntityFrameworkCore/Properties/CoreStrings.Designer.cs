@@ -257,6 +257,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.
+        /// </summary>
+        public static string BadValueGeneratorType([CanBeNull] object givenType, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadValueGeneratorType", "givenType", "expectedType"), givenType, expectedType);
+        }
+
+        /// <summary>
+        /// Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.
+        /// </summary>
+        public static string CannotCreateValueGenerator([CanBeNull] object generatorType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotCreateValueGenerator", "generatorType"), generatorType);
+        }
+
+        /// <summary>
         /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
         /// </summary>
         public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -212,6 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedNever();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAdd();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate();
+
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>() where TGenerator : ValueGenerator;
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory);
         }
 
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>

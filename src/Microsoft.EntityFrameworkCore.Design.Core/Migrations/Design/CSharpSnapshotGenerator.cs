@@ -254,6 +254,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation, nameof(PropertyBuilder.IsUnicode), stringBuilder);
 
+            IgnoreAnnotations(annotations, CoreAnnotationNames.ValueGeneratorFactoryAnnotation);
+
             GenerateAnnotations(annotations, stringBuilder);
         }
 
@@ -423,14 +425,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations.Remove(discriminatorValueAnnotation);
             }
 
-            foreach (var annotationToRemove in annotations.Where(a =>
-                a.Name == RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName
-                || a.Name == RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName
-                || a.Name == InversePropertyAttributeConvention.InverseNavigationsAnnotationName)
-                .ToList())
-            {
-                annotations.Remove(annotationToRemove);
-            }
+            IgnoreAnnotations(
+                annotations,
+                RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
+                RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
+                InversePropertyAttributeConvention.InverseNavigationsAnnotationName);
 
             if (annotations.Any())
             {
@@ -584,6 +583,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateAnnotations(annotations, stringBuilder);
         }
+
+        protected virtual void IgnoreAnnotations(
+            [NotNull] IList<IAnnotation> annotations, [NotNull] params string[] annotationNames)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(annotationNames, nameof(annotationNames));
+
+            foreach (var annotationName in annotationNames)
+            {
+                var annotation = annotations.FirstOrDefault(a => a.Name == annotationName);
+                if (annotation != null)
+                {
+                    annotations.Remove(annotation);
+                }
+            }
+        }
+
 
         protected virtual void GenerateAnnotations(
             [NotNull] IReadOnlyList<IAnnotation> annotations, [NotNull] IndentedStringBuilder stringBuilder)
