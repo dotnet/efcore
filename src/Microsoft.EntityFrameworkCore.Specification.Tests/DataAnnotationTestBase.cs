@@ -2,7 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -25,6 +31,53 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected TTestStore TestStore { get; }
 
         public void Dispose() => TestStore.Dispose();
+        
+        public virtual ModelBuilder CreateModelBuilder()
+        {
+            var context = CreateContext();
+            var conventionSetBuilder = context.GetService<IDatabaseProviderServices>().ConventionSetBuilder;
+            var conventionSet = context.GetService<ICoreConventionSetBuilder>().CreateConventionSet();
+            conventionSet = conventionSetBuilder == null
+                ? conventionSet
+                : conventionSetBuilder.AddConventions(conventionSet);
+            return new ModelBuilder(conventionSet);
+        }
+
+        protected virtual void Validate(IModel model) => Fixture.ThrowingValidator.Validate(model);
+
+        [Fact]
+        public virtual void Key_from_base_type_is_recognized_if_discovered_through_relationship()
+        {
+            var builder = CreateModelBuilder();
+
+            builder.Entity<SRelated>();
+
+            Validate(builder.Model);
+            Assert.True(GetProperty<OKeyBase>(builder, nameof(OKeyBase.OrderLineNo)).IsPrimaryKey());
+            Assert.True(GetProperty<DODerived>(builder, nameof(DODerived.OrderLineNo)).IsPrimaryKey());
+        }
+
+        protected class SRelated
+        {
+            public int SRelatedId { get; set; }
+
+            public ICollection<OKeyBase> OKeyBases { get; set; }
+            public ICollection<DODerived> DADeriveds { get; set; }
+        }
+
+        protected class OKeyBase
+        {
+            [Key]
+            public int OrderLineNo { get; set; }
+
+            public int Quantity { get; set; }
+        }
+
+        protected class DODerived : OKeyBase
+        {
+            public SRelated DARelated { get; set; }
+            public string Special { get; set; }
+        }
 
         [Fact]
         public virtual void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
@@ -193,5 +246,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
             }
         }
+
+        protected static IMutableProperty GetProperty<TEntity>(ModelBuilder modelBuilder, string name)
+            => modelBuilder.Model.FindEntityType(typeof(TEntity)).FindProperty(name);
     }
 }
