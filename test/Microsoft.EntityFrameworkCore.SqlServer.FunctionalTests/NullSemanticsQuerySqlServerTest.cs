@@ -778,6 +778,17 @@ WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo'
                 Sql);
         }
 
+        public override void Where_coalesce()
+        {
+            base.Where_coalesce();
+
+            Assert.Equal(
+    @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE COALESCE([e].[NullableBoolA], 1) = 1",
+                Sql);
+        }
+
         public override void Where_equal_nullable_with_null_value_parameter()
         {
             base.Where_equal_nullable_with_null_value_parameter();

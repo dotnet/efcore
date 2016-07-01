@@ -343,6 +343,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 && e.NullableStringA != prm3));
         }
 
+
+        [Fact]
+        public virtual void Where_coalesce()
+        {
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA ?? true));
+        }
+
         [Fact]
         public virtual void Where_equal_nullable_with_null_value_parameter()
         {
