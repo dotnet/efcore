@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SQLite database provider for Entity Framework Core.",
   "packOptions": {
     "tags": [
