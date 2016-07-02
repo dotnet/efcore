@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         /// 
         /// </summary>
-        public INavigation Navigation { get; }
+        public virtual INavigation Navigation { [NotNull]get; }
 
         /// <summary>
         ///     Gets the query source.
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The query source.
         /// </value>
-        public virtual IQuerySource QuerySource { get; }
+        public virtual IQuerySource QuerySource { [NotNull]get; }
 
         /// <summary>
         ///     Gets the set of navigation references to be included.
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The set of navigation references to be included.
         /// </value>
-        public virtual IReadOnlyList<IncludeSpecification> References { get; }
+        public virtual IReadOnlyList<IncludeSpecification> References { [NotNull]get; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this object is an enumerable target.

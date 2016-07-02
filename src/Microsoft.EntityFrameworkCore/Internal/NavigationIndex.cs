@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -8,11 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         /// 
         /// </summary>
-        public int Index { get; set; }
+        public virtual int Index { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public NavigationIndexMap ReferencedMap { get; set; }
+        public virtual NavigationIndexMap ReferencedMap { [NotNull] get; [NotNull] set; }
     }
 }

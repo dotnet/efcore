@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -30,14 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <param name="value"></param>
         /// <returns></returns>
         [IndexerName("ReferencedIndexes")]
-        public NavigationIndex this[IncludeSpecification value] => _indexMap[value];
+        [NotNull]
+        public virtual NavigationIndex this[[NotNull]IncludeSpecification value] => _indexMap[value];
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="includeSpecification"></param>
         /// <param name="index"></param>
-        public void Add(IncludeSpecification includeSpecification, NavigationIndex index)
+        public virtual void Add([NotNull]IncludeSpecification includeSpecification, [NotNull]NavigationIndex index)
         {
             _indexMap.Add(includeSpecification, index);
         }
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         /// <param name="includeSpecification"></param>
         /// <returns></returns>
-        public bool Exist(IncludeSpecification includeSpecification)
+        public virtual bool Exist([NotNull]IncludeSpecification includeSpecification)
         {
             return _indexMap.ContainsKey(includeSpecification);
         }

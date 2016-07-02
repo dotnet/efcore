@@ -181,15 +181,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var propertyGetter = navigation.GetGetter();
                 var referencedEntities = (IEnumerable<object>) propertyGetter.GetClrValue(entity);
 
-                foreach (var referencedEntity
-                    in referencedEntities.Where(referencedEntity => referencedEntity != null))
+                if (referencedEntities != null)
                 {
-                    yield return new IncludedEntity(referencedEntity, _includedEntityTrackingInfos[navigation], _handledForeignKeys);
-
-                    foreach (var includedEntity
-                        in reference.References.SelectMany(r => GetIncludedEntities(referencedEntity, r)))
+                    foreach (var referencedEntity
+                        in referencedEntities.Where(referencedEntity => referencedEntity != null))
                     {
-                        yield return includedEntity;
+                        yield return new IncludedEntity(referencedEntity, _includedEntityTrackingInfos[navigation], _handledForeignKeys);
+
+                        foreach (var includedEntity
+                            in reference.References.SelectMany(r => GetIncludedEntities(referencedEntity, r)))
+                        {
+                            yield return includedEntity;
+                        }
                     }
                 }
             }
