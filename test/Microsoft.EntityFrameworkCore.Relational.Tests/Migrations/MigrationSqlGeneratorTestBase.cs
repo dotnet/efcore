@@ -69,15 +69,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 });
 
         [Fact]
-        public virtual void AddColumnOperation_with_unicode_overridden()
+        public virtual void AddColumnOperation_with_ansi()
             => Generate(
-                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name"),
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
                 new AddColumnOperation
                 {
                     Table = "Person",
                     Name = "Name",
                     ClrType = typeof(string),
                     IsUnicode = false,
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_unicode_overridden()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsUnicode = true,
                     IsNullable = true
                 });
 
@@ -153,6 +166,38 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     MaxLength = 30,
                     IsNullable = true
                 });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_shared_column()
+            => Generate(
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity<Base>();
+                        modelBuilder.Entity<Derived1>();
+                        modelBuilder.Entity<Derived2>();
+                    },
+                new AddColumnOperation
+                {
+                    Table = "Base",
+                    Name = "Foo",
+                    ClrType = typeof(string),
+                    IsNullable = true
+                });
+
+        private class Base
+        {
+            public int Id { get; set; }
+        }
+
+        private class Derived1 : Base
+        {
+            public string Foo { get; set; }
+        }
+
+        private class Derived2 : Base
+        {
+            public string Foo { get; set; }
+        }
 
         [Fact]
         public virtual void AddForeignKeyOperation_with_name()

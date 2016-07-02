@@ -109,10 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 if (keyProperties.Count == 1)
                 {
                     throw new ArgumentException(
-                        CoreStrings.FindNotCompositeKey(typeof(TEntity).Name, keyValues.Length));
+                        CoreStrings.FindNotCompositeKey(typeof(TEntity).ShortDisplayName(), keyValues.Length));
                 }
                 throw new ArgumentException(
-                    CoreStrings.FindValueCountMismatch(typeof(TEntity).Name, keyProperties.Count, keyValues.Length));
+                    CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), keyProperties.Count, keyValues.Length));
             }
 
             for (var i = 0; i < keyValues.Length; i++)
@@ -127,7 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 if (valueType != propertyType)
                 {
                     throw new ArgumentException(
-                        CoreStrings.FindValueTypeMismatch(i, typeof(TEntity).Name, valueType.Name, propertyType.Name));
+                        CoreStrings.FindValueTypeMismatch(
+                            i, typeof(TEntity).ShortDisplayName(), valueType.ShortDisplayName(), propertyType.ShortDisplayName()));
                 }
             }
 

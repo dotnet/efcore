@@ -133,7 +133,6 @@
     <Compile Include="Metadata\Internal\PropertyTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
-    <Compile Include="ModelBuilderTest\DataAnnotationsTestBase.cs" />
     <Compile Include="ModelBuilderTest\GiantModel.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

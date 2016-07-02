@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
       AND   minor_id = 0
       AND   class = 1
       AND   name = N'microsoft_database_tools_support') " +
-    $"AND t.name <> '{HistoryRepository.DefaultTableName}'" + TemporalTableWhereClause;
+    $"AND t.name <> '{HistoryRepository.DefaultTableName}'" + TemporalTableWhereClause; // Interpolation okay; strings
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())

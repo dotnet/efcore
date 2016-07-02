@@ -46,13 +46,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
-                        navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.Name, navigation.GetTargetType().Name));
+                        navigation.Name, 
+                        navigation.DeclaringEntityType.DisplayName(), 
+                        property.PropertyType.ShortDisplayName(), 
+                        navigation.GetTargetType().DisplayName()));
             }
 
             if (property.PropertyType.IsArray)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NavigationArray(navigation.Name, navigation.DeclaringEntityType.DisplayName(), property.PropertyType.Name));
+                    CoreStrings.NavigationArray(
+                        navigation.Name, 
+                        navigation.DeclaringEntityType.DisplayName(), 
+                        property.PropertyType.ShortDisplayName()));
             }
 
             if (property.GetMethod == null)

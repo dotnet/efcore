@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
             Assert.Equal(
                 DesignCoreStrings.InvokeStartupMethodFailed(
                     "ConfigureServices",
-                    typeof(BadStartup).DisplayName(),
+                    nameof(BadStartup),
                     "Something went wrong."),
                 log[0].Item2);
         }

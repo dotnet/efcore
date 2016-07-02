@@ -80,6 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return newRelationshipBuilder;
             }
 
+            if (relationshipBuilder.Metadata.Builder == null)
+            {
+                return null;
+            }
+
             return relationshipBuilder;
         }
 

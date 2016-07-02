@@ -7,12 +7,54 @@ using Xunit;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringEndsWithIsCultureSpecific
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class InheritanceTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : InheritanceFixtureBase, new()
     {
+        [Fact]
+        public virtual void Can_query_when_shared_column()
+        {
+            using (var context = CreateContext())
+            {
+                var coke = context.Set<Coke>().Single();
+                Assert.Equal(6, coke.SugarGrams);
+                Assert.Equal(4, coke.CaffeineGrams);
+                Assert.Equal(5, coke.Carbination);
+
+                var lilt = context.Set<Lilt>().Single();
+                Assert.Equal(4, lilt.SugarGrams);
+                Assert.Equal(7, lilt.Carbination);
+
+                var tea = context.Set<Tea>().Single();
+                Assert.True(tea.HasMilk);
+                Assert.Equal(1, tea.CaffeineGrams);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_query_all_types_when_shared_column()
+        {
+            using (var context = CreateContext())
+            {
+                var drinks = context.Set<Drink>().ToList();
+                Assert.Equal(3, drinks.Count);
+
+                var coke = drinks.OfType<Coke>().Single();
+                Assert.Equal(6, coke.SugarGrams);
+                Assert.Equal(4, coke.CaffeineGrams);
+                Assert.Equal(5, coke.Carbination);
+
+                var lilt = drinks.OfType<Lilt>().Single();
+                Assert.Equal(4, lilt.SugarGrams);
+                Assert.Equal(7, lilt.Carbination);
+
+                var tea = drinks.OfType<Tea>().Single();
+                Assert.True(tea.HasMilk);
+                Assert.Equal(1, tea.CaffeineGrams);
+            }
+        }
+
         [Fact]
         public virtual void Can_use_of_type_animal()
         {

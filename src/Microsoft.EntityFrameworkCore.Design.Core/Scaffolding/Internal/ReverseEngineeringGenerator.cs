@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 throw new InvalidOperationException(
                     RelationalDesignStrings.ProviderReturnedNullModel(
-                        _factory.GetType().FullName));
+                        _factory.GetType().ShortDisplayName()));
             }
 
             return metadataModel;

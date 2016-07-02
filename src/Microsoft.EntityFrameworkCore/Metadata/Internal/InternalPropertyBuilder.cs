@@ -71,6 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool IsUnicode(bool unicode, ConfigurationSource configurationSource)
+            => HasAnnotation(CoreAnnotationNames.UnicodeAnnotation, unicode, configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsConcurrencyToken(bool concurrencyToken, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsConcurrencyTokenConfigurationSource())

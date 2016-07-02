@@ -74,21 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => new GenericTestModelBuilder(modelBuilder);
         }
 
-        public class GenericDataAnnotations : DataAnnotationsTestBase
-        {
-            [Fact]
-            public virtual void NotMappedAttribute_ignored_explicit_interface_implementation_property()
-            {
-                var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<EntityAnnotationBase>();
-
-                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityAnnotationBase)).GetProperties());
-            }
-
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
-        }
-
         public class GenericInheritance : InheritanceTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
@@ -213,6 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasMaxLength(maxLength));
+
+            public override TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsUnicode(unicode));
 
             public override TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsConcurrencyToken(isConcurrencyToken));

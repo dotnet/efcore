@@ -714,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                SqlServerStrings.SequenceBadType("Name", typeof(Customer).FullName, "String"),
+                SqlServerStrings.SequenceBadType("Name", nameof(Customer), "string"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo).Message);
         }
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                SqlServerStrings.IdentityBadType("Name", typeof(Customer).FullName, "String"),
+                SqlServerStrings.IdentityBadType("Name", nameof(Customer), "string"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
         }
@@ -746,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                SqlServerStrings.IdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
+                SqlServerStrings.IdentityBadType("Byte", nameof(Customer), "byte"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
         }
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                SqlServerStrings.IdentityBadType("NullableByte", typeof(Customer).FullName, "Nullable`1"),
+                SqlServerStrings.IdentityBadType("NullableByte", nameof(Customer), "Nullable<byte>"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
         }

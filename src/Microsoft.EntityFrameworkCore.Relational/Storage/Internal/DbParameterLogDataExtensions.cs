@@ -3,86 +3,32 @@
 
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
-    internal static class RelationalLoggerExtensions
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public static class DbParameterLogDataExtensions
     {
-        public static void LogCommandExecuted(
-            [NotNull] this ISensitiveDataLogger logger,
-            [NotNull] DbCommand command,
-            long startTimestamp,
-            long currentTimestamp)
-        {
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(command, nameof(command));
-
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                var logParameterValues
-                    = command.Parameters.Count > 0
-                      && logger.LogSensitiveData;
-
-                var logData = new DbCommandLogData(
-                    command.CommandText.TrimEnd(),
-                    command.CommandType,
-                    command.CommandTimeout,
-                    command.Parameters
-                        .Cast<DbParameter>()
-                        .Select(
-                            p => new DbParameterLogData(
-                                p.ParameterName,
-                                logParameterValues ? p.Value : "?",
-                                logParameterValues,
-                                p.Direction,
-                                p.DbType,
-                                p.IsNullable,
-                                p.Size,
-                                p.Precision,
-                                p.Scale))
-                        .ToList(),
-                    DeriveTimespan(startTimestamp, currentTimestamp));
-
-                logger.Log(
-                    LogLevel.Information,
-                    (int)RelationalEventId.ExecutedCommand,
-                    logData,
-                    null,
-                    (state, _) =>
-                        {
-                            var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
-
-                            return RelationalStrings.RelationalLoggerExecutedCommand(
-                                string.Format($"{elapsedMilliseconds:N0}"),
-                                state.Parameters
-                                    .Select(p => $"{p.Name}={FormatParameter(p)}")
-                                    .Join(),
-                                state.CommandType,
-                                state.CommandTimeout,
-                                Environment.NewLine,
-                                state.CommandText);
-                        });
-            }
-        }
-
-        public static string FormatParameter(DbParameterLogData parameterData)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string FormatParameter(
+            [NotNull] this DbParameterLogData parameterData,
+            bool quoteValues = true)
         {
             var builder = new StringBuilder();
 
             var value = parameterData.Value;
             var clrType = value?.GetType();
 
-            FormatParameterValue(builder, value);
+            FormatParameterValue(builder, value, quoteValues);
 
             if (parameterData.IsNullable
                 && value != null
@@ -105,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(" (Size = ")
-                    .Append(parameterData.Size)
+                    .Append(parameterData.Size.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
@@ -113,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(" (Precision = ")
-                    .Append(parameterData.Precision)
+                    .Append(parameterData.Precision.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
@@ -121,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(" (Scale = ")
-                    .Append(parameterData.Scale)
+                    .Append(parameterData.Scale.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
@@ -143,12 +89,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             return builder.ToString();
-
         }
 
-        public static void FormatParameterValue([NotNull] StringBuilder builder, [CanBeNull] object parameterValue)
+        private static void FormatParameterValue(StringBuilder builder, object parameterValue, bool quoteValues)
         {
-            builder.Append('\'');
+            if (quoteValues)
+            {
+                builder.Append('\'');
+            }
 
             if (parameterValue?.GetType() != typeof(byte[]))
             {
@@ -170,7 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
             }
 
-            builder.Append('\'');
+            if (quoteValues)
+            {
+                builder.Append('\'');
+            }
         }
 
         private static bool IsNormalDbType(DbType dbType, Type clrType)
@@ -235,42 +186,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     return false;
             }
         }
-
-        public static void LogInformation<TState>(
-            this ILogger logger, RelationalEventId eventId, TState state, Func<TState, string> formatter)
-        {
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.Log(LogLevel.Information, (int)eventId, state, null, (s, _) => formatter(s));
-            }
-        }
-
-        public static void LogDebug(
-            this ILogger logger, RelationalEventId eventId, Func<string> formatter)
-        {
-            if (logger.IsEnabled(LogLevel.Debug))
-            {
-                logger.Log<object>(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
-            }
-        }
-
-        public static void LogDebug<TState>(
-            this ILogger logger, RelationalEventId eventId, TState state, Func<TState, string> formatter)
-        {
-            if (logger.IsEnabled(LogLevel.Debug))
-            {
-                logger.Log(LogLevel.Debug, (int)eventId, state, null, (s, __) => formatter(s));
-            }
-        }
-
-        public static void LogWarning(this ILogger logger, RelationalEventId eventId, Func<string> formatter)
-        {
-            // Always call Log for Warnings because Warnings as Errors should work even
-            // if LogLevel.Warning is not enabled.
-            logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
-        }
-
-        private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
-            => (currentTimestamp - startTimestamp) / TimeSpan.TicksPerMillisecond;
     }
 }

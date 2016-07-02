@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
@@ -40,6 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object value)
             => (value == null) || value.Equals(type.GetDefaultValue());
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string ShortDisplayName([NotNull] this Type type)
+            => type.DisplayName(fullName: false);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -105,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
 
                 var name = part.Substring(0, num);
-                var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));
+                var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1), CultureInfo.InvariantCulture);
                 sb.Append(fullName ? name : genericSimpleName.Substring(0, genericSimpleName.IndexOf('`')));
                 AppendGenericArguments(genericArguments, index, numberOfGenericTypeArgs, sb, fullName);
                 return;
@@ -117,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 if (num != -1)
                 {
                     var name = part.Substring(0, num);
-                    var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));
+                    var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1), CultureInfo.InvariantCulture);
                     if (fullName || (i == totalParts - 1))
                     {
                         sb.Append(name);

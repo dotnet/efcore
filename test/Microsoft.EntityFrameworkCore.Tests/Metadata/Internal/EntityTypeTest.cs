@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             orderType.GetOrAddForeignKey(customerFk, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.KeyInUse("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName, typeof(Order).FullName),
+                CoreStrings.KeyInUse("{'" + Customer.IdProperty.Name + "'}", nameof(Customer), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => customerType.RemoveKey(customerKey.Properties)).Message);
         }
 
@@ -1506,7 +1506,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             nameProperty.IsReadOnlyAfterSave = true;
 
             Assert.Equal(
-                CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).FullName),
+                CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => nameProperty.IsReadOnlyAfterSave = false).Message);
 
             nameProperty.IsReadOnlyBeforeSave = true;
@@ -2078,7 +2078,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 CoreStrings.NavigationCollectionWrongClrType(
                     nameof(SpecialCustomer.DerivedOrders),
                     typeof(SpecialCustomer).Name,
-                    typeof(IEnumerable<SpecialOrder>).DisplayName(fullName: false),
+                    typeof(IEnumerable<SpecialOrder>).ShortDisplayName(),
                     typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => customerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty)).Message);
@@ -2387,7 +2387,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
 
             Assert.Equal(CoreStrings.PropertyWrongClrType(
-                nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).DisplayName(fullName: false)),
+                nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() =>
                     entityType.AddProperty(nameof(Customer.Name), typeof(int), shadow: false)).Message);
         }

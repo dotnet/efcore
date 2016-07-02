@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -203,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var targetTableName = _relationalAnnotationProvider.For(targetEntityType).TableName;
                 var targetTableAlias
                     = _queryCompilationContext
-                        .CreateUniqueTableAlias(targetTableName[0].ToString().ToLower());
+                        .CreateUniqueTableAlias(targetTableName[0].ToString().ToLowerInvariant());
 
                 if (!navigation.IsCollection())
                 {

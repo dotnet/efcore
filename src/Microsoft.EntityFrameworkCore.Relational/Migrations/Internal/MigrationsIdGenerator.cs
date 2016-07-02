@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -27,7 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsValidId(string value)
-            => Regex.IsMatch(value, $"[0-9]{{{Format.Length}}}_.+", default(RegexOptions), TimeSpan.FromMilliseconds(1000.0));
+            => Regex.IsMatch(
+                value, 
+                string.Format(CultureInfo.InvariantCulture, "[0-9]{{{0}}}_.+", Format.Length), 
+                default(RegexOptions), 
+                TimeSpan.FromMilliseconds(1000.0));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

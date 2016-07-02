@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     : base.FindMapping(clrType);
 
             protected override RelationalTypeMapping FindCustomMapping(IProperty property)
-                => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string), dbType: null, unicode: false, size: property.GetMaxLength())
+                => property.ClrType == typeof(string) && (property.GetMaxLength().HasValue || property.IsUnicode().HasValue)
+                    ? new RelationalTypeMapping(((property.IsUnicode() ?? true) ? "n" : "") + "varchar(" + (property.GetMaxLength() ?? 767) + ")", typeof(string), dbType: null, unicode: false, size: property.GetMaxLength())
                     : base.FindCustomMapping(property);
 
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings

@@ -17,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IEntityTypeConvention> EntityTypeAddedConventions { get; } = new List<IEntityTypeConvention>();
 
         /// <summary>
+        ///     Conventions to run when an entity type is ignored.
+        /// </summary>
+        public virtual IList<IEntityTypeIgnoredConvention> EntityTypeIgnoredConventions { get; } = new List<IEntityTypeIgnoredConvention>();
+
+        /// <summary>
         ///     Conventions to run when a property is ignored.
         /// </summary>
         public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new List<IEntityTypeMemberIgnoredConvention>();

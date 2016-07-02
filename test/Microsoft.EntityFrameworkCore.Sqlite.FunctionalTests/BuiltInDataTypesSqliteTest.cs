@@ -16,6 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         [Fact]
+        public virtual void Can_perform_query_with_ansi_strings()
+        {
+            Can_perform_query_with_ansi_strings(supportsAnsi: false);
+        }
+
+        [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types()
         {
             using (var context = CreateContext())

@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (concrete == null)
             {
                 throw new NotSupportedException(
-                    CoreStrings.CustomMetadata(methodName, typeof(TInterface).Name, @interface.GetType().Name));
+                    CoreStrings.CustomMetadata(
+                        methodName, typeof(TInterface).ShortDisplayName(), @interface.GetType().ShortDisplayName()));
             }
 
             return concrete;

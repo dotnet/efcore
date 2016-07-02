@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -58,6 +60,58 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             }
 
             Assert.NotNull(entityTypeBuilder);
+        }
+
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnEntityTypeIgnored_calls_apply_on_conventions_in_order(bool useBuilder)
+        {
+            var conventions = new ConventionSet();
+
+            InternalModelBuilder newModelBuilder = null;
+            var convention = new Mock<IEntityTypeIgnoredConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>(), It.IsAny<string>(), It.IsAny<Type>()))
+                .Returns<InternalModelBuilder, string, Type>((b, n, t) =>
+            {
+                Assert.NotNull(b);
+                Assert.Equal(typeof(Order).DisplayName(), n);
+                Assert.Same(typeof(Order), t);
+                return true;
+            });
+            conventions.EntityTypeIgnoredConventions.Add(convention.Object);
+
+            var haltingConvention = new Mock<IEntityTypeIgnoredConvention>();
+            haltingConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>(), It.IsAny<string>(), It.IsAny<Type>()))
+                .Returns<InternalModelBuilder, string, Type>((b, n, t) =>
+                    {
+                        newModelBuilder = new InternalModelBuilder(b.Metadata);
+                        return false;
+                    });
+            conventions.EntityTypeIgnoredConventions.Add(haltingConvention.Object);
+
+            var extraConvention = new Mock<IEntityTypeIgnoredConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>(), It.IsAny<string>(), It.IsAny<Type>()))
+                .Returns<InternalModelBuilder, string, Type>((b, n, t) =>
+                    {
+                        Assert.False(true);
+                        return false;
+                    });
+            conventions.EntityTypeIgnoredConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+
+            if (useBuilder)
+            {
+                builder.Entity(typeof(Order), ConfigurationSource.Convention);
+                builder.Ignore(typeof(Order).DisplayName(), ConfigurationSource.Convention);
+            }
+            else
+            {
+                builder.Metadata.Ignore(typeof(Order), ConfigurationSource.Convention);
+            }
+
+            Assert.NotNull(newModelBuilder);
         }
 
         [InlineData(false)]
@@ -600,8 +654,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
                 Assert.NotNull(relationshipBuilder.Metadata.HasDependentToPrincipal((string)null, ConfigurationSource.Convention));
             }
 
-            Assert.Same(dependentEntityTypeBuilderFromConvention, dependentEntityBuilder);
-            Assert.Same(principalEntityBuilderFromConvention, principalEntityBuilder);
+            Assert.Same(dependentEntityBuilder, dependentEntityTypeBuilderFromConvention);
+            Assert.Same(principalEntityBuilder, principalEntityBuilderFromConvention);
         }
 
         [InlineData(false)]

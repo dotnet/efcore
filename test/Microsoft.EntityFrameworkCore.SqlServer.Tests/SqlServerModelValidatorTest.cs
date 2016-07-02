@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -16,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
+        [Fact]
         public override void Detects_duplicate_column_names()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             VerifyError(RelationalStrings.DuplicateColumnName(typeof(Product).Name, "Id", typeof(Product).Name, "Name", "Id", ".Product", "int", "nvarchar(max)"), modelBuilder.Model);
         }
 
+        [Fact]
         public override void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
@@ -34,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "nvarchar(max)", "int"), modelBuilder.Model);
         }
-        
+
+        [Fact]
         public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
@@ -46,21 +48,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), ".Animal", "nvarchar(30)", "nvarchar(15)"), modelBuilder.Model);
         }
 
+        [Fact]
         public virtual void Throws_for_unsupported_data_types()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-            modelBuilder.Entity<Cheese>();
+            modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("nvarchar");
 
             Assert.Equal(
                 SqlServerStrings.UnqualifiedDataType("nvarchar"),
-                Assert.Throws<NotSupportedException>(() => Validate(modelBuilder.Model)).Message);
+                Assert.Throws<ArgumentException>(() => Validate(modelBuilder.Model)).Message);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_unicode()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).IsUnicode(false);
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).IsUnicode();
+
+            VerifyError(RelationalStrings.DuplicateColumnName(
+                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), ".Animal", "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
         }
 
         private class Cheese
         {
             public int Id { get; set; }
 
-            [Column(TypeName = "nvarchar")]
             public string Name { get; set; }
         }
 

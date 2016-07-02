@@ -62,14 +62,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string GenerateLiteralValue(DateTime value)
-            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'";
+            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string GenerateLiteralValue(DateTimeOffset value)
-            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'";
+            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

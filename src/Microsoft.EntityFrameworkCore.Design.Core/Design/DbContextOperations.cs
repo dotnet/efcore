@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private DbContext CreateContext(Func<DbContext> factory)
         {
             var context = factory();
-            _logger.Value.LogDebug(DesignCoreStrings.LogUseContext(context.GetType().Name));
+            _logger.Value.LogDebug(DesignCoreStrings.LogUseContext(context.GetType().ShortDisplayName()));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);

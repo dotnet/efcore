@@ -544,6 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override string ToString()
+            // Interpolation okay; strings/debug output
             => $"'{DeclaringEntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";
 
         /// <summary>
@@ -663,9 +664,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyCountMismatch(
                             Property.Format(dependentProperties),
-                            dependentEntityType.Name,
+                            dependentEntityType.DisplayName(),
                             Property.Format(principalProperties),
-                            principalEntityType.Name));
+                            principalEntityType.DisplayName()));
                 }
                 return false;
             }
@@ -677,9 +678,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyTypeMismatch(
                             Property.Format(dependentProperties),
-                            dependentEntityType.Name,
+                            dependentEntityType.DisplayName(),
                             Property.Format(principalProperties),
-                            principalEntityType.Name));
+                            principalEntityType.DisplayName()));
                 }
                 return false;
             }

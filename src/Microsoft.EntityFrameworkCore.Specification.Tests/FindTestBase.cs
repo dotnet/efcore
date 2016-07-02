@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(0, "IntKey", "String", "Int32"),
+                Assert.Equal(CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
                     Assert.Throws<ArgumentException>(() => context.IntKeys.Find("77")).Message);
             }
         }
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "Int32", "String"),
+                Assert.Equal(CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
                     Assert.Throws<ArgumentException>(() => context.CompositeKeys.Find(77, 88)).Message);
             }
         }
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(0, "IntKey", "String", "Int32"),
+                Assert.Equal(CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
                     (await Assert.ThrowsAsync<ArgumentException>(() => context.IntKeys.FindAsync("77"))).Message);
             }
         }
@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "Int32", "String"),
+                Assert.Equal(CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
                     (await Assert.ThrowsAsync<ArgumentException>(() => context.CompositeKeys.FindAsync(77, 88))).Message);
             }
         }

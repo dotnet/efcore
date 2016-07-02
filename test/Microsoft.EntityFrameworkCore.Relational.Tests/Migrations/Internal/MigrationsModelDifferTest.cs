@@ -604,6 +604,37 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         }
 
         [Fact]
+        public void Alter_column_unicode()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .IsUnicode(false);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.False(operation.IsUnicode);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
+        [Fact]
         public void Alter_column_default()
         {
             Execute(

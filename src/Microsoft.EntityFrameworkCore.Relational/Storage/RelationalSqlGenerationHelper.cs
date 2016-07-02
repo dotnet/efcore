@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         public virtual string DelimitIdentifier(string identifier)
-            => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\"";
+            => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\""; // Interpolation okay; strings
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(int value)
-            => value.ToString();
+            => value.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="value">The literal value.</param>
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, int value)
-            => builder.Append(value);
+            => builder.Append(value.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(short value)
-            => value.ToString();
+            => value.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="value">The literal value.</param>
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, short value)
-            => builder.Append(value);
+            => builder.Append(value.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(long value)
-            => value.ToString();
+            => value.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="value">The literal value.</param>
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, long value)
-            => builder.Append(value);
+            => builder.Append(value.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(byte value)
-            => value.ToString();
+            => value.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="value">The literal value.</param>
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, byte value)
-            => builder.Append(value);
+            => builder.Append(value.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(char value)
-            => $"'{value}'";
+            => string.Format(CultureInfo.InvariantCulture, "'{0}'", value);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="value">The literal value.</param>
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, char value)
-            => builder.Append("'").Append(value).Append("'");
+            => builder.Append("'").Append(value.ToString()).Append("'");
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="typeMapping">An optional type mapping that is used for this value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue([NotNull] string value, [CanBeNull] RelationalTypeMapping typeMapping)
-            => $"'{EscapeLiteral(Check.NotNull(value, nameof(value)))}'";
+            => $"'{EscapeLiteral(Check.NotNull(value, nameof(value)))}'"; // Interpolation okay; strings
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(Guid value)
-            => $"'{value}'";
+            => string.Format(CultureInfo.InvariantCulture, "'{0}'", value);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(DateTime value)
-            => $"TIMESTAMP '{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'";
+            => $"TIMESTAMP '{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(DateTimeOffset value)
-            => $"TIMESTAMP '{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'";
+            => $"TIMESTAMP '{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(TimeSpan value)
-            => $"'{value}'";
+            => String.Format(CultureInfo.InvariantCulture, "'{0}'", value);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.

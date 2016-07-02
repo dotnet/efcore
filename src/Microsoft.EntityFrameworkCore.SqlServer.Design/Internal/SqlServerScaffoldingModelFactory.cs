@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -174,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 && dateTimePrecision.Value != DefaultTimeTimePrecision)
             {
                 propertyBuilder.Metadata.SetMaxLength(null);
-                propertyBuilder.HasColumnType($"{column.DataType}({dateTimePrecision.Value})");
+                propertyBuilder.HasColumnType(
+                    string.Format(CultureInfo.InvariantCulture, "{0}({1})", column.DataType, dateTimePrecision.Value));
             }
             else if (!HasTypeAlias(column))
             {
@@ -226,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return new Tuple<string, int?>(
                         unqualifiedTypeName
                         + "("
-                        + (maxLength?.ToString() ?? "max")
+                        + (maxLength?.ToString(CultureInfo.InvariantCulture) ?? "max")
                         + ")",
                         null);
                 }
@@ -262,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             column.DisplayName,
                             column.DefaultValue,
                             propertyBuilder.Metadata.Name,
-                            propertyBuilder.Metadata.DeclaringEntityType.Name));
+                            propertyBuilder.Metadata.DeclaringEntityType.DisplayName()));
                 }
             }
         }
@@ -290,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             column.DisplayName,
                             column.ComputedValue,
                             propertyBuilder.Metadata.Name,
-                            propertyBuilder.Metadata.DeclaringEntityType.Name));
+                            propertyBuilder.Metadata.DeclaringEntityType.DisplayName()));
                 }
             }
         }

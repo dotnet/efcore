@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (unmappedProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyNotMapped(
-                        entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.DisplayName(fullName: false)));
+                        entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.ShortDisplayName()));
                 }
 
                 if (entityType.HasClrType())
@@ -63,24 +63,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 if (!modelBuilder.IsIgnored(targetType.DisplayName(), ConfigurationSource.Convention))
                                 {
                                     throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
-                                        entityType.DisplayName(), actualProperty.Name, propertyType.DisplayName(fullName: false)));
+                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                                 }
                             }
                             else if (propertyType.IsPrimitive())
                             {
                                 throw new InvalidOperationException(CoreStrings.PropertyNotMapped(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.DisplayName(fullName: false)));
+                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                             }
                             else if (propertyType.GetTypeInfo().IsInterface
                                      || (targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface))
                             {
                                 throw new InvalidOperationException(CoreStrings.InterfacePropertyNotAdded(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.DisplayName(fullName: false)));
+                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                             }
                             else
                             {
                                 throw new InvalidOperationException(CoreStrings.PropertyNotAdded(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.DisplayName(fullName: false)));
+                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                             }
                         }
                     }

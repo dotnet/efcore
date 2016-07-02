@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -74,7 +75,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             if ((property != null)
                 && (property.ClrType != typeof(TProperty)))
             {
-                throw new ArgumentException(CoreStrings.WrongGenericPropertyType(propertyName, property.DeclaringEntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
+                throw new ArgumentException(
+                    CoreStrings.WrongGenericPropertyType(
+                        propertyName, 
+                        property.DeclaringEntityType.DisplayName(), 
+                        property.ClrType.ShortDisplayName(), 
+                        typeof(TProperty).ShortDisplayName()));
             }
 
             return new PropertyEntry<TEntity, TProperty>(this.GetInfrastructure(), propertyName);

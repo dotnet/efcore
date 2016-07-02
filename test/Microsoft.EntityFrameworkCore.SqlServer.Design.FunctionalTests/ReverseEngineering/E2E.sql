@@ -122,12 +122,6 @@ GO
 CREATE TYPE TestTypeAlias FROM nvarchar(max)
 GO
 
-CREATE SEQUENCE PrimaryKeyWithSequenceSequence
-AS int
-START WITH 1
-INCREMENT BY 1
-GO
-
 CREATE TABLE "dbo"."AllDataTypes" (
 	AllDataTypesID int IDENTITY(1, 1) PRIMARY KEY,
 	bigintColumn bigint NOT NULL,
@@ -466,14 +460,6 @@ CREATE TABLE "FilteredOut" (
 	"FilteredOutID" "int" PRIMARY KEY,
 	"Unused1" nvarchar(20) NOT NULL,
 	"Unused2" "int" NOT NULL,
-)
-
-GO
-
-CREATE TABLE PrimaryKeyWithSequence (
-	PrimaryKeyWithSequenceId int DEFAULT(NEXT VALUE FOR PrimaryKeyWithSequenceSequence),
-	OtherColumn nvarchar (20) NOT NULL,
-	PRIMARY KEY (PrimaryKeyWithSequenceId)
 )
 
 GO

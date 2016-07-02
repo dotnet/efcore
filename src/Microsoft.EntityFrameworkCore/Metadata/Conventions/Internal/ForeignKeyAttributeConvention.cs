@@ -154,9 +154,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 // Relationship is joined by InversePropertyAttribute
                 throw new InvalidOperationException(CoreStrings.InvalidRelationshipUsingDataAnnotations(
                     dependentToPrincipalNavigationName,
-                    foreignKey.DeclaringEntityType.Name,
+                    foreignKey.DeclaringEntityType.DisplayName(),
                     principalToDepedentNavigationName,
-                    foreignKey.PrincipalEntityType.Name));
+                    foreignKey.PrincipalEntityType.DisplayName()));
             }
 
             var dependentEntityTypebuilder = foreignKey.DeclaringEntityType.Builder;
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (candidateProperties.Count > 1)
             {
-                throw new InvalidOperationException(CoreStrings.CompositeFkOnProperty(navigationName, entityType.Name));
+                throw new InvalidOperationException(CoreStrings.CompositeFkOnProperty(navigationName, entityType.DisplayName()));
             }
 
             if (candidateProperties.Count == 1)
@@ -225,7 +225,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if ((fkAttributeOnNavigation != null)
                     && (fkAttributeOnNavigation.Name != candidateProperties.First()))
                 {
-                    throw new InvalidOperationException(CoreStrings.FkAttributeOnPropertyNavigationMismatch(candidateProperties.First(), navigationName, entityType.Name));
+                    throw new InvalidOperationException(
+                        CoreStrings.FkAttributeOnPropertyNavigationMismatch(
+                            candidateProperties.First(), navigationName, entityType.DisplayName()));
                 }
             }
 
@@ -259,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 if (properties.Any(string.IsNullOrWhiteSpace))
                 {
-                    throw new InvalidOperationException(CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.Name));
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
                 }
 
                 var navigationPropertyTargetType = navigation.DeclaringEntityType.ClrType.GetRuntimeProperties()
@@ -274,7 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if ((attribute != null)
                         && (attribute.Name == navigationFkAttribute.Name))
                     {
-                        throw new InvalidOperationException(CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));
+                        throw new InvalidOperationException(
+                            CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));
                     }
                 }
 

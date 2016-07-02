@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (!ClrType.IsNullableType())
                 {
-                    throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.Name));
+                    throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.ShortDisplayName()));
                 }
 
                 if (Keys != null)
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!readOnlyAfterSave
                 && Keys != null)
             {
-                throw new InvalidOperationException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
+                throw new InvalidOperationException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName()));
             }
             SetFlag(readOnlyAfterSave, PropertyFlags.IsReadOnlyAfterSave);
             UpdateIsReadOnlyAfterSaveConfigurationSource(configurationSource);

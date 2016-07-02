@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     "SELECT name FROM sqlite_master" +
                     " WHERE type = 'table'" +
                     " AND name <> 'sqlite_sequence'" +
-                    $" AND name <> '{HistoryRepository.DefaultTableName}'";
+                    $" AND name <> '{HistoryRepository.DefaultTableName}'"; // Interpolation okay; strings
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 using (var command = _connection.CreateCommand())
                 {
-                    command.CommandText = $"PRAGMA table_info(\"{table.Name.Replace("\"", "\"\"")}\");";
+                    command.CommandText = $"PRAGMA table_info(\"{table.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 using (var indexInfo = _connection.CreateCommand())
                 {
-                    indexInfo.CommandText = $"PRAGMA index_list(\"{table.Name.Replace("\"", "\"\"")}\");";
+                    indexInfo.CommandText = $"PRAGMA index_list(\"{table.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
 
                     using (var reader = indexInfo.ExecuteReader())
                     {
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     foreach (var index in table.Indexes)
                     {
                         var indexColumns = _connection.CreateCommand();
-                        indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
+                        indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
 
                         index.IndexColumns = new List<IndexColumnModel>();
                         using (var reader = indexColumns.ExecuteReader())
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 using (var fkList = _connection.CreateCommand())
                 {
-                    fkList.CommandText = $"PRAGMA foreign_key_list(\"{dependentTable.Name.Replace("\"", "\"\"")}\");";
+                    fkList.CommandText = $"PRAGMA foreign_key_list(\"{dependentTable.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
 
                     var tableForeignKeys = new Dictionary<int, ForeignKeyModel>();
 

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -73,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 }
             }
 
-            return (TValue)Convert.ChangeType(newValue.Low, typeof(TValue));
+            return (TValue)Convert.ChangeType(newValue.Low, typeof(TValue), CultureInfo.InvariantCulture);
         }
 
         private HiLoValue GetNextValue()

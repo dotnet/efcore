@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Core.Utilities.Internal
                 return;
             }
 
-            throw new ArgumentException($"Could not serialize {obj} [{obj.GetType().FullName}]");
+            throw new ArgumentException(DesignCoreStrings.CouldNotSerialize(obj, obj.GetType().ShortDisplayName()));
         }
 
         private static void SerializeEnumerable(IEnumerable en, IndentedStringBuilder sb)

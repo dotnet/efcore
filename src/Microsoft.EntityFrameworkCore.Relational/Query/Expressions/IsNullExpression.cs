@@ -82,6 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// Creates a <see cref="String"/> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="String"/> representation of the Expression.</returns>
-        public override string ToString() => $"{Operand} IS NULL";
+        public override string ToString() => $"{Operand} IS NULL"; // Interpolation okay; value is string.
     }
 }

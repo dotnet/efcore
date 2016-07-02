@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             {
                 var entity = context.Add(new Chunky()).Entity;
 
-                Assert.Equal(CoreStrings.WrongGenericPropertyType("Monkey", entity.GetType(), typeof(int).Name, typeof(string).Name),
+                Assert.Equal(CoreStrings.WrongGenericPropertyType("Monkey", entity.GetType().ShortDisplayName(), "int", "string"),
                     Assert.Throws<ArgumentException>(() => context.Entry(entity).Property<string>("Monkey")).Message);
             }
         }

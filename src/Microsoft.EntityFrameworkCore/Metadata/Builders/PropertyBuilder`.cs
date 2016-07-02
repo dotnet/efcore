@@ -56,6 +56,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.HasMaxLength(maxLength);
 
         /// <summary>
+        ///     Configures the property as capable of persisting unicode characters or not.
+        ///     Can only be set on <see cref="string" /> properties.
+        /// </summary>
+        /// <param name="unicode"> A value indicating whether the property can contain unicode characters or not. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> IsUnicode(bool unicode = true)
+            => (PropertyBuilder<TProperty>)base.IsUnicode(unicode);
+
+        /// <summary>
         ///     Configures whether this property should be used as a concurrency token. When a property is configured
         ///     as a concurrency token the value in the database will be checked when an instance of this entity type
         ///     is updated or deleted during <see cref="DbContext.SaveChanges()" /> to ensure it has not changed since

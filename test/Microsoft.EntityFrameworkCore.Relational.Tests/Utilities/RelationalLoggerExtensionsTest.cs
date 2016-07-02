@@ -4,8 +4,8 @@
 using System;
 using System.Data;
 using System.Linq;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
@@ -18,15 +18,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
             var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
             var longerShortArray = shortArray.Concat(shortArray).ToArray();
 
-            var builder = new StringBuilder();
-            RelationalLoggerExtensions.FormatParameterValue(builder, shortArray);
+            Assert.Equal(
+                "'0x2020EC21EA3A6940A2DD08002B30309D'",
+                new DbParameterLogData(
+                    "@param", shortArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0).FormatParameter());
 
-            Assert.Equal("'0x2020EC21EA3A6940A2DD08002B30309D'", builder.ToString());
-
-            builder.Clear();
-            RelationalLoggerExtensions.FormatParameterValue(builder, longerShortArray);
-
-            Assert.Equal("'0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D'", builder.ToString());
+            Assert.Equal(
+                "'0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D'",
+                new DbParameterLogData(
+                    "@param", longerShortArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -35,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
             var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
             var longArray = shortArray.Concat(shortArray).Concat(shortArray).ToArray();
 
-            var builder = new StringBuilder();
-            RelationalLoggerExtensions.FormatParameterValue(builder, longArray);
-
-            Assert.Equal("'0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D...'", builder.ToString());
+            Assert.Equal(
+                "'0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D...'",
+                new DbParameterLogData(
+                    "@param", longArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'Muffin'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "Muffin", true, ParameterDirection.Input, DbType.String, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.String, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'Muffin' (Direction = Output)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "Muffin", true, ParameterDirection.Output, DbType.String, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "Muffin", true, ParameterDirection.Output, DbType.String, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -64,8 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'Muffin' (Nullable = false)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "Muffin", true, ParameterDirection.Input, DbType.String, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.String, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'Muffin' (DbType = AnsiString)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "Muffin", true, ParameterDirection.Input, DbType.AnsiString, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.AnsiString, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'Muffin' (Nullable = false) (DbType = AnsiString)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "Muffin", true, ParameterDirection.Input, DbType.AnsiString, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.AnsiString, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -91,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'Muffin' (Nullable = false) (Size = 100) (DbType = AnsiString)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "Muffin", true, ParameterDirection.Input, DbType.AnsiString, false, 100, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.AnsiString, false, 100, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -100,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'' (DbType = String)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", null, true, ParameterDirection.Input, DbType.String, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", null, true, ParameterDirection.Input, DbType.String, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -109,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'' (DbType = AnsiString)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", null, true, ParameterDirection.Input, DbType.AnsiString, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", null, true, ParameterDirection.Input, DbType.AnsiString, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'?'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "?", false, ParameterDirection.Input, DbType.String, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "?", false, ParameterDirection.Input, DbType.String, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -127,8 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'?'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "?", false, ParameterDirection.Input, DbType.String, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "?", false, ParameterDirection.Input, DbType.String, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -136,8 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", 777, true, ParameterDirection.Input, DbType.Int32, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", 777, true, ParameterDirection.Input, DbType.Int32, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (Nullable = true)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", 777, true, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", 777, true, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -154,8 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", 777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", 777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -163,8 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", 777, true, ParameterDirection.Input, 0, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", 777, true, ParameterDirection.Input, 0, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -172,8 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'' (DbType = Int32)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", null, true, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", null, true, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -181,8 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'?'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "?", false, ParameterDirection.Input, DbType.Int32, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "?", false, ParameterDirection.Input, DbType.Int32, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -190,8 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'?'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", "?", false, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", "?", false, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -199,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (short)777, true, ParameterDirection.Input, DbType.Int16, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (short)777, true, ParameterDirection.Input, DbType.Int16, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -208,8 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (short)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (short)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -217,8 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (long)777, true, ParameterDirection.Input, DbType.Int64, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (long)777, true, ParameterDirection.Input, DbType.Int64, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -226,8 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (long)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (long)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -235,8 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'77'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (byte)77, true, ParameterDirection.Input, DbType.Byte, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (byte)77, true, ParameterDirection.Input, DbType.Byte, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -244,8 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'77' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (byte)77, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (byte)77, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -253,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (uint)777, true, ParameterDirection.Input, DbType.UInt32, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (uint)777, true, ParameterDirection.Input, DbType.UInt32, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -262,8 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (uint)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (uint)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -271,8 +271,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (ushort)777, true, ParameterDirection.Input, DbType.UInt16, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (ushort)777, true, ParameterDirection.Input, DbType.UInt16, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -280,8 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (ushort)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (ushort)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -289,8 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (ulong)777, true, ParameterDirection.Input, DbType.UInt64, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (ulong)777, true, ParameterDirection.Input, DbType.UInt64, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -298,8 +298,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (ulong)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (ulong)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -307,8 +307,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'77'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (sbyte)77, true, ParameterDirection.Input, DbType.SByte, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (sbyte)77, true, ParameterDirection.Input, DbType.SByte, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -316,8 +316,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'77' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (sbyte)77, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (sbyte)77, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -325,8 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'0x0102'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new byte[] { 1, 2 }, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new byte[] { 1, 2 }, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -334,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'0x0102' (DbType = Object)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new byte[] { 1, 2 }, true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new byte[] { 1, 2 }, true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -343,8 +343,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'True'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", true, true, ParameterDirection.Input, DbType.Boolean, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", true, true, ParameterDirection.Input, DbType.Boolean, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -352,8 +352,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'True' (DbType = Int32)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", true, true, ParameterDirection.Input, DbType.Int32, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", true, true, ParameterDirection.Input, DbType.Int32, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -361,8 +361,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (decimal)777, true, ParameterDirection.Input, DbType.Decimal, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (decimal)777, true, ParameterDirection.Input, DbType.Decimal, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -370,8 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (decimal)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (decimal)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -379,8 +379,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'77.7' (Precision = 18)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 0)));
+                new DbParameterLogData(
+                    "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 0).FormatParameter());
         }
 
         [Fact]
@@ -388,8 +388,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'77.7' (Scale = 2)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 0, 2)));
+                new DbParameterLogData(
+                    "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 0, 2).FormatParameter());
         }
 
         [Fact]
@@ -397,8 +397,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'77.7' (Precision = 18) (Scale = 2)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 2)));
+                new DbParameterLogData(
+                    "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 2).FormatParameter());
         }
 
         [Fact]
@@ -406,8 +406,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (double)777, true, ParameterDirection.Input, DbType.Double, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (double)777, true, ParameterDirection.Input, DbType.Double, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -415,8 +415,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (double)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (double)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -424,8 +424,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (float)777, true, ParameterDirection.Input, DbType.Single, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (float)777, true, ParameterDirection.Input, DbType.Single, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -433,8 +433,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'777' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", (float)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", (float)777, true, ParameterDirection.Input, DbType.VarNumeric, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -442,9 +442,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'304afb2a-8b8c-49ac-996e-8561f7559a3f'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
+                new DbParameterLogData(
                     "@param", Guid.Parse("304afb2a-8b8c-49ac-996e-8561f7559a3f"),
-                    true, ParameterDirection.Input, DbType.Guid, false, 0, 0, 0)));
+                    true, ParameterDirection.Input, DbType.Guid, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -452,9 +452,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'304afb2a-8b8c-49ac-996e-8561f7559a3f' (DbType = Binary)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
+                new DbParameterLogData(
                     "@param", Guid.Parse("304afb2a-8b8c-49ac-996e-8561f7559a3f"),
-                    true, ParameterDirection.Input, DbType.Binary, false, 0, 0, 0)));
+                    true, ParameterDirection.Input, DbType.Binary, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -462,8 +462,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'System.Object'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new object(), true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new object(), true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -471,8 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'System.Object' (DbType = VarNumeric)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new object(), true, ParameterDirection.Input, DbType.VarNumeric, true, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new object(), true, ParameterDirection.Input, DbType.VarNumeric, true, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -480,8 +480,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'09/03/1973 00:00:00'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new DateTime(1973, 9, 3), true, ParameterDirection.Input, DbType.DateTime2, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new DateTime(1973, 9, 3), true, ParameterDirection.Input, DbType.DateTime2, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -489,8 +489,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'09/03/1973 00:00:00' (DbType = DateTime)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new DateTime(1973, 9, 3), true, ParameterDirection.Input, DbType.DateTime, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new DateTime(1973, 9, 3), true, ParameterDirection.Input, DbType.DateTime, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -498,9 +498,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'09/03/1973 00:00:00 -08:00'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
+                new DbParameterLogData(
                     "@param", new DateTimeOffset(new DateTime(1973, 9, 3), new TimeSpan(-8, 0, 0)),
-                    true, ParameterDirection.Input, DbType.DateTimeOffset, false, 0, 0, 0)));
+                    true, ParameterDirection.Input, DbType.DateTimeOffset, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -508,9 +508,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'09/03/1973 00:00:00 -08:00' (DbType = Date)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
+                new DbParameterLogData(
                     "@param", new DateTimeOffset(new DateTime(1973, 9, 3), new TimeSpan(-8, 0, 0)),
-                    true, ParameterDirection.Input, DbType.Date, false, 0, 0, 0)));
+                    true, ParameterDirection.Input, DbType.Date, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -518,8 +518,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'-08:00:00'",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new TimeSpan(-8, 0, 0), true, ParameterDirection.Input, DbType.Time, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new TimeSpan(-8, 0, 0), true, ParameterDirection.Input, DbType.Time, false, 0, 0, 0).FormatParameter());
         }
 
         [Fact]
@@ -527,8 +527,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
         {
             Assert.Equal(
                 "'-08:00:00' (DbType = DateTime)",
-                RelationalLoggerExtensions.FormatParameter(new DbParameterLogData(
-                    "@param", new TimeSpan(-8, 0, 0), true, ParameterDirection.Input, DbType.DateTime, false, 0, 0, 0)));
+                new DbParameterLogData(
+                    "@param", new TimeSpan(-8, 0, 0), true, ParameterDirection.Input, DbType.DateTime, false, 0, 0, 0).FormatParameter());
         }
     }
 }
