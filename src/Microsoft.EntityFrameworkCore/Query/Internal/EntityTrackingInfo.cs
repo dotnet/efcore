@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = Enumerable.Empty<IncludedEntity>();
 
         private readonly IEntityType _entityType;
-        private readonly IReadOnlyList<IReadOnlyList<INavigation>> _includedNavigationPaths;
+        private readonly IReadOnlyList<IncludeSpecification> _includedSpecifications;
         private readonly IDictionary<INavigation, IEntityType> _includedEntityTrackingInfos;
         private readonly ISet<IForeignKey> _handledForeignKeys;
 
@@ -52,26 +52,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _entityType = entityType;
 
-            _includedNavigationPaths
+            _includedSpecifications
                 = queryCompilationContext
                     .GetTrackableIncludes(querySourceReferenceExpression.ReferencedQuerySource);
 
-            if (_includedNavigationPaths != null)
+            if (_includedSpecifications != null)
             {
                 _includedEntityTrackingInfos = new Dictionary<INavigation, IEntityType>();
                 _handledForeignKeys = new HashSet<IForeignKey>();
+                TrackNavigations(_includedSpecifications);
+            }
+        }
 
-                foreach (var navigation
-                    in _includedNavigationPaths.SelectMany(ns => ns))
+        private void TrackNavigations(IEnumerable<IncludeSpecification> includeSpecifications)
+        {
+            foreach (var navigation in includeSpecifications)
+            {
+                if (!_includedEntityTrackingInfos.ContainsKey(navigation.Navigation))
                 {
-                    if (!_includedEntityTrackingInfos.ContainsKey(navigation))
-                    {
-                        var targetEntityType = navigation.GetTargetType();
+                    var targetEntityType = navigation.Navigation.GetTargetType();
 
-                        _includedEntityTrackingInfos.Add(navigation, targetEntityType);
-                        _handledForeignKeys.Add(navigation.ForeignKey);
-                    }
+                    _includedEntityTrackingInfos.Add(navigation.Navigation, targetEntityType);
+                    _handledForeignKeys.Add(navigation.Navigation.ForeignKey);
                 }
+                TrackNavigations(navigation.References);
             }
         }
 
@@ -158,58 +162,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(entity, nameof(entity));
 
-            if (_includedNavigationPaths == null)
+            if (_includedSpecifications == null)
             {
                 return _emptyIncludedEntities;
             }
 
-            return _includedNavigationPaths
-                .SelectMany(navigations => GetIncludedEntities(entity, navigations, index: 0));
+            return _includedSpecifications
+                .SelectMany(navigations => GetIncludedEntities(entity, navigations));
         }
 
         private IEnumerable<IncludedEntity> GetIncludedEntities(
-            object entity, IReadOnlyList<INavigation> navigationPath, int index)
+            object entity, IncludeSpecification reference)
         {
-            if (index < navigationPath.Count)
+            var navigation = reference.Navigation;
+
+            if (navigation.IsCollection())
             {
-                var navigation = navigationPath[index];
+                var propertyGetter = navigation.GetGetter();
+                var referencedEntities = (IEnumerable<object>) propertyGetter.GetClrValue(entity);
 
-                if (navigation.IsCollection())
+                foreach (var referencedEntity
+                    in referencedEntities.Where(referencedEntity => referencedEntity != null))
                 {
-                    var propertyGetter = navigation.GetGetter();
-                    var referencedEntities = (IEnumerable<object>)propertyGetter.GetClrValue(entity);
+                    yield return new IncludedEntity(referencedEntity, _includedEntityTrackingInfos[navigation], _handledForeignKeys);
 
-                    foreach (var referencedEntity
-                        in referencedEntities.Where(referencedEntity => referencedEntity != null))
+                    foreach (var includedEntity
+                        in reference.References.SelectMany(r => GetIncludedEntities(referencedEntity, r)))
                     {
-                        yield return new IncludedEntity(
-                            referencedEntity, 
-                            _includedEntityTrackingInfos[navigation],
-                            _handledForeignKeys);
-
-                        foreach (var includedEntity
-                            in GetIncludedEntities(referencedEntity, navigationPath, index + 1))
-                        {
-                            yield return includedEntity;
-                        }
+                        yield return includedEntity;
                     }
                 }
-                else
+            }
+            else
+            {
+                var referencedEntity = navigation.GetGetter().GetClrValue(entity);
+
+                if (referencedEntity != null)
                 {
-                    var referencedEntity = navigation.GetGetter().GetClrValue(entity);
+                    yield return new IncludedEntity(referencedEntity, _includedEntityTrackingInfos[navigation], _handledForeignKeys);
 
-                    if (referencedEntity != null)
+                    foreach (var includedEntity
+                        in reference.References.SelectMany(r => GetIncludedEntities(referencedEntity, r)))
                     {
-                        yield return new IncludedEntity(
-                            referencedEntity, 
-                            _includedEntityTrackingInfos[navigation],
-                            _handledForeignKeys);
-
-                        foreach (var includedEntity
-                            in GetIncludedEntities(referencedEntity, navigationPath, index + 1))
-                        {
-                            yield return includedEntity;
-                        }
+                        yield return includedEntity;
                     }
                 }
             }
