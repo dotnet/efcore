@@ -116,6 +116,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Gets a value indicating whether the given .NET type is mapped.
+        /// </summary>
+        /// <param name="clrType"> The .NET type. </param>
+        /// <returns> True if the type can be mapped; otherwise false. </returns>
+        public virtual bool IsTypeMapped(Type clrType)
+        {
+            Check.NotNull(clrType, nameof(clrType));
+
+            return FindMapping(clrType) != null;
+        }
+
+        /// <summary>
         ///     Creates the mapping for the given database type.
         /// </summary>
         /// <param name="storeType">The type to create the mapping for.</param>
