@@ -20,8 +20,8 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.1",
+    "Microsoft.EntityFrameworkCore.Sqlite": "1.0.1"
   },
   "frameworks": {
     "net451": {},

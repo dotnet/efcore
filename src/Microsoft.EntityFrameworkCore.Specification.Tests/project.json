@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "System.Runtime.InteropServices.RuntimeInformation": "4.0.0",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.0.0",
+    "Microsoft.EntityFrameworkCore.InMemory": "1.0.1",
     "Microsoft.Extensions.RuntimeEnvironment.Sources": {
       "version": "1.0.0-rtm-21431",
       "type": "build"

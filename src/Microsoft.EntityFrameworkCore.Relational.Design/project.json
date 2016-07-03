@@ -22,7 +22,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.1"
   },
   "frameworks": {
     "net451": {},
