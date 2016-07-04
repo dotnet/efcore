@@ -548,9 +548,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return;
             }
 
+            var groupResultOperator 
+                = queryModel.ResultOperators.OfType<GroupResultOperator>().LastOrDefault();
+
+            var outputExpression
+                = groupResultOperator?.ElementSelector ?? queryModel.SelectClause.Selector;
+
             var entityTrackingInfos
                 = _entityResultFindingExpressionVisitorFactory.Create(QueryCompilationContext)
-                    .FindEntitiesInResult(queryModel.SelectClause.Selector);
+                    .FindEntitiesInResult(outputExpression);
 
             if (entityTrackingInfos.Any())
             {
@@ -562,13 +568,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (resultItemTypeInfo.IsGenericType
                     && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
                         || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
+ 
                 {
                     trackingMethod
                         = LinqOperatorProvider.TrackGroupedEntities
                             .MakeGenericMethod(
                                 resultItemType.GenericTypeArguments[0],
-                                resultItemType.GenericTypeArguments[1],
-                                queryModel.SelectClause.Selector.Type);
+                                resultItemType.GenericTypeArguments[1]);
                 }
                 else
                 {
@@ -576,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         = LinqOperatorProvider.TrackEntities
                             .MakeGenericMethod(
                                 resultItemType,
-                                queryModel.SelectClause.Selector.Type);
+                                outputExpression.Type);
                 }
 
                 _expression
@@ -587,13 +593,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Constant(entityTrackingInfos),
                         Expression.Constant(
                             _getEntityAccessors
-                                .MakeGenericMethod(queryModel.SelectClause.Selector.Type)
+                                .MakeGenericMethod(outputExpression.Type)
                                 .Invoke(
                                     null,
                                     new object[]
                                     {
                                         entityTrackingInfos,
-                                        queryModel.SelectClause.Selector
+                                        outputExpression
                                     })));
             }
         }

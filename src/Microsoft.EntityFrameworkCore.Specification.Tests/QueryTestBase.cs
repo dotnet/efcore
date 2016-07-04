@@ -3153,7 +3153,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 select new { c, hasOrders });
         }
 
-        // TODO: Need to figure out how to do this 
+        // TODO: Need to figure out how to do this
         //        [ConditionalFact]
         //        public virtual void GroupBy_anonymous()
         //        {
@@ -4620,6 +4620,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 from c in cs.Take(1)
                 join o in os on c.CustomerID equals o.CustomerID into orders
                 from o in orders.DefaultIfEmpty()
+                select o);
+        }
+
+
+        [ConditionalFact]
+        public virtual void GroupJoin_Where()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                where o.CustomerID == "ALFKI"
+                select o);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_DefaultIfEmpty_Where_OrderBy()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                where o.CustomerID == "ALFKI" || c.CustomerID == "ANATR"
+                orderby c.City
                 select o);
         }
 
