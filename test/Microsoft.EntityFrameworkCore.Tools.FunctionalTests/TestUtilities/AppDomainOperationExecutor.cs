@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities
 {
-    // NOTE: If you break this file, you probably broke the PowerShell module too.
     public class AppDomainOperationExecutor : IDisposable
     {
         private const string AssemblyName = "Microsoft.EntityFrameworkCore.Tools";
@@ -131,5 +128,3 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities
         }
     }
 }
-
-#endif

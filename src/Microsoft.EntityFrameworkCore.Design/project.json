@@ -1,18 +1,5 @@
 {
   "version": "1.0.0-preview3-*",
-  "description": "Design-time components for Entity Framework Core tools",
-  "packOptions": {
-    "tags": [
-      "Entity Framework Core",
-      "entity-framework-core",
-      "EF",
-      "Data",
-      "O/RM"
-    ],
-    "files": [
-      "lib/"
-    ]
-  },
   "buildOptions": {
     "emitEntryPoint": true,
     "warningsAsErrors": true,
