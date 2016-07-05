@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return base.Visit(expression);
+            return expression;
         }
 
         private static readonly MethodInfo _resultMethodInfo

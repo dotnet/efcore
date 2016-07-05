@@ -58,6 +58,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual async Task Where_all_any_client()
+        {
+            var expectedOrders = new[] {1, 2, 3};
+
+            await AssertQuery<Customer>(
+                cs => cs
+                    .Where(c => expectedOrders
+                        .All(expected => c.Orders.Select(o => o.OrderID)
+                            .Any(orderId => orderId == expected))));
+        }
+
         public virtual async Task Single_Predicate_Cancellation(CancellationToken cancellationToken)
         {
             await AssertQuery<Customer>(
