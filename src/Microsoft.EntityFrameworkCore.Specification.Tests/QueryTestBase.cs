@@ -164,6 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Skip(5),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.InvariantCulture).Skip(5),
                 assertOrder: true,
                 entryCount: 86);
         }
@@ -194,6 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.Distinct().OrderBy(c => c.CustomerID).Skip(5),
+                cs => cs.Distinct().OrderBy(c => c.CustomerID, StringComparer.InvariantCulture).Skip(5),
                 assertOrder: true,
                 entryCount: 86);
         }
@@ -2437,6 +2439,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         (from c2 in (from c3 in cs select c3) select c2)
                     orderby c1.CustomerID
                     select c1,
+                cs => cs.SelectMany(
+                    c => (from c2 in (from c3 in cs select c3) select c2),
+                    (c, c1) => new { c, c1 }).OrderBy(@t => @t.c1.CustomerID, StringComparer.InvariantCulture)
+                    .Select(@t => @t.c1),
                 assertOrder: true,
                 entryCount: 91);
         }
@@ -2978,6 +2984,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.InvariantCulture),
                 assertOrder: true,
                 entryCount: 91);
         }
@@ -2987,6 +2994,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.CustomerID }).OrderBy(a => a.CustomerID),
+                cs => cs.Select(c => new { c.CustomerID }).OrderBy(a => a.CustomerID, StringComparer.InvariantCulture),
                 assertOrder: true);
         }
 
@@ -2995,6 +3003,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c }).OrderBy(a => a.c.CustomerID),
+                cs => cs.Select(c => new { c }).OrderBy(a => a.c.CustomerID, StringComparer.InvariantCulture),
                 assertOrder: true,
                 entryCount: 91);
         }
@@ -3063,8 +3072,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void OrderBy_Select()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.OrderBy(c => c.CustomerID)
+                cs => cs.OrderBy(c => c.CustomerID)
+                        .Select(c => c.ContactName),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.InvariantCulture)
                         .Select(c => c.ContactName),
                 assertOrder: true);
         }
@@ -3085,8 +3095,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void OrderBy_ThenBy()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.OrderBy(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
+                cs => cs.OrderBy(c => c.CustomerID)
+                    .ThenBy(c => c.Country)
+                    .Select(c => c.City),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.InvariantCulture)
+                    .ThenBy(c => c.Country, StringComparer.InvariantCulture)
+                    .Select(c => c.City),
                 assertOrder: true);
         }
 
@@ -3094,8 +3108,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void OrderByDescending()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.OrderByDescending(c => c.CustomerID).Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID).Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID, StringComparer.InvariantCulture).Select(c => c.City),
                 assertOrder: true);
         }
 
@@ -3103,8 +3117,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void OrderByDescending_ThenBy()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.OrderByDescending(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID)
+                    .ThenBy(c => c.Country)
+                    .Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID, StringComparer.InvariantCulture)
+                    .ThenBy(c => c.Country, StringComparer.InvariantCulture)
+                    .Select(c => c.City),
                 assertOrder: true);
         }
 
@@ -3112,8 +3130,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void OrderByDescending_ThenByDescending()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.OrderByDescending(c => c.CustomerID).ThenByDescending(c => c.Country).Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID)
+                    .ThenByDescending(c => c.Country)
+                    .Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID, StringComparer.InvariantCulture)
+                    .ThenByDescending(c => c.Country, StringComparer.InvariantCulture)
+                    .Select(c => c.City),
                 assertOrder: true);
         }
 
@@ -3136,11 +3158,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void OrderBy_SelectMany()
         {
-            AssertQuery<Customer, Order>((cs, os) =>
-                from c in cs.OrderBy(c => c.CustomerID)
-                from o in os.OrderBy(o => o.OrderID)
-                where c.CustomerID == o.CustomerID
-                select new { c.ContactName, o.OrderID },
+            AssertQuery<Customer, Order>(
+                (cs, os) =>
+                    from c in cs.OrderBy(c => c.CustomerID)
+                    from o in os.OrderBy(o => o.OrderID)
+                    where c.CustomerID == o.CustomerID
+                    select new { c.ContactName, o.OrderID },
+                (cs, os) =>
+                    cs.OrderBy(c => c.CustomerID, StringComparer.InvariantCulture)
+                        .SelectMany(
+                            c => os.OrderBy(o => o.OrderID),
+                            (c, o) => new { c, o }).Where(@t => @t.c.CustomerID == @t.o.CustomerID)
+                        .Select(@t => new { @t.c.ContactName, @t.o.OrderID }),
                 assertOrder: true);
         }
 
@@ -3819,6 +3848,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.Distinct().OrderBy(c => c.CustomerID),
+                cs => cs.Distinct().OrderBy(c => c.CustomerID, StringComparer.InvariantCulture),
                 assertOrder: true,
                 entryCount: 91);
         }
@@ -3828,6 +3858,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID),
+                cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID, StringComparer.InvariantCulture),
                 assertOrder: true);
         }
 
@@ -5744,13 +5775,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int? entryCount = null,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem1 : class
+            where TItem2 : class 
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
+
+        private void AssertQuery<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> efQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> l2oQuery,
+            bool assertOrder = false,
+            int? entryCount = null,
+            Action<IList<object>, IList<object>> asserter = null)
+            where TItem1 : class
             where TItem2 : class
         {
             using (var context = CreateContext())
             {
                 TestHelpers.AssertResults(
-                    query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
-                    query(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
+                    l2oQuery(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
+                    efQuery(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
                     assertOrder,
                     asserter);
 
