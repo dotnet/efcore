@@ -796,7 +796,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
             .ValueGeneratedOnAdd();
 
         b.Property<string>(""Name"")
-            .HasAnnotation(""MaxLength"", 100);
+            .HasMaxLength(100);
 
         b.HasKey(""Id"");
 
@@ -818,7 +818,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
             .ValueGeneratedOnAdd();
 
         b.Property<string>(""Name"")
-            .HasAnnotation(""Unicode"", false);
+            .IsUnicode(false);
 
         b.HasKey(""Id"");
 
@@ -826,6 +826,43 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
     });
 ",
                 o => { Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()); });
+        }
+
+        [ConditionalFact]
+        public void Many_facets_chained_in_snapshot()
+        {
+            Test(
+                builder =>
+                    {
+                        builder.Entity<EntityWithStringProperty>()
+                            .Property<string>("Name")
+                            .HasMaxLength(100)
+                            .IsUnicode(false)
+                            .HasAnnotation("AnnotationName", "AnnotationValue");
+                    },
+                @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Name"")
+            .HasMaxLength(100)
+            .IsUnicode(false)
+            .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithStringProperty"");
+    });
+",
+                o =>
+                    {
+                        var property = o.GetEntityTypes().First().FindProperty("Name");
+                        Assert.Equal(100, property.GetMaxLength());
+                        Assert.False(property.IsUnicode());
+                        Assert.Equal("AnnotationValue", property["AnnotationName"]);
+                    });
         }
 
         [ConditionalFact]
