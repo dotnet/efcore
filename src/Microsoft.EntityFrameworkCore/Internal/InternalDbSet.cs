@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -137,8 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private IStateManager StateManager => _stateManager ?? (_stateManager = _context.GetService<IStateManager>());
 
-        private static readonly MethodInfo _efPropertyMethod
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
 
         private static Expression<Func<TEntity, bool>> BuildPredicate(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
         {
@@ -151,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var equals =
                     Expression.Equal(
                         Expression.Call(
-                            _efPropertyMethod.MakeGenericMethod(property.ClrType),
+                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
                             entityParameter,
                             Expression.Constant(property.Name, typeof(string))),
                         Expression.Constant(
