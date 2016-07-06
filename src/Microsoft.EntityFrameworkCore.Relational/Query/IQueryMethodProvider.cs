@@ -95,6 +95,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         MethodInfo CreateCollectionRelatedEntitiesLoaderMethod { get; }
 
         /// <summary>
+        ///     Gets the pre execute method.
+        /// </summary>
+        /// <value>
+        ///     The pre execute method.
+        /// </value>
+        MethodInfo PreExecuteMethod { get; }
+
+        /// <summary>
         ///     Gets the type of the group join include.
         /// </summary>
         /// <value>

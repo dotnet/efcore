@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -55,6 +56,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         Expression.Call(
                             _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod,
                             queryArguments));
+            }
+
+            if (node.Method.MethodIsClosedFormOf(
+                _relationalQueryCompilationContext.QueryMethodProvider.PreExecuteMethod))
+            {
+                var sourceArgument = (MethodCallExpression)Visit(node.Arguments[1]);
+                if (sourceArgument.Method.MethodIsClosedFormOf(
+                    _relationalQueryCompilationContext.QueryMethodProvider.GetResultMethod))
+                {
+                    var getResultArgument = sourceArgument.Arguments[0];
+                    var newGetResultArgument = Expression.Call(
+                        _relationalQueryCompilationContext.QueryMethodProvider.PreExecuteMethod.MakeGenericMethod(typeof(ValueBuffer)),
+                        node.Arguments[0], getResultArgument, node.Arguments[2]);
+
+                    return Expression.Call(sourceArgument.Method, newGetResultArgument);
+                }
+
+                return sourceArgument;
             }
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery

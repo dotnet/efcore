@@ -792,5 +792,78 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public void Dispose() => _includeCollectionIterator?.Dispose();
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo PreExecuteMethod => _preExecuteMethodInfo;
+
+        private static readonly MethodInfo _preExecuteMethodInfo
+            = typeof(AsyncQueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_PreExecute));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TElement> _PreExecute<TElement>(
+            Action preExecuteAction, IAsyncEnumerable<TElement> source, Func<object> postExecuteAction)
+            => new PreExecutor<TElement>(preExecuteAction, source, postExecuteAction);
+
+        private sealed class PreExecutor<TElement> : IAsyncEnumerable<TElement>
+        {
+            private readonly Action _preExecuteAction;
+            private readonly IAsyncEnumerable<TElement> _innerEnumerable;
+            private readonly Func<object> _postExecuteAction;
+
+            public PreExecutor(Action preExecuteAction, IAsyncEnumerable<TElement> innerEnumerable, Func<object> postExecuteAction)
+            {
+                _preExecuteAction = preExecuteAction;
+                _innerEnumerable = innerEnumerable;
+                _postExecuteAction = postExecuteAction;
+            }
+
+            public IAsyncEnumerator<TElement> GetEnumerator() => new PreExecuteEnumerator(this);
+
+            IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetEnumerator() => new PreExecuteEnumerator(this);
+
+            private sealed class PreExecuteEnumerator : IAsyncEnumerator<TElement>
+            {
+                private readonly PreExecutor<TElement> _preExecutor;
+                private readonly IAsyncEnumerator<TElement> _innerEnumerator;
+                private bool _postExecuteActionComplete = false;
+
+                public PreExecuteEnumerator(PreExecutor<TElement> preExecutor)
+                {
+                    _preExecutor = preExecutor;
+                    _innerEnumerator = _preExecutor._innerEnumerable.GetEnumerator();
+
+                    _preExecutor._preExecuteAction();
+                }
+
+                public TElement Current => _innerEnumerator.Current;
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    var result = await _innerEnumerator.MoveNext(cancellationToken);
+                    if (!result)
+                    {
+                        _preExecutor._postExecuteAction();
+                        _postExecuteActionComplete = true;
+                    }
+
+                    return result;
+                }
+
+                public void Dispose()
+                {
+                    if (!_postExecuteActionComplete)
+                    {
+                        _preExecutor._postExecuteAction();
+                    }
+
+                    _innerEnumerator?.Dispose();
+                }
+            }
+        }
     }
 }
