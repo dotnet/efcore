@@ -274,16 +274,20 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 string annotation, object value);
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
-                Expression<Func<TDependentEntity, object>> foreignKeyExpression);
+                Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+                where TDependentEntity : class;
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
-                Expression<Func<TPrincipalEntity, object>> keyExpression);
+                Expression<Func<TPrincipalEntity, object>> keyExpression)
+                where TPrincipalEntity : class;
 
-            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-                Type dependentEntityType, params string[] foreignKeyPropertyNames);
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
+                params string[] foreignKeyPropertyNames)
+                where TDependentEntity : class;
 
-            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-                Type principalEntityType, params string[] keyPropertyNames);
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
+                params string[] keyPropertyNames)
+                where TPrincipalEntity : class;
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true);
 

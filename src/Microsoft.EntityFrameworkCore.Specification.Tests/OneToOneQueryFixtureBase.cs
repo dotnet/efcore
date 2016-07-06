@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder
                 .Entity<Person2>(
                     e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
-                        .HasForeignKey(typeof(Address2), "PersonId"));
+                        .HasForeignKey<Address2>("PersonId"));
         }
 
         protected static void AddTestData(DbContext context)

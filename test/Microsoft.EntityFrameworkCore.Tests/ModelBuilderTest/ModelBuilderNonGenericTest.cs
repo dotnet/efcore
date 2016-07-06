@@ -275,11 +275,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
                 => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(Type dependentEntityType, params string[] foreignKeyPropertyNames)
-                => Wrap(ReferenceReferenceBuilder.HasForeignKey(dependentEntityType, foreignKeyPropertyNames));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(params string[] foreignKeyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasForeignKey<TDependentEntity>(foreignKeyPropertyNames));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(Type principalEntityType, params string[] keyPropertyNames)
-                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(principalEntityType, keyPropertyNames));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(params string[] keyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey<TPrincipalEntity>(keyPropertyNames));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
                 => Wrap(ReferenceReferenceBuilder.IsRequired(isRequired));

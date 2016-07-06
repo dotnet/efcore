@@ -188,6 +188,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         added to the principal entity type to serve as the reference key.
         ///     </para>
         /// </summary>
+        /// <typeparam name="TDependentEntity">
+        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
+        ///     properties).
+        /// </typeparam>
+        /// <param name="foreignKeyPropertyNames">
+        ///     The name(s) of the foreign key property(s).
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual ReferenceReferenceBuilder HasForeignKey<TDependentEntity>(
+            [NotNull] params string[] foreignKeyPropertyNames)
+            where TDependentEntity : class 
+            => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property(s) to use as the foreign key for this relationship.
+        ///     </para>
+        ///     <para>
+        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
+        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
+        ///         that does not have a corresponding property in the entity class. The current value for the
+        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
+        ///         of the entity class.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         match the data type and order of foreign key properties against the primary key of the principal
+        ///         entity type. If they do not match, new shadow state properties that form a unique index will be
+        ///         added to the principal entity type to serve as the reference key.
+        ///     </para>
+        /// </summary>
         /// <param name="dependentEntityTypeName">
         ///     The name of the entity type that is the dependent in this relationship (the type that has the foreign
         ///     key properties).
@@ -203,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 SetDependentEntityType(Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName)))
                     .HasForeignKey(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)), ConfigurationSource.Explicit),
                 this,
-                inverted: Builder.Metadata.DeclaringEntityType.Name != dependentEntityTypeName,
+                inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
                 foreignKeySet: true);
 
         /// <summary>
@@ -276,6 +307,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
+        /// <typeparam name="TPrincipalEntity">
+        ///     The entity type that is the principal in this relationship (the type
+        ///     that has the reference key properties).
+        /// </typeparam>
+        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual ReferenceReferenceBuilder HasPrincipalKey<TPrincipalEntity>(
+            [NotNull] params string[] keyPropertyNames)
+            where TPrincipalEntity : class
+            => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
+        /// </summary>
         /// <param name="principalEntityTypeName">
         ///     The name of the entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
@@ -289,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 SetPrincipalEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))
                     .HasPrincipalKey(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames)), ConfigurationSource.Explicit),
                 this,
-                inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
+                inverted: Builder.Metadata.PrincipalEntityType.Name != ResolveEntityType(principalEntityTypeName).Name,
                 principalKeySet: true);
 
         /// <summary>
@@ -334,7 +382,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return Builder.RelatedEntityTypes(entityType, GetOtherEntityType(entityType), ConfigurationSource.Explicit);
         }
 
-        private EntityType ResolveEntityType(string entityTypeName)
+        /// <summary>
+        /// Resolves the name as either the prinicipal or dependent end of the relationship.
+        /// </summary>
+        /// <param name="entityTypeName"> The entity type name. </param>
+        /// <returns> The resololved type, or null if the given name does not match either end. </returns>
+        protected virtual EntityType ResolveEntityType([NotNull] string entityTypeName)
         {
             if (_declaringEntityType.Name == entityTypeName)
             {
@@ -342,6 +395,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             if (_relatedEntityType.Name == entityTypeName)
+            {
+                return _relatedEntityType;
+            }
+
+            if (_declaringEntityType.DisplayName() == entityTypeName)
+            {
+                return _declaringEntityType;
+            }
+
+            if (_relatedEntityType.DisplayName() == entityTypeName)
             {
                 return _relatedEntityType;
             }
