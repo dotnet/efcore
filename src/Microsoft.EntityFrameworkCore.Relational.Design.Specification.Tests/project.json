@@ -28,10 +28,6 @@
   },
   "frameworks": {
     "netstandard1.6": {
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win8"
-      ],
       "dependencies": {
         "System.Threading.Tasks.Parallel": "4.0.1-*"
       }
