@@ -115,10 +115,6 @@ if exists (select * from sysobjects where id = object_id('dbo.PrimaryKeyWithSequ
 	drop table "dbo"."PrimaryKeyWithSequence"
 GO
 
-if exists (select * from sysobjects where id = object_id('dbo.PrimaryKeyWithSequenceSequence'))
-	drop sequence "dbo"."PrimaryKeyWithSequenceSequence"
-GO
-
 CREATE TYPE TestTypeAlias FROM nvarchar(max)
 GO
 
