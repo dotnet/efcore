@@ -2090,7 +2090,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Join_flattening_bug_4539()
         {
             using (var context = CreateContext())

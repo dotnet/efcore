@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
+// ReSharper disable StringStartsWithIsCultureSpecific
 
 #if NETSTANDARD1_3
 using System.Reflection;
@@ -67,8 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         {
                             using (var context = CreateContext())
                             {
-                                var query = context.Set<Order>()
+                                context.Set<Order>()
                                     .Include(o => new { o.Customer, o.OrderDetails })
+                                    // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                                     .ToList();
                             }
                         }).Message);
@@ -122,9 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         {
                             using (var context = CreateContext())
                             {
-                                var query = context.Set<Customer>()
+                                context.Set<Customer>()
                                     .Include(o => o.Orders)
                                     .ThenInclude(o => new { o.Customer, o.OrderDetails })
+                                    // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                                     .ToList();
                             }
                         }).Message);
@@ -171,6 +174,39 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
                 Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
                 Assert.Equal(91 + 830, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_skip_no_order_by()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Skip(10)
+                        .Include(c => c.Orders)
+                        .ToList();
+
+                Assert.Equal(81, customers.Count);
+                Assert.True(customers.All(c => c.Orders != null));
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_skip_take_no_order_by()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Skip(10)
+                        .Take(5)
+                        .Include(c => c.Orders)
+                        .ToList();
+
+                Assert.Equal(5, customers.Count);
+                Assert.True(customers.All(c => c.Orders != null));
             }
         }
 
@@ -396,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             })
                             .ToList();
 
-                Assert.Equal(2, orders.Count());
+                Assert.Equal(2, orders.Count);
             }
         }
 
@@ -600,8 +636,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         .FirstOrDefault();
 
                 Assert.NotNull(customer);
-                Assert.Equal(7, customer?.Orders.Count);
-                Assert.True(customer?.Orders.All(o => o.Customer != null));
+                Assert.Equal(7, customer.Orders.Count);
+                Assert.True(customer.Orders.All(o => o.Customer != null));
                 Assert.Equal(1 + 7, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1078,6 +1114,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
         public virtual void Include_collection_force_alias_uniquefication()
         {
             using (var context = CreateContext())
@@ -1088,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        select o)
                         .ToList();
 
-                Assert.Equal(6, result.Count());
+                Assert.Equal(6, result.Count);
                 Assert.True(result.SelectMany(r => r.OrderDetails).All(od => od.Order != null));
             }
         }
@@ -1454,7 +1491,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                                 }
                             };
 
-                var result = query.ToList();
+                var results = query.ToList();
+
+                Assert.Equal(830, results.Count);
             }
         }
 
