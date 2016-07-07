@@ -59,5 +59,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             context.Database.UseTransaction(testStore.Transaction);
             return context;
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Chassis>(b =>
+                {
+                    b.Property<byte[]>("Version")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .IsConcurrencyToken();
+                });
+
+            modelBuilder.Entity<Driver>(b =>
+                {
+                    b.Property<byte[]>("Version")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .IsConcurrencyToken();
+                });
+
+            modelBuilder.Entity<Team>(b =>
+                {
+                    b.Property<byte[]>("Version")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .IsConcurrencyToken();
+                });
+        }
     }
 }

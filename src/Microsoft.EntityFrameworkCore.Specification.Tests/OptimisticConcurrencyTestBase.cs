@@ -151,39 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         where TFixture : F1FixtureBase<TTestStore>, new()
     {
         [Fact]
-        public virtual async Task Modifying_concurrency_token_only_is_noop()
-        {
-            byte[] firstVersion;
-            using (var context = CreateF1Context())
-            {
-                var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(1, context.Entry(driver).Property<byte[]>("Version").CurrentValue[0]);
-                driver.Podiums = StorePodiums;
-                firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                await context.SaveChangesAsync();
-            }
-
-            byte[] secondVersion;
-            using (var context = CreateF1Context())
-            {
-                var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(firstVersion, context.Entry(driver).Property<byte[]>("Version").CurrentValue);
-                Assert.Equal(StorePodiums, driver.Podiums);
-
-                secondVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                context.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
-                await context.SaveChangesAsync();
-            }
-
-            using (var validationContext = CreateF1Context())
-            {
-                var driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
-                Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
-                Assert.Equal(StorePodiums, driver.Podiums);
-            }
-        }
-
-        [Fact]
         public virtual void Nullable_client_side_concurrency_token_can_be_used()
         {
             string originalName;
@@ -658,8 +625,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         #region Helpers
 
-        private const int StorePodiums = 20;
-        private const int ClientPodiums = 30;
+        protected const int StorePodiums = 20;
+        protected const int ClientPodiums = 30;
 
         protected virtual void ResolveConcurrencyTokens(EntityEntry entry)
         {

@@ -20,16 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Chassis>(b =>
                 {
                     b.HasKey(c => c.TeamId);
-                    b.Property<byte[]>("Version")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                });
-
-            modelBuilder.Entity<Driver>(b =>
-                {
-                    b.Property<byte[]>("Version")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
                 });
 
             modelBuilder.Entity<Engine>(b =>
@@ -76,10 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Team>(b =>
                 {
-                    b.Property<byte[]>("Version")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-
                     b.HasOne(e => e.Gearbox).WithOne().HasForeignKey<Team>(e => e.GearboxId);
                     b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
                 });
