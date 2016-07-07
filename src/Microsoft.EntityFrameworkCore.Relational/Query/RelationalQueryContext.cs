@@ -164,6 +164,38 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : _activeIncludeQueries[queryIndex - 1].Current;
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="valueBufferCursor"></param>
+        /// <param name="queryIndex"></param>
+        /// <returns></returns>
+        protected virtual bool NeedIncludeValueBufferCursorRegistration([NotNull]IValueBufferCursor valueBufferCursor, int queryIndex)
+        {
+            if (queryIndex > 0)
+            {
+                if (queryIndex > _activeIncludeQueries.Count)
+                {
+                    return true;
+                }
+                return _activeIncludeQueries[queryIndex - 1] != valueBufferCursor;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="valkuBufferCursor"></param>
+        /// <param name="queryIndex"></param>
+        public void EnsureQueryContextIncludesBufferCursor([NotNull] IValueBufferCursor valkuBufferCursor, int queryIndex)
+        {
+            if (NeedIncludeValueBufferCursorRegistration(valkuBufferCursor, queryIndex))
+            {
+                AddBufferCursorToIncludeQueriesList(valkuBufferCursor, queryIndex);
+            }
+        }
+
+        /// <summary>
         ///     Begins an include scope.
         /// </summary>
         public virtual void BeginIncludeScope() => _activeIncludeQueryOffset = _activeQueries.Count;

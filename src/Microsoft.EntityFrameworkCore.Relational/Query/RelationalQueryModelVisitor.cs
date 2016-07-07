@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
 
-        private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
+        private NavigationIndexMap _navigationIndexMap = new NavigationIndexMap();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -293,33 +293,47 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.IncludeNavigations(queryModel, includeSpecifications);
         }
 
-        private static Dictionary<IncludeSpecification, List<int>> BuildNavigationIndexMap(
-            IEnumerable<IncludeSpecification> includeSpecifications)
+        private static NavigationIndexMap BuildNavigationIndexMap(IEnumerable<IncludeSpecification> includeSpecifications)
         {
-            var openedReaderCount = 0;
-            var navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
-
+            var navigationIndexMap = new NavigationIndexMap();
             foreach (var includeSpecification in includeSpecifications.Reverse())
             {
-                var indexes = new List<int>();
-                var openedNewReader = false;
-
-                foreach (var navigation in includeSpecification.NavigationPath)
+                var navigationIndex = new NavigationIndex();
+                if (includeSpecification.Navigation.IsCollection())
                 {
-                    if (navigation.IsCollection())
-                    {
-                        openedNewReader = true;
-                        openedReaderCount++;
-                        indexes.Add(openedReaderCount);
-                    }
-                    else
-                    {
-                        var index = openedNewReader ? openedReaderCount : 0;
-                        indexes.Add(index);
-                    }
+                    navigationIndex.Index = 1;
+                    navigationIndex.ReferencedMap = BuildIndexMap(includeSpecification.References, 1, true);
+                }
+                else
+                {
+                    navigationIndex.Index = 0;
+                    navigationIndex.ReferencedMap = BuildIndexMap(includeSpecification.References, 0, false);
+                }
+                navigationIndexMap.Add(includeSpecification, navigationIndex);
+            }
+            return navigationIndexMap;
+        }
+
+        private static NavigationIndexMap BuildIndexMap(IEnumerable<IncludeSpecification> includeSpecifications, int openedReaderCount,
+            bool openedNewReader)
+        {
+            var navigationIndexMap = new NavigationIndexMap();
+
+            foreach (var includeSpecification in includeSpecifications)
+            {
+                var navigationIndex = new NavigationIndex();
+                if (includeSpecification.Navigation.IsCollection())
+                {
+                    navigationIndex.Index = openedReaderCount + 1;
+                    navigationIndex.ReferencedMap = BuildIndexMap(includeSpecification.References, openedReaderCount + 1, true);
+                }
+                else
+                {
+                    navigationIndex.Index = openedNewReader ? openedReaderCount : 0;
+                    navigationIndex.ReferencedMap = BuildIndexMap(includeSpecification.References, openedReaderCount, openedNewReader);
                 }
 
-                navigationIndexMap.Add(includeSpecification, indexes);
+                navigationIndexMap.Add(includeSpecification, navigationIndex);
             }
 
             return navigationIndexMap;
@@ -343,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var includeExpressionVisitor = _includeExpressionVisitorFactory.Create(
                 includeSpecification.QuerySource,
-                includeSpecification.NavigationPath,
+                includeSpecification,
                 QueryCompilationContext,
                 _navigationIndexMap[includeSpecification],
                 querySourceRequiresTracking);

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Remotion.Linq.Clauses;
 
@@ -20,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         ExpressionVisitor Create(
-            [NotNull] IQuerySource querySource,
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext,
-            [NotNull] IReadOnlyList<int> queryIndexes,
+            IQuerySource querySource,
+            IncludeSpecification includeSpecification,
+            RelationalQueryCompilationContext relationalQueryCompilationContext,
+            NavigationIndex queryIndexes,
             bool querySourceRequiresTracking);
     }
 }

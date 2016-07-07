@@ -147,21 +147,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var elementType = methodCallExpression.Type.GetGenericArguments().First();
                 var includeMethod = _includeMethodInfo.MakeGenericMethod(elementType);
 
+                var relatedEntitiesLoaders = new Dictionary<IncludeSpecification, IRelatedEntitiesLoader>();
+
+                AddRelatedEntitiesLoaders(_includeSpecification, _materializerFactory, relatedEntitiesLoaders);
+
                 var result = Expression.Call(
                     includeMethod,
                     QueryContextParameter,
                     methodCallExpression,
                     Expression.Constant(_includeSpecification),
-                    Expression.Constant(
-                        _includeSpecification.NavigationPath
-                            .Select(n =>
-                            {
-                                var targetType = n.GetTargetType();
-                                var materializer = _materializerFactory.CreateMaterializer(targetType);
-
-                                return new RelatedEntitiesLoader(targetType, materializer.Compile());
-                            })
-                            .ToArray()),
+                    Expression.Constant(relatedEntitiesLoaders),
                     Expression.Constant(_querySourceRequiresTracking));
 
                 return result;
@@ -197,21 +192,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             ? _includeCollectionMethodInfo.MakeGenericMethod(node.Type)
                             : _includeEntityMethodInfo.MakeGenericMethod(node.Type);
 
+                        var relatedEntitiesLoaders = new Dictionary<IncludeSpecification, IRelatedEntitiesLoader>();
+
+                        AddRelatedEntitiesLoaders(_includeSpecification, _materializerFactory, relatedEntitiesLoaders);
+
                         var result = Expression.Call(
                             includeMethod,
                             QueryContextParameter,
                             node,
                             Expression.Constant(_includeSpecification),
-                            Expression.Constant(
-                                _includeSpecification.NavigationPath
-                                    .Select(n =>
-                                    {
-                                        var targetType = n.GetTargetType();
-                                        var materializer = _materializerFactory.CreateMaterializer(targetType);
-
-                                        return new RelatedEntitiesLoader(targetType, materializer.Compile());
-                                    })
-                                    .ToArray()),
+                            Expression.Constant(relatedEntitiesLoaders),
                             Expression.Constant(_querySourceRequiresTracking));
 
                         return result;
@@ -226,6 +216,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return node.Update(newBody, node.Parameters);
                 }
+            }
+        }
+
+        private static void AddRelatedEntitiesLoaders(IncludeSpecification includeSpecification, IMaterializerFactory materializerFactory,
+            Dictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders)
+        {
+            var targetType = includeSpecification.Navigation.GetTargetType();
+            var materializer = materializerFactory.CreateMaterializer(targetType);
+
+            relatedEntitiesLoaders.Add(includeSpecification, new RelatedEntitiesLoader(targetType, materializer.Compile()));
+
+            foreach (var reference in includeSpecification.References)
+            {
+                AddRelatedEntitiesLoaders(reference, materializerFactory, relatedEntitiesLoaders);
             }
         }
 
@@ -268,14 +272,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             TEntity source,
             IncludeSpecification includeSpecification,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             queryContext.QueryBuffer
                 .Include(
                     queryContext,
                     source,
-                    includeSpecification.NavigationPath,
+                    includeSpecification,
                     relatedEntitiesLoaders,
                     querySourceRequiresTracking);
 
@@ -287,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             TEntity source,
             IncludeSpecification includeSpecification,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             foreach (var entity in (IEnumerable)source)
@@ -296,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .Include(
                         queryContext,
                         entity,
-                        includeSpecification.NavigationPath,
+                        includeSpecification,
                         relatedEntitiesLoaders,
                         querySourceRequiresTracking);
             }
@@ -313,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             IEnumerable<TResult> source,
             IncludeSpecification includeSpecification,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             foreach (var result in source)
@@ -322,24 +326,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     foreach (var entity in (IEnumerable)result)
                     {
-                        queryContext.QueryBuffer
-                            .Include(
-                                queryContext,
-                                entity,
-                                includeSpecification.NavigationPath,
-                                relatedEntitiesLoaders,
-                                querySourceRequiresTracking);
+                        foreach (var reference in includeSpecification.References)
+                        {
+                            queryContext.QueryBuffer
+                                .Include(
+                                    queryContext,
+                                    entity,
+                                    reference,
+                                    relatedEntitiesLoaders,
+                                    querySourceRequiresTracking);
+                        }
                     }
                 }
                 else
                 {
-                    queryContext.QueryBuffer
-                        .Include(
-                            queryContext,
-                            result,
-                            includeSpecification.NavigationPath,
-                            relatedEntitiesLoaders,
-                            querySourceRequiresTracking);
+                    foreach (var reference in includeSpecification.References)
+                    {
+                        queryContext.QueryBuffer
+                            .Include(
+                                queryContext,
+                                result,
+                                reference,
+                                relatedEntitiesLoaders,
+                                querySourceRequiresTracking);
+                    }
                 }
 
                 yield return result;
@@ -350,22 +360,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly QueryContext _queryContext;
             private readonly IGrouping<TKey, TOut> _grouping;
-            private readonly IReadOnlyList<INavigation> _navigationPath;
+            private readonly IncludeSpecification _includeSpecification;
             private readonly Func<TOut, object> _accessorLambda;
-            private readonly IReadOnlyList<RelatedEntitiesLoader> _relatedEntitiesLoaders;
+            private readonly IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> _relatedEntitiesLoaders;
             private readonly bool _querySourceRequiresTracking;
 
             public IncludeGrouping(
                 QueryContext queryContext,
                 IGrouping<TKey, TOut> grouping,
-                IReadOnlyList<INavigation> navigationPath,
+                IncludeSpecification includeSpecification,
                 Func<TOut, object> accessorLambda,
-                IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
+                IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
                 bool querySourceRequiresTracking)
             {
                 _queryContext = queryContext;
                 _grouping = grouping;
-                _navigationPath = navigationPath;
+                _includeSpecification = includeSpecification;
                 _accessorLambda = accessorLambda;
                 _relatedEntitiesLoaders = relatedEntitiesLoaders;
                 _querySourceRequiresTracking = querySourceRequiresTracking;
@@ -381,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         .Include(
                             _queryContext,
                             _accessorLambda.Invoke(result),
-                            _navigationPath,
+                            _includeSpecification,
                             _relatedEntitiesLoaders,
                             _querySourceRequiresTracking);
 

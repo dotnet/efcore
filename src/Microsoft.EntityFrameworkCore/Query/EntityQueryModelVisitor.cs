@@ -377,47 +377,101 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = QueryCompilationContext.QueryAnnotations
                     .OfType<IncludeResultOperator>()
                     .Select(includeResultOperator =>
+                    {
+                        var navigationPath
+                            = BindNavigationPathPropertyExpression(
+                                includeResultOperator.NavigationPropertyPath,
+                                (ps, _) =>
+                                {
+                                    var properties = ps.ToArray();
+                                    var navigations = properties.OfType<INavigation>().ToArray();
+
+                                    if (properties.Length != navigations.Length)
+                                    {
+                                        throw new InvalidOperationException(
+                                            CoreStrings.IncludeNonBindableExpression(
+                                                includeResultOperator.NavigationPropertyPath));
+                                    }
+
+                                    return BindChainedNavigations(
+                                        navigations,
+                                        includeResultOperator.ChainedNavigationProperties)
+                                        .ToArray();
+                                });
+
+                        if (navigationPath == null)
                         {
-                            var navigationPath
-                                = BindNavigationPathPropertyExpression(
-                                    includeResultOperator.NavigationPropertyPath,
-                                    (ps, _) =>
-                                        {
-                                            var properties = ps.ToArray();
-                                            var navigations = properties.OfType<INavigation>().ToArray();
+                            throw new InvalidOperationException(
+                                CoreStrings.IncludeNonBindableExpression(
+                                    includeResultOperator.NavigationPropertyPath));
+                        }
 
-                                            if (properties.Length != navigations.Length)
-                                            {
-                                                throw new InvalidOperationException(
-                                                    CoreStrings.IncludeNonBindableExpression(
-                                                        includeResultOperator.NavigationPropertyPath));
-                                            }
-
-                                            return BindChainedNavigations(
-                                                navigations,
-                                                includeResultOperator.ChainedNavigationProperties)
-                                                .ToArray();
-                                        });
-
-                            if (navigationPath == null)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.IncludeNonBindableExpression(
-                                        includeResultOperator.NavigationPropertyPath));
-                            }
-
-                            return new
-                            {
-                                specification = new IncludeSpecification(includeResultOperator.QuerySource, navigationPath),
-                                order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
-                            };
-                        })
+                        return new
+                        {
+                            specification = new IncludeSet { QuerySource =  includeResultOperator.QuerySource, Navigations = navigationPath},
+                            order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
+                        };
+                    })
                     .OrderByDescending(e => e.order)
-                    .ThenBy(e => e.specification.NavigationPath.First().IsDependentToPrincipal())
+                    .ThenBy(e => e.specification.Navigations.First().IsDependentToPrincipal())
                     .Select(e => e.specification)
                     .ToList();
 
-            IncludeNavigations(queryModel, includeSpecifications);
+            IncludeNavigations(queryModel, CreateSpecifications(includeSpecifications).ToList());
+        }
+
+        private struct IncludeSet
+        {
+            public IQuerySource QuerySource { get; set; }
+
+            public INavigation[] Navigations { get; set; }
+        }
+
+        private struct IncludeKey
+        {
+            private sealed class QuerySourceNavigationEqualityComparer : IEqualityComparer<IncludeKey>
+            {
+                public bool Equals(IncludeKey x, IncludeKey y)
+                {
+                    return x.QuerySource == y.QuerySource && x.Navigation == y.Navigation;
+                }
+
+                public int GetHashCode(IncludeKey obj)
+                {
+                    unchecked
+                    {
+                        return (obj.QuerySource.GetHashCode()*397) ^ obj.Navigation.GetHashCode();
+                    }
+                }
+            }
+
+            public static IEqualityComparer<IncludeKey> QuerySourceNavigationComparer { get; } = new QuerySourceNavigationEqualityComparer();
+
+            public IQuerySource QuerySource { get; set; }
+
+            public INavigation Navigation { get; set; }
+        }
+
+        private static IEnumerable<IncludeSpecification> CreateSpecifications(IEnumerable<IncludeSet> includeSets)
+        {
+            return includeSets.GroupBy(i => new IncludeKey
+            {
+                QuerySource = i.QuerySource,
+                Navigation = i.Navigations[0]
+            }, IncludeKey.QuerySourceNavigationComparer)
+                .Select(
+                    i =>
+                        new IncludeSpecification(i.Key.QuerySource, i.Key.Navigation,
+                            CreateSpecifications(
+                                i.Where(l => l.Navigations.Length > 1)
+                                    .Select(l => new IncludeSet
+                                    {
+                                        QuerySource = l.QuerySource,
+                                        Navigations = l.Navigations.Skip(1).ToArray()
+                                    })
+                                ).ToList()
+                            )
+                );
         }
 
         /// <summary>
@@ -468,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     QueryCompilationContext
                         .AddTrackableInclude(
                             resultQuerySourceReferenceExpression.ReferencedQuerySource,
-                            includeSpecification.NavigationPath);
+                            includeSpecification);
                 }
                 else
                 {
