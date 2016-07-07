@@ -3,6 +3,8 @@
 
 using System;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -53,6 +55,18 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
                 _rawSqlCommandBuilder
                     .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
                     .ExecuteScalar(_connection),
+                typeof(long),
+                CultureInfo.InvariantCulture);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override async Task<long> GetNewLowValueAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => (long)Convert.ChangeType(
+                await _rawSqlCommandBuilder
+                    .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
+                    .ExecuteScalarAsync(_connection, cancellationToken: cancellationToken),
                 typeof(long),
                 CultureInfo.InvariantCulture);
 

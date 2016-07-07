@@ -104,6 +104,32 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual Task<EntityEntry<TEntity>> AddAsync(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
@@ -178,6 +204,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync([NotNull] params TEntity[] entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
@@ -235,6 +280,28 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync(
+            [NotNull] IEnumerable<TEntity> entities,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "BroniesAsync"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                await context.Database.EnsureDeletedAsync();
+                await context.Database.EnsureCreatedAsync();
             }
 
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i });
+                    await context.AddAsync(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();
@@ -115,7 +115,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Mac | TestPlatform.Linux, SkipReason = "Test is flaky on OSX/Linux. See https://github.com/dotnet/corefx/issues/8701")]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()
@@ -124,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "ManyBronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                await context.Database.EnsureDeletedAsync();
+                await context.Database.EnsureCreatedAsync();
             }
 
             const int threadCount = 50;

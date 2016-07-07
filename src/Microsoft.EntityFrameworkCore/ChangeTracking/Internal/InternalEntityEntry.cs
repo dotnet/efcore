@@ -8,6 +8,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -69,6 +71,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (PrepareForAdd(entityState))
             {
                 StateManager.ValueGeneration.Generate(this);
+            }
+
+            SetEntityState(oldState, entityState, acceptChanges);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual async Task SetEntityStateAsync(
+            EntityState entityState, 
+            bool acceptChanges,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var oldState = _stateData.EntityState;
+
+            if (PrepareForAdd(entityState))
+            {
+                await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);

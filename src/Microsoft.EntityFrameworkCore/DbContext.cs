@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
             => _stateManager
                ?? (_stateManager = InternalServiceProvider.GetRequiredService<IStateManager>());
 
-        internal IAsyncQueryProvider QueryProvider 
+        internal IAsyncQueryProvider QueryProvider
             => _queryProvider ?? (_queryProvider = this.GetService<IAsyncQueryProvider>());
 
         private IServiceProvider InternalServiceProvider
@@ -441,6 +441,41 @@ namespace Microsoft.EntityFrameworkCore
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where TEntity : class
+        {
+            var entry = EntryWithoutDetectChanges(entity);
+
+            await entry.GetInfrastructure().SetEntityStateAsync(
+                EntityState.Added,
+                acceptChanges: true,
+                cancellationToken: cancellationToken);
+
+            return entry;
+        }
+
+        /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
@@ -545,6 +580,39 @@ namespace Microsoft.EntityFrameworkCore
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual async Task<EntityEntry> AddAsync(
+            [NotNull] object entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var entry = EntryWithoutDetectChanges(entity);
+
+            await entry.GetInfrastructure().SetEntityStateAsync(
+                EntityState.Added,
+                acceptChanges: true,
+                cancellationToken: cancellationToken);
+
+            return entry;
+        }
+
+        /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
@@ -639,6 +707,23 @@ namespace Microsoft.EntityFrameworkCore
             => AddRange((IEnumerable<object>)entities);
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync([NotNull] params object[] entities)
+            => AddRangeAsync((IEnumerable<object>)entities);
+
+        /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
@@ -701,6 +786,38 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] IEnumerable<object> entities)
             => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation.
+        /// </returns>
+        public virtual async Task AddRangeAsync(
+            [NotNull] IEnumerable<object> entities,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var stateManager = StateManager;
+
+            foreach (var entity in entities)
+            {
+                await stateManager.GetOrCreateEntry(entity).SetEntityStateAsync(
+                    EntityState.Added,
+                    acceptChanges: true,
+                    cancellationToken: cancellationToken);
+            }
+        }
 
         /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are

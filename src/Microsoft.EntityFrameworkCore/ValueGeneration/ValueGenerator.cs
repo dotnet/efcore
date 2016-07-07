@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -17,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </summary>
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
-        public virtual object Next([NotNull] EntityEntry entry) => NextValue(entry);
+        public virtual object Next([NotNull] EntityEntry entry) 
+            => NextValue(entry);
 
         /// <summary>
         ///     Template method to be overridden by implementations to perform value generation.
@@ -25,6 +28,26 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The generated value. </returns>
         protected abstract object NextValue([NotNull] EntityEntry entry);
+
+        /// <summary>
+        ///     Gets a value to be assigned to a property.
+        /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <returns> The value to be assigned to a property. </returns>
+        public virtual Task<object> NextAsync(
+            [NotNull] EntityEntry entry, 
+            CancellationToken cancellationToken = default(CancellationToken)) 
+            => NextValueAsync(entry, cancellationToken);
+
+        /// <summary>
+        ///     Template method to be overridden by implementations to perform value generation.
+        /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <returns> The generated value. </returns>
+        protected virtual Task<object> NextValueAsync(
+            [NotNull] EntityEntry entry, 
+            CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult(NextValue(entry));
 
         /// <summary>
         ///     <para>
