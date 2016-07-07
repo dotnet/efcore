@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             Assert.Equal(
                 CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
-                Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(propertyBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder)).Message);
         }
 
         [Fact]

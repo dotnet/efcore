@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public override ModelValidator ThrowingValidator
             => _serviceProvider.GetService<ThrowingModelValidator>();
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class ThrowingModelValidator : ModelValidator
         {
             protected override void ShowWarning(string message)

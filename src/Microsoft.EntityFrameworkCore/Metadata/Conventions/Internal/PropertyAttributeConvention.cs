@@ -25,10 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var clrType = propertyBuilder.Metadata.DeclaringEntityType.ClrType;
-            var propertyName = propertyBuilder.Metadata.Name;
-
-            var propertyInfo = clrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == propertyName);
+            var propertyInfo = propertyBuilder.Metadata.PropertyInfo;
             var attributes = propertyInfo?.GetCustomAttributes<TAttribute>(true);
             if (attributes != null)
             {

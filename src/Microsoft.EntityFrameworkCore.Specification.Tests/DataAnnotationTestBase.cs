@@ -639,9 +639,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.True(GetProperty<DODerived>(modelBuilder, "OrderLineNo").IsPrimaryKey());
         }
 
+        [Fact]
+        public virtual void Key_from_base_type_is_recognized_if_discovered_through_relationship()
+        {
+            var builder = CreateModelBuilder();
+
+            builder.Entity<SRelated>();
+
+            Validate(builder.Model);
+            Assert.True(GetProperty<OKeyBase>(builder, nameof(OKeyBase.OrderLineNo)).IsPrimaryKey());
+            Assert.True(GetProperty<DODerived>(builder, nameof(DODerived.OrderLineNo)).IsPrimaryKey());
+        }
+
         protected class SRelated
         {
             public int SRelatedId { get; set; }
+
+            public ICollection<OKeyBase> OKeyBases { get; set; }
             public ICollection<DODerived> DADeriveds { get; set; }
         }
 
