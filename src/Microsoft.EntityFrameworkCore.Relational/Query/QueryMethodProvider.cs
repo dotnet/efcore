@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -528,6 +529,105 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public void Dispose() => _includeCollectionIterator?.Dispose();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
+
+        private static readonly MethodInfo _injectParametersMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IEnumerable<TElement> _InjectParameters<TElement>(
+            QueryContext queryContext,
+            IEnumerable<TElement> source,
+            string[] parameterNames,
+            object[] parameterValues)
+            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
+
+        private sealed class ParameterInjector<TElement> : IEnumerable<TElement>
+        {
+            private readonly QueryContext _queryContext;
+            private readonly IEnumerable<TElement> _innerEnumerable;
+            private readonly string[] _parameterNames;
+            private readonly object[] _parameterValues;
+
+            public ParameterInjector(
+                QueryContext queryContext,
+                IEnumerable<TElement> innerEnumerable,
+                string[] parameterNames,
+                object[] parameterValues)
+            {
+                _queryContext = queryContext;
+                _innerEnumerable = innerEnumerable;
+                _parameterNames = parameterNames;
+                _parameterValues = parameterValues;
+            }
+
+            public IEnumerator<TElement> GetEnumerator() => new InjectParametersEnumerator(this);
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            private sealed class InjectParametersEnumerator : IEnumerator<TElement>
+            {
+                private readonly ParameterInjector<TElement> _parameterInjector;
+                private readonly IEnumerator<TElement> _innerEnumerator;
+                private bool _parametersRemoved = false;
+
+                public InjectParametersEnumerator(ParameterInjector<TElement> parameterInjector)
+                {
+                    _parameterInjector = parameterInjector;
+                    _innerEnumerator = _parameterInjector._innerEnumerable.GetEnumerator();
+
+                    for (int i = 0; i < _parameterInjector._parameterNames.Length; i++)
+                    {
+                        _parameterInjector._queryContext.AddParameter(
+                            _parameterInjector._parameterNames[i],
+                            _parameterInjector._parameterValues[i]);
+                    }
+                }
+
+                public TElement Current => _innerEnumerator.Current;
+
+                object IEnumerator.Current => _innerEnumerator.Current;
+
+                public bool MoveNext()
+                {
+                    var result = _innerEnumerator.MoveNext();
+                    if (!result)
+                    {
+                        RemoveParameters();
+                        _parametersRemoved = true;
+                    }
+
+                    return result;
+                }
+
+                public void Reset() => _innerEnumerator?.Reset();
+
+                public void Dispose()
+                {
+                    if (!_parametersRemoved)
+                    {
+                        RemoveParameters();
+                    }
+
+                    _innerEnumerator?.Dispose();
+                }
+
+                private void RemoveParameters()
+                {
+                    foreach (var parameterName in _parameterInjector._parameterNames)
+                    {
+                        _parameterInjector._queryContext.RemoveParameter(parameterName);
+                    }
+                }
+            }
         }
     }
 }

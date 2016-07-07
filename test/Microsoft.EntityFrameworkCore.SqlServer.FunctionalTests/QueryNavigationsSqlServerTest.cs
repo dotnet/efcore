@@ -40,18 +40,27 @@ ORDER BY [od].[OrderID], [od].[ProductID], [od.Order].[CustomerID]",
         {
             base.Take_Select_Navigation();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__p_0: 2
 
 SELECT [t].[CustomerID]
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-",
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -70,6 +79,7 @@ SELECT (
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]",
                 Sql);
         }
@@ -89,6 +99,7 @@ SELECT (
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]",
                 Sql);
         }
@@ -97,20 +108,27 @@ FROM (
         {
             base.Select_collection_FirstOrDefault_project_anonymous_type();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__p_0: 2
 
 SELECT [t].[CustomerID]
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]
 
-SELECT [o].[CustomerID], [o].[OrderID]
-FROM [Orders] AS [o]
+@_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [o].[CustomerID], [o].[OrderID]
-FROM [Orders] AS [o]",
+SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -118,20 +136,27 @@ FROM [Orders] AS [o]",
         {
             base.Select_collection_FirstOrDefault_project_entity();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__p_0: 2
 
 SELECT [t].[CustomerID]
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+@_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -366,18 +391,31 @@ WHERE [e].[ReportsTo] IS NULL",
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%'
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANTON (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: AROUT (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -500,9 +538,19 @@ FROM [Customers] AS [c]",
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]",
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]",
                 Sql);
         }
 
@@ -527,9 +575,19 @@ WHERE NOT EXISTS (
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -677,13 +735,22 @@ WHERE (
         {
             base.Collection_select_nav_prop_first_or_default();
 
-            // TODO: Projection sub-query lifting
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -691,22 +758,26 @@ FROM [Orders] AS [o]",
         {
             base.Collection_select_nav_prop_first_or_default_then_nav_prop();
 
-            // TODO: Projection sub-query lifting
             Assert.StartsWith(
                 @"SELECT [e].[CustomerID]
 FROM [Customers] AS [e]
 WHERE [e].[CustomerID] LIKE N'A' + N'%'
+ORDER BY [e].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [e0].[OrderID], [e0].[CustomerID], [e0].[EmployeeID], [e0].[OrderDate], [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
 LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
-WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
+WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_CustomerID = [e0].[CustomerID])
 ORDER BY [e0].[CustomerID]
 
+@_outer_CustomerID: ANATR (Size = 450)
+
 SELECT [e0].[OrderID], [e0].[CustomerID], [e0].[EmployeeID], [e0].[OrderDate], [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
 LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
-WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
+WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_CustomerID = [e0].[CustomerID])
 ORDER BY [e0].[CustomerID]",
                 Sql);
         }
@@ -897,17 +968,29 @@ WHERE EXISTS (
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 
-SELECT [o3].[OrderID]
-FROM [Orders] AS [o3]
+SELECT [o4].[OrderID]
+FROM [Orders] AS [o4]
 
-SELECT [o2].[CustomerID], [o2].[OrderID]
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [o2].[OrderID]
 FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID = [o2].[CustomerID]
 
-SELECT [o3].[OrderID]
-FROM [Orders] AS [o3]",
+SELECT [o4].[OrderID]
+FROM [Orders] AS [o4]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT [o2].[OrderID]
+FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID = [o2].[CustomerID]
+
+SELECT [o4].[OrderID]
+FROM [Orders] AS [o4]",
                 Sql);
-
         }
 
         public override void Navigation_in_subquery_referencing_outer_query()
