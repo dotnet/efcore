@@ -3509,7 +3509,7 @@ WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)",
             base.Where_concat_string_int_comparison1();
 
             Assert.Equal(
-                @"@__i_0: 10 (Size = -1)
+                @"@__i_0: 10
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -3522,7 +3522,7 @@ WHERE ([c].[CustomerID] + CAST(@__i_0 AS nvarchar(max))) = [c].[CompanyName]",
             base.Where_concat_string_int_comparison2();
 
             Assert.Equal(
-                @"@__i_0: 10 (Size = -1)
+                @"@__i_0: 10
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -3535,8 +3535,8 @@ WHERE (CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID]) = [c].[CompanyName]",
             base.Where_concat_string_int_comparison3();
 
             Assert.Equal(
-                @"@__i_0: 10 (Size = -1)
-@__j_1: 21 (Size = -1)
+                @"@__i_0: 10
+@__j_1: 21
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]

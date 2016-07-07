@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,7 +20,7 @@ using Remotion.Linq.Clauses;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class IncludeExpressionVisitor : ExpressionVisitorBase
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly bool _querySourceRequiresTracking;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IncludeExpressionVisitor(
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -288,7 +287,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             ? selectExpression.Tables[0]
                             : selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
-                    var canGenerateExists = !IsOrderingOnNonPrincipalKeyProperties(selectExpression.OrderBy, navigation.ForeignKey.PrincipalKey.Properties);
+                    var canGenerateExists
+                        = (selectExpression.Predicate != null
+                          || selectExpression.Offset == null)
+                          && !IsOrderingOnNonPrincipalKeyProperties(
+                              selectExpression.OrderBy,
+                              navigation.ForeignKey.PrincipalKey.Properties);
 
                     foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
                     {
@@ -358,21 +362,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             var principalKeyProperty = ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression).Property;
                             var referencedForeignKeyProperty = pkPropertiesToFkPropertiesMap[principalKeyProperty];
                             targetSelectExpression
-                               .AddToOrderBy(
-                                   _relationalAnnotationProvider.For(referencedForeignKeyProperty).ColumnName,
-                                   referencedForeignKeyProperty,
-                                   targetTableExpression,
-                                   ordering.OrderingDirection);
+                                .AddToOrderBy(
+                                    _relationalAnnotationProvider.For(referencedForeignKeyProperty).ColumnName,
+                                    referencedForeignKeyProperty,
+                                    targetTableExpression,
+                                    ordering.OrderingDirection);
                         }
                     }
                     else
                     {
                         var innerJoinSelectExpression
-                           = selectExpression.Clone(
-                               selectExpression.OrderBy
-                                   .Select(o => o.Expression)
-                                   .Last(o => o.IsAliasWithColumnExpression())
-                                   .TryGetColumnExpression().TableAlias);
+                            = selectExpression.Clone(
+                                selectExpression.OrderBy
+                                    .Select(o => o.Expression)
+                                    .Last(o => o.IsAliasWithColumnExpression())
+                                    .TryGetColumnExpression().TableAlias);
 
                         innerJoinSelectExpression.ClearProjection();
 
@@ -442,9 +446,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var needOrderingChanges
                 = innerJoinSelectExpression.OrderBy
-                .Any(x => x.Expression is SelectExpression
-                || x.Expression.IsAliasWithColumnExpression()
-                || x.Expression.IsAliasWithSelectExpression());
+                    .Any(x => x.Expression is SelectExpression
+                              || x.Expression.IsAliasWithColumnExpression()
+                              || x.Expression.IsAliasWithSelectExpression());
 
             var orderings = innerJoinSelectExpression.OrderBy.ToList();
             if (needOrderingChanges)
@@ -598,24 +602,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 : Enumerable.Empty<Expression>();
         }
 
-        private void AddToPredicate(SelectExpression selectExpression, Expression predicateToAdd)
+        private static void AddToPredicate(SelectExpression selectExpression, Expression predicateToAdd)
             => selectExpression.Predicate
                 = selectExpression.Predicate == null
                     ? predicateToAdd
                     : Expression.AndAlso(selectExpression.Predicate, predicateToAdd);
 
-        private bool IsOrderingOnNonPrincipalKeyProperties(IReadOnlyList<Ordering> orderings, IReadOnlyList<IProperty> properties)
+        private static bool IsOrderingOnNonPrincipalKeyProperties(
+            IEnumerable<Ordering> orderings, IReadOnlyList<IProperty> properties)
         {
-            foreach (var ordering in orderings)
-            {
-                var property = ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression)?.Property;
-                if (!properties.Contains(property))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return
+                orderings
+                    .Select(ordering => ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression)?.Property)
+                    .Any(property => !properties.Contains(property));
         }
     }
 }

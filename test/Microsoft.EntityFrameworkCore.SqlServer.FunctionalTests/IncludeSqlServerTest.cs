@@ -58,6 +58,66 @@ ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_collection_skip_no_order_by()
+        {
+            base.Include_collection_skip_no_order_by();
+
+            Assert.Equal(
+                @"@__p_0: 10
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+OFFSET @__p_0 ROWS
+
+@__p_0: 10
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[CustomerID]
+        OFFSET @__p_0 ROWS
+    ) AS [t]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_collection_skip_take_no_order_by()
+        {
+            base.Include_collection_skip_take_no_order_by();
+
+            Assert.Equal(
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+
+@__p_0: 10
+@__p_1: 5
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[CustomerID]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    ) AS [t]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[CustomerID]",
+                Sql);
+        }
+
         public override void Include_reference_and_collection()
         {
             base.Include_reference_and_collection();
@@ -376,7 +436,7 @@ INNER JOIN (
     WHERE [c].[CustomerID] = N'ALFKI'
     ORDER BY [c0_0], [c].[CustomerID]
 ) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[c0_0], [c0].[CustomerID]", 
+ORDER BY [c0].[c0_0], [c0].[CustomerID]",
                 Sql);
         }
 
@@ -1152,6 +1212,7 @@ ORDER BY [c0].[City] DESC, [c0].[CustomerID]",
         public override void Include_with_skip()
         {
             base.Include_with_skip();
+
             if (SupportsOffset)
             {
                 Assert.Equal(
@@ -1183,6 +1244,7 @@ ORDER BY [c0].[ContactName], [c0].[CustomerID]",
         public override void Then_include_collection_order_by_collection_column()
         {
             base.Then_include_collection_order_by_collection_column();
+
             Assert.Equal(
     @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
