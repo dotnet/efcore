@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
 
             QueryMethodProvider = queryMethodProvider;
+            ParentQueryNavigationParameters = new List<string>();
         }
 
         /// <summary>
@@ -61,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The query method provider.
         /// </value>
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
+
+        public virtual List<string> ParentQueryNavigationParameters { get; }
 
         /// <summary>
         ///     Creates a query model visitor.

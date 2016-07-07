@@ -452,7 +452,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var previousSelectExpression = TryGetQuery(previousQuerySource);
 
-                    if (previousSelectExpression != null)
+                    if (previousSelectExpression != null
+                        && CanFlattenSelectMany())
                     {
                         if (!QueryCompilationContext.QuerySourceRequiresMaterialization(previousQuerySource))
                         {
@@ -500,6 +501,57 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 WarnClientEval(fromClause);
             }
+        }
+
+        private bool CanFlattenSelectMany()
+        {
+            var selectManyExpression = Expression as MethodCallExpression;
+            if (selectManyExpression == null 
+                || !selectManyExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.SelectMany))
+            {
+                return false;
+            }
+
+            var outerShapedQuery = selectManyExpression.Arguments[0] as MethodCallExpression;
+            if (outerShapedQuery == null || outerShapedQuery.Arguments.Count != 3)
+            {
+                return false;
+            }
+
+            var outerShaper = outerShapedQuery.Arguments[2] as ConstantExpression;
+            if (outerShaper == null || !(outerShaper.Value is Shaper))
+            {
+                return false;
+            }
+
+            var innerShapedQuery = (selectManyExpression.Arguments[1] as LambdaExpression)?.Body as MethodCallExpression;
+            if (innerShapedQuery == null)
+            {
+                return false;
+            }
+
+            if (innerShapedQuery.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
+                || innerShapedQuery.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg))
+            {
+                innerShapedQuery = innerShapedQuery.Arguments.Single() as MethodCallExpression;
+                if (innerShapedQuery == null)
+                {
+                    return false;
+                }
+            }
+
+            if (innerShapedQuery.Arguments.Count != 3)
+            {
+                return false;
+            }
+
+            var innerShaper = innerShapedQuery.Arguments[2] as ConstantExpression;
+            if (innerShaper == null || !(innerShaper.Value is Shaper))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -966,9 +1018,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 foreach (var ordering in orderByClause.Orderings)
                 {
+                    var canBindPropertyToOuterParameter = CanBindPropertyToOuterParameter;
+                    CanBindPropertyToOuterParameter = false;
+
                     var sqlOrderingExpression
                         = sqlTranslatingExpressionVisitor
                             .Visit(ordering.Expression);
+
+                    CanBindPropertyToOuterParameter = canBindPropertyToOuterParameter;
 
                     if (sqlOrderingExpression == null)
                     {
@@ -1181,6 +1238,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (property, qs) => BindMemberOrMethod(memberBinder, qs, property, bindSubQueries));
         }
 
+        public virtual Expression BindMemberToOuterQueryParameter(
+            [NotNull] MemberExpression memberExpression)
+        {
+            return base.BindMemberExpression(
+                memberExpression, 
+                null,
+                (property, qs) => BindPropertyToOuterParameter(qs, property, true));
+        }
+
         /// <summary>
         ///     Bind a method call expression.
         /// </summary>
@@ -1247,6 +1313,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
+        public virtual Expression BindMethodToOuterQueryParameter(
+            [NotNull] MethodCallExpression methodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            return base.BindMethodCallExpression<Expression>(
+                methodCallExpression, 
+                null,
+                (property, qs) => BindPropertyToOuterParameter(qs, property, false));
+        }
+
         private TResult BindMemberOrMethod<TResult>(
             Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
             IQuerySource querySource,
@@ -1291,5 +1368,146 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        public virtual bool CanBindPropertyToOuterParameter { get; private set; } = true;
+
+        private const string _outerQueryParameterNamePrefix = @"_outer_";
+
+        private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IProperty property, bool isMemberExpression)
+        {
+            if (querySource != null && CanBindPropertyToOuterParameter)
+            {
+                SelectExpression parentSelectExpression = null;
+                ParentQueryModelVisitor?.QueriesBySource.TryGetValue(querySource, out parentSelectExpression);
+                if (parentSelectExpression != null)
+                {
+                    var parameterName = _outerQueryParameterNamePrefix + property.Name;
+                    var parameterWithSamePrefixCount
+                        = QueryCompilationContext.ParentQueryNavigationParameters.Count(p => p.StartsWith(parameterName));
+
+                    if (parameterWithSamePrefixCount > 0)
+                    {
+                        parameterName += parameterWithSamePrefixCount;
+                    }
+
+                    QueryCompilationContext.ParentQueryNavigationParameters.Add(parameterName);
+                    Expression = InjectParameterUpdatePreExecution(Expression, querySource, property, parameterName, isMemberExpression);
+
+                    return Expression.Parameter(
+                        property.ClrType,
+                        parameterName);
+                }
+            }
+
+            return null;
+        }
+
+        private readonly MethodInfo _addParameterMehodInfo
+            = typeof(QueryContext).GetMethod(nameof(QueryContext.AddParameter));
+
+        private readonly MethodInfo _removeParameterMehodInfo
+            = typeof(QueryContext).GetMethod(nameof(QueryContext.RemoveParameter));
+
+        private Expression InjectParameterUpdatePreExecution(
+            Expression expression,
+            IQuerySource querySource,
+            IProperty property,
+            string parameterName,
+            bool isMemberExpression)
+        {
+            var querySourceReference = new QuerySourceReferenceExpression(querySource);
+            Expression propertyExpression = isMemberExpression
+                ? Expression.Property(querySourceReference, property.GetPropertyInfo())
+                : CreatePropertyExpression(querySourceReference, property);
+
+            if (propertyExpression.Type.IsValueType)
+            {
+                propertyExpression = Expression.Convert(propertyExpression, typeof(object));
+            }
+
+            var preExecuteExpressions = new List<Expression>();
+            var postExecuteExpressions = new List<Expression>();
+
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null
+                && methodCallExpression.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.PreExecuteMethod))
+            {
+                var innerPreExecuteExpression = ((LambdaExpression)methodCallExpression.Arguments[0]).Body;
+                var innerPreExecuteBlockExpression = innerPreExecuteExpression as BlockExpression;
+                if (innerPreExecuteBlockExpression != null)
+                {
+                    preExecuteExpressions.AddRange(innerPreExecuteBlockExpression.Expressions);
+                }
+                else
+                {
+                    preExecuteExpressions.Add(innerPreExecuteExpression);
+                }
+
+                var innerPostExecuteExpression = ((LambdaExpression)methodCallExpression.Arguments[2]).Body;
+                var innerPostExecuteBlockExpression = innerPostExecuteExpression as BlockExpression;
+                if (innerPostExecuteBlockExpression != null)
+                {
+                    postExecuteExpressions.AddRange(innerPostExecuteBlockExpression.Expressions);
+                }
+                else
+                {
+                    postExecuteExpressions.Add(innerPostExecuteExpression);
+                }
+
+                expression = methodCallExpression.Arguments[1];
+            }
+
+            var addParameterExpression =
+                Expression.Call(
+                    QueryContextParameter,
+                    _addParameterMehodInfo,
+                    Expression.Constant(parameterName),
+                    propertyExpression);
+
+            var removeParameterExpression =
+                Expression.Call(
+                    QueryContextParameter,
+                    _removeParameterMehodInfo,
+                    Expression.Constant(parameterName));
+
+            preExecuteExpressions.Add(addParameterExpression);
+            postExecuteExpressions.Insert(0, removeParameterExpression);
+
+            return CreatePreExecuteMethod(
+                    preExecuteExpressions,
+                    expression,
+                    postExecuteExpressions);
+        }
+
+        private Expression CreatePreExecuteMethod(
+            IEnumerable<Expression> preExecuteActions, 
+            Expression source, 
+            IEnumerable<Expression> postExecuteActions)
+        {
+            Debug.Assert(preExecuteActions.Count() == postExecuteActions.Count(), 
+                "PreExecute and PostExecute should have matching number of operations.");
+
+            if (preExecuteActions.Count() == 0)
+            {
+                return source;
+            }
+
+            var preExecuteAction = preExecuteActions.Count() > 1
+                ? Expression.Block(preExecuteActions)
+                : preExecuteActions.Single();
+
+            var postExecuteAction = postExecuteActions.Count() > 1
+                ? Expression.Block(postExecuteActions)
+                : postExecuteActions.Single();
+
+
+            var elementType = source.Type.GetGenericArguments().Single();
+
+            return Expression.Call(
+                QueryCompilationContext.QueryMethodProvider.PreExecuteMethod.MakeGenericMethod(elementType),
+                Expression.Lambda(preExecuteAction),
+                source,
+                Expression.Lambda(postExecuteAction));
+        }
     }
 }

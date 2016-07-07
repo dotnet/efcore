@@ -116,14 +116,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Select(c => c.Orders.FirstOrDefault()));
         }
 
-
         [ConditionalFact]
         public virtual void Select_collection_FirstOrDefault_project_single_column1()
         {
             AssertQuery<Customer>(
                 cs => cs.Take(2).Select(c => c.Orders.FirstOrDefault().CustomerID));
         }
-
+        
         [ConditionalFact]
         public virtual void Select_collection_FirstOrDefault_project_single_column2()
         {

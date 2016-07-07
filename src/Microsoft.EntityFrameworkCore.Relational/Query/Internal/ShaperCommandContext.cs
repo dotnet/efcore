@@ -62,6 +62,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public override int GetHashCode() => 0;
+
+            public CommandCacheKey Clone()
+            {
+                var clonedParameters = new Dictionary<string, object>();
+                foreach (var parameterValue in _parameterValues)
+                {
+                    clonedParameters.Add(parameterValue.Key, parameterValue.Value);
+                }
+
+                return new CommandCacheKey(clonedParameters);
+            }
         }
 
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
@@ -112,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (generator.IsCacheable)
             {
-                _commandCache.TryAdd(key, relationalCommand);
+                _commandCache.TryAdd(key.Clone(), relationalCommand);
             }
 
             return relationalCommand;

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -528,6 +529,82 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public void Dispose() => _includeCollectionIterator?.Dispose();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo PreExecuteMethod => _preExecuteMethodInfo;
+
+        private static readonly MethodInfo _preExecuteMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_PreExecute));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IEnumerable<TElement> _PreExecute<TElement>(
+            Action preExecuteAction, IEnumerable<TElement> source, Func<object> postExecuteAction)
+            => new PreExecutor<TElement>(preExecuteAction, source, postExecuteAction);
+
+        private sealed class PreExecutor<TElement> : IEnumerable<TElement>
+        {
+            private readonly Action _preExecuteAction;
+            private readonly IEnumerable<TElement> _innerEnumerable;
+            private readonly Func<object> _postExecuteAction;
+
+            public PreExecutor(Action preExecuteAction, IEnumerable<TElement> innerEnumerable, Func<object> postExecuteAction)
+            {
+                _preExecuteAction = preExecuteAction;
+                _innerEnumerable = innerEnumerable;
+                _postExecuteAction = postExecuteAction;
+            }
+
+            public IEnumerator<TElement> GetEnumerator() => new PreExecuteEnumerator(this);
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            private sealed class PreExecuteEnumerator : IEnumerator<TElement>
+            {
+                private readonly PreExecutor<TElement> _preExecutor;
+                private readonly IEnumerator<TElement> _innerEnumerator;
+                private bool _postExecuteActionComplete = false;
+
+                public PreExecuteEnumerator(PreExecutor<TElement> preExecutor)
+                {
+                    _preExecutor = preExecutor;
+                    _innerEnumerator = _preExecutor._innerEnumerable.GetEnumerator();
+                    _preExecutor._preExecuteAction();
+                }
+
+                public TElement Current => _innerEnumerator.Current;
+
+                object IEnumerator.Current => _innerEnumerator.Current;
+
+                public bool MoveNext()
+                {
+                    var result = _innerEnumerator.MoveNext();
+                    if (!result)
+                    {
+                        _preExecutor._postExecuteAction();
+                        _postExecuteActionComplete = true;
+                    }
+
+                    return result;
+                }
+
+                public void Reset() => _innerEnumerator?.Reset();
+
+                public void Dispose()
+                {
+                    if (!_postExecuteActionComplete)
+                    {
+                        _preExecutor._postExecuteAction();
+                    }
+
+                    _innerEnumerator?.Dispose();
+                }
+            }
         }
     }
 }
