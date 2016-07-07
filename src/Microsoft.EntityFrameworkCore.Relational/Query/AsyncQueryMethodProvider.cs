@@ -713,5 +713,100 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public void Dispose() => _includeCollectionIterator?.Dispose();
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
+
+        private static readonly MethodInfo _injectParametersMethodInfo
+            = typeof(AsyncQueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TElement> _InjectParameters<TElement>(
+            QueryContext queryContext,
+            IAsyncEnumerable<TElement> source,
+            string[] parameterNames,
+            object[] parameterValues)
+            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
+
+        private sealed class ParameterInjector<TElement> : IAsyncEnumerable<TElement>
+        {
+            private readonly QueryContext _queryContext;
+            private readonly IAsyncEnumerable<TElement> _innerEnumerable;
+            private readonly string[] _parameterNames;
+            private readonly object[] _parameterValues;
+
+            public ParameterInjector(
+                QueryContext queryContext,
+                IAsyncEnumerable<TElement> innerEnumerable,
+                string[] parameterNames,
+                object[] parameterValues)
+            {
+                _queryContext = queryContext;
+                _innerEnumerable = innerEnumerable;
+                _parameterNames = parameterNames;
+                _parameterValues = parameterValues;
+            }
+
+            public IAsyncEnumerator<TElement> GetEnumerator() => new InjectParametersEnumerator(this);
+
+            IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetEnumerator() => new InjectParametersEnumerator(this);
+
+            private sealed class InjectParametersEnumerator : IAsyncEnumerator<TElement>
+            {
+                private readonly ParameterInjector<TElement> _parameterInjector;
+                private readonly IAsyncEnumerator<TElement> _innerEnumerator;
+                private bool _parametersRemoved = false;
+
+                public InjectParametersEnumerator(ParameterInjector<TElement> parameterInjector)
+                {
+                    _parameterInjector = parameterInjector;
+                    _innerEnumerator = _parameterInjector._innerEnumerable.GetEnumerator();
+
+                    for (int i = 0; i < _parameterInjector._parameterNames.Length; i++)
+                    {
+                        _parameterInjector._queryContext.AddParameter(
+                            _parameterInjector._parameterNames[i],
+                            _parameterInjector._parameterValues[i]);
+                    }
+                }
+
+                public TElement Current => _innerEnumerator.Current;
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    var result = await _innerEnumerator.MoveNext(cancellationToken);
+                    if (!result)
+                    {
+                        RemoveParameters();
+                        _parametersRemoved = true;
+                    }
+
+                    return result;
+                }
+
+                public void Dispose()
+                {
+                    if (!_parametersRemoved)
+                    {
+                        RemoveParameters();
+                    }
+
+                    _innerEnumerator?.Dispose();
+                }
+
+                private void RemoveParameters()
+                {
+                    foreach (var parameterName in _parameterInjector._parameterNames)
+                    {
+                        _parameterInjector._queryContext.RemoveParameter(parameterName);
+                    }
+                }
+            }
+        }
     }
 }

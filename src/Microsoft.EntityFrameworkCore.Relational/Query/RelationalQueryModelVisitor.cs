@@ -451,7 +451,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var previousSelectExpression = TryGetQuery(previousQuerySource);
 
-                    if (previousSelectExpression != null)
+                    if (previousSelectExpression != null
+                        && CanFlattenSelectMany())
                     {
                         if (!QueryCompilationContext.QuerySourceRequiresMaterialization(previousQuerySource))
                         {
@@ -499,6 +500,57 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 WarnClientEval(fromClause);
             }
+        }
+
+        private bool CanFlattenSelectMany()
+        {
+            var selectManyExpression = Expression as MethodCallExpression;
+            if (selectManyExpression == null
+                || !selectManyExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.SelectMany))
+            {
+                return false;
+            }
+
+            var outerShapedQuery = selectManyExpression.Arguments[0] as MethodCallExpression;
+            if (outerShapedQuery == null || outerShapedQuery.Arguments.Count != 3)
+            {
+                return false;
+            }
+
+            var outerShaper = outerShapedQuery.Arguments[2] as ConstantExpression;
+            if (outerShaper == null || !(outerShaper.Value is Shaper))
+            {
+                return false;
+            }
+
+            var innerShapedQuery = (selectManyExpression.Arguments[1] as LambdaExpression)?.Body as MethodCallExpression;
+            if (innerShapedQuery == null)
+            {
+                return false;
+            }
+
+            if (innerShapedQuery.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
+                || innerShapedQuery.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg))
+            {
+                innerShapedQuery = innerShapedQuery.Arguments.Single() as MethodCallExpression;
+                if (innerShapedQuery == null)
+                {
+                    return false;
+                }
+            }
+
+            if (innerShapedQuery.Arguments.Count != 3)
+            {
+                return false;
+            }
+
+            var innerShaper = innerShapedQuery.Arguments[2] as ConstantExpression;
+            if (innerShaper == null || !(innerShaper.Value is Shaper))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -965,9 +1017,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 foreach (var ordering in orderByClause.Orderings)
                 {
+                    // we disable this for order by, because you can't have a parameter (that is integer) in the order by
+                    var canBindPropertyToOuterParameter = _canBindPropertyToOuterParameter;
+                    _canBindPropertyToOuterParameter = false;
+
                     var sqlOrderingExpression
                         = sqlTranslatingExpressionVisitor
                             .Visit(ordering.Expression);
+
+                    _canBindPropertyToOuterParameter = canBindPropertyToOuterParameter;
 
                     if (sqlOrderingExpression == null)
                     {
@@ -1180,6 +1238,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (property, qs) => BindMemberOrMethod(memberBinder, qs, property, bindSubQueries));
         }
 
+        public virtual Expression BindMemberToOuterQueryParameter(
+            [NotNull] MemberExpression memberExpression)
+        {
+            return base.BindMemberExpression(
+                memberExpression,
+                null,
+                (property, qs) => BindPropertyToOuterParameter(qs, property, true));
+        }
+
         /// <summary>
         ///     Bind a method call expression.
         /// </summary>
@@ -1246,6 +1313,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
+        public virtual Expression BindMethodToOuterQueryParameter(
+            [NotNull] MethodCallExpression methodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            return base.BindMethodCallExpression<Expression>(
+                methodCallExpression,
+                null,
+                (property, qs) => BindPropertyToOuterParameter(qs, property, false));
+        }
+
         private TResult BindMemberOrMethod<TResult>(
             Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
             IQuerySource querySource,
@@ -1290,5 +1368,84 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        private bool _canBindPropertyToOuterParameter = true;
+
+        private const string _outerQueryParameterNamePrefix = @"_outer_";
+
+        private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IProperty property, bool isMemberExpression)
+        {
+            if (querySource != null && _canBindPropertyToOuterParameter)
+            {
+                SelectExpression parentSelectExpression = null;
+                ParentQueryModelVisitor?.QueriesBySource.TryGetValue(querySource, out parentSelectExpression);
+                if (parentSelectExpression != null)
+                {
+                    var parameterName = _outerQueryParameterNamePrefix + property.Name;
+                    var parameterWithSamePrefixCount
+                        = QueryCompilationContext.ParentQueryReferenceParameters.Count(p => p.StartsWith(parameterName));
+
+                    if (parameterWithSamePrefixCount > 0)
+                    {
+                        parameterName += parameterWithSamePrefixCount;
+                    }
+
+                    QueryCompilationContext.ParentQueryReferenceParameters.Add(parameterName);
+                    Expression = CreateInjectParametersExpression(Expression, querySource, property, parameterName, isMemberExpression);
+
+                    return Expression.Parameter(
+                        property.ClrType,
+                        parameterName);
+                }
+            }
+
+            return null;
+        }
+
+        private Expression CreateInjectParametersExpression(
+            Expression expression,
+            IQuerySource querySource,
+            IProperty property,
+            string parameterName,
+            bool isMemberExpression)
+        {
+            var querySourceReference = new QuerySourceReferenceExpression(querySource);
+            Expression propertyExpression = isMemberExpression
+                ? Expression.Property(querySourceReference, property.GetPropertyInfo())
+                : CreatePropertyExpression(querySourceReference, property);
+
+            if (propertyExpression.Type.GetTypeInfo().IsValueType)
+            {
+                propertyExpression = Expression.Convert(propertyExpression, typeof(object));
+            }
+
+            var parameterNameExpressions = new List<ConstantExpression>();
+            var parameterValueExpressions = new List<Expression>();
+
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null
+                && methodCallExpression.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
+            {
+                var existingParamterNamesExpression = (NewArrayExpression)methodCallExpression.Arguments[2];
+                parameterNameExpressions.AddRange(existingParamterNamesExpression.Expressions.Cast<ConstantExpression>());
+
+                var existingParameterValuesExpression = (NewArrayExpression)methodCallExpression.Arguments[3];
+                parameterValueExpressions.AddRange(existingParameterValuesExpression.Expressions);
+
+                expression = methodCallExpression.Arguments[1];
+            }
+
+            parameterNameExpressions.Add(Expression.Constant(parameterName));
+            parameterValueExpressions.Add(propertyExpression);
+
+            var elementType = expression.Type.GetGenericArguments().Single();
+
+            return Expression.Call(
+                QueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(elementType),
+                QueryContextParameter,
+                expression,
+                Expression.NewArrayInit(typeof(string), parameterNameExpressions),
+                Expression.NewArrayInit(typeof(object), parameterValueExpressions));
+        }
     }
 }

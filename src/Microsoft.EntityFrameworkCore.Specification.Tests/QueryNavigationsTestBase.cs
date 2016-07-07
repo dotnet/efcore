@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Take_Select_Navigation()
         {
             AssertQuery<Customer>(
-                cs => cs.Take(2)
+                cs => cs.OrderBy(c => c.CustomerID).Take(2)
                     .Select(c => c.Orders.FirstOrDefault()));
         }
 
@@ -121,28 +121,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Select_collection_FirstOrDefault_project_single_column1()
         {
             AssertQuery<Customer>(
-                cs => cs.Take(2).Select(c => c.Orders.FirstOrDefault().CustomerID));
+                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.FirstOrDefault().CustomerID));
         }
 
         [ConditionalFact]
         public virtual void Select_collection_FirstOrDefault_project_single_column2()
         {
             AssertQuery<Customer>(
-                cs => cs.Take(2).Select(c => c.Orders.Select(o => o.CustomerID).FirstOrDefault()));
+                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.Select(o => o.CustomerID).FirstOrDefault()));
         }
 
         [ConditionalFact]
         public virtual void Select_collection_FirstOrDefault_project_anonymous_type()
         {
             AssertQuery<Customer>(
-                cs => cs.Take(2).Select(c => c.Orders.Select(o => new { o.CustomerID, o.OrderID }).FirstOrDefault()));
+                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.Select(o => new { o.CustomerID, o.OrderID }).FirstOrDefault()));
         }
 
         [ConditionalFact]
         public virtual void Select_collection_FirstOrDefault_project_entity()
         {
             AssertQuery<Customer>(
-                cs => cs.Take(2).Select(c => c.Orders.FirstOrDefault()));
+                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.FirstOrDefault()));
         }
 
         [ConditionalFact]
@@ -322,6 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
+                      orderby c.CustomerID
                       select new { c.CustomerID, c.Orders },
                 asserter: (l2oItems, efItems) =>
                 {
@@ -415,8 +416,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => from c in cs
+                      orderby c.CustomerID
                       select new { All = c.Orders.All(o => o.ShipCity == "London") },
                 cs => from c in cs
+                      orderby c.CustomerID
                       select new { All = (c.Orders ?? new List<Order>()).All(o => o.ShipCity == "London") });
         }
 
@@ -440,6 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var customers
                     = (from c in context.Set<Customer>()
+                       orderby c.CustomerID
                        where c.Orders.All(o => o.ShipCity == "London")
                        select c).ToList();
 
@@ -566,8 +570,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => from c in cs
+                      orderby c.CustomerID
                       select new { First = c.Orders.FirstOrDefault() },
                 cs => from c in cs
+                      orderby c.CustomerID
                       select new { First = (c.Orders ?? new List<Order>()).FirstOrDefault() });
         }
 
@@ -578,8 +584,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             AssertQuery<Customer>(
                 cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
+                      orderby c.CustomerID
                       select new { c.Orders.Where(e => orderIds.Contains(e.OrderID)).FirstOrDefault().Customer },
                 cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
+                      orderby c.CustomerID
                       select new { Customer = c.Orders != null && c.Orders.Where(e => orderIds.Contains(e.OrderID)).Any() 
                         ? c.Orders.Where(e => orderIds.Contains(e.OrderID)).First().Customer 
                         : null });
@@ -723,6 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer, Order, Customer>(
                 (cs, os) => from c in cs
+                            orderby c.CustomerID
                             where c.Orders.Select(o => o.OrderID)
                                 .Contains(
                                     os.OrderByDescending(o => ClientMethod(o.OrderID)).Select(o => o.OrderID).FirstOrDefault())
