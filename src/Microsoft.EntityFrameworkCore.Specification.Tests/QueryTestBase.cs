@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+// ReSharper disable InconsistentNaming
+// ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable ReplaceWithSingleCallToCount
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -1712,6 +1714,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var flag = new Random().Next(0, 2) == 1;
 
             AssertQuery<Product>(ps => ps
+                // ReSharper disable once SimplifyConditionalTernaryExpression
                 .Where(p => flag ? p.UnitsInStock >= 20 : false),
                     entryCount: flag ? 51 : 0);
         }

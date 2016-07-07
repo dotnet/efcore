@@ -1304,6 +1304,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             _relationalCommandBuilder.Append("CAST(");
 
+            var parentTypeMapping = _typeMapping;
+
+            _typeMapping = InferTypeMappingFromColumn(explicitCastExpression.Operand);
+
             Visit(explicitCastExpression.Operand);
 
             _relationalCommandBuilder.Append(" AS ");
@@ -1318,6 +1322,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(typeMapping.StoreType);
 
             _relationalCommandBuilder.Append(")");
+
+            _typeMapping = parentTypeMapping;
 
             return explicitCastExpression;
         }
