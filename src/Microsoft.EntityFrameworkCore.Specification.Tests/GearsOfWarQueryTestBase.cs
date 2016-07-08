@@ -1534,6 +1534,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_DTOs()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new Squad { Id = t.Gear.SquadId });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_list_initializers()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new List<int> { t.Gear.SquadId, t.Gear.SquadId + 1, 42 });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_array_initializers()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new int[] { t.Gear.SquadId });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Optional_navigation_type_compensation_works_with_orderby()
         {
             using (var context = CreateContext())

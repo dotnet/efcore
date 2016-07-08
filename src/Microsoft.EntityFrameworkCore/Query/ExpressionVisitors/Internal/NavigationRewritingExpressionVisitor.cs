@@ -398,6 +398,53 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+        {
+            var newExpression = CompensateForNullabilityDifference(
+                Visit(node.Expression),
+                node.Expression.Type);
+
+            return node.Update(newExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override ElementInit VisitElementInit(ElementInit node)
+        {
+            var originalArgumentTypes = node.Arguments.Select(a => a.Type).ToList();
+            var newArguments = node.Arguments.Select(Visit).ToList();
+
+            for (var i = 0; i < newArguments.Count; i++)
+            {
+                newArguments[i] = CompensateForNullabilityDifference(newArguments[i], originalArgumentTypes[i]);
+            }
+
+            return node.Update(newArguments);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitNewArray(NewArrayExpression node)
+        {
+            var originalExpressionTypes = node.Expressions.Select(e => e.Type).ToList();
+            var newExpressions = node.Expressions.Select(Visit).ToList();
+
+            for (var i = 0; i < newExpressions.Count; i++)
+            {
+                newExpressions[i] = CompensateForNullabilityDifference(newExpressions[i], originalExpressionTypes[i]);
+            }
+
+            return node.Update(newExpressions);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Check.NotNull(node, nameof(node));
@@ -477,7 +524,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             return default(Expression);
         }
-
 
         private static Expression CreateForeignKeyMemberAccess(string propertyName, Expression declaringExpression, INavigation navigation)
         {
@@ -927,6 +973,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
             => new EntityQueryable<TResult>(entityQueryProvider);
 
+        private static Expression CompensateForNullabilityDifference(Expression expression, Type originalType)
+        {
+            var newType = expression.Type;
+
+            var needsTypeCompensation = (originalType != newType)
+                && !originalType.IsNullableType()
+                && newType.IsNullableType()
+                && (originalType.UnwrapNullableType() == newType.UnwrapNullableType());
+
+            return needsTypeCompensation
+                ? Expression.Convert(expression, originalType)
+                : expression;
+        }
+
         private class NavigationRewritingQueryModelVisitor : ExpressionTransformingQueryModelVisitor
         {
             private readonly SubqueryInjector _subqueryInjector;
@@ -970,19 +1030,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 base.VisitOrderByClause(orderByClause, queryModel, index);
 
-                var newTypes = orderByClause.Orderings.Select(o => o.Expression.Type).ToList();
-
-                Debug.Assert(originalTypes.Count == newTypes.Count);
-
-                for (var i = 0; i < newTypes.Count; i++)
+                for (var i = 0; i < orderByClause.Orderings.Count; i++)
                 {
-                    if ((originalTypes[i] != newTypes[i])
-                        && !originalTypes[i].IsNullableType()
-                        && newTypes[i].IsNullableType()
-                        && (originalTypes[i].UnwrapNullableType() == newTypes[i].UnwrapNullableType()))
-                    {
-                        orderByClause.Orderings[i].Expression = Expression.Convert(orderByClause.Orderings[i].Expression, originalTypes[i]);
-                    }
+                    orderByClause.Orderings[i].Expression = CompensateForNullabilityDifference(
+                        orderByClause.Orderings[i].Expression,
+                        originalTypes[i]);
                 }
             }
 
@@ -1030,14 +1082,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 base.VisitSelectClause(selectClause, queryModel);
 
-                var newType = selectClause.Selector.Type;
-                if ((originalType != newType)
-                    && !originalType.IsNullableType()
-                    && newType.IsNullableType()
-                    && (originalType.UnwrapNullableType() == newType.UnwrapNullableType()))
-                {
-                    selectClause.Selector = Expression.Convert(selectClause.Selector, originalType);
-                }
+                selectClause.Selector = CompensateForNullabilityDifference(selectClause.Selector, originalType);
             }
 
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
@@ -1090,24 +1135,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     base.VisitResultOperator(resultOperator, queryModel, index);
 
-                    var newKeySelectorType = groupResultOperator.KeySelector.Type;
-                    var newElementSelectorType = groupResultOperator.ElementSelector.Type;
+                    groupResultOperator.KeySelector = CompensateForNullabilityDifference(
+                        groupResultOperator.KeySelector,
+                        originalKeySelectorType);
 
-                    if (originalKeySelectorType != newKeySelectorType
-                        && !originalKeySelectorType.IsNullableType()
-                        && newKeySelectorType.IsNullableType()
-                        && originalKeySelectorType.UnwrapNullableType() == newKeySelectorType.UnwrapNullableType())
-                    {
-                        groupResultOperator.KeySelector = Expression.Convert(groupResultOperator.KeySelector, originalKeySelectorType);
-                    }
-
-                    if (originalElementSelectorType != newElementSelectorType
-                        && !originalElementSelectorType.IsNullableType()
-                        && newElementSelectorType.IsNullableType()
-                        && originalElementSelectorType.UnwrapNullableType() == newElementSelectorType.UnwrapNullableType())
-                    {
-                        groupResultOperator.ElementSelector = Expression.Convert(groupResultOperator.ElementSelector, originalElementSelectorType);
-                    }
+                    groupResultOperator.ElementSelector = CompensateForNullabilityDifference(
+                        groupResultOperator.ElementSelector,
+                        originalElementSelectorType);
 
                     return;
                 }
@@ -1124,16 +1158,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var originalExpression = expressionExtractor(resultOperator);
                 var originalType = originalExpression.Type;
 
-                var translatedExpression = TransformingVisitor.Visit(originalExpression);
-
-                var newType = translatedExpression.Type;
-                if ((originalType != newType)
-                    && !originalType.IsNullableType()
-                    && newType.IsNullableType()
-                    && (originalType.UnwrapNullableType() == newType.UnwrapNullableType()))
-                {
-                    translatedExpression = Expression.Convert(translatedExpression, originalType);
-                }
+                var translatedExpression = CompensateForNullabilityDifference(
+                    TransformingVisitor.Visit(originalExpression),
+                    originalType);
 
                 adjuster(resultOperator, translatedExpression);
             }
