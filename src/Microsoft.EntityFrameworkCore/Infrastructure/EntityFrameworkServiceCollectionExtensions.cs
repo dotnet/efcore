@@ -83,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetInitializer, DbSetInitializer>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
+                .AddSingleton<IEntityFinderSource, EntityFinderSource>()
                 .AddSingleton<ICollectionTypeFactory, CollectionTypeFactory>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
                 .AddSingleton<IMemberMapper, MemberMapper>()

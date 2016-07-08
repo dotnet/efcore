@@ -189,7 +189,12 @@
     <Compile Include="Internal\AsyncLock.cs" />
     <Compile Include="Internal\ConcurrencyDetector.cs" />
     <Compile Include="Internal\CurrentDbContext.cs" />
+    <Compile Include="Internal\EntityFinder.cs" />
+    <Compile Include="Internal\EntityFinderSource.cs" />
     <Compile Include="Internal\ICurrentDbContext.cs" />
+    <Compile Include="Internal\IEntityFinder.cs" />
+    <Compile Include="Internal\IEntityFinderSource.cs" />
+    <Compile Include="Internal\IEntityFinder`.cs" />
     <Compile Include="Internal\InterceptingLogger.cs" />
     <Compile Include="Internal\CoreOptionsExtension.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />

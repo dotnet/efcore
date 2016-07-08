@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,12 +11,54 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class FindSqlServerTest
+    public abstract class FindSqlServerTest
         : FindTestBase<FindSqlServerTest.FindSqlServerFixture>
     {
-        public FindSqlServerTest(FindSqlServerFixture fixture)
+        protected FindSqlServerTest(FindSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        public class FindSqlServerTestSet : FindSqlServerTest
+        {
+            public FindSqlServerTestSet(FindSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            protected override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                => context.Set<TEntity>().Find(keyValues);
+
+            protected override Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
+                => context.Set<TEntity>().FindAsync(keyValues);
+        }
+
+        public class FindSqlServerTestContext : FindSqlServerTest
+        {
+            public FindSqlServerTestContext(FindSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            protected override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                => context.Find<TEntity>(keyValues);
+
+            protected override Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
+                => context.FindAsync<TEntity>(keyValues);
+        }
+
+        public class FindSqlServerTestNonGeneric : FindSqlServerTest
+        {
+            public FindSqlServerTestNonGeneric(FindSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            protected override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                => (TEntity)context.Find(typeof(TEntity), keyValues);
+
+            protected override async Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
+                => (TEntity)await context.FindAsync(typeof(TEntity), keyValues);
         }
 
         [Fact]

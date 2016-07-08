@@ -5099,15 +5099,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             // methods (tests all paths)
             Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
+            Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77));
             Assert.Throws<ObjectDisposedException>(() => context.Attach(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.Update(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.Remove(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.SaveChanges());
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync());
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77));
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 31;
+            var expectedMethodCount = 37;
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +

@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private IDbContextServices _contextServices;
         private IDbSetInitializer _setInitializer;
+        private IEntityFinderSource _entityFinderSource;
         private ChangeTracker _changeTracker;
         private IStateManager _stateManager;
         private IChangeDetector _changeDetector;
@@ -919,5 +920,89 @@ namespace Microsoft.EntityFrameworkCore
             return (_setInitializer
                     ?? (_setInitializer = InternalServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
         }
+
+        private IEntityFinder Finder(Type entityType)
+            => (_entityFinderSource
+                ?? (_entityFinderSource = InternalServiceProvider.GetRequiredService<IEntityFinderSource>())).Create(this, entityType);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual object Find([NotNull] Type entityType, [NotNull] params object[] keyValues)
+            => Finder(entityType).Find(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] params object[] keyValues)
+            => Finder(entityType).FindAsync(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] object[] keyValues, CancellationToken cancellationToken)
+            => Finder(entityType).FindAsync(keyValues, cancellationToken);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
     }
 }
