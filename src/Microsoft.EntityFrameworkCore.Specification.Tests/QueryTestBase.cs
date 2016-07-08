@@ -928,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Where_subquery_correlated_client_eval()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
+                cs => cs.OrderBy(c1 => c1.CustomerID).Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
                 entryCount: 6);
         }
 
@@ -2007,6 +2007,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
+                orderby c.CustomerID
                 select os
                     .Where(o => o.CustomerID == c.CustomerID),
                 asserter:
@@ -2027,26 +2028,49 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Select_correlated_subquery_ordered()
+        public virtual void Select_correlated_subquery_filtered()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 select os.Where(o => o.CustomerID == c.CustomerID),
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            var l2oObjects
-                                = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
-                                    .OrderBy(o => o.OrderID);
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
 
-                            var efObjects
-                                = efResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
-                                    .OrderBy(o => o.OrderID);
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
 
-                            Assert.Equal(l2oObjects, efObjects);
-                        });
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Select_correlated_subquery_ordered()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                select os.OrderBy(o => c.CustomerID),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
         }
 
         // TODO: Re-linq parser
@@ -3181,6 +3205,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
+                orderby c.CustomerID
                 let hasOrders = os.Any(o => o.CustomerID == c.CustomerID)
                 select new { c, hasOrders });
         }
@@ -5379,7 +5404,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var q = from c in context.Customers.Include(e => e.Orders).Where(c => c.ContactTitle == "Owner")
+                var q = from c in context.Customers.Include(e => e.Orders).Where(c => c.ContactTitle == "Owner").OrderBy(c => c.CustomerID)
                         select new
                         {
                             Id = c.CustomerID,
