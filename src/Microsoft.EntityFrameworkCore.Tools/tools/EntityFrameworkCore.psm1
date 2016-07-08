@@ -610,9 +610,13 @@ function IsDotNetProject($project) {
 }
 
 function IsUwpProject($project) {
-    $targetFrameworkMoniker = GetProperty $project.Properties TargetFrameworkMoniker
-    $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
-    return $frameworkName.Identifier -eq '.NETCore'
+    $targetDesription = GetProperty $project.Properties Project.TargetDescriptions
+    return $targetDesription -eq 'Universal Windows'
+}
+
+function IsClassLibrary($project) {
+    $type = GetProperty $project.Properties OutputType
+    return $type -eq 2 -or $type -eq 'Library'
 }
 
 function GetProject($projectName) {
@@ -749,6 +753,10 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     $projectName = $project.ProjectName
 
     Write-Verbose "Using project '$projectName'"
+
+    if ((IsUwpProject $startupProject) -and (IsClassLibrary $startupProject)) {
+        throw "This command cannot use '$startupProjectName' as the startup project because it is a Univeral Windows class library project. Change the startup project to a Universal Windows application project and run this command again."
+    }
 
     if (IsDotNetProject $startupProject) {
         throw "This command cannot use '$startupProjectName' as the startup project because '$projectName' is not an ASP.NET Core or .NET Core project"
