@@ -52,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
 
             QueryMethodProvider = queryMethodProvider;
-            ParentQueryReferenceParameters = new List<string>();
         }
 
         /// <summary>
@@ -62,14 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The query method provider.
         /// </value>
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
-
-        /// <summary>
-        ///     Gets the list of parameter names that represent reference to a parent query.
-        /// </summary>
-        /// <value>
-        ///     The list of parameter names that represent reference to a parent query.
-        /// </value>
-        public virtual IList<string> ParentQueryReferenceParameters { get; }
 
         /// <summary>
         ///     Creates a query model visitor.

@@ -1616,63 +1616,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
-        public virtual void Select_correlated_filtered_collection()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.Gears
-                    .Where(g => g.CityOfBirth.Name == "Ephyra" || g.CityOfBirth.Name == "Hanover")
-                    .Select(g => g.Weapons.Where(w => w.Name != "Lancer"));
-                var result = query.ToList();
-
-                Assert.Equal(2, result.Count);
-
-                var resultList = result.Select(r => r.ToList()).ToList();
-                var coleWeapons = resultList.Where(l => l.All(w => w.Name.Contains("Cole's"))).Single();
-                var domWeapons = resultList.Where(l => l.All(w => w.Name.Contains("Dom's"))).Single();
-
-                Assert.Equal(2, coleWeapons.Count);
-                Assert.True(coleWeapons.Select(w => w.Name).Contains("Cole's Gnasher"));
-
-                Assert.Equal(2, domWeapons.Count);
-                Assert.True(domWeapons.Select(w => w.Name).Contains("Dom's Hammerburst"));
-                Assert.True(domWeapons.Select(w => w.Name).Contains("Dom's Gnasher"));
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Select_correlated_filtered_collection_with_composite_key()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.Gears.OfType<Officer>().Select(g => g.Reports.Where(r => r.Nickname != "Dom"));
-                var result = query.ToList();
-
-                Assert.Equal(2, result.Count);
-
-                var resultList = result.Select(r => r.ToList()).ToList();
-                var bairdReports = resultList.Where(l => l.Count == 1).Single();
-                var marcusReports = resultList.Where(l => l.Count == 2).Single();
-
-                Assert.True(bairdReports.Select(g => g.FullName).Contains("Garron Paduk"));
-                Assert.True(marcusReports.Select(g => g.FullName).Contains("Augustus Cole"));
-                Assert.True(marcusReports.Select(g => g.FullName).Contains("Damon Baird"));
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Select_correlated_filtered_collection_works_with_caching()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.Tags.Select(t => context.Gears.Where(g => g.Nickname == t.GearNickName));
-                var result = query.ToList();
-
-                var resultList = result.Select(r => r.ToList()).ToList();
-            }
-        }
-
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

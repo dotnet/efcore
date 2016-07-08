@@ -387,19 +387,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         methodCallExpression.Arguments);
                 }
 
-                if (methodCallExpression.Method.MethodIsClosedFormOf(
-                    _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
-                {
-                    var newSource = VisitMethodCall((MethodCallExpression)methodCallExpression.Arguments[1]);
-
-                    return Expression.Call(
-                        methodCallExpression.Method,
-                        methodCallExpression.Arguments[0],
-                        newSource,
-                        methodCallExpression.Arguments[2],
-                        methodCallExpression.Arguments[3]);
-                }
-
                 return base.VisitMethodCall(methodCallExpression);
             }
         }
