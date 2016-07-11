@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -22,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
@@ -49,6 +53,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
@@ -78,6 +84,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
@@ -116,6 +124,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
@@ -155,6 +165,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 66, Name = "One Unicorn" }, new Blog { Id = 67, Name = "Two Unicorns" });
 
                     context.SaveChanges();
@@ -188,6 +200,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(
                         new NullableKeyBlog { Id = 0, Name = "One Unicorn" },
                         new NullableKeyBlog { Id = 1, Name = "Two Unicorns" });
@@ -223,6 +237,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     var blogs = new List<Blog>
                     {
                         new Blog { Name = "One Unicorn" },
@@ -278,6 +294,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(
                         new Blog { Name = "One Unicorn" },
                         new Blog { Name = "Two Unicorns" });
@@ -332,6 +350,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
                     context.SaveChanges();
@@ -364,6 +384,64 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
+        public class ComputedColumnWithFunction : TestBase<ComputedColumnWithFunction.BlogContext>
+        {
+            //[Fact] Disabled due to issue #6044
+            public void Insert_and_update_with_computed_column()
+            {
+                using (var context = new BlogContext())
+                {
+                    var creator = context.GetService<IRelationalDatabaseCreator>();
+
+                    creator.Create();
+
+                    context.Database.ExecuteSqlCommand
+                        (@"CREATE FUNCTION 
+[dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
+RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
+
+                    creator.CreateTables();
+                }
+
+                using (var context = new BlogContext())
+                {
+                    var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.Equal("OneUnicorn", blog.FullName);
+                }
+
+                using (var context = new BlogContext())
+                {
+                    var blog = context.FullNameBlogs.Single();
+
+                    Assert.Equal("OneUnicorn", blog.FullName);
+
+                    blog.LastName = "Pegasus";
+
+                    // Throws SqlException : Column 'inserted.FullName' cannot be referenced in the OUTPUT clause
+                    // because the column definition contains a subquery or references a function that performs user 
+                    // or system data access. A function is assumed by default to perform data access if it is not 
+                    // schemabound. Consider removing the subquery or function from the column definition or removing 
+                    // the column from the OUTPUT clause.
+                    context.SaveChanges();
+
+                    Assert.Equal("OnePegasus", blog.FullName);
+                }
+            }
+
+            public class BlogContext : ContextBase
+            {
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                {
+                    modelBuilder.Entity<FullNameBlog>()
+                        .Property(e => e.FullName)
+                        .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])");
+                }
+            }
+        }
+
         public class ClientGuidKey : TestBase<ClientGuidKey.BlogContext>
         {
             [Fact]
@@ -373,6 +451,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
@@ -404,6 +484,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
@@ -442,6 +524,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Id = 2, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
@@ -464,6 +548,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
@@ -486,6 +572,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     context.SaveChanges();
@@ -520,6 +608,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     // The property 'Id' on entity type 'Blog' is defined to be read-only before it is 
@@ -552,6 +642,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(
                         new Blog { Name = "One Unicorn" },
                         new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) });
@@ -583,6 +675,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
 
                     // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is 
@@ -611,6 +705,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" });
 
                     context.SaveChanges();
@@ -650,6 +746,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new ConcurrentBlog { Name = "One Unicorn" }).Entity;
 
                     context.SaveChanges();
@@ -736,11 +834,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public DbSet<FullNameBlog> FullNameBlogs { get; set; }
             public DbSet<GuidBlog> GuidBlogs { get; set; }
             public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
-
-            protected ContextBase()
-            {
-                Database.EnsureCreated();
-            }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
