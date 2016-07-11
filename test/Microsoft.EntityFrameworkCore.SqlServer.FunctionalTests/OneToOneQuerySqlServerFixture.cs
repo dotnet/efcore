@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new DbContext(_options))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 AddTestData(context);
             }

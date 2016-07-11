@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 }).Entity;
 
@@ -40,8 +39,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 var entity = context.Add(new Entity { P1 = 20, P2 = 30 }).Entity;
 
@@ -141,8 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new NullableContext(serviceProvider, "NullableEnumComputedColumns"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 var entity = context.EnumItems.Add(new EnumItem { FlagEnum = FlagEnum.AValue, OptionalFlagEnum = FlagEnum.BValue }).Entity;
                 context.SaveChanges();

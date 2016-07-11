@@ -31,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.Database.EnsureDeleted();
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
                     Seed(context);
                 }
             }

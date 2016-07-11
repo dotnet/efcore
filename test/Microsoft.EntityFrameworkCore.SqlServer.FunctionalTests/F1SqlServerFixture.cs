@@ -37,12 +37,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                     using (var context = new F1Context(optionsBuilder.Options))
                     {
-                        // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            ConcurrencyModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureClean();
+                        ConcurrencyModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }

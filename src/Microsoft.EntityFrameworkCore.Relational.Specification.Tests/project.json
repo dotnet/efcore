@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Specification.Tests": "1.1.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.0-*",
     "Microsoft.EntityFrameworkCore.Relational": "1.1.0-*"
   },
   "frameworks": {

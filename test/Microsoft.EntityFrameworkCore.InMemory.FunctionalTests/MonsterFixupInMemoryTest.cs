@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             using (var context = createContext())
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                EnsureClean(context);
                 context.SeedUsingFKs();
             }
         }
@@ -48,6 +47,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             builder.Entity<TMessage>().Property(e => e.MessageId).ValueGeneratedOnAdd();
             builder.Entity<TProductPhoto>().Property(e => e.PhotoId).ValueGeneratedOnAdd();
             builder.Entity<TProductReview>().Property(e => e.ReviewId).ValueGeneratedOnAdd();
+        }
+
+        protected override void EnsureClean(DbContext context)
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
         }
     }
 }

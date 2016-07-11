@@ -17,14 +17,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     {
         // Positive cases
 
-        public class IdentityColumn : TestBase<IdentityColumn.BlogContext>
+        public class IdentityColumn
         {
             [Fact]
             public void Insert_with_Identity_column()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
@@ -46,14 +46,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-        public class SequenceHiLo : TestBase<SequenceHiLo.BlogContext>
+        public class SequenceHiLo
         {
             [ConditionalFact]
             public void Insert_with_sequence_HiLo()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class SequenceKeyColumnWithDefaultValue : TestBase<SequenceKeyColumnWithDefaultValue.BlogContext>
+        public class SequenceKeyColumnWithDefaultValue
         {
             [ConditionalFact]
             [SqlServerCondition(SqlServerCondition.SupportsSequences)]
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class ReadOnlySequenceKeyColumnWithDefaultValue : TestBase<ReadOnlySequenceKeyColumnWithDefaultValue.BlogContext>
+        public class ReadOnlySequenceKeyColumnWithDefaultValue
         {
             [ConditionalFact]
             [SqlServerCondition(SqlServerCondition.SupportsSequences)]
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
@@ -158,14 +158,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class NoKeyGeneration : TestBase<NoKeyGeneration.BlogContext>
+        public class NoKeyGeneration
         {
             [Fact]
             public void Insert_with_explicit_non_default_keys()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Id = 66, Name = "One Unicorn" }, new Blog { Id = 67, Name = "Two Unicorns" });
 
@@ -193,14 +193,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class NoKeyGenerationNullableKey : TestBase<NoKeyGenerationNullableKey.BlogContext>
+        public class NoKeyGenerationNullableKey
         {
             [Fact]
             public void Insert_with_explicit_with_default_keys()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(
                         new NullableKeyBlog { Id = 0, Name = "One Unicorn" },
@@ -230,14 +230,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class NonKeyDefaultValue : TestBase<NonKeyDefaultValue.BlogContext>
+        public class NonKeyDefaultValue
         {
             [Fact]
             public void Insert_with_non_key_default_value()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     var blogs = new List<Blog>
                     {
@@ -287,14 +287,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class NonKeyReadOnlyDefaultValue : TestBase<NonKeyReadOnlyDefaultValue.BlogContext>
+        public class NonKeyReadOnlyDefaultValue
         {
             [Fact]
             public void Insert_with_non_key_default_value()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(
                         new Blog { Name = "One Unicorn" },
@@ -343,14 +343,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class ComputedColumn : TestBase<ComputedColumn.BlogContext>
+        public class ComputedColumn
         {
             [Fact]
             public void Insert_and_update_with_computed_column()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class ComputedColumnWithFunction : TestBase<ComputedColumnWithFunction.BlogContext>
+        public class ComputedColumnWithFunction
         {
             //[Fact] Disabled due to issue #6044
             public void Insert_and_update_with_computed_column()
@@ -393,14 +393,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 {
                     var creator = context.GetService<IRelationalDatabaseCreator>();
 
-                    creator.Create();
+                    if (!creator.Exists())
+                    {
+                        creator.Create();
 
-                    context.Database.ExecuteSqlCommand
-                        (@"CREATE FUNCTION 
+                        context.Database.ExecuteSqlCommand
+                            (@"CREATE FUNCTION 
 [dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
 RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
 
-                    creator.CreateTables();
+                        creator.CreateTables();
+                    }
+                    else
+                    {
+                        foreach (var blog in context.FullNameBlogs.ToList())
+                        {
+                            context.Remove(blog);
+                        }
+
+                        context.SaveChanges();
+                    }
                 }
 
                 using (var context = new BlogContext())
@@ -442,7 +454,7 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class ClientGuidKey : TestBase<ClientGuidKey.BlogContext>
+        public class ClientGuidKey
         {
             [Fact]
             public void Insert_with_client_generated_GUID_key()
@@ -451,7 +463,7 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
 
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
@@ -475,7 +487,7 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class ServerGuidKey : TestBase<ServerGuidKey.BlogContext>
+        public class ServerGuidKey
         {
             [Fact]
             public void Insert_with_server_generated_GUID_key()
@@ -484,7 +496,7 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
 
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
@@ -517,14 +529,14 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
 
         // Negative cases
 
-        public class DoNothingButSpecifyKeys : TestBase<DoNothingButSpecifyKeys.BlogContext>
+        public class DoNothingButSpecifyKeys
         {
             [Fact]
             public void Insert_with_explicit_non_default_keys()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Id = 2, Name = "Two Unicorns" });
 
@@ -541,14 +553,14 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class DoNothingButSpecifyKeysUsingDefault : TestBase<DoNothingButSpecifyKeysUsingDefault.BlogContext>
+        public class DoNothingButSpecifyKeysUsingDefault
         {
             [Fact]
             public void Insert_with_explicit_default_keys()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
@@ -565,14 +577,14 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class SpecifyKeysUsingDefault : TestBase<SpecifyKeysUsingDefault.BlogContext>
+        public class SpecifyKeysUsingDefault
         {
             [Fact]
             public void Insert_with_explicit_default_keys()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
@@ -600,7 +612,7 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class ReadOnlySequenceKeyColumnWithDefaultValueThrows : TestBase<ReadOnlySequenceKeyColumnWithDefaultValueThrows.BlogContext>
+        public class ReadOnlySequenceKeyColumnWithDefaultValueThrows
         {
             [ConditionalFact]
             [SqlServerCondition(SqlServerCondition.SupportsSequences)]
@@ -608,7 +620,7 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
@@ -635,14 +647,14 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class NonKeyReadOnlyDefaultValueThrows : TestBase<NonKeyReadOnlyDefaultValueThrows.BlogContext>
+        public class NonKeyReadOnlyDefaultValueThrows
         {
             [Fact]
             public void Insert_explicit_value_throws_when_readonly_before_save()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.AddRange(
                         new Blog { Name = "One Unicorn" },
@@ -668,14 +680,14 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class ComputedColumnInsertValue : TestBase<ComputedColumnInsertValue.BlogContext>
+        public class ComputedColumnInsertValue
         {
             [Fact]
             public void Insert_explicit_value_into_computed_column()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
 
@@ -698,14 +710,14 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             }
         }
 
-        public class ComputedColumnUpdateValue : TestBase<ComputedColumnUpdateValue.BlogContext>
+        public class ComputedColumnUpdateValue
         {
             [Fact]
             public void Update_explicit_value_in_computed_column()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" });
 
@@ -739,14 +751,14 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
 
         // Concurrency
 
-        public class ConcurrencyWithRowversion : TestBase<ConcurrencyWithRowversion.BlogContext>
+        public class ConcurrencyWithRowversion
         {
             [Fact]
             public void Resolve_concurreny()
             {
                 using (var context = new BlogContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
 
                     var blog = context.Add(new ConcurrentBlog { Name = "One Unicorn" }).Entity;
 
@@ -839,18 +851,6 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
             {
                 var name = GetType().FullName.Substring((GetType().Namespace + nameof(SqlServerValueGenerationScenariosTest)).Length + 2);
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(name));
-            }
-        }
-
-        public class TestBase<TContext>
-            where TContext : ContextBase, new()
-        {
-            public TestBase()
-            {
-                using (var context = new TContext())
-                {
-                    context.Database.EnsureDeleted();
-                }
             }
         }
     }

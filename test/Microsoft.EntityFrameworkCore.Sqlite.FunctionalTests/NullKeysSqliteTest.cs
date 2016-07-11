@@ -34,6 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             public override DbContext CreateContext()
                 => new DbContext(_options);
+
+            protected override void EnsureClean(DbContext context)
+                => context.Database.EnsureClean();
         }
     }
 }

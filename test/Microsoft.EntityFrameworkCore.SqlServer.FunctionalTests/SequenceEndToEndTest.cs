@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "Bronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntities(serviceProvider);
@@ -73,8 +72,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "BroniesAsync"))
             {
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+                context.Database.EnsureClean();
             }
 
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
@@ -164,8 +162,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntitiesWithIds(serviceProvider, 0);
@@ -253,8 +250,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
@@ -282,8 +278,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntitiesNullable(serviceProvider, "IdentityBronies", false);

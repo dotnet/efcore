@@ -35,12 +35,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         .UseSqlServer(_connectionString)
                         .UseInternalServiceProvider(_serviceProvider).Options))
                     {
-                        // TODO: Delete DB if model changed
-
-                        if (context.Database.EnsureCreated())
-                        {
-                            NullSemanticsModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureClean();
+                        NullSemanticsModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }

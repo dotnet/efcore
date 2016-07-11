@@ -232,38 +232,8 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
         {
             base.TimestampAttribute_throws_if_value_in_database_changed();
 
-            Assert.Equal(@"SELECT TOP(1) [r].[Id], [r].[Data], [r].[Timestamp]
-FROM [Two] AS [r]
-WHERE [r].[Id] = 1
-
-SELECT TOP(1) [r].[Id], [r].[Data], [r].[Timestamp]
-FROM [Two] AS [r]
-WHERE [r].[Id] = 1
-
-@p1: 1
-@p0: ModifiedData (Size = 16)
-@p2: 0x00000000000007D1 (Size = 8)
-
-SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p0
-OUTPUT INSERTED.[Timestamp]
-INTO @inserted0
-WHERE [Id] = @p1 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @inserted0;
-
-@p1: 1
-@p0: ChangedData (Size = 16)
-@p2: 0x00000000000007D1 (Size = 8)
-
-SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p0
-OUTPUT INSERTED.[Timestamp]
-INTO @inserted0
-WHERE [Id] = @p1 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @inserted0;",
-                Sql);
+            // Not vallidating SQL because not significantly different from other tests and
+            // row version value is not stable.
         }
 
         private const string FileLineEnding = @"

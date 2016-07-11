@@ -38,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new NumNumContext())
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 context.AddRange(numNum1, numNum2, adNum1, adNum2, anNum1, anNum2);
 
@@ -525,7 +524,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context) where TBlog : class, IBlog, new()
         {
-            await context.Database.EnsureCreatedAsync();
+            context.Database.EnsureClean();
+
             var blog1 = context.Add(new TBlog
             {
                 Name = "Blog1",

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = CreateContext())
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
                 SeedData(context);
             }
         }

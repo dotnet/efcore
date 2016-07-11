@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             _fixture.CreateDatabase();
         }
 
-        public class CommandConfigurationTestFixture : IDisposable
+        public class CommandConfigurationTestFixture
         {
             public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
@@ -36,18 +36,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     {
                         using (var context = new ChipsContext(ServiceProvider))
                         {
-                            context.Database.EnsureDeleted();
-                            context.Database.EnsureCreated();
+                            context.Database.EnsureClean();
                         }
                     });
-            }
-
-            public void Dispose()
-            {
-                using (var context = new ChipsContext(ServiceProvider))
-                {
-                    context.Database.EnsureDeleted();
-                }
             }
         }
 
@@ -76,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new ConfiguredChipsContext(serviceProvider))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 for (var i = 0; i < count; i++)
                 {

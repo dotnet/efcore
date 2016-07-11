@@ -57,8 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 {
                     using (var context = createContext())
                     {
-                        context.Database.EnsureDeleted();
-                        context.Database.EnsureCreated();
+                        EnsureClean(context);
                         context.SeedUsingFKs();
                     }
 
@@ -75,5 +74,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             builder.Entity<TProductPhoto>().Property(e => e.PhotoId).UseSqlServerIdentityColumn();
             builder.Entity<TProductReview>().Property(e => e.ReviewId).UseSqlServerIdentityColumn();
         }
+
+        protected override void EnsureClean(DbContext context)
+            => context.Database.EnsureClean();
     }
 }

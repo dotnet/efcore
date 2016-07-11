@@ -39,11 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
                         using (var context = new GraphUpdatesContext(optionsBuilder.Options))
                         {
-                            context.Database.EnsureDeleted();
-                            if (context.Database.EnsureCreated())
-                            {
-                                Seed(context);
-                            }
+                            context.Database.EnsureClean();
+                            Seed(context);
                         }
                     });
             }

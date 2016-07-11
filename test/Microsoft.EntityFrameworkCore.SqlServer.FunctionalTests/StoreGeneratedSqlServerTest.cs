@@ -87,8 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                         using (var context = new StoreGeneratedContext(optionsBuilder.Options))
                         {
-                            context.Database.EnsureDeleted();
-                            context.Database.EnsureCreated();
+                            context.Database.EnsureClean();
                         }
                     });
             }

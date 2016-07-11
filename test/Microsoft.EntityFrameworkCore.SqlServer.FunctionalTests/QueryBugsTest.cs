@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new DeadlockContext(testStore.ConnectionString))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
                     context.EnsureSeeded();
 
                     var count
@@ -169,8 +169,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = new MyContext603(_fixture.ServiceProvider))
             {
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+                context.Database.EnsureClean();
 
                 context.Products.Add(new Product { Name = "Product 1" });
                 context.SaveChanges();
@@ -187,8 +186,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new MyContext603(_fixture.ServiceProvider))
             {
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+                context.Database.EnsureClean();
 
                 context.Products.Add(new Product { Name = "Product 1" });
                 context.SaveChanges();
@@ -1173,10 +1171,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                     using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
                     {
-                        if (context.Database.EnsureCreated())
-                        {
-                            contextInitializer(context);
-                        }
+                        context.Database.EnsureClean();
+                        contextInitializer(context);
 
                         TestSqlLoggerFactory.Reset();
                     }

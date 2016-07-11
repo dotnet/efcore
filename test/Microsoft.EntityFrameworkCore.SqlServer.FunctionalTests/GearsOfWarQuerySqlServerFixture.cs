@@ -37,12 +37,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                     using (var context = new GearsOfWarContext(optionsBuilder.Options))
                     {
-                        // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            GearsOfWarModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureClean();
+                        GearsOfWarModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }

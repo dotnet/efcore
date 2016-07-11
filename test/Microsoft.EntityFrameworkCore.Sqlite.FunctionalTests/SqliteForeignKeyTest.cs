@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             using (var context = new MyContext(options))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
                 context.Add(new Child { ParentId = 4 });
                 if (suppress)
                 {

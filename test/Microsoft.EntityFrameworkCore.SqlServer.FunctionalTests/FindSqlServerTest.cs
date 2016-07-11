@@ -257,8 +257,7 @@ WHERE [e].[Id] = 99", Sql);
             {
                 using (var context = CreateContext())
                 {
-                    context.Database.EnsureDeleted();
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
                     Seed(context);
                     TestSqlLoggerFactory.Reset();
                 }
