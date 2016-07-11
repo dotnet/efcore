@@ -1025,6 +1025,64 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void ForeignKey_to_ForeignKey_same_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login10>();
+
+            Validate(modelBuilder.Model);
+
+            Assert.True(GetProperty<Login10>(modelBuilder, "Id").IsForeignKey());
+            Assert.True(GetProperty<Profile10>(modelBuilder, "Id").IsForeignKey());
+        }
+
+        public class Login10
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("Id")]
+            public virtual Profile10 Login { get; set; }
+        }
+
+        public class Profile10
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("Id")]
+            public Login10 User { get; set; }
+        }
+
+        [Fact]
+        public virtual void ForeignKey_to_ForeignKey_same_name_one_shadow()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login11>();
+
+            Validate(modelBuilder.Model);
+            
+            Assert.True(GetProperty<Login11>(modelBuilder, nameof(Profile11.Profile11Id)).IsForeignKey());
+            Assert.True(GetProperty<Profile11>(modelBuilder, nameof(Profile11.Profile11Id)).IsForeignKey());
+        }
+
+        protected class Login11
+        {
+            public int Login11Id { get; set; }
+
+            [ForeignKey(nameof(Profile11.Profile11Id))]
+            public virtual Profile11 Profile { get; set; }
+        }
+
+        protected class Profile11
+        {
+            public int Profile11Id { get; set; }
+
+            [ForeignKey(nameof(Profile11Id))]
+            public virtual Login11 User { get; set; }
+        }
+
+        [Fact]
         public virtual ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1362,7 +1420,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.Equal(typeof(Author), secondFk.DeclaringEntityType.ClrType);
             Assert.Equal("AuthorDetailsIdByAttribute", secondFk.Properties.First().Name);
 
-            Assert.Equal(new[] { "Id" , "AuthorId"}, authorDetails.GetProperties().Select(p => p.Name));
+            Assert.Equal(new[] { "Id", "AuthorId" }, authorDetails.GetProperties().Select(p => p.Name));
             Assert.Equal(new[] { "Id", "AuthorDetailsIdByAttribute", "PostId" }, author.GetProperties().Select(p => p.Name));
         }
 
@@ -1427,7 +1485,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("C", nameof(D), "D", nameof(C)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
         }
-
 
         private class A
         {

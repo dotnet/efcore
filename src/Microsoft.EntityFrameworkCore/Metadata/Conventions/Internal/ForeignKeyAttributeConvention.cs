@@ -14,13 +14,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ForeignKeyAttributeConvention : IForeignKeyConvention
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
@@ -45,10 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var fkPropertiesOnDependentToPrincipal = FindCandidateDependentPropertiesThroughNavigation(relationshipBuilder, pointsToPrincipal: true);
 
             if ((fkPropertiesOnDependentToPrincipal != null)
-                && (fkPropertiesOnPrincipalToDependent != null)
-                && !fkPropertiesOnDependentToPrincipal.SequenceEqual(fkPropertiesOnPrincipalToDependent))
+                && (fkPropertiesOnPrincipalToDependent != null))
             {
-                // TODO: Log error that foreign key properties on both navigations do not match
+                // TODO: Log error that foreign key properties are on both navigations
                 SplitNavigationsInSeparateRelationships(relationshipBuilder);
 
                 return null;
@@ -235,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
