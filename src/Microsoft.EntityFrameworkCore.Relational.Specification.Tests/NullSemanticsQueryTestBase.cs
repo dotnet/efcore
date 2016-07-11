@@ -444,6 +444,39 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Where_nullable_bool()
+        {
+            using (var context = CreateContext())
+            {
+                context.Entities1
+                    .Where(e => e.NullableBoolA.Value)
+                    .Select(e => e.Id).ToList();
+            }
+        }
+
+        [Fact]
+        public virtual void Where_nullable_bool_equal_with_constant()
+        {
+            using (var context = CreateContext())
+            {
+                context.Entities1
+                    .Where(e => e.NullableBoolA == true)
+                    .Select(e => e.Id).ToList();
+            }
+        }
+
+        [Fact]
+        public virtual void Where_nullable_bool_with_null_check()
+        {
+            using (var context = CreateContext())
+            {
+                context.Entities1
+                    .Where(e => e.NullableBoolA != null && e.NullableBoolA.Value)
+                    .Select(e => e.Id).ToList();
+            }
+        }
+
+        [Fact]
         public virtual void Where_equal_using_relational_null_semantics_with_parameter()
         {
             using (var context = CreateContext(useRelationalNulls: true))

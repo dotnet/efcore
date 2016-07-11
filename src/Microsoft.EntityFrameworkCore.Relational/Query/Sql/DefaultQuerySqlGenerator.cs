@@ -1135,12 +1135,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     switch (expression.NodeType)
                     {
                         case ExpressionType.Add:
+                        {
                             op = expression.Type == typeof(string)
                                 ? " " + ConcatOperator + " "
                                 : " + ";
                             break;
+                        }
                         default:
+                        {
                             throw new ArgumentOutOfRangeException();
+                        }
                     }
                 }
 
@@ -1675,7 +1679,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             protected override Expression VisitUnary(UnaryExpression expression)
             {
+                var parentIsSearchCondition = _isSearchCondition;
+                if (expression.NodeType == ExpressionType.Convert)
+                {
+                    _isSearchCondition = false;
+                }
+
                 var operand = Visit(expression.Operand);
+
+                if (expression.NodeType == ExpressionType.Convert)
+                {
+                    _isSearchCondition = parentIsSearchCondition;
+                }
+
 
                 if (_isSearchCondition)
                 {
@@ -1683,6 +1699,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         && expression.Operand.IsSimpleExpression())
                     {
                         return Expression.Equal(expression.Operand, Expression.Constant(false, typeof(bool)));
+                    }
+
+                    if (expression.NodeType == ExpressionType.Convert
+                        && operand.IsSimpleExpression())
+                    {
+                        return Expression.Equal(
+                            Expression.Convert(operand, expression.Type),
+                            Expression.Constant(true, typeof(bool)));
                     }
                 }
                 else

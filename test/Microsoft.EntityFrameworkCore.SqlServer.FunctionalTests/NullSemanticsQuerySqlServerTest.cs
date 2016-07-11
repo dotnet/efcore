@@ -917,6 +917,39 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
                 Sql);
         }
 
+        public override void Where_nullable_bool()
+        {
+            base.Where_nullable_bool();
+
+            Assert.Equal(
+    @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] = 1",
+                Sql);
+        }
+
+        public override void Where_nullable_bool_equal_with_constant()
+        {
+            base.Where_nullable_bool_equal_with_constant();
+
+            Assert.Equal(
+    @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] = 1",
+                Sql);
+        }
+
+        public override void Where_nullable_bool_with_null_check()
+        {
+            base.Where_nullable_bool_with_null_check();
+
+            Assert.Equal(
+    @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = 1)",
+                Sql);
+        }
+
         public override void Where_equal_using_relational_null_semantics_with_parameter()
         {
             base.Where_equal_using_relational_null_semantics_with_parameter();
