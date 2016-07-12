@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Tests;
@@ -11,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
     {
-        protected override IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
+        protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqliteDatabaseModelFactory(loggerFactory);
 
         protected override bool AcceptForeignKey(ForeignKeyModel foreignKey) => false;
