@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1731BB70-07E9-4A96-85FC-E731276EF4BC}</ProjectGuid>
+    <ProjectGuid>{CBAE91AD-1934-4C42-9CF5-1BC670AC2E30}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <AssemblyName>Microsoft.EntityFrameworkCore.Tools</AssemblyName>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NoWarn>1591</NoWarn>
@@ -33,61 +33,47 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\..\tools\Resources.cs">
-      <Link>Properties\Resources.cs</Link>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.tt</DependentUpon>
-    </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Check.cs</Link>
     </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\PropertyInfoExtensions.cs">
-      <Link>PropertyInfoExtensions.cs</Link>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\SharedTypeExtensions.cs">
-      <Link>SharedTypeExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\StringBuilderExtensions.cs">
-      <Link>StringBuilderExtensions.cs</Link>
-    </Compile>
-    <Compile Include="Design\Internal\CommandLoggerAdapter.cs" />
-    <Compile Include="Design\Internal\ForwardingProxy.cs" />
-    <Compile Include="Design\Internal\ForwardingProxy`.cs" />
-    <Compile Include="Design\OperationExecutor.cs" />
-    <Compile Include="tools\OperationHandlers.cs" />
+    <Compile Include="CommandLine\CommonCommandOptions.cs" />
+    <Compile Include="CommandLine\ConsoleCommandLogger.cs" />
+    <Compile Include="CommandLine\DatabaseCommand.cs" />
+    <Compile Include="CommandLine\DatabaseDropCommand.cs" />
+    <Compile Include="CommandLine\DatabaseUpdateCommand.cs" />
+    <Compile Include="CommandLine\DbContextCommand.cs" />
+    <Compile Include="CommandLine\DbContextListCommand.cs" />
+    <Compile Include="CommandLine\DbContextScaffoldCommand.cs" />
+    <Compile Include="CommandLine\ExecuteCommand.cs" />
+    <Compile Include="CommandLine\MigrationsAddCommand.cs" />
+    <Compile Include="CommandLine\MigrationsCommand.cs" />
+    <Compile Include="CommandLine\MigrationsListCommand.cs" />
+    <Compile Include="CommandLine\MigrationsRemoveCommand.cs" />
+    <Compile Include="CommandLine\MigrationsScriptCommand.cs" />
+    <Compile Include="CommandLine\Program.cs" />
+    <Compile Include="Extensions\AnsiColorExtensions.cs" />
+    <Compile Include="Extensions\CommandLineApplicationExtensions.cs" />
+    <Compile Include="Internal\CommonOptions.cs" />
+    <Compile Include="Internal\OperationExecutor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\tools\Resources.tt">
-      <Link>Properties\Resources.tt</Link>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Resources.cs</LastGenOutput>
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
-    </Content>
-    <Content Include="tools\about_EntityFrameworkCore.help.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="project.json" />
-    <None Include="tools\EntityFrameworkCore.PowerShell2.psd1" />
-    <None Include="tools\EntityFrameworkCore.PowerShell2.psm1" />
-    <None Include="tools\EntityFrameworkCore.psd1" />
-    <None Include="tools\EntityFrameworkCore.psm1" />
-    <None Include="tools\init.ps1" />
-    <None Include="tools\install.ps1" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj">
+      <Project>{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Design.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj">
       <Project>{1942c281-c12b-4818-8cc8-c42842871ff5}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational.Design</Name>
@@ -96,14 +82,15 @@
       <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj">
-      <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Design.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

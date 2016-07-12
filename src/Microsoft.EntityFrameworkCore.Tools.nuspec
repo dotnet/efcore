@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.EntityFrameworkCore.Tools</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <description>Command line tools for Entity Framework Core. Includes the Scaffold-DbContext, Add-Migration, and Update-Database commands for the Package Manager Console in Visual Studio and the 'dotnet ef' command line tool.</description>
+    <tags>Entity Framework Core,entity-framework-core,EF,Data,O/RM</tags>
+    <serviceable>true</serviceable>
+    <dependencies>
+      <group targetFramework=".NETCore5.0">
+        <!-- this is only a "dependency" to make installing easier. It's not actaully build against this assembly. -->
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
+      </group>
+      <group targetFramework=".NETFramework4.5.1">
+        <!-- this is only a "dependency" to make installing easier. It's not actaully build against this assembly. -->
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
+      </group>
+      <group targetFramework=".NETCoreApp1.0">
+        <dependency id="Microsoft.DotNet.Cli.Utils" version="$dotnetcliutils$" />
+        <dependency id="Microsoft.DotNet.ProjectModel" version="$projectmodel$" />
+        <dependency id="Microsoft.Extensions.CommandLineUtils" version="$cliutils$" />
+        <dependency id="Microsoft.NETCore.App" version="$netcoreapp$" />
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Shared\_._" target="lib\netcore50\" />
+    <file src="Microsoft.EntityFrameworkCore.Tools\tools\**\*" target="tools\"/>
+    <file src="Microsoft.EntityFrameworkCore.Tools\bin\$configuration$\net451\Microsoft.EntityFrameworkCore.Tools.dll" target="lib\net451" />
+
+    <file src="dotnet-ef\bin\$configuration$\netcoreapp1.0\dotnet-ef.dll" target="lib\netcoreapp1.0"/>
+    <file src="dotnet-ef\bin\$configuration$\netcoreapp1.0\dotnet-ef.runtimeconfig.json" target="lib\netcoreapp1.0"/>
+  </files>
+</package>

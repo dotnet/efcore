@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.EntityFrameworkCore.Design</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <description>Design-time components for Entity Framework Core tools</description>
+    <tags>Entity Framework Core,entity-framework-core,EF,Data,O/RM</tags>
+    <serviceable>true</serviceable>
+    <dependencies>
+      <group targetFramework=".NETCore5.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Design.Core" version="$version$" />
+      </group>
+      <group targetFramework=".NETFramework4.5.1">
+        <dependency id="Microsoft.EntityFrameworkCore.Design.Core" version="$version$" />
+        <dependency id="Microsoft.Extensions.CommandLineUtils" version="$cliutils$" />
+      </group>
+      <group targetFramework=".NETCoreApp1.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Design.Core" version="$version$" />
+        <dependency id="Microsoft.Extensions.CommandLineUtils" version="$cliutils$" />
+        <dependency id="Microsoft.NETCore.App" version="$netcoreapp$" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Shared\_._" target="lib\netcore50\" />
+  	<file src="Shared\_._" target="lib\net451\" />
+    <file src="Microsoft.EntityFrameworkCore.Design\bin\$configuration$\net451\Microsoft.EntityFrameworkCore.Design.exe" target="runtimes\win7-x64\lib\net451\" />
+  	<file src="Microsoft.EntityFrameworkCore.Design\bin\$configuration$_x86\net451\Microsoft.EntityFrameworkCore.Design.exe" target="runtimes\win7-x86\lib\net451\" />
+  </files>
+</package>
