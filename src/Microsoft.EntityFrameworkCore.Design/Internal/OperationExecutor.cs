@@ -98,7 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, string, bool> confirmCheck)
-            => _contextOperations.Value.DropDatabase(contextName, confirmCheck);
+        {
+            var databaseInfo = _contextOperations.Value.GetDatabaseInfo(contextName);
+            if (confirmCheck(databaseInfo.DatabaseName, databaseInfo.DataSource))
+            {
+                _contextOperations.Value.DropDatabase(contextName);
+            }
+        }
+            
 
         public virtual MigrationFiles AddMigration(
             [NotNull] string name,

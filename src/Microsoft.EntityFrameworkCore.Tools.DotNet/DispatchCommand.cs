@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NETCOREAPP1_0
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,17 +10,17 @@ using System.Runtime.InteropServices;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.DotNet.ProjectModel;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.CommandLineUtils;
 using NuGet.Frameworks;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools.DotNet
 {
     public class DispatchCommand
     {
         private const string DispatcherToolName
-            = "Microsoft.EntityFrameworkCore.Tools";
+            = "Microsoft.EntityFrameworkCore.Tools.DotNet";
 
         private const string ProjectDependencyToolName
             = "Microsoft.EntityFrameworkCore.Design";
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     throw new OperationException($"Could not load target project '{targetProjectPath}'");
                 }
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogUsingTargetProject(targetProject.Name));
+                Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogUsingTargetProject(targetProject.Name));
 
                 Project startupProject;
                 if (startupProjectOption.HasValue())
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     startupProject = targetProject;
                 }
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogUsingStartupProject(startupProject.Name));
+                Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogUsingStartupProject(startupProject.Name));
 
                 var startupFramework = frameworkOption.HasValue()
                     ? NuGetFramework.Parse(frameworkOption.Value())
@@ -132,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     startupFramework = NuGetFrameworkUtility.GetNearest(frameworks, FrameworkConstants.CommonFrameworks.NetCoreApp10, f => f)
                                 ?? frameworks.FirstOrDefault();
 
-                    Reporter.Verbose.WriteLine(ToolsStrings.LogUsingFramework(startupFramework.GetShortFolderName()));
+                    Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogUsingFramework(startupFramework.GetShortFolderName()));
                 }
 
                 var configuration = configurationOption.Value();
@@ -141,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 {
                     configuration = Constants.DefaultConfiguration;
 
-                    Reporter.Verbose.WriteLine(ToolsStrings.LogUsingConfiguration(configuration));
+                    Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogUsingConfiguration(configuration));
                 }
 
                 if (!noBuildOption.HasValue())
@@ -158,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         .ExitCode;
                     if (buildExitCode != 0)
                     {
-                        throw new OperationException(ToolsStrings.BuildFailed(startupProject.Name));
+                        throw new OperationException(ToolsDotNetStrings.BuildFailed(startupProject.Name));
                     }
                 }
 
@@ -181,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                             );
                 };
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogDataDirectory(startupOutputPaths.RuntimeOutputPath));
+                Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogDataDirectory(startupOutputPaths.RuntimeOutputPath));
 
                 // Workaround https://github.com/dotnet/cli/issues/3164
                 var isExecutable = startupProject.GetCompilerOptions(startupFramework, configuration).EmitEntryPoint
@@ -198,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     : Path.Combine(startupOutputPaths.RuntimeOutputPath,
                         targetProject.GetCompilerOptions(null, configuration).OutputName + FileNameSuffixes.DotNet.DynamicLib);
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectDependencyToolName, startupProject.Name));
+                Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogBeginDispatch(ProjectDependencyToolName, startupProject.Name));
 
                 try
                 {
@@ -243,17 +242,17 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     if (isClassLibrary())
                     {
                         Reporter.Error.WriteLine(
-                            ToolsStrings.ClassLibrariesNotSupportedInCli(startupProject.Name, fwlink).Bold().Red());
+                            ToolsDotNetStrings.ClassLibrariesNotSupportedInCli(startupProject.Name, fwlink).Bold().Red());
                     }
                     else if (startupFramework.IsDesktop() && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
                         Reporter.Error.WriteLine(
-                            ToolsStrings.DesktopCommandsRequiresWindows(startupFramework.GetShortFolderName()).Bold().Red());
+                            ToolsDotNetStrings.DesktopCommandsRequiresWindows(startupFramework.GetShortFolderName()).Bold().Red());
                     }
                     else
                     {
                         Reporter.Error.WriteLine(
-                            ToolsStrings.ProjectDependencyCommandNotFound(
+                            ToolsDotNetStrings.ProjectDependencyCommandNotFound(
                                 startupProject.Name,
                                 ProjectDependencyToolName,
                                 DispatcherToolName,
@@ -268,4 +267,3 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
     }
 }
-#endif

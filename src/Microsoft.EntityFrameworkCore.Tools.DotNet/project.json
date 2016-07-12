@@ -1,0 +1,43 @@
+﻿{
+  "version": "1.0.0-preview3-*",
+  "description": ".NET Core CLI command line tools for Entity Framework Core.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework Core",
+      "entity-framework-core",
+      "EF",
+      "Data",
+      "O/RM"
+    ],
+    "files": [
+      "lib/",
+      "tools/"
+    ]
+  },
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "outputName": "dotnet-ef",
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
+    "nowarn": [
+      "CS1591"
+    ],
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Design": "1.0.0-*",
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
+    "Microsoft.DotNet.ProjectModel": "1.0.0-*",
+    "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",
+    "Microsoft.NETCore.App": {
+      "version": "1.0.0-*",
+      "type": "platform"
+    }
+  },
+  "frameworks": {
+    "netcoreapp1.0": {}
+  }
+}

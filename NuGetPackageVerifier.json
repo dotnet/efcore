@@ -17,7 +17,8 @@
             "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.Sqlite": { },
             "Microsoft.EntityFrameworkCore.Sqlite.Design": { },
-            "Microsoft.EntityFrameworkCore.Tools": { }
+            "Microsoft.EntityFrameworkCore.Tools.DotNet": { },
+            "Microsoft.EntityFrameworkCore.Tools.VisualStudio": { }
         }
     },
     "Default": { // Rules to run for packages not listed in any other set.

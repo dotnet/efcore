@@ -8,8 +8,8 @@
     <ProjectGuid>{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Tools.Core.Tests</RootNamespace>
-    <AssemblyName>Microsoft.EntityFrameworkCore.Tools.Core.Tests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Design.Tests</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Design.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NoWarn>1591</NoWarn>
@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\Microsoft.EntityFrameworkCore.Design.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -61,7 +62,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj">
       <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Tools.Core</Name>
+      <Name>Microsoft.EntityFrameworkCore.Design.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>

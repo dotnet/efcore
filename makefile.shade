@@ -4,7 +4,7 @@ use namespace="System.Linq"
 
 default BASE_DIR_LOCAL='${Directory.GetCurrentDirectory()}'
 default BUILD_DIR_LOCAL='${Path.Combine(BASE_DIR_LOCAL, "artifacts", "build")}'
-default TOOL_PACKAGE_NAME='Microsoft.EntityFrameworkCore.Tools'
+default TOOL_PACKAGE_NAME='Microsoft.EntityFrameworkCore.Tools.VisualStudio'
 default CLI_TOOL_PROJECT_NAME='Microsoft.EntityFrameworkCore.Design'
 default TOOL_EXE_NAME='${CLI_TOOL_PROJECT_NAME}.exe'
 default NUGET_EXE_PATH='${E("KOREBUILD_NUGET_EXE") ?? Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe")}'
@@ -60,7 +60,16 @@ k-standard-goals
       uap[0] = uap[0].Replace(".NETFramework4.5.1", ".NETCore5.0");
       uap.Add("      </group>");
 
+    var netstandard = nuspec.SkipWhile(l => !l.Contains("<group targetFramework=\".NETFramework4.5.1"))
+        .TakeWhile(l => !l.Contains("</group>"))
+        .ToList();
+
+    netstandard[0] = netstandard[0].Replace(".NETFramework4.5.1", ".NETStandard1.3");
+        netstandard.Add("      </group>");
+
+
       var dependencies = Array.FindIndex<string>(nuspec.ToArray(), l => l.Contains("<dependencies>"));
+      nuspec.InsertRange(dependencies + 1, netstandard);
       nuspec.InsertRange(dependencies + 1, uap);
       nuspec.Insert(dependencies - 1, "   <developmentDependency>true</developmentDependency>");
 

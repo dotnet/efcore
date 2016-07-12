@@ -38,12 +38,6 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\tools\Resources.cs">
-      <Link>Properties\Resources.cs</Link>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.tt</DependentUpon>
-    </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Check.cs</Link>
     </Compile>
@@ -59,31 +53,17 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
-    <Compile Include="BuildCommandFactory.cs" />
     <Compile Include="Design\Internal\CommandLoggerAdapter.cs" />
     <Compile Include="Design\Internal\ForwardingProxy.cs" />
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
     <Compile Include="Design\OperationExecutor.cs" />
-    <Compile Include="DispatchCommand.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\ToolsStrings.Designer.cs">
-      <DependentUpon>ToolsStrings.resx</DependentUpon>
-    </Compile>
     <Compile Include="tools\OperationHandlers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\tools\Resources.tt">
-      <Link>Properties\Resources.tt</Link>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Resources.cs</LastGenOutput>
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
-    </Content>
     <Content Include="tools\about_EntityFrameworkCore.help.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\netcore50\Microsoft.EntityFrameworkCore.Tools.props" />
-    <None Include="build\netcore50\Microsoft.EntityFrameworkCore.Tools.targets" />
     <None Include="project.json" />
     <None Include="tools\EntityFrameworkCore.PowerShell2.psd1" />
     <None Include="tools\EntityFrameworkCore.PowerShell2.psm1" />
@@ -112,11 +92,6 @@
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\ToolsStrings.resx">
-      <LogicalName>Microsoft.EntityFrameworkCore.Tools.Properties.ToolsStrings.resources</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

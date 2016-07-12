@@ -22,7 +22,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Relational.Design", "src\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.xproj", "{0B4B5871-2017-40CA-B190-AEDB974D843D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools", "src\Microsoft.EntityFrameworkCore.Tools\Microsoft.EntityFrameworkCore.Tools.xproj", "{4A6CBC98-59D9-49A4-9CDF-9D6AAE8C59CF}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.VisualStudio", "src\Microsoft.EntityFrameworkCore.Tools.VisualStudio\Microsoft.EntityFrameworkCore.Tools.VisualStudio.xproj", "{4A6CBC98-59D9-49A4-9CDF-9D6AAE8C59CF}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Design", "src\Microsoft.EntityFrameworkCore.Design\Microsoft.EntityFrameworkCore.Design.xproj", "{4682C48A-94A2-42DF-AFBC-1C3A6CD7195A}"
 EndProject
@@ -32,9 +32,9 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests\Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.xproj", "{51A4DC71-404E-40AE-BBB0-DAF64087DB40}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Design.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Design.FunctionalTests\Microsoft.EntityFrameworkCore.Design.FunctionalTests.xproj", "{51A4DC71-404E-40AE-BBB0-DAF64087DB40}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.Core.Tests", "test\Microsoft.EntityFrameworkCore.Tools.Core.Tests\Microsoft.EntityFrameworkCore.Tools.Core.Tests.xproj", "{27F77706-090D-481C-87F6-A86873CD261B}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Design.Tests", "test\Microsoft.EntityFrameworkCore.Design.Tests\Microsoft.EntityFrameworkCore.Design.Tests.xproj", "{27F77706-090D-481C-87F6-A86873CD261B}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.FunctionalTests", "test\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.xproj", "{5CED78E9-9D9D-4288-B87B-37E7AC97A834}"
 EndProject
@@ -66,8 +66,6 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.SqlServer.Tests", "test\Microsoft.EntityFrameworkCore.SqlServer.Tests\Microsoft.EntityFrameworkCore.SqlServer.Tests.xproj", "{DC946BF1-3598-41C8-A979-0DBA3B19F799}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests\Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests.xproj", "{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}"
-EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.xproj", "{AAB3C3CD-0BDD-494B-83AD-F3295AAA13CF}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Relational.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Relational.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Specification.Tests.xproj", "{E2703F17-D2F9-43F7-A379-D0A8833AEE1E}"
@@ -76,9 +74,11 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Design.Core", "src\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.xproj", "{6C155372-A8A1-4E3B-8808-E875AFE452C8}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.Tests", "test\Microsoft.EntityFrameworkCore.Tools.Tests\Microsoft.EntityFrameworkCore.Tools.Tests.xproj", "{A9F7622A-62D7-45B9-9FFB-0E00AFFA0BB7}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.VisualStudio.Tests", "test\Microsoft.EntityFrameworkCore.Tools.VisualStudio.Tests\Microsoft.EntityFrameworkCore.Tools.VisualStudio.Tests.xproj", "{A9F7622A-62D7-45B9-9FFB-0E00AFFA0BB7}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Tools.FunctionalTests\Microsoft.EntityFrameworkCore.Tools.FunctionalTests.xproj", "{3DEF9731-D253-42E5-BF89-F04596523D12}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.VisualStudio.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Tools.VisualStudio.FunctionalTests\Microsoft.EntityFrameworkCore.Tools.VisualStudio.FunctionalTests.xproj", "{3DEF9731-D253-42E5-BF89-F04596523D12}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests\Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests.xproj", "{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -194,10 +194,6 @@ Global
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799}.Release|Any CPU.Build.0 = Release|Any CPU
-		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AAB3C3CD-0BDD-494B-83AD-F3295AAA13CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AAB3C3CD-0BDD-494B-83AD-F3295AAA13CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAB3C3CD-0BDD-494B-83AD-F3295AAA13CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -222,6 +218,10 @@ Global
 		{3DEF9731-D253-42E5-BF89-F04596523D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DEF9731-D253-42E5-BF89-F04596523D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DEF9731-D253-42E5-BF89-F04596523D12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,12 +254,12 @@ Global
 		{30A896EA-DB51-4E68-BD6D-4279EB5E1138} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{CF9E7087-235F-4E61-941C-BB9EDC087312} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
-		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{AAB3C3CD-0BDD-494B-83AD-F3295AAA13CF} = {7067BD06-DEBE-49A0-BC78-AB99B06424FC}
 		{E2703F17-D2F9-43F7-A379-D0A8833AEE1E} = {7067BD06-DEBE-49A0-BC78-AB99B06424FC}
 		{88796EE8-B48B-434D-AC55-FAFFC9BE0D77} = {7067BD06-DEBE-49A0-BC78-AB99B06424FC}
 		{6C155372-A8A1-4E3B-8808-E875AFE452C8} = {7067BD06-DEBE-49A0-BC78-AB99B06424FC}
 		{A9F7622A-62D7-45B9-9FFB-0E00AFFA0BB7} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{3DEF9731-D253-42E5-BF89-F04596523D12} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 	EndGlobalSection
 EndGlobal

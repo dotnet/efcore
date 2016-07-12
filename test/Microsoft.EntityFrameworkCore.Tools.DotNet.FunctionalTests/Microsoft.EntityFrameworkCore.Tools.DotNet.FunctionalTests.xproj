@@ -7,7 +7,7 @@
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>100c88c9-c14d-4b4d-ade9-50fbc6a03b88</ProjectGuid>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
   </PropertyGroup>

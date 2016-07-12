@@ -663,11 +663,11 @@ function InvokeDotNetEf($dteProject, $dteStartupProject, [switch] $json, [switch
         throw "Invalid JSON file in $targetProjectJson"
     }
     if ($projectDef.tools) {
-        $t=$projectDef.tools | Get-Member Microsoft.EntityFrameworkCore.Tools
+        $t=$projectDef.tools | Get-Member Microsoft.EntityFrameworkCore.Tools.DotNet
     }
     if (!$t) {
         $projectName = $dteProject.ProjectName
-        throw "Cannot execute this command because 'Microsoft.EntityFrameworkCore.Tools' is not installed in project '$projectName'. Add 'Microsoft.EntityFrameworkCore.Tools' to the 'tools' section in project.json. See http://go.microsoft.com/fwlink/?LinkId=798221 for more details."
+        throw "Cannot execute this command because 'Microsoft.EntityFrameworkCore.Tools.DotNet' is not installed in project '$projectName'. Add 'Microsoft.EntityFrameworkCore.Tools.DotNet' to the 'tools' section in project.json. See http://go.microsoft.com/fwlink/?LinkId=798221 for more details."
     }
 
     $arguments=@()
@@ -723,7 +723,7 @@ function InvokeDotNetEf($dteProject, $dteStartupProject, [switch] $json, [switch
                     # This should never happen
                     throw "An unexpected error occurred."
                 }
-                # most often occurs when Microsoft.EntityFrameworkCore.Tools didn't install
+                # most often occurs when Microsoft.EntityFrameworkCore.Tools.DotNet didn't install
                 throw $stdout
             }
             throw $stderr
@@ -762,9 +762,9 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
         throw "This command cannot use '$startupProjectName' as the startup project because '$projectName' is not an ASP.NET Core or .NET Core project"
     }
 
-    $package = Get-Package -ProjectName $startupProjectName | ? Id -eq Microsoft.EntityFrameworkCore.Tools
+    $package = Get-Package -ProjectName $startupProjectName | ? Id -eq Microsoft.EntityFrameworkCore.Tools.VisualStudio
     if (!($package)) {
-        throw "Cannot execute this command because Microsoft.EntityFrameworkCore.Tools is not installed in the startup project '$startupProjectName'."
+        throw "Cannot execute this command because Microsoft.EntityFrameworkCore.Tools.VisualStudio is not installed in the startup project '$startupProjectName'."
     }
 
     if (!$skipBuild) {
@@ -846,7 +846,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
         $domain.SetData('DataDirectory', $dataDirectory)
     }
     try {
-        $commandsAssembly = 'Microsoft.EntityFrameworkCore.Tools'
+        $commandsAssembly = 'Microsoft.EntityFrameworkCore.Tools.VisualStudio'
         $commandsAssemblyFile = Join-Path $appBasePath "$commandsAssembly.dll"
         if (!(Test-Path $commandsAssemblyFile)) {
             Copy-Item "$PSScriptRoot/../lib/net451/$commandsAssembly.dll" $appBasePath
