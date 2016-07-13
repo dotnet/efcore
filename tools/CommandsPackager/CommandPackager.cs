@@ -45,7 +45,7 @@ namespace CommandPackager
 
         private async Task PackToolsDotNet()
         {
-            var project = ProjectContext.Create(Path.Combine(_baseDir, "src", "Microsoft.EntityFrameworkCore.Tools.DotNet"), FrameworkConstants.CommonFrameworks.NetCoreApp10);
+            var project = ProjectContext.Create(Path.Combine(_baseDir, "src", "Tools.DotNet"), FrameworkConstants.CommonFrameworks.NetCoreApp10);
             var props = "configuration=" + _config;
             props += ";dotnetcliutils=" + GetLockFileVersion(project, "Microsoft.DotNet.Cli.Utils");
             props += ";projectmodel=" + GetLockFileVersion(project, "Microsoft.DotNet.ProjectModel");

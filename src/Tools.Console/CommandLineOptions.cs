@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             options.StartupAssembly = startupAssembly.Value();
             options.DataDirectory = dataDirectory.Value();
             options.ProjectDirectory = projectDirectory.Value();
-            options.ContentRootPath = rootNamespace.Value();
-            options.RootNamespace = contentRootPath.Value();
+            options.ContentRootPath = contentRootPath.Value();
+            options.RootNamespace = rootNamespace.Value();
             options.EnvironmentName = environment.Value();
 #if NET451
             options.AppConfigFile = appConfig.Value();

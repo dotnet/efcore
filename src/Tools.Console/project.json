@@ -12,7 +12,8 @@
     "keyFile": "../../tools/Key.snk", 
     "compile": {
       "include": [
-        "../Shared/CodeAnnotations.cs"
+        "../Shared/CodeAnnotations.cs",
+        "../Tools.Shared/*.cs"
       ]
     }
   },
@@ -46,15 +47,12 @@
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.0.0-*"
-        }
-      },
-      "buildOptions": {
-        "compile": {
-          "include": [
-            "../Shared/CodeAnnotations.cs"
-          ]
-        }
-      } 
+        },
+        "Microsoft.EntityFrameworkCore.Design": {
+          "type": "build",
+          "version": "1.0.0-*"  
+        } 
+      }
     } 
   }
 }

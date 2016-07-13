@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+    "Microsoft.NETCore.App": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Design": {
+      "type": "build",
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite": {
+      "target": "project"
+    }
+  },
+  "frameworks": {
+    "netcoreapp1.0": { }
+  },
+  "runtimes": {
+    "win7-x86": {},
+    "win7-x64": {},
+    "ubuntu.14.04-x64": {},
+    "osx.10.10-x64": {},
+    "osx.10.11-x64": {}
+  }
+}

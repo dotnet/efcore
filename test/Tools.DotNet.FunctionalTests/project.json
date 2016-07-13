@@ -1,0 +1,38 @@
+{
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
+    "copyToOutput": {
+      "include": "TestProjects/"
+    },
+    "compile": {
+      "exclude": "TestProjects/"
+    }
+  },
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-*",
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.1.0-*",
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
+    "Tools.DotNet": "1.0.0-*",
+    "Tools.Console": "1.0.0-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dotnet5.4", 
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "precompile": "clean-assets %compile:OutputDir%",
+    "postcompile": "copy-ef %compile:Configuration%  %compile:OutputDir%"
+  },
+  "publishOptions": {
+    "include": "TestProjects/"
+  }
+}
