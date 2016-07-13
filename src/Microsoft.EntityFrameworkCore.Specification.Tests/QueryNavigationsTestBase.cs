@@ -824,6 +824,53 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 });
         }
 
+
+        // issue #6061
+        ////[ConditionalFact]
+        public virtual void Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.Equals("FISSA")
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault() },
+                cs => from c in cs
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault() });
+        }
+
+        [ConditionalFact]
+        public virtual void Project_single_scalar_value_subquery_is_properly_inlined()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => (int?)o.OrderID).FirstOrDefault() },
+                cs => from c in cs
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => (int?)o.OrderID).FirstOrDefault() });
+        }
+
+        [ConditionalFact]
+        public virtual void Project_single_entity_value_subquery_works()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      orderby c.CustomerID
+                      select new { c.CustomerID, Order = c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() });
+        }
+
+        [ConditionalFact]
+        public virtual void Project_single_scalar_value_subquery_in_query_with_optional_navigation_works()
+        {
+            AssertQuery<Order>(
+                os => (from o in os
+                      orderby o.OrderID
+                      select new
+                      {
+                          o.OrderID,
+                          OrderDetail = o.OrderDetails.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID).Select(od => od.OrderID).FirstOrDefault(),
+                          o.Customer.City
+                      }).Take(3));
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;

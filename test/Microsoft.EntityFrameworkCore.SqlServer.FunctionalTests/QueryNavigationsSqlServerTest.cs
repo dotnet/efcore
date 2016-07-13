@@ -1048,6 +1048,103 @@ ORDER BY [od.Order].[CustomerID]",
                 Sql);
         }
 
+        public override void Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default()
+        {
+            base.Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Project_single_scalar_value_subquery_is_properly_inlined()
+        {
+            base.Project_single_scalar_value_subquery_is_properly_inlined();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Project_single_entity_value_subquery_works()
+        {
+            base.Project_single_entity_value_subquery_works();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%'
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_CustomerID: ANTON (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_CustomerID: AROUT (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
+                Sql);
+        }
+
+        public override void Project_single_scalar_value_subquery_in_query_with_optional_navigation_works()
+        {
+            base.Project_single_scalar_value_subquery_in_query_with_optional_navigation_works();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+ORDER BY [o].[OrderID], [o].[CustomerID]
+
+@_outer_OrderID: 10248
+
+SELECT TOP(1) [od1].[OrderID]
+FROM [Order Details] AS [od1]
+WHERE @_outer_OrderID = [od1].[OrderID]
+ORDER BY [od1].[OrderID], [od1].[ProductID]
+
+@_outer_OrderID: 10249
+
+SELECT TOP(1) [od1].[OrderID]
+FROM [Order Details] AS [od1]
+WHERE @_outer_OrderID = [od1].[OrderID]
+ORDER BY [od1].[OrderID], [od1].[ProductID]
+
+@_outer_OrderID: 10250
+
+SELECT TOP(1) [od1].[OrderID]
+FROM [Order Details] AS [od1]
+WHERE @_outer_OrderID = [od1].[OrderID]
+ORDER BY [od1].[OrderID], [od1].[ProductID]",
+                Sql);
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"
