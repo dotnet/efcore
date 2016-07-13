@@ -4245,6 +4245,49 @@ WHERE [c].[CustomerID] >= N'ALFKI'",
                 Sql);
         }
 
+        public override void String_compare_with_parameter()
+        {
+            base.String_compare_with_parameter();
+
+            Assert.Equal(
+                @"@__customer_CustomerID_0: ALFKI (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] > @__customer_CustomerID_0
+
+@__customer_CustomerID_0: ALFKI (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] < @__customer_CustomerID_0
+
+@__customer_CustomerID_0: ALFKI (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] <= @__customer_CustomerID_0
+
+@__customer_CustomerID_0: ALFKI (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] <= @__customer_CustomerID_0
+
+@__customer_CustomerID_0: ALFKI (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] >= @__customer_CustomerID_0
+
+@__customer_CustomerID_0: ALFKI (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] >= @__customer_CustomerID_0",
+                Sql);
+        }
+
         public override void String_Compare_simple_client()
         {
             base.String_Compare_simple_client();
@@ -5622,6 +5665,8 @@ ORDER BY [o].[CustomerID]",
 
         private const string FileLineEnding = @"
 ";
+
+        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }

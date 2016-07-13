@@ -4223,6 +4223,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void String_compare_with_parameter()
+        {
+            Customer customer = null;
+            using (var context = CreateContext())
+            {
+                customer = context.Customers.OrderBy(c => c.CustomerID).First();
+            }
+
+            ClearLog();
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) == 1),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, customer.CustomerID)),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) < 1),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 1 > string.Compare(c.CustomerID, customer.CustomerID)),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) > -1),
+                entryCount: 91);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => -1 < string.Compare(c.CustomerID, customer.CustomerID)),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
         public virtual void String_Compare_simple_client()
         {
             AssertQuery<Customer>(
@@ -5803,7 +5839,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int? entryCount = null,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem1 : class
-            where TItem2 : class 
+            where TItem2 : class
             => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         private void AssertQuery<TItem1, TItem2>(
@@ -5910,6 +5946,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder);
             }
+        }
+
+        protected virtual void ClearLog()
+        {
         }
     }
 }
