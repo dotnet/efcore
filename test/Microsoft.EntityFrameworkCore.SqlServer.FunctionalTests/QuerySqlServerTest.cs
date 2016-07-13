@@ -558,6 +558,40 @@ END",
                 Sql);
         }
 
+        public override void GroupBy_anonymous()
+        {
+            base.GroupBy_anonymous();
+
+            Assert.Equal(
+                @"SELECT [c].[City], [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]",
+                Sql);
+        }
+
+        public override void GroupBy_anonymous_with_where()
+        {
+            base.GroupBy_anonymous_with_where();
+
+            Assert.Equal(
+                @"SELECT [c].[City], [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[Country] IN (N'Argentina', N'Austria', N'Brazil', N'France', N'Germany', N'USA')
+ORDER BY [c].[City]",
+                Sql);
+        }
+
+        public override void GroupBy_nested_order_by_enumerable()
+        {
+            base.GroupBy_nested_order_by_enumerable();
+
+            Assert.Equal(
+                @"SELECT [c].[Country], [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[Country]",
+                Sql);
+        }
+
         public override void GroupBy_join_default_if_empty_anonymous()
         {
             base.GroupBy_join_default_if_empty_anonymous();
@@ -4007,27 +4041,27 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-// TODO: Complex projection translation.
+        // TODO: Complex projection translation.
 
-//        public override void Projection_when_arithmetic_expressions()
-//        {
-//            base.Projection_when_arithmetic_expressions();
-//
-//            Assert.Equal(
-//                @"SELECT [o].[OrderID], [o].[OrderID] * 2, [o].[OrderID] + 23, 100000 - [o].[OrderID], [o].[OrderID] / ([o].[OrderID] / 2)
-//FROM [Orders] AS [o]",
-//                Sql);
-//        }
-//
-//        public override void Projection_when_arithmetic_mixed()
-//        {
-//            //base.Projection_when_arithmetic_mixed();
-//        }
-//
-//        public override void Projection_when_arithmetic_mixed_subqueries()
-//        {
-//            //base.Projection_when_arithmetic_mixed_subqueries();
-//        }
+        //        public override void Projection_when_arithmetic_expressions()
+        //        {
+        //            base.Projection_when_arithmetic_expressions();
+        //
+        //            Assert.Equal(
+        //                @"SELECT [o].[OrderID], [o].[OrderID] * 2, [o].[OrderID] + 23, 100000 - [o].[OrderID], [o].[OrderID] / ([o].[OrderID] / 2)
+        //FROM [Orders] AS [o]",
+        //                Sql);
+        //        }
+        //
+        //        public override void Projection_when_arithmetic_mixed()
+        //        {
+        //            //base.Projection_when_arithmetic_mixed();
+        //        }
+        //
+        //        public override void Projection_when_arithmetic_mixed_subqueries()
+        //        {
+        //            //base.Projection_when_arithmetic_mixed_subqueries();
+        //        }
 
         public override void Projection_when_null_value()
         {

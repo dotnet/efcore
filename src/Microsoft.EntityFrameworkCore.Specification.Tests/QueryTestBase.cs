@@ -3210,35 +3210,65 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 select new { c, hasOrders });
         }
 
-        // TODO: Need to figure out how to do this
-        //        [ConditionalFact]
-        //        public virtual void GroupBy_anonymous()
-        //        {
-        //            AssertQuery<Customer>(cs =>
-        //                cs.Select(c => new { c.City, c.CustomerID })
-        //                    .GroupBy(a => a.City),
-        //                assertOrder: true);
-        //        }
-        //
-        //        [ConditionalFact]
-        //        public virtual void GroupBy_anonymous_subquery()
-        //        {
-        //            AssertQuery<Customer>(cs =>
-        //                cs.Select(c => new { c.City, c.CustomerID })
-        //                    .GroupBy(a => from c2 in cs select c2),
-        //                assertOrder: true);
-        //        }
-        //
-        //        [ConditionalFact]
-        //        public virtual void GroupBy_nested_order_by_enumerable()
-        //        {
-        //            AssertQuery<Customer>(cs =>
-        //                cs.Select(c => new { c.City, c.CustomerID })
-        //                    .OrderBy(a => a.City)
-        //                    .GroupBy(a => a.City)
-        //                    .Select(g => g.OrderBy(a => a.CustomerID)),
-        //                assertOrder: true);
-        //        }
+        [ConditionalFact]
+        public virtual void GroupBy_anonymous()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Select(c => new { c.City, c.CustomerID })
+                    .GroupBy(a => a.City),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
+
+                    foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
+                    {
+                        var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
+                    }
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_anonymous_with_where()
+        {
+            var countries = new string[] { "Argentina", "Austria", "Brazil", "France", "Germany", "USA" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => countries.Contains(c.Country))
+                    .Select(c => new { c.City, c.CustomerID })
+                    .GroupBy(a => a.City),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
+
+                    foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
+                    {
+                        var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
+                    }
+                });
+        }
+
+        //[ConditionalFact]
+        //public virtual void GroupBy_anonymous_subquery()
+        //{
+        //    AssertQuery<Customer>(cs =>
+        //        cs.Select(c => new { c.City, c.CustomerID })
+        //            .GroupBy(a => from c2 in cs select c2),
+        //        assertOrder: true);
+        //}
+
+        [ConditionalFact]
+        public virtual void GroupBy_nested_order_by_enumerable()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Select(c => new { c.Country, c.CustomerID })
+                    .OrderBy(a => a.Country)
+                    .GroupBy(a => a.Country)
+                    .Select(g => g.OrderBy(a => a.CustomerID)),
+                assertOrder: true);
+        }
 
         [ConditionalFact]
         public virtual void GroupBy_join_default_if_empty_anonymous()
