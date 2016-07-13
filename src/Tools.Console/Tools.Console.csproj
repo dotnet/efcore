@@ -70,7 +70,7 @@
     <Compile Include="Commands\DbContextScaffoldCommand.cs" />
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="Extensions\AnsiColorExtensions.cs" />
-    <Compile Include="Internal\AppDomainOperationExecutor.net451.cs" />
+    <Compile Include="Internal\AppDomainOperationExecutor.cs" />
     <Compile Include="Commands\MigrationsAddCommand.cs" />
     <Compile Include="Commands\MigrationsListCommand.cs" />
     <Compile Include="Commands\MigrationsRemoveCommand.cs" />

@@ -9,7 +9,6 @@
   "buildOptions": {
     "outputName": "ef", 
     "emitEntryPoint": true,
-    "platform": "anycpu",
     "keyFile": "../../tools/Key.snk", 
     "compile": {
       "include": [
@@ -23,12 +22,14 @@
         "platform": "anycpu32bitpreferred",
         "define": [
           "DEBUG"
-        ]
+        ],
+        "outputName": "ef.x86"
       }
     },
     "release_x86": {
       "buildOptions": {
-        "platform": "anycpu32bitpreferred"
+        "platform": "anycpu32bitpreferred",
+        "outputName": "ef.x86"
       }
     }
   },
@@ -49,7 +50,6 @@
       },
       "buildOptions": {
         "compile": {
-          "exclude": "**/*.net451.cs",
           "include": [
             "../Shared/CodeAnnotations.cs"
           ]

@@ -1,19 +1,5 @@
 {
   "version": "1.0.0-preview3-*",
-  "description": "Visual Studio commands for Entity Framework Core. Includes the Scaffold-DbContext, Add-Migration, and Update-Database commands for the Package Manager Console in Visual Studio.",
-  "packOptions": {
-    "tags": [
-      "Entity Framework Core",
-      "entity-framework-core",
-      "EF",
-      "Data",
-      "O/RM"
-    ],
-    "files": [
-      "lib/",
-      "tools/"
-    ]
-  },
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
