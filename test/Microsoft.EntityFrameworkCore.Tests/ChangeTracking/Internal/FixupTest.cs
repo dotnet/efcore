@@ -3194,6 +3194,43 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
         }
 
+        //Issue #6067
+        //[Fact]
+        public void Collection_nav_props_remain_fixed_up_after_manual_fixup_and_DetectChanges()
+        {
+            using (var context = new FixupContext())
+            {
+                var category = new Category { Id = 77 };
+                context.Add(new Product { Id = 777, Category = category });
+                context.Add(new Product { Id = 778, Category = category });
+                context.Add(new Category { Id = 78 });
+                context.SaveChanges();
+            }
+
+            using (var context = new FixupContext())
+            {
+                var category = context.Set<Product>().Include(c => c.Category).ToList().First().Category;
+
+                Assert.Equal(2, category.Products.Count);
+
+                var category2 = context.Set<Category>().ToList().Single(a => a != category);
+
+                Assert.Equal(0, category2.Products.Count);
+
+                var product = category.Products.First();
+                category.Products.Remove(product);
+                product.Category = category2;
+                category2.Products.Add(product);
+                Assert.Equal(category.Id, product.CategoryId);
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(category2.Id, product.CategoryId);
+                Assert.Equal(category, category.Products.Single().Category);
+                Assert.Equal(category2, category2.Products.Single().Category); // Throws
+            }
+        }
+
         [Fact]
         public void Navigation_fixup_happens_when_new_entities_are_tracked()
         {
