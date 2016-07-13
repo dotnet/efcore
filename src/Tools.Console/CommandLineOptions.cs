@@ -68,55 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 "The dispatcher version", inherited: true);
             dispatcherVersion.ShowInHelpText = false;
 
-            app.Command("database", command =>
-                {
-                    command.Description = "Commands to manage your database";
-                    command.HelpOption();
-
-                    command.Command("update", c => DatabaseUpdateCommand.ParseOptions(c, options));
-                    command.Command("drop", c => DatabaseDropCommand.ParseOptions(c, options));
-                    command.OnExecute(() =>
-                    {
-                        WriteLogo();
-                        app.ShowHelp("database");
-                    });
-                });
-
-            app.Command("dbcontext", command =>
-                {
-                    command.Description = "Commands to manage your DbContext types";
-                    command.HelpOption();
-
-                    command.Command("list", c => DbContextListCommand.ParseOptions(c, options));
-                    command.Command("scaffold", c => DbContextScaffoldCommand.ParseOptions(c, options));
-                    command.OnExecute(() =>
-                    {
-                        WriteLogo();
-                        command.ShowHelp();
-                    });
-                });
-
-            app.Command("migrations", command =>
-                {
-                    command.Description = "Commands to manage your migrations";
-                    command.HelpOption();
-
-                    command.Command("add", c => MigrationsAddCommand.ParseOptions(c, options));
-                    command.Command("list", c => MigrationsListCommand.ParseOptions(c, options));
-                    command.Command("remove", c => MigrationsRemoveCommand.ParseOptions(c, options));
-                    command.Command("script", c => MigrationsScriptCommand.ParseOptions(c, options));
-                    command.OnExecute(() =>
-                    {
-                        WriteLogo();
-                        command.ShowHelp();
-                    });
-                });
-
-            app.OnExecute(() =>
-            {
-                WriteLogo();
-                app.ShowHelp();
-            });
+            EfCommand.Configure(app, options);
 
             var result = app.Execute(args);
 
@@ -142,24 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
 #endif
 
             return options;
-        }
-
-        private static void WriteLogo()
-        {
-            const string Bold = "\x1b[1m";
-            const string Normal = "\x1b[22m";
-            const string Magenta = "\x1b[35m";
-            const string White = "\x1b[37m";
-            const string Default = "\x1b[39m";
-
-            Console.WriteLine();
-            Console.WriteLine(@"                     _/\__       ".Insert(21, Bold + White));
-            Console.WriteLine(@"               ---==/    \\      ".Insert(20, Bold + White));
-            Console.WriteLine(@"         ___  ___   |.    \|\    ".Insert(26, Bold).Insert(21, Normal).Insert(20, Bold + White).Insert(9, Normal + Magenta));
-            Console.WriteLine(@"        | __|| __|  |  )   \\\   ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
-            Console.WriteLine(@"        | _| | _|   \_/ |  //|\\ ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
-            Console.WriteLine(@"        |___||_|       /   \\\/\\".Insert(33, Normal + Default).Insert(23, Bold + White).Insert(8, Normal + Magenta));
-            Console.WriteLine();
         }
     }
 }

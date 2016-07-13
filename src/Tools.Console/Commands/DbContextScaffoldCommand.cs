@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class DbContextScaffoldCommand : ICommand
     {
-        public static void ParseOptions([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
         {
             command.Description = "Scaffolds a DbContext and entity type classes for a specified database";
             command.HelpOption();

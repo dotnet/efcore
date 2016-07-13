@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class MigrationsScriptCommand : ICommand
     {
-        public static void ParseOptions([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
         {
             command.Description = "Generate a SQL script from migrations";
             command.HelpOption();

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class DatabaseUpdateCommand : ICommand
     {
-        public static void ParseOptions([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions commonOptions)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions commonOptions)
         {
             command.Description = "Updates the database to a specified migration";
             command.HelpOption();

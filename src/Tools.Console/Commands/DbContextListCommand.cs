@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class DbContextListCommand : ICommand
     {
-        public static void ParseOptions([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
         {
             command.Description = "List your DbContext types";
             command.HelpOption();

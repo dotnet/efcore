@@ -47,6 +47,10 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
     </Compile>
+    <Compile Include="Commands\EfCommand.cs" />
+    <Compile Include="Commands\MigrationsCommand.cs" />
+    <Compile Include="Commands\DbContextCommand.cs" />
+    <Compile Include="Commands\DatabaseCommand.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\MigrationsScriptCommand.cs" />
     <Compile Include="Extensions\CommandLineApplicationExtensions.cs" />

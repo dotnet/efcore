@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class DatabaseDropCommand : ICommand
     {
-        public static void ParseOptions([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions commonOptions)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions commonOptions)
         {
             command.Description = "Drop the database for specific environment";
             command.HelpOption();

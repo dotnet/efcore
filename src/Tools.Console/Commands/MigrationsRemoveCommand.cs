@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class MigrationsRemoveCommand : ICommand
     {
-        public static void ParseOptions([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommandLineOptions options)
         {
             command.Description = "Remove the last migration";
             command.HelpOption();
