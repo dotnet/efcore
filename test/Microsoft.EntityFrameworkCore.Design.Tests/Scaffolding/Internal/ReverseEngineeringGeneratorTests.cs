@@ -5,7 +5,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Tests.Scaffolding.Internal
 {
     public class ReverseEngineeringGeneratorTests
     {

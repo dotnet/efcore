@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
 {
     public class OperationErrorException : Exception
     {

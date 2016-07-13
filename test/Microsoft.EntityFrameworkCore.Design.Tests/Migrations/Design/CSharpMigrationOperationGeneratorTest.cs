@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
 {
     public class CSharpMigrationOperationGeneratorTest
     {

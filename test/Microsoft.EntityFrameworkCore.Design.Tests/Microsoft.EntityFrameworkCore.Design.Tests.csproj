@@ -60,9 +60,9 @@
       <Project>{1a73d95e-e8b5-4f96-908c-7b040e4f7afe}</Project>
       <Name>Microsoft.EntityFrameworkCore.Specification.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj">
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Design\Microsoft.EntityFrameworkCore.Design.csproj">
       <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Design.Core</Name>
+      <Name>Microsoft.EntityFrameworkCore.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
@@ -83,7 +83,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <Compile Include="Design\Internal\StartupInvokerTest.cs" />
+    <Compile Include="Design\OperationExecutorTest.cs" />
+    <Compile Include="Design\OperationLogHandlerTest.cs" />
+    <Compile Include="Design\OperationResultHandlerTest.cs" />
     <Compile Include="Migrations\Design\CSharpHelperTest.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationOperationGeneratorTest.cs" />
     <Compile Include="Migrations\Design\MigrationScaffolderTest.cs" />

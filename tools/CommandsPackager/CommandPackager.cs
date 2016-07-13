@@ -32,12 +32,11 @@ namespace CommandPackager
 
         private async Task PackToolsVisualStudio()
         {
-            var project = ProjectContext.Create(Path.Combine(_baseDir, "src", "Microsoft.EntityFrameworkCore.Tools.VisualStudio"), FrameworkConstants.CommonFrameworks.Net451);
             var props = "configuration=" + _config;
 
             var version = project.ProjectFile.Version.ToNormalizedString();
             await Nuget("pack",
-                Path.Combine(project.ProjectDirectory, "project.nuspec"),
+                Path.Combine(_baseDir, "src", "Tools.VisualStudio", "project.nuspec"),
                 "-Verbosity", "detailed",
                 "-OutputDirectory", Path.Combine(_baseDir, "artifacts/build"),
                 "-Version", version,

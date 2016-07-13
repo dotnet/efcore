@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
 {
     public class CSharpHelperTest
     {
@@ -179,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Migrations.Design
         {
             var ex = Assert.Throws<InvalidOperationException>(
                 () => new CSharpHelper().UnknownLiteral(new object()));
-            Assert.Equal(DesignCoreStrings.UnknownLiteral(typeof(object)), ex.Message);
+            Assert.Equal(DesignStrings.UnknownLiteral(typeof(object)), ex.Message);
         }
 
         [Theory]

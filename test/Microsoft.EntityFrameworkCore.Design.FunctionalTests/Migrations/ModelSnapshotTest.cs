@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
 {
     [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class ModelSnapshotTest
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
                         builder.Entity<EntityWithTwoProperties>().Ignore(e => e.EntityWithOneProperty);
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -170,7 +170,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -187,8 +187,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         Assert.Equal(2, o.GetEntityTypes().Count());
                         Assert.Collection(
                             o.GetEntityTypes(),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty", t.Name),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties", t.Name));
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty", t.Name),
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties", t.Name));
                     });
         }
 
@@ -206,7 +206,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithTwoProperties>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -235,7 +235,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Entity<AnotherDerivedEntity>().HasBaseType<BaseEntity>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -247,18 +247,18 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""BaseEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
 
         b.Property<string>(""Title"");
 
         b.ToTable(""AnotherDerivedEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
 
         b.Property<string>(""Name"");
 
@@ -270,9 +270,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         Assert.Equal(3, o.GetEntityTypes().Count());
                         Assert.Collection(
                             o.GetEntityTypes(),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+AnotherDerivedEntity", t.Name),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+AnotherDerivedEntity", t.Name),
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
                             );
                     });
         }
@@ -292,7 +292,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasValue(typeof(AnotherDerivedEntity), typeof(AnotherDerivedEntity).Name);
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -307,9 +307,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
 
         b.Property<string>(""Title"");
 
@@ -318,9 +318,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.HasDiscriminator().HasValue(""AnotherDerivedEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity"");
 
         b.Property<string>(""Name"");
 
@@ -348,7 +348,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -381,7 +381,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -413,7 +413,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -447,7 +447,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -478,7 +478,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -515,7 +515,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId);
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -525,7 +525,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -540,11 +540,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -570,7 +570,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasPrincipalKey<EntityWithTwoProperties>(e => e.AlternateId);
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -582,7 +582,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -594,12 +594,12 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithOne(""EntityWithOneProperty"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
-            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
+            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -623,7 +623,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         originalModel = builder.Model;
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
     {
         b.Property<Guid>(""Id"")
             .ValueGeneratedOnAdd();
@@ -656,7 +656,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         originalModel = builder.Model;
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
     {
         b.Property<Guid>(""Id"")
             .ValueGeneratedOnAdd();
@@ -692,7 +692,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         originalModel = builder.Model;
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -733,7 +733,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithTwoProperties>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd()
@@ -758,7 +758,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                     builder.Ignore<EntityWithTwoProperties>();
                 },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -778,7 +778,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
             Test(
                 builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsRequired(); },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -804,7 +804,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -826,7 +826,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
             Test(
                 builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(100); },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -848,7 +848,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
             Test(
                 builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsUnicode(false); },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -877,7 +877,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasAnnotation("AnnotationName", "AnnotationValue");
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -911,7 +911,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -936,7 +936,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -962,7 +962,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -988,7 +988,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1014,7 +1014,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1041,7 +1041,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1068,7 +1068,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1091,7 +1091,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
             Test(
                 builder => { builder.Entity<EntityWithEnumType>().Property(e => e.Day).HasDefaultValue(Days.Wed); },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithEnumType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithEnumType"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1118,7 +1118,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1155,7 +1155,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1183,7 +1183,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1211,7 +1211,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1250,7 +1250,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1278,7 +1278,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1306,7 +1306,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1334,7 +1334,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1376,7 +1376,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasAnnotation("AnnotationName", "AnnotationValue");
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1386,7 +1386,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1401,11 +1401,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
             .OnDelete(DeleteBehavior.Cascade);
     });
@@ -1427,7 +1427,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .IsRequired();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
         b.Property<string>(""Id"");
 
@@ -1436,7 +1436,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithStringKey"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1452,11 +1452,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithStringProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"")
             .WithOne()
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""Name"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""Name"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -1475,7 +1475,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasForeignKey(e => e.Name);
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
         b.Property<string>(""Id"");
 
@@ -1484,7 +1484,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithStringKey"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1498,9 +1498,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithStringProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"")
             .WithMany(""Properties"")
             .HasForeignKey(""Name"");
     });
@@ -1521,7 +1521,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Entity<EntityWithTwoProperties>().Ignore(e => e.EntityWithOneProperty);
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -1532,7 +1532,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1544,9 +1544,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithMany()
             .HasForeignKey(""Id"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1567,7 +1567,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasForeignKey<EntityWithOneProperty>(e => e.Id);
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -1579,7 +1579,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1591,11 +1591,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithOne(""EntityWithOneProperty"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -1616,7 +1616,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         originalModel = builder.Model;
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
     {
         b.Property<Guid>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1626,7 +1626,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithGenericKey<Guid>"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1640,9 +1640,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithGenericProperty<Guid>"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"")
             .WithMany()
             .HasForeignKey(""Property"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1689,7 +1689,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasConstraintName("Constraint");
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1699,7 +1699,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1714,11 +1714,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasConstraintName(""Constraint"")
             .OnDelete(DeleteBehavior.Cascade);
     });
@@ -1740,7 +1740,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                             .HasConstraintName("Constraint");
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1750,7 +1750,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1765,11 +1765,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasConstraintName(""Constraint"")
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1795,7 +1795,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                         builder.Entity<DerivedType>();
                     },
                 @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseType"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1809,7 +1809,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""BaseType"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1819,17 +1819,17 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+DerivedType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+DerivedType"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseType"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseType"");
 
 
         b.ToTable(""DerivedType"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseType"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Navigation"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Navigation"")
             .WithMany()
             .HasForeignKey(""NavigationId"");
     });

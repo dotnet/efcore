@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
 {
     public class StartupInvokerTest
     {
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
 
             Assert.NotNull(services);
             Assert.Equal(
-                DesignCoreStrings.InvokeStartupMethodFailed(
+                DesignStrings.InvokeStartupMethodFailed(
                     "ConfigureServices",
                     nameof(BadStartup),
                     "Something went wrong."),

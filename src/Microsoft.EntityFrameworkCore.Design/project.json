@@ -1,6 +1,6 @@
 {
   "version": "1.0.0-preview3-*",
-  "description": "Design-time components for Entity Framework Core tools",
+  "description": "Shared design-time components for Entity Framework Core tools.",
   "packOptions": {
     "tags": [
       "Entity Framework Core",
@@ -8,13 +8,9 @@
       "EF",
       "Data",
       "O/RM"
-    ],
-    "files": [
-      "lib/"
     ]
   },
   "buildOptions": {
-    "emitEntryPoint": true,
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [
@@ -22,37 +18,21 @@
     ],
     "xmlDoc": true,
     "compile": {
-      "include": [
-        "../Shared/CodeAnnotations.cs",
-        "../Shared/Check.cs",
-        "../Shared/LoggingExtensions.cs"
-      ]
+      "include": "../Shared/*.cs"
     }
   },
   "dependencies": {
-    "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-*"
-  },
-  "configurations": {
-    "debug_x86": {
-      "buildOptions": {
-        "platform": "anycpu32bitpreferred"
-      }
-    },
-    "release_x86": {
-      "buildOptions": {
-        "platform": "anycpu32bitpreferred"
-      }
-    }
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.0-*",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.1.0-*"
   },
   "frameworks": {
     "net451": {},
-    "netcoreapp1.0": {
+    "netstandard1.3": {
       "dependencies": {
-        "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
-          "type": "platform"
-        }
+        "System.AppContext": "4.1.0-*",
+        "System.Collections.NonGeneric": "4.0.1-*",
+        "System.IO": "4.1.0-*",
+        "System.IO.FileSystem": "4.0.1-*"
       }
     }
   }

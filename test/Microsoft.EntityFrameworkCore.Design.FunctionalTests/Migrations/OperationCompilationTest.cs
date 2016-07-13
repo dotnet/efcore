@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUt
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
 {
     [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class OperationCompilationTest

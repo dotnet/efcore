@@ -6,7 +6,6 @@
         "packages": {
             "Microsoft.EntityFrameworkCore": { },
             "Microsoft.EntityFrameworkCore.Design": { },
-            "Microsoft.EntityFrameworkCore.Design.Core": { },
             "Microsoft.EntityFrameworkCore.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.InMemory": { },
             "Microsoft.EntityFrameworkCore.SqlServer": { },
