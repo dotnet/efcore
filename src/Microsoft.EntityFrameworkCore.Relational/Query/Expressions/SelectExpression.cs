@@ -133,6 +133,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual bool IsProjectStar { get; set; }
 
         /// <summary>
+        ///     Determines whether this SelectExpression is an identity query. An identity query
+        ///     has a single table, and returns all of the rows from that table, unmodified.
+        /// </summary>
+        /// <returns>
+        ///     true if this SelectExpression is an identity query, false if not.
+        /// </returns>
+        public virtual bool IsIdentityQuery()
+            => !IsProjectStar
+               && !IsDistinct
+               && Predicate == null
+               && Limit == null
+               && Offset == null
+               && Projection.Count == 0
+               && OrderBy.Count == 0
+               && Tables.Count == 1;
+
+        /// <summary>
         ///     Adds a table to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The table expression. </param>

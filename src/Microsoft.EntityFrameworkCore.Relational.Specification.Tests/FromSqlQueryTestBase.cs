@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable AccessToDisposedClosure
@@ -85,6 +86,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_composed_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>()
+                       where context.Orders.FromSql(@"SELECT * FROM ""Orders""")
+                           .Select(o => o.CustomerID)
+                           .Contains(c.CustomerID)
+                       select c)
+                        .ToArray();
+
+                Assert.Equal(89, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_composed_contains2()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>()
+                       where
+                           c.CustomerID == "ALFKI"
+                           && context.Orders.FromSql(@"SELECT * FROM ""Orders""")
+                               .Select(o => o.CustomerID)
+                               .Contains(c.CustomerID)
+                       select c)
+                        .ToArray();
+
+                Assert.Equal(1, actual.Length);
             }
         }
 

@@ -359,7 +359,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var typeIsExpressionTranslatingVisitor = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
+            var typeIsExpressionTranslatingVisitor 
+                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
+
             queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
 
             base.VisitQueryModel(queryModel);
@@ -519,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var outerShaper = outerShapedQuery.Arguments[2] as ConstantExpression;
-            if (outerShaper == null || !(outerShaper.Value is Shaper))
+            if (!(outerShaper?.Value is Shaper))
             {
                 return false;
             }
@@ -546,12 +548,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var innerShaper = innerShapedQuery.Arguments[2] as ConstantExpression;
-            if (innerShaper == null || !(innerShaper.Value is Shaper))
-            {
-                return false;
-            }
 
-            return true;
+            return innerShaper?.Value is Shaper;
         }
 
         /// <summary>
@@ -834,7 +832,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || !subSelectExpression.IsCorrelated()
                         || !(querySource is AdditionalFromClause)))
                 {
-                    subSelectExpression.PushDownSubquery().QuerySource = querySource;
+                    if (!subSelectExpression.IsIdentityQuery())
+                    {
+                        subSelectExpression.PushDownSubquery().QuerySource = querySource;
+                    }
 
                     AddQuery(querySource, subSelectExpression);
 
