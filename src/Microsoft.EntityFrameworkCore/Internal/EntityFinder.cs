@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             IReadOnlyList<IProperty> keyProperties;
             return FindTracked(keyValues, out keyProperties)
-                   ?? _set.FirstOrDefault(BuildLambda(keyProperties, keyValues));
+                   ?? _set.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
         }
 
         /// <summary>
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var tracked = FindTracked(keyValues, out keyProperties);
             return tracked != null
                 ? Task.FromResult(tracked)
-                : _set.FirstOrDefaultAsync(BuildLambda(keyProperties, keyValues), cancellationToken);
+                : _set.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
         }
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return tracked != null
                 ? Task.FromResult((object)tracked)
                 : _set.FirstOrDefaultAsync(
-                    BuildObjectLambda(keyProperties, keyValues), cancellationToken);
+                    BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
         }
 
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
@@ -124,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return _stateManager.TryGetEntry(key, keyValues)?.Entity as TEntity;
         }
 
-        private static Expression<Func<TEntity, bool>> BuildLambda(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
+        private static Expression<Func<TEntity, bool>> BuildLambda(IReadOnlyList<IProperty> keyProperties, ValueBuffer keyValues)
         {
             var entityParameter = Expression.Parameter(typeof(TEntity), "e");
 
@@ -132,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 BuildPredicate(keyProperties, keyValues, entityParameter), entityParameter);
         }
 
-        private static Expression<Func<object, bool>> BuildObjectLambda(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
+        private static Expression<Func<object, bool>> BuildObjectLambda(IReadOnlyList<IProperty> keyProperties, ValueBuffer keyValues)
         {
             var entityParameter = Expression.Parameter(typeof(object), "e");
 
@@ -142,9 +143,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static BinaryExpression BuildPredicate(
             IReadOnlyList<IProperty> keyProperties,
-            object[] keyValues,
+            ValueBuffer keyValues,
             ParameterExpression entityParameter)
         {
+            var keyValuesConstant = Expression.Constant(keyValues);
+
             BinaryExpression predicate = null;
             for (var i = 0; i < keyProperties.Count; i++)
             {
@@ -155,8 +158,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             EF.PropertyMethod.MakeGenericMethod(property.ClrType),
                             entityParameter,
                             Expression.Constant(property.Name, typeof(string))),
-                        Expression.Constant(
-                            keyValues[i], property.ClrType));
+                        Expression.Convert(
+                            Expression.Call(
+                                keyValuesConstant,
+                                ValueBuffer.GetValueMethod,
+                                Expression.Constant(i)),
+                            property.ClrType));
 
                 predicate = predicate == null ? equalsExpression : Expression.AndAlso(predicate, equalsExpression);
             }
