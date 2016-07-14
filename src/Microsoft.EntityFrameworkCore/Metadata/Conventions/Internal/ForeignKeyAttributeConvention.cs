@@ -36,9 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && !string.IsNullOrEmpty(fkPropertyOnPrincipal))
             {
                 // TODO: Log Error that unable to determine principal end based on foreign key attributes on properties
-                SplitNavigationsInSeparateRelationships(relationshipBuilder);
 
-                return null;
+                return SplitNavigationsToSeparateRelationships(relationshipBuilder) ? null : relationshipBuilder;
             }
 
             var fkPropertiesOnPrincipalToDependent = FindCandidateDependentPropertiesThroughNavigation(relationshipBuilder, pointsToPrincipal: false);
@@ -48,9 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && (fkPropertiesOnPrincipalToDependent != null))
             {
                 // TODO: Log error that foreign key properties are on both navigations
-                SplitNavigationsInSeparateRelationships(relationshipBuilder);
 
-                return null;
+                return SplitNavigationsToSeparateRelationships(relationshipBuilder) ? null : relationshipBuilder;
             }
 
             var fkPropertiesOnNavigation = fkPropertiesOnDependentToPrincipal ?? fkPropertiesOnPrincipalToDependent;
@@ -97,9 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         || !string.Equals(fkPropertiesOnNavigation.First(), fkPropertyOnDependent ?? fkPropertyOnPrincipal))
                     {
                         // TODO: Log error that mismatch in foreignKey Attribute on navigation and property
-                        SplitNavigationsInSeparateRelationships(relationshipBuilder);
 
-                        return null;
+                        return SplitNavigationsToSeparateRelationships(relationshipBuilder) ? null : relationshipBuilder;
                     }
 
                     if (fkPropertyOnDependent != null)
@@ -141,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
         }
 
-        private void SplitNavigationsInSeparateRelationships(InternalRelationshipBuilder relationshipBuilder)
+        private bool SplitNavigationsToSeparateRelationships(InternalRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal?.Name;
@@ -161,17 +158,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dependentEntityTypebuilder = foreignKey.DeclaringEntityType.Builder;
             var principalEntityTypeBuilder = foreignKey.PrincipalEntityType.Builder;
 
-            dependentEntityTypebuilder.Relationship(
+            if (dependentEntityTypebuilder.Relationship(
                 principalEntityTypeBuilder,
                 dependentToPrincipalNavigationName,
                 null,
-                ConfigurationSource.DataAnnotation);
+                ConfigurationSource.DataAnnotation) == null)
+            {
+                return false;
+            }
 
-            principalEntityTypeBuilder.Relationship(
+            return principalEntityTypeBuilder.Relationship(
                 dependentEntityTypebuilder,
                 principalToDepedentNavigationName,
                 null,
-                ConfigurationSource.DataAnnotation);
+                ConfigurationSource.DataAnnotation) != null;
         }
 
         private static InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)

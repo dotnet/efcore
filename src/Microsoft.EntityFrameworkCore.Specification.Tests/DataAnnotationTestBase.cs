@@ -841,7 +841,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             Validate(modelBuilder.Model);
 
-            Assert.True(GetProperty<Profile4>(modelBuilder, "Profile4Id").IsForeignKey());
+            Assert.True(GetProperty<Login4>(modelBuilder, nameof(Login4.Login4Id)).IsForeignKey());
+            Assert.True(GetProperty<Profile4>(modelBuilder, nameof(Profile4.Profile4Id)).IsForeignKey());
+        }
+
+        [Fact]
+        public virtual void Required_and_ForeignKey_to_Required_and_ForeignKey_can_be_overriden()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login4>()
+                .HasOne(l => l.Profile)
+                .WithOne(p => p.User)
+                .HasForeignKey<Login4>(l => l.Login4Id);
+
+            Validate(modelBuilder.Model);
+
+            Assert.True(GetProperty<Login4>(modelBuilder, nameof(Login4.Login4Id)).IsForeignKey());
+            Assert.False(GetProperty<Profile4>(modelBuilder, nameof(Profile4.Profile4Id)).IsForeignKey());
         }
 
         protected class Login4
