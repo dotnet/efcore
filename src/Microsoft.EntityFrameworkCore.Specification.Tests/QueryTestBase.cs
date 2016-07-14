@@ -38,6 +38,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(cs =>
                 cs.Single(c => c.CustomerID == (string)context.Arguments["customerId"]));
         }
+        
+        [ConditionalFact]
+        public void Query_composition_against_ienumerable_set()
+        {
+            using (var context = CreateContext())
+            {
+                IEnumerable<Order> orders = context.Orders;
+
+                var results
+                    = orders
+                        .Where(x => x.OrderDate < new DateTime(1996, 7, 12) && x.OrderDate > new DateTime(1996, 7, 4))
+                        .OrderBy(x => x.ShippedDate)
+                        .GroupBy(x => x.ShipName)
+                        .ToList();
+
+                Assert.Equal(1, results.Count);
+            }
+        }
 
         [ConditionalFact]
         public virtual void Entity_equality_self()
