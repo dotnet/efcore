@@ -12,5 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
         public NuGetFramework Framework { get; set; }
         public string DepsJsonFile { get; set; }
         public string NuGetPackageRoot { get; set; }
+        public string RuntimeConfigJson { get; set; }
     }
 }

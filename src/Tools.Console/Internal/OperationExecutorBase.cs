@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
     public abstract class OperationExecutorBase : IOperationExecutor
     {
         private const string DataDirEnvName = "ADONET_DATA_DIR";
-        protected const string DesignAssemblyName = "Microsoft.EntityFrameworkCore.Design";
+        protected internal const string DesignAssemblyName = "Microsoft.EntityFrameworkCore.Design";
         protected const string ExecutorTypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
         protected const string OperationExceptionTypeName = "Microsoft.EntityFrameworkCore.Design.OperationException";
 

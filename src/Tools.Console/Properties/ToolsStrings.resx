@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,34 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BuildFailed" xml:space="preserve">
-    <value>Build failed on '{projectName}'.</value>
-  </data>
-  <data name="ClassLibrariesNotSupportedInCli" xml:space="preserve">
-    <value>Could not invoke this command on the startup project '{projectName}'. This preview of Entity Framework tools does not support commands on class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.</value>
-  </data>
-  <data name="DesktopCommandsRequiresWindows" xml:space="preserve">
-    <value>Could not invoke this command on this project. Commands for framework '{framework}' are only supported on Windows.</value>
-  </data>
-  <data name="LogBeginDispatch" xml:space="preserve">
-    <value>Invoking console command in project '{projectName}'</value>
-  </data>
-  <data name="LogUsingConfiguration" xml:space="preserve">
-    <value>Using configuration '{configName}'.</value>
-  </data>
-  <data name="LogUsingFramework" xml:space="preserve">
-    <value>Using framework '{frameworkName}'.</value>
-  </data>
-  <data name="LogUsingTargetProject" xml:space="preserve">
-    <value>Using target project '{project}'.</value>
-  </data>
-  <data name="MissingDepsJsonFile" xml:space="preserve">
-    <value>Could not invoke this command because the expected dependency context file [{depsJsonFile}] could not be identified.</value>
-  </data>
-  <data name="LogDataDirectory" xml:space="preserve">
-    <value>Setting the data directory to '{path}'.</value>
-  </data>
-  <data name="LogUsingStartupProject" xml:space="preserve">
-    <value>Using startup project '{project}'.</value>
+  <data name="DesignDependencyNotFound" xml:space="preserve">
+    <value>Cannot execute this command because Microsoft.EntityFrameworkCore.Design is not installed.</value>
   </data>
 </root>

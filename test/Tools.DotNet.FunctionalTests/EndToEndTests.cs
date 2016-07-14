@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
@@ -21,6 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
             _fixture = fixture;
         }
 
+        [Fact]
+        public void ShowsErrorWhenMissingDesignDependency()
+        {
+            var targetProject = Path.Combine(_fixture.TestProjectRoot, "MissingDesignDependency/project.json");
+
+            var result = new AddMigration(targetProject, "Initial", _output)
+               .ExecuteWithCapturedOutput();
+            AssertCommand.Fail(result);
+            Assert.Contains(ToolsStrings.DesignDependencyNotFound, result.StdErr);
+        }
+
         [ConditionalFact]
         [PlatformSkipCondition(TestPlatform.Linux | TestPlatform.Mac)]
         public void MigrationsOnDesktop()
@@ -34,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
             AddAndApplyMigrationImpl("NetStandardClassLibrary", "NetStandardContext", "initialLibrary", startupProjectName: "NetCoreStartupApp");
         }
 
-        [Fact]
+        [ConditionalFact]
+        [PlatformSkipCondition(TestPlatform.Linux | TestPlatform.Mac)]
         public void MigrationsOnDesktopClassLibraryWithExternalStartup()
         {
             AddAndApplyMigrationImpl("DesktopClassLibrary", "DesktopContext", "initialLibrary", startupProjectName: "DesktopStartupApp");

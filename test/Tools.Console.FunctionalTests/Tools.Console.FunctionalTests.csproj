@@ -45,7 +45,10 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OperationExecutorTest.cs" />
+    <Compile Include="OperationExecutorTestBase.cs" />
+    <Compile Include="AppDomainOperationExecutorTest.cs" />
+    <Compile Include="ReflectionOperationExecutorTest.cs" />
+    <Compile Include="SimpleProjectTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Design\Microsoft.EntityFrameworkCore.Design.csproj">

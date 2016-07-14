@@ -21,9 +21,9 @@
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
     },
-    "Microsoft.AspNetCore.Hosting": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
+    "Microsoft.AspNetCore.Hosting": "1.1.0-*",
+    "Microsoft.Extensions.Configuration.UserSecrets": "1.1.0-*",
+    "Microsoft.Extensions.Configuration.Json": "1.1.0-*",
     "Newtonsoft.Json": "9.0.1"
   },
   "frameworks": {

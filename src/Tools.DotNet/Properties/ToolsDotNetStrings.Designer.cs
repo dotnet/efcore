@@ -73,11 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not invoke this command with the startup project '{projectName}'. Check that '{dependencyCommand}' has been added to "dependencies" in the startup project and that the version of '{toolCommand}' in "tools" and '{dependencyCommand}' are the same. See {fwlink} for more details.
+        /// Could not invoke this command because the expected dependency context file [{depsJsonFile}] could not be identified.
         /// </summary>
-        public static string ProjectDependencyCommandNotFound([CanBeNull] object projectName, [CanBeNull] object dependencyCommand, [CanBeNull] object toolCommand, [CanBeNull] object fwlink)
+        public static string MissingDepsJsonFile([CanBeNull] object depsJsonFile)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "projectName", "dependencyCommand", "toolCommand", "fwlink"), projectName, dependencyCommand, toolCommand, fwlink);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingDepsJsonFile", "depsJsonFile"), depsJsonFile);
         }
 
         /// <summary>

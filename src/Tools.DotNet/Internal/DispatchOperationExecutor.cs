@@ -95,7 +95,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
             Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogBeginDispatch(startupProject.Name));
 
-            // TODO config file
             var dispatchArgs = CreateArgs(
                 assembly: targetAssembly,
                 startupAssembly: startupAssembly,
@@ -107,11 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
                 verbose: options.IsVerbose)
                 .Concat(options.RemainingArguments);
 
-            return _commandFactory.Create(startupProjectContext,
+            var commandSpec = _commandFactory.Create(startupProjectContext,
                 options.Configuration,
                 options.BuildBasePath,
                 options.BuildOutputPath,
-                dispatchArgs)
+                dispatchArgs);
+
+            return Command.Create(commandSpec)
                 .ForwardStdErr()
                 .ForwardStdOut()
                 .Execute()
@@ -133,7 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
         private const string ContentRootPathOptionTemplate = "--content-root-path";
         private const string RootNamespaceOptionTemplate = "--root-namespace";
         private const string VerboseOptionTemplate = "--verbose";
-
+        
+        // '--config' option for desktop is intentionally missing. dotnet-cli ensures necessary binding redirects are placed in file
+        // that is picked up automatically by .NET Framework host
         private static IEnumerable<string> CreateArgs(
             [NotNull] string assembly,
             [NotNull] string startupAssembly,

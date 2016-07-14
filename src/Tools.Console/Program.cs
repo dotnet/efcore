@@ -6,14 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-#if NET451
-using System.Runtime.Serialization;
-#endif
 using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.EntityFrameworkCore.Tools.Internal;
-
-// ReSharper disable ArgumentsStyleNamedExpression
-// ReSharper disable ArgumentsStyleOther
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
@@ -66,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     return 1;
                 }
 
-                using (var executor = GetExecutor(options))
+                using (var executor = new OperationExecutorFactory().Create(options))
                 {
                     var currentDirectory = Directory.GetCurrentDirectory();
                     Directory.SetCurrentDirectory(executor.AppBasePath);
@@ -98,38 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 return 1;
             }
         }
-
-        private static OperationExecutorBase GetExecutor(CommandLineOptions options)
-        {
-#if NET451
-            try
-            {
-                return new AppDomainOperationExecutor(
-                        configFile: options.AppConfigFile,
-                        assembly: options.Assembly,
-                        startupAssembly: options.StartupAssembly,
-                        projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
-                        dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
-                        contentRootPath: options.ContentRootPath,
-                        rootNamespace: options.RootNamespace,
-                        environment: options.EnvironmentName);
-            }
-            catch (SerializationException ex)
-            {
-                Reporter.Verbose("Creating app-domain executor failed. Reverting to reflection operation executor.");
-                Reporter.Verbose(ex.Message);
-            }
-#endif
-            return new ReflectionOperationExecutor(
-                   assembly: options.Assembly,
-                   startupAssembly: options.StartupAssembly,
-                   projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
-                   dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
-                   contentRootPath: options.ContentRootPath,
-                   rootNamespace: options.RootNamespace,
-                   environment: options.EnvironmentName);
-        }
-
 
         [Conditional("DEBUG")]
         private static void HandleDebugSwitch(ref string[] args)

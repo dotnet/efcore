@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
         private const string LibraryFwLink = "http://go.microsoft.com/fwlink/?LinkId=798221";
 
-        public virtual ICommand Create(ProjectContext context,
+        public virtual CommandSpec Create(ProjectContext context,
             string configuration,
             string buildBasePath,
             string outputPath,
@@ -36,9 +36,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
                     throw new OperationErrorException(ToolsDotNetStrings.ClassLibrariesNotSupportedInCli(context.ProjectFile.Name, LibraryFwLink));
                 }
             }
-            else if (!File.Exists(runtimeFiles.DepsJson))
+            else
             {
-                throw new OperationErrorException(ToolsDotNetStrings.ClassLibrariesNotSupportedInCli(context.ProjectFile.Name, LibraryFwLink));
+                if (!File.Exists(runtimeFiles.RuntimeConfigJson))
+                {
+                    throw new OperationErrorException(ToolsDotNetStrings.ClassLibrariesNotSupportedInCli(context.ProjectFile.Name, LibraryFwLink));
+                }
+
+                if (!File.Exists(runtimeFiles.DepsJson))
+                {
+                    throw new OperationErrorException(ToolsDotNetStrings.MissingDepsJsonFile(runtimeFiles.DepsJson));
+                }
             }
 
             var arguments = new ResolverArguments
@@ -46,10 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
                 CommandArguments = args,
                 Framework = context.TargetFramework,
                 DepsJsonFile = runtimeFiles.DepsJson,
+                RuntimeConfigJson = runtimeFiles.RuntimeConfigJson,
                 NuGetPackageRoot = context.PackagesDirectory
             };
 
-            return Command.Create(_resolver.Resolve(arguments));
+            return _resolver.Resolve(arguments);
         }
     }
 }

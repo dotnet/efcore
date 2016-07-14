@@ -9,6 +9,10 @@
   "buildOptions": {
     "outputName": "ef", 
     "emitEntryPoint": true,
+    "warningsAsErrors": true,
+    "nowarn": [
+      "CS1591"
+    ],
     "keyFile": "../../tools/Key.snk", 
     "compile": {
       "include": [

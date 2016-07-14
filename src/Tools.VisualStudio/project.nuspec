@@ -29,6 +29,5 @@
     <file src="..\Tools.Console\bin\$configuration$\net451\*.exe" target="tools\net451\" />
     <file src="..\Tools.Console\bin\$configuration$_x86\net451\*.exe" target="tools\net451\" />
     <file src="..\Tools.Console\bin\$configuration$\netcoreapp1.0\ef.dll" target="tools\netcoreapp1.0\" />
-    <file src="..\Tools.Console\bin\$configuration$\netcoreapp1.0\ef.runtimeconfig.json" target="tools\netcoreapp1.0\" />
   </files>
 </package>

@@ -28,18 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
         private CommandSpec CreateNetCoreCommandSpec(ResolverArguments arguments)
         {
-            var runtimeConfigPath = Path.Combine(NetCoreToolDir, "ef" + FileNameSuffixes.RuntimeConfigJson);
             var args = new List<string>();
 
             args.Add("exec");
 
             args.Add("--runtimeconfig");
-            args.Add(runtimeConfigPath);
-
-            if (arguments.DepsJsonFile == null)
-            {
-                throw new ArgumentNullException("Deps json file cannot be null for this framework");
-            }
+            args.Add(arguments.RuntimeConfigJson);
 
             args.Add("--depsfile");
             args.Add(arguments.DepsJsonFile);
@@ -56,8 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
             var muxer = new Muxer();
             var escapedArgs = ArgumentEscaper.EscapeAndConcatenateArgArrayForProcessStart(args.OrEmptyIfNull());
-
-            Reporter.Verbose.WriteLine("Executing " + muxer.MuxerPath + " " + escapedArgs);
 
             return new CommandSpec(muxer.MuxerPath, escapedArgs, CommandResolutionStrategy.ProjectToolsPackage);
         }

@@ -30,7 +30,7 @@
   },
   "scripts": {
     "precompile": "clean-assets %compile:OutputDir%",
-    "postcompile": "copy-ef %compile:Configuration%  %compile:OutputDir%"
+    "postcompile": "copy-tools %compile:Configuration%  %compile:OutputDir%"
   },
   "publishOptions": {
     "include": "TestProjects/"

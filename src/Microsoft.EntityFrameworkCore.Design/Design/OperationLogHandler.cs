@@ -1,10 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Internal
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public class OperationLogHandler : DesignMarshalByRefObject, IOperationLogHandler
     {
@@ -30,19 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
             _writeTrace = writeTrace;
         }
 
-        public virtual void WriteError(string message)
-            => _writeError?.Invoke(message);
+        public virtual void WriteError(string message) => _writeError?.Invoke(message);
 
-        public virtual void WriteWarning(string message)
-            => _writeWarning?.Invoke(message);
+        public virtual void WriteWarning(string message) => _writeWarning?.Invoke(message);
 
-        public virtual void WriteInformation(string message)
-            => _writeInformation?.Invoke(message);
+        public virtual void WriteInformation(string message) => _writeInformation?.Invoke(message);
 
-        public virtual void WriteDebug(string message)
-            => _writeDebug?.Invoke(message);
+        public virtual void WriteDebug(string message) => _writeDebug?.Invoke(message);
 
-        public virtual void WriteTrace(string message)
-            => _writeTrace?.Invoke(message);
+        public virtual void WriteTrace(string message) => _writeTrace?.Invoke(message);
     }
 }
