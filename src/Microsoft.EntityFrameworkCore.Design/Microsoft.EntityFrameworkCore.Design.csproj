@@ -62,6 +62,9 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\Tools.Shared\OperationHandlers.cs">
+      <Link>Design\OperationHandlers.cs</Link>
+    </Compile>
     <Compile Include="Design\AssemblyLoader.cs" />
     <Compile Include="Design\DatabaseOperations.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
@@ -72,7 +75,6 @@
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
     <Compile Include="Design\Internal\HostingEnvironment.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
-    <Compile Include="Design\Internal\OperationHandlers.cs" />
     <Compile Include="Design\Internal\StartupInvoker.cs" />
     <Compile Include="Design\DatabaseInfo.cs" />
     <Compile Include="Design\MigrationInfo.cs" />

@@ -7,19 +7,13 @@
     }
   },
   "buildOptions": {
-    "outputName": "ef", 
+    "outputName": "ef",
     "emitEntryPoint": true,
     "warningsAsErrors": true,
     "nowarn": [
       "CS1591"
     ],
-    "keyFile": "../../tools/Key.snk", 
-    "compile": {
-      "include": [
-        "../Shared/CodeAnnotations.cs",
-        "../Tools.Shared/*.cs"
-      ]
-    }
+    "keyFile": "../../tools/Key.snk"
   },
   "configurations": {
     "debug_x86": {
@@ -44,6 +38,15 @@
         "System.Runtime": {
           "type": "build"
         }
+      },
+      "buildOptions": {
+        "compile": {
+          "include": [
+            "../Shared/CodeAnnotations.cs",
+            "../Tools.Shared/CommandLineApplicationExtensions.cs",
+            "../Tools.Shared/OperationHandlers.cs"
+          ]
+        }
       }
     },
     "netcoreapp1.0": {
@@ -51,12 +54,16 @@
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.0.0-*"
-        },
-        "Microsoft.EntityFrameworkCore.Design": {
-          "type": "build",
-          "version": "1.0.0-*"  
-        } 
+        }
+      },
+      "buildOptions": {
+        "compile": {
+          "include": [
+            "../Shared/CodeAnnotations.cs",
+            "../Tools.Shared/CommandLineApplicationExtensions.cs"
+          ]
+        }
       }
-    } 
+    }
   }
 }

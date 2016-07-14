@@ -7,7 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Design;
 
 // ReSharper disable ArgumentsStyleLiteral
 namespace Microsoft.EntityFrameworkCore.Tools.Internal
@@ -16,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
     {
         private readonly object _executor;
         private readonly Assembly _commandsAssembly;
+        private const string LogHandlerTypeName = "Microsoft.EntityFrameworkCore.Design.OperationLogHandler";
+        private const string ResultHandlerTypeName = "Microsoft.EntityFrameworkCore.Design.OperationResultHandler";
+        private readonly Type _resultHandlerType;
 
         public ReflectionOperationExecutor([NotNull] string assembly,
             [NotNull] string startupAssembly,
@@ -27,10 +29,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
             : base(assembly, startupAssembly, projectDir, contentRootPath, dataDirectory, rootNamespace, environment)
         {
             _commandsAssembly = Assembly.Load(new AssemblyName { Name = DesignAssemblyName });
+            var logHandlerType = _commandsAssembly.GetType(LogHandlerTypeName, throwOnError: true, ignoreCase: false);
+
+            var logHandler = Activator.CreateInstance(logHandlerType, new object[]
+            {
+                 (Action<string>)Reporter.Error,
+                 (Action<string>)Reporter.Warning,
+                 (Action<string>)Reporter.Output,
+                 (Action<string>)Reporter.Verbose,
+                 (Action<string>)Reporter.Verbose
+            });
 
             _executor = Activator.CreateInstance(
                 _commandsAssembly.GetType(ExecutorTypeName, throwOnError: true, ignoreCase: false),
-                LogHandler,
+                logHandler,
                 new Dictionary<string, string>
                 {
                     { "targetName", AssemblyFileName },
@@ -40,19 +52,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                     { "rootNamespace", RootNamespace },
                     { "environment", EnvironmentName }
                 });
+
+            _resultHandlerType = _commandsAssembly.GetType(ResultHandlerTypeName, throwOnError: true, ignoreCase: false);
         }
 
-        public override void Dispose()
-        {
-        }
+        protected override object CreateResultHandler()
+            => Activator.CreateInstance(_resultHandlerType);
 
-        protected override void Execute(string operationName, IOperationResultHandler resultHandler, IDictionary arguments)
+        protected override void Execute(string operationName, object resultHandler, IDictionary arguments)
         {
             Activator.CreateInstance(
                 _commandsAssembly.GetType(ExecutorTypeName + "+" + operationName, throwOnError: true, ignoreCase: true),
                 _executor,
                 resultHandler,
                 arguments);
+        }
+
+        public override void Dispose()
+        {
         }
     }
 }

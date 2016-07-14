@@ -8,7 +8,7 @@
     <ProjectGuid>{74A7774B-270E-4D7F-8735-BECB05CACA71}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <AssemblyName>ef</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -62,46 +62,39 @@
     <Compile Include="..\Tools.Shared\CommandLineApplicationExtensions.cs">
       <Link>Extensions\CommandLineApplicationExtensions.cs</Link>
     </Compile>
-    <Compile Include="Tools\Commands\EfCommand.cs" />
-    <Compile Include="Tools\Commands\MigrationsCommand.cs" />
-    <Compile Include="Tools\Commands\DbContextCommand.cs" />
-    <Compile Include="Tools\Commands\DatabaseCommand.cs" />
-    <Compile Include="Tools\Commands\ICommand.cs" />
-    <Compile Include="Tools\Commands\MigrationsScriptCommand.cs" />
-    <Compile Include="Design\IOperationLogHandler.net451.cs" />
-    <Compile Include="Design\IOperationResultHandler.net451.cs" />
-    <Compile Include="Design\Internal\IOperationExecutor.cs" />
-    <Compile Include="Design\OperationLogHandler.cs" />
-    <Compile Include="Design\OperationResultHandler.cs" />
-    <Compile Include="Design\Internal\ReflectionOperationExecutor.cs" />
-    <Compile Include="Design\Internal\DesignMarshalByRefObject.cs" />
-    <Compile Include="Design\Internal\OperationExecutorBase.cs" />
-    <Compile Include="Tools\OperationErrorException.cs" />
+    <Compile Include="..\Tools.Shared\OperationHandlers.cs">
+      <Link>Internal\OperationHandlers.cs</Link>
+    </Compile>
+    <Compile Include="Commands\EfCommand.cs" />
+    <Compile Include="Commands\MigrationsCommand.cs" />
+    <Compile Include="Commands\DbContextCommand.cs" />
+    <Compile Include="Commands\DatabaseCommand.cs" />
+    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\MigrationsScriptCommand.cs" />
+    <Compile Include="Internal\IOperationExecutor.cs" />
+    <Compile Include="Internal\ReflectionOperationExecutor.netcore.cs" />
+    <Compile Include="Internal\OperationExecutorBase.cs" />
+    <Compile Include="OperationErrorException.cs" />
+    <Compile Include="OperationExecutorFactory.cs" />
     <Compile Include="Properties\ToolsStrings.Designer.cs">
       <DependentUpon>ToolsStrings.resx</DependentUpon>
     </Compile>
-    <Compile Include="Tools\Reporter.cs" />
-    <Compile Include="Tools\Commands\DatabaseDropCommand.cs" />
-    <Compile Include="Tools\Commands\DatabaseUpdateCommand.cs" />
-    <Compile Include="Tools\Commands\DbContextListCommand.cs" />
-    <Compile Include="Tools\Commands\DbContextScaffoldCommand.cs" />
-    <Compile Include="Tools\CommandLineOptions.cs" />
+    <Compile Include="Reporter.cs" />
+    <Compile Include="Commands\DatabaseDropCommand.cs" />
+    <Compile Include="Commands\DatabaseUpdateCommand.cs" />
+    <Compile Include="Commands\DbContextListCommand.cs" />
+    <Compile Include="Commands\DbContextScaffoldCommand.cs" />
+    <Compile Include="CommandLineOptions.cs" />
     <Compile Include="Extensions\AnsiColorExtensions.cs" />
-    <Compile Include="Design\Internal\AppDomainOperationExecutor.net451.cs" />
-    <Compile Include="Tools\Commands\MigrationsAddCommand.cs" />
-    <Compile Include="Tools\Commands\MigrationsListCommand.cs" />
-    <Compile Include="Tools\Commands\MigrationsRemoveCommand.cs" />
-    <Compile Include="Tools\Program.cs" />
+    <Compile Include="Internal\AppDomainOperationExecutor.net451.cs" />
+    <Compile Include="Commands\MigrationsAddCommand.cs" />
+    <Compile Include="Commands\MigrationsListCommand.cs" />
+    <Compile Include="Commands\MigrationsRemoveCommand.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Design.Abstractions\Microsoft.EntityFrameworkCore.Design.Abstractions.csproj">
-      <Project>{AF5EA360-4AB2-422A-9EBF-58EA094E17B5}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Design.Abstractions</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

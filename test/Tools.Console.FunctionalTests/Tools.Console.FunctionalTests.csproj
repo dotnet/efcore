@@ -46,8 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OperationExecutorTestBase.cs" />
-    <Compile Include="AppDomainOperationExecutorTest.cs" />
-    <Compile Include="ReflectionOperationExecutorTest.cs" />
+    <Compile Include="AppDomainOperationExecutorTest.net451.cs" />
+    <Compile Include="ReflectionOperationExecutorTest.netcore.cs" />
     <Compile Include="SimpleProjectTest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +58,10 @@
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.csproj">
       <Project>{a0b496fe-1e59-4262-a5f5-101cbba42738}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj">
+      <Project>{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Specification.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Tools.Console\Tools.Console.csproj">
       <Project>{74a7774b-270e-4d7f-8735-becb05caca71}</Project>

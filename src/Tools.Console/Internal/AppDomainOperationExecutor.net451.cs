@@ -39,6 +39,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                 _domain.SetData("DataDirectory", dataDirectory);
             }
 
+            var logHandler = new OperationLogHandler(
+                Reporter.Error,
+                Reporter.Warning,
+                Reporter.Output,
+                Reporter.Verbose,
+                Reporter.Verbose);
+
             _executor = _domain.CreateInstanceAndUnwrap(DesignAssemblyName,
                 ExecutorTypeName,
                 false,
@@ -46,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                 null,
                 new object[]
                 {
-                    LogHandler,
+                    logHandler,
                     new Hashtable
                     {
                         { "targetName", AssemblyFileName },
@@ -60,7 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                 null, null);
         }
 
-        protected override void Execute(string operationName, IOperationResultHandler resultHandler, IDictionary arguments)
+        protected override object CreateResultHandler()
+            => new OperationResultHandler();
+
+        protected override void Execute(string operationName, object resultHandler, IDictionary arguments)
         {
             _domain.CreateInstance(
                 DesignAssemblyName,

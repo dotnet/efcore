@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Design;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Internal
 {
@@ -26,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
         protected virtual string ProjectDirectory { get; }
         protected virtual string RootNamespace { get; }
         protected virtual string EnvironmentName { get; }
-        protected virtual IOperationLogHandler LogHandler { get; set; }
 
         protected OperationExecutorBase([NotNull] string assembly,
             [NotNull] string startupAssembly,
@@ -57,19 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
             {
                 Environment.SetEnvironmentVariable(DataDirEnvName, dataDirectory);
             }
-
-            LogHandler = new OperationLogHandler(
-                writeTrace: Reporter.Verbose,
-                writeDebug: Reporter.Verbose,
-                writeInformation: Reporter.Output,
-                writeWarning: Reporter.Warning,
-                writeError: Reporter.Error
-                );
         }
 
         public abstract void Dispose();
 
-        protected abstract void Execute(string operationName, IOperationResultHandler resultHandler, IDictionary arguments);
+        protected abstract object CreateResultHandler();
+        protected abstract void Execute(string operationName, object resultHandler, IDictionary arguments);
 
         private TResult InvokeOperation<TResult>(string operation)
             => InvokeOperation<TResult>(operation, EmptyArguments);
@@ -82,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
 
         private object InvokeOperationImpl(string operationName, IDictionary arguments, bool isVoid = false)
         {
-            var resultHandler = new OperationResultHandler();
+            var resultHandler = (dynamic)CreateResultHandler();
 
             Execute(operationName, resultHandler, arguments);
 

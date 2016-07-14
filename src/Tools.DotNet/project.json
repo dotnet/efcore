@@ -12,7 +12,7 @@
     "compile": {
       "include": [
         "../Shared/*.cs",
-        "../Tools.Shared/*.cs"
+        "../Tools.Shared/CommandLineApplicationExtensions.cs"
       ]
     },
     "embed": {

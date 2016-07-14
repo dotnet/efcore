@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// <summary>
     ///     A version-resilient, AppDomain-and-reflection-friendly facade for command operations.
     /// </summary>
-    public class OperationExecutor : DesignMarshalByRefObject
+    public partial class OperationExecutor
     {
         private readonly LazyRef<DbContextOperations> _contextOperations;
         private readonly LazyRef<DatabaseOperations> _databaseOperations;
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private void DropDatabaseImpl(string contextType)
             => _contextOperations.Value.DropDatabase(contextType);
 
-        public abstract class OperationBase : DesignMarshalByRefObject
+        public abstract partial class OperationBase
         {
             private readonly IOperationResultHandler _resultHandler;
 
@@ -439,5 +439,13 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
     }
+
+#if NET451
+    public partial class OperationExecutor : MarshalByRefObject
+    {
+        public partial class OperationBase : MarshalByRefObject
+        { }
+    }
+#endif
 }
 
