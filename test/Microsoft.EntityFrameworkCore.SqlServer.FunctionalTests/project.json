@@ -6,6 +6,10 @@
       "include": [
         "**/*.sql",
         "config.json"
+      ],
+      "exclude": [
+        "obj/**",
+        "bin/**"
       ]
     }
   },
