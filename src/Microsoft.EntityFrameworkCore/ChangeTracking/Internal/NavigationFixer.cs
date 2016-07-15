@@ -237,8 +237,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         // For a dependent added to the collection, remove it from the collection of
                         // the principal entity that it was previously part of
-                        var oldPrincipalEntry = stateManager.GetPrincipal(newTargetEntry, foreignKey);
-                        if (oldPrincipalEntry != null)
+                        var oldPrincipalEntry = stateManager.GetPrincipalUsingRelationshipSnapshot(newTargetEntry, foreignKey);
+                        if (oldPrincipalEntry != null
+                            && oldPrincipalEntry != entry)
                         {
                             RemoveFromCollection(oldPrincipalEntry, navigation, collectionAccessor, newValue);
                         }
@@ -713,9 +714,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 var principalValue = principalEntry[principalProperties[i]];
-                dependentEntry.SetProperty(dependentProperties[i], principalValue, setModified);
-                dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
-                dependentEntry.SetRelationshipSnapshotValue(dependentProperties[i], principalValue);
+                var dependentProperty = dependentProperties[i];
+
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(
+                    dependentEntry[dependentProperty],
+                    principalValue))
+                {
+                    dependentEntry.SetProperty(dependentProperty, principalValue, setModified);
+                    dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
+                    dependentEntry.SetRelationshipSnapshotValue(dependentProperty, principalValue);
+                }
             }
         }
 

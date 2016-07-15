@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -81,8 +81,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_optional_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var new2a = new Optional2();
@@ -116,25 +124,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.AddRange(new1, new2a, new2b);
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Principal:
-                        Add(existing.Children, new2a);
-                        Add(existing.Children, new2b);
-                        Add(root.OptionalChildren, new1);
-                        break;
-                    case ChangeMechanism.Dependent:
-                        new2a.Parent = existing;
-                        new2b.Parent = existing;
-                        new1.Parent = root;
-                        break;
-                    case ChangeMechanism.FK:
-                        new2a.ParentId = existing.Id;
-                        new2b.ParentId = existing.Id;
-                        new1.ParentId = root.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Add(existing.Children, new2a);
+                    Add(existing.Children, new2b);
+                    Add(root.OptionalChildren, new1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new2a.Parent = existing;
+                    new2b.Parent = existing;
+                    new1.Parent = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new2a.ParentId = existing.Id;
+                    new2b.ParentId = existing.Id;
+                    new1.ParentId = root.Id;
                 }
 
                 context.SaveChanges();
@@ -169,8 +177,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var newRoot = new Root();
@@ -206,25 +222,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.Entry(newRoot).State = EntityState.Detached;
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Principal:
-                        Add(existing.Children, new2a);
-                        Add(existing.Children, new2b);
-                        Add(root.RequiredChildren, new1);
-                        break;
-                    case ChangeMechanism.Dependent:
-                        new2a.Parent = existing;
-                        new2b.Parent = existing;
-                        new1.Parent = root;
-                        break;
-                    case ChangeMechanism.FK:
-                        new2a.ParentId = existing.Id;
-                        new2b.ParentId = existing.Id;
-                        new1.ParentId = root.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Add(existing.Children, new2a);
+                    Add(existing.Children, new2b);
+                    Add(root.RequiredChildren, new1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new2a.Parent = existing;
+                    new2b.Parent = existing;
+                    new1.Parent = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new2a.ParentId = existing.Id;
+                    new2b.ParentId = existing.Id;
+                    new1.ParentId = root.Id;
                 }
 
                 context.SaveChanges();
@@ -257,7 +273,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
-        [InlineData((int)ChangeMechanism.FK)]
+        [InlineData((int)ChangeMechanism.Fk)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Save_removed_optional_many_to_one_dependents(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -269,22 +289,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var removed2 = childCollection.First();
                 var removed1 = root.OptionalChildren.Skip(1).First();
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        removed2.Parent = null;
-                        removed1.Parent = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        Remove(childCollection, removed2);
-                        Remove(root.OptionalChildren, removed1);
-                        break;
-                    case ChangeMechanism.FK:
-                        removed2.ParentId = null;
-                        removed1.ParentId = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Remove(childCollection, removed2);
+                    Remove(root.OptionalChildren, removed1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    removed2.Parent = null;
+                    removed1.Parent = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    removed2.ParentId = null;
+                    removed1.ParentId = null;
                 }
 
                 context.SaveChanges();
@@ -316,7 +336,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
-        [InlineData((int)ChangeMechanism.FK)]
+        [InlineData((int)ChangeMechanism.Fk)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Save_removed_required_many_to_one_dependents(ChangeMechanism changeMechanism)
         {
             int removed1Id;
@@ -335,22 +359,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 removed2Id = removed2.Id;
                 removed1ChildrenIds = removed1.Children.Select(e => e.Id).ToList();
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        removed2.Parent = null;
-                        removed1.Parent = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        Remove(childCollection, removed2);
-                        Remove(root.RequiredChildren, removed1);
-                        break;
-                    case ChangeMechanism.FK:
-                        context.Entry(removed2).GetInfrastructure()[context.Entry(removed2).Property(e => e.ParentId).Metadata] = null;
-                        context.Entry(removed1).GetInfrastructure()[context.Entry(removed1).Property(e => e.ParentId).Metadata] = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Remove(childCollection, removed2);
+                    Remove(root.RequiredChildren, removed1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    removed2.Parent = null;
+                    removed1.Parent = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    context.Entry(removed2).GetInfrastructure()[context.Entry(removed2).Property(e => e.ParentId).Metadata] = null;
+                    context.Entry(removed1).GetInfrastructure()[context.Entry(removed1).Property(e => e.ParentId).Metadata] = null;
                 }
 
                 context.SaveChanges();
@@ -376,8 +400,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_changed_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var new2 = new OptionalSingle2();
@@ -412,19 +444,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.AddRange(new1, new2);
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        new1.Root = root;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.OptionalSingle = new1;
-                        break;
-                    case ChangeMechanism.FK:
-                        new1.RootId = root.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.OptionalSingle = new1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new1.Root = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new1.RootId = root.Id;
                 }
 
                 context.SaveChanges();
@@ -460,7 +492,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
-        [InlineData((int)ChangeMechanism.FK)]
+        [InlineData((int)ChangeMechanism.Fk)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
         {
             // This test is a bit strange because the relationships are PK<->PK, which means
@@ -496,21 +532,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        context.Add(new1);
-                        new1.Root = root;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredSingle = new1;
-                        break;
-                    case ChangeMechanism.FK:
-                        context.Add(new1);
-                        new1.Id = root.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredSingle = new1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    context.Add(new1);
+                    new1.Root = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    context.Add(new1);
+                    new1.Id = root.Id;
                 }
 
                 context.SaveChanges();
@@ -540,9 +576,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        // TODO: Not working yet
-        //[InlineData((int)ChangeMechanism.FK, false)]
-        //[InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var new2 = new RequiredNonPkSingle2();
@@ -578,19 +621,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.AddRange(newRoot, new1, new2);
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        new1.Root = root;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredNonPkSingle = new1;
-                        break;
-                    case ChangeMechanism.FK:
-                        new1.RootId = root.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredNonPkSingle = new1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new1.Root = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new1.RootId = root.Id;
                 }
 
                 context.SaveChanges();
@@ -620,7 +663,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
-        [InlineData((int)ChangeMechanism.FK)]
+        [InlineData((int)ChangeMechanism.Fk)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Sever_optional_one_to_one(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -633,19 +680,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.OptionalSingle;
                 old2 = root.OptionalSingle.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.OptionalSingle = null;
-                        break;
-                    case ChangeMechanism.FK:
-                        old1.RootId = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.OptionalSingle = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    old1.RootId = null;
                 }
 
                 context.SaveChanges();
@@ -676,6 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         public virtual void Sever_required_one_to_one(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -688,16 +736,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.RequiredSingle;
                 old2 = root.RequiredSingle.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredSingle = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredSingle = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
                 context.SaveChanges();
@@ -722,6 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         public virtual void Sever_required_non_PK_one_to_one(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -734,16 +786,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.RequiredNonPkSingle;
                 old2 = root.RequiredNonPkSingle.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredNonPkSingle = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredNonPkSingle = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
                 context.SaveChanges();
@@ -770,8 +825,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
             var newRoot = new Root();
@@ -797,19 +860,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.OptionalSingle;
                 old2 = root.OptionalSingle.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = newRoot;
-                        break;
-                    case ChangeMechanism.Principal:
-                        newRoot.OptionalSingle = old1;
-                        break;
-                    case ChangeMechanism.FK:
-                        old1.RootId = newRoot.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    newRoot.OptionalSingle = old1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = newRoot;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    old1.RootId = newRoot.Id;
                 }
 
                 context.SaveChanges();
@@ -845,8 +908,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
             var newRoot = new Root();
@@ -866,19 +937,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        root.RequiredSingle.Root = newRoot;
-                        break;
-                    case ChangeMechanism.Principal:
-                        newRoot.RequiredSingle = root.RequiredSingle;
-                        break;
-                    case ChangeMechanism.FK:
-                        root.RequiredSingle.Id = newRoot.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    newRoot.RequiredSingle = root.RequiredSingle;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    root.RequiredSingle.Root = newRoot;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    root.RequiredSingle.Id = newRoot.Id;
                 }
 
                 newRoot.RequiredSingle = root.RequiredSingle;
@@ -894,8 +965,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_non_PK_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
             var newRoot = new Root();
@@ -921,19 +1000,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.RequiredNonPkSingle;
                 old2 = root.RequiredNonPkSingle.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = newRoot;
-                        break;
-                    case ChangeMechanism.Principal:
-                        newRoot.RequiredNonPkSingle = old1;
-                        break;
-                    case ChangeMechanism.FK:
-                        old1.RootId = newRoot.Id;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    newRoot.RequiredNonPkSingle = old1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = newRoot;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    old1.RootId = newRoot.Id;
                 }
 
                 context.SaveChanges();
@@ -969,8 +1048,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_optional_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var new2a = new OptionalAk2 { AlternateId = Guid.NewGuid() };
@@ -1004,25 +1091,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.AddRange(new1, new2a, new2b);
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Principal:
-                        Add(existing.Children, new2a);
-                        Add(existing.Children, new2b);
-                        Add(root.OptionalChildrenAk, new1);
-                        break;
-                    case ChangeMechanism.Dependent:
-                        new2a.Parent = existing;
-                        new2b.Parent = existing;
-                        new1.Parent = root;
-                        break;
-                    case ChangeMechanism.FK:
-                        new2a.ParentId = existing.AlternateId;
-                        new2b.ParentId = existing.AlternateId;
-                        new1.ParentId = root.AlternateId;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Add(existing.Children, new2a);
+                    Add(existing.Children, new2b);
+                    Add(root.OptionalChildrenAk, new1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new2a.Parent = existing;
+                    new2b.Parent = existing;
+                    new1.Parent = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new2a.ParentId = existing.AlternateId;
+                    new2b.ParentId = existing.AlternateId;
+                    new1.ParentId = root.AlternateId;
                 }
 
                 context.SaveChanges();
@@ -1057,8 +1144,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var newRoot = new Root { AlternateId = Guid.NewGuid() };
@@ -1094,25 +1189,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.Entry(newRoot).State = EntityState.Detached;
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Principal:
-                        Add(existing.Children, new2a);
-                        Add(existing.Children, new2b);
-                        Add(root.RequiredChildrenAk, new1);
-                        break;
-                    case ChangeMechanism.Dependent:
-                        new2a.Parent = existing;
-                        new2b.Parent = existing;
-                        new1.Parent = root;
-                        break;
-                    case ChangeMechanism.FK:
-                        new2a.ParentId = existing.AlternateId;
-                        new2b.ParentId = existing.AlternateId;
-                        new1.ParentId = root.AlternateId;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Add(existing.Children, new2a);
+                    Add(existing.Children, new2b);
+                    Add(root.RequiredChildrenAk, new1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new2a.Parent = existing;
+                    new2b.Parent = existing;
+                    new1.Parent = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new2a.ParentId = existing.AlternateId;
+                    new2b.ParentId = existing.AlternateId;
+                    new1.ParentId = root.AlternateId;
                 }
 
                 context.SaveChanges();
@@ -1145,7 +1240,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
-        [InlineData((int)ChangeMechanism.FK)]
+        [InlineData((int)ChangeMechanism.Fk)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Save_removed_optional_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -1157,22 +1256,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var removed2 = childCollection.First();
                 var removed1 = root.OptionalChildrenAk.Skip(1).First();
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        removed2.Parent = null;
-                        removed1.Parent = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        Remove(childCollection, removed2);
-                        Remove(root.OptionalChildrenAk, removed1);
-                        break;
-                    case ChangeMechanism.FK:
-                        removed2.ParentId = null;
-                        removed1.ParentId = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Remove(childCollection, removed2);
+                    Remove(root.OptionalChildrenAk, removed1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    removed2.Parent = null;
+                    removed1.Parent = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    removed2.ParentId = null;
+                    removed1.ParentId = null;
                 }
 
                 context.SaveChanges();
@@ -1204,6 +1303,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         public virtual void Save_removed_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -1218,18 +1318,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 removed2 = childCollection.First();
                 removed1 = root.RequiredChildrenAk.Skip(1).First();
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        removed2.Parent = null;
-                        removed1.Parent = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        Remove(childCollection, removed2);
-                        Remove(root.RequiredChildrenAk, removed1);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    Remove(childCollection, removed2);
+                    Remove(root.RequiredChildrenAk, removed1);
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    removed2.Parent = null;
+                    removed1.Parent = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
                 context.SaveChanges();
@@ -1264,8 +1367,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_changed_optional_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var new2 = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() };
@@ -1300,19 +1411,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.AddRange(new1, new2);
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        new1.Root = root;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.OptionalSingleAk = new1;
-                        break;
-                    case ChangeMechanism.FK:
-                        new1.RootId = root.AlternateId;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.OptionalSingleAk = new1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new1.Root = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new1.RootId = root.AlternateId;
                 }
 
                 context.SaveChanges();
@@ -1350,6 +1461,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
         public virtual void Save_required_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
@@ -1386,16 +1499,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.AddRange(newRoot, new1, new2);
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        new1.Root = root;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredSingleAk = new1;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredSingleAk = new1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new1.Root = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
                 context.SaveChanges();
@@ -1427,9 +1543,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        // TODO: Not working yet
-        //[InlineData((int)ChangeMechanism.FK, false)]
-        //[InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
@@ -1466,19 +1589,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.AddRange(new1, new2);
                 }
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        new1.Root = root;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredNonPkSingleAk = new1;
-                        break;
-                    case ChangeMechanism.FK:
-                        new1.RootId = root.AlternateId;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredNonPkSingleAk = new1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    new1.Root = root;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    new1.RootId = root.AlternateId;
                 }
 
                 context.SaveChanges();
@@ -1508,7 +1631,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
-        [InlineData((int)ChangeMechanism.FK)]
+        [InlineData((int)ChangeMechanism.Fk)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Sever_optional_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -1521,19 +1648,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.OptionalSingleAk;
                 old2 = root.OptionalSingleAk.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.OptionalSingleAk = null;
-                        break;
-                    case ChangeMechanism.FK:
-                        old1.RootId = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.OptionalSingleAk = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    old1.RootId = null;
                 }
 
                 context.SaveChanges();
@@ -1564,6 +1691,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         public virtual void Sever_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -1576,16 +1704,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.RequiredSingleAk;
                 old2 = root.RequiredSingleAk.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredSingleAk = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredSingleAk = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
                 context.SaveChanges();
@@ -1610,6 +1741,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         public virtual void Sever_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
         {
             Root root;
@@ -1622,16 +1754,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.RequiredNonPkSingleAk;
                 old2 = root.RequiredNonPkSingleAk.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = null;
-                        break;
-                    case ChangeMechanism.Principal:
-                        root.RequiredNonPkSingleAk = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    root.RequiredNonPkSingleAk = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = null;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
                 context.SaveChanges();
@@ -1658,8 +1793,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_optional_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
             var newRoot = new Root { AlternateId = Guid.NewGuid() };
@@ -1685,19 +1828,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.OptionalSingleAk;
                 old2 = root.OptionalSingleAk.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = newRoot;
-                        break;
-                    case ChangeMechanism.Principal:
-                        newRoot.OptionalSingleAk = old1;
-                        break;
-                    case ChangeMechanism.FK:
-                        old1.RootId = newRoot.AlternateId;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    newRoot.OptionalSingleAk = old1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = newRoot;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    old1.RootId = newRoot.AlternateId;
                 }
 
                 context.SaveChanges();
@@ -1733,8 +1876,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
             var newRoot = new Root { AlternateId = Guid.NewGuid() };
@@ -1760,19 +1911,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.RequiredSingleAk;
                 old2 = root.RequiredSingleAk.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = newRoot;
-                        break;
-                    case ChangeMechanism.Principal:
-                        newRoot.RequiredSingleAk = old1;
-                        break;
-                    case ChangeMechanism.FK:
-                        old1.RootId = newRoot.AlternateId;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    newRoot.RequiredSingleAk = old1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = newRoot;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    old1.RootId = newRoot.AlternateId;
                 }
 
                 context.SaveChanges();
@@ -1808,8 +1959,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
             var newRoot = new Root { AlternateId = Guid.NewGuid() };
@@ -1835,19 +1994,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 old1 = root.RequiredNonPkSingleAk;
                 old2 = root.RequiredNonPkSingleAk.Single;
 
-                switch (changeMechanism)
+                if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    case ChangeMechanism.Dependent:
-                        old1.Root = newRoot;
-                        break;
-                    case ChangeMechanism.Principal:
-                        newRoot.RequiredNonPkSingleAk = old1;
-                        break;
-                    case ChangeMechanism.FK:
-                        old1.RootId = newRoot.AlternateId;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(changeMechanism));
+                    newRoot.RequiredNonPkSingleAk = old1;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                {
+                    old1.Root = newRoot;
+                }
+
+                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                {
+                    old1.RootId = newRoot.AlternateId;
                 }
 
                 context.SaveChanges();
@@ -3493,11 +3652,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
 
+        [Flags]
         public enum ChangeMechanism
         {
-            Dependent,
-            Principal,
-            FK
+            Dependent = 1,
+            Principal = 2,
+            Fk = 4
         }
 
         protected static Root LoadFullGraph(GraphUpdatesContext context, Expression<Func<Root, bool>> predicate = null)
