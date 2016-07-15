@@ -231,6 +231,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Include_with_multiple_optional_navigations()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods
+                    .Include(od => od.Order.Customer)
+                    .Where(od => od.Order.Customer.City == "London"),
+                entryCount: 164);
+        }
+
+        [ConditionalFact]
         public virtual void Select_count_plus_sum()
         {
             AssertQuery<Order>(os => os.Select(o => new
