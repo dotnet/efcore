@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -21,25 +23,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public class ReferenceCollectionBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
     {
+        private readonly EntityType _principalEntityType;
+        private readonly EntityType _dependentEntityType;
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
         private readonly bool? _required;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ReferenceCollectionBuilder([NotNull] InternalRelationshipBuilder builder)
+        public ReferenceCollectionBuilder(
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
+            [NotNull] InternalRelationshipBuilder builder)
             : this(builder, null)
         {
             Check.NotNull(builder, nameof(builder));
+
+            _principalEntityType = principalEntityType;
+            _dependentEntityType = dependentEntityType;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected ReferenceCollectionBuilder(InternalRelationshipBuilder builder,
+        protected ReferenceCollectionBuilder(
+            InternalRelationshipBuilder builder,
             ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -50,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder = builder;
             if (oldBuilder != null)
             {
+                _principalEntityType = oldBuilder._principalEntityType;
+                _dependentEntityType = oldBuilder._dependentEntityType;
                 _foreignKeyProperties = foreignKeySet
                     ? builder.Metadata.Properties
                     : oldBuilder._foreignKeyProperties;
@@ -62,20 +75,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
                 var foreignKey = builder.Metadata;
                 ForeignKey.AreCompatible(
-                    foreignKey.PrincipalEntityType,
-                    foreignKey.DeclaringEntityType,
+                    _principalEntityType,
+                    _dependentEntityType,
                     foreignKey.DependentToPrincipal?.PropertyInfo,
                     foreignKey.PrincipalToDependent?.PropertyInfo,
                     _foreignKeyProperties,
                     _principalKeyProperties,
                     foreignKey.IsUnique,
                     _required,
-                    shouldThrow: true);
+                    true);
             }
         }
 
         /// <summary>
-        ///     The internal builder being used to configure the entity type.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder Builder { get; }
 
@@ -135,14 +149,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder HasForeignKey([NotNull] params string[] foreignKeyPropertyNames)
-        {
-            Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
-
-            return new ReferenceCollectionBuilder(
-                Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceCollectionBuilder(
+                HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 foreignKeySet: true);
-        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
+            => Builder.HasForeignKey(foreignKeyPropertyNames, _dependentEntityType, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+            => Builder.HasForeignKey(foreignKeyProperties, _dependentEntityType, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -153,14 +177,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder HasPrincipalKey([NotNull] params string[] keyPropertyNames)
-        {
-            Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
-
-            return new ReferenceCollectionBuilder(
-                Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceCollectionBuilder(
+                HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 principalKeySet: true);
-        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<string> keyPropertyNames)
+            => Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<PropertyInfo> keyProperties)
+            => Builder.HasPrincipalKey(keyProperties, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
@@ -169,7 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder IsRequired(bool required = true)
-            => new ReferenceCollectionBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
+            => new ReferenceCollectionBuilder(
+                Builder.IsRequired(required, ConfigurationSource.Explicit),
+                this,
+                requiredSet: true);
 
         /// <summary>
         ///     Configures how a delete operation is applied to dependent entities in the relationship when the
@@ -179,6 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceCollectionBuilder(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit),
+                this);
     }
 }

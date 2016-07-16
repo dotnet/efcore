@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
@@ -75,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var derivedPrincipalEntityBuilder = modelBuilder.Entity<SpecialCustomer>();
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
 
                 Assert.Same(principalEntityBuilder.Metadata, derivedPrincipalEntityBuilder.Metadata.BaseType);
                 Assert.Same(dependentEntityBuilder.Metadata, derivedDependentEntityBuilder.Metadata.BaseType);
@@ -119,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
                 var otherDerivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
                 otherDerivedDependentEntityBuilder.Ignore(nameof(BackOrder.SpecialOrder));
 
@@ -147,6 +150,152 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(Order.Customer), newFk.DependentToPrincipal.Name);
                 Assert.Equal(nameof(SpecialCustomer.SpecialOrders), newFk.PrincipalToDependent.Name);
                 Assert.Same(derivedPrincipalEntityBuilder.Metadata, newFk.PrincipalEntityType);
+                var otherDerivedFk = otherDerivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Equal(nameof(Order.Customer), otherDerivedFk.DependentToPrincipal.Name);
+                Assert.Null(otherDerivedFk.PrincipalToDependent);
+                Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Pulling_relationship_to_a_derived_type_reverted_creates_relationships_on_other_derived_types()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                principalEntityBuilder.Ignore(nameof(Customer.Orders));
+                var derivedPrincipalEntityBuilder = modelBuilder.Entity<SpecialCustomer>();
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+                var otherDerivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
+                otherDerivedDependentEntityBuilder.Ignore(nameof(BackOrder.SpecialOrder));
+
+                derivedDependentEntityBuilder
+                    .HasOne(e => (SpecialCustomer)e.Customer)
+                    .WithMany(e => e.SpecialOrders);
+
+                Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
+                Assert.Empty(dependentEntityBuilder.Metadata.GetNavigations());
+                var newFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Equal(nameof(Order.Customer), newFk.DependentToPrincipal.Name);
+                Assert.Equal(nameof(SpecialCustomer.SpecialOrders), newFk.PrincipalToDependent.Name);
+                Assert.Same(derivedPrincipalEntityBuilder.Metadata, newFk.PrincipalEntityType);
+                var otherDerivedFk = otherDerivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Equal(nameof(Order.Customer), otherDerivedFk.DependentToPrincipal.Name);
+                Assert.Null(otherDerivedFk.PrincipalToDependent);
+                Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Pulling_relationship_to_a_derived_type_many_to_one_creates_relationships_on_other_derived_types()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                var derivedPrincipalEntityBuilder = modelBuilder.Entity<SpecialCustomer>();
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                dependentEntityBuilder.Ignore(nameof(Order.Customer));
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
+                var otherDerivedPrincipalEntityBuilder = modelBuilder.Entity<OtherCustomer>();
+
+                derivedPrincipalEntityBuilder
+                    .HasMany(e => (IEnumerable<SpecialOrder>)e.Orders)
+                    .WithOne(e => e.SpecialCustomer);
+
+                Assert.Empty(principalEntityBuilder.Metadata.GetNavigations());
+                var newFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Equal(nameof(SpecialOrder.SpecialCustomer), newFk.DependentToPrincipal.Name);
+                Assert.Equal(nameof(SpecialCustomer.Orders), newFk.PrincipalToDependent.Name);
+                Assert.Same(derivedPrincipalEntityBuilder.Metadata, newFk.PrincipalEntityType);
+                var otherDerivedFk = otherDerivedPrincipalEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Null(otherDerivedFk.DependentToPrincipal);
+                Assert.Equal(nameof(OtherCustomer.Orders), otherDerivedFk.PrincipalToDependent.Name);
+            }
+
+            [Fact]
+            public virtual void Pulling_relationship_to_a_derived_type_one_to_one_creates_relationship_on_base()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<OrderDetails>();
+
+                var principalEntityBuilder = modelBuilder.Entity<OrderCombination>();
+                principalEntityBuilder.Ignore(nameof(OrderCombination.SpecialOrder));
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+
+                principalEntityBuilder
+                    .HasOne(e => (SpecialOrder)e.Order)
+                    .WithOne(e => e.SpecialOrderCombination)
+                    .HasPrincipalKey<OrderCombination>(e => e.Id);
+
+                Assert.Null(dependentEntityBuilder.Metadata.GetNavigations().Single().FindInverse());
+                var newFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Equal(nameof(SpecialOrder.SpecialOrderCombination), newFk.DependentToPrincipal.Name);
+                Assert.Equal(nameof(OrderCombination.Order), newFk.PrincipalToDependent.Name);
+                Assert.Same(derivedDependentEntityBuilder.Metadata, newFk.DeclaringEntityType);
+            }
+
+            [Fact]
+            public virtual void Pulling_relationship_to_a_derived_type_one_to_one_with_fk_creates_relationship_on_base()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<OrderDetails>();
+
+                var principalEntityBuilder = modelBuilder.Entity<OrderCombination>();
+                principalEntityBuilder.Ignore(nameof(OrderCombination.SpecialOrder));
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+
+                principalEntityBuilder
+                    .HasOne(e => (SpecialOrder)e.Order)
+                    .WithOne()
+                    .HasForeignKey<SpecialOrder>(e => e.SpecialCustomerId);
+
+                Assert.Null(dependentEntityBuilder.Metadata.GetNavigations().Single().FindInverse());
+                var newFk = principalEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Null(newFk.DependentToPrincipal);
+                Assert.Equal(nameof(OrderCombination.Order), newFk.PrincipalToDependent.Name);
+                Assert.Same(derivedDependentEntityBuilder.Metadata, newFk.DeclaringEntityType);
+            }
+
+            [Fact]
+            public virtual void Pulling_relationship_to_a_derived_type_with_fk_creates_relationships_on_other_derived_types()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                principalEntityBuilder.Ignore(nameof(Customer.Orders));
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+                var otherDerivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
+                otherDerivedDependentEntityBuilder.Ignore(nameof(BackOrder.SpecialOrder));
+
+                derivedDependentEntityBuilder
+                    .HasOne(e => (SpecialCustomer)e.Customer)
+                    .WithMany()
+                    .HasForeignKey(e => e.SpecialCustomerId);
+
+                Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
+                Assert.Empty(dependentEntityBuilder.Metadata.GetNavigations());
+                var newFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Equal(nameof(Order.Customer), newFk.DependentToPrincipal.Name);
+                Assert.Null(newFk.PrincipalToDependent);
                 var otherDerivedFk = otherDerivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
                 Assert.Equal(nameof(Order.Customer), otherDerivedFk.DependentToPrincipal.Name);
                 Assert.Null(otherDerivedFk.PrincipalToDependent);

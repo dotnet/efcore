@@ -1519,7 +1519,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Principal_and_dependent_cannot_be_flipped_twice_in_reverse_order()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
                 modelBuilder.Entity<Order>();
                 modelBuilder.Entity<OrderDetails>()
                     .HasOne(e => e.Order).WithOne(e => e.Details)
@@ -1566,6 +1565,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(fk.PrincipalKey, principalType.GetKeys().Single());
                 Assert.Empty(dependentType.GetKeys().Where(k => !k.IsPrimaryKey()));
+            }
+
+            [Fact]
+            public virtual void Throws_if_not_principal_or_dependent_specified()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Order>();
+                modelBuilder.Entity<OrderDetails>()
+                    .HasOne(e => e.Order).WithOne(e => e.Details)
+                    .HasPrincipalKey<Order>(e => e.OrderId);
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<CustomerDetails>();
+
+                var relationship = modelBuilder
+                    .Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details);
+
+                Assert.Equal(CoreStrings.DependentEntityTypeNotInRelationship(
+                    nameof(OrderDetails),
+                    nameof(Order),
+                    modelBuilder.GetDisplayName(typeof(OrderCombination))),
+                    Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey<OrderCombination>(e => e.OrderId)).Message);
+
+                Assert.Equal(CoreStrings.PrincipalEntityTypeNotInRelationship(
+                    nameof(OrderDetails),
+                    nameof(Order),
+                    modelBuilder.GetDisplayName(typeof(OrderCombination))),
+                    Assert.Throws<InvalidOperationException>(() => relationship.HasPrincipalKey<OrderCombination>(e => e.OrderId)).Message);
             }
 
             [Fact]
@@ -2535,7 +2561,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs);
-                
+
                 modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany();
 
                 var dependentType = model.FindEntityType(typeof(Nob));
@@ -2586,7 +2612,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob);
-                
+
                 modelBuilder.Entity<Hob>().HasMany<Nob>().WithOne(e => e.Hob);
 
                 var dependentType = model.FindEntityType(typeof(Nob));
@@ -2948,7 +2974,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var entityB = modelBuilder.Entity<Beta>();
 
                 entityB.HasOne(e => e.FirstNav).WithOne().HasForeignKey<Beta>("ShadowId");
-                
+
                 Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 

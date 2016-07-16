@@ -45,6 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestModelBuilder Ignore<TEntity>()
                 => new GenericStringTestModelBuilder(ModelBuilder.Ignore<TEntity>());
+
+            public override string GetDisplayName(Type entityType) => entityType.FullName;
         }
 
         private class GenericStringTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public class EntityTypeBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalEntityTypeBuilder>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
@@ -34,11 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Creates a new builder based on the provided internal builder. This can be overridden by derived builders
-        ///     so that logic inherited from this base class will create instances of the derived builder.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="builder"> The internal builder to create the new builder from. </param>
-        /// <returns> The newly created builder. </returns>
         protected virtual EntityTypeBuilder New([NotNull] InternalEntityTypeBuilder builder)
             => new EntityTypeBuilder(builder);
 
@@ -270,9 +268,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] Type relatedType,
             [CanBeNull] string navigationName = null)
-            => new CollectionNavigationBuilder(HasManyBuilder(
-                Builder.ModelBuilder.Entity(Check.NotNull(relatedType, nameof(relatedType)), ConfigurationSource.Explicit).Metadata,
-                Check.NullButNotEmpty(navigationName, nameof(navigationName))));
+        {
+            Check.NotNull(relatedType, nameof(relatedType));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
+
+            var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+
+            return new CollectionNavigationBuilder(
+                Builder.Metadata,
+                relatedEntityType,
+                navigationName,
+                HasManyBuilder(relatedEntityType, navigationName));
+        }
 
         /// <summary>
         ///     <para>
@@ -296,32 +303,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] string relatedTypeName,
             [CanBeNull] string navigationName = null)
-            => new CollectionNavigationBuilder(HasManyBuilder(
-                Builder.ModelBuilder.Entity(Check.NotEmpty(relatedTypeName, nameof(relatedTypeName)), ConfigurationSource.Explicit).Metadata,
-                Check.NullButNotEmpty(navigationName, nameof(navigationName))));
+        {
+            Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
+
+            var relatedEntityType = Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
+
+            return new CollectionNavigationBuilder(
+                Builder.Metadata,
+                relatedEntityType,
+                navigationName,
+                HasManyBuilder(relatedEntityType, navigationName));
+        }
 
         /// <summary>
-        ///     Creates a relationship builder for a relationship that has a reference navigation property on this entity.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
-        /// <param name="navigationName">
-        ///     The name of the reference navigation property on this entity. If null is passed, then a relationship with no navigation
-        ///     property is created.
-        /// </param>
-        /// <returns> The newly created builder. </returns>
         protected virtual InternalRelationshipBuilder HasOneBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => HasOneBuilder(relatedEntityType, PropertyIdentity.Create(navigationName));
 
         /// <summary>
-        ///     Creates a relationship builder for a relationship that has a reference navigation property on this entity.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
-        /// <param name="navigationProperty">
-        ///     The reference navigation property on this entity. If null is passed, then a relationship with no navigation
-        ///     property is created.
-        /// </param>
-        /// <returns> The newly created builder. </returns>
         protected virtual InternalRelationshipBuilder HasOneBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
             => HasOneBuilder(relatedEntityType, PropertyIdentity.Create(navigationProperty));
@@ -337,23 +343,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     ? relationship.DependentToPrincipal(navigationProperty, ConfigurationSource.Explicit)
                     : relationship.DependentToPrincipal(navigation.Name, ConfigurationSource.Explicit);
             }
-            else
-            {
-                return navigationProperty != null
-                    ? Builder.Navigation(relatedEntityType.Builder, navigationProperty, ConfigurationSource.Explicit)
-                    : Builder.Navigation(relatedEntityType.Builder, navigation.Name, ConfigurationSource.Explicit);
-            }
+
+            return navigationProperty != null
+                ? Builder.Navigation(relatedEntityType.Builder, navigationProperty, ConfigurationSource.Explicit)
+                : Builder.Navigation(relatedEntityType.Builder, navigation.Name, ConfigurationSource.Explicit);
         }
 
         /// <summary>
-        ///     Creates a relationship builder for a relationship that has a collection navigation property on this entity.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
-        /// <param name="navigationName">
-        ///     The name of the collection navigation property on this entity. If null is passed, then a relationship with no navigation
-        ///     property is created.
-        /// </param>
-        /// <returns> The newly created builder. </returns>
         protected virtual InternalRelationshipBuilder HasManyBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => relatedEntityType.Builder
@@ -363,23 +362,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Creates a relationship builder for a relationship that has a collection navigation property on this entity.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
-        /// <param name="navigationProperty">
-        ///     The collection navigation property on this entity. If null is passed, then a relationship with no navigation
-        ///     property is created.
-        /// </param>
-        /// <returns> The newly created builder. </returns>
         protected virtual InternalRelationshipBuilder HasManyBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
             => relatedEntityType.Builder
                 .Relationship(Builder, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
+                .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationProperty, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Configures the <see cref="ChangeTrackingStrategy"/> to be used for this entity type.
+        ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
         ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
         /// </summary>
         /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
