@@ -91,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             if (declaringType == typeof(Queryable)
+                || declaringType == typeof(AsyncQueryableExtensions)
                 || declaringType == typeof(EntityFrameworkQueryableExtensions))
             {
                 return base.VisitMethodCall(methodCallExpression);

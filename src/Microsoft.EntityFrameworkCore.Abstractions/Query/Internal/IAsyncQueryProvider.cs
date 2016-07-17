@@ -2,19 +2,31 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public interface IAsyncEnumerableAccessor<out T>
+    public interface IAsyncQueryProvider : IQueryProvider
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IAsyncEnumerable<T> AsyncEnumerable { get; }
+        IAsyncEnumerable<TResult> ExecuteAsync<TResult>([NotNull] Expression expression);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        Task<TResult> ExecuteAsync<TResult>([NotNull] Expression expression, CancellationToken cancellationToken);
     }
 }
