@@ -1863,6 +1863,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
                 Sources = { @"

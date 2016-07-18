@@ -110,6 +110,7 @@ namespace MyNamespace
 #endif
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests", depContextAssembly: GetType().GetTypeInfo().Assembly),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
                 Sources = { migrationCode, migrationMetadataCode }
@@ -304,6 +305,7 @@ namespace MyNamespace
 #endif
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests", depContextAssembly: GetType().GetTypeInfo().Assembly),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
                 Sources = { modelSnapshotCode }

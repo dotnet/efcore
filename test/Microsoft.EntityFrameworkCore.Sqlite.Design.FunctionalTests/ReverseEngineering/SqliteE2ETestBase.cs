@@ -415,6 +415,7 @@ CREATE TABLE IF NOT EXISTS Comment (
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite"),
 #endif
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
             BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions"),
             BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions")
