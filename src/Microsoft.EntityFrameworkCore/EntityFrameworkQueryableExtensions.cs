@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the first element in <paramref name="source" />.
         /// </returns>
         public static Task<TSource> FirstAsync<TSource>(
-            IQueryable<TSource> source,
+            [NotNull] IQueryable<TSource> source,
             CancellationToken cancellationToken = new CancellationToken())
         {
             return AsyncQueryableExtensions.FirstAsync(source, cancellationToken);
@@ -277,8 +277,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="predicate" />.
         /// </returns>
         public static Task<TSource> FirstAsync<TSource>(
-            IQueryable<TSource> source,
-            Expression<Func<TSource, bool>> predicate,
+            [NotNull] IQueryable<TSource> source,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = new CancellationToken())
         {
             return AsyncQueryableExtensions.FirstAsync(source, predicate, cancellationToken);
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> is empty; otherwise, the first element in <paramref name="source" />.
         /// </returns>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
-            IQueryable<TSource> source,
+            [NotNull] IQueryable<TSource> source,
             CancellationToken cancellationToken = new CancellationToken())
         {
             return AsyncQueryableExtensions.FirstOrDefaultAsync(source, cancellationToken);
@@ -337,8 +337,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
         /// </returns>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
-            IQueryable<TSource> source,
-            Expression<Func<TSource, bool>> predicate,
+            [NotNull] IQueryable<TSource> source,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = new CancellationToken())
         {
             return AsyncQueryableExtensions.FirstOrDefaultAsync(source, predicate, cancellationToken);
