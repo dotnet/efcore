@@ -46,9 +46,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual InternalEntityEntry InternalEntry { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether the value of this property has been modified
-        ///     and should be updated in the database when <see cref="DbContext.SaveChanges()" />
-        ///     is called.
+        ///     <para>
+        ///         For non-navigation properties, gets or sets a value indicating whether the value of this
+        ///         property has been modified and should be updated in the database when
+        ///         <see cref="DbContext.SaveChanges()" />
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         For navigation properties, gets or sets a value indicating whether any of foreign key
+        ///         property values associated with this navigation property have been modified and should
+        ///         be updated in the database  when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
         /// </summary>
         public abstract bool IsModified { get; set; }
 
