@@ -13,19 +13,22 @@ namespace Microsoft.EntityFrameworkCore.Tools
     {
         public virtual OperationExecutorBase Create(CommandLineOptions options)
         {
-#if NET451
-            return new AppDomainOperationExecutor(
-                    configFile: options.AppConfigFile,
-                    assembly: options.Assembly,
-                    startupAssembly: options.StartupAssembly,
-                    projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
-                    dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
-                    contentRootPath: options.ContentRootPath,
-                    rootNamespace: options.RootNamespace,
-                    environment: options.EnvironmentName);
-#else
             try
             {
+#if NET451
+                if (!options.NoAppDomain)
+                {
+                    return new AppDomainOperationExecutor(
+                        configFile: options.AppConfigFile,
+                        assembly: options.Assembly,
+                        startupAssembly: options.StartupAssembly,
+                        projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
+                        dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
+                        contentRootPath: options.ContentRootPath,
+                        rootNamespace: options.RootNamespace,
+                        environment: options.EnvironmentName);
+                }
+#endif
                 return new ReflectionOperationExecutor(
                    assembly: options.Assembly,
                    startupAssembly: options.StartupAssembly,
@@ -39,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 throw new OperationErrorException(ToolsStrings.DesignDependencyNotFound);
             }
-#endif
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-
 namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class Reporter
@@ -10,14 +8,26 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public const string JsonPrefix = "//BEGIN";
         public const string JsonSuffix = "//END";
 
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
         public static bool IsVerbose { get; set; }
+        private static IReporter _reporter = new ColorConsoleReporter();
+
+        public static bool SupportsColor => _reporter.SupportsColor;
+
+        public static void Use(IReporter value)
+        {
+            _reporter = value;
+        }
 
         public static void Verbose(string message)
         {
-            if (IsVerbose)
+            if (!IsVerbose)
             {
-                Output(message.Bold().Black());
+                return;
+            }
+            lock (_lock)
+            {
+                _reporter.Verbose(message);
             }
         }
 
@@ -25,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         {
             lock (_lock)
             {
-                Console.WriteLine(message);
+                _reporter.Output(message);
             }
         }
 
@@ -33,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         {
             lock (_lock)
             {
-                Console.WriteLine(message.Bold().Yellow());
+                _reporter.Warning(message);
             }
         }
 
@@ -41,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         {
             lock (_lock)
             {
-                Console.Error.WriteLine(message.Bold().Red());
+                _reporter.Error(message);
             }
         }
     }

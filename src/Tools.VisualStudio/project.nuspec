@@ -13,17 +13,18 @@
     <dependencies>
       <group targetFramework=".NETStandard1.3">
         <!-- this is only a "dependency" to make installing easier. It's not actaully build against this assembly. -->
-        <dependency id="Microsoft.EntityFrameworkCore.Design.Core" version="$version$" />
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
       <group targetFramework=".NETFramework4.5.1">
         <!-- this is only a "dependency" to make installing easier. It's not actaully build against this assembly. -->
-        <dependency id="Microsoft.EntityFrameworkCore.Design.Core" version="$version$" />
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
     </dependencies>
   </metadata>
   <files>
     <file src="..\Tools.Shared\_._" target="lib\netstandard1.3\" />
     <file src="..\Tools.Shared\_._" target="lib\net451\" />
+    <file src="bin\$configuration$\net451\Microsoft.EntityFrameworkCore.Tools.VisualStudio.dll" target="tools\" />
     <file src="tools\**\*" target="tools\"/>
 
     <file src="..\Tools.Console\bin\$configuration$\net451\*.exe" target="tools\net451\" />

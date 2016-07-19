@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.EntityFrameworkCore.Tools.Internal;
@@ -44,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 "-t|--table <schema.table>",
                 "Selects a table for which to generate classes.",
                 CommandOptionType.MultipleValue);
+            var json = command.JsonOption();
 
             command.OnExecute(() =>
                 {
@@ -66,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         schemas.Values,
                         tables.Values,
                         dataAnnotations.HasValue(),
-                        force.HasValue()
-                        );
+                        force.HasValue(),
+                        json.HasValue());
 
                     return 0;
                 });
@@ -81,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private readonly IEnumerable<string> _tables;
         private readonly bool _dataAnnotations;
         private readonly bool _force;
+        private readonly bool _json;
 
         public DbContextScaffoldCommand(string provider,
             string connection,
@@ -89,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             IEnumerable<string> schemas,
             IEnumerable<string> tables,
             bool dataAnnotations,
-            bool force)
+            bool force,
+            bool json)
         {
             _provider = provider;
             _connection = connection;
@@ -99,9 +103,47 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _tables = tables;
             _dataAnnotations = dataAnnotations;
             _force = force;
+            _json = json;
         }
 
         public void Run(IOperationExecutor executor)
-            => executor.ReverseEngineer(_provider, _connection, _outputDir, _context, _schemas, _tables, _dataAnnotations, _force);
+        {
+            var filesCreated = executor.ReverseEngineer(_provider, _connection, _outputDir, _context, _schemas, _tables, _dataAnnotations, _force);
+            if (_json)
+            {
+                ReportJsonResults(filesCreated);
+            }
+        }
+
+
+        private void ReportJsonResults(IEnumerable<string> files)
+        {
+            var output = new StringBuilder();
+            output.AppendLine(Reporter.JsonPrefix);
+            output.AppendLine("{");
+            output.AppendLine("  \"files\": [");
+            var first = true;
+            foreach (var file in files)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    output.AppendLine(",");
+                }
+
+                output.Append("    \"" + SerializePath(file) + "\"");
+            }
+            output.AppendLine();
+            output.AppendLine("  ]");
+            output.AppendLine("}");
+            output.AppendLine(Reporter.JsonSuffix);
+            Reporter.Output(output.ToString());
+        }
+
+        private static string SerializePath(string path)
+            => path?.Replace("\\", "\\\\");
     }
 }

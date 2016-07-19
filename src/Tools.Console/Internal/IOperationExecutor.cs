@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
     public interface IOperationExecutor : IDisposable
     {
         IDictionary AddMigration([NotNull] string name, [CanBeNull] string outputDir, [CanBeNull] string contextType);
-        void RemoveMigration([CanBeNull] string contextType, bool force);
+        IEnumerable<string> RemoveMigration([CanBeNull] string contextType, bool force);
         IEnumerable<IDictionary> GetMigrations([CanBeNull] string contextType);
         void DropDatabase([CanBeNull] string contextType);
         IDictionary GetDatabase([CanBeNull] string name);

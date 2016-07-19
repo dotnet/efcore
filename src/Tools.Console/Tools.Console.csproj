@@ -20,11 +20,12 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET451</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>1591;</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -65,17 +66,21 @@
     <Compile Include="..\Tools.Shared\OperationHandlers.cs">
       <Link>Internal\OperationHandlers.cs</Link>
     </Compile>
+    <Compile Include="ColorConsoleReporter.cs" />
     <Compile Include="Commands\EfCommand.cs" />
     <Compile Include="Commands\MigrationsCommand.cs" />
     <Compile Include="Commands\DbContextCommand.cs" />
     <Compile Include="Commands\DatabaseCommand.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\MigrationsScriptCommand.cs" />
+    <Compile Include="ConsoleReporter.cs" />
     <Compile Include="Internal\IOperationExecutor.cs" />
-    <Compile Include="Internal\ReflectionOperationExecutor.netcore.cs" />
+    <Compile Include="Internal\ReflectionOperationExecutor.cs" />
     <Compile Include="Internal\OperationExecutorBase.cs" />
+    <Compile Include="IReporter.cs" />
     <Compile Include="OperationErrorException.cs" />
     <Compile Include="OperationExecutorFactory.cs" />
+    <Compile Include="PrefixConsoleReporter.cs" />
     <Compile Include="Properties\ToolsStrings.Designer.cs">
       <DependentUpon>ToolsStrings.resx</DependentUpon>
     </Compile>

@@ -32,6 +32,7 @@ namespace CommandPackager
 
         private async Task PackToolsVisualStudio()
         {
+            var project = ProjectContext.Create(Path.Combine(_baseDir, "src", "Tools.VisualStudio"), FrameworkConstants.CommonFrameworks.Net451);
             var props = "configuration=" + _config;
 
             var version = project.ProjectFile.Version.ToNormalizedString();

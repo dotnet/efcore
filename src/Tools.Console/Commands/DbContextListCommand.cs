@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 output.AppendLine("     \"safeName\": \"" + safeName + "\",");
                 output.AppendLine("     \"name\": \"" + contextType["Name"] + "\",");
                 output.AppendLine("     \"assemblyQualifiedName\": \"" + contextType["AssemblyQualifiedName"] + "\"");
-                output.AppendLine("  }");
+                output.Append("  }");
             }
 
             output.AppendLine();

@@ -54,7 +54,7 @@
     FormatsToProcess = @()
 
     # Modules to import as nested modules of the module specified in ModuleToProcess
-    NestedModules = @()
+    NestedModules = @('.\Microsoft.EntityFrameworkCore.Tools.VisualStudio.dll')
 
     # Functions to export from this module
     FunctionsToExport = (

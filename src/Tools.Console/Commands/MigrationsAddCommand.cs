@@ -64,8 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 ReportJson(files);
             }
-
-            Reporter.Output("Done. To undo this action, use 'dotnet ef migrations remove'");
+            else
+            {
+                Reporter.Output("Done. To undo this action, use 'dotnet ef migrations remove'");
+            }
         }
 
         private static void ReportJson(IDictionary files)

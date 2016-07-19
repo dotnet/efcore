@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                 if (string.IsNullOrEmpty(options.Assembly))
                 {
-                    Reporter.Error("Missing required option --assembly");
                     Reporter.Output("Specify --help for a list of available options and commands.");
+                    Reporter.Error("Missing required option --assembly");
                     return 1;
                 }
 
@@ -95,14 +95,30 @@ namespace Microsoft.EntityFrameworkCore.Tools
         [Conditional("DEBUG")]
         private static void HandleDebugSwitch(ref string[] args)
         {
+            var debug = false;
             for (var i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--debug")
                 {
+                    debug = true;
                     args = args.Take(i).Concat(args.Skip(i + 1)).ToArray();
+#if NET451
+                    Console.WriteLine("Waiting for debugger to attach");
+                    Console.WriteLine($"Process ID: {Process.GetCurrentProcess().Id}");
+                    while (!Debugger.IsAttached);
+#else
                     Console.WriteLine("Waiting for debugger to attach. Press ENTER to continue");
                     Console.WriteLine($"Process ID: {Process.GetCurrentProcess().Id}");
                     Console.ReadLine();
+#endif
+                }
+            }
+
+            if (debug)
+            {
+                for (var i = 0; i < args.Length; i++)
+                {
+                    Console.WriteLine($"{i}=" + args[i]);
                 }
             }
         }

@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                 }
                 else
                 {
-                    Reporter.Output(resultHandler.ErrorStackTrace);
+                    Reporter.Error(resultHandler.ErrorStackTrace);
                 }
                 throw new OperationErrorException(resultHandler.ErrorMessage);
             }
@@ -109,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                     ["contextType"] = contextType
                 });
 
-        public void RemoveMigration(string contextType, bool force)
-            => InvokeOperation(
+        public IEnumerable<string> RemoveMigration(string contextType, bool force)
+            => InvokeOperation<IEnumerable<string>>(
                 "RemoveMigration",
                 new Dictionary<string, object>
                 {
