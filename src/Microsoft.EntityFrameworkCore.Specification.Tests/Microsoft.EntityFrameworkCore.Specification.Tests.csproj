@@ -59,6 +59,7 @@
     <Compile Include="InheritanceRelationshipsQueryFixtureBase.cs" />
     <Compile Include="InheritanceRelationshipsQueryTestBase.cs" />
     <Compile Include="InheritanceTestBase.cs" />
+    <Compile Include="LoadTestBase.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="NotificationEntitiesTestBase.cs" />

@@ -62,6 +62,7 @@
     <Compile Include="InheritanceRelationshipsQuerySqliteTest.cs" />
     <Compile Include="InheritanceSqliteFixture.cs" />
     <Compile Include="InheritanceSqliteTest.cs" />
+    <Compile Include="LoadSqliteTest.cs" />
     <Compile Include="MappingQuerySqliteFixture.cs" />
     <Compile Include="MappingQuerySqliteTest.cs" />
     <Compile Include="MigrationsSqliteFixture.cs" />

@@ -111,16 +111,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
             hashSet.Clear();
 
-            Assert.Equal(1, countChanging);
-            Assert.Equal(1, countChanged);
-            Assert.Equal(1, collectionChanged);
+            Assert.Equal(testData.Count == 0 ? 0 : 1, countChanging);
+            Assert.Equal(testData.Count == 0 ? 0 : 1, countChanged);
+            Assert.Equal(testData.Count == 0 ? 0 : 1, collectionChanged);
             Assert.Empty(hashSet);
 
             hashSet.Clear();
 
-            Assert.Equal(1, countChanging);
-            Assert.Equal(1, countChanged);
-            Assert.Equal(1, collectionChanged);
+            Assert.Equal(testData.Count == 0 ? 0 : 1, countChanging);
+            Assert.Equal(testData.Count == 0 ? 0 : 1, countChanged);
+            Assert.Equal(testData.Count == 0 ? 0 : 1, collectionChanged);
             Assert.Empty(hashSet);
         }
 

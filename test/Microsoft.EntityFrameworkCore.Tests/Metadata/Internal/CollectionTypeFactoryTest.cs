@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ICollection<Random>)));
             Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ISet<Random>)));
+            Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(IEnumerable<Random>)));
         }
 
         [Fact]
@@ -59,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Null(factory.TryFindTypeToInstantiate(typeof(object), typeof(Abstract)));
             Assert.Null(factory.TryFindTypeToInstantiate(typeof(object), typeof(object)));
             Assert.Null(factory.TryFindTypeToInstantiate(typeof(object), typeof(Random)));
-            Assert.Null(factory.TryFindTypeToInstantiate(typeof(object), typeof(IEnumerable<Random>)));
         }
 
         private class CustomHashSet : HashSet<Random>

@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -23,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <typeparam name="TProperty"> The type of the property. </typeparam>
     public class CollectionEntry<TEntity, TProperty> : CollectionEntry
         where TEntity : class
+        where TProperty : class
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -57,6 +60,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             get { return this.GetInfrastructure().GetCurrentValue<IEnumerable<TProperty>>(Metadata); }
             [param: CanBeNull] set { base.CurrentValue = value; }
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the query that would be used by <see cref="CollectionEntry.Load" /> to load entities referenced by
+        ///         this navigation property.
+        ///     </para>
+        ///     <para>
+        ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
+        ///         actually loading all entities from the database.
+        ///     </para>
+        /// </summary>
+        public new virtual IQueryable<TProperty> Query()
+        {
+            EnsureInitialized();
+
+            return ((IEntityFinder<TProperty>)Finder(Metadata.GetTargetType().ClrType)).Query(GetLoadProperties(), GetLoadValues());
         }
     }
 }
