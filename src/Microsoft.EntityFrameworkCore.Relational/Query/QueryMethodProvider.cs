@@ -270,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             GroupJoinInclude outerGroupJoinInclude,
             GroupJoinInclude innerGroupJoinInclude)
         {
-            outerGroupJoinInclude?.Initialize(queryContext);
-            innerGroupJoinInclude?.Initialize(queryContext);
+            var outerGroupJoinIncludeContext = outerGroupJoinInclude?.Initialize(queryContext);
+            var innerGroupJoinIncludeContext = innerGroupJoinInclude?.Initialize(queryContext);
 
             var hasOuters = (innerShaper as EntityShaper)?.ValueBufferOffset > 0;
 
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         nextOuter = default(TOuter);
 
-                        outerGroupJoinInclude?.Include(outer);
+                        outerGroupJoinIncludeContext?.Include(outer);
 
                         var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
                         var inners = new List<TInner>();
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             var currentGroupKey = innerKeySelector(inner);
 
-                            innerGroupJoinInclude?.Include(inner);
+                            innerGroupJoinIncludeContext?.Include(inner);
 
                             inners.Add(inner);
 
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
 
-                                innerGroupJoinInclude?.Include(inner);
+                                innerGroupJoinIncludeContext?.Include(inner);
 
                                 inners.Add(inner);
                             }
@@ -358,8 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally
             {
-                innerGroupJoinInclude?.Dispose();
-                outerGroupJoinInclude?.Dispose();
+                innerGroupJoinIncludeContext?.Dispose();
+                outerGroupJoinIncludeContext?.Dispose();
             }
         }
 
