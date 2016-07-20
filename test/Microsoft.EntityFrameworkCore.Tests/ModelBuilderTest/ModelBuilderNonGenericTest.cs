@@ -35,6 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
+        public class NonGenericInheritance : InheritanceTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+                => new NonGenericTestModelBuilder(modelBuilder);
+        }
+
         public class NonGenericOneToMany : OneToManyTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);

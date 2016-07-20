@@ -82,13 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
 
-            var includeExpressionVisitor = new InMemoryIncludeExpressionVisitor(
-                _materializerFactory,
-                QueryCompilationContext,
-                LinqOperatorProvider,
-                includeSpecification,
-                accessorExpression,
-                querySourceRequiresTracking);
+            var includeExpressionVisitor
+                = new InMemoryIncludeExpressionVisitor(
+                    _materializerFactory,
+                    LinqOperatorProvider,
+                    includeSpecification,
+                    accessorExpression,
+                    querySourceRequiresTracking);
 
             Expression = includeExpressionVisitor.Visit(Expression);
         }
@@ -97,21 +97,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly IncludeSpecification _includeSpecification;
             private readonly IMaterializerFactory _materializerFactory;
-            private readonly QueryCompilationContext _queryCompilationContext;
             private readonly ILinqOperatorProvider _linqOperatorProvider;
             private readonly Expression _accessorExpression;
             private readonly bool _querySourceRequiresTracking;
 
             public InMemoryIncludeExpressionVisitor(
                 [NotNull] IMaterializerFactory materializerFactory,
-                [NotNull] QueryCompilationContext queryCompilationContext,
                 [NotNull] ILinqOperatorProvider linqOperatorProvider,
                 [NotNull] IncludeSpecification includeSpecification,
                 [NotNull] Expression accessorExpression,
                 bool querySourceRequiresTracking)
             {
                 _materializerFactory = materializerFactory;
-                _queryCompilationContext = queryCompilationContext;
                 _linqOperatorProvider = linqOperatorProvider;
                 _includeSpecification = includeSpecification;
                 _accessorExpression = accessorExpression;
@@ -122,19 +119,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (node.Method.MethodIsClosedFormOf(_linqOperatorProvider.Select))
                 {
-                    var selectorIncludeInjectingVisitor = new SelectorIncludeInjectingExpressionVisitor(
-                        _includeSpecification, 
-                        _materializerFactory, 
-                        _queryCompilationContext, 
-                        _accessorExpression, 
-                        _querySourceRequiresTracking);
+                    var selectorIncludeInjectingVisitor
+                        = new SelectorIncludeInjectingExpressionVisitor(
+                            _includeSpecification,
+                            _materializerFactory,
+                            _accessorExpression,
+                            _querySourceRequiresTracking);
 
                     var newSelector = selectorIncludeInjectingVisitor.Visit(node.Arguments[1]);
 
                     return node.Update(node.Object, new[] { node.Arguments[0], newSelector });
                 }
 
-                if (node.Method.MethodIsClosedFormOf(EntityQueryMethodInfo) || node.Method.MethodIsClosedFormOf(OfTypeMethodInfo))
+                if (node.Method.MethodIsClosedFormOf(EntityQueryMethodInfo)
+                    || node.Method.MethodIsClosedFormOf(OfTypeMethodInfo))
                 {
                     return ApplyTopLevelInclude(node);
                 }
@@ -155,12 +153,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Constant(
                         _includeSpecification.NavigationPath
                             .Select(n =>
-                            {
-                                var targetType = n.GetTargetType();
-                                var materializer = _materializerFactory.CreateMaterializer(targetType);
+                                {
+                                    var targetType = n.GetTargetType();
+                                    var materializer = _materializerFactory.CreateMaterializer(targetType);
 
-                                return new RelatedEntitiesLoader(targetType, materializer.Compile());
-                            })
+                                    return new RelatedEntitiesLoader(targetType, materializer.Compile());
+                                })
                             .ToArray()),
                     Expression.Constant(_querySourceRequiresTracking));
 
@@ -171,27 +169,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 private readonly IncludeSpecification _includeSpecification;
                 private readonly IMaterializerFactory _materializerFactory;
-                private readonly QueryCompilationContext _queryCompilationContext;
                 private readonly Expression _accessorExpression;
                 private readonly bool _querySourceRequiresTracking;
 
                 public SelectorIncludeInjectingExpressionVisitor(
-                    [NotNull] IncludeSpecification includeSpecification,
-                    [NotNull] IMaterializerFactory materializerFactory,
-                    [NotNull] QueryCompilationContext queryCompilationContext,
-                    [NotNull] Expression accessorExpression,
+                    IncludeSpecification includeSpecification,
+                    IMaterializerFactory materializerFactory,
+                    Expression accessorExpression,
                     bool querySourceRequiresTracking)
                 {
                     _includeSpecification = includeSpecification;
                     _materializerFactory = materializerFactory;
-                    _queryCompilationContext = queryCompilationContext;
                     _accessorExpression = accessorExpression;
                     _querySourceRequiresTracking = querySourceRequiresTracking;
                 }
 
-                public override Expression Visit([CanBeNull] Expression node)
+                public override Expression Visit(Expression node)
                 {
-                    if (node == _accessorExpression)
+                    if (node != null
+                        && node == _accessorExpression)
                     {
                         var includeMethod = _includeSpecification.IsEnumerableTarget
                             ? _includeCollectionMethodInfo.MakeGenericMethod(node.Type)
@@ -205,12 +201,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             Expression.Constant(
                                 _includeSpecification.NavigationPath
                                     .Select(n =>
-                                    {
-                                        var targetType = n.GetTargetType();
-                                        var materializer = _materializerFactory.CreateMaterializer(targetType);
+                                        {
+                                            var targetType = n.GetTargetType();
+                                            var materializer = _materializerFactory.CreateMaterializer(targetType);
 
-                                        return new RelatedEntitiesLoader(targetType, materializer.Compile());
-                                    })
+                                            return new RelatedEntitiesLoader(targetType, materializer.Compile());
+                                        })
                                     .ToArray()),
                             Expression.Constant(_querySourceRequiresTracking));
 
@@ -346,52 +342,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class IncludeGrouping<TKey, TOut> : IGrouping<TKey, TOut>
-        {
-            private readonly QueryContext _queryContext;
-            private readonly IGrouping<TKey, TOut> _grouping;
-            private readonly IReadOnlyList<INavigation> _navigationPath;
-            private readonly Func<TOut, object> _accessorLambda;
-            private readonly IReadOnlyList<RelatedEntitiesLoader> _relatedEntitiesLoaders;
-            private readonly bool _querySourceRequiresTracking;
-
-            public IncludeGrouping(
-                QueryContext queryContext,
-                IGrouping<TKey, TOut> grouping,
-                IReadOnlyList<INavigation> navigationPath,
-                Func<TOut, object> accessorLambda,
-                IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
-                bool querySourceRequiresTracking)
-            {
-                _queryContext = queryContext;
-                _grouping = grouping;
-                _navigationPath = navigationPath;
-                _accessorLambda = accessorLambda;
-                _relatedEntitiesLoaders = relatedEntitiesLoaders;
-                _querySourceRequiresTracking = querySourceRequiresTracking;
-            }
-
-            public TKey Key => _grouping.Key;
-
-            public IEnumerator<TOut> GetEnumerator()
-            {
-                foreach (var result in _grouping)
-                {
-                    _queryContext.QueryBuffer
-                        .Include(
-                            _queryContext,
-                            _accessorLambda.Invoke(result),
-                            _navigationPath,
-                            _relatedEntitiesLoaders,
-                            _querySourceRequiresTracking);
-
-                    yield return result;
-                }
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -406,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public static readonly MethodInfo OfTypeMethodInfo
             = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethod(nameof(Enumerable.OfType));
+                .GetDeclaredMethod(nameof(Enumerable.OfType));
 
         [UsedImplicitly]
         private static IEnumerable<TEntity> EntityQuery<TEntity>(

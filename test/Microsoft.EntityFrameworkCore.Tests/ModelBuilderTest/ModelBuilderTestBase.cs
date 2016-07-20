@@ -129,6 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public virtual TestModelBuilder Validate()
                 => ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate() == null ? null : this;
+
+            public virtual string GetDisplayName(Type entityType) => entityType.Name;
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>

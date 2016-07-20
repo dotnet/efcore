@@ -26,19 +26,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TRelatedEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ReferenceReferenceBuilder(
-            [NotNull] InternalRelationshipBuilder builder,
             [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType)
+            [NotNull] EntityType relatedEntityType,
+            [NotNull] InternalRelationshipBuilder builder)
             : base(builder, declaringEntityType, relatedEntityType)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected ReferenceReferenceBuilder(InternalRelationshipBuilder builder,
@@ -91,8 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                SetDependentEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))
-                    .HasForeignKey(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)), ConfigurationSource.Explicit),
+                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                    dependentEntityType.ShortDisplayName(),
+                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
                 foreignKeySet: true);
@@ -109,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(Type, string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -144,8 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                SetPrincipalEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))
-                    .HasPrincipalKey(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames)), ConfigurationSource.Explicit),
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
+                    principalEntityType.ShortDisplayName(),
+                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
                 principalKeySet: true);
@@ -197,8 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                SetDependentEntityType(Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName)))
-                    .HasForeignKey(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)), ConfigurationSource.Explicit),
+                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
+                    dependentEntityTypeName,
+                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
                 foreignKeySet: true);
@@ -220,8 +224,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] string principalEntityTypeName,
             [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                SetPrincipalEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))
-                    .HasPrincipalKey(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames)), ConfigurationSource.Explicit),
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
+                    principalEntityTypeName,
+                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
                 principalKeySet: true);
@@ -260,8 +266,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
             where TDependentEntity : class
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                SetDependentEntityType(typeof(TDependentEntity))
-                    .HasForeignKey(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit),
+                HasForeignKeyBuilder(ResolveEntityType(typeof(TDependentEntity)),
+                    typeof(TDependentEntity).ShortDisplayName(),
+                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
                 foreignKeySet: true);
@@ -290,8 +297,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
             where TPrincipalEntity : class
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                SetPrincipalEntityType(typeof(TPrincipalEntity))
-                    .HasPrincipalKey(Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit),
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(typeof(TPrincipalEntity)),
+                    typeof(TPrincipalEntity).ShortDisplayName(),
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
                 principalKeySet: true);

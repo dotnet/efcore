@@ -66,6 +66,7 @@
     <Compile Include="Internal\CSharpUniqueNamer.cs" />
     <Compile Include="Internal\CSharpUtilities.cs" />
     <Compile Include="Internal\DbDataReaderExtension.cs" />
+    <Compile Include="Internal\IInternalDatabaseModelFactory.cs" />
     <Compile Include="IScaffoldingModelFactory.cs" />
     <Compile Include="Metadata\ColumnModel.cs" />
     <Compile Include="Metadata\DatabaseModel.cs" />

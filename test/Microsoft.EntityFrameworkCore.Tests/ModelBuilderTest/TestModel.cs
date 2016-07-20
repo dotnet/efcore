@@ -96,9 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public CustomerDetails Details { get; set; }
         }
 
+        [NotMapped]
         protected class SpecialCustomer : Customer
         {
             public ICollection<SpecialOrder> SpecialOrders { get; set; }
+        }
+
+        protected class OtherCustomer : Customer
+        {
         }
 
         protected class CustomerDetails
@@ -124,8 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public OrderDetails Details { get; set; }
         }
 
+        [NotMapped]
         protected class SpecialOrder : Order
         {
+            public int? SpecialCustomerId { get; set; }
+            public SpecialCustomer SpecialCustomer { get; set; }
             public BackOrder BackOrder { get; set; }
             public OrderCombination SpecialOrderCombination { get; set; }
         }

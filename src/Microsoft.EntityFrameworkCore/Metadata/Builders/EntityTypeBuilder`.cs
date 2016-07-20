@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
-                navigation?.Name,
+                navigation,
                 HasOneBuilder(relatedEntityType, navigation));
         }
 
@@ -237,12 +237,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
             where TRelatedEntity : class
-            => new CollectionNavigationBuilder<TEntity, TRelatedEntity>(HasManyBuilder(
-                Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata,
-                navigationExpression?.GetPropertyAccess()));
+        {
+            var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
+            var navigation = navigationExpression?.GetPropertyAccess();
+
+            return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
+                Builder.Metadata,
+                relatedEntityType,
+                navigation,
+                HasManyBuilder(relatedEntityType, navigation));
+        }
 
         /// <summary>
-        ///     Configures the <see cref="ChangeTrackingStrategy"/> to be used for this entity type.
+        ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
         ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
         /// </summary>
         /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>

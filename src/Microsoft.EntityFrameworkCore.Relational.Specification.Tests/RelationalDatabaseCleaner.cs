@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract class RelationalDatabaseCleaner
     {
-        protected abstract IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory);
+        protected abstract IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory);
 
         protected virtual bool AcceptTable(TableModel table) => true;
 
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             else
             {
                 var databaseModelFactory = CreateDatabaseModelFactory(loggerFactory);
-                var databaseModel = databaseModelFactory.Create(connection.ConnectionString, TableSelectionSet.All);
+                var databaseModel = databaseModelFactory.Create(connection.DbConnection, TableSelectionSet.All);
 
                 var operations = new List<MigrationOperation>();
 

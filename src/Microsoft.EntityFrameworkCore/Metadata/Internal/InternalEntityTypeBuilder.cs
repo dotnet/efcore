@@ -312,8 +312,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else if (existingProperty.DeclaringEntityType != Metadata)
             {
-                return existingProperty.DeclaringEntityType.Builder
-                    .Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);
+                if (clrProperty != null
+                    && existingProperty.DeclaringEntityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == propertyName) == null)
+                {
+                    detachedProperties = DetachProperties(new[] { existingProperty });
+                }
+                else
+                {
+                    return existingProperty.DeclaringEntityType.Builder
+                        .Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);
+                }
             }
 
             var builder = Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);

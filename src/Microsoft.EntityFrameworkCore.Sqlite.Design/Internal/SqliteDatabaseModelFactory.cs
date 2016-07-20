@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
@@ -18,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqliteDatabaseModelFactory : IDatabaseModelFactory
+    public class SqliteDatabaseModelFactory : IInternalDatabaseModelFactory
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual ILogger Logger { get; }
 
-        private SqliteConnection _connection;
+        private DbConnection _connection;
         private TableSelectionSet _tableSelectionSet;
         private DatabaseModel _databaseModel;
         private Dictionary<string, TableModel> _tables;
@@ -64,11 +66,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
 
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                return Create(connection, tableSelectionSet);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+        {
             ResetState();
 
-            using (_connection = new SqliteConnection(connectionString))
+            _connection = connection;
+
+            var connectionStartedOpen = _connection.State == ConnectionState.Open;
+            if (!connectionStartedOpen)
             {
                 _connection.Open();
+            }
+            try
+            {
                 _tableSelectionSet = tableSelectionSet;
 
                 string databaseName = null;
@@ -90,6 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GetIndexes();
                 GetForeignKeys();
                 return _databaseModel;
+            }
+            finally
+            {
+                if (!connectionStartedOpen)
+                {
+                    _connection.Close();
+                }
             }
         }
 

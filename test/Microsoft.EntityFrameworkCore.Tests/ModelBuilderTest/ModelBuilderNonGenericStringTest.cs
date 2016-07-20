@@ -175,6 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestModelBuilder Ignore<TEntity>()
                 => new NonGenericStringTestModelBuilder(ModelBuilder.Ignore(typeof(TEntity)));
+
+            public override string GetDisplayName(Type entityType) => entityType.FullName;
         }
 
         private class NonGenericStringTestEntityTypeBuilder<TEntity> : NonGenericTestEntityTypeBuilder<TEntity>
