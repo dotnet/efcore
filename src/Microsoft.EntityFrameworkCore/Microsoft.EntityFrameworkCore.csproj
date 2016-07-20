@@ -42,6 +42,8 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
+    <Compile Include="ChangeTracking\CollectionEntry.cs" />
+    <Compile Include="ChangeTracking\CollectionEntry`.cs" />
     <Compile Include="ChangeTracking\EntityEntry.cs" />
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\EntityEntry`.cs" />
@@ -109,9 +111,13 @@
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\Internal\TrackingQueryMode.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
+    <Compile Include="ChangeTracking\MemberEntry.cs" />
+    <Compile Include="ChangeTracking\NavigationEntry.cs" />
     <Compile Include="ChangeTracking\ObservableHashSet.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntry.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />

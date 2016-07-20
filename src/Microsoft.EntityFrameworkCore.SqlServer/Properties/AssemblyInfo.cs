@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
     typeName: "Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqlServerDesignTimeServices",
-    assemblyName: "Microsoft.EntityFrameworkCore.SqlServer.Design, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+    assemblyName: "Microsoft.EntityFrameworkCore.SqlServer.Design, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
     packageName: "Microsoft.EntityFrameworkCore.SqlServer.Design")]
 [assembly: AssemblyCompany("Microsoft Corporation.")]
 [assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]

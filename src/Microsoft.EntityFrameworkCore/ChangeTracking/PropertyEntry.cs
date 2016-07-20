@@ -4,11 +4,9 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -21,26 +19,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyEntry : IInfrastructure<InternalEntityEntry>
+    public class PropertyEntry : MemberEntry
     {
-        private readonly InternalEntityEntry _internalEntry;
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
+            : this(internalEntry, GetProperty(internalEntry, name))
         {
-            Check.NotNull(internalEntry, nameof(internalEntry));
-            Check.NotEmpty(name, nameof(name));
+        }
 
-            _internalEntry = internalEntry;
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] IProperty property)
+            : base(internalEntry, property)
+        {
+        }
+
+        private static IProperty GetProperty(InternalEntityEntry internalEntry, string name)
+        {
             var property = internalEntry.EntityType.FindProperty(name);
             if (property == null)
             {
+                if (internalEntry.EntityType.FindNavigation(name) != null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyIsNavigation(name, internalEntry.EntityType.DisplayName(), 
+                        nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
+                }
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
             }
-            Metadata = property;
+            return property;
         }
 
         /// <summary>
@@ -48,27 +60,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     and should be updated in the database when <see cref="DbContext.SaveChanges()" />
         ///     is called.
         /// </summary>
-        public virtual bool IsModified
+        public override bool IsModified
         {
-            get { return _internalEntry.IsModified(Metadata); }
-            set { _internalEntry.SetPropertyModified(Metadata, changeState: true, isModified: value); }
+            get { return InternalEntry.IsModified(Metadata); }
+            set { InternalEntry.SetPropertyModified(Metadata, changeState: true, isModified: value); }
         }
 
         /// <summary>
         ///     Gets the metadata that describes the facets of this property and how it maps to the database.
         /// </summary>
-        public virtual IProperty Metadata { get; }
-
-        /// <summary>
-        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
-        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
-        ///     for the context to detect the change.
-        /// </summary>
-        public virtual object CurrentValue
-        {
-            get { return _internalEntry[Metadata]; }
-            [param: CanBeNull] set { _internalEntry[Metadata] = value; }
-        }
+        public new virtual IProperty Metadata
+            => (IProperty)base.Metadata;
 
         /// <summary>
         ///     Gets or sets the value that was assigned to this property when it was retrieved from the database.
@@ -78,10 +80,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual object OriginalValue
         {
-            get { return _internalEntry.GetOriginalValue(Metadata); }
-            [param: CanBeNull] set { _internalEntry.SetOriginalValue(Metadata, value); }
+            get { return InternalEntry.GetOriginalValue(Metadata); }
+            [param: CanBeNull] set { InternalEntry.SetOriginalValue(Metadata, value); }
         }
-
-        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _internalEntry;
     }
 }

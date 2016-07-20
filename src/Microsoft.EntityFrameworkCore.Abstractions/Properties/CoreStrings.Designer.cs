@@ -89,6 +89,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.
+        /// </summary>
+        public static string PropertyIsNavigation([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object PropertyMethod, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyIsNavigation", "property", "entityType", "PropertyMethod", "ReferenceMethod", "CollectionMethod"), property, entityType, PropertyMethod, ReferenceMethod, CollectionMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.
+        /// </summary>
+        public static string NavigationIsProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod, [CanBeNull] object PropertyMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationIsProperty", "property", "entityType", "ReferenceMethod", "CollectionMethod", "PropertyMethod"), property, entityType, ReferenceMethod, CollectionMethod, PropertyMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.
+        /// </summary>
+        public static string ReferenceIsCollection([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferenceIsCollection", "property", "entityType", "ReferenceMethod", "CollectionMethod"), property, entityType, ReferenceMethod, CollectionMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.
+        /// </summary>
+        public static string CollectionIsReference([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object CollectionMethod, [CanBeNull] object ReferenceMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionIsReference", "property", "entityType", "CollectionMethod", "ReferenceMethod"), property, entityType, CollectionMethod, ReferenceMethod);
+        }
+
+        /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)

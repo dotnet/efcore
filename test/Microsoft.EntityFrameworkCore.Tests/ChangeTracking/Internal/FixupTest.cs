@@ -3194,8 +3194,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
         }
 
-        //Issue #6067
-        //[Fact]
+        [Fact] // Issue #6067
         public void Collection_nav_props_remain_fixed_up_after_manual_fixup_and_DetectChanges()
         {
             using (var context = new FixupContext())
