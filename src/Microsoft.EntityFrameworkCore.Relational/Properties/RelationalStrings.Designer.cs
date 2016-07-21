@@ -379,9 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         /// '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').
         /// </summary>
-        public static string DuplicateColumnName([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object dataType1, [CanBeNull] object dataType2)
+        public static string DuplicateColumnNameDataTypeMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object dataType1, [CanBeNull] object dataType2)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnName", "entityType1", "property1", "entityType2", "property2", "columnName", "table", "dataType1", "dataType2"), entityType1, property1, entityType2, property2, columnName, table, dataType1, dataType2);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnNameDataTypeMismatch", "entityType1", "property1", "entityType2", "property2", "columnName", "table", "dataType1", "dataType2"), entityType1, property1, entityType2, property2, columnName, table, dataType1, dataType2);
         }
 
         /// <summary>
@@ -446,6 +446,62 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string ConflictingColumnServerGeneration([CanBeNull] object conflictingConfiguration, [CanBeNull] object property, [CanBeNull] object existingConfiguration)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingColumnServerGeneration", "conflictingConfiguration", "property", "existingConfiguration"), conflictingConfiguration, property, existingConfiguration);
+        }
+
+        /// <summary>
+        /// The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different columns ({columnNames1} and {columnNames2}).
+        /// </summary>
+        public static string DuplicateForeignKeyColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKeyColumnMismatch", "index1", "entityType1", "index2", "entityType2", "table", "foreignKeyName", "columnNames1", "columnNames2"), index1, entityType1, index2, entityType2, table, foreignKeyName, columnNames1, columnNames2);
+        }
+
+        /// <summary>
+        /// The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').
+        /// </summary>
+        public static string DuplicateForeignKeyDeleteBehaviorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object deleteBehavior1, [CanBeNull] object deleteBehavior2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKeyDeleteBehaviorMismatch", "index1", "entityType1", "index2", "entityType2", "table", "foreignKeyName", "deleteBehavior1", "deleteBehavior2"), index1, entityType1, index2, entityType2, table, foreignKeyName, deleteBehavior1, deleteBehavior2);
+        }
+
+        /// <summary>
+        /// The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).
+        /// </summary>
+        public static string DuplicateForeignKeyPrincipalColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalColumnNames1, [CanBeNull] object principalColumnNames2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKeyPrincipalColumnMismatch", "index1", "entityType1", "index2", "entityType2", "table", "foreignKeyName", "principalColumnNames1", "principalColumnNames2"), index1, entityType1, index2, entityType2, table, foreignKeyName, principalColumnNames1, principalColumnNames2);
+        }
+
+        /// <summary>
+        /// The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal tables ('{principalTable1}' and '{principalTable2}').
+        /// </summary>
+        public static string DuplicateForeignKeyPrincipalTableMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalTable1, [CanBeNull] object principalTable2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKeyPrincipalTableMismatch", "index1", "entityType1", "index2", "entityType2", "table", "foreignKeyName", "principalTable1", "principalTable2"), index1, entityType1, index2, entityType2, table, foreignKeyName, principalTable1, principalTable2);
+        }
+
+        /// <summary>
+        /// The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different uniqueness.
+        /// </summary>
+        public static string DuplicateForeignKeyUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKeyUniquenessMismatch", "index1", "entityType1", "index2", "entityType2", "table", "foreignKeyName"), index1, entityType1, index2, entityType2, table, foreignKeyName);
+        }
+
+        /// <summary>
+        /// The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different columns ({columnNames1} and {columnNames2}).
+        /// </summary>
+        public static string DuplicateIndexColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateIndexColumnMismatch", "index1", "entityType1", "index2", "entityType2", "table", "indexName", "columnNames1", "columnNames2"), index1, entityType1, index2, entityType2, table, indexName, columnNames1, columnNames2);
+        }
+
+        /// <summary>
+        /// The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different uniqueness.
+        /// </summary>
+        public static string DuplicateIndexUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateIndexUniquenessMismatch", "index1", "entityType1", "index2", "entityType2", "table", "indexName"), index1, entityType1, index2, entityType2, table, indexName);
         }
 
         private static string GetString(string name, params string[] formatterNames)

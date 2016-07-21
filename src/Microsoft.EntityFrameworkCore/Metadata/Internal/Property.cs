@@ -454,7 +454,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        internal static string Format(IEnumerable<IProperty> properties)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string Format([NotNull] IEnumerable<IProperty> properties)
             => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;

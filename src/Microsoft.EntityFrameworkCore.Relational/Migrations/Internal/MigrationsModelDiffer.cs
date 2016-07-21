@@ -284,8 +284,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
                     .Concat(
                         Diff(
-                            source.GetEntityTypes().SelectMany(t => t.GetDeclaredForeignKeys()),
-                            target.GetEntityTypes().SelectMany(t => t.GetDeclaredForeignKeys()),
+                            source.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
+                            target.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
                             diffContext))
                 : target != null
                     ? Add(target, diffContext)
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => GetSchemas(target).SelectMany(Add)
                 .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
                 .Concat(Annotations.For(target).Sequences.SelectMany(Add))
-                .Concat(target.GetEntityTypes().SelectMany(t => t.GetDeclaredForeignKeys()).SelectMany(k => Add(k, diffContext)));
+                .Concat(target.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy).SelectMany(k => Add(k, diffContext)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -430,7 +430,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             };
             CopyAnnotations(MigrationsAnnotations.For(target), createTableOperation);
 
-            createTableOperation.Columns.AddRange(GetPropertiesInHierarchy(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
+            createTableOperation.Columns.AddRange(
+                GetPropertiesInHierarchy(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
             var primaryKey = target.FindPrimaryKey();
             createTableOperation.PrimaryKey = Add(primaryKey, diffContext).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
@@ -467,16 +468,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private IEnumerable<IForeignKey> GetForeignKeysInHierarchy(IEntityType entityType)
-            => entityType.GetDeclaredForeignKeys()
-                .Concat(entityType.GetDerivedTypes().SelectMany(t => t.GetDeclaredForeignKeys()))
+            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetDeclaredForeignKeys())
                 .Distinct((x, y) => Annotations.For(x).Name == Annotations.For(y).Name);
 
         private IEnumerable<IIndex> GetIndexesInHierarchy(IEntityType entityType)
-            => entityType.GetDeclaredIndexes().Concat(entityType.GetDerivedTypes().SelectMany(t => t.GetDeclaredIndexes()))
+            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetDeclaredIndexes())
                 .Distinct((x, y) => Annotations.For(x).Name == Annotations.For(y).Name);
 
         private IEnumerable<IProperty> GetPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetDeclaredProperties().Concat(entityType.GetDerivedTypes().SelectMany(t => t.GetDeclaredProperties()))
+            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetDeclaredProperties())
                 .Distinct((x, y) => Annotations.For(x).ColumnName == Annotations.For(y).ColumnName);
 
         #endregion
