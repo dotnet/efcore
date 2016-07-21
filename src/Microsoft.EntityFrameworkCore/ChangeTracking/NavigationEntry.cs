@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
     ///     <para>
-    ///         Provides access to change tracking and loading information for a collection
-    ///         navigation property that associates this entity to a collection of another entities.
+    ///         Provides access to change tracking and loading information for a navigation property
+    ///         that associates this entity to one or more other entities.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationIsProperty(name, internalEntry.EntityType.DisplayName(),
-                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)));
+                            nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)));
                 }
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
             }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 throw new InvalidOperationException(
                     CoreStrings.CollectionIsReference(name, internalEntry.EntityType.DisplayName(),
-                    nameof(EntityEntry.Collection), nameof(EntityEntry.Reference)));
+                        nameof(EntityEntry.Collection), nameof(EntityEntry.Reference)));
             }
 
             if (!collection
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 throw new InvalidOperationException(
                     CoreStrings.ReferenceIsCollection(name, internalEntry.EntityType.DisplayName(),
-                    nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
             }
 
             return navigation;
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     Gets or sets a value indicating whether any of foreign key property values associated
-        ///     with this navigation property have been modified and should be updated in the database 
+        ///     with this navigation property have been modified and should be updated in the database
         ///     when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         public override bool IsModified

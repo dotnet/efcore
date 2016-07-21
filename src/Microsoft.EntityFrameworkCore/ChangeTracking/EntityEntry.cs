@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     Provides access to change tracking information and operations for a given
-        ///     property or navigation property of this entity.
+        ///     navigation property of this entity.
         /// </summary>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
@@ -141,8 +141,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             if (InternalEntry.EntityType.FindProperty(propertyName) != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NavigationIsProperty(propertyName, InternalEntry.EntityType.DisplayName(), 
-                    nameof(Reference), nameof(Collection), nameof(Property)));
+                    CoreStrings.NavigationIsProperty(propertyName, InternalEntry.EntityType.DisplayName(),
+                        nameof(Reference), nameof(Collection), nameof(Property)));
             }
 
             throw new InvalidOperationException(
@@ -167,7 +167,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     navigation property that associates this entity to another entity.
         /// </summary>
         /// <param name="navigationPropertyName"> The name of the navigation property. </param>
-        /// <returns> An object representing the navigation property. </returns>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
         public virtual ReferenceEntry Reference([NotNull] string navigationPropertyName)
         {
             Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
@@ -180,7 +183,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     navigation property that associates this entity to a collection of another entities.
         /// </summary>
         /// <param name="navigationPropertyName"> The name of the navigation property. </param>
-        /// <returns> An object representing the navigation property. </returns>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
         public virtual CollectionEntry Collection([NotNull] string navigationPropertyName)
         {
             Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));

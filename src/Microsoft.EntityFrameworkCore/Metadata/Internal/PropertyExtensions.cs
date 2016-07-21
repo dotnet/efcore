@@ -107,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool RequiresOriginalValue([NotNull] this IProperty property)
             => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
                || property.IsConcurrencyToken
+               || property.IsKey()
                || property.IsForeignKey();
 
         /// <summary>

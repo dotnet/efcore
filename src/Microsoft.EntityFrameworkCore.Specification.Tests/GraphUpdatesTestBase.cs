@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -937,26 +939,31 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
-                if ((changeMechanism & ChangeMechanism.Principal) != 0)
-                {
-                    newRoot.RequiredSingle = root.RequiredSingle;
-                }
-
-                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
-                {
-                    root.RequiredSingle.Root = newRoot;
-                }
-
-                if ((changeMechanism & ChangeMechanism.Fk) != 0)
-                {
-                    root.RequiredSingle.Id = newRoot.Id;
-                }
-
-                newRoot.RequiredSingle = root.RequiredSingle;
-
                 Assert.Equal(
                     CoreStrings.KeyReadOnly("Id", typeof(RequiredSingle1).Name),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            {
+                                if ((changeMechanism & ChangeMechanism.Principal) != 0)
+                                {
+                                    newRoot.RequiredSingle = root.RequiredSingle;
+                                }
+
+                                if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                                {
+                                    root.RequiredSingle.Root = newRoot;
+                                }
+
+                                if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                                {
+                                    root.RequiredSingle.Id = newRoot.Id;
+                                }
+
+                                newRoot.RequiredSingle = root.RequiredSingle;
+
+                                context.SaveChanges();
+
+                            }).Message);
             }
         }
 
@@ -3392,7 +3399,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var added = new Required2();
                 Add(removed.Children, added);
-                context.ChangeTracker.DetectChanges();
+
+                if (context.ChangeTracker.AutoDetectChangesEnabled)
+                {
+                    context.ChangeTracker.DetectChanges();
+                }
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
                 Assert.Equal(EntityState.Added, context.Entry(added).State);
@@ -3531,7 +3542,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var added = new RequiredAk2();
                 Add(removed.Children, added);
-                context.ChangeTracker.DetectChanges();
+
+                if (context.ChangeTracker.AutoDetectChangesEnabled)
+                {
+                    context.ChangeTracker.DetectChanges();
+                }
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
                 Assert.Equal(EntityState.Added, context.Entry(added).State);
@@ -3901,209 +3916,737 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        protected class Root
+        protected class Root : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>();
+            private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>();
+            private RequiredSingle1 _requiredSingle;
+            private RequiredNonPkSingle1 _requiredNonPkSingle;
+            private OptionalSingle1 _optionalSingle;
+            private IEnumerable<RequiredAk1> _requiredChildrenAk = new ObservableHashSet<RequiredAk1>();
+            private IEnumerable<OptionalAk1> _optionalChildrenAk = new ObservableHashSet<OptionalAk1>();
+            private RequiredSingleAk1 _requiredSingleAk;
+            private RequiredNonPkSingleAk1 _requiredNonPkSingleAk;
+            private OptionalSingleAk1 _optionalSingleAk;
 
-            public IEnumerable<Required1> RequiredChildren { get; set; } = new List<Required1>();
-            public IEnumerable<Optional1> OptionalChildren { get; set; } = new List<Optional1>();
-            public RequiredSingle1 RequiredSingle { get; set; }
-            public RequiredNonPkSingle1 RequiredNonPkSingle { get; set; }
-            public OptionalSingle1 OptionalSingle { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public IEnumerable<RequiredAk1> RequiredChildrenAk { get; set; } = new List<RequiredAk1>();
-            public IEnumerable<OptionalAk1> OptionalChildrenAk { get; set; } = new List<OptionalAk1>();
-            public RequiredSingleAk1 RequiredSingleAk { get; set; }
-            public RequiredNonPkSingleAk1 RequiredNonPkSingleAk { get; set; }
-            public OptionalSingleAk1 OptionalSingleAk { get; set; }
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public IEnumerable<Required1> RequiredChildren
+            {
+                get { return _requiredChildren; }
+                set { SetWithNotify(value, ref _requiredChildren); }
+            }
+
+            public IEnumerable<Optional1> OptionalChildren
+            {
+                get { return _optionalChildren; }
+                set { SetWithNotify(value, ref _optionalChildren); }
+            }
+
+            public RequiredSingle1 RequiredSingle
+            {
+                get { return _requiredSingle; }
+                set { SetWithNotify(value, ref _requiredSingle); }
+            }
+
+            public RequiredNonPkSingle1 RequiredNonPkSingle
+            {
+                get { return _requiredNonPkSingle; }
+                set { SetWithNotify(value, ref _requiredNonPkSingle); }
+            }
+
+            public OptionalSingle1 OptionalSingle
+            {
+                get { return _optionalSingle; }
+                set { SetWithNotify(value, ref _optionalSingle); }
+            }
+
+            public IEnumerable<RequiredAk1> RequiredChildrenAk
+            {
+                get { return _requiredChildrenAk; }
+                set { SetWithNotify(value, ref _requiredChildrenAk); }
+            }
+
+            public IEnumerable<OptionalAk1> OptionalChildrenAk
+            {
+                get { return _optionalChildrenAk; }
+                set { SetWithNotify(value, ref _optionalChildrenAk); }
+            }
+
+            public RequiredSingleAk1 RequiredSingleAk
+            {
+                get { return _requiredSingleAk; }
+                set { SetWithNotify(value, ref _requiredSingleAk); }
+            }
+
+            public RequiredNonPkSingleAk1 RequiredNonPkSingleAk
+            {
+                get { return _requiredNonPkSingleAk; }
+                set { SetWithNotify(value, ref _requiredNonPkSingleAk); }
+            }
+
+            public OptionalSingleAk1 OptionalSingleAk
+            {
+                get { return _optionalSingleAk; }
+                set { SetWithNotify(value, ref _optionalSingleAk); }
+            }
         }
 
-        protected class Required1
+        protected class Required1 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int _parentId;
+            private Root _parent;
+            private IEnumerable<Required2> _children = new ObservableHashSet<Required2>();
 
-            public int ParentId { get; set; }
-            public Root Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public IEnumerable<Required2> Children { get; set; } = new List<Required2>();
+            public int ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public Root Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
+
+            public IEnumerable<Required2> Children
+            {
+                get { return _children; }
+                set { SetWithNotify(value, ref _children); }
+            }
         }
 
-        protected class Required2
+        protected class Required2 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int _parentId;
+            private Required1 _parent;
 
-            public int ParentId { get; set; }
-            public Required1 Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public int ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public Required1 Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
         }
 
-        protected class Optional1
+        protected class Optional1 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int? _parentId;
+            private Root _parent;
+            private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>();
 
-            public int? ParentId { get; set; }
-            public Root Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public IEnumerable<Optional2> Children { get; set; } = new List<Optional2>();
+            public int? ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public Root Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
+
+            public IEnumerable<Optional2> Children
+            {
+                get { return _children; }
+                set { SetWithNotify(value, ref _children); }
+            }
         }
 
-        protected class Optional2
+        protected class Optional2 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int? _parentId;
+            private Optional1 _parent;
 
-            public int? ParentId { get; set; }
-            public Optional1 Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public int? ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public Optional1 Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
         }
 
-        protected class RequiredSingle1
+        protected class RequiredSingle1 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private Root _root;
+            private RequiredSingle2 _single;
 
-            public Root Root { get; set; }
-            public RequiredSingle2 Single { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Root Root
+            {
+                get { return _root; }
+                set { SetWithNotify(value, ref _root); }
+            }
+
+            public RequiredSingle2 Single
+            {
+                get { return _single; }
+                set { SetWithNotify(value, ref _single); }
+            }
         }
 
-        protected class RequiredSingle2
+        protected class RequiredSingle2 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private RequiredSingle1 _back;
 
-            public RequiredSingle1 Back { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public RequiredSingle1 Back
+            {
+                get { return _back; }
+                set { SetWithNotify(value, ref _back); }
+            }
         }
 
-        protected class RequiredNonPkSingle1
+        protected class RequiredNonPkSingle1 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int _rootId;
+            private Root _root;
+            private RequiredNonPkSingle2 _single;
 
-            public int RootId { get; set; }
-            public Root Root { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public RequiredNonPkSingle2 Single { get; set; }
+            public int RootId
+            {
+                get { return _rootId; }
+                set { SetWithNotify(value, ref _rootId); }
+            }
+
+            public Root Root
+            {
+                get { return _root; }
+                set { SetWithNotify(value, ref _root); }
+            }
+
+            public RequiredNonPkSingle2 Single
+            {
+                get { return _single; }
+                set { SetWithNotify(value, ref _single); }
+            }
         }
 
-        protected class RequiredNonPkSingle2
+        protected class RequiredNonPkSingle2 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int _backId;
+            private RequiredNonPkSingle1 _back;
 
-            public int BackId { get; set; }
-            public RequiredNonPkSingle1 Back { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public int BackId
+            {
+                get { return _backId; }
+                set { SetWithNotify(value, ref _backId); }
+            }
+
+            public RequiredNonPkSingle1 Back
+            {
+                get { return _back; }
+                set { SetWithNotify(value, ref _back); }
+            }
         }
 
-        protected class OptionalSingle1
+        protected class OptionalSingle1 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int? _rootId;
+            private Root _root;
+            private OptionalSingle2 _single;
 
-            public int? RootId { get; set; }
-            public Root Root { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public OptionalSingle2 Single { get; set; }
+            public int? RootId
+            {
+                get { return _rootId; }
+                set { SetWithNotify(value, ref _rootId); }
+            }
+
+            public Root Root
+            {
+                get { return _root; }
+                set { SetWithNotify(value, ref _root); }
+            }
+
+            public OptionalSingle2 Single
+            {
+                get { return _single; }
+                set { SetWithNotify(value, ref _single); }
+            }
         }
 
-        protected class OptionalSingle2
+        protected class OptionalSingle2 : NotifyingEntity
         {
-            public int Id { get; set; }
+            private int _id;
+            private int? _backId;
+            private OptionalSingle1 _back;
 
-            public int? BackId { get; set; }
-            public OptionalSingle1 Back { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public int? BackId
+            {
+                get { return _backId; }
+                set { SetWithNotify(value, ref _backId); }
+            }
+
+            public OptionalSingle1 Back
+            {
+                get { return _back; }
+                set { SetWithNotify(value, ref _back); }
+            }
         }
 
-        protected class RequiredAk1
+        protected class RequiredAk1 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid _parentId;
+            private Root _parent;
+            private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>();
 
-            public Guid ParentId { get; set; }
-            public Root Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public IEnumerable<RequiredAk2> Children { get; set; } = new List<RequiredAk2>();
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public Root Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
+
+            public IEnumerable<RequiredAk2> Children
+            {
+                get { return _children; }
+                set { SetWithNotify(value, ref _children); }
+            }
         }
 
-        protected class RequiredAk2
+        protected class RequiredAk2 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid _parentId;
+            private RequiredAk1 _parent;
 
-            public Guid ParentId { get; set; }
-            public RequiredAk1 Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public RequiredAk1 Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
         }
 
-        protected class OptionalAk1
+        protected class OptionalAk1 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid? _parentId;
+            private Root _parent;
+            private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>();
 
-            public Guid? ParentId { get; set; }
-            public Root Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public IEnumerable<OptionalAk2> Children { get; set; } = new List<OptionalAk2>();
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid? ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public Root Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
+
+            public IEnumerable<OptionalAk2> Children
+            {
+                get { return _children; }
+                set { SetWithNotify(value, ref _children); }
+            }
         }
 
-        protected class OptionalAk2
+        protected class OptionalAk2 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid? _parentId;
+            private OptionalAk1 _parent;
 
-            public Guid? ParentId { get; set; }
-            public OptionalAk1 Parent { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid? ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public OptionalAk1 Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
         }
 
-        protected class RequiredSingleAk1
+        protected class RequiredSingleAk1 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid _rootId;
+            private Root _root;
+            private RequiredSingleAk2 _single;
 
-            public Guid RootId { get; set; }
-            public Root Root { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public RequiredSingleAk2 Single { get; set; }
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid RootId
+            {
+                get { return _rootId; }
+                set { SetWithNotify(value, ref _rootId); }
+            }
+
+            public Root Root
+            {
+                get { return _root; }
+                set { SetWithNotify(value, ref _root); }
+            }
+
+            public RequiredSingleAk2 Single
+            {
+                get { return _single; }
+                set { SetWithNotify(value, ref _single); }
+            }
         }
 
-        protected class RequiredSingleAk2
+        protected class RequiredSingleAk2 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid _backId;
+            private RequiredSingleAk1 _back;
 
-            public Guid BackId { get; set; }
-            public RequiredSingleAk1 Back { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid BackId
+            {
+                get { return _backId; }
+                set { SetWithNotify(value, ref _backId); }
+            }
+
+            public RequiredSingleAk1 Back
+            {
+                get { return _back; }
+                set { SetWithNotify(value, ref _back); }
+            }
         }
 
-        protected class RequiredNonPkSingleAk1
+        protected class RequiredNonPkSingleAk1 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid _rootId;
+            private Root _root;
+            private RequiredNonPkSingleAk2 _single;
 
-            public Guid RootId { get; set; }
-            public Root Root { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public RequiredNonPkSingleAk2 Single { get; set; }
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid RootId
+            {
+                get { return _rootId; }
+                set { SetWithNotify(value, ref _rootId); }
+            }
+
+            public Root Root
+            {
+                get { return _root; }
+                set { SetWithNotify(value, ref _root); }
+            }
+
+            public RequiredNonPkSingleAk2 Single
+            {
+                get { return _single; }
+                set { SetWithNotify(value, ref _single); }
+            }
         }
 
-        protected class RequiredNonPkSingleAk2
+        protected class RequiredNonPkSingleAk2 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid _backId;
+            private RequiredNonPkSingleAk1 _back;
 
-            public Guid BackId { get; set; }
-            public RequiredNonPkSingleAk1 Back { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid BackId
+            {
+                get { return _backId; }
+                set { SetWithNotify(value, ref _backId); }
+            }
+
+            public RequiredNonPkSingleAk1 Back
+            {
+                get { return _back; }
+                set { SetWithNotify(value, ref _back); }
+            }
         }
 
-        protected class OptionalSingleAk1
+        protected class OptionalSingleAk1 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid? _rootId;
+            private Root _root;
+            private OptionalSingleAk2 _single;
 
-            public Guid? RootId { get; set; }
-            public Root Root { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
-            public OptionalSingleAk2 Single { get; set; }
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid? RootId
+            {
+                get { return _rootId; }
+                set { SetWithNotify(value, ref _rootId); }
+            }
+
+            public Root Root
+            {
+                get { return _root; }
+                set { SetWithNotify(value, ref _root); }
+            }
+
+            public OptionalSingleAk2 Single
+            {
+                get { return _single; }
+                set { SetWithNotify(value, ref _single); }
+            }
         }
 
-        protected class OptionalSingleAk2
+        protected class OptionalSingleAk2 : NotifyingEntity
         {
-            public int Id { get; set; }
-            public Guid AlternateId { get; set; }
+            private int _id;
+            private Guid _alternateId;
+            private Guid? _backId;
+            private OptionalSingleAk1 _back;
 
-            public Guid? BackId { get; set; }
-            public OptionalSingleAk1 Back { get; set; }
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Guid AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
+            }
+
+            public Guid? BackId
+            {
+                get { return _backId; }
+                set { SetWithNotify(value, ref _backId); }
+            }
+
+            public OptionalSingleAk1 Back
+            {
+                get { return _back; }
+                set { SetWithNotify(value, ref _back); }
+            }
+        }
+
+        protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged
+        {
+            protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
+            {
+                NotifyChanging(propertyName);
+                field = value;
+                NotifyChanged(propertyName);
+            }
+
+            public event PropertyChangingEventHandler PropertyChanging;
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged(string propertyName)
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            private void NotifyChanging(string propertyName)
+                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
         protected class GraphUpdatesContext : DbContext
@@ -4137,15 +4680,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public DbSet<OptionalAk2> OptionalAk2s { get; set; }
         }
 
-        protected GraphUpdatesContext CreateContext()
-        {
-            return (GraphUpdatesContext)Fixture.CreateContext(TestStore);
-        }
+        protected GraphUpdatesContext CreateContext() 
+            => (GraphUpdatesContext)Fixture.CreateContext(TestStore);
 
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
+        public void Dispose() 
+            => TestStore.Dispose();
 
         protected TFixture Fixture { get; }
 
@@ -4323,11 +4862,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 return new Root
                 {
                     AlternateId = Guid.NewGuid(),
-                    RequiredChildren = new List<Required1>
+                    RequiredChildren = new ObservableHashSet<Required1>
                     {
                         new Required1
                         {
-                            Children = new List<Required2>
+                            Children = new ObservableHashSet<Required2>
                             {
                                 new Required2(),
                                 new Required2()
@@ -4335,18 +4874,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         },
                         new Required1
                         {
-                            Children = new List<Required2>
+                            Children = new ObservableHashSet<Required2>
                             {
                                 new Required2(),
                                 new Required2()
                             }
                         }
                     },
-                    OptionalChildren = new List<Optional1>
+                    OptionalChildren = new ObservableHashSet<Optional1>
                     {
                         new Optional1
                         {
-                            Children = new List<Optional2>
+                            Children = new ObservableHashSet<Optional2>
                             {
                                 new Optional2(),
                                 new Optional2()
@@ -4354,7 +4893,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         },
                         new Optional1
                         {
-                            Children = new List<Optional2>
+                            Children = new ObservableHashSet<Optional2>
                             {
                                 new Optional2(),
                                 new Optional2()
@@ -4373,12 +4912,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     {
                         Single = new RequiredNonPkSingle2()
                     },
-                    RequiredChildrenAk = new List<RequiredAk1>
+                    RequiredChildrenAk = new ObservableHashSet<RequiredAk1>
                     {
                         new RequiredAk1
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new List<RequiredAk2>
+                            Children = new ObservableHashSet<RequiredAk2>
                             {
                                 new RequiredAk2 { AlternateId = Guid.NewGuid() },
                                 new RequiredAk2 { AlternateId = Guid.NewGuid() }
@@ -4387,19 +4926,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         new RequiredAk1
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new List<RequiredAk2>
+                            Children = new ObservableHashSet<RequiredAk2>
                             {
                                 new RequiredAk2 { AlternateId = Guid.NewGuid() },
                                 new RequiredAk2 { AlternateId = Guid.NewGuid() }
                             }
                         }
                     },
-                    OptionalChildrenAk = new List<OptionalAk1>
+                    OptionalChildrenAk = new ObservableHashSet<OptionalAk1>
                     {
                         new OptionalAk1
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new List<OptionalAk2>
+                            Children = new ObservableHashSet<OptionalAk2>
                             {
                                 new OptionalAk2 { AlternateId = Guid.NewGuid() },
                                 new OptionalAk2 { AlternateId = Guid.NewGuid() }
@@ -4408,7 +4947,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         new OptionalAk1
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new List<OptionalAk2>
+                            Children = new ObservableHashSet<OptionalAk2>
                             {
                                 new OptionalAk2 { AlternateId = Guid.NewGuid() },
                                 new OptionalAk2 { AlternateId = Guid.NewGuid() }

@@ -1145,6 +1145,26 @@ ORDER BY [od1].[OrderID], [od1].[ProductID]",
                 Sql);
         }
 
+        public override void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
+        {
+            base.GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened();
+
+            Assert.Contains(
+                @"SELECT [t].[CustomerID]
+FROM (
+    SELECT [c20].*
+    FROM [Order Details] AS [od0]
+    INNER JOIN [Orders] AS [o0] ON [od0].[OrderID] = 10260
+    INNER JOIN [Customers] AS [c20] ON [o0].[CustomerID] = [c20].[CustomerID]
+) AS [t]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"

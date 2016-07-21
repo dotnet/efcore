@@ -65,7 +65,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
         /// </param>
-        /// <returns> An object representing the navigation property. </returns>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
         public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(
             [NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
         {
@@ -82,7 +85,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
         /// </param>
-        /// <returns> An object representing the navigation property. </returns>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
         public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(
             [NotNull] Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
         {
@@ -96,7 +102,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     navigation property that associates this entity to another entity.
         /// </summary>
         /// <param name="navigationPropertyName"> The name of the navigation property. </param>
-        /// <returns> An object representing the navigation property. </returns>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
         public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>([NotNull] string navigationPropertyName)
         {
             Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
@@ -109,7 +118,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     navigation property that associates this entity to a collection of another entities.
         /// </summary>
         /// <param name="navigationPropertyName"> The name of the navigation property. </param>
-        /// <returns> An object representing the navigation property. </returns>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
         public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>([NotNull] string navigationPropertyName)
         {
             Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));

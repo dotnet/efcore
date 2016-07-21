@@ -2,58 +2,159 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
-    public class GraphUpdatesSqliteTest
-        : GraphUpdatesTestBase<SqliteTestStore, GraphUpdatesSqliteTest.GraphUpdatesSqliteFixture>
+    public abstract class GraphUpdatesSqliteTest
     {
-        public GraphUpdatesSqliteTest(GraphUpdatesSqliteFixture fixture)
-            : base(fixture)
+        public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBase<SqliteTestStore, TFixture>
+            where TFixture : GraphUpdatesSqliteTestBase<TFixture>.GraphUpdatesSqliteFixtureBase, new()
         {
+            protected GraphUpdatesSqliteTestBase(TFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public abstract class GraphUpdatesSqliteFixtureBase : GraphUpdatesFixtureBase
+            {
+                protected abstract string DatabaseName { get; }
+
+                protected abstract bool AutoDetectChanges { get; }
+
+                private readonly IServiceProvider _serviceProvider;
+
+                protected GraphUpdatesSqliteFixtureBase()
+                {
+                    _serviceProvider = new ServiceCollection()
+                        .AddEntityFrameworkSqlite()
+                        .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
+                        .BuildServiceProvider();
+                }
+
+                public override SqliteTestStore CreateTestStore()
+                {
+                    return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
+                        {
+                            var optionsBuilder = new DbContextOptionsBuilder()
+                                .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
+                                .UseInternalServiceProvider(_serviceProvider);
+
+                            using (var context = new GraphUpdatesContext(optionsBuilder.Options))
+                            {
+                                context.Database.EnsureClean();
+                                Seed(context);
+                            }
+                        });
+                }
+
+                public override DbContext CreateContext(SqliteTestStore testStore)
+                {
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlite(testStore.Connection)
+                        .UseInternalServiceProvider(_serviceProvider);
+
+                    var context = new GraphUpdatesContext(optionsBuilder.Options);
+                    context.Database.UseTransaction(testStore.Transaction);
+
+                    context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
+
+                    return context;
+                }
+            }
         }
 
-        public class GraphUpdatesSqliteFixture : GraphUpdatesFixtureBase
+        public class SnapshotNotificationsTest
+            : GraphUpdatesSqliteTestBase<SnapshotNotificationsTest.SnapshotNotificationsFixture>
         {
-            private const string DatabaseName = "GraphUpdatesTest";
-
-            private readonly IServiceProvider _serviceProvider;
-
-            public GraphUpdatesSqliteFixture()
+            public SnapshotNotificationsTest(SnapshotNotificationsFixture fixture)
+                : base(fixture)
             {
-                _serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlite()
-                    .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
             }
 
-            public override SqliteTestStore CreateTestStore()
+            public class SnapshotNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
-                return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
-                            .UseInternalServiceProvider(_serviceProvider);
+                protected override string DatabaseName => "GraphUpdatesSnapshotTest";
 
-                        using (var context = new GraphUpdatesContext(optionsBuilder.Options))
-                        {
-                            context.Database.EnsureClean();
-                            Seed(context);
-                        }
-                    });
+                protected override bool AutoDetectChanges => true;
+
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                {
+                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+
+                    base.OnModelCreating(modelBuilder);
+                }
+            }
+        }
+
+        public class ChangedNotificationsTest 
+            : GraphUpdatesSqliteTestBase<ChangedNotificationsTest.ChangedNotificationsFixture>
+        {
+            public ChangedNotificationsTest(ChangedNotificationsFixture fixture)
+                : base(fixture)
+            {
             }
 
-            public override DbContext CreateContext(SqliteTestStore testStore)
+            public class ChangedNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlite(testStore.Connection)
-                    .UseInternalServiceProvider(_serviceProvider);
+                protected override string DatabaseName => "GraphUpdatesChangedTest";
 
-                var context = new GraphUpdatesContext(optionsBuilder.Options);
-                context.Database.UseTransaction(testStore.Transaction);
-                return context;
+                protected override bool AutoDetectChanges => false;
+
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                {
+                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+
+                    base.OnModelCreating(modelBuilder);
+                }
+            }
+        }
+
+        public class ChangedChangingNotificationsTest 
+            : GraphUpdatesSqliteTestBase<ChangedChangingNotificationsTest.ChangedChangingNotificationsFixture>
+        {
+            public ChangedChangingNotificationsTest(ChangedChangingNotificationsFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class ChangedChangingNotificationsFixture : GraphUpdatesSqliteFixtureBase
+            {
+                protected override string DatabaseName => "GraphUpdatesFullTest";
+
+                protected override bool AutoDetectChanges => false;
+
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                {
+                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+
+                    base.OnModelCreating(modelBuilder);
+                }
+            }
+        }
+
+        public class FullWithOriginalsNotificationsTest
+            : GraphUpdatesSqliteTestBase<FullWithOriginalsNotificationsTest.FullWithOriginalsNotificationsFixture>
+        {
+            public FullWithOriginalsNotificationsTest(FullWithOriginalsNotificationsFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class FullWithOriginalsNotificationsFixture : GraphUpdatesSqliteFixtureBase
+            {
+                protected override string DatabaseName => "GraphUpdatesOriginalsTest";
+
+                protected override bool AutoDetectChanges => false;
+
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                {
+                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
+
+                    base.OnModelCreating(modelBuilder);
+                }
             }
         }
     }
