@@ -1151,6 +1151,171 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public string Name { get; set; }
         }
 
+        [Fact]
+        public virtual void Repro5456_include_group_join_is_per_query_context()
+        {
+            CreateDatabase5456();
+
+            Parallel.For(0, 10, i =>
+            {
+                using (var ctx = new MyContext5456())
+                {
+                    var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
+
+                    Assert.Equal(198, result.Count);
+                }
+            });
+        }
+
+        [Fact]
+        public virtual void Repro5456_include_group_join_is_per_query_context_async()
+        {
+            CreateDatabase5456();
+
+            Parallel.For(0, 10, async i =>
+            {
+                using (var ctx = new MyContext5456())
+                {
+                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+
+                    Assert.Equal(198, result.Count);
+                }
+            });
+        }
+
+        [Fact]
+        public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
+        {
+            CreateDatabase5456();
+
+            Parallel.For(0, 10, i =>
+            {
+                using (var ctx = new MyContext5456())
+                {
+                    var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+
+                    Assert.Equal(198, result.Count);
+                }
+            });
+        }
+
+        [Fact]
+        public virtual void Repro5456_multiple_include_group_join_is_per_query_context_async()
+        {
+            CreateDatabase5456();
+
+            Parallel.For(0, 10, async i =>
+            {
+                using (var ctx = new MyContext5456())
+                {
+                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+
+                    Assert.Equal(198, result.Count);
+                }
+            });
+        }
+
+        [Fact]
+        public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
+        {
+            CreateDatabase5456();
+
+            Parallel.For(0, 10, i =>
+            {
+                using (var ctx = new MyContext5456())
+                {
+                    var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+
+                    Assert.Equal(198, result.Count);
+                }
+            });
+        }
+
+        [Fact]
+        public virtual void Repro5456_multi_level_include_group_join_is_per_query_context_async()
+        {
+            CreateDatabase5456();
+
+            Parallel.For(0, 10, async i =>
+            {
+                using (var ctx = new MyContext5456())
+                {
+                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+
+                    Assert.Equal(198, result.Count);
+                }
+            });
+        }
+
+        private void CreateDatabase5456()
+        {
+            CreateTestStore(
+                "Repro5456",
+                _fixture.ServiceProvider,
+                (sp, co) => new MyContext5456(),
+                context =>
+                {
+                    for (var i = 0; i < 100; i++)
+                    {
+                        context.Add(
+                            new Blog5456
+                            {
+                                Posts = new List<Post5456>
+                                {
+                                    new Post5456
+                                    {
+                                        Comments = new List<Comment5456>
+                                        {
+                                            new Comment5456(),
+                                            new Comment5456()
+                                        }
+                                    },
+                                    new Post5456()
+                                },
+                                Author = new Author5456()
+                            });
+                    }
+                    context.SaveChanges();
+                });
+        }
+
+        public class MyContext5456 : DbContext
+        {
+            public DbSet<Blog5456> Blogs { get; set; }
+            public DbSet<Post5456> Posts { get; set; }
+            public DbSet<Comment5456> Comments { get; set; }
+            public DbSet<Author5456> Authors { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro5456"));
+        }
+
+        public class Blog5456
+        {
+            public int Id { get; set; }
+            public List<Post5456> Posts { get; set; }
+            public Author5456 Author { get; set; }
+        }
+
+        public class Author5456
+        {
+            public int Id { get; set; }
+            public List<Blog5456> Blogs { get; set; }
+        }
+
+        public class Post5456
+        {
+            public int Id { get; set; }
+            public Blog5456 Blog { get; set; }
+            public List<Comment5456> Comments { get; set; }
+        }
+
+        public class Comment5456
+        {
+            public int Id { get; set; }
+            public Post5456 Blog { get; set; }
+        }
+
         private static void CreateTestStore<TContext>(
             string databaseName,
             IServiceProvider serviceProvider,
@@ -1166,6 +1331,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                     using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
                     {
+                        context.Database.EnsureDeleted();
                         if (context.Database.EnsureCreated())
                         {
                             contextInitializer(context);

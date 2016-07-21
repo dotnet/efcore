@@ -385,6 +385,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 private IAsyncEnumerator<ValueBuffer> _sourceEnumerator;
                 private bool _hasNext;
                 private TOuter _nextOuter;
+                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext outerGroupJoinIncludeContext;
+                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext innerGroupJoinIncludeContext;
 
                 public GroupJoinAsyncEnumerator(
                     GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> groupJoinAsyncEnumerable)
@@ -399,8 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (_sourceEnumerator == null)
                     {
-                        _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
-                        _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
                         _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
                         _nextOuter = default(TOuter);
@@ -416,9 +418,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         _nextOuter = default(TOuter);
 
-                        if (_groupJoinAsyncEnumerable._outerGroupJoinInclude != null)
+                        if (outerGroupJoinIncludeContext != null)
                         {
-                            await _groupJoinAsyncEnumerable._outerGroupJoinInclude.IncludeAsync(outer, cancellationToken);
+                            await outerGroupJoinIncludeContext.IncludeAsync(outer, cancellationToken);
                         }
 
                         var inner
@@ -440,9 +442,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var currentGroupKey = _groupJoinAsyncEnumerable._innerKeySelector(inner);
 
-                        if (_groupJoinAsyncEnumerable._innerGroupJoinInclude != null)
+                        if (innerGroupJoinIncludeContext != null)
                         {
-                            await _groupJoinAsyncEnumerable._innerGroupJoinInclude.IncludeAsync(inner, cancellationToken);
+                            await innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
                         }
 
                         inners.Add(inner);
@@ -486,9 +488,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 break;
                             }
 
-                            if (_groupJoinAsyncEnumerable._innerGroupJoinInclude != null)
+                            if (innerGroupJoinIncludeContext != null)
                             {
-                                await _groupJoinAsyncEnumerable._innerGroupJoinInclude.IncludeAsync(inner, cancellationToken);
+                                await innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
                             }
 
                             inners.Add(inner);
@@ -509,8 +511,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 public void Dispose()
                 {
                     _sourceEnumerator?.Dispose();
-                    _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Dispose();
-                    _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Dispose();
+                    innerGroupJoinIncludeContext?.Dispose();
+                    outerGroupJoinIncludeContext?.Dispose();
                 }
             }
         }
