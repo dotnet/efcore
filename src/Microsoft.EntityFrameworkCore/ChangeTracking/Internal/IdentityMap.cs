@@ -94,14 +94,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(ValueBuffer valueBuffer, bool throwOnNullKey)
         {
-            InternalEntityEntry entry;
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
+
             if (key == null
                 && throwOnNullKey)
             {
                 throw new InvalidOperationException(CoreStrings.InvalidKeyValue(Key.DeclaringEntityType.DisplayName()));
             }
-            return key != null && _identityMap.TryGetValue((TKey)key, out entry) ? entry : null;
+
+            try
+            {
+                InternalEntityEntry entry;
+
+                return key != null 
+                    && _identityMap.TryGetValue((TKey)key, out entry) 
+                        ? entry 
+                        : null;
+            }
+            catch (InvalidCastException e)
+            {
+                throw new InvalidOperationException(
+                    // ReSharper disable once PossibleNullReferenceException
+                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(TKey), key.GetType()),
+                    e);
+            }
         }
 
         /// <summary>
