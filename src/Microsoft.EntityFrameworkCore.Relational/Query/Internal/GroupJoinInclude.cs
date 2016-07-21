@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private RelationalQueryContext _queryContext;
         private IRelatedEntitiesLoader[] _relatedEntitiesLoaders;
         private GroupJoinInclude _previous;
+        private Delegate _entityAccessor;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -75,6 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void Include([CanBeNull] object entity)
         {
+            if (_entityAccessor != null)
+            {
+                entity = _entityAccessor.DynamicInvoke(entity);
+            }
+
             _previous?.Include(entity);
 
             _queryContext.QueryBuffer
@@ -84,6 +90,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _navigationPath,
                     _relatedEntitiesLoaders,
                     _querySourceRequiresTracking);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual GroupJoinInclude WithEntityAccessor([NotNull] Delegate entityAccessor)
+        {
+            _entityAccessor = entityAccessor;
+
+            return this;
         }
 
         /// <summary>
