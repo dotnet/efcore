@@ -385,8 +385,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 private IAsyncEnumerator<ValueBuffer> _sourceEnumerator;
                 private bool _hasNext;
                 private TOuter _nextOuter;
-                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext outerGroupJoinIncludeContext;
-                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext innerGroupJoinIncludeContext;
+                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext _outerGroupJoinIncludeContext;
+                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext _innerGroupJoinIncludeContext;
+                private Func<TOuter, object> _outerEntityAccessor;
+                private Func<TInner, object> _innerEntityAccessor;
 
                 public GroupJoinAsyncEnumerator(
                     GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> groupJoinAsyncEnumerable)
@@ -401,8 +403,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (_sourceEnumerator == null)
                     {
-                        outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
-                        innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        _outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        _innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        _outerEntityAccessor = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.EntityAccessor as Func<TOuter, object>;
+                        _innerEntityAccessor = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.EntityAccessor as Func<TInner, object>;
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
                         _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
                         _nextOuter = default(TOuter);
@@ -418,9 +422,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         _nextOuter = default(TOuter);
 
-                        if (outerGroupJoinIncludeContext != null)
+                        if (_outerGroupJoinIncludeContext != null)
                         {
-                            await outerGroupJoinIncludeContext.IncludeAsync(outer, cancellationToken);
+                            if (_outerEntityAccessor != null)
+                            {
+                                await _outerGroupJoinIncludeContext.IncludeAsync(_outerEntityAccessor(outer), cancellationToken);
+                            }
+                            else
+                            {
+                                await _outerGroupJoinIncludeContext.IncludeAsync(outer, cancellationToken);
+                            }
                         }
 
                         var inner
@@ -442,9 +453,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var currentGroupKey = _groupJoinAsyncEnumerable._innerKeySelector(inner);
 
-                        if (innerGroupJoinIncludeContext != null)
+                        if (_innerGroupJoinIncludeContext != null)
                         {
-                            await innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
+                            if (_innerEntityAccessor != null)
+                            {
+                                await _innerGroupJoinIncludeContext.IncludeAsync(_innerEntityAccessor(inner), cancellationToken);
+                            }
+                            else
+                            {
+                                await _innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
+                            }
                         }
 
                         inners.Add(inner);
@@ -488,9 +506,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 break;
                             }
 
-                            if (innerGroupJoinIncludeContext != null)
+                            if (_innerGroupJoinIncludeContext != null)
                             {
-                                await innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
+                                await _innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
                             }
 
                             inners.Add(inner);
@@ -511,8 +529,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 public void Dispose()
                 {
                     _sourceEnumerator?.Dispose();
-                    innerGroupJoinIncludeContext?.Dispose();
-                    outerGroupJoinIncludeContext?.Dispose();
+                    _innerGroupJoinIncludeContext?.Dispose();
+                    _outerGroupJoinIncludeContext?.Dispose();
                 }
             }
         }

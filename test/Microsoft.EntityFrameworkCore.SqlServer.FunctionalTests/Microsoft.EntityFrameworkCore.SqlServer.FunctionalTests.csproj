@@ -41,6 +41,7 @@
     <Compile Include="AsTrackingSqlServerTest.cs" />
     <Compile Include="AsyncFromSqlQuerySqlServerTest.cs" />
     <Compile Include="AsyncFromSqlSprocQuerySqlServerTest.cs" />
+    <Compile Include="AsyncQueryNavigationsSqlServerTests.cs" />
     <Compile Include="AsyncQuerySqlServerTest.cs" />
     <Compile Include="BatchingTest.cs" />
     <Compile Include="BuiltInDataTypesSqlServerFixture.cs" />

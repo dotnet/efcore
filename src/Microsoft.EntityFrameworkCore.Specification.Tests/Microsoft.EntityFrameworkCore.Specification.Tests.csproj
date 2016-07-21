@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
     <Compile Include="AsTrackingTestBase.cs" />
+    <Compile Include="AsyncQueryNavigationsTestBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />

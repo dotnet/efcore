@@ -272,6 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var outerGroupJoinIncludeContext = outerGroupJoinInclude?.Initialize(queryContext);
             var innerGroupJoinIncludeContext = innerGroupJoinInclude?.Initialize(queryContext);
+            var outerAccessor = outerGroupJoinInclude?.EntityAccessor as Func<TOuter, object>;
+            var innerAccessor = innerGroupJoinInclude?.EntityAccessor as Func<TInner, object>;
 
             var hasOuters = (innerShaper as EntityShaper)?.ValueBufferOffset > 0;
 
@@ -292,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         nextOuter = default(TOuter);
 
-                        outerGroupJoinIncludeContext?.Include(outer);
+                        outerGroupJoinIncludeContext?.Include(outerAccessor != null ? outerAccessor(outer) : outer);
 
                         var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
                         var inners = new List<TInner>();
@@ -307,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             var currentGroupKey = innerKeySelector(inner);
 
-                            innerGroupJoinIncludeContext?.Include(inner);
+                            innerGroupJoinIncludeContext?.Include(innerAccessor != null ? innerAccessor(inner) : inner);
 
                             inners.Add(inner);
 

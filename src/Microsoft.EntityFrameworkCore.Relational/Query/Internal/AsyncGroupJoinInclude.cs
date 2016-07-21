@@ -15,12 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class AsyncGroupJoinInclude : IDisposable
+    public class AsyncGroupJoinInclude : GroupJoinIncludeBase
     {
-        private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> _relatedEntitiesLoaderFactories;
-        private readonly bool _querySourceRequiresTracking;
-
         private AsyncGroupJoinInclude _previous;
 
         /// <summary>
@@ -31,14 +28,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
+            : base(navigationPath, querySourceRequiresTracking)
         {
-            _navigationPath = navigationPath;
             _relatedEntitiesLoaderFactories = relatedEntitiesLoaderFactories;
-            _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual AsyncGroupJoinInclude WithEntityAccessor([NotNull] Delegate entityAccessor)
+        {
+            EntityAccessor = entityAccessor;
+
+            return this;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetPrevious([NotNull] AsyncGroupJoinInclude previous)
@@ -61,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var asyncGroupJoinIncludeContext
                 = new AsyncGroupJoinIncludeContext(
-                    _navigationPath,
-                    _querySourceRequiresTracking,
+                    NavigationPath,
+                    QuerySourceRequiresTracking,
                     queryContext,
                     _relatedEntitiesLoaderFactories);
 
@@ -72,15 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return asyncGroupJoinIncludeContext;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            // no-op
         }
 
         /// <summary>
