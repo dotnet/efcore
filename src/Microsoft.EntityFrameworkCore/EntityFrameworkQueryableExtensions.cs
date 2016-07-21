@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.AnyAsync(source, predicate, cancellationToken);
         }
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<bool> AllAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.AllAsync(source, predicate, cancellationToken);
         }
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<int> CountAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.CountAsync(source, cancellationToken);
         }
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<int> CountAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.CountAsync(source, predicate, cancellationToken);
         }
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.LongCountAsync(source, cancellationToken);
         }
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.LongCountAsync(source, predicate, cancellationToken);
         }
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.FirstAsync(source, cancellationToken);
         }
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.FirstAsync(source, predicate, cancellationToken);
         }
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.FirstOrDefaultAsync(source, cancellationToken);
         }
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.FirstOrDefaultAsync(source, predicate, cancellationToken);
         }
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.LastAsync(source, cancellationToken);
         }
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.LastAsync(source, predicate, cancellationToken);
         }
@@ -2296,7 +2296,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task ForEachAsync<T>(
             [NotNull] IQueryable<T> source,
             [NotNull] Func<T, Task> action,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return AsyncQueryableExtensions.ForEachAsync(source, action, cancellationToken);
         }

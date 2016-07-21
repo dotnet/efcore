@@ -27,9 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
         {
             Check.NotNull(source, nameof(source));
 
-            var enumerable = source as IAsyncEnumerable<TSource>;
-
-            return enumerable != null;
+            return source is IAsyncEnumerable<TSource>;
         }
 
 
