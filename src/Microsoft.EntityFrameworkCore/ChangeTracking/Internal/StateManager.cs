@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private readonly LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>> _referencedUntrackedEntities
             = new LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>>(
-                () => new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>());
+                () => new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance));
 
         private IIdentityMap _identityMap0;
         private IIdentityMap _identityMap1;
