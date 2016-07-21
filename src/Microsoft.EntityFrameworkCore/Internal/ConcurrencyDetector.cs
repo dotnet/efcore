@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ConcurrencyDetector : IConcurrencyDetector, IDisposable
     {
         private readonly IDisposable _disposer;
 
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        private SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
         private int _inCriticalSection;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ConcurrencyDetector()
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IDisposable EnterCriticalSection()
@@ -51,31 +51,37 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken)
         {
             await _semaphore.WaitAsync(cancellationToken);
 
-            return new AsyncDisposer(EnterCriticalSection(), _semaphore);
+            return new AsyncDisposer(EnterCriticalSection(), this);
         }
 
         private struct AsyncDisposer : IDisposable
         {
             private readonly IDisposable _disposable;
-            private readonly SemaphoreSlim _semaphore;
+            private readonly ConcurrencyDetector _concurrencyDetector;
 
-            public AsyncDisposer(IDisposable disposable, SemaphoreSlim semaphore)
+            public AsyncDisposer(IDisposable disposable, ConcurrencyDetector concurrencyDetector)
             {
                 _disposable = disposable;
-                _semaphore = semaphore;
+                _concurrencyDetector = concurrencyDetector;
             }
 
             public void Dispose()
             {
                 _disposable.Dispose();
-                _semaphore.Release();
+
+                if (_concurrencyDetector._semaphore == null)
+                {
+                    throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
+                }
+
+                _concurrencyDetector._semaphore.Release();
             }
         }
 
@@ -92,9 +98,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Dispose() => _semaphore.Dispose();
+        public virtual void Dispose()
+        {
+            _semaphore?.Dispose();
+            _semaphore = null;
+        }
     }
 }

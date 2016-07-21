@@ -24,6 +24,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
+        public virtual async Task Race_when_context_disposed_before_query_termination()
+        {
+            Task<Customer> task;
+           
+            using (var context = CreateContext())
+            {
+                task = context.Customers.SingleAsync(c => c.CustomerID == "ALFKI");
+            }
+
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => task);
+        }
+
+        [ConditionalFact]
         public virtual async Task ToListAsync_can_be_canceled()
         {
             for (var i = 0; i < 10; i++)
