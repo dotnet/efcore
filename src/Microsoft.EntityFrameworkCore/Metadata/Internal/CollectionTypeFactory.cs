@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // Else, if List{T} can be assigned to the type, then use List{T}
             // Else, return null.
 
-            var elementType = collectionType.TryGetElementType(typeof(ICollection<>));
+            var elementType = collectionType.TryGetElementType(typeof(IEnumerable<>));
 
             if (elementType == null)
             {

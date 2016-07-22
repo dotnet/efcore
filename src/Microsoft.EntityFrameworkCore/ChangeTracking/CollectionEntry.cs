@@ -2,9 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -48,5 +52,69 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             get { return (IEnumerable)base.CurrentValue; }
             [param: CanBeNull] set { base.CurrentValue = value; }
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Loads the entities referenced by this navigation property.
+        ///     </para>
+        ///     <para>
+        ///         Note that entities that are already being tracked are not overwritten with new data from the database.
+        ///     </para>
+        /// </summary>
+        public override void Load()
+        {
+            EnsureInitialized();
+
+            base.Load();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Loads entities referenced by this navigation property.
+        ///     </para>
+        ///     <para>
+        ///         Note that entities that are already being tracked are not overwritten with new data from the database.
+        ///     </para>
+        ///     <para>
+        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         that any asynchronous operations have completed before calling another method on this context.
+        ///     </para>
+        /// </summary>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+        /// </param>
+        /// <returns>
+        ///     A task that represents the asynchronous save operation.
+        /// </returns>
+        public override Task LoadAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            EnsureInitialized();
+
+            return base.LoadAsync(cancellationToken);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the query that would be used by <see cref="Load" /> to load entities referenced by
+        ///         this navigation property.
+        ///     </para>
+        ///     <para>
+        ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
+        ///         actually loading all entities from the database.
+        ///     </para>
+        /// </summary>
+        public override IQueryable Query()
+        {
+            EnsureInitialized();
+
+            return base.Query();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void EnsureInitialized()
+            => Metadata.GetCollectionAccessor().GetOrCreate(InternalEntry.Entity);
     }
 }

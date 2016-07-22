@@ -89,6 +89,64 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Load(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
+        {
+            // Short-circuit for any null key values for perf and because of #6129
+            if (keyValues.Any(v => v == null))
+            {
+                return;
+            }
+
+            _set.Where(BuildLambda(keyProperties, new ValueBuffer(keyValues))).Load();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Task LoadAsync(
+            IReadOnlyList<IProperty> keyProperties,
+            object[] keyValues,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // Short-circuit for any null key values for perf and because of #6129
+            if (keyValues.Any(v => v == null))
+            {
+                return Task.FromResult(0);
+            }
+
+            // TODO: Replace with LoadAsync when Issue #6122 is fixed
+            return _set.Where(BuildLambda(keyProperties, new ValueBuffer(keyValues))).ToListAsync(cancellationToken);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IQueryable<TEntity> Query(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
+        {
+            // Short-circuit for any null key values for perf and because of #6129
+            if (keyValues.Any(v => v == null))
+            {
+                // Creates an empty Queryable that works with Async. Has to be an EF query because it
+                // could be used in a composition.
+                return _set.Where(e => false);
+            }
+
+            return _set.Where(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IQueryable IEntityFinder.Query(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
+            => Query(keyProperties, keyValues);
+
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
             var key = _model.FindEntityType(typeof(TEntity)).FindPrimaryKey();

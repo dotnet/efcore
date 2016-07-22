@@ -213,6 +213,7 @@
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeIgnoredConvention.cs" />
+    <Compile Include="Storage\DatabaseProvider.cs" />
     <Compile Include="WarningBehavior.cs" />
     <Compile Include="Internal\WarningsConfiguration.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />
@@ -451,7 +452,6 @@
     <Compile Include="Storage\Database.cs" />
     <Compile Include="Storage\DatabaseErrorLogState.cs" />
     <Compile Include="Storage\DatabaseProviderServices.cs" />
-    <Compile Include="Storage\DatabaseProvider`.cs" />
     <Compile Include="Storage\IDatabase.cs" />
     <Compile Include="Storage\IDatabaseCreator.cs" />
     <Compile Include="Storage\IDatabaseProvider.cs" />

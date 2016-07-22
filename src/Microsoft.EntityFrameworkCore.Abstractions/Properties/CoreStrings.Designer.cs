@@ -1336,6 +1336,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("NoProviderConfiguredFailedToResolveService", "service"), service);
         }
 
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingProperty", "entityType", "property"), entityType, property);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingPropertyInvalidCast([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType, [CanBeNull] object actualType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingPropertyInvalidCast", "entityType", "property", "expectedType", "actualType"), entityType, property, expectedType, actualType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingPropertyNullReference", "entityType", "property", "expectedType"), entityType, property, expectedType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingValue
+        {
+            get { return GetString("ErrorMaterializingValue"); }
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingValueInvalidCast", "expectedType", "actualType"), expectedType, actualType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingValueNullReference", "expectedType"), expectedType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

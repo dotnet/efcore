@@ -74,6 +74,7 @@
     <Compile Include="InheritanceRelationshipsQuerySqlServerTest.cs" />
     <Compile Include="InheritanceSqlServerFixture.cs" />
     <Compile Include="InheritanceSqlServerTest.cs" />
+    <Compile Include="LoadSqlServerTest.cs" />
     <Compile Include="MappingQuerySqlServerFixture.cs" />
     <Compile Include="MappingQuerySqlServerTest.cs" />
     <Compile Include="MigrationsSqlServerFixture.cs" />

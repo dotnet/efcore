@@ -1002,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
-            => _baseType?.GetDeclaredReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
+            => _baseType?.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
                ?? GetDeclaredReferencingForeignKeys();
 
         /// <summary>

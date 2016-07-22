@@ -293,10 +293,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Monkey").Metadata.Name).Message);
                 Assert.Equal(CoreStrings.NavigationIsProperty("Monkey", entity.GetType().Name,
                     nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<int>("Monkey").Metadata.Name).Message);
-                Assert.Equal(CoreStrings.NavigationIsProperty("Monkey", entity.GetType().Name,
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Monkey").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.NavigationIsProperty("Nonkey", entity.GetType().Name,
                     nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference(e => e.Monkey).Metadata.Name).Message);
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference(e => e.Nonkey).Metadata.Name).Message);
             }
         }
 
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Monkeys").Metadata.Name).Message);
                 Assert.Equal(CoreStrings.ReferenceIsCollection("Monkeys", entity.GetType().Name,
                     nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
-                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<int>("Monkeys").Metadata.Name).Message);
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Monkeys").Metadata.Name).Message);
                 Assert.Equal(CoreStrings.ReferenceIsCollection("Monkeys", entity.GetType().Name,
                     nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference(e => e.Monkeys).Metadata.Name).Message);
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Collection("Garcia").Metadata.Name).Message);
                 Assert.Equal(CoreStrings.NavigationIsProperty("Garcia", entity.GetType().Name,
                     nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection<int>("Garcia").Metadata.Name).Message);
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection<Random>("Garcia").Metadata.Name).Message);
             }
         }
 
@@ -542,6 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         private class Chunky
         {
             public int Monkey { get; set; }
+            public string Nonkey { get; set; }
             public int Id { get; set; }
 
             public int GarciaId { get; set; }

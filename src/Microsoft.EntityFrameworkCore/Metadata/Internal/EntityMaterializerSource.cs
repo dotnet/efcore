@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly IMemberMapper _memberMapper;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityMaterializerSource([NotNull] IMemberMapper memberMapper)
@@ -34,21 +34,79 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index)
-            => Expression.Convert(CreateReadValueCallExpression(valueBuffer, index), type);
+        public virtual Expression CreateReadValueExpression(
+            Expression valueBuffer,
+            Type type,
+            int index,
+            IProperty property = null)
+        {
+            var readValueExpression
+                = Expression.Convert(CreateReadValueCallExpression(valueBuffer, index), type);
+
+            var exceptionParameter
+                = Expression.Parameter(typeof(Exception), "e");
+
+            var catchBlock
+                = Expression
+                    .Catch(exceptionParameter,
+                        Expression.Call(
+                            _createReadValueException.MakeGenericMethod(readValueExpression.Type),
+                            exceptionParameter,
+                            CreateReadValueCallExpression(valueBuffer, index),
+                            Expression.Constant(property, typeof(IPropertyBase))));
+
+            return Expression.TryCatch(readValueExpression, catchBlock);
+        }
+
+        private static readonly MethodInfo _createReadValueException
+            = typeof(EntityMaterializerSource).GetTypeInfo()
+                .GetDeclaredMethod(nameof(ThrowReadValueException));
+
+        private static TValue ThrowReadValueException<TValue>(
+            Exception exception, object value, IPropertyBase property = null)
+        {
+            var expectedType = typeof(TValue);
+            var actualType = value?.GetType();
+
+            string message;
+
+            if (property != null)
+            {
+                var entityType = property.DeclaringEntityType.DisplayName();
+                var propertyName = property.Name;
+
+                message
+                    = exception is NullReferenceException
+                        ? CoreStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
+                        : exception is InvalidCastException
+                            ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
+                            : CoreStrings.ErrorMaterializingProperty(entityType, propertyName);
+            }
+            else
+            {
+                message
+                    = exception is NullReferenceException
+                        ? CoreStrings.ErrorMaterializingValueNullReference(expectedType)
+                        : exception is InvalidCastException
+                            ? CoreStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                            : CoreStrings.ErrorMaterializingValue;
+            }
+
+            throw new InvalidOperationException(message, exception);
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index)
             => Expression.Call(valueBuffer, _readValue, Expression.Constant(index));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression CreateMaterializeExpression(
@@ -107,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CreateReadValueExpression(
                             valueBufferExpression,
                             targetMember.Type,
-                            indexMap?[mapping.Item1.GetIndex()] ?? mapping.Item1.GetIndex())));
+                            indexMap?[mapping.Item1.GetIndex()] ?? mapping.Item1.GetIndex(),
+                            mapping.Item1)));
 
             blockExpressions.Add(instanceVariable);
 
