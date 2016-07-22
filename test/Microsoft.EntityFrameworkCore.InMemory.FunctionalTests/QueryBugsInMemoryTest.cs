@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -329,6 +330,170 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        [Fact]
+        public virtual void Repro5456_include_group_join_is_per_query_context()
+        {
+            using (CreateScratch<MyContext5456>(Seed5456))
+            {
+                Parallel.For(0, 10, i =>
+                    {
+                        using (var ctx = new MyContext5456())
+                        {
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
+
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
+            }
+        }
+
+        [Fact]
+        public virtual void Repro5456_include_group_join_is_per_query_context_async()
+        {
+            using (CreateScratch<MyContext5456>(Seed5456))
+            {
+                Parallel.For(0, 10, async i =>
+                {
+                    using (var ctx = new MyContext5456())
+                    {
+                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+
+                        Assert.Equal(198, result.Count);
+                    }
+                });
+            }
+        }
+
+        [Fact]
+        public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
+        {
+            using (CreateScratch<MyContext5456>(Seed5456))
+            {
+                Parallel.For(0, 10, i =>
+                {
+                    using (var ctx = new MyContext5456())
+                    {
+                        var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+
+                        Assert.Equal(198, result.Count);
+                    }
+                });
+            }
+        }
+
+        [Fact]
+        public virtual void Repro5456_multiple_include_group_join_is_per_query_context_async()
+        {
+            using (CreateScratch<MyContext5456>(Seed5456))
+            {
+                Parallel.For(0, 10, async i =>
+                {
+                    using (var ctx = new MyContext5456())
+                    {
+                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+
+                        Assert.Equal(198, result.Count);
+                    }
+                });
+            }
+        }
+
+        [Fact]
+        public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
+        {
+            using (CreateScratch<MyContext5456>(Seed5456))
+            {
+                Parallel.For(0, 10, i =>
+                {
+                    using (var ctx = new MyContext5456())
+                    {
+                        var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+
+                        Assert.Equal(198, result.Count);
+                    }
+                });
+            }
+        }
+
+        [Fact]
+        public virtual void Repro5456_multi_level_include_group_join_is_per_query_context_async()
+        {
+            using (CreateScratch<MyContext5456>(Seed5456))
+            {
+                Parallel.For(0, 10, async i =>
+                {
+                    using (var ctx = new MyContext5456())
+                    {
+                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+
+                        Assert.Equal(198, result.Count);
+                    }
+                });
+            }
+        }
+
+        private void Seed5456(MyContext5456 context)
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                context.Add(
+                    new Blog5456
+                    {
+                        Posts = new List<Post5456>
+                        {
+                            new Post5456
+                            {
+                                Comments = new List<Comment5456>
+                                {
+                                    new Comment5456(),
+                                    new Comment5456()
+                                }
+                            },
+                            new Post5456()
+                        },
+                        Author = new Author5456()
+                    });
+            }
+            context.SaveChanges();
+        }
+
+        public class MyContext5456 : DbContext
+        {
+            public DbSet<Blog5456> Blogs { get; set; }
+            public DbSet<Post5456> Posts { get; set; }
+            public DbSet<Comment5456> Comments { get; set; }
+            public DbSet<Author5456> Authors { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+        }
+
+        public class Blog5456
+        {
+            public int Id { get; set; }
+            public List<Post5456> Posts { get; set; }
+            public Author5456 Author { get; set; }
+        }
+
+        public class Author5456
+        {
+            public int Id { get; set; }
+            public List<Blog5456> Blogs { get; set; }
+        }
+
+        public class Post5456
+        {
+            public int Id { get; set; }
+            public Blog5456 Blog { get; set; }
+            public List<Comment5456> Comments { get; set; }
+        }
+
+        public class Comment5456
+        {
+            public int Id { get; set; }
+            public Post5456 Blog { get; set; }
         }
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> Seed)
