@@ -744,11 +744,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var foreignKey in EntityType.GetForeignKeys())
             {
                 // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var property in foreignKey.Properties)
+                var properties = foreignKey.Properties;
+                foreach (var property in properties)
                 {
                     if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null))
                     {
-                        fks.Add(foreignKey);
+                        if (properties.Any(p => p.IsNullable))
+                        {
+                            foreach (var toNull in properties)
+                            {
+                                if (toNull.IsNullable)
+                                {
+                                    this[toNull] = null;
+                                }
+                                else
+                                {
+                                    _stateData.FlagProperty(toNull.GetIndex(), PropertyFlag.Null, isFlagged: false);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            fks.Add(foreignKey);
+                        }
                         break;
                     }
                 }
@@ -768,9 +786,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else
             {
-                throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
-                    EntityType.GetProperties().First(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null)).Name,
-                    EntityType.DisplayName()));
+                var property = EntityType.GetProperties().FirstOrDefault(
+                    p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
+
+                if (property != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
+                        property.Name,
+                        EntityType.DisplayName()));
+                }
             }
         }
 
