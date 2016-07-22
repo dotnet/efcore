@@ -23,6 +23,7 @@
     }
   },
   "dependencies": {
+    "Microsoft.EntityFrameworkCore.Abstractions": "1.1.0-*",
     "Microsoft.EntityFrameworkCore": "1.1.0-*"
   },
   "frameworks": {

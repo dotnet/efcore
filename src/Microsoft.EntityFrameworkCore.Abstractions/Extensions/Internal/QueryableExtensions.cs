@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Extensions.Internal
 {
     /// <summary>
@@ -17,6 +19,18 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
     /// </summary>
     public static class QueryableExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source)
+        {
+            Check.NotNull(source, nameof(source));
+
+            return source is IAsyncEnumerable<TSource>;
+        }
+
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.

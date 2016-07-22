@@ -4,6 +4,7 @@
             "AdxVerificationCompositeRule"
         ],
         "packages": {
+            "Microsoft.EntityFrameworkCore.Abstractions": { },
             "Microsoft.EntityFrameworkCore": { },
             "Microsoft.EntityFrameworkCore.Design": { },
             "Microsoft.EntityFrameworkCore.Design.Core": { },

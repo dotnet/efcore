@@ -317,8 +317,10 @@ CREATE TABLE PrimaryKeyWithSequence (
             BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
+            
 #endif
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
             BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions"),
             BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions")

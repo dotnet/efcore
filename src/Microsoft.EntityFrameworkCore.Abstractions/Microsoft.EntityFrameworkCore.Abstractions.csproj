@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9A622063-BFB2-446C-9C8A-DC07DAF750E4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Abstractions</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="Extensions\Internal\QueryableExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\CoreStrings.Designer.cs">
+      <Link>Properties\CoreStrings.Designer.cs</Link>
+      <DependentUpon>CoreStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Query\Internal\IAsyncEnumerableAccessor.cs" />
+    <Compile Include="Query\Internal\IAsyncQueryProvider.cs" />
+    <Compile Include="Query\Internal\IEntityQueryProvider.cs" />
+    <Compile Include="System.Linq\AsyncQueryableExtensions.cs" />
+    <Compile Include="System.Linq\IIncludableQueryable.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\CoreStrings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </Content>
+    <Content Include="Properties\Microsoft.EntityFrameworkCore.Abstractions.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

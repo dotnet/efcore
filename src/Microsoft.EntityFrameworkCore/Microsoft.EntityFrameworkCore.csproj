@@ -41,24 +41,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="..\Shared\Check.cs">
-      <Link>Check.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\CodeAnnotations.cs">
-      <Link>CodeAnnotations.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\PropertyInfoExtensions.cs">
-      <Link>PropertyInfoExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\SharedTypeExtensions.cs">
-      <Link>SharedTypeExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\StringBuilderExtensions.cs">
-      <Link>StringBuilderExtensions.cs</Link>
-    </Compile>
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
     <Compile Include="ChangeTracking\CollectionEntry.cs" />
     <Compile Include="ChangeTracking\CollectionEntry`.cs" />
@@ -152,7 +134,6 @@
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
-    <Compile Include="Extensions\Internal\QueryableExtensions.cs" />
     <Compile Include="Extensions\KeyExtensions.cs" />
     <Compile Include="Extensions\Internal\MethodInfoExtensions.cs" />
     <Compile Include="Extensions\ModelExtensions.cs" />
@@ -378,9 +359,6 @@
     <Compile Include="Metadata\ValueGenerated.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\CoreStrings.Designer.cs">
-      <DependentUpon>CoreStrings.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="QueryTrackingBehavior.cs" />
     <Compile Include="Query\CompiledQueryCacheKeyGenerator.cs" />
@@ -422,7 +400,6 @@
     <Compile Include="Query\ExpressionVisitors\ProjectionExpressionVisitor.cs" />
     <Compile Include="Query\ICompiledQueryCacheKeyGenerator.cs" />
     <Compile Include="Query\IEntityQueryModelVisitorFactory.cs" />
-    <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Query\IncludeSpecification.cs" />
     <Compile Include="Query\Internal\AsyncLinqOperatorProvider.cs" />
     <Compile Include="Query\Internal\CompiledQueryCache.cs" />
@@ -434,8 +411,6 @@
     <Compile Include="Query\Internal\ExpressionEqualityComparer.cs" />
     <Compile Include="Query\Internal\ExpressionPrinter.cs" />
     <Compile Include="Query\Internal\Grouping.cs" />
-    <Compile Include="Query\Internal\IAsyncEnumerableAccessor.cs" />
-    <Compile Include="Query\Internal\IAsyncQueryProvider.cs" />
     <Compile Include="Query\Internal\IAsyncRelatedEntitiesLoader.cs" />
     <Compile Include="Query\Internal\ICompiledQueryCache.cs" />
     <Compile Include="Query\Internal\IEntityTrackingInfoFactory.cs" />
@@ -517,16 +492,10 @@
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\CoreStrings.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
     </Content>
     <Content Include="Properties\Microsoft.EntityFrameworkCore.rd.xml" />
   </ItemGroup>
@@ -535,6 +504,12 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Abstractions\Microsoft.EntityFrameworkCore.Abstractions.csproj">
+      <Project>{9a622063-bfb2-446c-9c8a-dc07daf750e4}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Abstractions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

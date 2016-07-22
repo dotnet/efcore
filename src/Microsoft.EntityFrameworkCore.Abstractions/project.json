@@ -1,30 +1,37 @@
-{
+﻿{
   "version": "1.1.0-alpha1-*",
-  "description": "Entity Framework Core is a lightweight and extensible version of the popular Entity Framework data access technology.\r\n\r\nCommonly Used Types:\r\nMicrosoft.EntityFrameworkCore.DbContext\r\nMicrosoft.EntityFrameworkCore.DbSet",
+  "description":
+    "Abstractions for using Entity Framework Core IQueryable Extensions without the Entity Framework Core library.r\n\r\nCommon Namespaces:\r\nSystem.Linq\r\nMicrosoft.EntityFrameworkCore",
   "packOptions": {
     "tags": [
       "Entity Framework Core",
       "entity-framework-core",
       "EF",
       "Data",
-      "O/RM"
+      "O/RM",
+      "Queryable",
+      "Extensions",
+      "Linq",
+      "AsyncQueryable"
     ]
   },
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "xmlDoc": true,
+    "compile": {
+      "include": [
+        "../Shared/*.cs"
+      ]
+    },
     "embed": {
-      "includeFiles": "Properties/Microsoft.EntityFrameworkCore.rd.xml"
+      "include": [
+        "Properties/Microsoft.EntityFrameworkCore.Abstractions.rd.xml"
+      ]
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Abstractions": "1.1.0-*",
-    "Microsoft.Extensions.Caching.Memory": "1.1.0-*",
-    "Microsoft.Extensions.DependencyInjection": "1.1.0-*",
     "Microsoft.Extensions.Logging": "1.1.0-*",
-    "Remotion.Linq": "2.1.1",
-    "System.Collections.Immutable": "1.2.0-*",
     "System.Interactive.Async": "3.0.0-*"
   },
   "frameworks": {

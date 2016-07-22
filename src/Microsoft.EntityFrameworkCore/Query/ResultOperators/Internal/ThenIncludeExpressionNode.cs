@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -24,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
         {
-            EntityFrameworkQueryableExtensions.ThenIncludeAfterCollectionMethodInfo,
-            EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
+			AsyncQueryableExtensions.ThenIncludeAfterCollectionMethodInfo,
+			AsyncQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
         };
 
         private readonly LambdaExpression _navigationPropertyPathLambda;
