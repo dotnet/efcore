@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class AsyncQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        //[ConditionalFact] Flaky test--see Issue #6144
+        [ConditionalFact]
         public virtual async Task ToListAsync_can_be_canceled()
         {
             for (var i = 0; i < 10; i++)
