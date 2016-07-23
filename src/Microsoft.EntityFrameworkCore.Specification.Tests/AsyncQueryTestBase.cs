@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class AsyncQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        [ConditionalFact]
+        //[ConditionalFact] Flaky test--see Issue #6144
         public virtual async Task Race_when_context_disposed_before_query_termination()
         {
             Task<Customer> task;
