@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -30,14 +31,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Collection(e => e.Children).LoadAsync();
+                    await collectionEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Collection(e => e.Children).Load();
+                    collectionEntry.Load();
                 }
+
+                Assert.True(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -59,14 +66,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -90,14 +103,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -121,14 +140,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.Single).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.Single).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -152,14 +177,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -183,14 +214,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.SinglePkToPk).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.SinglePkToPk).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -214,9 +251,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Collection(e => e.Children).Query().ToListAsync()
-                    : context.Entry(parent).Collection(e => e.Children).Query().ToList();
+                    ? await collectionEntry.Query().ToListAsync()
+                    : collectionEntry.Query().ToList();
+
+                Assert.False(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -240,9 +283,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -265,9 +314,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -290,9 +345,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.Single).Query().SingleAsync()
-                    : context.Entry(parent).Reference(e => e.Single).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -315,9 +376,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -340,9 +407,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.SinglePkToPk).Query().SingleAsync()
-                    : context.Entry(parent).Reference(e => e.SinglePkToPk).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -365,14 +438,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -392,14 +471,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -420,9 +505,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -444,9 +535,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -468,14 +565,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Collection(e => e.Children).LoadAsync();
+                    await collectionEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Collection(e => e.Children).Load();
+                    collectionEntry.Load();
                 }
+
+                Assert.True(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -495,14 +598,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -522,14 +631,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -550,14 +665,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.Single).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.Single).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -578,9 +699,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Collection(e => e.Children).Query().ToListAsync()
-                    : context.Entry(parent).Collection(e => e.Children).Query().ToList();
+                    ? await collectionEntry.Query().ToListAsync()
+                    : collectionEntry.Query().ToList();
+
+                Assert.False(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -602,9 +729,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -626,9 +759,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -650,9 +789,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.Single).Query().SingleOrDefaultAsync()
-                    : context.Entry(parent).Reference(e => e.Single).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -674,14 +819,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                Assert.True(collectionEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Collection(e => e.Children).LoadAsync();
+                    await collectionEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Collection(e => e.Children).Load();
+                    collectionEntry.Load();
                 }
+
+                Assert.True(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -703,14 +854,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -734,14 +891,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -765,14 +928,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.Single).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.Single).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -796,14 +965,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -827,14 +1002,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.SinglePkToPk).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.SinglePkToPk).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -858,9 +1039,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                Assert.True(collectionEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Collection(e => e.Children).Query().ToListAsync()
-                    : context.Entry(parent).Collection(e => e.Children).Query().ToList();
+                    ? await collectionEntry.Query().ToListAsync()
+                    : collectionEntry.Query().ToList();
+
+                Assert.True(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -884,9 +1071,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -909,9 +1102,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -934,9 +1133,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.Single).Query().SingleAsync()
-                    : context.Entry(parent).Reference(e => e.Single).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -959,9 +1164,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -984,9 +1195,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                Assert.True(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.SinglePkToPk).Query().SingleAsync()
-                    : context.Entry(parent).Reference(e => e.SinglePkToPk).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1009,14 +1226,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Navigation("Children").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Navigation("Children").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1038,14 +1261,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Navigation("Parent").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Navigation("Parent").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1069,14 +1298,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Navigation("Parent").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Navigation("Parent").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1100,14 +1335,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Navigation("Single").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Navigation("Single").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1131,9 +1372,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Navigation("Children").Query().OfType<object>().ToListAsync()
-                    : context.Entry(parent).Navigation("Children").Query().OfType<object>().ToList();
+                    ? await navigationEntry.Query().OfType<object>().ToListAsync()
+                    : navigationEntry.Query().OfType<object>().ToList();
+
+                Assert.False(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1157,9 +1404,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Navigation("Parent").Query().OfType<object>().SingleAsync()
-                    : context.Entry(child).Navigation("Parent").Query().OfType<object>().Single();
+                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
+                    : navigationEntry.Query().OfType<object>().Single();
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1182,9 +1435,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Navigation("Parent").Query().OfType<object>().SingleAsync()
-                    : context.Entry(single).Navigation("Parent").Query().OfType<object>().Single();
+                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
+                    : navigationEntry.Query().OfType<object>().Single();
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1207,9 +1466,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Navigation("Single").Query().OfType<object>().SingleAsync()
-                    : context.Entry(parent).Navigation("Single").Query().OfType<object>().Single();
+                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
+                    : navigationEntry.Query().OfType<object>().Single();
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1232,14 +1497,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Navigation("Children").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Navigation("Children").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1259,14 +1530,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Navigation("Parent").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Navigation("Parent").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1286,14 +1563,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Navigation("Parent").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Navigation("Parent").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1314,14 +1597,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Navigation("Single").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Navigation("Single").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1342,9 +1631,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Navigation("Children").Query().OfType<object>().ToListAsync()
-                    : context.Entry(parent).Navigation("Children").Query().OfType<object>().ToList();
+                    ? await navigationEntry.Query().OfType<object>().ToListAsync()
+                    : navigationEntry.Query().OfType<object>().ToList();
+
+                Assert.False(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1366,9 +1661,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Navigation("Parent").Query().OfType<object>().SingleOrDefaultAsync()
-                    : context.Entry(child).Navigation("Parent").Query().OfType<object>().SingleOrDefault();
+                    ? await navigationEntry.Query().OfType<object>().SingleOrDefaultAsync()
+                    : navigationEntry.Query().OfType<object>().SingleOrDefault();
+
+                Assert.False(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1390,9 +1691,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Navigation("Parent").Query().OfType<object>().SingleOrDefaultAsync()
-                    : context.Entry(single).Navigation("Parent").Query().OfType<object>().SingleOrDefault();
+                    ? await navigationEntry.Query().OfType<object>().SingleOrDefaultAsync()
+                    : navigationEntry.Query().OfType<object>().SingleOrDefault();
+
+                Assert.False(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1414,9 +1721,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                Assert.False(navigationEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Navigation("Single").Query().OfType<object>().SingleOrDefaultAsync()
-                    : context.Entry(parent).Navigation("Single").Query().OfType<object>().SingleOrDefault();
+                    ? await navigationEntry.Query().OfType<object>().SingleOrDefaultAsync()
+                    : navigationEntry.Query().OfType<object>().SingleOrDefault();
+
+                Assert.False(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1438,14 +1751,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Navigation("Children").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Navigation("Children").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1467,14 +1786,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Navigation("Parent").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Navigation("Parent").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1498,14 +1823,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Navigation("Parent").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Navigation("Parent").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1529,14 +1860,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Navigation("Single").LoadAsync();
+                    await navigationEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Navigation("Single").Load();
+                    navigationEntry.Load();
                 }
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1560,9 +1897,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Navigation("Children").Query().OfType<object>().ToListAsync()
-                    : context.Entry(parent).Navigation("Children").Query().OfType<object>().ToList();
+                    ? await navigationEntry.Query().OfType<object>().ToListAsync()
+                    : navigationEntry.Query().OfType<object>().ToList();
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1586,9 +1929,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Navigation("Parent").Query().OfType<object>().SingleAsync()
-                    : context.Entry(child).Navigation("Parent").Query().OfType<object>().Single();
+                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
+                    : navigationEntry.Query().OfType<object>().Single();
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1611,9 +1960,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Navigation("Parent").Query().OfType<object>().SingleAsync()
-                    : context.Entry(single).Navigation("Parent").Query().OfType<object>().Single();
+                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
+                    : navigationEntry.Query().OfType<object>().Single();
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1636,9 +1991,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                Assert.True(navigationEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Navigation("Single").Query().OfType<object>().SingleAsync()
-                    : context.Entry(parent).Navigation("Single").Query().OfType<object>().Single();
+                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
+                    : navigationEntry.Query().OfType<object>().Single();
+
+                Assert.True(navigationEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1661,14 +2022,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenAk);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Collection(e => e.ChildrenAk).LoadAsync();
+                    await collectionEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Collection(e => e.ChildrenAk).Load();
+                    collectionEntry.Load();
                 }
+
+                Assert.True(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1690,14 +2057,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1721,14 +2094,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1752,14 +2131,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SingleAk);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.SingleAk).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.SingleAk).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1783,9 +2168,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenAk);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Collection(e => e.ChildrenAk).Query().ToListAsync()
-                    : context.Entry(parent).Collection(e => e.ChildrenAk).Query().ToList();
+                    ? await collectionEntry.Query().ToListAsync()
+                    : collectionEntry.Query().ToList();
+
+                Assert.False(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1809,9 +2200,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1834,9 +2231,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1859,9 +2262,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SingleAk);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.SingleAk).Query().SingleAsync()
-                    : context.Entry(parent).Reference(e => e.SingleAk).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1884,14 +2293,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1911,14 +2326,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1939,9 +2360,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1963,9 +2390,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -1987,14 +2420,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenShadowFk);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Collection(e => e.ChildrenShadowFk).LoadAsync();
+                    await collectionEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Collection(e => e.ChildrenShadowFk).Load();
+                    collectionEntry.Load();
                 }
+
+                Assert.True(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2016,14 +2455,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2047,14 +2492,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2078,14 +2529,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SingleShadowFk);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.SingleShadowFk).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.SingleShadowFk).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2109,9 +2566,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenShadowFk);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Collection(e => e.ChildrenShadowFk).Query().ToListAsync()
-                    : context.Entry(parent).Collection(e => e.ChildrenShadowFk).Query().ToList();
+                    ? await collectionEntry.Query().ToListAsync()
+                    : collectionEntry.Query().ToList();
+
+                Assert.False(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2135,9 +2598,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2160,9 +2629,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2185,9 +2660,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SingleShadowFk);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.SingleShadowFk).Query().SingleAsync()
-                    : context.Entry(parent).Reference(e => e.SingleShadowFk).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2210,14 +2691,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2237,14 +2724,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2265,9 +2758,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2289,9 +2788,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2313,14 +2818,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenCompositeKey);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Collection(e => e.ChildrenCompositeKey).LoadAsync();
+                    await collectionEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Collection(e => e.ChildrenCompositeKey).Load();
+                    collectionEntry.Load();
                 }
+
+                Assert.True(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2342,14 +2853,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2373,14 +2890,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2404,14 +2927,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SingleCompositeKey);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(parent).Reference(e => e.SingleCompositeKey).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(parent).Reference(e => e.SingleCompositeKey).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2435,9 +2964,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenCompositeKey);
+
+                Assert.False(collectionEntry.IsLoaded);
+
                 var children = async
-                    ? await context.Entry(parent).Collection(e => e.ChildrenCompositeKey).Query().ToListAsync()
-                    : context.Entry(parent).Collection(e => e.ChildrenCompositeKey).Query().ToList();
+                    ? await collectionEntry.Query().ToListAsync()
+                    : collectionEntry.Query().ToList();
+
+                Assert.False(collectionEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2461,9 +2996,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2486,9 +3027,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2511,9 +3058,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(parent).Reference(e => e.SingleCompositeKey);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var single = async
-                    ? await context.Entry(parent).Reference(e => e.SingleCompositeKey).Query().SingleAsync()
-                    : context.Entry(parent).Reference(e => e.SingleCompositeKey).Query().Single();
+                    ? await referenceEntry.Query().SingleAsync()
+                    : referenceEntry.Query().Single();
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2536,14 +3089,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(child).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(child).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2563,14 +3122,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 if (async)
                 {
-                    await context.Entry(single).Reference(e => e.Parent).LoadAsync();
+                    await referenceEntry.LoadAsync();
                 }
                 else
                 {
-                    context.Entry(single).Reference(e => e.Parent).Load();
+                    referenceEntry.Load();
                 }
+
+                Assert.True(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2591,9 +3156,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(child).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2615,9 +3186,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 ClearLog();
 
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
                 var parent = async
-                    ? await context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefaultAsync()
-                    : context.Entry(single).Reference(e => e.Parent).Query().SingleOrDefault();
+                    ? await referenceEntry.Query().SingleOrDefaultAsync()
+                    : referenceEntry.Query().SingleOrDefault();
+
+                Assert.False(referenceEntry.IsLoaded);
 
                 RecordLog();
 
@@ -2625,6 +3202,79 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Null(single.Parent);
 
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_change_IsLoaded_flag_for_collection()
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                Assert.False(collectionEntry.IsLoaded);
+
+                collectionEntry.IsLoaded = true;
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                collectionEntry.Load();
+
+                Assert.Equal(0, parent.Children.Count());
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                collectionEntry.IsLoaded = false;
+
+                Assert.False(collectionEntry.IsLoaded);
+
+                collectionEntry.Load();
+
+                Assert.Equal(2, parent.Children.Count());
+                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                Assert.True(collectionEntry.IsLoaded);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_change_IsLoaded_flag_for_reference_only_if_null()
+        {
+            using (var context = CreateContext())
+            {
+                var child = context.Children.Single(e => e.Id == 12);
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
+                referenceEntry.IsLoaded = true;
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                referenceEntry.Load();
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+                referenceEntry.IsLoaded = true;
+
+                referenceEntry.IsLoaded = false;
+
+                referenceEntry.Load();
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                Assert.Equal(
+                    CoreStrings.ReferenceMustBeLoaded("Parent", typeof(Child).Name),
+                    Assert.Throws<InvalidOperationException>(() => referenceEntry.IsLoaded = false).Message);
             }
         }
 

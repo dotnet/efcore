@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         Returns the query that would be used by <see cref="ReferenceEntry.Load" /> to load the entity referenced by
+        ///         Returns the query that would be used by <see cref="NavigationEntry.Load" /> to load the entity referenced by
         ///         this navigation property.
         ///     </para>
         ///     <para>
@@ -72,6 +72,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         public new virtual IQueryable<TProperty> Query()
-            => ((IEntityFinder<TProperty>)Finder(Metadata.GetTargetType().ClrType)).Query(GetLoadProperties(), GetLoadValues());
+            => ((IEntityFinder<TProperty>)Finder(Metadata.GetTargetType().ClrType)).Query(Metadata, InternalEntry);
     }
 }

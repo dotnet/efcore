@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             EnsureInitialized();
 
-            return ((IEntityFinder<TProperty>)Finder(Metadata.GetTargetType().ClrType)).Query(GetLoadProperties(), GetLoadValues());
+            return ((IEntityFinder<TProperty>)Finder(Metadata.GetTargetType().ClrType)).Query(Metadata, InternalEntry);
         }
     }
 }

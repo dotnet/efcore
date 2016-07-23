@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .StartTracking(_stateManager.Value, entity, (ValueBuffer)boxedValueBuffer);
 
             foreach (var includedEntity
-                in entityTrackingInfo.GetIncludedEntities(entity)
+                in entityTrackingInfo.GetIncludedEntities(_stateManager.Value, entity)
                     .Where(includedEntity
                         => _valueBuffers.TryGetValue(includedEntity.Entity, out boxedValueBuffer)))
             {

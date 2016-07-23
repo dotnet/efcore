@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -33,6 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        new IQueryable<TEntity> Query([NotNull] IReadOnlyList<IProperty> keyProperties, [NotNull] object[] keyValues);
+        new IQueryable<TEntity> Query([NotNull] INavigation navigation, [NotNull] InternalEntityEntry entry);
     }
 }

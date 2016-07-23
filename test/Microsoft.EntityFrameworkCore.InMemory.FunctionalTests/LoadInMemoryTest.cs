@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         }
 
         [Theory] // Skipped for in-memory. See #6123
-        public override Task Load_many_to_one_reference_to_principal_already_loaded_untyped(bool async) 
+        public override Task Load_many_to_one_reference_to_principal_already_loaded_untyped(bool async)
             => Task.FromResult(0);
 
         [Theory] // Skipped for in-memory. See #6123

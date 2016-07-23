@@ -93,59 +93,91 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Load(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
+        public virtual void Load(INavigation navigation, InternalEntityEntry entry)
         {
+            var keyValues = GetLoadValues(navigation, entry);
             // Short-circuit for any null key values for perf and because of #6129
-            if (keyValues.Any(v => v == null))
+            if (keyValues != null)
             {
-                return;
+                Query(navigation, keyValues).Load();
             }
 
-            _set.Where(BuildLambda(keyProperties, new ValueBuffer(keyValues))).Load();
+            entry.SetIsLoaded(navigation);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task LoadAsync(
-            IReadOnlyList<IProperty> keyProperties,
-            object[] keyValues,
+        public virtual async Task LoadAsync(
+            INavigation navigation, 
+            InternalEntityEntry entry,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             // Short-circuit for any null key values for perf and because of #6129
-            if (keyValues.Any(v => v == null))
+            var keyValues = GetLoadValues(navigation, entry);
+            if (keyValues != null)
             {
-                return Task.FromResult(0);
+                // TODO: Replace with LoadAsync when Issue #6122 is fixed
+                await Query(navigation, keyValues).ToListAsync(cancellationToken);
             }
 
-            // TODO: Replace with LoadAsync when Issue #6122 is fixed
-            return _set.Where(BuildLambda(keyProperties, new ValueBuffer(keyValues))).ToListAsync(cancellationToken);
+            entry.SetIsLoaded(navigation);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IQueryable<TEntity> Query(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
+        public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
         {
+            var keyValues = GetLoadValues(navigation, entry);
             // Short-circuit for any null key values for perf and because of #6129
-            if (keyValues.Any(v => v == null))
+            if (keyValues == null)
             {
                 // Creates an empty Queryable that works with Async. Has to be an EF query because it
                 // could be used in a composition.
                 return _set.Where(e => false);
             }
 
-            return _set.Where(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
+            return Query(navigation, keyValues);
         }
+
+        private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues) 
+            => _set.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IQueryable IEntityFinder.Query(IReadOnlyList<IProperty> keyProperties, object[] keyValues)
-            => Query(keyProperties, keyValues);
+        IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
+            => Query(navigation, entry);
+
+        private object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
+        {
+            var properties = navigation.IsDependentToPrincipal()
+                ? navigation.ForeignKey.Properties
+                : navigation.ForeignKey.PrincipalKey.Properties;
+
+            var values = new object[properties.Count];
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                values[i] = entry[properties[i]];
+                if (values[i] == null)
+                {
+                    return null;
+                }
+            }
+
+            return values;
+        }
+
+        private IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
+            => navigation.IsDependentToPrincipal()
+                ? navigation.ForeignKey.PrincipalKey.Properties
+                : navigation.ForeignKey.Properties;
+
 
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {

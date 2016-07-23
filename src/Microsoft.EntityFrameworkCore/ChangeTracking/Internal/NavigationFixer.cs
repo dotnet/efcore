@@ -160,6 +160,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                     }
                 }
+
+                if (newValue == null)
+                {
+                    entry.SetIsLoaded(navigation, loaded: false);
+                }
             }
             finally
             {

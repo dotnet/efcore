@@ -870,6 +870,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     old1.RootId = null;
                 }
 
+                Assert.False(context.Entry(root).Reference(e => e.OptionalSingle).IsLoaded);
+                Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
@@ -926,6 +929,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
+                Assert.False(context.Entry(root).Reference(e => e.RequiredSingle).IsLoaded);
+                Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
@@ -975,6 +981,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
+
+                Assert.False(context.Entry(root).Reference(e => e.RequiredNonPkSingle).IsLoaded);
+                Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
 
                 context.SaveChanges();
 
@@ -2098,6 +2107,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     old1.RootId = null;
                 }
 
+                Assert.False(context.Entry(root).Reference(e => e.OptionalSingleAk).IsLoaded);
+                Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
@@ -2163,6 +2175,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
+                Assert.False(context.Entry(root).Reference(e => e.RequiredSingleAk).IsLoaded);
+                Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
@@ -2216,6 +2231,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
+
+                Assert.False(context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).IsLoaded);
+                Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
 
                 context.SaveChanges();
 
