@@ -193,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                     eb.Property(c => c.Breed).HasMaxLength(25);
                     eb.Property(c => c.Breed).HasColumnName("BreedName");
                     eb.Property(c => c.Breed).HasDefaultValue("None");
+                    eb.Property<bool>("Selected").HasDefaultValue(false);
                 });
             modelBuilder.Entity<Dog>(eb =>
                 {
@@ -200,6 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                     eb.Property(c => c.Breed).HasMaxLength(25);
                     eb.Property(c => c.Breed).HasColumnName("BreedName");
                     eb.Property(c => c.Breed).HasDefaultValue("None");
+                    eb.Property<bool>("Selected").HasDefaultValue(false);
                 });
 
             Validate(modelBuilder.Model);

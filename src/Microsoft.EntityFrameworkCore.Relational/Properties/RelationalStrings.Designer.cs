@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// No mapping to a relational type can be found for the CLR type '{clrType}'
+        /// No mapping to a relational type can be found for the CLR type '{clrType}'.
         /// </summary>
         public static string UnsupportedType([CanBeNull] object clrType)
         {
@@ -502,6 +502,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string DuplicateIndexUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateIndexUniquenessMismatch", "index1", "entityType1", "index2", "entityType2", "table", "indexName"), index1, entityType1, index2, entityType2, table, indexName);
+        }
+
+        /// <summary>
+        /// No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.
+        /// </summary>
+        public static string UnsupportedPropertyType([CanBeNull] object entity, [CanBeNull] object property, [CanBeNull] object clrType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedPropertyType", "entity", "property", "clrType"), entity, property, clrType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

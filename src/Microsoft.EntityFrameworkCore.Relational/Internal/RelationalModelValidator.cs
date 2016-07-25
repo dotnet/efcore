@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                         var currentDefaultValue = propertyAnnotations.DefaultValue;
                         var previousDefaultValue = previousAnnotations.DefaultValue;
-                        if (currentDefaultValue != previousDefaultValue)
+                        if (!Equals(currentDefaultValue, previousDefaultValue))
                         {
                             ShowError(RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
                                 duplicateProperty.DeclaringEntityType.DisplayName(),
