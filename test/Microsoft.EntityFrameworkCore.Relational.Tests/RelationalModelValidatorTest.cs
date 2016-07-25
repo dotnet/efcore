@@ -14,6 +14,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
     public class RelationalModelValidatorTest : LoggingModelValidatorTest
     {
         [Fact]
+        public virtual void Detects_primary_key_with_default_value()
+        {
+            var model = new Model();
+            var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
+            entityA.FindProperty("Id").Relational().DefaultValue = 1;
+
+            VerifyWarning(RelationalStrings.KeyHasDefaultValue("Id", "A"), model);
+        }
+
+        [Fact]
+        public virtual void Detects_alternate_key_with_default_value()
+        {
+            var model = new Model();
+            var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
+
+            var property = entityA.AddProperty("P0", typeof(int?), shadow: false);
+            property.IsNullable = false;
+            entityA.AddKey(new[] { property });
+            property.Relational().DefaultValue = 1;
+
+            VerifyWarning(RelationalStrings.KeyHasDefaultValue("P0", "A"), model);
+        }
+
+        [Fact]
         public virtual void Detects_duplicate_table_names()
         {
             var model = new Model();
