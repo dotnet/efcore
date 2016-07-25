@@ -1078,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login11>();
 
             Validate(modelBuilder.Model);
-            
+
             Assert.True(GetProperty<Login11>(modelBuilder, nameof(Profile11.Profile11Id)).IsForeignKey());
             Assert.True(GetProperty<Profile11>(modelBuilder, nameof(Profile11.Profile11Id)).IsForeignKey());
         }
@@ -1097,6 +1097,45 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             [ForeignKey(nameof(Profile11Id))]
             public virtual Login11 User { get; set; }
+        }
+
+        [Fact]
+        public virtual void Shared_ForeignKey_to_different_principals()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login12>();
+
+            Validate(modelBuilder.Model);
+
+            var login = modelBuilder.Model.FindEntityType(typeof(Login12));
+            var fk1 = login.FindNavigation(nameof(Login12.Profile)).ForeignKey;
+            var fk2 = login.FindNavigation(nameof(Login12.ProfileDetails)).ForeignKey;
+
+            Assert.NotSame(fk1, fk2);
+            Assert.Equal(nameof(Login12.ProfileId), fk1.Properties.Single().Name);
+            Assert.Equal(nameof(Login12.ProfileId), fk2.Properties.Single().Name);
+        }
+
+        public class Login12
+        {
+            public int Id { get; set; }
+            public int ProfileId { get; set; }
+
+            [ForeignKey("ProfileId")]
+            public virtual Profile12 Profile { get; set; }
+            [ForeignKey("ProfileId")]
+            public virtual ProfileDetails12 ProfileDetails { get; set; }
+        }
+
+        public class Profile12
+        {
+            public int Id { get; set; }
+        }
+
+        public class ProfileDetails12
+        {
+            public int Id { get; set; }
         }
 
         [Fact]
