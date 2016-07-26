@@ -427,6 +427,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void All_top_level_column()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.ContactName.StartsWith(c.ContactName)));
+        }
+
+        [ConditionalFact]
         public virtual void All_top_level_subquery()
         {
             AssertQuery<Customer>(

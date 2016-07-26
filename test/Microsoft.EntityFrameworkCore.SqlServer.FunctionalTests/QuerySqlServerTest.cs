@@ -1619,7 +1619,7 @@ END",
     WHEN EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE [c].[ContactName] LIKE N'A' + N'%')
+        WHERE [c].[ContactName] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[ContactName]) = 1))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -1635,7 +1635,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%')",
+    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1))",
                 Sql);
         }
 
@@ -1649,7 +1649,7 @@ FROM [Customers] AS [c]
 WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%')",
+    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1))",
                 Sql);
         }
 
@@ -1663,7 +1663,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%') AND (([c].[City] <> N'London') OR [c].[City] IS NULL)",
+    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1)) AND (([c].[City] <> N'London') OR [c].[City] IS NULL)",
                 Sql);
         }
 
@@ -1677,7 +1677,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%')",
+    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1))",
                 Sql);
         }
 
@@ -1691,7 +1691,7 @@ FROM [Customers] AS [c]
 WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%')",
+    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1))",
                 Sql);
         }
 
@@ -1705,7 +1705,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%') AND (([c].[City] <> N'London') OR [c].[City] IS NULL)",
+    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1)) AND (([c].[City] <> N'London') OR [c].[City] IS NULL)",
                 Sql);
         }
 
@@ -1732,7 +1732,22 @@ WHERE ([c].[City] = N'London') AND EXISTS (
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE NOT ([c].[ContactName] LIKE N'A' + N'%'))
+        WHERE NOT ([c].[ContactName] LIKE N'A' + N'%') OR (CHARINDEX(N'A', [c].[ContactName]) <> 1))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        public override void All_top_level_column()
+        {
+            base.All_top_level_column();
+
+            Assert.Equal(
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]
+        WHERE (NOT ([c].[ContactName] LIKE [c].[ContactName] + N'%') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) <> 1)) AND (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -3977,7 +3992,7 @@ WHERE [p].[UnitsInStock] > 10",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'%' + N'KI'",
+WHERE RIGHT([c].[CustomerID], LEN(N'KI')) = N'KI'",
                 Sql);
         }
 
@@ -4112,7 +4127,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'M' + N'%'",
+WHERE [c].[ContactName] LIKE N'M' + N'%' AND (CHARINDEX(N'M', [c].[ContactName]) = 1)",
                 Sql);
         }
 
@@ -4123,7 +4138,7 @@ WHERE [c].[ContactName] LIKE N'M' + N'%'",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE [c].[ContactName] + N'%'",
+WHERE ([c].[ContactName] LIKE [c].[ContactName] + N'%' AND (CHARINDEX([c].[ContactName], [c].[ContactName]) = 1)) OR ([c].[ContactName] = N'')",
                 Sql);
         }
 
@@ -4134,7 +4149,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + N'%'",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE [c].[ContactName] + N'%'",
+WHERE ([c].[ContactName] LIKE [c].[ContactName] + N'%' AND (CHARINDEX([c].[ContactName], [c].[ContactName]) = 1)) OR ([c].[ContactName] = N'')",
                 Sql);
         }
 
@@ -4147,7 +4162,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + N'%'",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + N'%'",
+WHERE ([c].[ContactName] LIKE @__LocalMethod1_0 + N'%' AND (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) = 1)) OR (@__LocalMethod1_0 = N'')",
                 Sql);
         }
 
@@ -4158,7 +4173,7 @@ WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + N'%'",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%' + N'b'",
+WHERE RIGHT([c].[ContactName], LEN(N'b')) = N'b'",
                 Sql);
         }
 
@@ -4169,7 +4184,7 @@ WHERE [c].[ContactName] LIKE N'%' + N'b'",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%' + [c].[ContactName]",
+WHERE (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]) OR ([c].[ContactName] = N'')",
                 Sql);
         }
 
@@ -4180,7 +4195,7 @@ WHERE [c].[ContactName] LIKE N'%' + [c].[ContactName]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%' + [c].[ContactName]",
+WHERE (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]) OR ([c].[ContactName] = N'')",
                 Sql);
         }
 
@@ -4193,7 +4208,7 @@ WHERE [c].[ContactName] LIKE N'%' + [c].[ContactName]",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%' + @__LocalMethod2_0",
+WHERE (RIGHT([c].[ContactName], LEN(@__LocalMethod2_0)) = @__LocalMethod2_0) OR (@__LocalMethod2_0 = N'')",
                 Sql);
         }
 
@@ -4207,7 +4222,7 @@ WHERE [c].[ContactName] LIKE N'%' + @__LocalMethod2_0",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
+WHERE CHARINDEX(N'M', [c].[ContactName]) > 0",
                 Sql);
         }
 
@@ -4218,7 +4233,7 @@ WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + [c].[ContactName]) + N'%'",
+WHERE (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0) OR ([c].[ContactName] = N'')",
                 Sql);
         }
 
@@ -4229,7 +4244,7 @@ WHERE [c].[ContactName] LIKE (N'%' + [c].[ContactName]) + N'%'",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + [c].[ContactName]) + N'%'",
+WHERE (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0) OR ([c].[ContactName] = N'')",
                 Sql);
         }
 
@@ -4245,7 +4260,7 @@ WHERE [c].[ContactName] LIKE (N'%' + [c].[ContactName]) + N'%'",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + @__LocalMethod1_0) + N'%'",
+WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')",
                 Sql);
         }
 
@@ -5697,11 +5712,11 @@ FROM [Orders] AS [o]",
 
             Assert.Equal(
                 @"@__NewLine_0: 
- (Size = 450)
+ (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE (N'%' + @__NewLine_0) + N'%'",
+WHERE (CHARINDEX(@__NewLine_0, [c].[CustomerID]) > 0) OR (@__NewLine_0 = N'')",
                 Sql);
         }
 

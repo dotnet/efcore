@@ -62,6 +62,8 @@
     <Compile Include="FindSqlServerTest.cs" />
     <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
+    <Compile Include="FunkyDataQuerySqlServerTest.cs" />
+    <Compile Include="FunkyDataQuerySqlServerFixture.cs" />
     <Compile Include="GearsOfWarFromSqlQuerySqlServerTest.cs" />
     <Compile Include="GearsOfWarQuerySqlServerFixture.cs" />
     <Compile Include="GearsOfWarQuerySqlServerTest.cs" />

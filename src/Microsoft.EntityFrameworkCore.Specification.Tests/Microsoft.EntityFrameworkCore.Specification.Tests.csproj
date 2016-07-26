@@ -50,6 +50,8 @@
     <Compile Include="DataAnnotationTestBase.cs" />
     <Compile Include="F1FixtureBase.cs" />
     <Compile Include="FindTestBase.cs" />
+    <Compile Include="FunkyDataQueryFixtureBase.cs" />
+    <Compile Include="FunkyDataQueryTestBase.cs" />
     <Compile Include="GearsOfWarQueryFixtureBase.cs" />
     <Compile Include="GearsOfWarQueryTestBase.cs" />
     <Compile Include="GraphUpdatesTestBase.cs" />
@@ -99,6 +101,9 @@
     <Compile Include="TestModels\ConcurrencyModel\Team.cs" />
     <Compile Include="TestModels\ConcurrencyModel\TestDriver.cs" />
     <Compile Include="TestModels\ConcurrencyModel\TitleSponsor.cs" />
+    <Compile Include="TestModels\FunkyDataModel\FunkyDataContext.cs" />
+    <Compile Include="TestModels\FunkyDataModel\FunkyCustomer.cs" />
+    <Compile Include="TestModels\FunkyDataModel\FunkyDataModelInitializer.cs" />
     <Compile Include="TestModels\GearsOfWarModel\AmmunitionType.cs" />
     <Compile Include="TestModels\GearsOfWarModel\City.cs" />
     <Compile Include="TestModels\GearsOfWarModel\CogTag.cs" />
@@ -208,6 +213,7 @@
       <Name>Microsoft.EntityFrameworkCore</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

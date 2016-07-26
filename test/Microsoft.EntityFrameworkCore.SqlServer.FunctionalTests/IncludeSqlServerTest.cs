@@ -274,7 +274,7 @@ ORDER BY [o0].[OrderID]",
             Assert.Equal(
                 @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'W' + N'%'
+WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
 ORDER BY (
     SELECT TOP(1) [oo].[OrderDate]
     FROM [Orders] AS [oo]
@@ -292,7 +292,7 @@ INNER JOIN (
         ORDER BY [oo].[OrderDate] DESC
     ) AS [c0_0], [c].[CustomerID]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W' + N'%'
+    WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
     ORDER BY [c0_0] DESC, [c].[CustomerID]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[c0_0] DESC, [c0].[CustomerID]",
@@ -1252,9 +1252,9 @@ ORDER BY [c0].[ContactName], [c0].[CustomerID]",
             base.Then_include_collection_order_by_collection_column();
 
             Assert.Equal(
-    @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'W' + N'%'
+WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
 ORDER BY (
     SELECT TOP(1) [oo].[OrderDate]
     FROM [Orders] AS [oo]
@@ -1272,7 +1272,7 @@ INNER JOIN (
         ORDER BY [oo].[OrderDate] DESC
     ) AS [c0_0], [c].[CustomerID]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W' + N'%'
+    WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
     ORDER BY [c0_0] DESC, [c].[CustomerID]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[c0_0] DESC, [c0].[CustomerID], [o].[OrderID]
@@ -1290,12 +1290,12 @@ INNER JOIN (
             ORDER BY [oo].[OrderDate] DESC
         ) AS [c0_0], [c].[CustomerID]
         FROM [Customers] AS [c]
-        WHERE [c].[CustomerID] LIKE N'W' + N'%'
+        WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
         ORDER BY [c0_0] DESC, [c].[CustomerID]
     ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
 ORDER BY [o1].[c0_0] DESC, [o1].[CustomerID], [o1].[OrderID]",
-    Sql);
+                Sql);
         }
 
         private const string FileLineEnding = @"

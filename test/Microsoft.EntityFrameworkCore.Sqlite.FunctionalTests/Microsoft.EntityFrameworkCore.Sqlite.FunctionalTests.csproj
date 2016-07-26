@@ -51,6 +51,8 @@
     <Compile Include="F1SqliteFixture.cs" />
     <Compile Include="FindSqliteTest.cs" />
     <Compile Include="FromSqlQuerySqliteTest.cs" />
+    <Compile Include="FunkyDataQuerySqliteFixture.cs" />
+    <Compile Include="FunkyDataQuerySqliteTest.cs" />
     <Compile Include="GearsOfWarFromSqlQuerySqliteTest.cs" />
     <Compile Include="GearsOfWarQuerySqliteFixture.cs" />
     <Compile Include="GearsOfWarQuerySqliteTest.cs" />

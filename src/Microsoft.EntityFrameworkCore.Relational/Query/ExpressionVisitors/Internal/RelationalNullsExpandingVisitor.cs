@@ -114,13 +114,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitExtension(Expression node)
-        {
-            var notNullableExpression = node as NotNullableExpression;
-
-            return notNullableExpression != null
+            => node is NotNullableExpression
                 ? node
                 : base.VisitExtension(node);
-        }
 
         private static Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)
         {

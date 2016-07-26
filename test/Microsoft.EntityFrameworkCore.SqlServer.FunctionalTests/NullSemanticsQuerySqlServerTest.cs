@@ -913,7 +913,7 @@ END) OR [e].[NullableStringC] IS NULL",
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] LIKE (N'%' + [e].[NullableStringB]) + N'%' AND ([e].[BoolA] = 1)",
+WHERE ((CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0) OR ([e].[NullableStringB] = N'')) AND ([e].[BoolA] = 1)",
                 Sql);
         }
 
@@ -941,7 +941,7 @@ FROM [NullSemanticsEntity1] AS [e]
 WHERE CASE
     WHEN @__prm_0 = 0
     THEN CAST(1 AS BIT) ELSE CASE
-        WHEN [e].[StringA] LIKE N'A' + N'%'
+        WHEN [e].[StringA] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[StringA]) = 1)
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 END = 1",
@@ -965,7 +965,7 @@ WHERE CASE
         THEN CASE
             WHEN [e].[BoolA] = 1
             THEN CASE
-                WHEN [e].[StringA] LIKE N'A' + N'%'
+                WHEN [e].[StringA] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[StringA]) = 1)
                 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
             END ELSE CAST(0 AS BIT)
         END ELSE CAST(1 AS BIT)

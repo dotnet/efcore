@@ -106,9 +106,11 @@
     <Compile Include="Query\Expressions\Internal\RowNumberExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMethodCallTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerContainsOptimizedTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerConvertTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeDateComponentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeNowTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerEndsWithOptimizedTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathAbsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathCeilingTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathFloorTranslator.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathRoundTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathTruncateTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerNewGuidTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStartsWithOptimizedTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringLengthTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringReplaceTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringTrimEndTranslator.cs" />

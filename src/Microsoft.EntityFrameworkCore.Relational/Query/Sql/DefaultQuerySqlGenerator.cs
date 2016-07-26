@@ -1411,6 +1411,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     return expression;
                 }
+                case ExpressionType.Negate:
+                {
+                    _relationalCommandBuilder.Append("-");
+                    Visit(expression.Operand);
+
+                    return expression;
+                }
             }
 
             return base.VisitUnary(expression);
@@ -1661,23 +1668,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
                 else
                 {
+                    Expression newLeft;
+                    Expression newRight;
                     if (expression.IsLogicalOperation()
                         || expression.NodeType == ExpressionType.Or
                         || expression.NodeType == ExpressionType.And)
                     {
                         var parentIsSearchCondition = _isSearchCondition;
                         _isSearchCondition = expression.IsLogicalOperation();
-                        var left = Visit(expression.Left);
-                        var right = Visit(expression.Right);
+                        newLeft = Visit(expression.Left);
+                        newRight = Visit(expression.Right);
                         _isSearchCondition = parentIsSearchCondition;
-
-                        return Expression.MakeBinary(expression.NodeType, left, right);
+                    }
+                    else
+                    {
+                        newLeft = Visit(expression.Left);
+                        newRight = Visit(expression.Right);
                     }
 
-                    if (IsSearchCondition(expression))
+                    var newExpression = expression.Update(newLeft, expression.Conversion, newRight);
+                    if (IsSearchCondition(newExpression))
                     {
                         return Expression.Condition(
-                            expression,
+                            newExpression,
                             Expression.Constant(true, typeof(bool)),
                             Expression.Constant(false, typeof(bool)));
                     }

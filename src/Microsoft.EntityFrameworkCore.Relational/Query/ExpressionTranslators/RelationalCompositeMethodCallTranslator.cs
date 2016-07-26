@@ -27,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             _methodCallTranslators
                 = new List<IMethodCallTranslator>
                 {
-                    new ContainsTranslator(),
-                    new EndsWithTranslator(),
+                    new ContainsTranslator(logger),
+                    new EndsWithTranslator(logger),
                     new EqualsTranslator(logger),
                     new IsNullOrEmptyTranslator(),
-                    new StartsWithTranslator()
+                    new StartsWithTranslator(logger)
                 };
         }
 
@@ -55,6 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </summary>
         /// <param name="translators"> The translators. </param>
         protected virtual void AddTranslators([NotNull] IEnumerable<IMethodCallTranslator> translators)
-            => _methodCallTranslators.AddRange(translators);
+            => _methodCallTranslators.InsertRange(0, translators);
     }
 }

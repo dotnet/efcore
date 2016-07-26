@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + N'z') + N'%'",
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
                 Sql);
         }
 

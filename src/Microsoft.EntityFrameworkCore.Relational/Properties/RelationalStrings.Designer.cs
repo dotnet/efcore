@@ -233,6 +233,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// Linq translation for method '{function}' used by this database provider can return incorrect results when the value argument contains wildcard characters (e.g. '%' or '_').
+        /// </summary>
+        public static string PossibleIncorrectResultsUsingLikeOperator([CanBeNull] object function)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PossibleIncorrectResultsUsingLikeOperator", "function", "right"), function);
+        }
+
+        /// <summary>
         /// The Include operation is not supported when calling a stored procedure.
         /// </summary>
         public static string StoredProcedureIncludeNotSupported

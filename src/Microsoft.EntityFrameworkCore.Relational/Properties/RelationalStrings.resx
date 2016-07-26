@@ -198,6 +198,9 @@
   <data name="PossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method Equals(object) for arguments of different types: '{left}', '{right}'. This comparison will always return 'false'.</value>
   </data>
+  <data name="PossibleIncorrectResultsUsingLikeOperator" xml:space="preserve">
+    <value>Linq translation for method '{function}' used by this database provider can return incorrect results when the value argument contains wildcard characters (e.g. '%' or '_').</value>
+  </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
   </data>

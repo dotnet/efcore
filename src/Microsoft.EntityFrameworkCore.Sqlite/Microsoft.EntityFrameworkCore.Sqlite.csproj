@@ -83,7 +83,10 @@
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteCompositeMethodCallTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqliteContainsOptimizedTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqliteEndsWithOptimizedTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteMathAbsTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqliteStartsWithOptimizedTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringLengthTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringToLowerTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringToUpperTranslator.cs" />

@@ -20,22 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
         }
 
-        public override void String_Contains_Literal()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
-                entryCount: 34);
-        }
-
-        public override void String_Contains_MethodCall()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
-        }
-
         public override void Take_Skip()
         {
             base.Take_Skip();

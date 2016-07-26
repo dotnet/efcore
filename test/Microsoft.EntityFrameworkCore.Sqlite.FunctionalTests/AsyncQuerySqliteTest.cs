@@ -31,23 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             //base.Projection_when_arithmetic_mixed_subqueries();
         }
 
-        public override async Task String_Contains_Literal()
-        {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M")
-                                    || c.ContactName.Contains("m")), // case-sensitive
-                entryCount: 34);
-        }
-
-        public override async Task String_Contains_MethodCall()
-        {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
-        }
-
         public async Task Skip_when_no_order_by()
         {
             await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
