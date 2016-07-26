@@ -1894,6 +1894,162 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Save_changed_optional_one_to_one_with_alternate_key_in_store()
+        {
+            var new2 = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() };
+            var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
+            var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
+            var new2c = new OptionalSingleComposite2();
+            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
+            var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
+
+            Root root;
+            IReadOnlyList<EntityEntry> entries;
+            OptionalSingleAk1 old1;
+            OptionalSingleAk1Derived old1d;
+            OptionalSingleAk1MoreDerived old1dd;
+            OptionalSingleAk2 old2;
+            OptionalSingleComposite2 old2c;
+            OptionalSingleAk2Derived old2d;
+            OptionalSingleAk2MoreDerived old2dd;
+            using (var context = CreateContext())
+            {
+                root = LoadOptionalAkGraph(context);
+
+                old1 = root.OptionalSingleAk;
+                old1d = root.OptionalSingleAkDerived;
+                old1dd = root.OptionalSingleAkMoreDerived;
+                old2 = root.OptionalSingleAk.Single;
+                old2c = root.OptionalSingleAk.SingleComposite;
+                old2d = (OptionalSingleAk2Derived)root.OptionalSingleAkDerived.Single;
+                old2dd = (OptionalSingleAk2MoreDerived)root.OptionalSingleAkMoreDerived.Single;
+
+                using (var context2 = CreateContext())
+                {
+                    var root2 = LoadOptionalAkGraph(context2);
+
+                    context2.AddRange(new1, new1d, new1dd, new2, new2d, new2dd, new2c);
+                    root2.OptionalSingleAk = new1;
+                    root2.OptionalSingleAkDerived = new1d;
+                    root2.OptionalSingleAkMoreDerived = new1dd;
+
+                    context2.SaveChanges();
+                }
+
+                new1 = context.OptionalSingleAk1s.Single(e => e.Id == new1.Id);
+                new1d = (OptionalSingleAk1Derived)context.OptionalSingleAk1s.Single(e => e.Id == new1d.Id);
+                new1dd = (OptionalSingleAk1MoreDerived)context.OptionalSingleAk1s.Single(e => e.Id == new1dd.Id);
+                new2 = context.OptionalSingleAk2s.Single(e => e.Id == new2.Id);
+                new2c = context.OptionalSingleComposite2s.Single(e => e.Id == new2c.Id);
+                new2d = (OptionalSingleAk2Derived)context.OptionalSingleAk2s.Single(e => e.Id == new2d.Id);
+                new2dd = (OptionalSingleAk2MoreDerived)context.OptionalSingleAk2s.Single(e => e.Id == new2dd.Id);
+
+                Assert.Equal(root.AlternateId, new1.RootId);
+                Assert.Equal(root.AlternateId, new1d.DerivedRootId);
+                Assert.Equal(root.AlternateId, new1dd.MoreDerivedRootId);
+                Assert.Equal(new1.AlternateId, new2.BackId);
+                Assert.Equal(new1.Id, new2c.BackId);
+                Assert.Equal(new1.AlternateId, new2c.ParentAlternateId);
+                Assert.Equal(new1d.AlternateId, new2d.BackId);
+                Assert.Equal(new1dd.AlternateId, new2dd.BackId);
+                Assert.Same(root, new1.Root);
+                Assert.Same(root, new1d.DerivedRoot);
+                Assert.Same(root, new1dd.MoreDerivedRoot);
+                Assert.Same(new1, new2.Back);
+                Assert.Same(new1, new2c.Back);
+                Assert.Same(new1d, new2d.Back);
+                Assert.Same(new1dd, new2dd.Back);
+
+                Assert.Null(old1.Root);
+                Assert.Null(old1d.DerivedRoot);
+                Assert.Null(old1dd.MoreDerivedRoot);
+                Assert.Same(old1, old2.Back);
+                Assert.Same(old1, old2c.Back);
+                Assert.Equal(old1d, old2d.Back);
+                Assert.Equal(old1dd, old2dd.Back);
+                Assert.Null(old1.RootId);
+                Assert.Null(old1d.DerivedRootId);
+                Assert.Null(old1dd.MoreDerivedRootId);
+                Assert.Equal(old1.AlternateId, old2.BackId);
+                Assert.Equal(old1.Id, old2c.BackId);
+                Assert.Equal(old1.AlternateId, old2c.ParentAlternateId);
+                Assert.Equal(old1d.AlternateId, old2d.BackId);
+                Assert.Equal(old1dd.AlternateId, old2dd.BackId);
+
+                context.SaveChanges();
+
+                Assert.Equal(root.AlternateId, new1.RootId);
+                Assert.Equal(root.AlternateId, new1d.DerivedRootId);
+                Assert.Equal(root.AlternateId, new1dd.MoreDerivedRootId);
+                Assert.Equal(new1.AlternateId, new2.BackId);
+                Assert.Equal(new1.Id, new2c.BackId);
+                Assert.Equal(new1.AlternateId, new2c.ParentAlternateId);
+                Assert.Equal(new1d.AlternateId, new2d.BackId);
+                Assert.Equal(new1dd.AlternateId, new2dd.BackId);
+                Assert.Same(root, new1.Root);
+                Assert.Same(root, new1d.DerivedRoot);
+                Assert.Same(root, new1dd.MoreDerivedRoot);
+                Assert.Same(new1, new2.Back);
+                Assert.Same(new1, new2c.Back);
+                Assert.Same(new1d, new2d.Back);
+                Assert.Same(new1dd, new2dd.Back);
+
+                Assert.Null(old1.Root);
+                Assert.Null(old1d.DerivedRoot);
+                Assert.Null(old1dd.MoreDerivedRoot);
+                Assert.Same(old1, old2.Back);
+                Assert.Same(old1, old2c.Back);
+                Assert.Equal(old1d, old2d.Back);
+                Assert.Equal(old1dd, old2dd.Back);
+                Assert.Null(old1.RootId);
+                Assert.Null(old1d.DerivedRootId);
+                Assert.Null(old1dd.MoreDerivedRootId);
+                Assert.Equal(old1.AlternateId, old2.BackId);
+                Assert.Equal(old1.Id, old2c.BackId);
+                Assert.Equal(old1.AlternateId, old2c.ParentAlternateId);
+                Assert.Equal(old1d.AlternateId, old2d.BackId);
+                Assert.Equal(old1dd.AlternateId, old2dd.BackId);
+
+                entries = context.ChangeTracker.Entries().ToList();
+            }
+
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadOptionalAkGraph(context);
+
+                AssertKeys(root, loadedRoot);
+                AssertNavigations(loadedRoot);
+
+                var loaded1 = context.OptionalSingleAk1s.Single(e => e.Id == old1.Id);
+                var loaded1d = context.OptionalSingleAk1s.Single(e => e.Id == old1d.Id);
+                var loaded1dd = context.OptionalSingleAk1s.Single(e => e.Id == old1dd.Id);
+                var loaded2 = context.OptionalSingleAk2s.Single(e => e.Id == old2.Id);
+                var loaded2d = context.OptionalSingleAk2s.Single(e => e.Id == old2d.Id);
+                var loaded2dd = context.OptionalSingleAk2s.Single(e => e.Id == old2dd.Id);
+                var loaded2c = context.OptionalSingleComposite2s.Single(e => e.Id == old2c.Id);
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+
+                Assert.Null(loaded1.Root);
+                Assert.Null(loaded1d.Root);
+                Assert.Null(loaded1dd.Root);
+                Assert.Same(loaded1, loaded2.Back);
+                Assert.Same(loaded1, loaded2c.Back);
+                Assert.Same(loaded1d, loaded2d.Back);
+                Assert.Same(loaded1dd, loaded2dd.Back);
+                Assert.Null(loaded1.RootId);
+                Assert.Null(loaded1d.RootId);
+                Assert.Null(loaded1dd.RootId);
+                Assert.Equal(loaded1.AlternateId, loaded2.BackId);
+                Assert.Equal(loaded1.Id, loaded2c.BackId);
+                Assert.Equal(loaded1.AlternateId, loaded2c.ParentAlternateId);
+                Assert.Equal(loaded1d.AlternateId, loaded2d.BackId);
+                Assert.Equal(loaded1dd.AlternateId, loaded2dd.BackId);
+            }
+        }
+
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]

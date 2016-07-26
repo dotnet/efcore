@@ -516,6 +516,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var principalToDependent = foreignKey.PrincipalToDependent;
                         if (principalToDependent != null)
                         {
+                            if (!principalToDependent.IsCollection())
+                            {
+                                var oldDependent = principalEntry[principalToDependent];
+                                if (oldDependent != null
+                                    && !ReferenceEquals(entry.Entity, oldDependent))
+                                {
+                                    var oldDependentEntry = stateManager.TryGetEntry(oldDependent);
+                                    if (oldDependentEntry != null
+                                        && oldDependentEntry.EntityState != EntityState.Detached)
+                                    {
+                                        ConditionallyNullForeignKeyProperties(oldDependentEntry, null, foreignKey);
+                                        SetNavigation(principalEntry, principalToDependent, null);
+                                    }
+                                }
+                            }
+
                             SetReferenceOrAddToCollection(
                                 principalEntry,
                                 principalToDependent,
