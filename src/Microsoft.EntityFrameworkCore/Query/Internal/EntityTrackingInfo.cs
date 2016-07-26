@@ -154,7 +154,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<IncludedEntity> GetIncludedEntities([NotNull] object entity)
+        public virtual IEnumerable<IncludedEntity> GetIncludedEntities(
+            [NotNull] IStateManager stateManager, 
+            [NotNull] object entity)
         {
             Check.NotNull(entity, nameof(entity));
 
@@ -164,11 +166,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return _includedNavigationPaths
-                .SelectMany(navigations => GetIncludedEntities(entity, navigations, index: 0));
+                .SelectMany(navigations => GetIncludedEntities(stateManager, entity, navigations, index: 0));
         }
 
         private IEnumerable<IncludedEntity> GetIncludedEntities(
-            object entity, IReadOnlyList<INavigation> navigationPath, int index)
+            IStateManager stateManager, object entity, IReadOnlyList<INavigation> navigationPath, int index)
         {
             if (index < navigationPath.Count)
             {
@@ -188,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _handledForeignKeys);
 
                         foreach (var includedEntity
-                            in GetIncludedEntities(referencedEntity, navigationPath, index + 1))
+                            in GetIncludedEntities(stateManager, referencedEntity, navigationPath, index + 1))
                         {
                             yield return includedEntity;
                         }
@@ -206,12 +208,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _handledForeignKeys);
 
                         foreach (var includedEntity
-                            in GetIncludedEntities(referencedEntity, navigationPath, index + 1))
+                            in GetIncludedEntities(stateManager, referencedEntity, navigationPath, index + 1))
                         {
                             yield return includedEntity;
                         }
                     }
                 }
+
+                stateManager.TryGetEntry(entity)?.SetIsLoaded(navigation);
             }
         }
     }

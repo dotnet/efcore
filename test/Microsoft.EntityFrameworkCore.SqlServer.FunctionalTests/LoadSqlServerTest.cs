@@ -418,13 +418,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
 
             if (!async)
             {
-                Assert.Equal(
-                    @"@__get_Item_0: 707 (Nullable = true)
-
-SELECT [e].[Id], [e].[ParentId]
-FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                Assert.Equal("", Sql);
             }
         }
 
@@ -864,13 +858,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
 
             if (!async)
             {
-                Assert.Equal(
-                    @"@__get_Item_0: 707 (Nullable = true)
-
-SELECT [e].[Id], [e].[ParentId]
-FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                Assert.Equal("", Sql);
             }
         }
 

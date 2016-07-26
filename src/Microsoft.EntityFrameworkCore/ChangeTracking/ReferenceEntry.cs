@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -38,40 +36,5 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             : base(internalEntry, navigation)
         {
         }
-
-        /// <summary>
-        ///     <para>
-        ///         Loads the entity referenced by this navigation property, unless it is already being tracked,
-        ///         in which case calling the method is a no-op.
-        ///     </para>
-        /// </summary>
-        public override void Load()
-        {
-            if (InternalEntry[Metadata] == null)
-            {
-                base.Load();
-            }
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Loads the entity referenced by this navigation property, unless it is already being tracked,
-        ///         in which case calling the method is a no-op.
-        ///     </para>
-        ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
-        ///         that any asynchronous operations have completed before calling another method on this context.
-        ///     </para>
-        /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous save operation.
-        /// </returns>
-        public override Task LoadAsync(CancellationToken cancellationToken = new CancellationToken())
-            => InternalEntry[Metadata] == null
-                ? base.LoadAsync(cancellationToken)
-                : Task.FromResult(0);
     }
 }

@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         Loads the entities referenced by this navigation property.
+        ///         Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+        ///         is already set to true.
         ///     </para>
         ///     <para>
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
@@ -70,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         Loads entities referenced by this navigation property.
+        ///         Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+        ///         is already set to true.
         ///     </para>
         ///     <para>
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.

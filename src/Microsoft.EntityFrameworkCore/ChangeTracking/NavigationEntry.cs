@@ -83,18 +83,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         Loads the entity or entities referenced by this navigation property.
+        ///         Loads the entity or entities referenced by this navigation property, unless <see cref="IsLoaded" />
+        ///         is already set to true.
         ///     </para>
         ///     <para>
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         /// </summary>
         public virtual void Load()
-            => Finder(Metadata.GetTargetType().ClrType).Load(GetLoadProperties(), GetLoadValues());
+        {
+            if (!IsLoaded)
+            {
+                Finder(Metadata.GetTargetType().ClrType).Load(Metadata, InternalEntry);
+            }
+        }
 
         /// <summary>
         ///     <para>
-        ///         Loads the entity or entities referenced by this navigation property.
+        ///         Loads the entity or entities referenced by this navigation property, unless <see cref="IsLoaded" />
+        ///         is already set to true.
         ///     </para>
         ///     <para>
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
@@ -111,8 +118,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A task that represents the asynchronous save operation.
         /// </returns>
         public virtual Task LoadAsync(CancellationToken cancellationToken = new CancellationToken())
-            => Finder(Metadata.GetTargetType().ClrType)
-                .LoadAsync(GetLoadProperties(), GetLoadValues(), cancellationToken);
+            => IsLoaded
+                ? Task.FromResult(0)
+                : Finder(Metadata.GetTargetType().ClrType)
+                    .LoadAsync(Metadata, InternalEntry, cancellationToken);
 
         /// <summary>
         ///     <para>
@@ -126,26 +135,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> The query to load related entities. </returns>
         public virtual IQueryable Query()
-            => Finder(Metadata.GetTargetType().ClrType).Query(GetLoadProperties(), GetLoadValues());
+            => Finder(Metadata.GetTargetType().ClrType).Query(Metadata, InternalEntry);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Gets or sets a value indicating whether the entity or entities referenced by this navigation property
+        ///         are known to be loaded.
+        ///     </para>
+        ///     <para>
+        ///         Loading entities from the database using
+        ///         <see cref="EntityFrameworkQueryableExtensions.Include{TEntity,TProperty}" /> or
+        ///         <see
+        ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(EntityFrameworkCore.Query.IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{System.Func{TPreviousProperty,TProperty}})" />
+        ///         , <see cref="Load" />, or <see cref="LoadAsync" /> will set this flag. Subseqent calls to <see cref="Load" />
+        ///         or <see cref="LoadAsync" /> will then be a no-op.
+        ///     </para>
+        ///     <para>
+        ///         It is possible for IsLoaded to be false even if all related entities are loaded. This is because, depending on
+        ///         how entities are loaded, it is not always possible to know for sure that all entities in a related collection
+        ///         have been loaded. In such cases, calling <see cref="Load" /> or <see cref="LoadAsync" /> will ensure all
+        ///         related entities are loaded and will set this flag to true.
+        ///     </para>
         /// </summary>
-        protected virtual object[] GetLoadValues()
-            => (Metadata.IsDependentToPrincipal()
-                ? Metadata.ForeignKey.Properties
-                : Metadata.ForeignKey.PrincipalKey.Properties)
-                .Select(p => InternalEntry[p]).ToArray();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual IReadOnlyList<IProperty> GetLoadProperties()
-            => Metadata.IsDependentToPrincipal()
-                ? Metadata.ForeignKey.PrincipalKey.Properties
-                : Metadata.ForeignKey.Properties;
+        /// <value>
+        ///     True if all the related entities are loaded or the IsLoaded has been explicitly set to true.
+        /// </value>
+        public virtual bool IsLoaded
+        {
+            get { return InternalEntry.IsLoaded(Metadata); }
+            set { InternalEntry.SetIsLoaded(Metadata, value); }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
