@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var keyValues = GetLoadValues(navigation, entry);
             if (keyValues != null)
             {
-                // TODO: Replace with LoadAsync when Issue #6122 is fixed
-                await Query(navigation, keyValues).ToListAsync(cancellationToken);
+
+                await Query(navigation, keyValues).LoadAsync(cancellationToken);
             }
 
             entry.SetIsLoaded(navigation);
