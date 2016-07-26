@@ -306,6 +306,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public IEnumerable<InternalEntityEntry> Entries => Entries ?? Enumerable.Empty<InternalEntityEntry>();
 
+            public int ChangedCount { get; set; }
+
             public IInternalEntityEntryNotifier Notify
             {
                 get { throw new NotImplementedException(); }

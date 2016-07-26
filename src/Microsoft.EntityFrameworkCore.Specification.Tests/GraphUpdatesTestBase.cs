@@ -167,7 +167,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.ParentId = root.Id;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Contains(new2a, existing.Children);
                 Assert.Contains(new2b, existing.Children);
@@ -297,7 +301,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.ParentId = root.Id;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Contains(new2a, existing.Children);
                 Assert.Contains(new2b, existing.Children);
@@ -373,7 +381,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     removed1.ParentId = null;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.DoesNotContain(removed1, root.OptionalChildren);
                 Assert.DoesNotContain(removed2, childCollection);
@@ -440,7 +452,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.Entry(removed1).GetInfrastructure()[context.Entry(removed1).Property(e => e.ParentId).Metadata] = null;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
             }
 
             using (var context = CreateContext())
@@ -545,7 +561,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.MoreDerivedRootId = root.Id;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(root.Id, new1.RootId);
                 Assert.Equal(root.Id, new1d.DerivedRootId);
@@ -668,7 +688,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1.Id = root.Id;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(root.Id, new1.Id);
                 Assert.Equal(new1.Id, new2.Id);
@@ -790,7 +814,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.MoreDerivedRootId = root.Id;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(root.Id, new1.RootId);
                 Assert.Equal(root.Id, new1d.DerivedRootId);
@@ -872,8 +900,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.False(context.Entry(root).Reference(e => e.OptionalSingle).IsLoaded);
                 Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+                Assert.True(context.ChangeTracker.HasChanges());
 
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(old1.Root);
                 Assert.Same(old1, old2.Back);
@@ -931,8 +962,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.False(context.Entry(root).Reference(e => e.RequiredSingle).IsLoaded);
                 Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+                Assert.True(context.ChangeTracker.HasChanges());
 
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(old1.Root);
                 Assert.Null(old2.Back);
@@ -984,8 +1018,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.False(context.Entry(root).Reference(e => e.RequiredNonPkSingle).IsLoaded);
                 Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+                Assert.True(context.ChangeTracker.HasChanges());
 
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(old1.Root);
                 Assert.Null(old2.Back);
@@ -1059,7 +1096,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     old1.RootId = newRoot.Id;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(root.OptionalSingle);
 
@@ -1203,7 +1244,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     old1.RootId = newRoot.Id;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(root.RequiredNonPkSingle);
 
@@ -1332,7 +1377,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.ParentId = root.AlternateId;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Contains(new2a, existing.Children);
                 Assert.Contains(new2b, existing.Children);
@@ -1482,7 +1531,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.ParentId = root.AlternateId;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Contains(new2a, existing.Children);
                 Assert.Contains(new2b, existing.Children);
@@ -1571,7 +1624,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     removed1.ParentId = null;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.DoesNotContain(removed1, root.OptionalChildrenAk);
                 Assert.DoesNotContain(removed2, childCollection);
@@ -1638,7 +1695,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.DoesNotContain(removed1, root.RequiredChildrenAk);
                 Assert.DoesNotContain(removed2, childCollection);
@@ -1757,7 +1818,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.MoreDerivedRootId = root.AlternateId;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(root.AlternateId, new1.RootId);
                 Assert.Equal(root.AlternateId, new1d.DerivedRootId);
@@ -1892,7 +1957,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(root.AlternateId, new1.RootId);
                 Assert.Equal(new1.AlternateId, new2.BackId);
@@ -2025,7 +2094,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new1dd.MoreDerivedRootId = root.AlternateId;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(root.AlternateId, new1.RootId);
                 Assert.Equal(root.AlternateId, new1d.DerivedRootId);
@@ -2109,8 +2182,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.False(context.Entry(root).Reference(e => e.OptionalSingleAk).IsLoaded);
                 Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+                Assert.True(context.ChangeTracker.HasChanges());
 
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(old1.Root);
                 Assert.Same(old1, old2.Back);
@@ -2177,8 +2253,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.False(context.Entry(root).Reference(e => e.RequiredSingleAk).IsLoaded);
                 Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+                Assert.True(context.ChangeTracker.HasChanges());
 
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(old1.Root);
                 Assert.Null(old2.Back);
@@ -2234,8 +2313,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.False(context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).IsLoaded);
                 Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+                Assert.True(context.ChangeTracker.HasChanges());
 
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(old1.Root);
                 Assert.Null(old2.Back);
@@ -2311,7 +2393,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     old1.RootId = newRoot.AlternateId;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(root.OptionalSingleAk);
 
@@ -2403,7 +2489,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     old1.RootId = newRoot.AlternateId;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(root.RequiredSingleAk);
 
@@ -2493,7 +2583,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     old1.RootId = newRoot.AlternateId;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Null(root.RequiredNonPkSingleAk);
 
@@ -2543,7 +2637,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
@@ -2589,7 +2687,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
@@ -2631,7 +2733,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
@@ -2671,7 +2777,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -2711,7 +2821,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -2755,7 +2869,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
@@ -2805,7 +2923,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
@@ -2852,7 +2974,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
@@ -2898,7 +3024,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -2941,7 +3071,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -2989,7 +3123,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3034,7 +3172,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3077,7 +3219,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3125,7 +3271,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3174,7 +3324,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3219,7 +3373,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3266,7 +3424,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3317,7 +3479,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.Remove(removed);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3372,7 +3538,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     toOrphan.ParentId = null;
                 }
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3437,7 +3607,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 // is not nullable, so need to do this on the EF side.
                 context.OptionalSingleComposite2s.Single(e => e.Id == orphanedIdC).BackId = null;
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
@@ -3489,7 +3663,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
@@ -3536,7 +3714,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
@@ -3579,7 +3761,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
@@ -3621,7 +3807,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -3666,7 +3856,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -3717,7 +3911,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
                 Assert.True(orphanedC.All(e => context.Entry(e).State == EntityState.Unchanged));
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
@@ -3770,7 +3968,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
                 Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Unchanged));
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
@@ -3819,7 +4021,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphanedC).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
@@ -3867,7 +4073,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphanedC).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -3911,7 +4121,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -3966,7 +4180,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Added, context.Entry(added).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(added).State);
@@ -4011,7 +4229,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -4054,7 +4276,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -4119,7 +4345,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
                 Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Unchanged));
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(added).State);
@@ -4173,7 +4403,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
                 Assert.Equal(EntityState.Added, context.Entry(orphanedC).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
@@ -4218,7 +4452,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
                 Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);

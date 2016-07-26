@@ -201,6 +201,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.StopTracking(this);
             }
 
+            if ((newState == EntityState.Deleted
+                 || newState == EntityState.Detached)
+                && HasConceptualNull)
+            {
+                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Null, flagged: false);
+            }
+
+            if (oldState == EntityState.Detached
+                || oldState == EntityState.Unchanged)
+            {
+                if (newState == EntityState.Added
+                    || newState == EntityState.Deleted
+                    || newState == EntityState.Modified)
+                {
+                    StateManager.ChangedCount++;
+                }
+            }
+            else if (newState == EntityState.Detached
+                     || newState == EntityState.Unchanged)
+            {
+                StateManager.ChangedCount--;
+            }
+
             StateManager.Notify.StateChanged(this, oldState, fromQuery: false);
         }
 
@@ -251,7 +274,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void SetPropertyModified(
             [NotNull] IProperty property,
             bool changeState = true,
-            bool isModified = true)
+            bool isModified = true,
+            bool isConceptualNull = false)
         {
             var propertyIndex = property.GetIndex();
             _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, false);
@@ -278,6 +302,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             if (changeState
+                && !isConceptualNull
                 && isModified
                 && property.IsKey())
             {
@@ -295,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             // Don't change entity state if it is Added or Deleted
-            if (isModified && currentState == EntityState.Unchanged)
+            if (isModified 
+                && currentState == EntityState.Unchanged)
             {
                 if (changeState)
                 {
@@ -307,6 +333,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (changeState)
                 {
+                    StateManager.ChangedCount++;
                     StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
                 }
             }
@@ -316,6 +343,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 StateManager.Notify.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
+                StateManager.ChangedCount--;
                 StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
             }
         }
@@ -325,16 +353,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasConceptualNull
-            => _stateData.EntityState != EntityState.Deleted
-               && _stateData.AnyPropertiesFlagged(PropertyFlag.Null);
+            => _stateData.AnyPropertiesFlagged(PropertyFlag.Null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsConceptualNull([NotNull] IProperty property)
-            => _stateData.EntityState != EntityState.Deleted
-               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
+            => _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -619,7 +645,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         if (value == null)
                         {
-                            _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Null, isFlagged: true);
+                            if (EntityState != EntityState.Deleted
+                                && EntityState != EntityState.Detached)
+                            {
+                                _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Null, isFlagged: true);
+                                SetPropertyModified(asProperty, changeState: true, isModified: true, isConceptualNull: true);
+                            }
                             writeValue = false;
                         }
                         else
