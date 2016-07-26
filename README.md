@@ -6,9 +6,9 @@ Documentation on using EF Core is available at <https://docs.efproject.net>.
 [![Travis build status](https://img.shields.io/travis/aspnet/EntityFramework.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFramework/branches)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/aspnetci/EntityFramework/dev.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
 
-## EF Core here, EF6 on CodePlex
+## EF Core here, EF6 elsewhere
 
-This project is for Entity Framework Core. Entity Framework 6.x is still under active development on CodePlex at <http://entityframework.codeplex.com/>.
+This project is for Entity Framework Core. Entity Framework 6.x is still under active development at https://github.com/aspnet/EntityFramework6.
 
 ## What is EF Core?
 
