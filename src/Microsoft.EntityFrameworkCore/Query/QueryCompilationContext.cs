@@ -327,6 +327,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             foreach (var groupJoinClause in queryModel.BodyClauses.OfType<GroupJoinClause>())
             {
                 _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
+
+                var subQueryInnerSequence = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
+                if (subQueryInnerSequence != null)
+                {
+                    var subQuerySourcesRequiringMaterialization
+                        = _requiresMaterializationExpressionVisitorFactory
+                            .Create(queryModelVisitor)
+                            .FindQuerySourcesRequiringMaterialization(subQueryInnerSequence.QueryModel);
+
+                    foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
+                    {
+                        _querySourcesRequiringMaterialization.Add(subQuerySource);
+                    }
+                }
             }
         }
 
