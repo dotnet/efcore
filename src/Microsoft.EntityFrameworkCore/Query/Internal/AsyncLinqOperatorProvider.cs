@@ -572,10 +572,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public void Dispose() => _source.Dispose();
 
-                public Task<bool> MoveNext(CancellationToken cancellationToken)
-                    => _source.MoveNext(cancellationToken);
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (await _source.MoveNext(cancellationToken))
+                    {
+                        Current = _selector(_source.Current);
 
-                public TResult Current => _selector(_source.Current);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                public TResult Current { get; private set; }
             }
         }
 
