@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var contextServices1 = TestHelpers.Instance.CreateContextServices(provider);
             var contextServices2 = TestHelpers.Instance.CreateContextServices(provider);
 
-            Assert.Same(contextServices1.GetRequiredService<IMemberMapper>(), contextServices2.GetRequiredService<IMemberMapper>());
+            Assert.Same(contextServices1.GetRequiredService<IDbSetSource>(), contextServices2.GetRequiredService<IDbSetSource>());
         }
 
         [Fact]

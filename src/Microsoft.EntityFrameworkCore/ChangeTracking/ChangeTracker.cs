@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     <para>
         ///         Checks if any new, deleted, or changed entities are being tracked
-        ///         such that these changes will sent to the database if <see cref="DbContext.SaveChanges()" />
+        ///         such that these changes will be sent to the database if <see cref="DbContext.SaveChanges()" />
         ///         or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" /> is called.
         ///     </para>
         ///     <para>

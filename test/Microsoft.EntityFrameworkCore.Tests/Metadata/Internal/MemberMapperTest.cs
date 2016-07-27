@@ -128,6 +128,33 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("UsAndThem", mapping.Item2.Name);
         }
 
+        [Fact]
+        public void Named_field_on_base_class_is_found()
+        {
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
+            var property = entityType.AddProperty(TheDarkSide.OnBaseNamedProperty);
+            property["BackingField"] = "_namedonBase";
+
+            var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
+
+            Assert.Same(property, mapping.Item1);
+            Assert.IsAssignableFrom<FieldInfo>(mapping.Item2);
+            Assert.Equal("_namedonBase", mapping.Item2.Name);
+        }
+
+        [Fact]
+        public void Matched_field_on_base_class_is_found()
+        {
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
+            var property = entityType.AddProperty(TheDarkSide.OnBaseProperty);
+
+            var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
+
+            Assert.Same(property, mapping.Item1);
+            Assert.IsAssignableFrom<FieldInfo>(mapping.Item2);
+            Assert.Equal("_onBase", mapping.Item2.Name);
+        }
+
         private class TheDarkSide : OfTheMoon
         {
             public static readonly PropertyInfo SpeakToMeProperty = typeof(TheDarkSide).GetProperty("SpeakToMe");
@@ -136,6 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             public static readonly PropertyInfo TimeProperty = typeof(TheDarkSide).GetProperty("Time");
             public static readonly PropertyInfo MoneyProperty = typeof(TheDarkSide).GetProperty("Money");
             public static readonly PropertyInfo UsAndThemProperty = typeof(TheDarkSide).GetProperty("UsAndThem");
+            public static readonly PropertyInfo OnBaseNamedProperty = typeof(TheDarkSide).GetProperty("OnBaseNamed");
+            public static readonly PropertyInfo OnBaseProperty = typeof(TheDarkSide).GetProperty("OnBase");
 
             private int? fieldForSpeak;
 #pragma warning disable 169
@@ -163,6 +192,18 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             public override int Money => 0;
 
             public override int UsAndThem => 0;
+
+            public int OnBaseNamed
+            {
+                get {  return _namedonBase; }
+                set { _namedonBase = value; }
+            }
+
+            public int OnBase
+            {
+                get { return _onBase; }
+                set { _onBase = value; }
+            }
         }
 
         private class OfTheMoon
@@ -186,6 +227,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
 
             public virtual int UsAndThem { get; private set; }
+
+            protected int _namedonBase;
+
+            protected int _onBase;
         }
     }
 }

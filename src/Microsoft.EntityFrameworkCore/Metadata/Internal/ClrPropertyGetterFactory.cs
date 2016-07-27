@@ -16,8 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(PropertyInfo property)
+        protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
+            PropertyInfo propertyInfo, IPropertyBase property)
             => new ClrPropertyGetter<TEntity, TValue>(
-                 (Func<TEntity, TValue>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TValue>)));
+                 (Func<TEntity, TValue>)propertyInfo.GetMethod.CreateDelegate(typeof(Func<TEntity, TValue>)));
     }
 }

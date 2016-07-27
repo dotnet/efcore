@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.
+        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no backing field was found by convention. Read-only collection navigation properties must be initialized before use.
         /// </summary>
         public static string NavigationNoSetter([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -1241,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not find setter for property {property}
+        /// Could not find setter or matching backing field for property {property}
         /// </summary>
         public static string NoClrSetter([CanBeNull] object property)
         {

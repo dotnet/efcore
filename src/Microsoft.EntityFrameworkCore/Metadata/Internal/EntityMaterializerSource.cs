@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -21,17 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static readonly MethodInfo _readValue
             = typeof(ValueBuffer).GetTypeInfo().DeclaredProperties
                 .Single(p => p.GetIndexParameters().Any()).GetMethod;
-
-        private readonly IMemberMapper _memberMapper;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public EntityMaterializerSource([NotNull] IMemberMapper memberMapper)
-        {
-            _memberMapper = memberMapper;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -153,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 };
 
             blockExpressions.AddRange(
-                from mapping in _memberMapper.MapPropertiesToMembers(entityType)
+                from mapping in entityType.Model.GetMemberMapper().MapPropertiesToMembers(entityType)
                 let propertyInfo = mapping.Item2 as PropertyInfo
                 let targetMember
                     = propertyInfo != null

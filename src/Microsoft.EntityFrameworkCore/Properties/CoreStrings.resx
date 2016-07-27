@@ -286,7 +286,7 @@
     <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.</value>
+    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no backing field was found by convention. Read-only collection navigation properties must be initialized before use.</value>
   </data>
   <data name="NavigationCannotCreateType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
@@ -577,7 +577,7 @@
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
   </data>
   <data name="NoClrSetter" xml:space="preserve">
-    <value>Could not find setter for property {property}</value>
+    <value>Could not find setter or matching backing field for property {property}</value>
   </data>
   <data name="NoPropertyType" xml:space="preserve">
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.</value>

@@ -19,5 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         IEnumerable<Tuple<IProperty, MemberInfo>> MapPropertiesToMembers([NotNull] IEntityType entityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        FieldInfo FindBackingField([NotNull] IPropertyBase property);
     }
 }

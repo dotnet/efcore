@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -10,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ClrCollectionAccessorFactory
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateCollection));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
@@ -46,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
-                        navigation.Name, 
-                        navigation.DeclaringEntityType.DisplayName(), 
-                        property.PropertyType.ShortDisplayName(), 
+                        navigation.Name,
+                        navigation.DeclaringEntityType.DisplayName(),
+                        property.PropertyType.ShortDisplayName(),
                         navigation.GetTargetType().DisplayName()));
             }
 
@@ -56,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationArray(
-                        navigation.Name, 
-                        navigation.DeclaringEntityType.DisplayName(), 
+                        navigation.Name,
+                        navigation.DeclaringEntityType.DisplayName(),
                         property.PropertyType.ShortDisplayName()));
             }
 
@@ -69,25 +71,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var boundMethod = _genericCreate.MakeGenericMethod(
                 property.DeclaringType, property.PropertyType, elementType);
 
-            return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { property });
+            return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { navigation });
         }
 
         [UsedImplicitly]
-        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
+        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation)
             where TEntity : class
             where TCollection : class, IEnumerable<TElement>
         {
+            var property = navigation.GetPropertyInfo();
+
             var getterDelegate = (Func<TEntity, TCollection>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TCollection>));
 
             Action<TEntity, TCollection> setterDelegate = null;
             Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetDelegate = null;
             Func<TCollection> createDelegate = null;
 
-            var setter = property.SetMethod;
-            if (setter != null)
-            {
-                setterDelegate = (Action<TEntity, TCollection>)setter.CreateDelegate(typeof(Action<TEntity, TCollection>));
+            var setterProperty = property.DeclaringType
+                .GetPropertiesInHierarchy(property.Name)
+                .FirstOrDefault(p => p.SetMethod != null);
 
+            if (setterProperty != null)
+            {
+                setterDelegate = (Action<TEntity, TCollection>)property.SetMethod.CreateDelegate(typeof(Action<TEntity, TCollection>));
+            }
+            else
+            {
+                var fieldInfo = navigation.DeclaringEntityType.Model.GetMemberMapper().FindBackingField(navigation);
+                if (fieldInfo != null)
+                {
+                    var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
+                    var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
+
+                    setterDelegate = Expression.Lambda<Action<TEntity, TCollection>>(
+                        Expression.Assign(
+                            Expression.Field(entityParameter, fieldInfo),
+                            valueParameter),
+                        entityParameter,
+                        valueParameter).Compile();
+                }
+            }
+
+            if (setterDelegate != null)
+            {
                 var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TEntity), typeof(TCollection));
 
                 if (concreteType != null)

@@ -2103,8 +2103,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<IMemberMapper, MemberMapper>()
-                .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<DatabaseProviderSelector>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
@@ -2333,10 +2331,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class FakeEntityMaterializerSource : EntityMaterializerSource
         {
-            public FakeEntityMaterializerSource(IMemberMapper memberMapper)
-                : base(memberMapper)
-            {
-            }
         }
 
         private class FakeLoggerFactory : ILoggerFactory

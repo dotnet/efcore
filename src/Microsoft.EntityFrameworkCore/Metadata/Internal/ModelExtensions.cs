@@ -41,5 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static Model AsModel([NotNull] this IModel model, [CallerMemberName] [NotNull] string methodName = "")
             => model.AsConcreteMetadataType<IModel, Model>(methodName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IMemberMapper GetMemberMapper([NotNull] this IModel model)
+            => model[CoreAnnotationNames.MemberMapperAnnotation] as IMemberMapper
+               ?? new MemberMapper(new FieldMatcher());
     }
 }

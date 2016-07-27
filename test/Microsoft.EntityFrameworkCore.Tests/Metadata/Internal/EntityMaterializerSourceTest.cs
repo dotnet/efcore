@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             typeMock.SetupGet(et => et.ClrType).Returns(typeof(string));
 
             var reader = ValueBuffer.Empty;
-            GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), typeMock.Object)(reader);
+            GetMaterializer(new EntityMaterializerSource(), typeMock.Object)(reader);
 
             materializerMock.Verify(m => m.CreateEntity(reader));
         }
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.AddProperty(SomeEntity.IdProperty);
             entityType.AddProperty(SomeEntity.MaybeEnumProperty);
 
-            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }));
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.AddProperty(SomeEntityWithFields.IdProperty);
             entityType.AddProperty(SomeEntityWithFields.MaybeEnumProperty);
 
-            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntityWithFields)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, null }));
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.AddProperty(SomeEntity.GooProperty);
             entityType.AddProperty(SomeEntity.IdProperty);
 
-            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var entity = (SomeEntity)factory(new ValueBuffer(new object[] { null, null, 77 }));
 
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.AddProperty(SomeEntity.GooProperty);
             entityType.AddProperty("GooShadow", typeof(Guid));
 
-            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(new ValueBuffer(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }));
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NoParameterlessConstructor(typeof(EntityWithoutParameterlessConstructor).Name),
-                Assert.Throws<InvalidOperationException>(() => GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType)).Message);
+                Assert.Throws<InvalidOperationException>(() => GetMaterializer(new EntityMaterializerSource(), entityType)).Message);
         }
 
         private static readonly ParameterExpression _readerParameter

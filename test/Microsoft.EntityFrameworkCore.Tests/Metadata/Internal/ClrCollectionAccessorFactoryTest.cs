@@ -67,6 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Delegate_accessor_is_returned_when_no_backing_field_found()
+        {
+            AccessorTest("NoBackingFound", e => e.NoBackingFound);
+        }
+
+        [Fact]
         public void Delegate_accessor_is_returned_when_no_public_constructor()
         {
             AccessorTest("AsMyPrivateCollection", e => e.AsMyPrivateCollection);
@@ -82,6 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Delegate_accessor_is_returned_when_no_parameterless_constructor()
         {
             AccessorTest("AsMyUnavailableCollection", e => e.AsMyUnavailableCollection);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_with_no_setter()
+        {
+            AccessorTest("WithNoSetter", e => e.WithNoSetter, initializeCollections: false);
         }
 
         [Fact]
@@ -200,12 +212,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Initialization_for_navigation_without_setter_throws()
+        public void Initialization_for_navigation_without_backing_field_throws()
         {
-            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("WithNoSetter"));
+            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("NoBackingFound"));
 
             Assert.Equal(
-                CoreStrings.NavigationNoSetter("WithNoSetter", typeof(MyEntity).Name),
+                CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -258,6 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             private IList<MyOtherEntity> _asIList;
             private List<MyOtherEntity> _asList;
             private MyCollection _myCollection;
+            private ICollection<MyOtherEntity> _withNoBackingFieldFound;
             private ICollection<MyOtherEntity> _withNoSetter;
             // ReSharper disable once NotAccessedField.Local
             private ICollection<MyOtherEntity> _withNoGetter;
@@ -274,6 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 _asIList = new List<MyOtherEntity>();
                 _asList = new List<MyOtherEntity>();
                 _myCollection = new MyCollection();
+                _withNoBackingFieldFound = new HashSet<MyOtherEntity>();
                 _withNoSetter = new HashSet<MyOtherEntity>();
                 _withNoGetter = new HashSet<MyOtherEntity>();
                 _enumerable = new HashSet<MyOtherEntity>();
@@ -309,6 +323,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
 
             internal ICollection<MyOtherEntity> WithNoSetter => _withNoSetter;
+
+            internal ICollection<MyOtherEntity> NoBackingFound => _withNoBackingFieldFound;
 
             internal ICollection<MyOtherEntity> WithNoGetter
             {

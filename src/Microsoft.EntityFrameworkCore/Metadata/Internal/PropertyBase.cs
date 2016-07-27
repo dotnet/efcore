@@ -64,14 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IClrPropertyGetter Getter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, PropertyInfo, p => new ClrPropertyGetterFactory().Create(p));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IClrPropertySetter Setter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, PropertyInfo, p => new ClrPropertySetterFactory().Create(p));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

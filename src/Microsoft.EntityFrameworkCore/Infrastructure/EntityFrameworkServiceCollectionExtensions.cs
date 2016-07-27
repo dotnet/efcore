@@ -86,8 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddSingleton<IEntityFinderSource, EntityFinderSource>()
                 .AddSingleton<ICollectionTypeFactory, CollectionTypeFactory>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<IMemberMapper, MemberMapper>()
-                .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<ICoreConventionSetBuilder, CoreConventionSetBuilder>()
                 .AddSingleton<IModelCustomizer, ModelCustomizer>()
                 .AddSingleton<IModelCacheKeyFactory, ModelCacheKeyFactory>()
