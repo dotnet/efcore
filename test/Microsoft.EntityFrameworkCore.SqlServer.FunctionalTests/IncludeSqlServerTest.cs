@@ -62,8 +62,10 @@ ORDER BY [o].[CustomerID]",
         {
             base.Include_collection_skip_no_order_by();
 
-            Assert.Equal(
-                @"@__p_0: 10
+            if (SupportsOffset)
+            {
+                Assert.Equal(
+                    @"@__p_0: 10
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -84,15 +86,18 @@ INNER JOIN (
     ) AS [t]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[CustomerID]",
-                Sql);
+                    Sql);
+            }
         }
 
         public override void Include_collection_skip_take_no_order_by()
         {
             base.Include_collection_skip_take_no_order_by();
 
-            Assert.Equal(
-                @"@__p_0: 10
+            if (SupportsOffset)
+            {
+                Assert.Equal(
+                    @"@__p_0: 10
 @__p_1: 5
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -115,7 +120,8 @@ INNER JOIN (
     ) AS [t]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[CustomerID]",
-                Sql);
+                    Sql);
+            }
         }
 
         public override void Include_reference_and_collection()

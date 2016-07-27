@@ -5,8 +5,9 @@ build_script:
 clone_depth: 1
 test: off
 deploy: off
-# See http://www.appveyor.com/docs/services-databases#sql-server-2014
+# See http://www.appveyor.com/docs/services-databases
 services:
+  - mssql2008r2sp2
   - mssql2014
 branches:
   only:
@@ -16,6 +17,16 @@ branches:
     - /^(.*\/)?ci-.*$/
 environment:
   global:
-    Test__SqlServer__DefaultConnection: Server=(local)\SQL2014;Database=master;User ID=sa;Password=Password12!
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
     DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  matrix:
+  #SQL 2008
+  - Test__SqlServer__DefaultConnection: Server=(local)\SQL2008R2SP2;Database=master;User ID=sa;Password=Password12!
+    Test__SqlServer__SupportsOffset: false
+    Test__SqlServer__SupportsSequences: false
+  #SQL 2014
+  - Test__SqlServer__DefaultConnection: Server=(local)\SQL2014;Database=master;User ID=sa;Password=Password12!
+matrix:
+  fast_finish: true
+artifacts:
+  - path: 'artifacts\build\*.nupkg'
