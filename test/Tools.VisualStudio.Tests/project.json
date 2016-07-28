@@ -1,0 +1,15 @@
+﻿{
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk"
+  },
+  "dependencies": {
+    "xunit": "2.2.0-*",
+    "dotnet-test-xunit": "2.2.0-*",
+    "Tools.VisualStudio": "1.0.0-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "net451": {}
+  }
+}

@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools.FunctionalTests</RootNamespace>
-    <AssemblyName>Tools.Console.FunctionalTests</AssemblyName>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Tools.Console.FunctionalTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

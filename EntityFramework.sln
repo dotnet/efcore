@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -73,6 +73,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.Console.FunctionalTests", "test\Tools.Console.FunctionalTests\Tools.Console.FunctionalTests.csproj", "{6944CD17-21F3-4ABD-A5C3-67262F50B359}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.VisualStudio", "src\Tools.VisualStudio\Tools.VisualStudio.csproj", "{29BD1041-C597-41EE-A9A2-67A12B0C0B0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.VisualStudio.Tests", "test\Tools.VisualStudio.Tests\Tools.VisualStudio.Tests.csproj", "{F80329E8-451E-44D2-9784-943238A4A1E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -352,6 +354,14 @@ Global
 		{29BD1041-C597-41EE-A9A2-67A12B0C0B0D}.release_x86|Any CPU.Build.0 = Release|Any CPU
 		{29BD1041-C597-41EE-A9A2-67A12B0C0B0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29BD1041-C597-41EE-A9A2-67A12B0C0B0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.debug_x86|Any CPU.ActiveCfg = debug_x86|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.debug_x86|Any CPU.Build.0 = debug_x86|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.release_x86|Any CPU.ActiveCfg = release_x86|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.release_x86|Any CPU.Build.0 = release_x86|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -391,5 +401,6 @@ Global
 		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{6944CD17-21F3-4ABD-A5C3-67262F50B359} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{29BD1041-C597-41EE-A9A2-67A12B0C0B0D} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
+		{F80329E8-451E-44D2-9784-943238A4A1E2} = {258D5057-81B9-40EC-A872-D21E27452749}
 	EndGlobalSection
 EndGlobal

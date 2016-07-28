@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Tools.VisualStudio
 {
-    public class ArgumentEscaper
+    public static class ArgumentEscaper
     {
         public static string Escape(IEnumerable<string> args)
         {
