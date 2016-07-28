@@ -5372,8 +5372,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var orderDetails
                     = (from od in context.Set<OrderDetail>()
+                       orderby od.ProductID, od.OrderID
                        select (from o in context.Set<Order>()
                                where od.OrderID == o.OrderID
+                               orderby o.OrderID
                                select o).First())
                         .Take(2)
                         .ToList();

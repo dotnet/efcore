@@ -351,18 +351,21 @@ WHERE [e].[Title] = (
 
 SELECT TOP(@__p_0) [od].[OrderID]
 FROM [Order Details] AS [od]
+ORDER BY [od].[ProductID], [od].[OrderID]
 
 @_outer_OrderID: 10285
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_OrderID = [o].[OrderID]
+ORDER BY [o].[OrderID]
 
 @_outer_OrderID: 10294
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE @_outer_OrderID = [o].[OrderID]",
+WHERE @_outer_OrderID = [o].[OrderID]
+ORDER BY [o].[OrderID]",
                 Sql);
         }
 
