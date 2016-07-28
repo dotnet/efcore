@@ -5445,12 +5445,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        where (from od in context.OrderDetails.Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
+                                     orderby c.CustomerID
                                      select c).First().Country
                                     == (from o2 in context.Set<Order>()
                                         join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
                                         where o2.OrderID == od.OrderID
+                                        orderby o2.OrderID, c.CustomerID
                                         select c).First().Country
+                              orderby od.ProductID, od.OrderID
                               select od).Count() > 0
+                       orderby o.OrderID
                        select o).ToList();
 
                 Assert.Equal(1, orders.Count);
