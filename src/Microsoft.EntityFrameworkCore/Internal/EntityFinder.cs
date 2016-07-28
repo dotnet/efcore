@@ -89,6 +89,96 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Load(INavigation navigation, InternalEntityEntry entry)
+        {
+            var keyValues = GetLoadValues(navigation, entry);
+            // Short-circuit for any null key values for perf and because of #6129
+            if (keyValues != null)
+            {
+                Query(navigation, keyValues).Load();
+            }
+
+            entry.SetIsLoaded(navigation);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual async Task LoadAsync(
+            INavigation navigation, 
+            InternalEntityEntry entry,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // Short-circuit for any null key values for perf and because of #6129
+            var keyValues = GetLoadValues(navigation, entry);
+            if (keyValues != null)
+            {
+
+                await Query(navigation, keyValues).LoadAsync(cancellationToken);
+            }
+
+            entry.SetIsLoaded(navigation);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
+        {
+            var keyValues = GetLoadValues(navigation, entry);
+            // Short-circuit for any null key values for perf and because of #6129
+            if (keyValues == null)
+            {
+                // Creates an empty Queryable that works with Async. Has to be an EF query because it
+                // could be used in a composition.
+                return _set.Where(e => false);
+            }
+
+            return Query(navigation, keyValues);
+        }
+
+        private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues) 
+            => _set.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
+            => Query(navigation, entry);
+
+        private object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
+        {
+            var properties = navigation.IsDependentToPrincipal()
+                ? navigation.ForeignKey.Properties
+                : navigation.ForeignKey.PrincipalKey.Properties;
+
+            var values = new object[properties.Count];
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                values[i] = entry[properties[i]];
+                if (values[i] == null)
+                {
+                    return null;
+                }
+            }
+
+            return values;
+        }
+
+        private IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
+            => navigation.IsDependentToPrincipal()
+                ? navigation.ForeignKey.PrincipalKey.Properties
+                : navigation.ForeignKey.Properties;
+
+
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
             var key = _model.FindEntityType(typeof(TEntity)).FindPrimaryKey();

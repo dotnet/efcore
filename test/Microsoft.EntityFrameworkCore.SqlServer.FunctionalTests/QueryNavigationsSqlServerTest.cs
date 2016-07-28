@@ -195,6 +195,21 @@ ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_with_multiple_optional_navigations()
+        {
+            base.Include_with_multiple_optional_navigations();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order].[OrderID], [od.Order].[CustomerID], [od.Order].[EmployeeID], [od.Order].[OrderDate], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [od.Order].[CustomerID]",
+                Sql);
+        }
+
         public override void Select_Navigation()
         {
             base.Select_Navigation();
@@ -1142,6 +1157,26 @@ SELECT TOP(1) [od1].[OrderID]
 FROM [Order Details] AS [od1]
 WHERE @_outer_OrderID = [od1].[OrderID]
 ORDER BY [od1].[OrderID], [od1].[ProductID]",
+                Sql);
+        }
+
+        public override void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
+        {
+            base.GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened();
+
+            Assert.Contains(
+                @"SELECT [t].[CustomerID]
+FROM (
+    SELECT [c20].*
+    FROM [Order Details] AS [od0]
+    INNER JOIN [Orders] AS [o0] ON [od0].[OrderID] = 10260
+    INNER JOIN [Customers] AS [c20] ON [o0].[CustomerID] = [c20].[CustomerID]
+) AS [t]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private readonly LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>> _referencedUntrackedEntities
             = new LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>>(
-                () => new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>());
+                () => new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance));
 
         private IIdentityMap _identityMap0;
         private IIdentityMap _identityMap1;
@@ -530,8 +530,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual int ChangedCount { get; set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
+            if (ChangedCount == 0)
+            {
+                return 0;
+            }
+
             var entriesToSave = GetEntriesToSave();
             if (!entriesToSave.Any())
             {
@@ -562,7 +573,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private List<InternalEntityEntry> GetEntriesToSave()
         {
             foreach (var entry in Entries.Where(
-                e => e.EntityState != EntityState.Detached
+                e => (e.EntityState == EntityState.Modified
+                      || e.EntityState == EntityState.Added)
                      && e.HasConceptualNull).ToList())
             {
                 entry.HandleConceptualNulls();
@@ -588,6 +600,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (ChangedCount == 0)
+            {
+                return 0;
+            }
+
             var entriesToSave = GetEntriesToSave();
             if (!entriesToSave.Any())
             {

@@ -119,6 +119,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
+        ///         Checks if any new, deleted, or changed entities are being tracked
+        ///         such that these changes will sent to the database if <see cref="DbContext.SaveChanges()" />
+        ///         or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method calls <see cref="DetectChanges" /> unless
+        ///         <see cref="AutoDetectChangesEnabled" /> has been set to false.
+        ///     </para>
+        /// </summary>
+        /// <returns> True if there are changes to save, otherwise false. </returns>
+        public virtual bool HasChanges()
+        {
+            if (AutoDetectChangesEnabled)
+            {
+                DetectChanges();
+            }
+
+            return StateManager.ChangedCount > 0;
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Gets the internal state manager being used to store information about tracked entities.
         ///     </para>
         ///     <para>

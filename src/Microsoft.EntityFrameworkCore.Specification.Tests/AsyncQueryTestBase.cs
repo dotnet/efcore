@@ -59,6 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task LoadAsync_should_track_results()
+        {
+            using (var context = CreateContext())
+            {
+                await context.Customers.LoadAsync();
+                 
+                Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Where_all_any_client()
         {
             var expectedOrders = new[] {1, 2, 3};

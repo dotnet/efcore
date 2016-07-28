@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         where TEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityEntry([NotNull] InternalEntityEntry internalEntry)
@@ -53,9 +54,83 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            var propertyInfo = propertyExpression.GetPropertyAccess();
+            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+        }
 
-            return new PropertyEntry<TEntity, TProperty>(this.GetInfrastructure(), propertyInfo.Name);
+        /// <summary>
+        ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
+        ///     navigation property that associates this entity to another entity.
+        /// </summary>
+        /// <param name="propertyExpression">
+        ///     A lambda expression representing the property to access information and operations for
+        ///     (<c>t => t.Property1</c>).
+        /// </param>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
+        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(
+            [NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
+            where TProperty : class
+        {
+            Check.NotNull(propertyExpression, nameof(propertyExpression));
+
+            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+        }
+
+        /// <summary>
+        ///     Provides access to change tracking and loading information for a collection
+        ///     navigation property that associates this entity to a collection of another entities.
+        /// </summary>
+        /// <param name="propertyExpression">
+        ///     A lambda expression representing the property to access information and operations for
+        ///     (<c>t => t.Property1</c>).
+        /// </param>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
+        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(
+            [NotNull] Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression) 
+            where TProperty : class
+        {
+            Check.NotNull(propertyExpression, nameof(propertyExpression));
+
+            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+        }
+
+        /// <summary>
+        ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
+        ///     navigation property that associates this entity to another entity.
+        /// </summary>
+        /// <param name="navigationPropertyName"> The name of the navigation property. </param>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
+        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>([NotNull] string navigationPropertyName) 
+            where TProperty : class
+        {
+            Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
+
+            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, navigationPropertyName);
+        }
+
+        /// <summary>
+        ///     Provides access to change tracking and loading information for a collection
+        ///     navigation property that associates this entity to a collection of another entities.
+        /// </summary>
+        /// <param name="navigationPropertyName"> The name of the navigation property. </param>
+        /// <returns>
+        ///     An object that exposes change tracking information and operations for the
+        ///     given navigation property.
+        /// </returns>
+        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>([NotNull] string navigationPropertyName) 
+            where TProperty : class
+        {
+            Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
+
+            return new CollectionEntry<TEntity, TProperty>(InternalEntry, navigationPropertyName);
         }
 
         /// <summary>
@@ -68,22 +143,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
             [NotNull] string propertyName)
         {
-            Check.NotNull(propertyName, nameof(propertyName));
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
-            var property = this.GetInfrastructure().EntityType.FindProperty(propertyName);
+            ValidateType<TProperty>(InternalEntry.EntityType.FindProperty(propertyName));
 
-            if ((property != null)
-                && (property.ClrType != typeof(TProperty)))
+            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyName);
+        }
+
+        private static void ValidateType<TProperty>(IProperty property)
+        {
+            if (property != null
+                && property.ClrType != typeof(TProperty))
             {
                 throw new ArgumentException(
                     CoreStrings.WrongGenericPropertyType(
-                        propertyName, 
-                        property.DeclaringEntityType.DisplayName(), 
-                        property.ClrType.ShortDisplayName(), 
+                        property.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.ClrType.ShortDisplayName(),
                         typeof(TProperty).ShortDisplayName()));
             }
-
-            return new PropertyEntry<TEntity, TProperty>(this.GetInfrastructure(), propertyName);
         }
     }
 }

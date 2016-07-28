@@ -145,12 +145,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var groupJoinIncludeArgumentIndex = shaperArgumentIndex + 4;
 
+                var existingGroupJoinIncludeArgument = methodCallExpression.Arguments[groupJoinIncludeArgumentIndex];
+                var existingGroupJoinIncludeWithAccessor = existingGroupJoinIncludeArgument as MethodCallExpression;
+                var withAccessorMethodInfo = _queryCompilationContext.QueryMethodProvider.GroupJoinIncludeType
+                    .GetTypeInfo().GetDeclaredMethod(nameof(GroupJoinInclude.WithEntityAccessor));
+
+                var existingGroupJoinIncludeExpression = existingGroupJoinIncludeWithAccessor != null
+                    && existingGroupJoinIncludeWithAccessor.Method == withAccessorMethodInfo
+                    ? existingGroupJoinIncludeWithAccessor.Object
+                    : existingGroupJoinIncludeArgument;
+
                 var groupJoinInclude
                     = _queryCompilationContext.QueryMethodProvider
                         .CreateGroupJoinInclude(
                             _navigationPath,
                             _querySourceRequiresTracking,
-                            (methodCallExpression.Arguments[groupJoinIncludeArgumentIndex] as ConstantExpression)?.Value,
+                            (existingGroupJoinIncludeExpression as ConstantExpression)?.Value,
                             _createRelatedEntitiesLoadersMethodInfo
                                 .MakeGenericMethod(_queryCompilationContext.QueryMethodProvider.RelatedEntitiesLoaderType)
                                 .Invoke(this, new object[]
@@ -161,9 +171,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (groupJoinInclude != null)
                 {
-                    var newArguments = methodCallExpression.Arguments.ToList();
+                    var groupJoinIncludeExpression = (Expression)Expression.Constant(groupJoinInclude);
+                    var accessorLambda = shaper.GetAccessorExpression(_querySource) as LambdaExpression;
+                    if (accessorLambda != null && accessorLambda.Parameters.Single().Type.GetTypeInfo().IsValueType)
+                    {
+                        groupJoinIncludeExpression = Expression.Call(
+                            groupJoinIncludeExpression,
+                            withAccessorMethodInfo,
+                            shaper.GetAccessorExpression(_querySource));
+                    }
 
-                    newArguments[groupJoinIncludeArgumentIndex] = Expression.Constant(groupJoinInclude);
+                    var newArguments = methodCallExpression.Arguments.ToList();
+                    newArguments[groupJoinIncludeArgumentIndex] = groupJoinIncludeExpression;
 
                     return methodCallExpression.Update(methodCallExpression.Object, newArguments);
                 }

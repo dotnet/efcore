@@ -386,7 +386,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public class ComputedColumnWithFunction
         {
-            //[Fact] Disabled due to issue #6044
+            // #6044
+            [Fact]
             public void Insert_and_update_with_computed_column()
             {
                 using (var context = new BlogContext())
@@ -398,9 +399,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         creator.Create();
 
                         context.Database.ExecuteSqlCommand
-                            (@"CREATE FUNCTION 
+                            (@"CREATE FUNCTION
 [dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
-RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
+RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
 
                         creator.CreateTables();
                     }
@@ -432,11 +433,6 @@ RETURNS NVARCHAR(MAX) AS BEGIN RETURN @First + @Second END");
 
                     blog.LastName = "Pegasus";
 
-                    // Throws SqlException : Column 'inserted.FullName' cannot be referenced in the OUTPUT clause
-                    // because the column definition contains a subquery or references a function that performs user 
-                    // or system data access. A function is assumed by default to perform data access if it is not 
-                    // schemabound. Consider removing the subquery or function from the column definition or removing 
-                    // the column from the OUTPUT clause.
                     context.SaveChanges();
 
                     Assert.Equal("OnePegasus", blog.FullName);

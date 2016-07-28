@@ -231,6 +231,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Include_with_multiple_optional_navigations()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods
+                    .Include(od => od.Order.Customer)
+                    .Where(od => od.Order.Customer.City == "London"),
+                entryCount: 164);
+        }
+
+        [ConditionalFact]
         public virtual void Select_count_plus_sum()
         {
             AssertQuery<Order>(os => os.Select(o => new
@@ -871,6 +881,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       }).Take(3));
         }
 
+        [ConditionalFact]
+        public virtual void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join subquery in
+                                  (
+                                    from od in ods
+                                    join o in os on od.OrderID equals 10260
+                                    join c2 in cs on o.CustomerID equals c2.CustomerID
+                                    select c2
+                                  )
+                                    on c.CustomerID equals subquery.CustomerID
+                                    into result
+                                  from subquery in result.DefaultIfEmpty()
+                                  select c), 
+                entryCount: 91);
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;
@@ -899,6 +928,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Action<IList<TResult>, IList<TResult>> asserter = null)
             where TItem1 : class
             where TItem2 : class 
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
+
+        protected void AssertQuery<TItem1, TItem2, TItem3, TResult>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> query,
+            bool assertOrder = false,
+            int entryCount = 0,
+            Action<IList<TResult>, IList<TResult>> asserter = null)
+            where TItem1 : class
+            where TItem2 : class
+            where TItem3 : class
             => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem, TResult>(
@@ -961,6 +1000,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 TestHelpers.AssertResults(
                     l2oQuery(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
                     efQuery(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
+                    assertOrder,
+                    asserter);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        protected void AssertQuery<TItem1, TItem2, TItem3, TResult>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> efQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> l2oQuery,
+            bool assertOrder = false,
+            int entryCount = 0,
+            Action<IList<TResult>, IList<TResult>> asserter = null)
+            where TItem1 : class
+            where TItem2 : class
+            where TItem3 : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    l2oQuery(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()).ToArray(),
+                    efQuery(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArray(),
                     assertOrder,
                     asserter);
 

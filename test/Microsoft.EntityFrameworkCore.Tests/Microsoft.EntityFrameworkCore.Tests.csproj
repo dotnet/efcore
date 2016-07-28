@@ -58,6 +58,7 @@
     <Compile Include="ApiConsistencyTestBase.cs" />
     <Compile Include="ChangeTracking\AggregatesTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
+    <Compile Include="ChangeTracking\CollectionEntryTest.cs" />
     <Compile Include="ChangeTracking\EntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
     <Compile Include="ChangeTracking\Internal\FixupTest.cs" />
@@ -73,8 +74,11 @@
     <Compile Include="ChangeTracking\Internal\ShadowFkFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
+    <Compile Include="ChangeTracking\MemberEntryTest.cs" />
+    <Compile Include="ChangeTracking\NavigationEntryTest.cs" />
     <Compile Include="ChangeTracking\ObservableHashSetTest.cs" />
     <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntryTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />
     <Compile Include="DatabaseFacadeTest.cs" />
     <Compile Include="DbContextOptionsTest.cs" />

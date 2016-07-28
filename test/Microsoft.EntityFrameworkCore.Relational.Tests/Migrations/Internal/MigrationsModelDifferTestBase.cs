@@ -18,11 +18,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
             Action<IReadOnlyList<MigrationOperation>> assertAction)
+            => Execute(m => { }, buildSourceAction, buildTargetAction, assertAction);
+
+        protected void Execute(
+            Action<ModelBuilder> buildCommonAction,
+            Action<ModelBuilder> buildSourceAction,
+            Action<ModelBuilder> buildTargetAction,
+            Action<IReadOnlyList<MigrationOperation>> assertAction)
         {
             var sourceModelBuilder = CreateModelBuilder();
+            buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
 
             var targetModelBuilder = CreateModelBuilder();
+            buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
 
             var modelDiffer = CreateModelDiffer();

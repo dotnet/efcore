@@ -526,12 +526,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.True(entityType.FindProperty("Top").IsConcurrencyToken);
                 Assert.False(entityType.FindProperty("Bottom").IsConcurrencyToken);
 
-                Assert.Equal(-1, entityType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
-                Assert.Equal(2, entityType.FindProperty("Up").GetOriginalValueIndex());
+                Assert.Equal(0, entityType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
+                Assert.Equal(3, entityType.FindProperty("Up").GetOriginalValueIndex());
                 Assert.Equal(-1, entityType.FindProperty("Down").GetOriginalValueIndex());
-                Assert.Equal(0, entityType.FindProperty("Charm").GetOriginalValueIndex());
+                Assert.Equal(1, entityType.FindProperty("Charm").GetOriginalValueIndex());
                 Assert.Equal(-1, entityType.FindProperty("Strange").GetOriginalValueIndex());
-                Assert.Equal(1, entityType.FindProperty("Top").GetOriginalValueIndex());
+                Assert.Equal(2, entityType.FindProperty("Top").GetOriginalValueIndex());
                 Assert.Equal(-1, entityType.FindProperty("Bottom").GetOriginalValueIndex());
             }
 

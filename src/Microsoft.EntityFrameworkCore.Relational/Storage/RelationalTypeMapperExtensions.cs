@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -48,7 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
-            throw new InvalidOperationException(RelationalStrings.UnsupportedType(property));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedPropertyType(
+                property.DeclaringEntityType.DisplayName(),
+                property.Name,
+                property.ClrType.ShortDisplayName()));
         }
 
         /// <summary>
@@ -70,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
-            throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType.ShortDisplayName()));
         }
 
         /// <summary>

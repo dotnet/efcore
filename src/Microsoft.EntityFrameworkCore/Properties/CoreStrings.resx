@@ -144,6 +144,21 @@
   <data name="PropertyNotFound" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.</value>
   </data>
+  <data name="PropertyIsNavigation" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.</value>
+  </data>
+  <data name="NavigationIsProperty" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.</value>
+  </data>
+  <data name="ReferenceIsCollection" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.</value>
+  </data>
+  <data name="CollectionIsReference" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.</value>
+  </data>
+  <data name="ReferenceMustBeLoaded" xml:space="preserve">
+    <value>Navigation property '{navigation}' on entity type '{entityType}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.</value>
+  </data>
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
@@ -595,9 +610,27 @@
     <value>{message} To configure this warning use the DbContextOptionsBuilder.ConfigureWarnings API (event id '{eventId}'). ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
-    <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
+    <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
   </data>
   <data name="NoProviderConfiguredFailedToResolveService" xml:space="preserve">
     <value>Unable to resolve service for type '{service}'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.</value>
+  </data>
+  <data name="ErrorMaterializingProperty" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
+  </data>
+  <data name="ErrorMaterializingPropertyInvalidCast" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+  </data>
+  <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
+  </data>
+  <data name="ErrorMaterializingValue" xml:space="preserve">
+    <value>An exception occured while reading a database value. See the inner exception for more information.</value>
+  </data>
+  <data name="ErrorMaterializingValueInvalidCast" xml:space="preserve">
+    <value>An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+  </data>
+  <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
+    <value>An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
 </root>

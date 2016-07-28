@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ScaffoldingTypeMapperSqliteTest.cs" />
+    <Compile Include="SqliteDesignTimeProviderServicesTest.cs" />
     <Compile Include="SqliteTableSelectionSetExtensionsTests.cs" />
   </ItemGroup>
   <ItemGroup>

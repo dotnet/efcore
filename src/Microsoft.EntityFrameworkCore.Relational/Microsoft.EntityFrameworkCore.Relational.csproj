@@ -263,6 +263,7 @@
     <Compile Include="Query\Internal\AsyncIncludeCollectionIterator.cs" />
     <Compile Include="Query\Internal\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\Internal\GroupJoinInclude.cs" />
+    <Compile Include="Query\Internal\GroupJoinIncludeBase.cs" />
     <Compile Include="Query\Internal\IncludeCollectionIterator.cs" />
     <Compile Include="Query\Internal\IShaperCommandContextFactory.cs" />
     <Compile Include="Query\Internal\IValueBufferCursor.cs" />

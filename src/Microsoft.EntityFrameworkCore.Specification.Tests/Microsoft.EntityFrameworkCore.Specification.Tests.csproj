@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
     <Compile Include="AsTrackingTestBase.cs" />
+    <Compile Include="AsyncQueryNavigationsTestBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="InheritanceRelationshipsQueryFixtureBase.cs" />
     <Compile Include="InheritanceRelationshipsQueryTestBase.cs" />
     <Compile Include="InheritanceTestBase.cs" />
+    <Compile Include="LoadTestBase.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="NotificationEntitiesTestBase.cs" />

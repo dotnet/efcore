@@ -2474,6 +2474,48 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Multiple_include_with_multiple_optional_navigations()
+        {
+            List<Level1> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToOne_Optional_FK)
+                    .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .Where(e => e.OneToOne_Required_FK.OneToOne_Optional_PK?.Name != "Foo")
+                    .OrderBy(e => e.Id)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToOne_Optional_FK)
+                    .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToOne_Optional_FK)
+                    .Where(e => e.OneToOne_Required_FK.OneToOne_Optional_PK.Name != "Foo")
+                    .OrderBy(e => e.Id);
+
+                var result = query.ToList();
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected[i].Id == result[i].Id);
+                    Assert.True(expected[i].Name == result[i].Name);
+                    Assert.True(expected[i].OneToOne_Required_FK?.Id == result[i].OneToOne_Required_FK?.Id);
+                    Assert.True(expected[i].OneToOne_Required_FK?.OneToOne_Optional_FK?.Id == result[i].OneToOne_Required_FK?.OneToOne_Optional_FK?.Id);
+
+                    Assert.True(expected[i].OneToOne_Optional_FK?.Id == result[i].OneToOne_Optional_FK?.Id);
+                    Assert.True(expected[i].OneToOne_Optional_FK?.OneToOne_Optional_FK?.Id == result[i].OneToOne_Optional_FK?.OneToOne_Optional_FK?.Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level()
         {
             List<string> expected;

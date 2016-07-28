@@ -15,14 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class AsyncGroupJoinInclude : IDisposable
+    public class AsyncGroupJoinInclude : GroupJoinIncludeBase
     {
-        private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> _relatedEntitiesLoaderFactories;
-        private readonly bool _querySourceRequiresTracking;
-
-        private RelationalQueryContext _queryContext;
-        private IAsyncRelatedEntitiesLoader[] _relatedEntitiesLoaders;
         private AsyncGroupJoinInclude _previous;
 
         /// <summary>
@@ -33,10 +28,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
+            : base(navigationPath, querySourceRequiresTracking)
         {
-            _navigationPath = navigationPath;
             _relatedEntitiesLoaderFactories = relatedEntitiesLoaderFactories;
-            _querySourceRequiresTracking = querySourceRequiresTracking;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual AsyncGroupJoinInclude WithEntityAccessor([NotNull] Delegate entityAccessor)
+        {
+            EntityAccessor = entityAccessor;
+
+            return this;
         }
 
         /// <summary>
@@ -56,58 +61,114 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Initialize([NotNull] RelationalQueryContext queryContext)
+        public virtual AsyncGroupJoinIncludeContext Initialize([NotNull] RelationalQueryContext queryContext)
         {
-            _queryContext = queryContext;
-            _queryContext.BeginIncludeScope();
+            var asyncGroupJoinIncludeContext
+                = new AsyncGroupJoinIncludeContext(
+                    NavigationPath,
+                    QuerySourceRequiresTracking,
+                    queryContext,
+                    _relatedEntitiesLoaderFactories);
 
-            _relatedEntitiesLoaders
-                = _relatedEntitiesLoaderFactories.Select(f => f(queryContext))
-                    .ToArray();
-
-            _previous?.Initialize(queryContext);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual async Task IncludeAsync([CanBeNull] object entity, CancellationToken cancellationToken)
-        {
             if (_previous != null)
             {
-                await _previous.IncludeAsync(entity, cancellationToken);
+                asyncGroupJoinIncludeContext.SetPrevious(_previous.Initialize(queryContext));
             }
 
-            await _queryContext.QueryBuffer
-                .IncludeAsync(
-                    _queryContext,
-                    entity,
-                    _navigationPath,
-                    _relatedEntitiesLoaders,
-                    _querySourceRequiresTracking,
-                    cancellationToken);
+            return asyncGroupJoinIncludeContext;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Dispose()
+        public class AsyncGroupJoinIncludeContext : IDisposable
         {
-            if (_queryContext != null)
-            {
-                _previous?.Dispose();
+            private readonly IReadOnlyList<INavigation> _navigationPath;
+            private readonly bool _querySourceRequiresTracking;
+            private readonly RelationalQueryContext _queryContext;
+            private readonly IAsyncRelatedEntitiesLoader[] _relatedEntitiesLoaders;
 
-                foreach (var relatedEntitiesLoader in _relatedEntitiesLoaders)
+            private AsyncGroupJoinIncludeContext _previous;
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public AsyncGroupJoinIncludeContext(
+                [NotNull] IReadOnlyList<INavigation> navigationPath,
+                bool querySourceRequiresTracking,
+                [NotNull] RelationalQueryContext queryContext,
+                [NotNull] IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> relatedEntitiesLoaderFactories)
+            {
+                _navigationPath = navigationPath;
+                _querySourceRequiresTracking = querySourceRequiresTracking;
+
+                _queryContext = queryContext;
+                _queryContext.BeginIncludeScope();
+
+                _relatedEntitiesLoaders
+                    = relatedEntitiesLoaderFactories.Select(f => f(queryContext))
+                        .ToArray();
+            }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual void SetPrevious([NotNull] AsyncGroupJoinIncludeContext previous)
+            {
+                if (_previous != null)
                 {
-                    relatedEntitiesLoader.Dispose();
+                    _previous.SetPrevious(previous);
+                }
+                else
+                {
+                    _previous = previous;
+                }
+            }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual async Task IncludeAsync([CanBeNull] object entity, CancellationToken cancellationToken)
+            {
+                if (_previous != null)
+                {
+                    await _previous.IncludeAsync(entity, cancellationToken);
                 }
 
-                _queryContext.EndIncludeScope();
+                await _queryContext.QueryBuffer
+                    .IncludeAsync(
+                        _queryContext,
+                        entity,
+                        _navigationPath,
+                        _relatedEntitiesLoaders,
+                        _querySourceRequiresTracking,
+                        cancellationToken);
+            }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual void Dispose()
+            {
+                if (_queryContext != null)
+                {
+                    _previous?.Dispose();
+
+                    foreach (var relatedEntitiesLoader in _relatedEntitiesLoaders)
+                    {
+                        relatedEntitiesLoader.Dispose();
+                    }
+
+                    _queryContext.EndIncludeScope();
+                }
             }
         }
     }

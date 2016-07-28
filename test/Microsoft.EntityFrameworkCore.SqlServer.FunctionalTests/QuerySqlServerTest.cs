@@ -351,18 +351,21 @@ WHERE [e].[Title] = (
 
 SELECT TOP(@__p_0) [od].[OrderID]
 FROM [Order Details] AS [od]
+ORDER BY [od].[ProductID], [od].[OrderID]
 
 @_outer_OrderID: 10285
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_OrderID = [o].[OrderID]
+ORDER BY [o].[OrderID]
 
 @_outer_OrderID: 10294
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE @_outer_OrderID = [o].[OrderID]",
+WHERE @_outer_OrderID = [o].[OrderID]
+ORDER BY [o].[OrderID]",
                 Sql);
         }
 
@@ -421,15 +424,18 @@ FROM (
     SELECT TOP(@__p_0) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
 ) AS [t]
+ORDER BY [t].[OrderID]
 
 SELECT [t1].[OrderID]
 FROM (
     SELECT TOP(2) [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice]
     FROM [Order Details] AS [o4]
 ) AS [t1]
+ORDER BY [t1].[ProductID], [t1].[OrderID]
 
 SELECT [c5].[CustomerID], [c5].[Country]
 FROM [Customers] AS [c5]
+ORDER BY [c5].[CustomerID]
 
 @_outer_OrderID1: 10285
 
@@ -437,9 +443,11 @@ SELECT TOP(1) [c6].[Country]
 FROM [Orders] AS [o23]
 INNER JOIN [Customers] AS [c6] ON [o23].[CustomerID] = [c6].[CustomerID]
 WHERE [o23].[OrderID] = @_outer_OrderID1
+ORDER BY [o23].[OrderID], [c6].[CustomerID]
 
 SELECT [c5].[CustomerID], [c5].[Country]
 FROM [Customers] AS [c5]
+ORDER BY [c5].[CustomerID]
 
 @_outer_OrderID1: 10294
 
@@ -447,12 +455,14 @@ SELECT TOP(1) [c6].[Country]
 FROM [Orders] AS [o23]
 INNER JOIN [Customers] AS [c6] ON [o23].[CustomerID] = [c6].[CustomerID]
 WHERE [o23].[OrderID] = @_outer_OrderID1
+ORDER BY [o23].[OrderID], [c6].[CustomerID]
 
 SELECT [t1].[OrderID]
 FROM (
     SELECT TOP(2) [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice]
     FROM [Order Details] AS [o4]
-) AS [t1]",
+) AS [t1]
+ORDER BY [t1].[ProductID], [t1].[OrderID]",
                 Sql);
         }
 

@@ -2628,6 +2628,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     existingRelationships.AddRange(dependentEntityType
                         .FindForeignKeysInHierarchy(dependentProperties)
+                        .Where(fk => fk.PrincipalEntityType == principalEntityType)
                         .Select(fk => fk.Builder));
                 }
             }

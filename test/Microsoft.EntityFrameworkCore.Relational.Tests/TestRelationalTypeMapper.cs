@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         private static readonly RelationalTypeMapping _binaryKey = new RelationalTypeMapping("just_binary(900)", typeof(byte[]), DbType.Binary, unicode: true, size: 900);
         private static readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("rowversion", typeof(byte[]), DbType.Binary, unicode: true, size: 8);
         private static readonly RelationalTypeMapping _defaultIntMapping = new RelationalTypeMapping("default_int_mapping", typeof(int));
+        private static readonly RelationalTypeMapping _defaultBoolMapping = new RelationalTypeMapping("default_bool_mapping", typeof(bool));
         private static readonly RelationalTypeMapping _someIntMapping = new RelationalTypeMapping("some_int_mapping", typeof(int));
         private static readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(decimal));
 
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             = new Dictionary<Type, RelationalTypeMapping>
             {
                 { typeof(int), _defaultIntMapping },
+                { typeof(bool), _defaultBoolMapping },
                 { typeof(string), _string }
             };
 

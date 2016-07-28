@@ -60,6 +60,8 @@
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
+    <Compile Include="ChangeTracking\CollectionEntry.cs" />
+    <Compile Include="ChangeTracking\CollectionEntry`.cs" />
     <Compile Include="ChangeTracking\EntityEntry.cs" />
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\EntityEntry`.cs" />
@@ -127,9 +129,13 @@
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\Internal\TrackingQueryMode.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
+    <Compile Include="ChangeTracking\MemberEntry.cs" />
+    <Compile Include="ChangeTracking\NavigationEntry.cs" />
     <Compile Include="ChangeTracking\ObservableHashSet.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntry.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
@@ -226,6 +232,7 @@
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeIgnoredConvention.cs" />
+    <Compile Include="Storage\DatabaseProvider.cs" />
     <Compile Include="WarningBehavior.cs" />
     <Compile Include="Internal\WarningsConfiguration.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />
@@ -470,7 +477,6 @@
     <Compile Include="Storage\Database.cs" />
     <Compile Include="Storage\DatabaseErrorLogState.cs" />
     <Compile Include="Storage\DatabaseProviderServices.cs" />
-    <Compile Include="Storage\DatabaseProvider`.cs" />
     <Compile Include="Storage\IDatabase.cs" />
     <Compile Include="Storage\IDatabaseCreator.cs" />
     <Compile Include="Storage\IDatabaseProvider.cs" />

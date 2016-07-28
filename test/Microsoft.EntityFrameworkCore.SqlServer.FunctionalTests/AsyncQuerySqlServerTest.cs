@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,6 +15,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class AsyncQuerySqlServerTest : AsyncQueryTestBase<NorthwindQuerySqlServerFixture>
     {
+        [ConditionalFact]
+        public async Task Race_when_context_disposed_before_query_termination()
+        {
+            Task<Customer> task;
+           
+            using (var context = CreateContext())
+            {
+                task = context.Customers.SingleAsync(c => c.CustomerID == "ALFKI");
+            }
+
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => task);
+        }
+
         // TODO: Complex projection translation.
 
         public override async Task Projection_when_arithmetic_expressions()
@@ -85,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            // TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
     }
 }

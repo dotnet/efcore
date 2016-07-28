@@ -3752,88 +3752,80 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         }
 
         [Fact]
-        public void Add_foreign_key_on_subtype()
+        public void Add_shared_foreign_key_on_subtypes()
         {
             Execute(
-                source =>
-                    {
-                        source.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
+                common =>
+                {
+                    common.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                        });
+                    IMutableEntityType animal = null;
+                    common.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
 
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        source.Entity(
-                            "GameAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<int>("HunterId");
-                                    x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
-                                });
-                    },
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    common.Entity(
+                        "GameAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("HunterId");
+                            x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
+                        });
+                    common.Entity(
+                        "EndangeredAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("HunterId");
+                            x.Metadata.Relational().DiscriminatorValue = "EndangeredAnimal";
+                        });
+                },
+                source => { },
                 target =>
-                    {
-                        target.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "GameAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<int>("HunterId");
-                                    x.HasOne("Person").WithMany().HasForeignKey("HunterId");
-                                    x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
-                                });
-                    },
+                {
+                    target.Entity(
+                        "GameAnimal",
+                        x =>
+                        {
+                            x.HasOne("Person").WithMany().HasForeignKey("HunterId");
+                        });
+                    target.Entity(
+                        "EndangeredAnimal",
+                        x =>
+                        {
+                            x.HasOne("Person").WithMany().HasForeignKey("HunterId");
+                        });
+                },
                 operations =>
-                    {
-                        Assert.Equal(2, operations.Count);
+                {
+                    Assert.Equal(2, operations.Count);
 
-                        var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
-                        Assert.Equal("Animal", createIndexOperation.Table);
-                        Assert.Equal("IX_Animal_HunterId", createIndexOperation.Name);
-                        Assert.Equal(new[] { "HunterId" }, createIndexOperation.Columns);
+                    var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
+                    Assert.Equal("Animal", createIndexOperation.Table);
+                    Assert.Equal("IX_Animal_HunterId", createIndexOperation.Name);
+                    Assert.Equal(new[] { "HunterId" }, createIndexOperation.Columns);
 
-                        var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
-                        Assert.Equal("Animal", addFkOperation.Table);
-                        Assert.Equal("FK_Animal_Person_HunterId", addFkOperation.Name);
-                        Assert.Equal(new[] { "HunterId" }, addFkOperation.Columns);
-                        Assert.Equal("Person", addFkOperation.PrincipalTable);
-                        Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
-                    });
+                    var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                    Assert.Equal("Animal", addFkOperation.Table);
+                    Assert.Equal("FK_Animal_Person_HunterId", addFkOperation.Name);
+                    Assert.Equal(new[] { "HunterId" }, addFkOperation.Columns);
+                    Assert.Equal("Person", addFkOperation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
+                });
         }
 
         [Fact]
