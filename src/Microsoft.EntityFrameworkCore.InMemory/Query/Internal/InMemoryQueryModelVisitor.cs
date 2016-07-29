@@ -326,30 +326,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     foreach (var entity in (IEnumerable)result)
                     {
-                        foreach (var reference in includeSpecification.References)
-                        {
-                            queryContext.QueryBuffer
+                        queryContext.QueryBuffer
                                 .Include(
                                     queryContext,
                                     entity,
-                                    reference,
+                                    includeSpecification,
                                     relatedEntitiesLoaders,
                                     querySourceRequiresTracking);
-                        }
                     }
                 }
                 else
                 {
-                    foreach (var reference in includeSpecification.References)
-                    {
-                        queryContext.QueryBuffer
+                    queryContext.QueryBuffer
                             .Include(
                                 queryContext,
                                 result,
-                                reference,
+                                includeSpecification,
                                 relatedEntitiesLoaders,
                                 querySourceRequiresTracking);
-                    }
                 }
 
                 yield return result;
