@@ -225,11 +225,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (navigationToPrincipal != null)
                     {
                         Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                        if (navigationToPrincipal.Value.Name != null)
+                        {
+                            principalEntityType.Unignore(navigationToPrincipal.Value.Name);
+                        }
                     }
 
                     if (navigationToDependent != null)
                     {
                         Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                        if (navigationToDependent.Value.Name != null)
+                        {
+                            principalEntityType.Unignore(navigationToDependent.Value.Name);
+                        }
                     }
                 }
                 return this;
@@ -345,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var navigationToPrincipalName = navigationToPrincipal.Value.Name;
                 if (navigationToPrincipalName != null)
                 {
-                    Metadata.DeclaringEntityType.Builder.Unignore(navigationToPrincipalName);
+                    Metadata.DeclaringEntityType.Unignore(navigationToPrincipalName);
                 }
 
                 var navigationProperty = navigationToPrincipal.Value.Property;
@@ -364,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var navigationToDependentName = navigationToDependent.Value.Name;
                 if (navigationToDependentName != null)
                 {
-                    Metadata.PrincipalEntityType.Builder.Unignore(navigationToDependentName);
+                    Metadata.PrincipalEntityType.Unignore(navigationToDependentName);
                 }
 
                 var navigationProperty = navigationToDependent.Value.Property;
@@ -1925,8 +1933,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (runConventions)
             {
-                var dependentToPrincipalIsNew = newRelationshipBuilder.Metadata.DependentToPrincipal != null;
-                var principalToDependentIsNew = newRelationshipBuilder.Metadata.PrincipalToDependent != null;
                 for (var i = 0; i < removedNavigations.Count; i++)
                 {
                     var removedNavigation = removedNavigations[i];
@@ -1934,13 +1940,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && removedNavigation.Item3 == newRelationshipBuilder.Metadata.DependentToPrincipal.Name
                         && newRelationshipBuilder.Metadata.DeclaringEntityType.IsAssignableFrom(removedNavigation.Item1.Metadata))
                     {
-                        if (newRelationshipBuilder.Metadata.DeclaringEntityType == removedNavigation.Item1.Metadata
-                            && ((oldRelationshipInverted && Metadata.PrincipalToDependent != null)
-                                || (!oldRelationshipInverted && Metadata.DependentToPrincipal != null)))
-                        {
-                            dependentToPrincipalIsNew = false;
-                        }
-
                         removedNavigations.RemoveAt(i);
                         i--;
                         continue;
@@ -1950,13 +1949,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && removedNavigation.Item3 == newRelationshipBuilder.Metadata.PrincipalToDependent.Name
                         && newRelationshipBuilder.Metadata.PrincipalEntityType.IsAssignableFrom(removedNavigation.Item1.Metadata))
                     {
-                        if (newRelationshipBuilder.Metadata.PrincipalEntityType == removedNavigation.Item1.Metadata
-                            && ((oldRelationshipInverted && Metadata.DependentToPrincipal != null)
-                                || (!oldRelationshipInverted && Metadata.PrincipalToDependent != null)))
-                        {
-                            principalToDependentIsNew = false;
-                        }
-
                         removedNavigations.RemoveAt(i);
                         i--;
                     }
@@ -1973,6 +1965,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(removedForeignKey.Item1, removedForeignKey.Item2);
                 }
 
+                dependentProperties = dependentProperties != null && dependentProperties.Any() ? dependentProperties : null;
+                principalProperties = principalProperties != null && principalProperties.Any() ? principalProperties : null;
                 if (newRelationshipBuilder.Metadata.Builder == null)
                 {
                     newRelationshipBuilder = FindCurrentRelationshipBuilder(

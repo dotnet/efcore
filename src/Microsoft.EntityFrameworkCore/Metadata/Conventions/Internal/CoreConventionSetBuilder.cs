@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
 
             // An ambiguity might have been resolved
+            conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             var keyAttributeConvention = new KeyAttributeConvention();
@@ -69,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
             conventionSet.ModelBuiltConventions.Add(keyConvention);
+            conventionSet.ModelBuiltConventions.Add(new IgnoredMembersValidationConvention());
             conventionSet.ModelBuiltConventions.Add(new PropertyMappingValidationConvention());
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());
 

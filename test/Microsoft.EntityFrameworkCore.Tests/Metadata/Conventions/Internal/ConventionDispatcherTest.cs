@@ -331,8 +331,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.NotNull(b);
-                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder);
-                    return relationshipBuilder;
+                    relationshipBuilder = b;
+                    return b;
                 });
             conventions.ForeignKeyAddedConventions.Add(convention.Object);
 

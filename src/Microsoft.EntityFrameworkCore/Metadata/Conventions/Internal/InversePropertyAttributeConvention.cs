@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             // Check for InversePropertyAttribute on the inverseNavigation to verify that it matches.
             var inverseAttribute = inverseNavigationPropertyInfo.GetCustomAttribute<InversePropertyAttribute>(true);
-            if ((inverseAttribute != null)
-                && (inverseAttribute.Property != navigationPropertyInfo.Name))
+            if (inverseAttribute != null
+                && inverseAttribute.Property != navigationPropertyInfo.Name)
             {
                 throw new InvalidOperationException(
                     CoreStrings.InversePropertyMismatch(
@@ -120,7 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         inverseNavigationsList))
                 {
                     var fk = existingInverse.ForeignKey;
-                    fk.DeclaringEntityType.Builder.RemoveForeignKey(fk, ConfigurationSource.DataAnnotation);
+                    if (fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation)
+                    {
+                        fk.DeclaringEntityType.Builder.RemoveForeignKey(fk, ConfigurationSource.DataAnnotation);
+                    }
                 }
 
                 return null;
@@ -198,6 +201,67 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         attribute);
                 }
             }
+
+            return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override bool ApplyIgnored(
+            InternalEntityTypeBuilder entityTypeBuilder,
+            PropertyInfo navigationPropertyInfo,
+            Type targetClrType,
+            InversePropertyAttribute attribute)
+        {
+            var entityType = entityTypeBuilder.Metadata;
+            var targetType = entityType.Model.FindEntityType(targetClrType);
+            var inverseNavigationPropertyInfo = targetClrType.GetRuntimeProperties()
+                .FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
+            if (targetType == null
+                || inverseNavigationPropertyInfo == null)
+            {
+                return true;
+            }
+
+            List<Tuple<PropertyInfo, Type>> navigationTuples;
+            var inverseNavigations = GetInverseNavigations(targetType);
+            if (inverseNavigations == null
+                || !inverseNavigations.TryGetValue(inverseNavigationPropertyInfo, out navigationTuples))
+            {
+                return true;
+            }
+
+            var inverseWasAmbiguous = false;
+            for (var index = 0; index < navigationTuples.Count; index++)
+            {
+                var inverseTuple = navigationTuples[index];
+                if (inverseTuple.Item1 == navigationPropertyInfo
+                    && inverseTuple.Item2 == entityType.ClrType)
+                {
+                    navigationTuples.RemoveAt(index);
+                    if (!navigationTuples.Any())
+                    {
+                        inverseNavigations.Remove(inverseNavigationPropertyInfo);
+                    }
+                    inverseWasAmbiguous = true;
+                    break;
+                }
+            }
+
+            if (!inverseWasAmbiguous
+                || navigationTuples.Count > 1)
+            {
+                return true;
+            }
+
+            var otherEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(navigationTuples[0].Item2, ConfigurationSource.DataAnnotation);
+            targetType.Builder.Relationship(
+                otherEntityTypeBuilder,
+                inverseNavigationPropertyInfo,
+                navigationTuples[0].Item1,
+                ConfigurationSource.DataAnnotation);
 
             return true;
         }

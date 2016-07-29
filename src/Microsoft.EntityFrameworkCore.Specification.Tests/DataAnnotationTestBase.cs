@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -47,7 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             return new ModelBuilder(conventionSet);
         }
 
-        protected virtual void Validate(IModel model) => Fixture.ThrowingValidator.Validate(model);
+        protected virtual void Validate(ModelBuilder modelBuilder)
+        {
+            modelBuilder.GetInfrastructure().Validate();
+            Fixture.ThrowingValidator.Validate(modelBuilder.Model);
+        }
 
         protected class Person
         {
@@ -71,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 .Property(p => p.Name)
                 .HasMaxLength(10);
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Equal(10, GetProperty<Employee>(modelBuilder, "Name").GetMaxLength());
         }
@@ -89,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 .Property(p => p.Name)
                 .HasMaxLength(10);
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Equal(10, GetProperty<Employee>(modelBuilder, "Name").GetMaxLength());
         }
@@ -112,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.Equal(10, GetProperty<Person>(modelBuilder, "Name").GetMaxLength());
             Assert.Equal(10, GetProperty<Employee>(modelBuilder, "Name").GetMaxLength());
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             modelBuilder = CreateModelBuilder();
 
@@ -126,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 .Property(p => p.Name)
                 .HasMaxLength(5);
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Equal(5, GetProperty<Person>(modelBuilder, "Name").GetMaxLength());
             Assert.Equal(5, GetProperty<Employee>(modelBuilder, "Name").GetMaxLength());
@@ -142,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Entity_10558>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
         }
 
         protected class Entity_10558
@@ -151,7 +156,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             [Column(Order = 1)]
             public int Key1 { get; set; }
 
-            [Key]
             [Column(Order = 1)]
             public int Key2 { get; set; }
 
@@ -166,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<PrivateMemberAnnotationClass>().Property(
                 PrivateMemberAnnotationClass.PersonFirstNameExpr);
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName").IsPrimaryKey());
 
@@ -193,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<NotMappedDerived>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(NotMappedDerived)));
         }
@@ -216,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Unit1>();
             modelBuilder.Entity<BaseEntity1>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity1)).FindProperty("BaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity1)).FindProperty("BaseClassProperty"));
@@ -262,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Unit2>();
             modelBuilder.Entity<BaseEntity2>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity2)).FindProperty("VirtualBaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity2)).FindProperty("VirtualBaseClassProperty"));
@@ -305,11 +309,41 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Unit3>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity3)).FindProperty("AbstractBaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity3)));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(Unit3)).FindProperty("AbstractBaseClassProperty"));
+        }
+
+        [Fact]
+        public virtual void NotMapped_on_overriden_mapped_base_class_property_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Unit3>();
+            modelBuilder.Entity<BaseEntity3>();
+
+            Assert.Equal(CoreStrings.InheritedPropertyCannotBeIgnored(
+                nameof(Unit3.VirtualBaseClassProperty), typeof(Unit3).ShortDisplayName(), typeof(BaseEntity3).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => Validate(modelBuilder)).Message);
+        }
+
+        [Fact]
+        public virtual void NotMapped_on_unmapped_derived_property_ignores_it()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<AbstractBaseEntity3>();
+            modelBuilder.Ignore<BaseEntity3>();
+            modelBuilder.Entity<Unit3>();
+
+            Validate(modelBuilder);
+
+            Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity3)));
+            Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity3)));
+            Assert.Null(modelBuilder.Model.FindEntityType(typeof(Unit3)).FindProperty("VirtualBaseClassProperty"));
         }
 
         protected abstract class AbstractBaseEntity3
@@ -346,72 +380,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<AbstractBaseEntity3>();
-            modelBuilder.Entity<BaseEntity3>();
+            modelBuilder.Entity<BaseEntity3>().Ignore(e => e.VirtualBaseClassProperty);
             modelBuilder.Entity<Unit3>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity3)).FindProperty("AbstractBaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity3)).FindProperty("AbstractBaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(Unit3)).FindProperty("AbstractBaseClassProperty"));
-        }
-
-        [Fact]
-        public virtual void NotMapped_on_overriden_mapped_base_class_property_throws()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Ignore<DifferentUnit4>();
-            modelBuilder.Entity<Unit4>();
-            modelBuilder.Entity<BaseEntity4>();
-
-            Validate(modelBuilder.Model);
-
-            Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity4)).FindProperty("VirtualBaseClassProperty"));
-            Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(BaseEntity4)).FindProperty("VirtualBaseClassProperty"));
-            Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(Unit4)).FindProperty("VirtualBaseClassProperty"));
-        }
-
-        protected abstract class AbstractBaseEntity4
-        {
-            public long Id { get; set; }
-            public abstract string AbstractBaseClassProperty { get; set; }
-        }
-
-        protected class BaseEntity4 : AbstractBaseEntity4
-        {
-            public string BaseClassProperty { get; set; }
-            public virtual string VirtualBaseClassProperty { get; set; }
-            public override string AbstractBaseClassProperty { get; set; }
-        }
-
-        protected class Unit4 : BaseEntity4
-        {
-            [NotMapped]
-            public override string VirtualBaseClassProperty { get; set; }
-
-            public virtual AbstractBaseEntity4 Related { get; set; }
-        }
-
-        protected class DifferentUnit4 : BaseEntity4
-        {
-            public new string VirtualBaseClassProperty { get; set; }
-        }
-
-        [Fact]
-        public virtual void NotMapped_on_unmapped_derived_property_ignores_it()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Ignore<AbstractBaseEntity4>();
-            modelBuilder.Ignore<BaseEntity4>();
-            modelBuilder.Entity<Unit4>();
-
-            Validate(modelBuilder.Model);
-
-            Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity4)));
-            Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity4)));
-            Assert.Null(modelBuilder.Model.FindEntityType(typeof(Unit4)).FindProperty("VirtualBaseClassProperty"));
         }
 
         [Fact]
@@ -422,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Ignore<BaseEntity2>();
             modelBuilder.Entity<Unit2>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity2)));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity2)));
@@ -438,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Ignore<BaseEntity1>();
             modelBuilder.Entity<Unit1>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity1)));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity1)));
@@ -452,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<DifferentUnit5>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity5)));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity5)));
@@ -492,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<MaxLengthAnnotationClass>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Equal(500, GetProperty<MaxLengthAnnotationClass>(modelBuilder, "PersonFirstName").GetMaxLength());
             Assert.Equal(500, GetProperty<MaxLengthAnnotationClass>(modelBuilder, "PersonLastName").GetMaxLength());
@@ -518,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<MaxLengthWithLengthAnnotationClass>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Equal(500, GetProperty<MaxLengthWithLengthAnnotationClass>(modelBuilder, "PersonFirstName").GetMaxLength());
             Assert.Equal(500, GetProperty<MaxLengthWithLengthAnnotationClass>(modelBuilder, "PersonLastName").GetMaxLength());
@@ -545,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login1>();
             modelBuilder.Ignore<Profile1>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             return modelBuilder;
         }
@@ -575,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<ColumnKeyAnnotationClass1>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName").IsPrimaryKey());
 
@@ -596,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<ColumnKeyAnnotationClass2>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName").IsPrimaryKey());
             Assert.Equal(64, GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName").GetMaxLength());
@@ -619,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<SRelated>();
             modelBuilder.Entity<OKeyBase>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<OKeyBase>(modelBuilder, "OrderLineNo").IsPrimaryKey());
             Assert.True(GetProperty<DODerived>(modelBuilder, "OrderLineNo").IsPrimaryKey());
@@ -633,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<OKeyBase>();
             modelBuilder.Entity<SRelated>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<OKeyBase>(modelBuilder, "OrderLineNo").IsPrimaryKey());
             Assert.True(GetProperty<DODerived>(modelBuilder, "OrderLineNo").IsPrimaryKey());
@@ -642,13 +618,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Key_from_base_type_is_recognized_if_discovered_through_relationship()
         {
-            var builder = CreateModelBuilder();
+            var modelBuilder = CreateModelBuilder();
 
-            builder.Entity<SRelated>();
+            modelBuilder.Entity<SRelated>();
 
-            Validate(builder.Model);
-            Assert.True(GetProperty<OKeyBase>(builder, nameof(OKeyBase.OrderLineNo)).IsPrimaryKey());
-            Assert.True(GetProperty<DODerived>(builder, nameof(DODerived.OrderLineNo)).IsPrimaryKey());
+            Validate(modelBuilder);
+            Assert.True(GetProperty<OKeyBase>(modelBuilder, nameof(OKeyBase.OrderLineNo)).IsPrimaryKey());
+            Assert.True(GetProperty<DODerived>(modelBuilder, nameof(DODerived.OrderLineNo)).IsPrimaryKey());
         }
 
         protected class SRelated
@@ -680,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<KeyOnNavProp>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<KeyOnNavProp>(modelBuilder, "Id").IsPrimaryKey());
         }
@@ -707,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<TimestampAndMaxlen>().Ignore(x => x.NonMaxTimestamp);
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Null(GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp").GetMaxLength());
 
@@ -720,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<TimestampAndMaxlen>().Ignore(x => x.MaxTimestamp);
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Equal(100, GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp").GetMaxLength());
 
@@ -748,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<StyledProduct>();
             modelBuilder.Entity<Product>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.Equal(150, GetProperty<StyledProduct>(modelBuilder, "Style").GetMaxLength());
         }
@@ -772,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login2>();
             modelBuilder.Entity<Profile2>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login2>(modelBuilder, "Login2Id").IsForeignKey());
         }
@@ -806,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login3>();
             modelBuilder.Entity<Profile3>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Profile3>(modelBuilder, "Profile3Id").IsForeignKey());
         }
@@ -839,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login4>();
             modelBuilder.Entity<Profile4>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login4>(modelBuilder, nameof(Login4.Login4Id)).IsForeignKey());
             Assert.True(GetProperty<Profile4>(modelBuilder, nameof(Profile4.Profile4Id)).IsForeignKey());
@@ -855,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 .WithOne(p => p.User)
                 .HasForeignKey<Login4>(l => l.Login4Id);
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login4>(modelBuilder, nameof(Login4.Login4Id)).IsForeignKey());
             Assert.False(GetProperty<Profile4>(modelBuilder, nameof(Profile4.Profile4Id)).IsForeignKey());
@@ -890,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login5>();
             modelBuilder.Entity<Profile5>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login5>(modelBuilder, "Login5Id").IsForeignKey());
         }
@@ -921,7 +897,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login6>();
             modelBuilder.Entity<Profile6>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login6>(modelBuilder, "Login6Id").IsForeignKey());
         }
@@ -953,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login7>();
             modelBuilder.Entity<Profile7>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Profile7>(modelBuilder, "Profile7Id").IsForeignKey());
         }
@@ -984,7 +960,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login8>();
             modelBuilder.Entity<Profile8>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Profile8>(modelBuilder, "Profile8Id").IsForeignKey());
         }
@@ -1016,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Login9>();
             modelBuilder.Entity<Profile9>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login9>(modelBuilder, "Login9Id").IsForeignKey());
             Assert.True(GetProperty<Profile9>(modelBuilder, "Profile9Id").IsForeignKey());
@@ -1048,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Login10>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login10>(modelBuilder, "Id").IsForeignKey());
             Assert.True(GetProperty<Profile10>(modelBuilder, "Id").IsForeignKey());
@@ -1077,7 +1053,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Login11>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             Assert.True(GetProperty<Login11>(modelBuilder, nameof(Profile11.Profile11Id)).IsForeignKey());
             Assert.True(GetProperty<Profile11>(modelBuilder, nameof(Profile11.Profile11Id)).IsForeignKey());
@@ -1106,7 +1082,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Login12>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             var login = modelBuilder.Model.FindEntityType(typeof(Login12));
             var fk1 = login.FindNavigation(nameof(Login12.Profile)).ForeignKey;
@@ -1146,7 +1122,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<TNAttrBase>();
             modelBuilder.Entity<TNAttrDerived>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
 
             return modelBuilder;
         }
@@ -1366,9 +1342,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
+            modelBuilder.Ignore<BookLabel>();
             modelBuilder.Entity<AnotherBookLabel>().Ignore(e => e.Book);
             modelBuilder.Entity<SpecialBookLabel>();
-            modelBuilder.Ignore<BookLabel>();
 
             Assert.Null(model.FindEntityType(typeof(BookLabel)));
             Assert.Equal(nameof(Book.Label), model.FindEntityType(typeof(SpecialBookLabel))

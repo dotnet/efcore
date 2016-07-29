@@ -633,4 +633,7 @@
   <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
     <value>An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
+  <data name="InheritedPropertyCannotBeIgnored" xml:space="preserve">
+    <value>The property '{property}' cannot be ignored on entity type '{entityType}', because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use NotMappedAttribute or Ignore method on the base type.</value>
+  </data>
 </root>

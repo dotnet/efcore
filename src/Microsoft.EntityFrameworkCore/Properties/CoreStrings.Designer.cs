@@ -1392,6 +1392,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingValueNullReference", "expectedType"), expectedType);
         }
 
+        /// <summary>
+        /// The property '{property}' cannot be ignored on entity type '{entityType}', because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use NotMappedAttribute or Ignore method on the base type.
+        /// </summary>
+        public static string InheritedPropertyCannotBeIgnored([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object baseEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InheritedPropertyCannotBeIgnored", "property", "entityType", "baseEntityType"), property, entityType, baseEntityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

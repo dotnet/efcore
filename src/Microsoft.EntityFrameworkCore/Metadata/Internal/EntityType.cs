@@ -1656,7 +1656,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             Check.NotNull(name, nameof(name));
 
@@ -1668,14 +1669,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _ignoredMembers[name] = configurationSource;
 
-            Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
+            if (runConventions)
+            {
+                Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
+            }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<string> GetIgnoredMembers()
+            => _ignoredMembers.Keys.ToList();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? FindIgnoredMemberConfigurationSource([NotNull] string name)
+        public virtual ConfigurationSource? FindDeclaredIgnoredMemberConfigurationSource([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -1686,6 +1697,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ConfigurationSource? FindIgnoredMemberConfigurationSource([NotNull] string name)
+        {
+            var ignoredSource = FindDeclaredIgnoredMemberConfigurationSource(name);
+
+            return BaseType == null ? ignoredSource : BaseType.FindIgnoredMemberConfigurationSource(name).Max(ignoredSource);
         }
 
         /// <summary>

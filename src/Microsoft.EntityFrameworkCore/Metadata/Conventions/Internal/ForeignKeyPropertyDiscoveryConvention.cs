@@ -35,7 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         var invertedRelationshipBuilder = relationshipBuilder
                             .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
 
-                        return invertedRelationshipBuilder ?? relationshipBuilder;
+                        if (invertedRelationshipBuilder != null)
+                        {
+                            return invertedRelationshipBuilder;
+                        }
+
+                        return foreignKey.Builder == null ? null : relationshipBuilder;
                     }
                 }
 

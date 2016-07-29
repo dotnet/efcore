@@ -232,6 +232,7 @@
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeIgnoredConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IgnoredMembersValidationConvention.cs" />
     <Compile Include="Metadata\Internal\MutableModelExtensions.cs" />
     <Compile Include="Storage\DatabaseProvider.cs" />
     <Compile Include="WarningBehavior.cs" />
