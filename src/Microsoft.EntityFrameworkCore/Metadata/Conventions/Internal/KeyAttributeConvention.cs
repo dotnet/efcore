@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, KeyAttribute attribute, PropertyInfo clrProperty)
+        public override InternalPropertyBuilder Apply(
+            InternalPropertyBuilder propertyBuilder, KeyAttribute attribute, MemberInfo clrMember)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
@@ -80,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     foreach (var declaredProperty in entityType.GetDeclaredProperties())
                     {
-                        var propertyInfo = declaredProperty.PropertyInfo;
-                        var attributes = propertyInfo?.GetCustomAttributes<KeyAttribute>(true);
+                        var memberInfo = declaredProperty.MemberInfo;
+                        var attributes = memberInfo?.GetCustomAttributes<KeyAttribute>(true);
                         if (attributes?.Any() == true)
                         {
                             throw new InvalidOperationException(

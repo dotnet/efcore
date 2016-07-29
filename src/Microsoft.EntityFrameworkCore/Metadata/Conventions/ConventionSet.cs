@@ -90,5 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Conventions to run when the nullability of a property is changed.
         /// </summary>
         public virtual IList<IPropertyNullableConvention> PropertyNullableChangedConventions { get; } = new List<IPropertyNullableConvention>();
+
+        /// <summary>
+        ///     Conventions to run when the nullability of a property is changed.
+        /// </summary>
+        public virtual IList<IPropertyConvention> PropertyFieldChangedConventions { get; } = new List<IPropertyConvention>();
     }
 }

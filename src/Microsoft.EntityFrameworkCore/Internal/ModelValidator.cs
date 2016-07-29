@@ -15,13 +15,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract class ModelValidator : IModelValidator
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Validate(IModel model)
@@ -31,10 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             EnsureNonNullPrimaryKeys(model);
             EnsureClrInheritance(model);
             EnsureChangeTrackingStrategy(model);
+            EnsureFieldMapping(model);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void EnsureNonNullPrimaryKeys([NotNull] IModel model)
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void EnsureClrInheritance([NotNull] IModel model)
@@ -125,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void EnsureChangeTrackingStrategy([NotNull] IModel model)
@@ -155,7 +156,52 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void EnsureFieldMapping([NotNull] IModel model)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var propertyBase in entityType
+                    .GetDeclaredProperties().Where(e => !e.IsShadowProperty).Cast<IPropertyBase>()
+                    .Concat(entityType.GetDeclaredNavigations()))
+                {
+                    MemberInfo _;
+                    string errorMessage;
+
+                    if (!propertyBase.TryGetMemberInfo(
+                        forConstruction: true,
+                        forSet: true,
+                        memberInfo: out _,
+                        errorMessage: out errorMessage))
+                    {
+                        ShowError(errorMessage);
+                    }
+
+                    if (!propertyBase.TryGetMemberInfo(
+                        forConstruction: false,
+                        forSet: true,
+                        memberInfo: out _,
+                        errorMessage: out errorMessage))
+                    {
+                        ShowError(errorMessage);
+                    }
+
+                    if (!propertyBase.TryGetMemberInfo(
+                        forConstruction: false,
+                        forSet: false,
+                        memberInfo: out _,
+                        errorMessage: out errorMessage))
+                    {
+                        ShowError(errorMessage);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void ShowError([NotNull] string message)
@@ -164,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected abstract void ShowWarning([NotNull] string message);

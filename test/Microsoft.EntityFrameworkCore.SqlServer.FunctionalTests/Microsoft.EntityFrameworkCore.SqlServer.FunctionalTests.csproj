@@ -59,6 +59,7 @@
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="F1SqlServerFixture.cs" />
+    <Compile Include="FieldMappingSqlServerTest.cs" />
     <Compile Include="FindSqlServerTest.cs" />
     <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />

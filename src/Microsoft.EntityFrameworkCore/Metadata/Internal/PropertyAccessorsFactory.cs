@@ -56,11 +56,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                currentValueExpression = Expression.Property(
-                    Expression.Convert(
-                        Expression.Property(entryParameter, "Entity"),
-                        entityClrType),
-                    propertyBase.GetPropertyInfo());
+                var convertedExpression = Expression.Convert(
+                    Expression.Property(entryParameter, "Entity"),
+                    entityClrType);
+
+                currentValueExpression = Expression.MakeMemberAccess(
+                    convertedExpression, 
+                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();

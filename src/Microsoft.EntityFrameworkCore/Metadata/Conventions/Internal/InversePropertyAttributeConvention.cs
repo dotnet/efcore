@@ -108,14 +108,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     Debug.Assert(!existingInverse.DeclaringEntityType.IsAssignableFrom(entityType)
                                  == IsAmbiguousInverse(
-                                     existingInverse.GetPropertyInfo(),
+                                     existingInverse.PropertyInfo,
                                      existingInverse.DeclaringEntityType,
                                      inverseNavigationsList));
                 }
 
                 if (existingInverse != null
                     && IsAmbiguousInverse(
-                        existingInverse.GetPropertyInfo(),
+                        existingInverse.PropertyInfo,
                         existingInverse.DeclaringEntityType,
                         inverseNavigationsList))
                 {

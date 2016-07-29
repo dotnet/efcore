@@ -100,6 +100,7 @@
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
     <Compile Include="Metadata\Conventions\ConventionSetBuilderTests.cs" />
+    <Compile Include="Metadata\Conventions\Internal\BackingFieldConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\BaseTypeDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\CascadeDeleteConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\ConventionDispatcherTest.cs" />
@@ -122,7 +123,6 @@
     <Compile Include="Metadata\Internal\ConfigurationSourceExtensionsTest.cs" />
     <Compile Include="Metadata\Internal\EntityMaterializerSourceTest.cs" />
     <Compile Include="Metadata\Internal\EntityTypeTest.cs" />
-    <Compile Include="Metadata\Internal\FieldMatcherTest.cs" />
     <Compile Include="Metadata\Internal\ForeignKeyTest.cs" />
     <Compile Include="Metadata\Internal\IndexTest.cs" />
     <Compile Include="Metadata\Internal\InternalEntityTypeBuilderTest.cs" />
@@ -132,9 +132,9 @@
     <Compile Include="Metadata\Internal\InternalPropertyBuilderTest.cs" />
     <Compile Include="Metadata\Internal\InternalRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\Internal\KeyTest.cs" />
-    <Compile Include="Metadata\Internal\MemberMapperTest.cs" />
     <Compile Include="Metadata\Internal\ModelTest.cs" />
     <Compile Include="Metadata\Internal\NavigationTest.cs" />
+    <Compile Include="Metadata\Internal\PropertyBaseTest.cs" />
     <Compile Include="Metadata\Internal\PropertyTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />

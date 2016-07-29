@@ -1153,9 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && Metadata.DeclaringEntityType == dependentEntityType)
                 {
                     Debug.Assert(!shouldResetToPrincipal
-                                 && !shouldResetToDependent
-                                 && !shouldResetPrincipalProperties
-                                 && !shouldResetDependentProperties);
+                                 && !shouldResetToDependent);
 
                     if (principalEndConfigurationSource.HasValue
                         && Metadata.GetPrincipalEndConfigurationSource()?.Overrides(principalEndConfigurationSource) != true)

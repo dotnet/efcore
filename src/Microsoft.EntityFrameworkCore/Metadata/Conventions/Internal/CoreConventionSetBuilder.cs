@@ -43,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var keyAttributeConvention = new KeyAttributeConvention();
             var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention();
+            var backingFieldConvention = new BackingFieldConvention();
+            conventionSet.PropertyAddedConventions.Add(backingFieldConvention);
             conventionSet.PropertyAddedConventions.Add(new ConcurrencyCheckAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new DatabaseGeneratedAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new RequiredPropertyAttributeConvention());
@@ -72,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(new PropertyMappingValidationConvention());
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());
 
+            conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
@@ -82,6 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyNullableChangedConventions.Add(cascadeDeleteConvention);
 
             conventionSet.PrincipalEndSetConventions.Add(foreignKeyPropertyDiscoveryConvention);
+
+            conventionSet.PropertyFieldChangedConventions.Add(keyDiscoveryConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(keyAttributeConvention);
 
             return conventionSet;
         }

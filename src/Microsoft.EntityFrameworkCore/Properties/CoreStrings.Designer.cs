@@ -225,15 +225,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.
+        /// The specified field '{field}' could not be found for property '{property}' on entity type '{entityType}'.
         /// </summary>
-        public static string MissingBackingField([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object field)
+        public static string MissingBackingField([CanBeNull] object field, [CanBeNull] object property, [CanBeNull] object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MissingBackingField", "entityType", "property", "field"), entityType, property, field);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingBackingField", "field", "property", "entityType"), field, property, entityType);
         }
 
         /// <summary>
-        /// The annotated backing field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.
+        /// The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.
         /// </summary>
         public static string BadBackingFieldType([CanBeNull] object field, [CanBeNull] object fieldType, [CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
         {
@@ -241,11 +241,59 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{entityType}.{property}' does not have a setter and no backing field was found by convention. Either remove the property from the model, add a property setter, or configure a backing field (see http://go.microsoft.com/fwlink/?LinkId=723277).
+        /// No field was found backing property '{property}' of entity type '{entity}'. Either configure a backing field or use a different '{pam}'.
         /// </summary>
-        public static string NoFieldOrSetter([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string NoBackingField([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoFieldOrSetter", "entityType", "property"), entityType, property);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoBackingField", "property", "entity", "pam"), property, entity, pam);
+        }
+
+        /// <summary>
+        /// No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.
+        /// </summary>
+        public static string NoFieldOrSetter([CanBeNull] object property, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoFieldOrSetter", "property", "entity"), property, entity);
+        }
+
+        /// <summary>
+        /// No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.
+        /// </summary>
+        public static string NoFieldOrGetter([CanBeNull] object property, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoFieldOrGetter", "property", "entity"), property, entity);
+        }
+
+        /// <summary>
+        /// Field '{field}' of entity type '{entity}' is readonly and so cannot be set.
+        /// </summary>
+        public static string ReadonlyField([CanBeNull] object field, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReadonlyField", "field", "entity"), field, entity);
+        }
+
+        /// <summary>
+        /// No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{pam}'.
+        /// </summary>
+        public static string NoProperty([CanBeNull] object field, [CanBeNull] object entity, [CanBeNull] object pam)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoProperty", "field", "entity", "pam"), field, entity, pam);
+        }
+
+        /// <summary>
+        /// The property '{property}' of entity type '{entity}' does not have a setter. Either make the property writable or use a different '{pam}'.
+        /// </summary>
+        public static string NoSetter([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoSetter", "property", "entity", "pam"), property, entity, pam);
+        }
+
+        /// <summary>
+        /// The property '{property}' of entity type '{entity}' does not have a getter. Either make the property readable or use a different '{pam}'.
+        /// </summary>
+        public static string NoGetter([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoGetter", "property", "entity", "pam"), property, entity, pam);
         }
 
         /// <summary>
@@ -457,15 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.
-        /// </summary>
-        public static string NavigationNoGetter([CanBeNull] object navigation, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNoGetter", "navigation", "entityType"), navigation, entityType);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no backing field was found by convention. Read-only collection navigation properties must be initialized before use.
+        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.
         /// </summary>
         public static string NavigationNoSetter([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -1238,14 +1278,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string AbstractLeafEntityType([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("AbstractLeafEntityType", "entityType"), entityType);
-        }
-
-        /// <summary>
-        /// Could not find setter or matching backing field for property {property}
-        /// </summary>
-        public static string NoClrSetter([CanBeNull] object property)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrSetter", "property"), property);
         }
 
         /// <summary>

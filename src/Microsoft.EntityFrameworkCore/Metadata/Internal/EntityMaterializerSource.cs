@@ -141,20 +141,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 };
 
             blockExpressions.AddRange(
-                from mapping in entityType.Model.GetMemberMapper().MapPropertiesToMembers(entityType)
-                let propertyInfo = mapping.Item2 as PropertyInfo
-                let targetMember
-                    = propertyInfo != null
-                        ? Expression.Property(instanceVariable, propertyInfo)
-                        : Expression.Field(instanceVariable, (FieldInfo)mapping.Item2)
+                from property in entityType.GetProperties().Where(p => !p.IsShadowProperty)
+                let targetMember = Expression.MakeMemberAccess(
+                    instanceVariable, 
+                    property.GetMemberInfo(forConstruction: true, forSet: true))
                 select
                     Expression.Assign(
                         targetMember,
                         CreateReadValueExpression(
                             valueBufferExpression,
                             targetMember.Type,
-                            indexMap?[mapping.Item1.GetIndex()] ?? mapping.Item1.GetIndex(),
-                            mapping.Item1)));
+                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
+                            property)));
 
             blockExpressions.Add(instanceVariable);
 

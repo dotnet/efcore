@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -188,6 +187,29 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             [Key]
             [Column("dsdsd", Order = 1, TypeName = "nvarchar(128)")]
             private string PersonFirstName { get; set; }
+        }
+
+        [Fact]
+        public virtual ModelBuilder Field_annotations_are_enabled()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<FieldAnnotationClass>().Property<string>("_personFirstName");
+
+            Validate(modelBuilder);
+
+            Assert.True(GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName").IsPrimaryKey());
+
+            return modelBuilder;
+        }
+
+        protected class FieldAnnotationClass
+        {
+#pragma warning disable 169
+            [Key]
+            [Column("dsdsd", Order = 1, TypeName = "nvarchar(128)")]
+            private string _personFirstName;
+#pragma warning restore 169
         }
 
         [Fact]

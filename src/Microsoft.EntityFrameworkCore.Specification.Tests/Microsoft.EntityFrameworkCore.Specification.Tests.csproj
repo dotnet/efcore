@@ -49,6 +49,7 @@
     <Compile Include="DataAnnotationFixtureBase.cs" />
     <Compile Include="DataAnnotationTestBase.cs" />
     <Compile Include="F1FixtureBase.cs" />
+    <Compile Include="FieldMappingTestBase.cs" />
     <Compile Include="FindTestBase.cs" />
     <Compile Include="FunkyDataQueryFixtureBase.cs" />
     <Compile Include="FunkyDataQueryTestBase.cs" />

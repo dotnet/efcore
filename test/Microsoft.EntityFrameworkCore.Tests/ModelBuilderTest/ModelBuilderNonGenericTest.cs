@@ -141,6 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
                 => Wrap(EntityTypeBuilder.HasChangeTrackingStrategy(changeTrackingStrategy));
+
+            public override TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+                => Wrap(EntityTypeBuilder.UsePropertyAccessMode(propertyAccessMode));
         }
 
         protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>
@@ -186,6 +189,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(factory));
+
+            public override TestPropertyBuilder<TProperty> HasField(string fieldName)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasField(fieldName));
+
+            public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
         }
 
         protected class NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>

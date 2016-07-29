@@ -14,13 +14,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract class SnapshotFactoryFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Expression CreateConstructorExpression(
@@ -115,15 +115,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         ? Expression.Call(
                             null,
                             _snapshotCollectionMethod,
-                            Expression.Property(
+                            Expression.MakeMemberAccess(
                                 entityVariable,
-                                propertyBase.DeclaringEntityType.ClrType.GetAnyProperty(propertyBase.Name)))
+                                propertyBase.GetMemberInfo(forConstruction: false, forSet: false)))
                         : property != null
                           && property.IsShadowProperty
                             ? CreateReadShadowValueExpression(parameter, property)
-                            : Expression.Property(
+                            : Expression.MakeMemberAccess(
                                 entityVariable,
-                                propertyBase.DeclaringEntityType.ClrType.GetAnyProperty(propertyBase.Name));
+                                propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
             }
 
             var constructorExpression = Expression.Convert(
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
@@ -160,19 +160,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Expression.Constant(property.GetShadowIndex()));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected abstract int GetPropertyIndex([NotNull] IPropertyBase propertyBase);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected abstract int GetPropertyCount([NotNull] IEntityType entityType);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual bool UseEntityVariable => true;

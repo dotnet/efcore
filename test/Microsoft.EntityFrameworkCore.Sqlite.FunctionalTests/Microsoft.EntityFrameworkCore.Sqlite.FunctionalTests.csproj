@@ -49,6 +49,7 @@
     <Compile Include="DataAnnotationSqliteTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
+    <Compile Include="FieldMappingSqliteTest.cs" />
     <Compile Include="FindSqliteTest.cs" />
     <Compile Include="FromSqlQuerySqliteTest.cs" />
     <Compile Include="FunkyDataQuerySqliteFixture.cs" />
