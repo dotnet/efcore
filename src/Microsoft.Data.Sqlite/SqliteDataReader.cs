@@ -418,7 +418,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override decimal GetDecimal(int ordinal)
-            => decimal.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+            => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="double" />.

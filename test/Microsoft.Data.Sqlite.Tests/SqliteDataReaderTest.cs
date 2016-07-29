@@ -160,19 +160,14 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetDataTypeName_throws_when_closed() => X_throws_when_closed(r => r.GetDataTypeName(0), "GetDataTypeName");
 
-        [Fact]
-        public void GetDecimal_works() =>
+        [Theory]
+        [InlineData("3.14", 3.14)]
+        [InlineData("1.0e-2", 0.01)]
+        public void GetDecimal_works(string input, decimal expected) =>
             GetX_works(
-                "SELECT '3.14';",
+                "SELECT '" + input + "';",
                 r => r.GetDecimal(0),
-                3.14m);
-
-        [Fact]
-        public void GetDouble_works() =>
-            GetX_works(
-                "SELECT 3.14;",
-                r => r.GetDouble(0),
-                3.14);
+                expected);
 
         [Fact]
         public void GetDouble_throws_when_null() =>
@@ -350,6 +345,8 @@ namespace Microsoft.Data.Sqlite
         [InlineData("2.0", 2.0)]
         [InlineData("9e999", double.PositiveInfinity)]
         [InlineData("-9e999", double.NegativeInfinity)]
+        [InlineData("'3.14'", 3.14)]
+        [InlineData("'1.2e-03'", 0.0012)]
         public void GetDouble_works(string val, double result) =>
             GetX_works(
                 "SELECT " + val,
