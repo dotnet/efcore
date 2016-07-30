@@ -35,7 +35,7 @@ namespace Microsoft.Data.Sqlite.Interop
 #>
 #if NET451
                     // NOTE: This is used by AnyCPU applications to load the native library based on the process's
-                    //       architecture. It does nothing on DNX and Mono which handle native library loading themselves.
+                    //       architecture. It does nothing on Mono which handles native library loading for sqlite.
                     var loaded = NativeLibraryLoader.TryLoad("sqlite3");
                     Debug.Assert(loaded, "loaded is false.");
 #endif

@@ -4,8 +4,10 @@
 #if NET451
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Data.Sqlite.Utilities
@@ -37,21 +39,8 @@ namespace Microsoft.Data.Sqlite.Utilities
                 return true;
             }
 
-            if (!dllName.EndsWith(".dll"))
-            {
-                dllName += ".dll";
-            }
-
-            var applicationBase = AppDomain.CurrentDomain.BaseDirectory;
-
-            if (File.Exists(Path.Combine(applicationBase, dllName)))
-            {
-                return true;
-            }
-
-            var dllPath = Path.Combine(applicationBase, GetArchitecture(), dllName);
-
-            if (!File.Exists(dllPath))
+            string dllPath;
+            if (!TryFind(dllName, out dllPath))
             {
                 return false;
             }
@@ -60,6 +49,43 @@ namespace Microsoft.Data.Sqlite.Utilities
             Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
 
             return handle != IntPtr.Zero;
+        }
+
+        public static bool TryFind(string dllName, out string dllPath)
+        {
+            if (!dllName.EndsWith(".dll"))
+            {
+                dllName += ".dll";
+            }
+
+            dllPath = GetSearchPaths()
+                .Select(d => Path.Combine(d, dllName))
+                .FirstOrDefault(File.Exists);
+
+            return dllPath != null;
+        }
+
+        private static IEnumerable<string> GetSearchPaths()
+        {
+            yield return AppDomain.CurrentDomain.BaseDirectory;
+            yield return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, GetArchitecture());
+
+            var privateBinPath = AppDomain.CurrentDomain.SetupInformation.PrivateBinPath;
+            if (!string.IsNullOrEmpty(privateBinPath))
+            {
+                foreach (var path in privateBinPath.Split(new [] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    yield return path;
+                    yield return Path.Combine(path, GetArchitecture());
+                }
+            }
+
+            var assemblyDir = Path.GetDirectoryName(typeof(NativeLibraryLoader).Assembly.Location);
+            if (!string.IsNullOrEmpty(assemblyDir))
+            {
+                yield return assemblyDir;
+                yield return Path.Combine(assemblyDir, GetArchitecture());
+            }
         }
 
         public static bool IsLoaded(string dllName)

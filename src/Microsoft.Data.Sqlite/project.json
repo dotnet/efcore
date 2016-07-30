@@ -16,15 +16,15 @@
       "includeFiles": "Properties/Microsoft.Data.Sqlite.rd.xml"
     },
     "additionalArguments": [
-        "/ruleset:Microsoft.Data.Sqlite.ruleset",
-        "/additionalfile:stylecop.json"
+      "/ruleset:Microsoft.Data.Sqlite.ruleset",
+      "/additionalfile:stylecop.json"
     ]
   },
   "dependencies": {
     "SQLite": "3.12.2",
     "StyleCop.Analyzers": {
-        "version": "1.0.0",
-        "type": "build"
+      "version": "1.0.0",
+      "type": "build"
     }
   },
   "frameworks": {
