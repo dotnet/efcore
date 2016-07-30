@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             var l1_08 = new Level1 { Id = 8, Name = "L1 08", Date = new DateTime(2008, 8, 8) };
             var l1_09 = new Level1 { Id = 9, Name = "L1 09", Date = new DateTime(2009, 9, 9) };
             var l1_10 = new Level1 { Id = 10, Name = "L1 10", Date = new DateTime(2010, 10, 10) };
+            var l1_11 = new Level1 { Id = 11, Name = "L1 11", Date = new DateTime(2009, 11, 11) };
+            var l1_12 = new Level1 { Id = 12, Name = "L1 12", Date = new DateTime(2008, 12, 12) };
+            var l1_13 = new Level1 { Id = 13, Name = "L1 13", Date = new DateTime(2007, 1, 1) };
 
             var l2_01 = new Level2 { Id = 1, Name = "L2 01", Date = new DateTime(2010, 10, 10) };
             var l2_02 = new Level2 { Id = 2, Name = "L2 02", Date = new DateTime(2002, 2, 2) };
@@ -32,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             var l2_08 = new Level2 { Id = 8, Name = "L2 08", Date = new DateTime(2003, 3, 3) };
             var l2_09 = new Level2 { Id = 9, Name = "L2 09", Date = new DateTime(2009, 9, 9) };
             var l2_10 = new Level2 { Id = 10, Name = "L2 10", Date = new DateTime(2001, 1, 1) };
+            var l2_11 = new Level2 { Id = 11, Name = "L2 11", Date = new DateTime(2000, 1, 1) };
 
             var l3_01 = new Level3 { Id = 1, Name = "L3 01" };
             var l3_02 = new Level3 { Id = 2, Name = "L3 02" };
@@ -55,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             var l4_09 = new Level4 { Id = 9, Name = "L4 09" };
             var l4_10 = new Level4 { Id = 10, Name = "L4 10" };
 
-            var l1s = new[] { l1_01, l1_02, l1_03, l1_04, l1_05, l1_06, l1_07, l1_08, l1_09, l1_10 };
-            var l2s = new[] { l2_01, l2_02, l2_03, l2_04, l2_05, l2_06, l2_07, l2_08, l2_09, l2_10 };
+            var l1s = new[] { l1_01, l1_02, l1_03, l1_04, l1_05, l1_06, l1_07, l1_08, l1_09, l1_10, l1_11, l1_12, l1_13 };
+            var l2s = new[] { l2_01, l2_02, l2_03, l2_04, l2_05, l2_06, l2_07, l2_08, l2_09, l2_10, l2_11 };
             var l3s = new[] { l3_01, l3_02, l3_03, l3_04, l3_05, l3_06, l3_07, l3_08, l3_09, l3_10 };
             var l4s = new[] { l4_01, l4_02, l4_03, l4_04, l4_05, l4_06, l4_07, l4_08, l4_09, l4_10 };
 
@@ -75,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l1s[7].OneToOne_Required_PK = l2s[7];
             l1s[8].OneToOne_Required_PK = l2s[8];
             l1s[9].OneToOne_Required_PK = l2s[9];
+            l1s[10].OneToOne_Required_PK = l2s[10];
 
             l1s[0].OneToOne_Required_FK = l2s[9];
             l1s[1].OneToOne_Required_FK = l2s[8];
@@ -86,11 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l1s[7].OneToOne_Required_FK = l2s[2];
             l1s[8].OneToOne_Required_FK = l2s[1];
             l1s[9].OneToOne_Required_FK = l2s[0];
+            l1s[10].OneToOne_Required_FK = l2s[10];
 
-            l1s[0].OneToMany_Required = new List<Level2> { l2s[0], l2s[1], l2s[2], l2s[3], l2s[4], l2s[5], l2s[6], l2s[7], l2s[8], l2s[9] };
+            l1s[0].OneToMany_Required = new List<Level2> { l2s[0], l2s[1], l2s[2], l2s[3], l2s[4], l2s[5], l2s[6], l2s[7], l2s[8], l2s[9], l2s[10] };
 
-            l1s[0].OneToMany_Required_Self = new List<Level1> { l1s[0], l1s[1] };
-            l1s[1].OneToMany_Required_Self = new List<Level1> { l1s[2] };
+            l1s[0].OneToMany_Required_Self = new List<Level1> { l1s[0], l1s[1], l1s[11] };
+            l1s[1].OneToMany_Required_Self = new List<Level1> { l1s[2], l1s[12] };
             l1s[2].OneToMany_Required_Self = new List<Level1> { l1s[3] };
             l1s[3].OneToMany_Required_Self = new List<Level1> { l1s[4] };
             l1s[4].OneToMany_Required_Self = new List<Level1> { l1s[5] };
@@ -99,6 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l1s[7].OneToMany_Required_Self = new List<Level1> { l1s[8] };
             l1s[8].OneToMany_Required_Self = new List<Level1> { l1s[9] };
             l1s[9].OneToMany_Required_Self = new List<Level1>();
+            l1s[10].OneToMany_Required_Self = new List<Level1>() { l1s[10] };
+            l1s[11].OneToMany_Required_Self = new List<Level1>();
+            l1s[12].OneToMany_Required_Self = new List<Level1>();
 
             l2s[0].OneToOne_Required_PK = l3s[0];
             l2s[1].OneToOne_Required_PK = l3s[1];
@@ -124,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
 
             l2s[0].OneToMany_Required = new List<Level3> { l3s[0], l3s[1], l3s[2], l3s[3], l3s[4], l3s[5], l3s[6], l3s[7], l3s[8], l3s[9] };
 
-            l2s[0].OneToMany_Required_Self = new List<Level2> { l2s[0], l2s[1] };
+            l2s[0].OneToMany_Required_Self = new List<Level2> { l2s[0], l2s[1], l2s[10] };
             l2s[1].OneToMany_Required_Self = new List<Level2> { l2s[2] };
             l2s[2].OneToMany_Required_Self = new List<Level2> { l2s[3] };
             l2s[3].OneToMany_Required_Self = new List<Level2> { l2s[4] };
@@ -134,6 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l2s[7].OneToMany_Required_Self = new List<Level2> { l2s[8] };
             l2s[8].OneToMany_Required_Self = new List<Level2> { l2s[9] };
             l2s[9].OneToMany_Required_Self = new List<Level2>();
+            l2s[10].OneToMany_Required_Self = new List<Level2>();
 
             l3s[0].OneToOne_Required_PK = l4s[0];
             l3s[1].OneToOne_Required_PK = l4s[1];
