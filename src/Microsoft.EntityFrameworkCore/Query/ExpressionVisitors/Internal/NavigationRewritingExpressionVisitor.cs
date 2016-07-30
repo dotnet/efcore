@@ -651,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             foreach (var navigation in navigations)
             {
-                if (!navigation.ForeignKey.IsRequired)
+                if (!navigation.ForeignKey.IsRequired || !navigation.IsDependentToPrincipal())
                 {
                     optionalNavigationInChain = true;
                 }
