@@ -333,6 +333,75 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
+        // Issue #6212
+        //[Fact]
+        public void Composite_fks_with_server_generated_values_are_fixed_up_correctly()
+        {
+            using (var context = new GameDbContext())
+            {
+                context.Database.EnsureClean();
+
+                var level = new Level { Game = new Game()};
+                level.Items.Add(new Item());
+                context.Levels.Add(level);
+
+                context.SaveChanges();
+
+                Assert.Equal(1, level.Items.Count);
+            }
+        }
+
+        public class Level
+        {
+            public virtual int Id { get; set; }
+            public virtual int GameId { get; set; }
+            public virtual Game Game { get; set; }
+            public virtual ICollection<Item> Items { get; } = new HashSet<Item>();
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public int LevelId { get; set; }
+            public Level Level { get; set; }
+            public int GameId { get; set; }
+            public Game Game { get; set; }
+        }
+
+        public class Game
+        {
+            public virtual int Id { get; set; }
+            public virtual ICollection<Item> Items { get; set; } = new HashSet<Item>();
+            public virtual ICollection<Level> Levels { get; set; } = new HashSet<Level>();
+        }
+
+        public class GameDbContext : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("GameDbContext"));
+
+            public DbSet<Game> Games { get; set; }
+            public DbSet<Level> Levels { get; set; }
+            public DbSet<Item> Items { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Level>(eb =>
+                {
+                    eb.HasKey(l => new { l.GameId, l.Id });
+                });
+
+                modelBuilder.Entity<Item>(eb =>
+                {
+                    eb.Property(i => i.Id).ValueGeneratedOnAdd();
+                    eb.HasOne(i => i.Level)
+                        .WithMany(l => l.Items)
+                        .HasForeignKey(i => new { i.GameId, i.LevelId })
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+            }
+        }
+
         [Fact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
