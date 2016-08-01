@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var transactionMock = new Mock<IDbContextTransaction>();
 
             IDbContextTransaction currentTransaction = null;
-            mockRelationalConnection.Setup(m => m.BeginTransaction()).Returns(() => currentTransaction = transactionMock.Object);
+            mockRelationalConnection.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult(currentTransaction = transactionMock.Object));
             mockRelationalConnection.Setup(m => m.CurrentTransaction).Returns(() => currentTransaction);
 
             var cancellationToken = new CancellationTokenSource().Token;
