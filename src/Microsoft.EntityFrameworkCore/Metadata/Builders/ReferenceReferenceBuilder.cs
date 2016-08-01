@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private readonly bool? _required;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ReferenceReferenceBuilder(
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected ReferenceReferenceBuilder(
@@ -164,11 +165,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
-                SetDependentEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))
-                    .HasForeignKey(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)), ConfigurationSource.Explicit),
+                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                    dependentEntityType.ShortDisplayName(),
+                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
-                inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
-                foreignKeySet: true);
+                Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
+                true);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property(s) to use as the foreign key for this relationship.
+        ///     </para>
+        ///     <para>
+        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
+        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
+        ///         that does not have a corresponding property in the entity class. The current value for the
+        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
+        ///         of the entity class.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         match the data type and order of foreign key properties against the primary key of the principal
+        ///         entity type. If they do not match, new shadow state properties that form a unique index will be
+        ///         added to the principal entity type to serve as the reference key.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TDependentEntity">
+        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
+        ///     properties).
+        /// </typeparam>
+        /// <param name="foreignKeyPropertyNames">
+        ///     The name(s) of the foreign key property(s).
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual ReferenceReferenceBuilder HasForeignKey<TDependentEntity>(
+            [NotNull] params string[] foreignKeyPropertyNames)
+            where TDependentEntity : class
+            => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
 
         /// <summary>
         ///     <para>
@@ -200,52 +233,56 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
-                SetDependentEntityType(Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName)))
-                    .HasForeignKey(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)), ConfigurationSource.Explicit),
+                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
+                    dependentEntityTypeName,
+                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
-                inverted: Builder.Metadata.DeclaringEntityType.Name != dependentEntityTypeName,
-                foreignKeySet: true);
+                Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
+                true);
 
         /// <summary>
-        ///     Sets the entity type that is the dependent of the relationship.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="dependentEntityTypeName">
-        ///     The name of the dependent entity type.
-        /// </param>
-        /// <returns> The builder being used to configure this relationship. </returns>
-        protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] string dependentEntityTypeName)
+        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
+            [CanBeNull] EntityType dependentEntityType,
+            [NotNull] string dependentEntityTypeName,
+            [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
         {
-            var entityType = ResolveEntityType(dependentEntityTypeName);
-            if (entityType == null)
+            return HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
+                (b, d) => b.HasForeignKey(foreignKeyPropertyNames, d, ConfigurationSource.Explicit));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
+            [NotNull] EntityType dependentEntityType,
+            [NotNull] string dependentEntityTypeName,
+            [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+        {
+            return HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
+                (b, d) => b.HasForeignKey(foreignKeyProperties, d, ConfigurationSource.Explicit));
+        }
+
+        private InternalRelationshipBuilder HasForeignKeyBuilder(
+            EntityType dependentEntityType,
+            string dependentEntityTypeName,
+            Func<InternalRelationshipBuilder, EntityType, InternalRelationshipBuilder> hasForeignKey)
+        {
+            if (dependentEntityType == null)
             {
                 throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
                     _declaringEntityType.DisplayName(),
                     _relatedEntityType.DisplayName(),
                     dependentEntityTypeName));
             }
+            var principalEntityType = GetOtherEntityType(dependentEntityType);
 
-            return Builder.RelatedEntityTypes(GetOtherEntityType(entityType), entityType, ConfigurationSource.Explicit);
-        }
+            var builder = Builder.RelatedEntityTypes(principalEntityType, dependentEntityType, ConfigurationSource.Explicit);
 
-        /// <summary>
-        ///     Sets the entity type that is the dependent of the relationship.
-        /// </summary>
-        /// <param name="dependentEntityType">
-        ///     The dependent entity type.
-        /// </param>
-        /// <returns> The builder being used to configure this relationship. </returns>
-        protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] Type dependentEntityType)
-        {
-            var entityType = ResolveEntityType(dependentEntityType);
-            if (entityType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
-                    _declaringEntityType.DisplayName(),
-                    _relatedEntityType.DisplayName(),
-                    dependentEntityType.DisplayName()));
-            }
-
-            return Builder.RelatedEntityTypes(GetOtherEntityType(entityType), entityType, ConfigurationSource.Explicit);
+            return hasForeignKey(builder, dependentEntityType);
         }
 
         /// <summary>
@@ -264,11 +301,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder(
-                SetPrincipalEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))
-                    .HasPrincipalKey(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames)), ConfigurationSource.Explicit),
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
+                    principalEntityType.ShortDisplayName(),
+                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
                 principalKeySet: true);
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
+        /// </summary>
+        /// <typeparam name="TPrincipalEntity">
+        ///     The entity type that is the principal in this relationship (the type
+        ///     that has the reference key properties).
+        /// </typeparam>
+        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual ReferenceReferenceBuilder HasPrincipalKey<TPrincipalEntity>(
+            [NotNull] params string[] keyPropertyNames)
+            where TPrincipalEntity : class
+            => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -286,55 +342,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] string principalEntityTypeName,
             [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder(
-                SetPrincipalEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))
-                    .HasPrincipalKey(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames)), ConfigurationSource.Explicit),
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
+                    principalEntityTypeName,
+                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
-                inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
+                inverted: Builder.Metadata.PrincipalEntityType.Name != ResolveEntityType(principalEntityTypeName).Name,
                 principalKeySet: true);
 
         /// <summary>
-        ///     Sets the entity type that is the principal of the relationship.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="principalEntityTypeName">
-        ///     The name of the principal entity type.
-        /// </param>
-        /// <returns> The builder being used to configure this relationship. </returns>
-        protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] string principalEntityTypeName)
+        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
+            [CanBeNull] EntityType principalEntityType,
+            [NotNull] string principalEntityTypeName,
+            [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
+            => HasPrincipalKeyBuilder(principalEntityType, principalEntityTypeName,
+                b => b.HasPrincipalKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
+            [NotNull] EntityType principalEntityType,
+            [NotNull] string principalEntityTypeName,
+            [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+            => HasPrincipalKeyBuilder(principalEntityType, principalEntityTypeName,
+                b => b.HasPrincipalKey(foreignKeyProperties, ConfigurationSource.Explicit));
+
+        private InternalRelationshipBuilder HasPrincipalKeyBuilder(
+            EntityType principalEntityType,
+            string principalEntityTypeName,
+            Func<InternalRelationshipBuilder, InternalRelationshipBuilder> hasPrincipalKey)
         {
-            var entityType = ResolveEntityType(principalEntityTypeName);
-            if (entityType == null)
+            if (principalEntityType == null)
             {
-                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
+                throw new InvalidOperationException(CoreStrings.PrincipalEntityTypeNotInRelationship(
                     _declaringEntityType.DisplayName(),
                     _relatedEntityType.DisplayName(),
                     principalEntityTypeName));
             }
 
-            return Builder.RelatedEntityTypes(entityType, GetOtherEntityType(entityType), ConfigurationSource.Explicit);
+            var builder = Builder.RelatedEntityTypes(principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
+
+            return hasPrincipalKey(builder);
         }
 
         /// <summary>
-        ///     Sets the entity type that is the principal of the relationship.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="principalEntityType">
-        ///     The principal entity type.
-        /// </param>
-        /// <returns> The builder being used to configure this relationship. </returns>
-        protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] Type principalEntityType)
-        {
-            var entityType = ResolveEntityType(principalEntityType);
-            if (entityType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
-                    _declaringEntityType.DisplayName(),
-                    _relatedEntityType.DisplayName(),
-                    principalEntityType.DisplayName()));
-            }
-
-            return Builder.RelatedEntityTypes(entityType, GetOtherEntityType(entityType), ConfigurationSource.Explicit);
-        }
-
-        private EntityType ResolveEntityType(string entityTypeName)
+        protected virtual EntityType ResolveEntityType([NotNull] string entityTypeName)
         {
             if (_declaringEntityType.Name == entityTypeName)
             {
@@ -346,10 +406,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return _relatedEntityType;
             }
 
+            if (_declaringEntityType.DisplayName() == entityTypeName)
+            {
+                return _declaringEntityType;
+            }
+
+            if (_relatedEntityType.DisplayName() == entityTypeName)
+            {
+                return _relatedEntityType;
+            }
+
             return null;
         }
 
-        private EntityType ResolveEntityType(Type entityType)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual EntityType ResolveEntityType([NotNull] Type entityType)
         {
             if (_declaringEntityType.ClrType == entityType)
             {
@@ -383,7 +457,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceReferenceBuilder(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+            => new ReferenceReferenceBuilder(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

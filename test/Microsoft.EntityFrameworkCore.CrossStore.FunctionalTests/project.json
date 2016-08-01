@@ -3,20 +3,22 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": {
+      "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win8"
-      ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0",
+          "version": "1.0.0-*",
           "type": "platform"
         }
       }

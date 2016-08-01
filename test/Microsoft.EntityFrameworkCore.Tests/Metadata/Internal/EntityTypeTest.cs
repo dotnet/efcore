@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             orderType.GetOrAddForeignKey(customerFk, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.KeyInUse("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName, typeof(Order).FullName),
+                CoreStrings.KeyInUse("{'" + Customer.IdProperty.Name + "'}", nameof(Customer), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => customerType.RemoveKey(customerKey.Properties)).Message);
         }
 
@@ -1506,7 +1506,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             nameProperty.IsReadOnlyAfterSave = true;
 
             Assert.Equal(
-                CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).FullName),
+                CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => nameProperty.IsReadOnlyAfterSave = false).Message);
 
             nameProperty.IsReadOnlyBeforeSave = true;
@@ -2078,7 +2078,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 CoreStrings.NavigationCollectionWrongClrType(
                     nameof(SpecialCustomer.DerivedOrders),
                     typeof(SpecialCustomer).Name,
-                    typeof(IEnumerable<SpecialOrder>).DisplayName(fullName: false),
+                    typeof(IEnumerable<SpecialOrder>).ShortDisplayName(),
                     typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => customerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty)).Message);
@@ -2387,7 +2387,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
 
             Assert.Equal(CoreStrings.PropertyWrongClrType(
-                nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).DisplayName(fullName: false)),
+                nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() =>
                     entityType.AddProperty(nameof(Customer.Name), typeof(int), shadow: false)).Message);
         }
@@ -2647,10 +2647,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Token").GetOriginalValueIndex());
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2667,7 +2667,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
 
             Assert.Equal(0, entityType.ShadowPropertyCount());
-            Assert.Equal(2, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.OriginalValueCount());
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
 
@@ -2693,12 +2693,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.FindProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Mane").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(4, entityType.FindProperty("Token").GetOriginalValueIndex());
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2719,7 +2719,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
 
             Assert.Equal(2, entityType.ShadowPropertyCount());
-            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(5, entityType.OriginalValueCount());
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
 
@@ -2742,12 +2742,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Mane").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(4, entityType.FindProperty("Token").GetOriginalValueIndex());
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2768,7 +2768,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
 
             Assert.Equal(2, entityType.ShadowPropertyCount());
-            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(5, entityType.OriginalValueCount());
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
         }
@@ -2952,17 +2952,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Only_concurrency_and_FK_properties_have_original_value_indexes_when_using_full_notifications()
+        public void Only_concurrency_and_key_properties_have_original_value_indexes_when_using_full_notifications()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
             entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Token").GetOriginalValueIndex());
 
-            Assert.Equal(2, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.OriginalValueCount());
         }
 
         [Fact]

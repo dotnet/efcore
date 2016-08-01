@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -9,7 +10,6 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<SqlServerTestStore, GearsOfWarQuerySqlServerFixture>
     {
         public override void Entity_equality_empty()
@@ -1588,7 +1588,7 @@ ORDER BY [t].[GearNickName], [t].[GearSquadId]",
             base.Optional_navigation_type_compensation_works_with_list_initializers();
 
             Assert.Equal(
-                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank], 1
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [t.Gear] ON ([t].[GearNickName] = [t.Gear].[Nickname]) AND ([t].[GearSquadId] = [t.Gear].[SquadId])
 WHERE ([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL
@@ -1695,6 +1695,81 @@ ORDER BY [t].[GearNickName], [t].[GearSquadId]",
                 Sql);
         }
 
+        public override void Select_correlated_filtered_collection()
+        {
+            base.Select_correlated_filtered_collection();
+
+            Assert.Equal(
+                @"SELECT [g].[FullName]
+FROM [Gear] AS [g]
+WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND [g].[CityOrBirthName] IN (N'Ephyra', N'Hanover')
+
+@_outer_FullName: Augustus Cole (Size = 450)
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE (([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL) AND ((@_outer_FullName = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL)
+
+@_outer_FullName: Dominic Santiago (Size = 450)
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE (([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL) AND ((@_outer_FullName = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL)",
+                Sql);
+        }
+
+        public override void Select_correlated_filtered_collection_with_composite_key()
+        {
+            base.Select_correlated_filtered_collection_with_composite_key();
+
+            Assert.Equal(
+                @"SELECT [t].[Nickname], [t].[SquadId]
+FROM (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    FROM [Gear] AS [g0]
+    WHERE [g0].[Discriminator] = N'Officer'
+) AS [t]
+
+@_outer_Nickname: Baird (Size = 4000)
+@_outer_SquadId: 1
+
+SELECT [r].[Nickname], [r].[SquadId], [r].[AssignedCityName], [r].[CityOrBirthName], [r].[Discriminator], [r].[FullName], [r].[HasSoulPatch], [r].[LeaderNickname], [r].[LeaderSquadId], [r].[Rank]
+FROM [Gear] AS [r]
+WHERE ([r].[Discriminator] IN (N'Officer', N'Gear') AND ([r].[Nickname] <> N'Dom')) AND ((@_outer_Nickname = [r].[LeaderNickname]) AND (@_outer_SquadId = [r].[LeaderSquadId]))
+
+@_outer_Nickname: Marcus (Size = 4000)
+@_outer_SquadId: 1
+
+SELECT [r].[Nickname], [r].[SquadId], [r].[AssignedCityName], [r].[CityOrBirthName], [r].[Discriminator], [r].[FullName], [r].[HasSoulPatch], [r].[LeaderNickname], [r].[LeaderSquadId], [r].[Rank]
+FROM [Gear] AS [r]
+WHERE ([r].[Discriminator] IN (N'Officer', N'Gear') AND ([r].[Nickname] <> N'Dom')) AND ((@_outer_Nickname = [r].[LeaderNickname]) AND (@_outer_SquadId = [r].[LeaderSquadId]))",
+                Sql);
+        }
+
+        public override void Select_correlated_filtered_collection_works_with_caching()
+        {
+            base.Select_correlated_filtered_collection_works_with_caching();
+
+            Assert.Contains(
+                @"SELECT [t].[GearNickName]
+FROM [CogTag] AS [t]",
+                Sql);
+
+            Assert.Contains(
+                @"@_outer_GearNickName: Cole Train (Size = 450)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] = @_outer_GearNickName)",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g].[Nickname] IS NULL",
+                Sql);
+        }
+
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
@@ -1703,6 +1778,9 @@ ORDER BY [t].[GearNickName], [t].[GearSquadId]",
 
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
-        private static string Sql => TestSqlLoggerFactory.Sql;
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

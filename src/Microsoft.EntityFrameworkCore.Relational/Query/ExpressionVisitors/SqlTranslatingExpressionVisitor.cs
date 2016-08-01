@@ -617,7 +617,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore);
             }
 
-            return expression;
+            return expression == null
+                ? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression)
+                : expression;
         }
 
         /// <summary>
@@ -685,7 +687,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return aliasExpression;
+            return aliasExpression == null
+                ? _queryModelVisitor.BindMemberToOuterQueryParameter(expression)
+                : aliasExpression;
         }
 
         private AliasExpression CreateAliasedColumnExpression(
@@ -809,8 +813,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(expression, nameof(expression));
 
             var subQueryModel = expression.QueryModel;
-
             var subQueryOutputDataInfo = subQueryModel.GetOutputDataInfo();
+
             if (subQueryModel.IsIdentityQuery()
                 && subQueryModel.ResultOperators.Count == 1
                 && subQueryModel.ResultOperators.First() is ContainsResultOperator)
@@ -848,8 +852,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             else if (!(subQueryOutputDataInfo is StreamedSequenceInfo))
             {
                 var streamedSingleValueInfo = subQueryOutputDataInfo as StreamedSingleValueInfo;
-                var streamedSingleValueSupportedType = streamedSingleValueInfo != null
-                                                       && _relationalTypeMapper.FindMapping(streamedSingleValueInfo.DataType.UnwrapNullableType().UnwrapEnumType()) != null;
+
+                var streamedSingleValueSupportedType
+                    = streamedSingleValueInfo != null
+                      && _relationalTypeMapper.FindMapping(
+                          streamedSingleValueInfo.DataType
+                              .UnwrapNullableType()
+                              .UnwrapEnumType()) != null;
 
                 if (_inProjection
                     && !(subQueryOutputDataInfo is StreamedScalarValueInfo)

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract class RelationalConventionSetBuilder : IConventionSetBuilder
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private readonly IDbSetFinder _setFinder;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected RelationalConventionSetBuilder(
@@ -37,23 +37,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConventionSet AddConventions(ConventionSet conventionSet)
         {
             RelationshipDiscoveryConvention relationshipDiscoveryConvention = new RelationalRelationshipDiscoveryConvention(_typeMapper);
+            InversePropertyAttributeConvention inversePropertyAttributeConvention = new RelationalInversePropertyAttributeConvention(_typeMapper);
 
             ReplaceConvention(conventionSet.EntityTypeAddedConventions, (PropertyDiscoveryConvention)new RelationalPropertyDiscoveryConvention(_typeMapper));
-            ReplaceConvention(conventionSet.EntityTypeAddedConventions, (InversePropertyAttributeConvention)new RelationalInversePropertyAttributeConvention(_typeMapper));
+            ReplaceConvention(conventionSet.EntityTypeAddedConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.EntityTypeAddedConventions, relationshipDiscoveryConvention);
 
+            ReplaceConvention(conventionSet.EntityTypeIgnoredConventions, inversePropertyAttributeConvention);
+
+            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, relationshipDiscoveryConvention);
 
             ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, relationshipDiscoveryConvention);
 
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (ForeignKeyAttributeConvention)new RelationalForeignKeyAttributeConvention(_typeMapper));
 
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, relationshipDiscoveryConvention);
+
+            ReplaceConvention(conventionSet.NavigationAddedConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.NavigationAddedConventions, relationshipDiscoveryConvention);
 
             ReplaceConvention(conventionSet.NavigationRemovedConventions, relationshipDiscoveryConvention);

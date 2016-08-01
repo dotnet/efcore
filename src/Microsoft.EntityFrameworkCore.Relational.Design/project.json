@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.1.0-alpha1-*",
   "description": "Shared design-time Entity Framework Core components for relational database providers.",
   "packOptions": {
     "tags": [
@@ -22,7 +22,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.1"
+    "Microsoft.EntityFrameworkCore.Relational": "1.1.0-*"
   },
   "frameworks": {
     "net451": {},

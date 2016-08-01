@@ -11,8 +11,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels
         public static readonly string DatabaseName = StoreName;
         public static readonly string ConnectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
-        public SqlServerNorthwindContext(DbContextOptions options)
-            : base(options)
+        public SqlServerNorthwindContext(DbContextOptions options,
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            : base(options, queryTrackingBehavior)
         {
         }
 

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -53,17 +54,40 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         private static void ReportJsonResults(IEnumerable<MigrationInfo> migrations)
         {
             var nameGroups = migrations.GroupBy(m => m.Name).ToList();
-            var output = migrations.Select(
-                m => new
-                {
-                    id = m.Id,
-                    name = m.Name,
-                    safeName = nameGroups.Count(g => g.Key == m.Name) == 1
-                        ? m.Name
-                        : m.Id
-                }).ToArray();
+            var output = new StringBuilder();
 
-            ConsoleCommandLogger.Json(output);
+            output.AppendLine("//BEGIN");
+            output.Append("[");
+
+            var first = true;
+            foreach (var m in migrations)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    output.Append(",");
+                }
+
+                var safeName = nameGroups.Count(g => g.Key == m.Name) == 1
+                    ? m.Name
+                    : m.Id;
+
+                output.AppendLine();
+                output.AppendLine("  {");
+                output.AppendLine("    \"id\": \"" + m.Id + "\",");
+                output.AppendLine("    \"name\": \"" + m.Name + "\",");
+                output.AppendLine("    \"safeName\": \"" + safeName + "\"");
+                output.Append("  }");
+            }
+
+            output.AppendLine();
+            output.AppendLine("]");
+            output.AppendLine("//END");
+
+            ConsoleCommandLogger.Output(output.ToString());
         }
 
         private static void ReportResults(IEnumerable<MigrationInfo> migrations)

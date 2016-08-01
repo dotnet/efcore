@@ -66,6 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             }
             else
             {
+                var directory = Path.GetDirectoryName(output);
+                if (!string.IsNullOrWhiteSpace(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
                 ConsoleCommandLogger.Verbose("Writing SQL script to '" + output + "'".Bold().Black());
                 File.WriteAllText(output, sql, Encoding.UTF8);
 

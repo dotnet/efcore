@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class NorthwindQuerySqlServerFixture : NorthwindQueryRelationalFixture, IDisposable
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
 
         private readonly SqlServerTestStore _testStore = SqlServerNorthwindContext.GetSharedStore();
@@ -23,21 +22,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public NorthwindQuerySqlServerFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
-                    .BuildServiceProvider();
-
             _options = BuildOptions();
         }
 
-        protected DbContextOptions BuildOptions()
+        public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
                 new DbContextOptionsBuilder()
                     .EnableSensitiveDataLogging()
-                    .UseInternalServiceProvider(_serviceProvider))
+                    .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
+                        .AddEntityFrameworkSqlServer()
+                        .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                        .BuildServiceProvider()))
                 .UseSqlServer(
                     _testStore.ConnectionString,
                     b =>
@@ -53,8 +49,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
-        public override NorthwindContext CreateContext()
-            => new SqlServerNorthwindContext(_options);
+        public override NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            => new SqlServerNorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
 

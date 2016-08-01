@@ -21,9 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal, CategoryId = principal.Id };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -49,9 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, 0);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -62,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -77,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, CategoryId = principal.Id };
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -104,9 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, CategoryId = principal.Id };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
+                principal.AddProduct(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -132,8 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, CategoryId = principal.Id, Category = principal };
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
+                dependent.SetCategory(principal);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -144,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -159,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, 0);
+                principal.AddProduct(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -172,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -187,8 +190,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
+                var principal = new Category(77);
+                var dependent = new Product(78, 0);
+                dependent.SetCategory(principal);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -199,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList().ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -214,9 +218,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal, CategoryId = principal.Id };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -227,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -242,9 +247,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, 0);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -255,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -270,8 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, CategoryId = principal.Id };
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -282,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -297,9 +303,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, CategoryId = principal.Id };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
+                principal.AddProduct(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -310,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -325,8 +331,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, CategoryId = principal.Id, Category = principal };
+                var principal = new Category(77);
+                var dependent = new Product(78, principal.Id);
+                dependent.SetCategory(principal);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -337,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -352,9 +359,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
-                principal.Products.Add(dependent);
+                var principal = new Category(77);
+                var dependent = new Product(78, 0);
+                principal.AddProduct(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -365,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -380,8 +387,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78, Category = principal };
+                var principal = new Category(77);
+                var dependent = new Product(78, 0);
+                dependent.SetCategory(principal);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -392,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -418,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -444,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -471,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -498,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -525,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -552,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -773,9 +781,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal, ParentId = principal.Id };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -801,9 +810,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -829,8 +839,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, ParentId = principal.Id };
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -856,9 +866,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, ParentId = principal.Id };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
+                principal.SetChild(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -884,8 +894,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, ParentId = principal.Id, Parent = principal };
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
+                dependent.SetParent(principal);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -911,9 +922,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
+                principal.SetChild(dependent);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -939,8 +950,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
+                dependent.SetParent(principal);
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -966,9 +978,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal, ParentId = principal.Id };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -994,9 +1007,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -1022,8 +1036,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, ParentId = principal.Id };
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -1049,9 +1063,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, ParentId = principal.Id };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
+                principal.SetChild(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -1077,8 +1091,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, ParentId = principal.Id, Parent = principal };
+                var principal = new Parent(77);
+                var dependent = new Child(78, principal.Id);
+                dependent.SetParent(principal);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -1104,9 +1119,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
-                principal.Child = dependent;
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
+                principal.SetChild(dependent);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -1132,8 +1147,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78, Parent = principal };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
+                dependent.SetParent(principal);
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -1525,14 +1541,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.CategoryId = principal.Id;
-                dependent.Category = principal;
-                principal.Products.Add(dependent);
+                dependent.SetCategoryId(principal.Id);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1542,7 +1558,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Added, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                         });
@@ -1557,13 +1573,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.Category = principal;
-                principal.Products.Add(dependent);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1573,7 +1589,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Added, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                         });
@@ -1588,12 +1604,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.CategoryId = principal.Id;
+                dependent.SetCategoryId(principal.Id);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1603,7 +1619,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Null(dependent.Category);
-                            Assert.Empty(principal.Products);
+                            Assert.Null(principal.Products);
                             Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                         });
@@ -1618,13 +1634,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.CategoryId = principal.Id;
-                principal.Products.Add(dependent);
+                dependent.SetCategoryId(principal.Id);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1634,7 +1650,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Null(dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                         });
@@ -1649,13 +1665,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.CategoryId = principal.Id;
-                dependent.Category = principal;
+                dependent.SetCategoryId(principal.Id);
+                dependent.SetCategory(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1665,7 +1681,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Added, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                         });
@@ -1680,12 +1696,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                principal.Products.Add(dependent);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1695,7 +1711,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(0, dependent.CategoryId);
                             Assert.Null(dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -1710,12 +1726,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.Category = principal;
+                dependent.SetCategory(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1725,7 +1741,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Added, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                         });
@@ -1740,14 +1756,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.CategoryId = principal.Id;
-                dependent.Category = principal;
-                principal.Products.Add(dependent);
+                dependent.SetCategoryId(principal.Id);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1757,7 +1773,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Added, context.Entry(dependent).State);
                         });
@@ -1772,13 +1788,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.Category = principal;
-                principal.Products.Add(dependent);
+                dependent.SetCategory(principal);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1788,7 +1804,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Added, context.Entry(dependent).State);
                         });
@@ -1803,12 +1819,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.CategoryId = principal.Id;
+                dependent.SetCategoryId(principal.Id);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1818,7 +1834,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Null(dependent.Category);
-                            Assert.Empty(principal.Products);
+                            Assert.Null(principal.Products);
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
@@ -1833,13 +1849,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.CategoryId = principal.Id;
-                principal.Products.Add(dependent);
+                dependent.SetCategoryId(principal.Id);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1849,7 +1865,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Added, context.Entry(dependent).State);
                         });
@@ -1864,13 +1880,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.CategoryId = principal.Id;
-                dependent.Category = principal;
+                dependent.SetCategoryId(principal.Id);
+                dependent.SetCategory(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1880,7 +1896,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Empty(principal.Products);
+                            Assert.Null(principal.Products);
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
@@ -1895,13 +1911,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.CategoryId = principal.Id;
-                principal.Products.Add(dependent);
+                dependent.SetCategoryId(principal.Id);
+                principal.AddProduct(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1911,7 +1927,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Added, context.Entry(dependent).State);
                         });
@@ -1926,12 +1942,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category { Id = 77 };
-                var dependent = new Product { Id = 78 };
+                var principal = new Category(77);
+                var dependent = new Product(77, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.Category = principal;
+                dependent.SetCategory(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -1941,7 +1957,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                         {
                             Assert.Equal(0, dependent.CategoryId);
                             Assert.Same(principal, dependent.Category);
-                            Assert.Empty(principal.Products);
+                            Assert.Null(principal.Products);
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
@@ -2029,7 +2045,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                         });
@@ -2058,7 +2074,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(0, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                             Assert.Equal(entityState, context.Entry(dependent).State);
                         });
@@ -2088,7 +2104,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Added, context.Entry(dependent).State);
                         });
@@ -2117,7 +2133,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products.ToList());
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Added, context.Entry(dependent).State);
                         });
@@ -2364,14 +2380,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.ParentId = principal.Id;
-                dependent.Parent = principal;
-                principal.Child = dependent;
+                dependent.SetParentId(principal.Id);
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2396,13 +2412,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.Parent = principal;
-                principal.Child = dependent;
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2427,12 +2443,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.ParentId = principal.Id;
+                dependent.SetParentId(principal.Id);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2457,13 +2473,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.ParentId = principal.Id;
-                principal.Child = dependent;
+                dependent.SetParentId(principal.Id);
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2488,13 +2504,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.ParentId = principal.Id;
-                dependent.Parent = principal;
+                dependent.SetParentId(principal.Id);
+                dependent.SetParent(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2519,12 +2535,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                principal.Child = dependent;
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2549,12 +2565,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(dependent).State = entityState;
 
-                dependent.Parent = principal;
+                dependent.SetParent(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2579,14 +2595,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.ParentId = principal.Id;
-                dependent.Parent = principal;
-                principal.Child = dependent;
+                dependent.SetParentId(principal.Id);
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2611,13 +2627,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.Parent = principal;
-                principal.Child = dependent;
+                dependent.SetParent(principal);
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2642,12 +2658,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.ParentId = principal.Id;
+                dependent.SetParentId(principal.Id);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2672,13 +2688,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.ParentId = principal.Id;
-                principal.Child = dependent;
+                dependent.SetParentId(principal.Id);
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2703,13 +2719,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.ParentId = principal.Id;
-                dependent.Parent = principal;
+                dependent.SetParentId(principal.Id);
+                dependent.SetParent(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2734,12 +2750,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(principal).State = entityState;
 
-                principal.Child = dependent;
+                principal.SetChild(dependent);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -2764,12 +2780,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Id = 78 };
+                var principal = new Parent(77);
+                var dependent = new Child(78, 0);
 
                 context.Entry(principal).State = entityState;
 
-                dependent.Parent = principal;
+                dependent.SetParent(principal);
 
                 context.ChangeTracker.DetectChanges();
 
@@ -3194,35 +3210,77 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
         }
 
+        [Fact] // Issue #6067
+        public void Collection_nav_props_remain_fixed_up_after_manual_fixup_and_DetectChanges()
+        {
+            using (var context = new FixupContext())
+            {
+                var category = new Category(77);
+                var product1 = new Product(777, 0);
+                var product2 = new Product(778, 0);
+                product1.SetCategory(category);
+                product2.SetCategory(category);
+
+                context.Add(product1);
+                context.Add(product2);
+                context.Add(new Category(78));
+
+                context.SaveChanges();
+            }
+
+            using (var context = new FixupContext())
+            {
+                var category = context.Set<Product>().Include(c => c.Category).ToList().First().Category;
+
+                Assert.Equal(2, category.Products.Count);
+
+                var category2 = context.Set<Category>().ToList().Single(a => a != category);
+
+                Assert.Null(category2.Products);
+
+                var product = category.Products.First();
+                category.Products.Remove(product);
+                product.SetCategory(category2);
+                category2.AddProduct(product);
+                Assert.Equal(category.Id, product.CategoryId);
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(category2.Id, product.CategoryId);
+                Assert.Equal(category, category.Products.Single().Category);
+                Assert.Equal(category2, category2.Products.Single().Category); // Throws
+            }
+        }
+
         [Fact]
         public void Navigation_fixup_happens_when_new_entities_are_tracked()
         {
             using (var context = new FixupContext())
             {
-                context.Add(new Category { Id = 11 });
-                context.Add(new Category { Id = 12 });
-                context.Add(new Category { Id = 13 });
+                context.Add(new Category(11));
+                context.Add(new Category(12));
+                context.Add(new Category(13));
 
-                context.Add(new Product { Id = 21, CategoryId = 11 });
+                context.Add(new Product(21, 11));
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 22, CategoryId = 11 });
+                context.Add(new Product(22, 11));
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 23, CategoryId = 11 });
+                context.Add(new Product(23, 11));
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 24, CategoryId = 12 });
+                context.Add(new Product(24, 12));
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 25, CategoryId = 12 });
+                context.Add(new Product(25, 12));
                 AssertAllFixedUp(context);
 
-                context.Add(new SpecialOffer { Id = 31, ProductId = 22 });
+                context.Add(new SpecialOffer(31, 22));
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 32, ProductId = 22 });
+                context.Add(new SpecialOffer(32, 22));
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 33, ProductId = 24 });
+                context.Add(new SpecialOffer(33, 24));
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 34, ProductId = 24 });
+                context.Add(new SpecialOffer(34, 24));
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 35, ProductId = 24 });
+                context.Add(new SpecialOffer(35, 24));
                 AssertAllFixedUp(context);
 
                 Assert.Equal(3, context.ChangeTracker.Entries<Category>().Count());
@@ -3244,34 +3302,34 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
                 stateManager.BeginTrackingQuery();
 
-                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 11 }, new ValueBuffer(new object[] { 11 }));
-                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 12 }, new ValueBuffer(new object[] { 12 }));
-                stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 13 }, new ValueBuffer(new object[] { 13 }));
+                stateManager.StartTrackingFromQuery(categoryType, new Category(11), new ValueBuffer(new object[] { 11 }), null);
+                stateManager.StartTrackingFromQuery(categoryType, new Category(12), new ValueBuffer(new object[] { 12 }), null);
+                stateManager.StartTrackingFromQuery(categoryType, new Category(13), new ValueBuffer(new object[] { 13 }), null);
 
                 stateManager.BeginTrackingQuery();
 
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 21, CategoryId = 11 }, new ValueBuffer(new object[] { 21, 11 }));
+                stateManager.StartTrackingFromQuery(productType, new Product(21, 11), new ValueBuffer(new object[] { 21, 11 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 22, CategoryId = 11 }, new ValueBuffer(new object[] { 22, 11 }));
+                stateManager.StartTrackingFromQuery(productType, new Product(22, 11), new ValueBuffer(new object[] { 22, 11 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 23, CategoryId = 11 }, new ValueBuffer(new object[] { 23, 11 }));
+                stateManager.StartTrackingFromQuery(productType, new Product(23, 11), new ValueBuffer(new object[] { 23, 11 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 24, CategoryId = 12 }, new ValueBuffer(new object[] { 24, 12 }));
+                stateManager.StartTrackingFromQuery(productType, new Product(24, 12), new ValueBuffer(new object[] { 24, 12 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(productType, new Product { Id = 25, CategoryId = 12 }, new ValueBuffer(new object[] { 25, 12 }));
+                stateManager.StartTrackingFromQuery(productType, new Product(25, 12), new ValueBuffer(new object[] { 25, 12 }), null);
                 AssertAllFixedUp(context);
 
                 stateManager.BeginTrackingQuery();
 
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 31, ProductId = 22 }, new ValueBuffer(new object[] { 31, 22 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(31, 22), new ValueBuffer(new object[] { 31, 22 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 32, ProductId = 22 }, new ValueBuffer(new object[] { 32, 22 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(32, 22), new ValueBuffer(new object[] { 32, 22 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 33, ProductId = 24 }, new ValueBuffer(new object[] { 33, 24 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(33, 24), new ValueBuffer(new object[] { 33, 24 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 34, ProductId = 24 }, new ValueBuffer(new object[] { 34, 24 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(34, 24), new ValueBuffer(new object[] { 34, 24 }), null);
                 AssertAllFixedUp(context);
-                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 35, ProductId = 24 }, new ValueBuffer(new object[] { 35, 24 }));
+                stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(35, 24), new ValueBuffer(new object[] { 35, 24 }), null);
 
                 AssertAllFixedUp(context);
 
@@ -3286,33 +3344,45 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var category11 = new Category { Id = 11 };
-                var category12 = new Category { Id = 12 };
-                var category13 = new Category { Id = 13 };
+                var category11 = new Category(11);
+                var category12 = new Category(12);
+                var category13 = new Category(13);
 
-                var product21 = new Product { Id = 21, CategoryId = 11, Category = category11 };
-                var product22 = new Product { Id = 22, CategoryId = 11, Category = category11 };
-                var product23 = new Product { Id = 23, CategoryId = 11, Category = category11 };
-                var product24 = new Product { Id = 24, CategoryId = 12, Category = category12 };
-                var product25 = new Product { Id = 25, CategoryId = 12, Category = category12 };
+                var product21 = new Product(21, 11);
+                var product22 = new Product(22, 11);
+                var product23 = new Product(23, 11);
+                var product24 = new Product(24, 12);
+                var product25 = new Product(25, 12);
 
-                category11.Products.Add(product21);
-                category11.Products.Add(product22);
-                category11.Products.Add(product23);
-                category12.Products.Add(product24);
-                category12.Products.Add(product25);
+                product21.SetCategory(category11);
+                product22.SetCategory(category11);
+                product23.SetCategory(category11);
+                product24.SetCategory(category12);
+                product25.SetCategory(category12);
 
-                var specialOffer31 = new SpecialOffer { Id = 31, ProductId = 22, Product = product22 };
-                var specialOffer32 = new SpecialOffer { Id = 32, ProductId = 22, Product = product22 };
-                var specialOffer33 = new SpecialOffer { Id = 33, ProductId = 24, Product = product24 };
-                var specialOffer34 = new SpecialOffer { Id = 34, ProductId = 24, Product = product24 };
-                var specialOffer35 = new SpecialOffer { Id = 35, ProductId = 24, Product = product24 };
+                category11.AddProduct(product21);
+                category11.AddProduct(product22);
+                category11.AddProduct(product23);
+                category12.AddProduct(product24);
+                category12.AddProduct(product25);
 
-                product22.SpecialOffers.Add(specialOffer31);
-                product22.SpecialOffers.Add(specialOffer32);
-                product24.SpecialOffers.Add(specialOffer33);
-                product24.SpecialOffers.Add(specialOffer34);
-                product24.SpecialOffers.Add(specialOffer35);
+                var specialOffer31 = new SpecialOffer(31, 22);
+                var specialOffer32 = new SpecialOffer(32, 22);
+                var specialOffer33 = new SpecialOffer(33, 24);
+                var specialOffer34 = new SpecialOffer(34, 24);
+                var specialOffer35 = new SpecialOffer(35, 24);
+
+                specialOffer31.SetProduct(product22);
+                specialOffer32.SetProduct(product22);
+                specialOffer33.SetProduct(product24);
+                specialOffer34.SetProduct(product24);
+                specialOffer35.SetProduct(product24);
+
+                product22.AddSpecialOffer(specialOffer31);
+                product22.AddSpecialOffer(specialOffer32);
+                product24.AddSpecialOffer(specialOffer33);
+                product24.AddSpecialOffer(specialOffer34);
+                product24.AddSpecialOffer(specialOffer35);
 
                 context.Add(category11);
                 AssertAllFixedUp(context);
@@ -3345,13 +3415,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
                 Assert.Equal(3, category11.Products.Count);
                 Assert.Equal(2, category12.Products.Count);
-                Assert.Equal(0, category13.Products.Count);
+                Assert.Null(category13.Products);
 
-                Assert.Equal(0, product21.SpecialOffers.Count);
+                Assert.Null(product21.SpecialOffers);
                 Assert.Equal(2, product22.SpecialOffers.Count);
-                Assert.Equal(0, product23.SpecialOffers.Count);
+                Assert.Null(product23.SpecialOffers);
                 Assert.Equal(3, product24.SpecialOffers.Count);
-                Assert.Equal(0, product25.SpecialOffers.Count);
+                Assert.Null(product25.SpecialOffers);
 
                 Assert.Equal(3, context.ChangeTracker.Entries<Category>().Count());
                 Assert.Equal(5, context.ChangeTracker.Entries<Product>().Count());
@@ -3394,17 +3464,47 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private class Parent
         {
-            public int Id { get; set; }
+            private readonly int _id;
+            private Child _child;
 
-            public Child Child { get; set; }
+            public Parent(int id)
+            {
+                _id = id;
+            }
+
+            // ReSharper disable once ConvertToAutoProperty
+            public int Id => _id;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public Child Child => _child;
+
+            public void SetChild(Child child) => _child = child;
         }
 
         private class Child
         {
-            public int Id { get; set; }
-            public int ParentId { get; set; }
+            private readonly int _id;
+            private int _parentId;
+            private Parent _parent;
 
-            public Parent Parent { get; set; }
+            public Child(int id, int parentId)
+            {
+                _id = id;
+                _parentId = parentId;
+            }
+
+            // ReSharper disable once ConvertToAutoProperty
+            public int Id => _id;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public int ParentId => _parentId;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public Parent Parent => _parent;
+
+            public void SetParent(Parent parent) => _parent = parent;
+
+            public void SetParentId(int parentId) => _parentId = parentId;
         }
 
         private class ParentPN
@@ -3489,36 +3589,96 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private class Category
         {
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private int _id;
+            private ICollection<Product> _products;
+
             public Category()
             {
-                Products = new List<Product>();
             }
 
-            public int Id { get; set; }
+            public Category(int id)
+            {
+                _id = id;
+            }
 
-            public ICollection<Product> Products { get; }
+            // ReSharper disable once ConvertToAutoProperty
+            public int Id => _id;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public ICollection<Product> Products => _products;
+
+            public void AddProduct(Product product)
+                => (_products ?? (_products = new List<Product>())).Add(product);
         }
 
         private class Product
         {
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private int _id;
+            private int _categoryId;
+            private Category _category;
+            private ICollection<SpecialOffer> _specialOffers;
+
             public Product()
             {
-                SpecialOffers = new List<SpecialOffer>();
             }
 
-            public int Id { get; set; }
-            public int CategoryId { get; set; }
+            public Product(int id, int categoryId)
+            {
+                _id = id;
+                _categoryId = categoryId;
+            }
 
-            public Category Category { get; set; }
-            public ICollection<SpecialOffer> SpecialOffers { get; }
+            // ReSharper disable once ConvertToAutoProperty
+            public int Id => _id;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public int CategoryId => _categoryId;
+
+            public void SetCategoryId(int categoryId) => _categoryId = categoryId;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public Category Category => _category;
+
+            public void SetCategory(Category category) => _category = category;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public ICollection<SpecialOffer> SpecialOffers => _specialOffers;
+
+            public void AddSpecialOffer(SpecialOffer specialOffer)
+                => (_specialOffers ?? (_specialOffers = new List<SpecialOffer>())).Add(specialOffer);
         }
 
         private class SpecialOffer
         {
-            public int Id { get; set; }
-            public int ProductId { get; set; }
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private int _id;
+            private int _productId;
+            private Product _product;
 
-            public Product Product { get; set; }
+            public SpecialOffer()
+            {
+            }
+
+            public SpecialOffer(int id, int productId)
+            {
+                _id = id;
+                _productId = productId;
+            }
+
+            // ReSharper disable once ConvertToAutoProperty
+            public int Id => _id;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public int ProductId => _productId;
+
+            public void SetProductId(int productId) => _productId = productId;
+
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public Product Product => _product;
+
+            public void SetProduct(Product product) => _product = product;
         }
 
         private class FixupContext : DbContext
@@ -3530,13 +3690,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Product>()
-                    .HasMany(e => e.SpecialOffers)
-                    .WithOne(e => e.Product);
+                modelBuilder.Entity<Product>(b =>
+                    {
+                        b.HasKey(e => e.Id);
+                        b.Property(e => e.CategoryId);
+                        b.HasMany(e => e.SpecialOffers)
+                            .WithOne(e => e.Product);
+                    });
 
-                modelBuilder.Entity<Category>()
-                    .HasMany(e => e.Products)
-                    .WithOne(e => e.Category);
+                modelBuilder.Entity<Category>(b =>
+                    {
+                        b.HasKey(e => e.Id);
+                        b.HasMany(e => e.Products)
+                            .WithOne(e => e.Category);
+                    });
+
+                modelBuilder.Entity<SpecialOffer>(b =>
+                {
+                    b.HasKey(e => e.Id);
+                    b.Property(e => e.ProductId);
+                });
 
                 modelBuilder.Entity<CategoryPN>()
                     .HasMany(e => e.Products)
@@ -3553,10 +3726,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     .WithMany()
                     .HasForeignKey(e => e.CategoryId);
 
-                modelBuilder.Entity<Parent>()
-                    .HasOne(e => e.Child)
-                    .WithOne(e => e.Parent)
-                    .HasForeignKey<Child>(e => e.ParentId);
+                modelBuilder.Entity<Parent>(b =>
+                    {
+                        b.HasKey(e => e.Id);
+                        b.HasOne(e => e.Child)
+                            .WithOne(e => e.Parent)
+                            .HasForeignKey<Child>(e => e.ParentId);
+                    });
+
+                modelBuilder.Entity<Child>(b =>
+                    {
+                        b.HasKey(e => e.Id);
+                        b.Property(e => e.ParentId);
+                    });
 
                 modelBuilder.Entity<ParentPN>()
                     .HasOne(e => e.Child)

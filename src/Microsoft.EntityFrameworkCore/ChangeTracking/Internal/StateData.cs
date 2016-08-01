@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract partial class InternalEntityEntry
@@ -9,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             TemporaryOrModified = 0,
             Null = 1,
-            Unknown = 2
+            Unknown = 2,
+            IsLoaded = 3
         }
 
         internal struct StateData
@@ -26,9 +29,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private readonly int[] _bits;
 
-            public StateData(int propertyCount)
+            public StateData(int propertyCount, int navigationCount)
             {
-                _bits = new int[(propertyCount * BitsForPropertyFlags + BitsForAdditionalState - 1) / BitsPerInt + 1];
+                _bits = new int[
+                    (Math.Max(propertyCount, navigationCount) * BitsForPropertyFlags + BitsForAdditionalState - 1)
+                    / BitsPerInt + 1];
             }
 
             public void FlagAllProperties(int propertyCount, PropertyFlag propertyFlag, bool flagged)

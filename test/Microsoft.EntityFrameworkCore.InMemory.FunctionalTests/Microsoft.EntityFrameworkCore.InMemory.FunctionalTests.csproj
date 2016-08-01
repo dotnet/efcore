@@ -63,6 +63,8 @@
     <Compile Include="DataAnnotationInMemoryFixture.cs" />
     <Compile Include="DataAnnotationInMemoryTest.cs" />
     <Compile Include="DatabaseInMemoryTest.cs" />
+    <Compile Include="FindInMemoryTest.cs" />
+    <Compile Include="LoadInMemoryTest.cs" />
     <Compile Include="WarningsTest.cs" />
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="GearsOfWarQueryInMemoryFixture.cs" />

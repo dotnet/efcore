@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -37,5 +38,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
         }
+
+        internal static readonly MethodInfo PropertyMethod
+            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));
     }
 }

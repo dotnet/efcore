@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -12,6 +14,74 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact]
+        public override ModelBuilder Non_public_annotations_are_enabled()
+        {
+            var modelBuilder = base.Non_public_annotations_are_enabled();
+
+            var relational = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Key_and_column_work_together()
+        {
+            var modelBuilder = base.Key_and_column_work_together();
+
+            var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Key_and_MaxLength_64_produce_nvarchar_64()
+        {
+            var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
+
+            var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
+            Assert.Equal("nvarchar(64)", new SqlServerTypeMapper().FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength()
+        {
+            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
+
+            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
+            Assert.Equal("rowversion", new SqlServerTypeMapper().FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength_with_value()
+        {
+            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
+
+            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp");
+            Assert.Equal("rowversion", new SqlServerTypeMapper().FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
+        public override ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
+        {
+            var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
+
+            var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).Relational();
+            Assert.Equal("A", relational.TableName);
+
+            return modelBuilder;
         }
 
         public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
@@ -162,40 +232,13 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
         {
             base.TimestampAttribute_throws_if_value_in_database_changed();
 
-            Assert.Equal(@"SELECT TOP(1) [r].[Id], [r].[Data], [r].[Timestamp]
-FROM [Two] AS [r]
-WHERE [r].[Id] = 1
-
-SELECT TOP(1) [r].[Id], [r].[Data], [r].[Timestamp]
-FROM [Two] AS [r]
-WHERE [r].[Id] = 1
-
-@p1: 1
-@p0: ModifiedData (Size = 16)
-@p2: 0x00000000000007D1 (Size = 8)
-
-SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p0
-OUTPUT INSERTED.[Timestamp]
-INTO @inserted0
-WHERE [Id] = @p1 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @inserted0;
-
-@p1: 1
-@p0: ChangedData (Size = 16)
-@p2: 0x00000000000007D1 (Size = 8)
-
-SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p0
-OUTPUT INSERTED.[Timestamp]
-INTO @inserted0
-WHERE [Id] = @p1 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @inserted0;",
-                Sql);
+            // Not vallidating SQL because not significantly different from other tests and
+            // row version value is not stable.
         }
 
-        private static string Sql => TestSqlLoggerFactory.Sql;
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
@@ -777,6 +778,17 @@ WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo'
                 Sql);
         }
 
+        public override void Where_coalesce()
+        {
+            base.Where_coalesce();
+
+            Assert.Equal(
+    @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE COALESCE([e].[NullableBoolA], 1) = 1",
+                Sql);
+        }
+
         public override void Where_equal_nullable_with_null_value_parameter()
         {
             base.Where_equal_nullable_with_null_value_parameter();
@@ -902,6 +914,72 @@ END) OR [e].[NullableStringC] IS NULL",
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE [e].[NullableStringA] LIKE (N'%' + [e].[NullableStringB]) + N'%' AND ([e].[BoolA] = 1)",
+                Sql);
+        }
+
+        public override void Where_conditional_search_condition_in_result()
+        {
+            base.Where_conditional_search_condition_in_result();
+
+            Assert.Equal(
+                @"@__prm_0: True
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE CASE
+    WHEN @__prm_0 = 1
+    THEN CASE
+        WHEN [e].[StringA] IN (N'Foo', N'Bar')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END ELSE CAST(0 AS BIT)
+END = 1
+
+@__prm_0: True
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE CASE
+    WHEN @__prm_0 = 0
+    THEN CAST(1 AS BIT) ELSE CASE
+        WHEN [e].[StringA] LIKE N'A' + N'%'
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+END = 1",
+                Sql);
+        }
+
+        public override void Where_nested_conditional_search_condition_in_result()
+        {
+            base.Where_nested_conditional_search_condition_in_result();
+
+            Assert.Equal(
+                @"@__prm1_0: True
+@__prm2_1: False
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE CASE
+    WHEN @__prm1_0 = 1
+    THEN CASE
+        WHEN @__prm2_1 = 1
+        THEN CASE
+            WHEN [e].[BoolA] = 1
+            THEN CASE
+                WHEN [e].[StringA] LIKE N'A' + N'%'
+                THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            END ELSE CAST(0 AS BIT)
+        END ELSE CAST(1 AS BIT)
+    END ELSE CASE
+        WHEN [e].[BoolB] = 1
+        THEN CASE
+            WHEN [e].[StringA] IN (N'Foo', N'Bar')
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END ELSE CASE
+            WHEN [e].[StringB] IN (N'Foo', N'Bar')
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END
+    END
+END = 1",
                 Sql);
         }
 
@@ -1107,6 +1185,9 @@ WHERE [c].[StringA] = [c].[StringB]",
                 Sql);
         }
 
-        private static string Sql => TestSqlLoggerFactory.Sql;
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

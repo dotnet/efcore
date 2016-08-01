@@ -7,19 +7,16 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities;
 using Xunit;
 using System.Collections;
+using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Mono's assembly loading mechanisms are buggy")]
     public class OperationExecutorTest
     {
-        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Mono's assembly loading mechanisms are buggy")]
         public class SimpleProjectTest : IClassFixture<SimpleProjectTest.SimpleProject>
         {
             private readonly SimpleProject _project;
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 _project = project;
             }
 
-            [ConditionalFact]
+            [Fact]
             public void GetContextType_works_cross_domain()
             {
                 var contextTypeName = _project.Executor.GetContextType("SimpleContext");
@@ -41,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 Assert.Contains("namespace SimpleProject.Migrations", File.ReadAllText(artifacts["MigrationFile"] as string));
             }
 
-            [ConditionalFact]
+            [Fact]
             public void AddMigration_works_cross_domain()
             {
                 var artifacts = _project.Executor.AddMigration("EmptyMigration", "CustomFolder", "SimpleContext");
@@ -53,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
             }
 
-            [ConditionalFact]
+            [Fact]
             public void AddMigration_output_dir_relative_to_projectdir()
             {
                 var artifacts = _project.Executor.AddMigration("EmptyMigration1", "./CustomFolder", "SimpleContext");
@@ -62,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
             }
 
-            [ConditionalFact]
+            [Fact]
             public void AddMigration_output_dir_relative_out_of_to_projectdir()
             {
                 var artifacts = _project.Executor.AddMigration("EmptyMigration1", "../CustomFolder", "SimpleContext");
@@ -72,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
             }
 
 
-            [ConditionalFact]
+            [Fact]
             public void AddMigration_output_dir_absolute_path_in_project()
             {
                 var outputDir = Path.Combine(_project.TargetDir, "A/B/C");
@@ -82,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 Assert.Contains("namespace SimpleProject.A.B.C", File.ReadAllText(artifacts["MigrationFile"] as string));
             }
 
-            [ConditionalFact]
+            [Fact]
             public void AddMigration_output_dir_absolute_path_outside_project()
             {
                 var outputDir = Path.GetTempPath();
@@ -92,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 AssertDefaultMigrationName(artifacts);
             }
 
-            [ConditionalTheory]
+            [Theory]
             [InlineData("")]
             [InlineData("     ")]
             [InlineData(null)]
@@ -104,21 +101,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 AssertDefaultMigrationName(artifacts);
             }
 
-            [ConditionalFact]
+            [Fact]
             public void ScriptMigration_works_cross_domain()
             {
                 var sql = _project.Executor.ScriptMigration(null, "InitialCreate", false, "SimpleContext");
                 Assert.NotEmpty(sql);
             }
 
-            [ConditionalFact]
+            [Fact]
             public void GetContextTypes_works_cross_domain()
             {
                 var contextTypes = _project.Executor.GetContextTypes();
                 Assert.Equal(1, contextTypes.Count());
             }
 
-            [ConditionalFact]
+            [Fact]
             public void GetMigrations_works_cross_domain()
             {
                 var migrations = _project.Executor.GetMigrations("SimpleContext");
@@ -201,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetMigrations_filters_by_context_name()
         {
             using (var directory = new TempDirectory())
@@ -290,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetContextType_works_with_multiple_assemblies()
         {
             using (var directory = new TempDirectory())
@@ -391,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddMigration_begins_new_namespace_when_foreign_migrations()
         {
             using (var directory = new TempDirectory())
@@ -469,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Throws_for_no_parameterless_constructor()
         {
             using (var directory = new TempDirectory())
@@ -527,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetMigrations_throws_when_target_and_migrations_assemblies_mismatch()
         {
             using (var directory = new TempDirectory())
@@ -603,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Assembly_load_errors_are_wrapped()
         {
             var targetDir = AppDomain.CurrentDomain.BaseDirectory;

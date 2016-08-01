@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance;
 using Xunit;
@@ -56,7 +57,7 @@ WHERE [d].[Discriminator] = N'Tea'",
             base.Can_query_all_types_when_shared_column();
 
             Assert.Equal(
-                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[SugarGrams], [d].[CaffeineGrams], [d].[HasMilk]
+                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk]
 FROM [Drink] AS [d]
 WHERE [d].[Discriminator] IN (N'Tea', N'Lilt', N'Coke', N'Drink')",
                 Sql);
@@ -104,10 +105,7 @@ WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'K
             base.Can_use_is_kiwi_in_projection();
 
             Assert.Equal(
-                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn], CASE
-    WHEN [a].[Discriminator] = N'Kiwi'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')",
                 Sql);
@@ -396,6 +394,9 @@ WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%' + N'owenii'",
         {
         }
 
-        private static string Sql => TestSqlLoggerFactory.Sql;
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

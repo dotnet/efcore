@@ -80,6 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return newRelationshipBuilder;
             }
 
+            if (relationshipBuilder.Metadata.Builder == null)
+            {
+                return null;
+            }
+
             return relationshipBuilder;
         }
 
@@ -241,12 +246,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().Concat(entityType.GetDerivedForeignKeys()).ToList())
                 {
-                    Apply(foreignKey.Builder);
+                    if (foreignKey.Builder != null)
+                    {
+                        Apply(foreignKey.Builder);
+                    }
                 }
 
                 foreach (var foreignKey in entityType.GetReferencingForeignKeys().ToList())
                 {
-                    Apply(foreignKey.Builder);
+                    if (foreignKey.Builder != null)
+                    {
+                        Apply(foreignKey.Builder);
+                    }
                 }
             }
             return propertyBuilder;

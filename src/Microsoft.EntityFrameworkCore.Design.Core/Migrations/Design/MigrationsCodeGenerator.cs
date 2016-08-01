@@ -106,6 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                from a in i.GetAnnotations()
                where a.Value != null
                      && a.Name != RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName
+                     && a.Name != RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName
+                     && a.Name != InversePropertyAttributeConvention.InverseNavigationsAnnotationName
                select a.Value.GetType().Namespace;
     }
 }

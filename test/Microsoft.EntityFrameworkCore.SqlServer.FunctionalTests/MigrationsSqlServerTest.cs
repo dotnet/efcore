@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -11,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerFixture>
     {
+        private const string FileLineEnding = @"
+";
+
         public MigrationsSqlServerTest(MigrationsSqlServerFixture fixture)
             : base(fixture)
         {
@@ -33,7 +37,7 @@ END;
 GO
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_no_migration_script()
@@ -53,7 +57,7 @@ END;
 GO
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_up_scripts()
@@ -107,7 +111,7 @@ VALUES (N'00000000000003_Migration3', N'7.0.0-test');
 GO
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_idempotent_up_scripts()
@@ -182,7 +186,7 @@ END;
 GO
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_down_scripts()
@@ -214,7 +218,7 @@ WHERE [MigrationId] = N'00000000000001_Migration1';
 GO
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_idempotent_down_scripts()
@@ -261,7 +265,7 @@ END;
 GO
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_get_active_provider()
@@ -281,7 +285,7 @@ CreatedTable
     ColumnWithDefaultToDrop int NULL DEFAULT ((0))
     ColumnWithDefaultToAlter int NULL DEFAULT ((1))
 ",
-                sql);
+                sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         protected override async Task AssertSecondMigrationAsync(DbConnection connection)
@@ -293,7 +297,7 @@ CreatedTable
     Id int NOT NULL
     ColumnWithDefaultToAlter int NULL
 ",
-                sql);
+                sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         private async Task<string> GetDatabaseSchemaAsync(DbConnection connection)

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -128,6 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public virtual TestModelBuilder Validate()
                 => ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate() == null ? null : this;
+
+            public virtual string GetDisplayName(Type entityType) => entityType.Name;
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>
@@ -206,11 +209,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object value);
             public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
             public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
+            public abstract TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true);
             public abstract TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true);
 
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedNever();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAdd();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate();
+
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>() where TGenerator : ValueGenerator;
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory);
         }
 
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
@@ -268,16 +276,20 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 string annotation, object value);
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
-                Expression<Func<TDependentEntity, object>> foreignKeyExpression);
+                Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+                where TDependentEntity : class;
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
-                Expression<Func<TPrincipalEntity, object>> keyExpression);
+                Expression<Func<TPrincipalEntity, object>> keyExpression)
+                where TPrincipalEntity : class;
 
-            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-                Type dependentEntityType, params string[] foreignKeyPropertyNames);
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
+                params string[] foreignKeyPropertyNames)
+                where TDependentEntity : class;
 
-            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-                Type principalEntityType, params string[] keyPropertyNames);
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
+                params string[] keyPropertyNames)
+                where TPrincipalEntity : class;
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true);
 

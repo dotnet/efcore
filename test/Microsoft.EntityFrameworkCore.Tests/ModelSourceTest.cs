@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var model = modelSource.GetModel(new Context1(), null,
                 new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 
-            Assert.StartsWith("1.0.1", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+            Assert.StartsWith("1.1.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
 
         private class Context1 : DbContext

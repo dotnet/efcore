@@ -7,8 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.TestModels
 {
     public class SqliteNorthwindContext : NorthwindContext
     {
-        public SqliteNorthwindContext(DbContextOptions options)
-            : base(options)
+        public SqliteNorthwindContext(DbContextOptions options,
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            : base(options, queryTrackingBehavior)
         {
         }
 

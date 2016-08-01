@@ -2189,7 +2189,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     type of entity being queried (<typeparamref name="TEntity" />). If you wish to include additional types based on the navigation
         ///     properties of the type being included, then chain a call to
         ///     <see
-        ///         cref="ThenInclude{TEntity, TPreviousProperty, TProperty}(IIncludableQueryable{TEntity, ICollection{TPreviousProperty}}, Expression{Func{TPreviousProperty, TProperty}})" />
+        ///         cref="ThenInclude{TEntity, TPreviousProperty, TProperty}(IIncludableQueryable{TEntity, IEnumerable{TPreviousProperty}}, Expression{Func{TPreviousProperty, TProperty}})" />
         ///     after this call.
         /// </summary>
         /// <example>
@@ -2233,11 +2233,13 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(navigationPropertyPath, nameof(navigationPropertyPath));
 
             return new IncludableQueryable<TEntity, TProperty>(
-                source.Provider.CreateQuery<TEntity>(
-                    Expression.Call(
-                        null,
-                        IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
-                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            null,
+                            IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
+                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                    : source);
         }
 
         internal static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
@@ -2287,15 +2289,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query with the related data included.
         /// </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull] this IIncludableQueryable<TEntity, ICollection<TPreviousProperty>> source,
+            [NotNull] this IIncludableQueryable<TEntity, IEnumerable<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
             => new IncludableQueryable<TEntity, TProperty>(
-                source.Provider.CreateQuery<TEntity>(
-                    Expression.Call(
-                        null,
-                        ThenIncludeAfterCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            null,
+                            ThenIncludeAfterCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                    : source);
 
         /// <summary>
         ///     Specifies additional related data to be further included based on a related type that was just included.
@@ -2338,11 +2342,13 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
             => new IncludableQueryable<TEntity, TProperty>(
-                source.Provider.CreateQuery<TEntity>(
-                    Expression.Call(
-                        null,
-                        ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            null,
+                            ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                    : source);
 
         private class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
         {

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
@@ -12,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 {
     public class MigrationCommandListBuilderTest
     {
+        private const string FileLineEnding = @"
+";
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -33,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 Statement2
 Statement3
 ",
-                commandList[0].CommandText);
+                commandList[0].CommandText.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Theory]
@@ -60,14 +64,14 @@ Statement3
             Assert.Equal(
                 @"Statement1
 ",
-                commandList[0].CommandText);
+                commandList[0].CommandText.Replace(Environment.NewLine, FileLineEnding));
 
             Assert.Equal(suppressTransaction, commandList[1].TransactionSuppressed);
             Assert.Equal(
                 @"Statement2
 Statement3
 ",
-                commandList[1].CommandText);
+                commandList[1].CommandText.Replace(Environment.NewLine, FileLineEnding));
 
             Assert.Equal(suppressTransaction, commandList[2].TransactionSuppressed);
             Assert.Equal(
@@ -75,7 +79,7 @@ Statement3
 Statement5
 Statement6
 ",
-                commandList[2].CommandText);
+                commandList[2].CommandText.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Theory]
@@ -101,14 +105,14 @@ Statement6
             Assert.Equal(
                 @"Statement1
 ",
-                commandList[0].CommandText);
+                commandList[0].CommandText.Replace(Environment.NewLine, FileLineEnding));
 
             Assert.Equal(suppressTransaction, commandList[1].TransactionSuppressed);
             Assert.Equal(
                 @"Statement2
 Statement3
 ",
-                commandList[1].CommandText);
+                commandList[1].CommandText.Replace(Environment.NewLine, FileLineEnding));
         }
 
         private MigrationCommandListBuilder CreateBuilder()

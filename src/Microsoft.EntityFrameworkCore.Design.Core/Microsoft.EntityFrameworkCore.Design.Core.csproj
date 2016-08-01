@@ -44,9 +44,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
-      <Link>AsyncEnumerableExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Check.cs</Link>
     </Compile>
@@ -116,7 +113,6 @@
     <Compile Include="Scaffolding\Internal\ScaffoldingServiceCollectionExtensions.cs" />
     <Compile Include="Scaffolding\Internal\ScaffoldingUtilities.cs" />
     <Compile Include="Scaffolding\Internal\StringBuilderCodeWriter.cs" />
-    <Compile Include="Utilities\Internal\JsonUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

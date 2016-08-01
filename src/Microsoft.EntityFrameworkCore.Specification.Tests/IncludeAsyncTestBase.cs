@@ -283,7 +283,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual async Task Include_collection_on_group_join_clause_with_filter()
         {
             using (var context = CreateContext())
@@ -303,7 +302,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual async Task Include_collection_on_inner_group_join_clause_with_filter()
         {
             using (var context = CreateContext())
@@ -324,7 +322,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual async Task Include_collection_when_groupby()
         {
             using (var context = CreateContext())

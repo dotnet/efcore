@@ -233,6 +233,29 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Can_disable_and_reenable_query_result_tracking_starting_with_NoTracking()
+        {
+            using (var context = Fixture.CreateContext(QueryTrackingBehavior.NoTracking))
+            {
+                Assert.Equal(QueryTrackingBehavior.NoTracking, context.ChangeTracker.QueryTrackingBehavior);
+
+                var query = context.Employees.OrderBy(e => e.EmployeeID);
+
+                var results = query.Take(1).ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+
+                results = query.Skip(1).Take(1).ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Can_disable_and_reenable_query_result_tracking_query_caching()
         {
             using (var context = CreateContext())
@@ -248,6 +271,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+                var results = context.Employees.ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_disable_and_reenable_query_result_tracking_query_caching_using_options()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(QueryTrackingBehavior.TrackAll, context.ChangeTracker.QueryTrackingBehavior);
+
+                var results = context.Employees.ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(9, context.ChangeTracker.Entries().Count());
+            }
+
+            using (var context = Fixture.CreateContext(QueryTrackingBehavior.NoTracking))
+            {
+                Assert.Equal(QueryTrackingBehavior.NoTracking, context.ChangeTracker.QueryTrackingBehavior);
 
                 var results = context.Employees.ToList();
 
@@ -280,6 +327,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void AsTracking_switches_tracking_on_when_off_in_options()
+        {
+            using (var context = Fixture.CreateContext(QueryTrackingBehavior.NoTracking))
+            {
+                var results = context.Employees.AsTracking().ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(9, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Precendence_of_tracking_modifiers()
         {
             using (var context = CreateContext())
@@ -304,7 +363,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Precendence_of_tracking_modifiers3()
         {
             using (var context = CreateContext())
@@ -323,7 +381,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Precendence_of_tracking_modifiers4()
         {
             using (var context = CreateContext())
@@ -342,7 +399,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Precendence_of_tracking_modifiers5()
         {
             using (var context = CreateContext())

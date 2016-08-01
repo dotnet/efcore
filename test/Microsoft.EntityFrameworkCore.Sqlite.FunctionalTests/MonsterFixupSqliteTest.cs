@@ -55,8 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 {
                     using (var context = createContext())
                     {
-                        context.Database.EnsureDeleted();
-                        context.Database.EnsureCreated();
+                        EnsureClean(context);
                         context.SeedUsingFKs();
                     }
 
@@ -72,5 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             builder.Entity<TProductPhoto>().HasKey(e => e.PhotoId);
             builder.Entity<TProductReview>().HasKey(e => e.ReviewId);
         }
+
+        protected override void EnsureClean(DbContext context)
+            => context.Database.EnsureClean();
     }
 }

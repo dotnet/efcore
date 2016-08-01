@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             var model = new Model();
             model.AddEntityType(typeof(A));
 
-            VerifyError(CoreStrings.EntityRequiresKey(typeof(A).FullName), model);
+            VerifyError(CoreStrings.EntityRequiresKey(nameof(A)), model);
         }
 
         [Fact]

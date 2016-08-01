@@ -39,6 +39,7 @@
     <Compile Include="AsyncFromSqlQueryTestBase.cs" />
     <Compile Include="AsyncFromSqlSprocQueryTestBase.cs" />
     <Compile Include="ComplexNavigationsQueryRelationalFixture.cs" />
+    <Compile Include="RelationalDatabaseCleaner.cs" />
     <Compile Include="F1RelationalFixture.cs" />
     <Compile Include="FromSqlQueryTestBase.cs" />
     <Compile Include="FromSqlSprocQueryTestBase.cs" />
@@ -75,6 +76,10 @@
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.InMemory\Microsoft.EntityFrameworkCore.InMemory.csproj">
       <Project>{6b102cc4-4396-4a7b-9f72-2c6b5c4d8310}</Project>
       <Name>Microsoft.EntityFrameworkCore.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj">
+      <Project>{1942c281-c12b-4818-8cc8-c42842871ff5}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
       <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>

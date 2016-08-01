@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var expectedBlogs = new List<Blog>();
             using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
+
                 var owner1 = new Owner();
                 var owner2 = new Owner();
                 context.Owners.Add(owner1);
@@ -72,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var expectedBlogs = new List<Blog>();
             using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
+
                 var owner1 = new Owner {Name = "0"};
                 var owner2 = new Owner {Name = "1" };
                 context.Owners.Add(owner1);

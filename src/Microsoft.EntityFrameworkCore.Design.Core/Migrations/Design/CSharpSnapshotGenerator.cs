@@ -251,6 +251,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.ComputedColumnSql, nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.DefaultValue, nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation, nameof(PropertyBuilder.IsUnicode), stringBuilder);
+
+            IgnoreAnnotations(annotations, CoreAnnotationNames.ValueGeneratorFactoryAnnotation);
 
             GenerateAnnotations(annotations, stringBuilder);
         }
@@ -421,12 +425,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations.Remove(discriminatorValueAnnotation);
             }
 
-            var navigationCandidatesAnnotation = annotations
-                .FirstOrDefault(a => a.Name == RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName);
-            if (navigationCandidatesAnnotation != null)
-            {
-                annotations.Remove(navigationCandidatesAnnotation);
-            }
+            IgnoreAnnotations(
+                annotations,
+                RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
+                RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
+                InversePropertyAttributeConvention.InverseNavigationsAnnotationName);
 
             if (annotations.Any())
             {
@@ -580,6 +583,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateAnnotations(annotations, stringBuilder);
         }
+
+        protected virtual void IgnoreAnnotations(
+            [NotNull] IList<IAnnotation> annotations, [NotNull] params string[] annotationNames)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(annotationNames, nameof(annotationNames));
+
+            foreach (var annotationName in annotationNames)
+            {
+                var annotation = annotations.FirstOrDefault(a => a.Name == annotationName);
+                if (annotation != null)
+                {
+                    annotations.Remove(annotation);
+                }
+            }
+        }
+
 
         protected virtual void GenerateAnnotations(
             [NotNull] IReadOnlyList<IAnnotation> annotations, [NotNull] IndentedStringBuilder stringBuilder)

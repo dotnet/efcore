@@ -33,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             public override DbContext CreateContext()
                 => new DbContext(_options);
+
+            protected override void EnsureClean(DbContext context)
+                => context.Database.EnsureClean();
         }
     }
 }

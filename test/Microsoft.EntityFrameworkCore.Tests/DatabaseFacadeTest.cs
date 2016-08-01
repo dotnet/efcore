@@ -148,6 +148,20 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
+        public void Can_get_current_transaction()
+        {
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var transaction = Mock.Of<IDbContextTransaction>();
+
+            transactionManagerMock.Setup(m => m.CurrentTransaction).Returns(transaction);
+
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+
+            Assert.Same(transaction, context.Database.CurrentTransaction);
+        }
+
+        [Fact]
         public void Cannot_use_DatabaseFacade_after_dispose()
         {
             var context = TestHelpers.Instance.CreateContext();

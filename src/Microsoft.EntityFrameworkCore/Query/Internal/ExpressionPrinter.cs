@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitGoto(GotoExpression node)
         {
-            _stringBuilder.AppendLine("return (" + node.Target.Type.DisplayName(fullName: false) + ")" + node.Target + " {");
+            _stringBuilder.AppendLine("return (" + node.Target.Type.ShortDisplayName() + ")" + node.Target + " {");
             _stringBuilder.IncrementIndent();
 
             Visit(node.Value);
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             foreach (var parameter in node.Parameters)
             {
                 _parametersInScope.Add(parameter, parameter.Name);
-                _stringBuilder.Append(parameter.Type.DisplayName(fullName: false) + " " + parameter.Name);
+                _stringBuilder.Append(parameter.Type.ShortDisplayName() + " " + parameter.Name);
 
                 if (parameter != node.Parameters.Last())
                 {
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
-            _stringBuilder.Append("new " + node.Type.DisplayName(fullName: false));
+            _stringBuilder.Append("new " + node.Type.ShortDisplayName());
 
             var appendAction = node.Bindings.Count > 1 ? AppendLine : Append;
             appendAction(_stringBuilder, "{ ");
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (node.Method.ReturnType != null)
             {
-                _stringBuilder.Append(node.Method.ReturnType.DisplayName(fullName: false) + " ");
+                _stringBuilder.Append(node.Method.ReturnType.ShortDisplayName() + " ");
             }
 
             if (node.Object != null)
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitNew(NewExpression node)
         {
             _stringBuilder.Append("new ");
-            _stringBuilder.Append(node.Type.DisplayName(fullName: false));
+            _stringBuilder.Append(node.Type.ShortDisplayName());
 
             var appendAction = node.Arguments.Count > 1 ? AppendLine : Append;
             appendAction(_stringBuilder, "(");
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
             var appendAction = node.Expressions.Count > 1 ? AppendLine : Append;
-            appendAction(_stringBuilder, "new " + node.Type.GetElementType().DisplayName(fullName: false) + "[]");
+            appendAction(_stringBuilder, "new " + node.Type.GetElementType().ShortDisplayName() + "[]");
             appendAction(_stringBuilder, "{ ");
             _stringBuilder.IncrementIndent();
 
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (node.NodeType == ExpressionType.Convert)
             {
-                _stringBuilder.Append("(" + node.Type.DisplayName(fullName: false) + ") ");
+                _stringBuilder.Append("(" + node.Type.ShortDisplayName() + ") ");
 
                 Visit(node.Operand);
 
@@ -633,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var appendAction = value is byte[] ? Append : AppendLine;
 
-                    appendAction(stringBuilder, value.GetType().DisplayName(fullName: false) + " ");
+                    appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
                     appendAction(stringBuilder, "{ ");
                     stringBuilder.IncrementIndent();
                     foreach (var item in enumerable)

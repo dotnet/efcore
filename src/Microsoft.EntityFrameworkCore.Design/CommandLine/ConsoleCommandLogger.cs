@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Design.Core.Utilities.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -34,16 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             if (IsVerbose)
             {
                 Output(message);
-            }
-        }
-
-        public static void Json(object result)
-        {
-            lock (_lock)
-            {
-                Console.WriteLine("//BEGIN");
-                Console.WriteLine(JsonUtility.Serialize(result));
-                Console.WriteLine("//END");
             }
         }
 

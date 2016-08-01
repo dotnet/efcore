@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,7 +15,6 @@ using Xunit;
 // ReSharper disable ConvertToAutoPropertyWhenPossible
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable UnusedMember.Local
-
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class ClrCollectionAccessorFactoryTest
@@ -28,6 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var source = new ClrCollectionAccessorFactory();
 
             Assert.Same(accessorMock.Object, source.Create(navigationMock.Object));
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_for_IEnumerable_navigation()
+        {
+            AccessorTest("AsIEnumerable", e => e.AsIEnumerable);
         }
 
         [Fact]
@@ -61,6 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Delegate_accessor_is_returned_when_no_backing_field_found()
+        {
+            AccessorTest("NoBackingFound", e => e.NoBackingFound);
+        }
+
+        [Fact]
         public void Delegate_accessor_is_returned_when_no_public_constructor()
         {
             AccessorTest("AsMyPrivateCollection", e => e.AsMyPrivateCollection);
@@ -76,6 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Delegate_accessor_is_returned_when_no_parameterless_constructor()
         {
             AccessorTest("AsMyUnavailableCollection", e => e.AsMyUnavailableCollection);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_with_no_setter()
+        {
+            AccessorTest("WithNoSetter", e => e.WithNoSetter, initializeCollections: false);
         }
 
         [Fact]
@@ -135,19 +153,52 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var navigation = CreateNavigation("WithNoGetter");
 
             Assert.Equal(
-                CoreStrings.NavigationNoGetter("WithNoGetter", typeof(MyEntity).FullName),
+                CoreStrings.NavigationNoGetter("WithNoGetter", typeof(MyEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
         [Fact]
-        public void Creating_accessor_for_enumerable_navigation_throws()
+        public void Add_for_enumerable_backed_by_non_collection_throws()
         {
-            var navigation = CreateNavigation("AsIEnumerable");
+            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Add(e, v));
+        }
+
+        [Fact]
+        public void AddRange_for_enumerable_backed_by_non_collection_throws()
+        {
+            Enumerable_backed_by_non_collection_throws((a, e, v) => a.AddRange(e, new[] { v }));
+        }
+
+        [Fact]
+        public void Contains_for_enumerable_backed_by_non_collection_throws()
+        {
+            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Contains(e, v));
+        }
+
+        [Fact]
+        public void Remove_for_enumerable_backed_by_non_collection_throws()
+        {
+            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Remove(e, v));
+        }
+
+        [Fact]
+        public void GetOrCreate_for_enumerable_backed_by_non_collection_throws()
+        {
+            Enumerable_backed_by_non_collection_throws((a, e, v) => a.GetOrCreate(e));
+        }
+
+        private void Enumerable_backed_by_non_collection_throws(Action<IClrCollectionAccessor, MyEntity, MyOtherEntity> test)
+        {
+            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsIEnumerableNotCollection"));
+
+            var entity = new MyEntity();
+            var value = new MyOtherEntity();
+            entity.InitializeCollections();
 
             Assert.Equal(
                 CoreStrings.NavigationBadType(
-                    "AsIEnumerable", typeof(MyEntity).FullName, typeof(IEnumerable<MyOtherEntity>).FullName, typeof(MyOtherEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
+                    "AsIEnumerableNotCollection", typeof(MyEntity).Name, typeof(MyEnumerable).Name, typeof(MyOtherEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => test(accessor, entity, value)).Message);
         }
 
         [Fact]
@@ -156,17 +207,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var navigation = CreateNavigation("AsArray");
 
             Assert.Equal(
-                CoreStrings.NavigationArray("AsArray", typeof(MyEntity).FullName, typeof(MyOtherEntity[]).FullName),
+                CoreStrings.NavigationArray("AsArray", typeof(MyEntity).Name, typeof(MyOtherEntity[]).Name),
                 Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
         [Fact]
-        public void Initialization_for_navigation_without_setter_throws()
+        public void Initialization_for_navigation_without_backing_field_throws()
         {
-            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("WithNoSetter"));
+            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("NoBackingFound"));
 
             Assert.Equal(
-                CoreStrings.NavigationNoSetter("WithNoSetter", typeof(MyEntity).FullName),
+                CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -176,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyPrivateCollection"));
 
             Assert.Equal(
-                CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).FullName, typeof(MyPrivateCollection).FullName),
+                CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).Name, typeof(MyPrivateCollection).Name),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -186,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyInternalCollection"));
 
             Assert.Equal(
-                CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).FullName, typeof(MyInternalCollection).FullName),
+                CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).Name, typeof(MyInternalCollection).Name),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -196,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyUnavailableCollection"));
 
             Assert.Equal(
-                CoreStrings.NavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).FullName, typeof(MyUnavailableCollection).FullName),
+                CoreStrings.NavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -219,10 +270,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             private IList<MyOtherEntity> _asIList;
             private List<MyOtherEntity> _asList;
             private MyCollection _myCollection;
+            private ICollection<MyOtherEntity> _withNoBackingFieldFound;
             private ICollection<MyOtherEntity> _withNoSetter;
             // ReSharper disable once NotAccessedField.Local
             private ICollection<MyOtherEntity> _withNoGetter;
             private IEnumerable<MyOtherEntity> _enumerable;
+            private IEnumerable<MyOtherEntity> _enumerableNotCollection;
             private MyOtherEntity[] _array;
             private MyPrivateCollection _privateCollection;
             private MyInternalCollection _internalCollection;
@@ -234,9 +287,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 _asIList = new List<MyOtherEntity>();
                 _asList = new List<MyOtherEntity>();
                 _myCollection = new MyCollection();
+                _withNoBackingFieldFound = new HashSet<MyOtherEntity>();
                 _withNoSetter = new HashSet<MyOtherEntity>();
                 _withNoGetter = new HashSet<MyOtherEntity>();
                 _enumerable = new HashSet<MyOtherEntity>();
+                _enumerableNotCollection = new MyEnumerable();
                 _array = new MyOtherEntity[0];
                 _privateCollection = MyPrivateCollection.Create();
                 _internalCollection = new MyInternalCollection();
@@ -269,6 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             internal ICollection<MyOtherEntity> WithNoSetter => _withNoSetter;
 
+            internal ICollection<MyOtherEntity> NoBackingFound => _withNoBackingFieldFound;
+
             internal ICollection<MyOtherEntity> WithNoGetter
             {
                 set { _withNoGetter = value; }
@@ -278,6 +335,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             {
                 get { return _enumerable; }
                 set { _enumerable = value; }
+            }
+
+            internal IEnumerable<MyOtherEntity> AsIEnumerableNotCollection
+            {
+                get { return _enumerableNotCollection; }
+                set { _enumerableNotCollection = value; }
             }
 
             internal MyOtherEntity[] AsArray
@@ -338,6 +401,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             public MyUnavailableCollection(bool _)
             {
             }
+        }
+
+        private class MyEnumerable : IEnumerable<MyOtherEntity>
+        {
+            public IEnumerator<MyOtherEntity> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }
 }

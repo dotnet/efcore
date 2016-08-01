@@ -2,17 +2,59 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class AsNoTrackingTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        [ConditionalFact]
+        public virtual void State_manager_not_loaded()
+        {
+            StateManagerProxy.IsInitialized = false;
+
+            using (var context = new NorthwindContext(
+                Fixture.BuildOptions(
+                    new ServiceCollection()
+                        .AddScoped<IStateManager, StateManagerProxy>())))
+            {
+                context.Set<Customer>().AsNoTracking().ToList();
+                Assert.False(StateManagerProxy.IsInitialized);
+
+                context.GetService<IStateManager>();
+                Assert.True(StateManagerProxy.IsInitialized);
+            }
+        }
+
+        private class StateManagerProxy : StateManager
+        {
+            public static bool IsInitialized { get; set; }
+
+            public StateManagerProxy(
+                IInternalEntityEntryFactory factory,
+                IInternalEntityEntrySubscriber subscriber,
+                IInternalEntityEntryNotifier notifier,
+                IValueGenerationManager valueGeneration,
+                IModel model,
+                IDatabase database,
+                IConcurrencyDetector concurrencyDetector,
+                ICurrentDbContext currentContext)
+                : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext)
+            {
+                IsInitialized = true;
+            }
+        }
+
         [ConditionalFact]
         public virtual void Entity_not_added_to_state_manager()
         {

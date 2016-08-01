@@ -1519,7 +1519,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Principal_and_dependent_cannot_be_flipped_twice_in_reverse_order()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
                 modelBuilder.Entity<Order>();
                 modelBuilder.Entity<OrderDetails>()
                     .HasOne(e => e.Order).WithOne(e => e.Details)
@@ -1566,6 +1565,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(fk.PrincipalKey, principalType.GetKeys().Single());
                 Assert.Empty(dependentType.GetKeys().Where(k => !k.IsPrimaryKey()));
+            }
+
+            [Fact]
+            public virtual void Throws_if_not_principal_or_dependent_specified()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Order>();
+                modelBuilder.Entity<OrderDetails>()
+                    .HasOne(e => e.Order).WithOne(e => e.Details)
+                    .HasPrincipalKey<Order>(e => e.OrderId);
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<CustomerDetails>();
+
+                var relationship = modelBuilder
+                    .Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details);
+
+                Assert.Equal(CoreStrings.DependentEntityTypeNotInRelationship(
+                    nameof(OrderDetails),
+                    nameof(Order),
+                    modelBuilder.GetDisplayName(typeof(OrderCombination))),
+                    Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey<OrderCombination>(e => e.OrderId)).Message);
+
+                Assert.Equal(CoreStrings.PrincipalEntityTypeNotInRelationship(
+                    nameof(OrderDetails),
+                    nameof(Order),
+                    modelBuilder.GetDisplayName(typeof(OrderCombination))),
+                    Assert.Throws<InvalidOperationException>(() => relationship.HasPrincipalKey<OrderCombination>(e => e.OrderId)).Message);
             }
 
             [Fact]
@@ -2328,17 +2354,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Throws_if_specified_FK_types_do_not_match()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder
-                            .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .HasPrincipalKey(typeof(Customer), "Id")
-                            .HasForeignKey(typeof(CustomerDetails), "GuidProperty")).Message);
+                Assert.Equal(
+                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder
+                        .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
+                        .HasPrincipalKey<Customer>("Id")
+                        .HasForeignKey<CustomerDetails>("GuidProperty")).Message);
             }
 
             [Fact]
@@ -2352,11 +2377,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasPrincipalKey(typeof(Customer), nameof(Customer.Id));
+                    .HasPrincipalKey<Customer>(nameof(Customer.Id));
 
                 modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasForeignKey(typeof(CustomerDetails), "GuidProperty");
+                    .HasForeignKey<CustomerDetails>("GuidProperty");
 
                 var dependentType = model.FindEntityType(typeof(CustomerDetails));
                 var fk = dependentType.GetForeignKeys().Single();
@@ -2373,12 +2398,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
+                Assert.Equal(CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .HasForeignKey(typeof(CustomerDetails), "GuidProperty")
-                            .HasPrincipalKey(typeof(Customer), "Id")).Message);
+                            .HasForeignKey<CustomerDetails>("GuidProperty")
+                            .HasPrincipalKey<Customer>("Id")).Message);
             }
 
             [Fact]
@@ -2392,11 +2417,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasForeignKey(typeof(CustomerDetails), "GuidProperty");
+                    .HasForeignKey<CustomerDetails>("GuidProperty");
 
                 modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasPrincipalKey(typeof(Customer), nameof(Customer.Id));
+                    .HasPrincipalKey<Customer>(nameof(Customer.Id));
 
                 var dependentType = model.FindEntityType(typeof(CustomerDetails));
                 var principalType = model.FindEntityType(typeof(Customer));
@@ -2414,12 +2439,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
+                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .HasPrincipalKey(typeof(Customer), "Id")
-                            .HasForeignKey(typeof(CustomerDetails), "Id", "GuidProperty")).Message);
+                            .HasPrincipalKey<Customer>("Id")
+                            .HasForeignKey<CustomerDetails>("Id", "GuidProperty")).Message);
             }
 
             [Fact]
@@ -2433,11 +2458,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasPrincipalKey(typeof(Customer), nameof(Customer.Id));
+                    .HasPrincipalKey<Customer>(nameof(Customer.Id));
 
                 modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasForeignKey(typeof(CustomerDetails), nameof(CustomerDetails.Id), "GuidProperty");
+                    .HasForeignKey<CustomerDetails>(nameof(CustomerDetails.Id), "GuidProperty");
 
                 var dependentType = model.FindEntityType(typeof(CustomerDetails));
                 var fk = dependentType.GetForeignKeys().Single();
@@ -2454,12 +2479,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
+                Assert.Equal(CoreStrings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .HasForeignKey(typeof(CustomerDetails), "Id", "GuidProperty")
-                            .HasPrincipalKey(typeof(Customer), "Id")).Message);
+                            .HasForeignKey<CustomerDetails>("Id", "GuidProperty")
+                            .HasPrincipalKey<Customer>("Id")).Message);
             }
 
             [Fact]
@@ -2475,11 +2500,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasForeignKey(typeof(CustomerDetails), nameof(CustomerDetails.Id), "GuidProperty");
+                    .HasForeignKey<CustomerDetails>(nameof(CustomerDetails.Id), "GuidProperty");
 
                 var fk = modelBuilder
                     .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                    .HasPrincipalKey(typeof(Customer), nameof(Customer.Id)).Metadata;
+                    .HasPrincipalKey<Customer>(nameof(Customer.Id)).Metadata;
 
                 Assert.Same(principalType.FindProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
                 Assert.Equal(1, fk.Properties.Count());
@@ -2536,7 +2561,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs);
-                
+
                 modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany();
 
                 var dependentType = model.FindEntityType(typeof(Nob));
@@ -2587,7 +2612,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob);
-                
+
                 modelBuilder.Entity<Hob>().HasMany<Nob>().WithOne(e => e.Hob);
 
                 var dependentType = model.FindEntityType(typeof(Nob));
@@ -2930,7 +2955,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     {
                         b.HasOne(e => e.FirstNav)
                             .WithOne()
-                            .HasForeignKey(typeof(Beta), "ShadowId");
+                            .HasForeignKey<Beta>("ShadowId");
                     });
 
                 Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
@@ -2948,8 +2973,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var entityB = modelBuilder.Entity<Beta>();
 
-                entityB.HasOne(e => e.FirstNav).WithOne().HasForeignKey(typeof(Beta), "ShadowId");
-                
+                entityB.HasOne(e => e.FirstNav).WithOne().HasForeignKey<Beta>("ShadowId");
+
                 Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 

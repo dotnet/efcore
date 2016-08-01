@@ -6,6 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -44,6 +46,49 @@ namespace Microsoft.EntityFrameworkCore
         where TEntity : class
     {
         /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual TEntity Find([NotNull] params object[] keyValues)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync([NotNull] params object[] keyValues)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync([NotNull] object[] keyValues, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
@@ -54,6 +99,32 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual Task<EntityEntry<TEntity>> AddAsync(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
@@ -133,6 +204,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync([NotNull] params TEntity[] entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
@@ -190,6 +280,28 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync(
+            [NotNull] IEnumerable<TEntity> entities,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

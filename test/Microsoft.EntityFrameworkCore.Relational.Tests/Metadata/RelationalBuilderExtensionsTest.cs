@@ -128,6 +128,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         }
 
         [Fact]
+        public void Can_set_column_default_value_implicit_conversion()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.SomeShort)
+                .HasDefaultValue(7);
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("SomeShort");
+
+            Assert.Equal((short)7, property.Relational().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
         public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1147,6 +1163,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public short SomeShort { get; set; }
             public MyEnum EnumValue { get; set; }
 
             public IEnumerable<Order> Orders { get; set; }

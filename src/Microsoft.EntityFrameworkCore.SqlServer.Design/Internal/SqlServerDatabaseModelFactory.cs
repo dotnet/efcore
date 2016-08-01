@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -20,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
+    public class SqlServerDatabaseModelFactory : IInternalDatabaseModelFactory
     {
-        private SqlConnection _connection;
+        private DbConnection _connection;
         private Version _serverVersion;
         private TableSelectionSet _tableSelectionSet;
         private DatabaseModel _databaseModel;
@@ -82,11 +84,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
 
+            using (var connection = new SqlConnection(connectionString))
+            {
+                return Create(connection, tableSelectionSet);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+        {
             ResetState();
 
-            using (_connection = new SqlConnection(connectionString))
+            _connection = connection;
+
+            var connectionStartedOpen = _connection.State == ConnectionState.Open;
+            if (!connectionStartedOpen)
             {
                 _connection.Open();
+            }
+            try
+            {
                 _tableSelectionSet = tableSelectionSet;
 
                 _databaseModel.DatabaseName = _connection.Database;
@@ -104,6 +124,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GetIndexes();
                 GetForeignKeys();
                 return _databaseModel;
+            }
+            finally
+            {
+                if (!connectionStartedOpen)
+                {
+                    _connection.Close();
+                }
             }
         }
 

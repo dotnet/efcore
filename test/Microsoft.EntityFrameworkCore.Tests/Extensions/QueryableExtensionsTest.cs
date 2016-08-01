@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Moq;
 using Xunit;
 
@@ -18,6 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
 {
     public class QueryableExtensionsTest
     {
+        [Fact]
+        public void Include_on_non_ef_queryable_is_no_op()
+        {
+            var q = new List<Customer>().AsQueryable();
+            var q2 = q.Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ToList();
+
+            Assert.Equal(0, q2.Count);
+        }
+
         // ReSharper disable MethodSupportsCancellation
 
         [Fact]

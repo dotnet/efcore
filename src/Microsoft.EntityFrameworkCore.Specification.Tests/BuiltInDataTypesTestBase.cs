@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -55,6 +55,55 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.NotNull(context.Set<MaxLengthDataTypes>().SingleOrDefault(e => e.Id == 799 && e.String9000 == longString));
                 Assert.NotNull(context.Set<MaxLengthDataTypes>().SingleOrDefault(e => e.Id == 799 && e.ByteArray9000 == longBinary));
+            }
+        }
+
+        public virtual void Can_perform_query_with_ansi_strings(bool supportsAnsi)
+        {
+            var shortString = "Ϩky";
+            var longString = new string('Ϩ', 9000);
+
+            using (var context = CreateContext())
+            {
+                context.Set<UnicodeDataTypes>().Add(
+                    new UnicodeDataTypes
+                    {
+                        Id = 799,
+                        StringDefault = shortString,
+                        StringAnsi = shortString,
+                        StringAnsi3 = shortString,
+                        StringAnsi9000 = longString,
+                        StringUnicode = shortString
+                    });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringDefault == shortString));
+                Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringAnsi == shortString));
+                Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringAnsi3 == shortString));
+                Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringAnsi9000 == longString));
+                Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringUnicode == shortString));
+
+                var entity = context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799);
+
+                Assert.Equal(shortString, entity.StringDefault);
+                Assert.Equal(shortString, entity.StringUnicode);
+
+                if (supportsAnsi)
+                {
+                    Assert.NotEqual(shortString, entity.StringAnsi);
+                    Assert.NotEqual(shortString, entity.StringAnsi3);
+                    Assert.NotEqual(longString, entity.StringAnsi9000);
+                }
+                else
+                {
+                    Assert.Equal(shortString, entity.StringAnsi);
+                    Assert.Equal(shortString, entity.StringAnsi3);
+                    Assert.Equal(longString, entity.StringAnsi9000);
+                }
             }
         }
 

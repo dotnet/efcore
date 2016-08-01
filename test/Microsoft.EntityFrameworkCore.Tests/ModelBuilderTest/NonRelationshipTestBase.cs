@@ -3,9 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -451,15 +453,15 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Quarks>(b =>
                     {
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Up", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Up", "Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Charm", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Charm", "Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Top", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Top", "Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 
@@ -524,12 +526,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.True(entityType.FindProperty("Top").IsConcurrencyToken);
                 Assert.False(entityType.FindProperty("Bottom").IsConcurrencyToken);
 
-                Assert.Equal(-1, entityType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
-                Assert.Equal(2, entityType.FindProperty("Up").GetOriginalValueIndex());
+                Assert.Equal(0, entityType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
+                Assert.Equal(3, entityType.FindProperty("Up").GetOriginalValueIndex());
                 Assert.Equal(-1, entityType.FindProperty("Down").GetOriginalValueIndex());
-                Assert.Equal(0, entityType.FindProperty("Charm").GetOriginalValueIndex());
+                Assert.Equal(1, entityType.FindProperty("Charm").GetOriginalValueIndex());
                 Assert.Equal(-1, entityType.FindProperty("Strange").GetOriginalValueIndex());
-                Assert.Equal(1, entityType.FindProperty("Top").GetOriginalValueIndex());
+                Assert.Equal(2, entityType.FindProperty("Top").GetOriginalValueIndex());
                 Assert.Equal(-1, entityType.FindProperty("Bottom").GetOriginalValueIndex());
             }
 
@@ -617,6 +619,119 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Can_set_custom_value_generator_for_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up).HasValueGenerator<CustomValueGenerator>();
+                    b.Property(e => e.Down).HasValueGenerator(typeof(CustomValueGenerator));
+                    b.Property<int>("Charm").HasValueGenerator((_, __) => new CustomValueGenerator());
+                    b.Property<string>("Strange").HasValueGenerator<CustomValueGenerator>();
+                    b.Property<int>("Top").HasValueGenerator(typeof(CustomValueGenerator));
+                    b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
+                });
+
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty(Customer.IdProperty.Name).GetValueGeneratorFactory());
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Up").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Down").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Charm").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Strange").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Top").GetValueGeneratorFactory()(null, null));
+                Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Bottom").GetValueGeneratorFactory()(null, null));
+            }
+
+            private class CustomValueGenerator : ValueGenerator<int>
+            {
+                public override int Next(EntityEntry entry)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public override bool GeneratesTemporaryValues => false;
+            }
+
+            [Fact]
+            public virtual void Throws_for_bad_value_generator_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Quarks>(b =>
+                {
+                    Assert.Equal(
+                        CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                        Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
+                });
+            }
+
+            [Fact]
+            public virtual void Throws_for_value_generator_that_cannot_be_constructed()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
+                    b.Property(e => e.Down).HasValueGenerator<BadCustomValueGenerator2>();
+                });
+
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Equal(
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => entityType.FindProperty("Up").GetValueGeneratorFactory()(null, null)).Message);
+
+                Assert.Equal(
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator2)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => entityType.FindProperty("Down").GetValueGeneratorFactory()(null, null)).Message);
+            }
+
+            private class BadCustomValueGenerator1 : CustomValueGenerator
+            {
+                public BadCustomValueGenerator1(string foo)
+                {
+                }
+            }
+
+            private abstract class BadCustomValueGenerator2 : CustomValueGenerator
+            {
+            }
+
+            [Fact]
+            public virtual void Can_set_unicode_for_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                    {
+                        b.Property(e => e.Up).IsUnicode();
+                        b.Property(e => e.Down).IsUnicode(false);
+                        b.Property<int>("Charm").IsUnicode();
+                        b.Property<string>("Strange").IsUnicode(false);
+                        b.Property<int>("Top").IsUnicode();
+                        b.Property<string>("Bottom").IsUnicode(false);
+                    });
+
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty(Customer.IdProperty.Name).IsUnicode());
+                Assert.Equal(true, entityType.FindProperty("Up").IsUnicode());
+                Assert.Equal(false, entityType.FindProperty("Down").IsUnicode());
+                Assert.Equal(true, entityType.FindProperty("Charm").IsUnicode());
+                Assert.Equal(false, entityType.FindProperty("Strange").IsUnicode());
+                Assert.Equal(true, entityType.FindProperty("Top").IsUnicode());
+                Assert.Equal(false, entityType.FindProperty("Bottom").IsUnicode());
+            }
+
+            [Fact]
             public virtual void PropertyBuilder_methods_can_be_chained()
             {
                 CreateModelBuilder()
@@ -628,7 +743,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .ValueGeneratedNever()
                     .ValueGeneratedOnAdd()
                     .ValueGeneratedOnAddOrUpdate()
+                    .IsUnicode()
                     .HasMaxLength(100)
+                    .HasValueGenerator<CustomValueGenerator>()
+                    .HasValueGenerator(typeof(CustomValueGenerator))
+                    .HasValueGenerator((_, __) => null)
                     .IsRequired();
             }
 

@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        public abstract class NotificationEntitiesFixtureBase : IDisposable
+        public abstract class NotificationEntitiesFixtureBase
         {
             public abstract DbContext CreateContext();
 
@@ -128,26 +128,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 using (var context = CreateContext())
                 {
-                    if (context.Database.EnsureCreated())
+                    EnsureClean(context);
+
+                    context.Add(new Blog
                     {
-                        context.Add(new Blog
-                        {
-                            Id = 1,
-                            Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } }
-                        });
+                        Id = 1,
+                        Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } }
+                    });
 
-                        context.SaveChanges();
-                    }
+                    context.SaveChanges();
                 }
             }
 
-            public void Dispose()
-            {
-                using (var context = CreateContext())
-                {
-                    context.Database.EnsureDeleted();
-                }
-            }
+            protected abstract void EnsureClean(DbContext context);
         }
     }
 }

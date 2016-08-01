@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string DisplayName([NotNull] this IEntityType entityType)
             => entityType.ClrType != null
-                ? entityType.ClrType.DisplayName(fullName: false)
+                ? entityType.ClrType.ShortDisplayName()
                 : entityType.Name;
 
         /// <summary>
@@ -326,14 +326,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (value != ChangeTrackingStrategy.Snapshot
                     && !typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
                 {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, typeof(INotifyPropertyChanged).Name);
+                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, nameof(INotifyPropertyChanged));
                 }
 
                 if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
                      || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
                     && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
                 {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, typeof(INotifyPropertyChanging).Name);
+                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, nameof(INotifyPropertyChanging));
                 }
             }
 

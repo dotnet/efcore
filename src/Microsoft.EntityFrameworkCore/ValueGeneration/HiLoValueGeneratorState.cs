@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class HiLoValueGeneratorState
     {
-        private readonly object _lock;
+        private readonly AsyncLock _asyncLock = new AsyncLock();
         private HiLoValue _currentValue;
         private readonly int _blockSize;
 
@@ -35,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             _blockSize = blockSize;
             _currentValue = new HiLoValue(-1, 0);
-            _lock = new object();
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             // gets a chance to use the new new value, so use a while here to do it all again.
             while (newValue.Low >= newValue.High)
             {
-                lock (_lock)
+                using (_asyncLock.Lock())
                 {
                     // Once inside the lock check to see if another thread already got a new block, in which
                     // case just get a value out of the new block instead of requesting one.
@@ -74,8 +74,53 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 }
             }
 
-            return (TValue)Convert.ChangeType(newValue.Low, typeof(TValue), CultureInfo.InvariantCulture);
+            return ConvertResult<TValue>(newValue);
         }
+
+        /// <summary>
+        ///     Gets a value to be assigned to a property.
+        /// </summary>
+        /// <typeparam name="TValue"> The type of values being generated. </typeparam>
+        /// <param name="getNewLowValue">
+        ///     A function to get the next low value if needed.
+        /// </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> The value to be assigned to a property. </returns>
+        public virtual async Task<TValue> NextAsync<TValue>(
+            [NotNull] Func<CancellationToken, Task<long>> getNewLowValue,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(getNewLowValue, nameof(getNewLowValue));
+
+            var newValue = GetNextValue();
+
+            // If the chosen value is outside of the current block then we need a new block.
+            // It is possible that other threads will use all of the new block before this thread
+            // gets a chance to use the new new value, so use a while here to do it all again.
+            while (newValue.Low >= newValue.High)
+            {
+                using (await _asyncLock.LockAsync())
+                {
+                    // Once inside the lock check to see if another thread already got a new block, in which
+                    // case just get a value out of the new block instead of requesting one.
+                    if (newValue.High == _currentValue.High)
+                    {
+                        var newCurrent = await getNewLowValue(cancellationToken);
+                        newValue = new HiLoValue(newCurrent, newCurrent + _blockSize);
+                        _currentValue = newValue;
+                    }
+                    else
+                    {
+                        newValue = GetNextValue();
+                    }
+                }
+            }
+
+            return ConvertResult<TValue>(newValue);
+        }
+
+        private static TValue ConvertResult<TValue>(HiLoValue newValue)
+            => (TValue)Convert.ChangeType(newValue.Low, typeof(TValue), CultureInfo.InvariantCulture);
 
         private HiLoValue GetNextValue()
         {

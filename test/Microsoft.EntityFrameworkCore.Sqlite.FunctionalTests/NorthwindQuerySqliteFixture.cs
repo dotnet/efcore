@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class NorthwindQuerySqliteFixture : NorthwindQueryRelationalFixture, IDisposable
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
 
         private readonly SqliteTestStore _testStore = SqliteNorthwindContext.GetSharedStore();
@@ -22,22 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public NorthwindQuerySqliteFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkSqlite()
-                    .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
-                    .BuildServiceProvider();
-
             _options = BuildOptions();
-
-            _serviceProvider.GetRequiredService<ILoggerFactory>();
         }
 
-        protected DbContextOptions BuildOptions()
+        public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
                 new DbContextOptionsBuilder()
-                    .UseInternalServiceProvider(_serviceProvider))
+                    .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
+                        .AddEntityFrameworkSqlite()
+                        .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                        .BuildServiceProvider()))
                 .UseSqlite(
                     _testStore.ConnectionString,
                     b => ConfigureOptions(b).SuppressForeignKeyEnforcement())
@@ -49,8 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         protected virtual SqliteDbContextOptionsBuilder ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
             => sqliteDbContextOptionsBuilder;
 
-        public override NorthwindContext CreateContext()
-            => new SqliteNorthwindContext(_options);
+        public override NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            => new SqliteNorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
 

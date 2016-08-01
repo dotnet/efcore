@@ -13,12 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class GroupJoinInclude : IDisposable
+    public class GroupJoinInclude : GroupJoinIncludeBase
     {
-        private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly IReadOnlyList<Func<QueryContext, IRelatedEntitiesLoader>> _relatedEntitiesLoaderFactories;
-        private readonly bool _querySourceRequiresTracking;
-
         private GroupJoinInclude _previous;
 
         /// <summary>
@@ -29,10 +26,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] IReadOnlyList<Func<QueryContext, IRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
+            : base(navigationPath, querySourceRequiresTracking)
         {
-            _navigationPath = navigationPath;
             _relatedEntitiesLoaderFactories = relatedEntitiesLoaderFactories;
-            _querySourceRequiresTracking = querySourceRequiresTracking;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual GroupJoinInclude WithEntityAccessor([NotNull] Delegate entityAccessor)
+        {
+            EntityAccessor = entityAccessor;
+
+            return this;
         }
 
         /// <summary>
@@ -59,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var groupJoinIncludeContext
                 = new GroupJoinIncludeContext(
-                    _navigationPath,
-                    _querySourceRequiresTracking,
+                    NavigationPath,
+                    QuerySourceRequiresTracking,
                     queryContext,
                     _relatedEntitiesLoaderFactories);
 
@@ -70,15 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return groupJoinIncludeContext;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            // no-op
         }
 
         /// <summary>

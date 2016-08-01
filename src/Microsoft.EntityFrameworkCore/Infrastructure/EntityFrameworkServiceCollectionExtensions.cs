@@ -76,16 +76,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<IEntityStateListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<INavigationListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IQueryTrackingListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>()));
 
             serviceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetInitializer, DbSetInitializer>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
+                .AddSingleton<IEntityFinderSource, EntityFinderSource>()
                 .AddSingleton<ICollectionTypeFactory, CollectionTypeFactory>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<IMemberMapper, MemberMapper>()
-                .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<ICoreConventionSetBuilder, CoreConventionSetBuilder>()
                 .AddSingleton<IModelCustomizer, ModelCustomizer>()
                 .AddSingleton<IModelCacheKeyFactory, ModelCacheKeyFactory>()

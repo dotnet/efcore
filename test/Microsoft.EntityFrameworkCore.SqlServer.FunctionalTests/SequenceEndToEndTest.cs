@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "Bronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntities(serviceProvider);
@@ -73,8 +72,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "BroniesAsync"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
@@ -106,8 +104,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i });
+                    await context.AddAsync(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();
@@ -115,7 +113,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Mac | TestPlatform.Linux, SkipReason = "Test is flaky on OSX/Linux. See https://github.com/dotnet/corefx/issues/8701")]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()
@@ -124,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "ManyBronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                await context.Database.EnsureDeletedAsync();
+                await context.Database.EnsureCreatedAsync();
             }
 
             const int threadCount = 50;
@@ -165,8 +162,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntitiesWithIds(serviceProvider, 0);
@@ -254,8 +250,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
@@ -283,8 +278,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
 
             AddEntitiesNullable(serviceProvider, "IdentityBronies", false);

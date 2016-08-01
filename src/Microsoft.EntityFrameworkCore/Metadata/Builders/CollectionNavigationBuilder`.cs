@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -27,12 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TRelatedEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CollectionNavigationBuilder(
+            [NotNull] EntityType declaringEntityType,
+            [NotNull] EntityType relatedEntityType,
+            [CanBeNull] PropertyInfo navigationProperty,
             [NotNull] InternalRelationshipBuilder builder)
-            : base(builder)
+            : base(declaringEntityType, relatedEntityType, navigationProperty, builder)
         {
         }
 
@@ -48,6 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+                DeclaringEntityType,
+                RelatedEntityType,
                 WithOneBuilder(navigationExpression?.GetPropertyAccess()));
 
         /// <summary>
@@ -60,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+                DeclaringEntityType,
+                RelatedEntityType,
                 WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable PossibleInvalidOperationException
@@ -17,6 +18,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact]
+        public virtual void Can_perform_query_with_ansi_strings()
+        {
+            Can_perform_query_with_ansi_strings(supportsAnsi: true);
         }
 
         [Fact]
@@ -351,9 +358,9 @@ WHERE [e].[Time] = @__timeSpan_0",
 
         private static string DumpParameters()
             => string.Join(
-                Environment.NewLine, 
+                FileLineEnding, 
                 TestSqlLoggerFactory.CommandLogData.Single().Parameters
-                .Select(p => p.Name + ": " + TestSqlLoggerFactory.FormatParameter(p)));
+                .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {
@@ -1779,7 +1786,7 @@ WHERE [e].[Time] = @__timeSpan_0",
                 builder.AppendLine();
             }
 
-            var actual = builder.ToString();
+            var actual = builder.ToString().Replace(Environment.NewLine, FileLineEnding);
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
@@ -2005,6 +2012,12 @@ MaxLengthDataTypes.String9000 ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
+UnicodeDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
+UnicodeDataTypes.StringAnsi ---> [nullable varchar] [MaxLength = -1]
+UnicodeDataTypes.StringAnsi3 ---> [nullable varchar] [MaxLength = 3]
+UnicodeDataTypes.StringAnsi9000 ---> [nullable varchar] [MaxLength = -1]
+UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
+UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
             Assert.Equal(expected, actual);

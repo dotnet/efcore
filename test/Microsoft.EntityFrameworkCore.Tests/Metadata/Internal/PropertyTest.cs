@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var intProperty = entityType.AddProperty("Name", typeof(int));
 
             Assert.Equal(
-                CoreStrings.CannotBeNullable("Name", "object", "Int32"),
+                CoreStrings.CannotBeNullable("Name", "object", "int"),
                 Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
         }
 

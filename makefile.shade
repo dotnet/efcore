@@ -2,7 +2,6 @@ use namespace="System.IO"
 use namespace="System.IO.Compression"
 use namespace="System.Linq"
 
-default CONFIGURATION_LOCAL='${E("Configuration")}'
 default BASE_DIR_LOCAL='${Directory.GetCurrentDirectory()}'
 default BUILD_DIR_LOCAL='${Path.Combine(BASE_DIR_LOCAL, "artifacts", "build")}'
 default TOOL_PACKAGE_NAME='Microsoft.EntityFrameworkCore.Tools'
@@ -83,14 +82,8 @@ k-standard-goals
    }
 
 #repack-design-package target='compile' if='Directory.Exists("src") && !IsTravisCi'
-  @{    
-      if (string.IsNullOrEmpty(CONFIGURATION_LOCAL))
-      {
-          CONFIGURATION_LOCAL = "Debug";
-      }
-      
-      // Forcing to lower to match the entry in the sources project.json.
-      var configurationX86 = CONFIGURATION_LOCAL.ToLower() + "_x86";
+  @{
+      var configurationX86 = E("Configuration").ToLower() + "_x86";
       
       var projectNupkg = Files
           .Include(Path.Combine(BUILD_DIR_LOCAL, CLI_TOOL_PROJECT_NAME + ".1.*.nupkg")) // Assuming the package version starts with 1.
@@ -144,7 +137,7 @@ k-standard-goals
       var x86ExeDestinationPath = Path.Combine(win7x86Directory, TOOL_EXE_NAME);
       File.Copy(x86ExePath, x86ExeDestinationPath);
       
-      var x64OutputPath = Path.Combine(binDirectory, CONFIGURATION_LOCAL, "net451");
+      var x64OutputPath = Path.Combine(binDirectory, E("Configuration"), "net451");
       var x64ExePath = Path.Combine(x64OutputPath, TOOL_EXE_NAME);
       var x64ExeDestinationPath = Path.Combine(win7x64Directory, TOOL_EXE_NAME);
       File.Copy(x64ExePath, x64ExeDestinationPath);

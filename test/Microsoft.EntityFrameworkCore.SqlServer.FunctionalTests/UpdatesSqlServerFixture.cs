@@ -32,11 +32,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                     using (var context = new UpdatesContext(optionsBuilder.Options))
                     {
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            UpdatesModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureClean();
+                        UpdatesModelInitializer.Seed(context);
                     }
                 });
         }

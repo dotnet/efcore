@@ -4,19 +4,18 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.1"
+    "Microsoft.EntityFrameworkCore.Tests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win8"
-      ],
+      "imports": "dotnet5.4",
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0",
+          "version": "1.0.0-*",
           "type": "platform"
         }
       }

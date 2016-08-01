@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
-    public class DefaultValuesTest : IDisposable
+    public class DefaultValuesTest
     {
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlite()
@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" }).Entity;
                 var buffaloBleu = context.Add(new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
@@ -35,14 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             {
                 Assert.Equal(new DateTime(2035, 9, 25), context.Chips.Single(c => c.Name == "Honey Dijon").BestBuyDate);
                 Assert.Equal(new DateTime(2111, 1, 11), context.Chips.Single(c => c.Name == "Buffalo Bleu").BestBuyDate);
-            }
-        }
-
-        public void Dispose()
-        {
-            using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
-            {
-                context.Database.EnsureDeleted();
             }
         }
 

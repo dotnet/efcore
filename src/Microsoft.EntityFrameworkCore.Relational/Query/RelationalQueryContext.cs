@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryContext(
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IRelationalConnection connection,
-            [NotNull] IStateManager stateManager,
+            [NotNull] LazyRef<IStateManager> stateManager,
             [NotNull] IConcurrencyDetector concurrencyDetector)
             : base(
                 Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual FieldInfo TryMatchFieldName(
-            IProperty property, PropertyInfo propertyInfo, Dictionary<string, FieldInfo> declaredFields)
+            IPropertyBase property, PropertyInfo propertyInfo, Dictionary<string, FieldInfo> declaredFields)
         {
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType.GetTypeInfo();

@@ -27,13 +27,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        InternalEntityEntry StartTrackingFromQuery([NotNull] IEntityType baseEntityType, [NotNull] object entity, ValueBuffer valueBuffer);
+        InternalEntityEntry StartTrackingFromQuery(
+            [NotNull] IEntityType baseEntityType, 
+            [NotNull] object entity, 
+            ValueBuffer valueBuffer,
+            [CanBeNull] ISet<IForeignKey> handledForeignKeys);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         void BeginTrackingQuery();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        InternalEntityEntry TryGetEntry([NotNull] IKey key, [NotNull] object[] keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -52,6 +62,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         IEnumerable<InternalEntityEntry> Entries { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        int ChangedCount { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -160,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool IsSingleQueryMode([NotNull] IEntityType entityType);
+        TrackingQueryMode GetTrackingQueryMode([NotNull] IEntityType entityType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

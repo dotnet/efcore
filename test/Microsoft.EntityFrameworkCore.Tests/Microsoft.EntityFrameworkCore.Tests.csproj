@@ -36,6 +36,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +58,7 @@
     <Compile Include="ApiConsistencyTestBase.cs" />
     <Compile Include="ChangeTracking\AggregatesTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
+    <Compile Include="ChangeTracking\CollectionEntryTest.cs" />
     <Compile Include="ChangeTracking\EntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
     <Compile Include="ChangeTracking\Internal\FixupTest.cs" />
@@ -72,8 +74,11 @@
     <Compile Include="ChangeTracking\Internal\ShadowFkFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
+    <Compile Include="ChangeTracking\MemberEntryTest.cs" />
+    <Compile Include="ChangeTracking\NavigationEntryTest.cs" />
     <Compile Include="ChangeTracking\ObservableHashSetTest.cs" />
     <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntryTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />
     <Compile Include="DatabaseFacadeTest.cs" />
     <Compile Include="DbContextOptionsTest.cs" />
@@ -133,7 +138,6 @@
     <Compile Include="Metadata\Internal\PropertyTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
-    <Compile Include="ModelBuilderTest\DataAnnotationsTestBase.cs" />
     <Compile Include="ModelBuilderTest\GiantModel.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -142,10 +146,12 @@
     <Compile Include="ModelBuilderTest\InheritanceTestBase.cs" />
     <Compile Include="ModelBuilderTest\ManyToOneTestBase.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipStringTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipTypeStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipTypeTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderNonGenericStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderNonGenericTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderNonGenericUnqualifiedStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderTestBase.cs" />
     <Compile Include="ModelBuilderTest\NonRelationshipTestBase.cs" />
     <Compile Include="ModelBuilderTest\OneToManyTestBase.cs" />

@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
             var extension = FindExtension<TExtension>();
             if (extension == null)
             {
-                throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).Name));
+                throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).ShortDisplayName()));
             }
             return extension;
         }

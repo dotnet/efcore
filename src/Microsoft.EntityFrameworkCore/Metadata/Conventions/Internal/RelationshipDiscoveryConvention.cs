@@ -14,25 +14,33 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class RelationshipDiscoveryConvention :
         IEntityTypeConvention,
         IBaseTypeConvention,
         INavigationRemovedConvention,
+        IForeignKeyRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
         INavigationConvention
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public const string NavigationCandidatesAnnotationName = "RelationshipDiscoveryConvention:NavigationCandidates";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string AmbiguousNavigationsAnnotationName = "RelationshipDiscoveryConvention:AmbiguousNavigations";
+
         private InternalEntityTypeBuilder DiscoverRelationships(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            if (!entityTypeBuilder.Metadata.HasClrType())
+            if (!entityTypeBuilder.Metadata.HasClrType()
+                || entityTypeBuilder.ModelBuilder.IsIgnored(entityTypeBuilder.Metadata.ClrType, ConfigurationSource.Convention))
             {
                 return entityTypeBuilder;
             }
@@ -48,13 +56,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private IReadOnlyList<RelationshipCandidate> FindRelationshipCandidates(InternalEntityTypeBuilder entityTypeBuilder)
         {
             var relationshipCandidates = new Dictionary<Type, RelationshipCandidate>();
-            var navigationCandidates = GetNavigationCandidates(entityTypeBuilder)
-                .AddRange(entityTypeBuilder.Metadata.GetNavigations()
-                    .Select(n => new KeyValuePair<PropertyInfo, Type>(n.PropertyInfo, n.GetTargetType().ClrType)));
+            var navigationCandidates = GetNavigationCandidates(entityTypeBuilder.Metadata);
             foreach (var candidateTuple in navigationCandidates)
             {
                 var navigationPropertyInfo = candidateTuple.Key;
                 var targetClrType = candidateTuple.Value;
+
+                if (entityTypeBuilder.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.Convention))
+                {
+                    continue;
+                }
 
                 var candidateTargetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(targetClrType, ConfigurationSource.Convention);
                 if (candidateTargetEntityTypeBuilder == null)
@@ -76,16 +87,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 var navigations = new HashSet<PropertyInfo> { navigationPropertyInfo };
-                var inverseCandidates = GetNavigationCandidates(candidateTargetEntityTypeBuilder)
-                    .AddRange(candidateTargetEntityTypeBuilder.Metadata.GetNavigations()
-                        .Select(n => new KeyValuePair<PropertyInfo, Type>(n.PropertyInfo, n.GetTargetType().ClrType)));
+                var inverseCandidates = GetNavigationCandidates(candidateTargetEntityTypeBuilder.Metadata);
                 var inverseNavigationCandidates = new HashSet<PropertyInfo>();
                 foreach (var inverseCandidateTuple in inverseCandidates)
                 {
                     var inversePropertyInfo = inverseCandidateTuple.Key;
                     var inverseTargetType = inverseCandidateTuple.Value;
+
                     if (inverseTargetType != entityType.ClrType
-                        || navigationPropertyInfo == inversePropertyInfo)
+                        || navigationPropertyInfo == inversePropertyInfo
+                        || candidateTargetEntityTypeBuilder.IsIgnored(inversePropertyInfo.Name, ConfigurationSource.Convention))
                     {
                         continue;
                     }
@@ -267,16 +278,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        private static void CreateRelationships(
+        private void CreateRelationships(
             IReadOnlyList<RelationshipCandidate> relationshipCandidates, InternalEntityTypeBuilder entityTypeBuilder)
         {
             foreach (var relationshipCandidate in relationshipCandidates)
             {
                 Debug.Assert(relationshipCandidate.NavigationProperties.Count > 0);
+                var isAmbiguousOnBase = (entityTypeBuilder.Metadata.BaseType != null
+                                         && HasAmbiguousNavigationsTo(
+                                             entityTypeBuilder.Metadata.BaseType, relationshipCandidate.TargetTypeBuilder.Metadata.ClrType))
+                                        || (relationshipCandidate.TargetTypeBuilder.Metadata.BaseType != null
+                                            && HasAmbiguousNavigationsTo(
+                                                relationshipCandidate.TargetTypeBuilder.Metadata.BaseType, entityTypeBuilder.Metadata.ClrType));
+
                 if ((relationshipCandidate.NavigationProperties.Count > 1
                      && relationshipCandidate.InverseProperties.Count > 0)
-                    || relationshipCandidate.InverseProperties.Count > 1)
+                    || relationshipCandidate.InverseProperties.Count > 1
+                    || isAmbiguousOnBase)
                 {
+                    if (!isAmbiguousOnBase)
+                    {
+                        AddAmbiguous(entityTypeBuilder, relationshipCandidate.NavigationProperties, relationshipCandidate.TargetTypeBuilder.Metadata.ClrType);
+
+                        AddAmbiguous(relationshipCandidate.TargetTypeBuilder, relationshipCandidate.InverseProperties, entityTypeBuilder.Metadata.ClrType);
+                    }
+
                     foreach (var navigationProperty in relationshipCandidate.NavigationProperties)
                     {
                         var existingForeignKey = entityTypeBuilder.Metadata.FindDeclaredNavigation(navigationProperty.Name)?.ForeignKey;
@@ -318,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
@@ -346,11 +372,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
 
                     discoveredEntityTypes.Add(nextEntityTypeBuilder);
-                    var navigationCandidates = GetNavigationCandidates(nextEntityTypeBuilder).Reverse();
+                    var navigationCandidates = GetNavigationCandidates(nextEntityTypeBuilder.Metadata).Reverse();
                     foreach (var candidateTuple in navigationCandidates)
                     {
                         var targetClrType = candidateTuple.Value;
-                        if (modelBuilder.Metadata.FindEntityType(targetClrType) != null)
+                        if (modelBuilder.Metadata.FindEntityType(targetClrType) != null
+                            || nextEntityTypeBuilder.IsIgnored(candidateTuple.Key.Name, ConfigurationSource.Convention))
                         {
                             continue;
                         }
@@ -374,25 +401,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
         {
-            foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
-            {
-                SetNavigationCandidates(entityType.Builder, null);
-            }
-
             var oldBaseTypeBuilder = oldBaseType?.Builder;
             if (oldBaseTypeBuilder != null)
             {
-                ApplyOnRelatedEntityTypes(oldBaseTypeBuilder.Metadata);
                 DiscoverRelationships(oldBaseTypeBuilder);
             }
 
             ApplyOnRelatedEntityTypes(entityTypeBuilder.Metadata);
-            return DiscoverRelationships(entityTypeBuilder) != null;
+            foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
+            {
+                DiscoverRelationships(entityType.Builder);
+            }
+
+            return true;
         }
 
         private void ApplyOnRelatedEntityTypes(EntityType entityType)
@@ -410,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Apply(
@@ -419,34 +445,102 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             string navigationName,
             PropertyInfo propertyInfo)
         {
-            if (propertyInfo == null)
+            sourceEntityTypeBuilder = sourceEntityTypeBuilder.Metadata.Builder;
+            if (!IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, propertyInfo))
             {
                 return true;
             }
 
-            sourceEntityTypeBuilder = sourceEntityTypeBuilder.Metadata.Builder;
+            return Apply(sourceEntityTypeBuilder.Metadata, propertyInfo, targetEntityTypeBuilder.Metadata);
+        }
+
+        private bool Apply(EntityType entityType, PropertyInfo navigationProperty, EntityType targetEntityType)
+        {
+            DiscoverRelationships(entityType.Builder);
+            if (entityType.FindNavigation(navigationProperty.Name) != null)
+            {
+                return false;
+            }
+
+            if (IsAmbiguous(entityType, navigationProperty))
+            {
+                return true;
+            }
+
+            foreach (var derivedEntityType in entityType.GetDirectlyDerivedTypes())
+            {
+                Apply(derivedEntityType, navigationProperty, targetEntityType);
+            }
+
+            return true;
+        }
+
+        [ContractAnnotation("propertyInfo:null => false")]
+        private static bool IsCandidateNavigationProperty(
+            InternalEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null)
+            {
+                return false;
+            }
+
             if (sourceEntityTypeBuilder == null
                 || sourceEntityTypeBuilder.ModelBuilder.IsIgnored(sourceEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention))
             {
-                return true;
+                return false;
             }
 
             if (sourceEntityTypeBuilder.IsIgnored(navigationName, ConfigurationSource.Convention))
             {
-                return true;
+                return false;
             }
 
-            foreach (var entityType in sourceEntityTypeBuilder.Metadata.GetDerivedTypesInclusive())
+            return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
+        {
+            var principalEntityTypeBuilder = foreignKey.PrincipalEntityType.Builder;
+
+            var dependentToPrincipal = foreignKey.DependentToPrincipal;
+            var candidateDependentToPrincipal = IsCandidateNavigationProperty(
+                foreignKey.DeclaringEntityType.Builder, dependentToPrincipal?.Name, dependentToPrincipal?.PropertyInfo);
+
+            var principalToDependent = foreignKey.PrincipalToDependent;
+            var candidatePrincipalToDependent = IsCandidateNavigationProperty(
+                principalEntityTypeBuilder, principalToDependent?.Name, principalToDependent?.PropertyInfo);
+
+            if (candidateDependentToPrincipal)
             {
-                if (entityType.FindNavigation(navigationName) != null)
+                Apply(foreignKey.DeclaringEntityType.Builder.Metadata, dependentToPrincipal.PropertyInfo, foreignKey.PrincipalEntityType.Builder.Metadata);
+            }
+
+            if (candidatePrincipalToDependent)
+            {
+                Apply(foreignKey.PrincipalEntityType.Builder.Metadata, principalToDependent.PropertyInfo, foreignKey.DeclaringEntityType.Builder.Metadata);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
+        {
+            foreach (var derivedEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
+            {
+                var ambigousNavigation = GetAmbigousNavigations(derivedEntityType)?.Keys.FirstOrDefault(p => p.Name == ignoredMemberName);
+                if (ambigousNavigation == null)
                 {
                     continue;
                 }
 
-                var entityTypeBuilder = entityType.Builder;
-                var navigationCandidates = GetNavigationCandidates(entityTypeBuilder);
-                navigationCandidates = navigationCandidates.Add(propertyInfo, FindCandidateNavigationPropertyType(propertyInfo));
-                SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
+                RemoveAmbiguous(derivedEntityType, ambigousNavigation);
+
                 DiscoverRelationships(entityTypeBuilder);
             }
 
@@ -454,46 +548,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
-        {
-            var navigationCandidates = GetNavigationCandidates(entityTypeBuilder);
-            var candidate = navigationCandidates.Keys.FirstOrDefault(p => p.Name == ignoredMemberName);
-            if (candidate == null)
-            {
-                return true;
-            }
-
-            navigationCandidates = navigationCandidates.Remove(candidate);
-            SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
-            DiscoverRelationships(entityTypeBuilder);
-            return entityTypeBuilder.IsIgnored(ignoredMemberName, ConfigurationSource.Convention);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
         {
             foreach (var entityType in navigation.DeclaringEntityType.GetDerivedTypesInclusive())
             {
-                var entityTypeBuilder = entityType.Builder;
-                var navigationCandidates = GetNavigationCandidates(entityTypeBuilder);
-                var targetType = navigation.GetTargetType().ClrType;
-                var candidate = navigationCandidates.Keys.FirstOrDefault(p => p.Name == navigation.Name);
-                if (candidate != null)
-                {
-                    navigationCandidates = navigationCandidates.Remove(candidate);
-                    SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
-                }
-
                 // Only run the convention if an ambiguity might have been removed
-                if (navigationCandidates.ContainsValue(targetType))
+                if (RemoveAmbiguous(entityType, navigation.PropertyInfo))
                 {
-                    DiscoverRelationships(entityTypeBuilder);
+                    DiscoverRelationships(entityType.Builder);
                 }
             }
 
@@ -506,36 +571,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
             => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(SharedTypeExtensions.IsPrimitive);
 
-        private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(InternalEntityTypeBuilder entityTypeBuilder)
+        private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(EntityType entityType)
         {
-            var entityType = entityTypeBuilder.Metadata;
             var navigationCandidates = entityType.FindAnnotation(NavigationCandidatesAnnotationName)?.Value
                 as ImmutableSortedDictionary<PropertyInfo, Type>;
             if (navigationCandidates == null)
             {
-                var navigations = new HashSet<string>(entityTypeBuilder.Metadata.GetNavigations().Select(n => n.Name));
                 var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(PropertyInfoNameComparer.Instance);
                 if (entityType.HasClrType())
                 {
                     foreach (var propertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                     {
                         var targetType = FindCandidateNavigationPropertyType(propertyInfo);
-                        if (targetType != null
-                            && !entityTypeBuilder.IsIgnored(propertyInfo.Name, ConfigurationSource.Convention)
-                            && !navigations.Contains(propertyInfo.Name))
+                        if (targetType != null)
                         {
                             dictionaryBuilder[propertyInfo] = targetType;
                         }
                     }
                 }
                 navigationCandidates = dictionaryBuilder.ToImmutable();
-                SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
+                SetNavigationCandidates(entityType.Builder, navigationCandidates);
             }
             return navigationCandidates;
         }
@@ -544,6 +605,80 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             InternalEntityTypeBuilder entityTypeBuilder,
             ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
             => entityTypeBuilder.HasAnnotation(NavigationCandidatesAnnotationName, navigationCandidates, ConfigurationSource.Convention);
+
+        private bool IsAmbiguous(EntityType entityType, PropertyInfo navigationProperty)
+        {
+            while (entityType != null)
+            {
+                var ambigousNavigations = GetAmbigousNavigations(entityType);
+                if (ambigousNavigations != null
+                    && ambigousNavigations.ContainsKey(navigationProperty))
+                {
+                    return true;
+                }
+
+                entityType = entityType.BaseType;
+            }
+
+            return false;
+        }
+
+        private bool HasAmbiguousNavigationsTo(EntityType sourceEntityType, Type targetClrType)
+        {
+            while (sourceEntityType != null)
+            {
+                var ambigousNavigations = GetAmbigousNavigations(sourceEntityType);
+                if (ambigousNavigations != null
+                    && ambigousNavigations.ContainsValue(targetClrType))
+                {
+                    return true;
+                }
+
+                sourceEntityType = sourceEntityType.BaseType;
+            }
+
+            return false;
+        }
+
+        private ImmutableSortedDictionary<PropertyInfo, Type> GetAmbigousNavigations(EntityType entityType)
+            => entityType.FindAnnotation(AmbiguousNavigationsAnnotationName)?.Value
+                as ImmutableSortedDictionary<PropertyInfo, Type>;
+
+        private void AddAmbiguous(InternalEntityTypeBuilder entityTypeBuilder, IEnumerable<PropertyInfo> navigationProperties, Type targetType)
+        {
+            var newAmbiguousNavigations = ImmutableSortedDictionary.CreateRange(PropertyInfoNameComparer.Instance,
+                navigationProperties.Select(n => new KeyValuePair<PropertyInfo, Type>(n, targetType)));
+
+            var currentAmbiguousNavigations = GetAmbigousNavigations(entityTypeBuilder.Metadata);
+            if (currentAmbiguousNavigations != null)
+            {
+                newAmbiguousNavigations = currentAmbiguousNavigations.AddRange(newAmbiguousNavigations);
+            }
+
+            SetAmbigousNavigations(entityTypeBuilder, newAmbiguousNavigations);
+        }
+
+        private bool RemoveAmbiguous(EntityType entityType, PropertyInfo navigationProperty)
+        {
+            var ambigousNavigations = GetAmbigousNavigations(entityType);
+            if (ambigousNavigations != null)
+            {
+                var currentCount = ambigousNavigations.Count;
+                ambigousNavigations = ambigousNavigations.Remove(navigationProperty);
+                if (currentCount != ambigousNavigations.Count)
+                {
+                    SetAmbigousNavigations(entityType.Builder, ambigousNavigations);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void SetAmbigousNavigations(
+            InternalEntityTypeBuilder entityTypeBuilder,
+            ImmutableSortedDictionary<PropertyInfo, Type> ambiguousNavigations)
+            => entityTypeBuilder.HasAnnotation(AmbiguousNavigationsAnnotationName, ambiguousNavigations, ConfigurationSource.Convention);
 
         private class PropertyInfoNameComparer : IComparer<PropertyInfo>
         {

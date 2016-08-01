@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
     <Compile Include="AsTrackingTestBase.cs" />
+    <Compile Include="AsyncQueryNavigationsTestBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="DataAnnotationFixtureBase.cs" />
     <Compile Include="DataAnnotationTestBase.cs" />
     <Compile Include="F1FixtureBase.cs" />
+    <Compile Include="FindTestBase.cs" />
     <Compile Include="GearsOfWarQueryFixtureBase.cs" />
     <Compile Include="GearsOfWarQueryTestBase.cs" />
     <Compile Include="GraphUpdatesTestBase.cs" />
@@ -58,6 +60,7 @@
     <Compile Include="InheritanceRelationshipsQueryFixtureBase.cs" />
     <Compile Include="InheritanceRelationshipsQueryTestBase.cs" />
     <Compile Include="InheritanceTestBase.cs" />
+    <Compile Include="LoadTestBase.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="NotificationEntitiesTestBase.cs" />
@@ -174,7 +177,6 @@
     <Compile Include="TestUtilities\KeyComparer.cs" />
     <Compile Include="TestUtilities\NavigationComparer.cs" />
     <Compile Include="TestUtilities\PropertyComparer.cs" />
-    <Compile Include="TestUtilities\TestPlatformHelper.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTestFramework.cs" />
@@ -183,7 +185,6 @@
     <Compile Include="TestUtilities\Xunit\ConditionalTheoryDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\FrameworkSkipConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ITestCondition.cs" />
-    <Compile Include="TestUtilities\Xunit\MonoVersionConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\PlatformSkipConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\RuntimeFrameworks.cs" />
     <Compile Include="TestUtilities\Xunit\SkipReasonTestCase.cs" />

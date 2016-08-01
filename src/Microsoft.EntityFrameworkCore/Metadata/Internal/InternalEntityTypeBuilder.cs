@@ -312,8 +312,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else if (existingProperty.DeclaringEntityType != Metadata)
             {
-                return existingProperty.DeclaringEntityType.Builder
-                    .Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);
+                if (clrProperty != null
+                    && existingProperty.DeclaringEntityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == propertyName) == null)
+                {
+                    detachedProperties = DetachProperties(new[] { existingProperty });
+                }
+                else
+                {
+                    return existingProperty.DeclaringEntityType.Builder
+                        .Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);
+                }
             }
 
             var builder = Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);
@@ -662,7 +670,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(target, source, to.Name, to.PropertyInfo);
                 }
 
-                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(dependentEntityType, relationshipToBeRemoved.ForeignKey);
+                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(
+                    relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder, relationshipToBeRemoved.ForeignKey);
             }
 
             ModelBuilder.Metadata.ConventionDispatcher.OnBaseEntityTypeSet(this, originalBaseType);

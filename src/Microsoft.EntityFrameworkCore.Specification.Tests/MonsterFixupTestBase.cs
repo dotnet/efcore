@@ -64,8 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = createContext(serviceProvider))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                EnsureClean(context);
                 context.SeedUsingNavigations(principalNavs: true, dependentNavs: true);
             }
 
@@ -95,8 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = createContext(serviceProvider))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                EnsureClean(context);
                 context.SeedUsingNavigations(principalNavs: false, dependentNavs: true);
             }
 
@@ -126,8 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = createContext(serviceProvider))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                EnsureClean(context);
                 context.SeedUsingNavigations(principalNavs: true, dependentNavs: false);
             }
 
@@ -157,8 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = createContext(serviceProvider))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                EnsureClean(context);
                 context.SeedUsingNavigationsWithDeferredAdd();
             }
 
@@ -185,8 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = createContext(serviceProvider))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                EnsureClean(context);
                 context.SeedUsingFKs(saveChanges: false);
 
                 var stateManager = context.ChangeTracker.GetInfrastructure();
@@ -1599,6 +1594,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected abstract DbContextOptions CreateOptions(string databaseName);
 
         protected abstract void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
+
+        protected abstract void EnsureClean(DbContext context);
 
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
             => new SnapshotMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,

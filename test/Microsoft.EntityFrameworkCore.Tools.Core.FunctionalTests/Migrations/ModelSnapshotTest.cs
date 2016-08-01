@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
@@ -98,6 +100,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
         {
             public int Id { get; set; }
             public Days Day { get; set; }
+        }
+
+        private class CustomValueGenerator : ValueGenerator<int>
+        {
+            public override int Next(EntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool GeneratesTemporaryValues => false;
         }
 
         #region Model
@@ -737,6 +749,30 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         }
 
         [ConditionalFact]
+        public void Custom_value_generator_is_ignored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>().Property<int>("Id").HasValueGenerator<CustomValueGenerator>();
+                    builder.Ignore<EntityWithTwoProperties>();
+                },
+                @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithOneProperty"");
+    });
+",
+                o => { Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactoryAnnotation]); }
+                );
+        }
+
+        [ConditionalFact]
         public void Property_isNullable_is_stored_in_snapshot()
         {
             Test(
@@ -796,7 +832,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
             .ValueGeneratedOnAdd();
 
         b.Property<string>(""Name"")
-            .HasAnnotation(""MaxLength"", 100);
+            .HasMaxLength(100);
 
         b.HasKey(""Id"");
 
@@ -804,6 +840,65 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
     });
 ",
                 o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
+        }
+
+        [ConditionalFact]
+        public void Property_unicodeness_is_stored_in_snapshot()
+        {
+            Test(
+                builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsUnicode(false); },
+                @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Name"")
+            .IsUnicode(false);
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithStringProperty"");
+    });
+",
+                o => { Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()); });
+        }
+
+        [ConditionalFact]
+        public void Many_facets_chained_in_snapshot()
+        {
+            Test(
+                builder =>
+                    {
+                        builder.Entity<EntityWithStringProperty>()
+                            .Property<string>("Name")
+                            .HasMaxLength(100)
+                            .IsUnicode(false)
+                            .HasAnnotation("AnnotationName", "AnnotationValue");
+                    },
+                @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Name"")
+            .HasMaxLength(100)
+            .IsUnicode(false)
+            .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithStringProperty"");
+    });
+",
+                o =>
+                    {
+                        var property = o.GetEntityTypes().First().FindProperty("Name");
+                        Assert.Equal(100, property.GetMaxLength());
+                        Assert.False(property.IsUnicode());
+                        Assert.Equal("AnnotationValue", property["AnnotationName"]);
+                    });
         }
 
         [ConditionalFact]

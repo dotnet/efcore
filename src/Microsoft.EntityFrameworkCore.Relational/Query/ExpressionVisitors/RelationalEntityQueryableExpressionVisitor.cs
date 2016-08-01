@@ -196,6 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         .TrimStart()
                         .StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase);
 
+                var requiresClientEval = !useQueryComposition;
+
                 if (!useQueryComposition)
                 {
                     if (relationalQueryCompilationContext.IsIncludeQuery)
@@ -215,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 if (!useQueryComposition)
                 {
-                    QueryModelVisitor.RequiresClientEval = true;
+                    QueryModelVisitor.RequiresClientEval = requiresClientEval;
 
                     querySqlGeneratorFunc = ()
                         => selectExpression.CreateFromSqlQuerySqlGenerator(

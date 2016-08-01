@@ -5,18 +5,128 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
+
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable AccessToDisposedClosure
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture, new()
     {
+        [Fact]
+        public virtual void Bad_data_error_handling_invalid_cast_key()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Set<Product>()
+                            .FromSql(@"SELECT ""ProductID"" AS ProductName, ""ProductName"" AS ProductID, ""SupplierID"", ""UnitsInStock"", ""Discontinued""
+                               FROM ""Products""")
+                            .ToList()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Bad_data_error_handling_invalid_cast()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Set<Product>()
+                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS SupplierID, ""SupplierID"" AS ProductName, ""UnitsInStock"", ""Discontinued""
+                               FROM ""Products""")
+                            .ToList()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Bad_data_error_handling_invalid_cast_projection()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Set<Product>()
+                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS SupplierID, ""SupplierID"" AS ProductName, ""UnitsInStock"", ""Discontinued""
+                               FROM ""Products""")
+                            .Select(p => p.ProductName)
+                            .ToList()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Bad_data_error_handling_invalid_cast_no_tracking()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductID", typeof(int), typeof(string)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Set<Product>()
+                            .AsNoTracking()
+                            .FromSql(@"SELECT ""ProductID"" AS ProductName, ""ProductName"" AS ProductID, ""SupplierID"", ""UnitsInStock"", ""Discontinued""
+                               FROM ""Products""")
+                            .ToList()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Bad_data_error_handling_null()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Set<Product>()
+                            .FromSql(@"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitsInStock"", NULL AS ""Discontinued""
+                               FROM ""Products""")
+                            .ToList()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Bad_data_error_handling_null_projection()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Set<Product>()
+                            .FromSql(@"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitsInStock"", NULL AS ""Discontinued""
+                               FROM ""Products""")
+                            .Select(p => p.Discontinued)
+                            .ToList()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Bad_data_error_handling_null_no_tracking()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Set<Product>()
+                            .AsNoTracking()
+                            .FromSql(@"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitsInStock"", NULL AS ""Discontinued""
+                               FROM ""Products""")
+                            .ToList()).Message);
+            }
+        }
+
         [Fact]
         public virtual void From_sql_queryable_simple()
         {
@@ -85,6 +195,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_composed_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>()
+                       where context.Orders.FromSql(@"SELECT * FROM ""Orders""")
+                           .Select(o => o.CustomerID)
+                           .Contains(c.CustomerID)
+                       select c)
+                        .ToArray();
+
+                Assert.Equal(89, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_composed_contains2()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>()
+                       where
+                           c.CustomerID == "ALFKI"
+                           && context.Orders.FromSql(@"SELECT * FROM ""Orders""")
+                               .Select(o => o.CustomerID)
+                               .Contains(c.CustomerID)
+                       select c)
+                        .ToArray();
+
+                Assert.Equal(1, actual.Length);
             }
         }
 
@@ -458,9 +604,9 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 ctx.Database.OpenConnection();
 
                 var query = ctx.Customers
-                        .Include(v => v.Orders)
-                        .Where(v => v.CustomerID == "MAMRFC")
-                        .ToList();
+                    .Include(v => v.Orders)
+                    .Where(v => v.CustomerID == "MAMRFC")
+                    .ToList();
 
                 Assert.Empty(query);
                 Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);

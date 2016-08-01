@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,12 +50,14 @@ namespace Microsoft.EntityFrameworkCore
 
         private IDbContextServices _contextServices;
         private IDbSetInitializer _setInitializer;
+        private IEntityFinderSource _entityFinderSource;
         private ChangeTracker _changeTracker;
         private IStateManager _stateManager;
         private IChangeDetector _changeDetector;
         private IEntityGraphAttacher _graphAttacher;
         private IModel _model;
         private ILogger _logger;
+        private IAsyncQueryProvider _queryProvider;
 
         private bool _initializing;
         private IServiceScope _serviceScope;
@@ -86,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
             {
-                throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().DisplayName()));
+                throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().ShortDisplayName()));
             }
 
             _options = options;
@@ -102,13 +105,16 @@ namespace Microsoft.EntityFrameworkCore
             => _stateManager
                ?? (_stateManager = InternalServiceProvider.GetRequiredService<IStateManager>());
 
+        internal IAsyncQueryProvider QueryProvider
+            => _queryProvider ?? (_queryProvider = this.GetService<IAsyncQueryProvider>());
+
         private IServiceProvider InternalServiceProvider
         {
             get
             {
                 if (_disposed)
                 {
-                    throw new ObjectDisposedException(GetType().Name, CoreStrings.ContextDisposed);
+                    throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
                 }
                 return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
             }
@@ -436,6 +442,41 @@ namespace Microsoft.EntityFrameworkCore
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where TEntity : class
+        {
+            var entry = EntryWithoutDetectChanges(entity);
+
+            await entry.GetInfrastructure().SetEntityStateAsync(
+                EntityState.Added,
+                acceptChanges: true,
+                cancellationToken: cancellationToken);
+
+            return entry;
+        }
+
+        /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
@@ -540,6 +581,39 @@ namespace Microsoft.EntityFrameworkCore
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual async Task<EntityEntry> AddAsync(
+            [NotNull] object entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var entry = EntryWithoutDetectChanges(entity);
+
+            await entry.GetInfrastructure().SetEntityStateAsync(
+                EntityState.Added,
+                acceptChanges: true,
+                cancellationToken: cancellationToken);
+
+            return entry;
+        }
+
+        /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
@@ -634,6 +708,23 @@ namespace Microsoft.EntityFrameworkCore
             => AddRange((IEnumerable<object>)entities);
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync([NotNull] params object[] entities)
+            => AddRangeAsync((IEnumerable<object>)entities);
+
+        /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
@@ -696,6 +787,38 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] IEnumerable<object> entities)
             => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation.
+        /// </returns>
+        public virtual async Task AddRangeAsync(
+            [NotNull] IEnumerable<object> entities,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var stateManager = StateManager;
+
+            foreach (var entity in entities)
+            {
+                await stateManager.GetOrCreateEntry(entity).SetEntityStateAsync(
+                    EntityState.Added,
+                    acceptChanges: true,
+                    cancellationToken: cancellationToken);
+            }
+        }
 
         /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
@@ -791,11 +914,95 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (Model.FindEntityType(typeof(TEntity)) == null)
             {
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).Name));
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
             }
 
             return (_setInitializer
                     ?? (_setInitializer = InternalServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
         }
+
+        private IEntityFinder Finder(Type entityType)
+            => (_entityFinderSource
+                ?? (_entityFinderSource = InternalServiceProvider.GetRequiredService<IEntityFinderSource>())).Create(this, entityType);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual object Find([NotNull] Type entityType, [NotNull] params object[] keyValues)
+            => Finder(entityType).Find(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] params object[] keyValues)
+            => Finder(entityType).FindAsync(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] object[] keyValues, CancellationToken cancellationToken)
+            => Finder(entityType).FindAsync(keyValues, cancellationToken);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
     }
 }

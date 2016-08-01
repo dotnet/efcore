@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             column.DisplayName,
                             column.DefaultValue,
                             propertyBuilder.Metadata.Name,
-                            propertyBuilder.Metadata.DeclaringEntityType.Name));
+                            propertyBuilder.Metadata.DeclaringEntityType.DisplayName()));
                 }
             }
         }
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             column.DisplayName,
                             column.ComputedValue,
                             propertyBuilder.Metadata.Name,
-                            propertyBuilder.Metadata.DeclaringEntityType.Name));
+                            propertyBuilder.Metadata.DeclaringEntityType.DisplayName()));
                 }
             }
         }

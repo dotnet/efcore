@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -113,13 +114,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
-            => Ignore(type.DisplayName(), configurationSource);
+            => Ignore(type.DisplayName(), type, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
+            => Ignore(name, null, configurationSource);
+
+        private bool Ignore([NotNull] string name, [CanBeNull] Type type, ConfigurationSource configurationSource)
         {
             var ignoredConfigurationSource = Metadata.FindIgnoredEntityTypeConfigurationSource(name);
             if (ignoredConfigurationSource.HasValue)
@@ -135,7 +139,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = Metadata.FindEntityType(name);
             if (entityType == null)
             {
-                Metadata.Ignore(name, configurationSource);
+                if (type != null)
+                {
+                    Metadata.Ignore(type, configurationSource);
+                }
+                else
+                {
+                    Metadata.Ignore(name, configurationSource);
+                }
                 return true;
             }
 
@@ -154,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var baseType = entityType.BaseType;
             entityType.Builder.HasBaseType((EntityType)null, configurationSource);
 
-            Metadata.Ignore(entityType.Name, configurationSource);
+            Metadata.Ignore(entityType.Name, configurationSource, runConventions: false);
 
             var entityTypeBuilder = entityType.Builder;
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
@@ -177,6 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Metadata.RemoveEntityType(entityType.Name);
+
+            Metadata.ConventionDispatcher.OnEntityTypeIgnored(this, entityType.Name, entityType.ClrType);
 
             return true;
         }
@@ -209,6 +222,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return roots;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<InternalEntityTypeBuilder> FindLeastDerivedEntityTypes([NotNull] Type type, [CanBeNull] Func<InternalEntityTypeBuilder, bool> condition = null)
+        {
+            var cache = new Dictionary<TypeInfo, int> { [type.GetTypeInfo()] = 0 };
+            var leastDerivedTypesGroups = Metadata.GetEntityTypes()
+                .GroupBy(t => GetDerivedLevel(t.ClrType.GetTypeInfo(), cache), t => t.Builder)
+                .Where(g => g.Key != Int32.MaxValue)
+                .OrderBy(g => g.Key);
+
+            foreach (var leastDerivedTypes in leastDerivedTypesGroups)
+            {
+                if (condition == null)
+                {
+                    return leastDerivedTypes.ToList();
+                }
+
+                var filteredTypes = leastDerivedTypes.Where(condition).ToList();
+                if (filteredTypes.Count > 0)
+                {
+                    return filteredTypes;
+                }
+            }
+
+            return new List<InternalEntityTypeBuilder>();
+        }
+
+        private int GetDerivedLevel(TypeInfo derivedType, Dictionary<TypeInfo, int> cache)
+        {
+            if (derivedType?.BaseType == null)
+            {
+                return Int32.MaxValue;
+            }
+
+            int level;
+            if (cache.TryGetValue(derivedType, out level))
+            {
+                return level;
+            }
+
+            var baseType = derivedType.BaseType.GetTypeInfo();
+            level = GetDerivedLevel(baseType, cache);
+            level += level == Int32.MaxValue ? 0 : 1;
+            cache.Add(derivedType, level);
+            return level;
         }
 
         /// <summary>

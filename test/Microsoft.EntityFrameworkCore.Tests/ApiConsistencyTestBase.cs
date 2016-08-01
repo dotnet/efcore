@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
@@ -16,7 +15,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Mono < 4.2.0 does not implement reflection APIs used in this test")]
     public abstract class ApiConsistencyTestBase
     {
         protected const BindingFlags PublicInstance
@@ -25,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         protected const BindingFlags AnyInstance
             = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-        [ConditionalFact]
+        [Fact]
         public void Public_inheritable_apis_should_be_virtual()
         {
             var nonVirtualMethods
@@ -50,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Public_api_arguments_should_have_not_null_annotation()
         {
             var parametersMissingAttribute
@@ -85,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 "\r\n-- Missing NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersMissingAttribute));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
             var asyncMethods
@@ -133,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Public_api_bool_parameters_should_not_be_prefixed()
         {
             var prefixes = new[]

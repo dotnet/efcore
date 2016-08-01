@@ -149,6 +149,16 @@ namespace System
             }
         }
 
+        public static IEnumerable<Type> GetTypesInHierarchy(this Type type)
+        {
+            while (type != null)
+            {
+                yield return type;
+
+                type = type.GetTypeInfo().BaseType;
+            }
+        }
+
         public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] types)
         {
             types = types ?? new Type[0];
@@ -165,7 +175,7 @@ namespace System
             {
                 var typeInfo = type.GetTypeInfo();
                 var propertyInfo = typeInfo.GetDeclaredProperty(name);
-                if ((propertyInfo != null)
+                if (propertyInfo != null
                     && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
                 {
                     yield return propertyInfo;

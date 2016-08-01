@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -23,12 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryQueryContextFactory(
-            [NotNull] IStateManager stateManager,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] IInMemoryStoreSource storeSource,
-            [NotNull] IChangeDetector changeDetector,
             [NotNull] IDbContextOptions contextOptions)
-            : base(stateManager, concurrencyDetector, changeDetector)
+            : base(currentContext, concurrencyDetector)
         {
             _store = storeSource.GetStore(contextOptions);
         }

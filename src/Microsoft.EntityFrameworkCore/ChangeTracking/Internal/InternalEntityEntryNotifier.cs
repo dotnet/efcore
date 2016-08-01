@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
     {
+        private readonly IQueryTrackingListener[] _queryTrackingListeners;
         private readonly IEntityStateListener[] _entityStateListeners;
         private readonly IPropertyListener[] _propertyListeners;
         private readonly INavigationListener[] _navigationListeners;
@@ -27,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [CanBeNull] IEnumerable<IEntityStateListener> entityStateListeners,
             [CanBeNull] IEnumerable<IPropertyListener> propertyListeners,
             [CanBeNull] IEnumerable<INavigationListener> navigationListeners,
-            [CanBeNull] IEnumerable<IKeyListener> keyListeners)
+            [CanBeNull] IEnumerable<IKeyListener> keyListeners,
+            [CanBeNull] IEnumerable<IQueryTrackingListener> queryTrackingListeners)
         {
             if (entityStateListeners != null)
             {
@@ -52,6 +54,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var listeners = keyListeners.ToArray();
                 _keyListeners = listeners.Length == 0 ? null : listeners;
             }
+
+            if (queryTrackingListeners != null)
+            {
+                var listeners = queryTrackingListeners.ToArray();
+                _queryTrackingListeners = listeners.Length == 0 ? null : listeners;
+            }
         }
 
         /// <summary>
@@ -75,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup, bool fromQuery)
+        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
         {
             if (_entityStateListeners == null)
             {
@@ -84,7 +92,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var listener in _entityStateListeners)
             {
-                listener.StateChanged(entry, oldState, skipInitialFixup, fromQuery);
+                listener.StateChanged(entry, oldState, fromQuery);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void TrackedFromQuery(
+            InternalEntityEntry entry,
+            ISet<IForeignKey> handledForeignKeys)
+        {
+            if (_entityStateListeners == null)
+            {
+                return;
+            }
+
+            foreach (var listener in _queryTrackingListeners)
+            {
+                listener.TrackedFromQuery(entry, handledForeignKeys);
             }
         }
 

@@ -14,12 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("just_string(2000)", typeof(string));
         private static readonly RelationalTypeMapping _unboundedString = new RelationalTypeMapping("just_string(max)", typeof(string));
         private static readonly RelationalTypeMapping _stringKey = new RelationalTypeMapping("just_string(450)", typeof(string), dbType: null, unicode: true, size: 450);
+        private static readonly RelationalTypeMapping _ansiStringKey = new RelationalTypeMapping("ansi_string(900)", typeof(string), dbType: null, unicode: true, size: 450);
         private static readonly RelationalTypeMapping _unboundedBinary = new RelationalTypeMapping("just_binary(max)", typeof(byte[]), DbType.Binary);
         private static readonly RelationalTypeMapping _binary = new RelationalTypeMapping("just_binary(max)", typeof(byte[]), DbType.Binary);
         private static readonly RelationalTypeMapping _binaryKey = new RelationalTypeMapping("just_binary(900)", typeof(byte[]), DbType.Binary, unicode: true, size: 900);
         private static readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("rowversion", typeof(byte[]), DbType.Binary, unicode: true, size: 8);
         private static readonly RelationalTypeMapping _defaultIntMapping = new RelationalTypeMapping("default_int_mapping", typeof(int));
+        private static readonly RelationalTypeMapping _defaultBoolMapping = new RelationalTypeMapping("default_bool_mapping", typeof(bool));
         private static readonly RelationalTypeMapping _someIntMapping = new RelationalTypeMapping("some_int_mapping", typeof(int));
+        private static readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(decimal));
 
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
@@ -27,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             = new Dictionary<Type, RelationalTypeMapping>
             {
                 { typeof(int), _defaultIntMapping },
+                { typeof(bool), _defaultBoolMapping },
                 { typeof(string), _string }
             };
 
@@ -35,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 { "some_int_mapping", _someIntMapping },
                 { "some_string(max)", _string },
-                { "some_binary(max)", _binary }
+                { "some_binary(max)", _binary },
+                { "money", _decimal },
+                { "dec", _decimal }
             };
 
         public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
@@ -58,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 2000,
                 _string,
                 _unboundedString,
-                _stringKey,
+                _ansiStringKey,
                 size => new RelationalTypeMapping(
                     "just_string(" + size + ")",
                     typeof(string),

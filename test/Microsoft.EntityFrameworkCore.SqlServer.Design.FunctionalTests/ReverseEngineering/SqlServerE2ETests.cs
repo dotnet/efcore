@@ -52,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 "OneToOneSeparateFKPrincipal",
                 "OneToOneFKToUniqueKeyDependent",
                 "OneToOneFKToUniqueKeyPrincipal",
-                "PrimaryKeyWithSequence",
                 "UnmappablePKColumn",
                 "TableWithUnmappablePrimaryKeyColumn",
                 "selfreferencing"
@@ -82,7 +81,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "OneToOnePrincipal.expected",
             "OneToOneSeparateFKDependent.expected",
             "OneToOneSeparateFKPrincipal.expected",
-            "PrimaryKeyWithSequence.expected",
             "PropertyConfiguration.expected",
             "SelfReferencing.expected",
             "TestSpacesKeywordsTable.expected",
@@ -90,7 +88,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         };
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
@@ -140,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
@@ -253,6 +249,53 @@ CREATE SEQUENCE NumericSequence
                         RelationalDesignStrings.BadSequenceType("NumericSequence", "numeric")
                     }
                 });
+
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void PrimaryKeyWithSequence()
+        {
+            using (var scratch = SqlServerTestStore.CreateScratch())
+            {
+                scratch.ExecuteNonQuery(@"
+CREATE SEQUENCE PrimaryKeyWithSequenceSequence
+    AS int
+    START WITH 1
+    INCREMENT BY 1
+
+CREATE TABLE PrimaryKeyWithSequence (
+    PrimaryKeyWithSequenceId int DEFAULT(NEXT VALUE FOR PrimaryKeyWithSequenceSequence),
+    PRIMARY KEY (PrimaryKeyWithSequenceId)
+);
+");
+
+                var configuration = new ReverseEngineeringConfiguration
+                {
+                    ConnectionString = scratch.ConnectionString,
+                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
+                    ProjectRootNamespace = TestNamespace,
+                    ContextClassName = "PrimaryKeyWithSequenceContext",
+                    UseFluentApiOnly = true
+                };
+                var expectedFileSet = new FileSet(new FileSystemFileService(),
+                    Path.Combine("ReverseEngineering", "Expected"),
+                    contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
+                {
+                    Files = new List<string> {
+                        "PrimaryKeyWithSequenceContext.expected",
+                        "PrimaryKeyWithSequence.expected" }
+                };
+
+                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+
+                var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
+                {
+                    Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
 
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);

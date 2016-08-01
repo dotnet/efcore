@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Action<MigrationsSqlGenerator, MigrationOperation, IModel, MigrationCommandListBuilder> generateAction;
             if (!_generateActions.TryGetValue(operationType, out generateAction))
             {
-                throw new InvalidOperationException(RelationalStrings.UnknownOperation(GetType().Name, operationType));
+                throw new InvalidOperationException(RelationalStrings.UnknownOperation(GetType().ShortDisplayName(), operationType));
             }
 
             generateAction(this, operation, model, builder);
@@ -679,8 +679,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
             if (property != null)
             {
-                // TODO: Allow unicode to be overridden with #3420
-                if (maxLength == property.GetMaxLength()
+                if (unicode == property.IsUnicode()
+                    && maxLength == property.GetMaxLength()
                     && rowVersion == (property.IsConcurrencyToken && (property.ValueGenerated == ValueGenerated.OnAddOrUpdate)))
                 {
                     return TypeMapper.GetMapping(property).StoreType;

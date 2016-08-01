@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 {
@@ -27,19 +28,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
             }
 
             if (excludedFrameworks.HasFlag(TestPlatform.Windows)
-                && TestPlatformHelper.IsWindows)
+                && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return false;
             }
 
             if (excludedFrameworks.HasFlag(TestPlatform.Linux)
-                && TestPlatformHelper.IsLinux)
+                && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return false;
             }
 
             if (excludedFrameworks.HasFlag(TestPlatform.Mac)
-                && TestPlatformHelper.IsMac)
+                && RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return false;
             }

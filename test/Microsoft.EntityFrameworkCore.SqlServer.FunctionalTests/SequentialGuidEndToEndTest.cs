@@ -22,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "GooieBronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 for (var i = 0; i < 50; i++)
                 {
@@ -55,8 +54,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "GooieExplicitBronies"))
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
 
                 for (var i = 0; i < 50; i++)
                 {

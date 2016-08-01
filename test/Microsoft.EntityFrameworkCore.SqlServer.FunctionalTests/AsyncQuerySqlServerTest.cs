@@ -13,9 +13,21 @@ using Xunit.Abstractions;
 #pragma warning disable 1998
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Async queries will not work on Mono < 4.2.0 due to differences in the IQueryable interface")]
     public class AsyncQuerySqlServerTest : AsyncQueryTestBase<NorthwindQuerySqlServerFixture>
     {
+        [ConditionalFact]
+        public async Task Race_when_context_disposed_before_query_termination()
+        {
+            Task<Customer> task;
+           
+            using (var context = CreateContext())
+            {
+                task = context.Customers.SingleAsync(c => c.CustomerID == "ALFKI");
+            }
+
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => task);
+        }
+
         // TODO: Complex projection translation.
 
         public override async Task Projection_when_arithmetic_expressions()
@@ -77,6 +89,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(6, tasks[1].Count);
                 Assert.Equal(4, tasks[2].Count);
             }
+        }
+
+        public override Task Select_nested_collection_deep()
+        {
+            return base.Select_nested_collection_deep();
         }
 
         public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

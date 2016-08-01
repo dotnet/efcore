@@ -61,12 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
                     using (var context = new DataAnnotationContext(optionsBuilder.Options))
                     {
-                        // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            DataAnnotationModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureClean();
+                        DataAnnotationModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }

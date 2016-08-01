@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             if (IsTrackingQuery)
             {
-                var entry = queryContext.StateManager.TryGetEntry(Key, valueBuffer, !AllowNullResult);
+                var entry = queryContext.StateManager.Value.TryGetEntry(Key, valueBuffer, !AllowNullResult);
 
                 if (entry != null)
                 {

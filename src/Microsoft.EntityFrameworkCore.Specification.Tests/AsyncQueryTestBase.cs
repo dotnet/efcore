@@ -1438,12 +1438,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Select_correlated_subquery_filtered()
+        {
+            await AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                select os.Where(o => o.CustomerID == c.CustomerID),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => (IEnumerable<Order>)q1)
+                                .OrderBy(o => o.OrderID);
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => (IEnumerable<Order>)q1)
+                                .OrderBy(o => o.OrderID);
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [ConditionalFact]
         public virtual async Task Select_correlated_subquery_ordered()
         {
             await AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
-                select os
-                    .OrderBy(o => c.CustomerID),
+                select os.OrderBy(o => c.CustomerID),
                 asserter:
                     (l2oResults, efResults) =>
                         {

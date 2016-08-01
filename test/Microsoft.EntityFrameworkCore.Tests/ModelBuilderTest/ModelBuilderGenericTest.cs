@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -68,21 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<EntityBase>().Property(e => ((IEntityBase)e).Target);
 
                 Assert.Equal(1, modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Count());
-            }
-
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
-        }
-
-        public class GenericDataAnnotations : DataAnnotationsTestBase
-        {
-            [Fact]
-            public virtual void NotMappedAttribute_ignored_explicit_interface_implementation_property()
-            {
-                var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<EntityAnnotationBase>();
-
-                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityAnnotationBase)).GetProperties());
             }
 
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
@@ -214,6 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasMaxLength(maxLength));
 
+            public override TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsUnicode(unicode));
+
             public override TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsConcurrencyToken(isConcurrencyToken));
 
@@ -225,6 +214,15 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate()
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnAddOrUpdate());
+
+            public override TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator<TGenerator>());
+
+            public override TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(valueGeneratorType));
+
+            public override TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(factory));
         }
 
         protected class GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
@@ -323,11 +321,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
                 => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(keyExpression));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(Type dependentEntityType, params string[] foreignKeyPropertyNames)
-                => Wrap(ReferenceReferenceBuilder.HasForeignKey(dependentEntityType, foreignKeyPropertyNames));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(params string[] foreignKeyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasForeignKey<TDependentEntity>(foreignKeyPropertyNames));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(Type principalEntityType, params string[] keyPropertyNames)
-                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(principalEntityType, keyPropertyNames));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(params string[] keyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey<TPrincipalEntity>(keyPropertyNames));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
                 => Wrap(ReferenceReferenceBuilder.IsRequired(isRequired));

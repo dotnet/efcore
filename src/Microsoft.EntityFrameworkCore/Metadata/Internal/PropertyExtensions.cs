@@ -107,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool RequiresOriginalValue([NotNull] this IProperty property)
             => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
                || property.IsConcurrencyToken
+               || property.IsKey()
                || property.IsForeignKey();
 
         /// <summary>
@@ -116,6 +117,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool IsKeyOrForeignKey([NotNull] this IProperty property)
             => property.IsKey()
                || property.IsForeignKey();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IProperty FindPrincipal([NotNull] this IProperty property)
+        {
+            var concreteProperty = property.AsProperty();
+            if (concreteProperty.ForeignKeys != null)
+            {
+                foreach (var foreignKey in concreteProperty.ForeignKeys)
+                {
+                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                    {
+                        if (property == foreignKey.Properties[propertyIndex])
+                        {
+                            return foreignKey.PrincipalKey.Properties[propertyIndex];
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

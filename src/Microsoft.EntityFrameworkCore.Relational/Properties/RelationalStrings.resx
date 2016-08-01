@@ -136,7 +136,7 @@
     <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
   </data>
   <data name="UnsupportedType" xml:space="preserve">
-    <value>No mapping to a relational type can be found for the CLR type '{clrType}'</value>
+    <value>No mapping to a relational type can be found for the CLR type '{clrType}'.</value>
   </data>
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational database provider.</value>
@@ -223,6 +223,9 @@
     <value>Cannot use table '{table}' in schema '{schema}' for entity '{entityType}' since it is being used for another entity.</value>
     <comment>Schema can be null</comment>
   </data>
+  <data name="KeyHasDefaultValue" xml:space="preserve">
+    <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.</value>
+  </data>
   <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
     <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
   </data>
@@ -250,7 +253,7 @@
   <data name="RelationalLoggerExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
   </data>
-  <data name="DuplicateColumnName" xml:space="preserve">
+  <data name="DuplicateColumnNameDataTypeMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').</value>
   </data>
   <data name="NoActiveTransaction" xml:space="preserve">
@@ -276,5 +279,29 @@
   </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
     <value>{conflictingConfiguration} cannot be set for '{property}', because {existingConfiguration} is already set.</value>
+  </data>
+  <data name="DuplicateForeignKeyColumnMismatch" xml:space="preserve">
+    <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different columns ({columnNames1} and {columnNames2}).</value>
+  </data>
+  <data name="DuplicateForeignKeyDeleteBehaviorMismatch" xml:space="preserve">
+    <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').</value>
+  </data>
+  <data name="DuplicateForeignKeyPrincipalColumnMismatch" xml:space="preserve">
+    <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).</value>
+  </data>
+  <data name="DuplicateForeignKeyPrincipalTableMismatch" xml:space="preserve">
+    <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal tables ('{principalTable1}' and '{principalTable2}').</value>
+  </data>
+  <data name="DuplicateForeignKeyUniquenessMismatch" xml:space="preserve">
+    <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different uniqueness.</value>
+  </data>
+  <data name="DuplicateIndexColumnMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different columns ({columnNames1} and {columnNames2}).</value>
+  </data>
+  <data name="DuplicateIndexUniquenessMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different uniqueness.</value>
+  </data>
+  <data name="UnsupportedPropertyType" xml:space="preserve">
+    <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
   </data>
 </root>

@@ -33,6 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     b.Property(e => e.ByteArray9000).HasMaxLength(9000);
                     b.Property(e => e.String9000).HasMaxLength(9000);
                 });
+
+            modelBuilder.Entity<UnicodeDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.StringAnsi).IsUnicode(false);
+                b.Property(e => e.StringAnsi3).HasMaxLength(3).IsUnicode(false);
+                b.Property(e => e.StringAnsi9000).IsUnicode(false).HasMaxLength(9000);
+                b.Property(e => e.StringUnicode).IsUnicode();
+            });
         }
 
         protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder) where TEntity : class
@@ -105,6 +114,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public byte[] ByteArray5 { get; set; }
         public string String9000 { get; set; }
         public byte[] ByteArray9000 { get; set; }
+    }
+
+    public class UnicodeDataTypes
+    {
+        public int Id { get; set; }
+        public string StringDefault { get; set; }
+        public string StringAnsi { get; set; }
+        public string StringAnsi3 { get; set; }
+        public string StringAnsi9000 { get; set; }
+        public string StringUnicode { get; set; }
     }
 
     public class BinaryKeyDataType

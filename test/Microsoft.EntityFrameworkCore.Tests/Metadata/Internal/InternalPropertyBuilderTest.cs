@@ -3,9 +3,11 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
@@ -156,6 +158,151 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Can_only_override_lower_or_equal_source_CustomValueGenerator_factory()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.True(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.DataAnnotation));
+            Assert.True(builder.HasValueGenerator((p, e) => new CustomValueGenerator2(), ConfigurationSource.DataAnnotation));
+
+            Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+
+            Assert.False(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.Convention));
+            Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+        }
+
+        [Fact]
+        public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
+        {
+            Func<IProperty, IEntityType, ValueGenerator> factory = (p, e) => new CustomValueGenerator1();
+
+            var metadata = CreateProperty();
+            metadata.SetValueGeneratorFactory(factory);
+            var builder = CreateInternalPropertyBuilder(metadata);
+
+            Assert.True(builder.HasValueGenerator(factory, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.HasValueGenerator((p, e) => new CustomValueGenerator2(), ConfigurationSource.DataAnnotation));
+
+            Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+
+            Assert.True(builder.HasValueGenerator((p, e) => new CustomValueGenerator2(), ConfigurationSource.Explicit));
+            Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+        }
+
+        [Fact]
+        public void Can_clear_CustomValueGenerator_factory()
+        {
+            var metadata = CreateProperty();
+            var builder = CreateInternalPropertyBuilder(metadata);
+
+            Assert.True(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.DataAnnotation));
+
+            Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+
+            Assert.False(builder.HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
+            Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+
+            Assert.True(builder.HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
+            Assert.Null(metadata.GetValueGeneratorFactory());
+            Assert.False(metadata.RequiresValueGenerator);
+        }
+
+        [Fact]
+        public void Can_only_override_lower_or_equal_source_CustomValueGenerator_type()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.True(builder.HasValueGenerator(typeof(CustomValueGenerator1), ConfigurationSource.DataAnnotation));
+            Assert.True(builder.HasValueGenerator(typeof(CustomValueGenerator2), ConfigurationSource.DataAnnotation));
+
+            Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+
+            Assert.False(builder.HasValueGenerator(typeof(CustomValueGenerator1), ConfigurationSource.Convention));
+            Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+        }
+
+        [Fact]
+        public void Can_clear_CustomValueGenerator_type()
+        {
+            var metadata = CreateProperty();
+            var builder = CreateInternalPropertyBuilder(metadata);
+
+            Assert.True(builder.HasValueGenerator(typeof(CustomValueGenerator1), ConfigurationSource.DataAnnotation));
+
+            Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+
+            Assert.False(builder.HasValueGenerator((Type)null, ConfigurationSource.Convention));
+            Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator);
+
+            Assert.True(builder.HasValueGenerator((Type)null, ConfigurationSource.Explicit));
+            Assert.Null(metadata.GetValueGeneratorFactory());
+            Assert.False(metadata.RequiresValueGenerator);
+        }
+
+        private class CustomValueGenerator1 : ValueGenerator<string>
+        {
+            public override string Next(EntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool GeneratesTemporaryValues => false;
+        }
+
+        private class CustomValueGenerator2 : ValueGenerator<string>
+        {
+            public override string Next(EntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool GeneratesTemporaryValues => false;
+        }
+
+        [Fact]
+        public void Can_only_override_lower_or_equal_source_unicode()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.True(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.IsUnicode(false, ConfigurationSource.DataAnnotation));
+
+            Assert.False(metadata.IsUnicode().Value);
+
+            Assert.False(builder.IsUnicode(true, ConfigurationSource.Convention));
+            Assert.False(metadata.IsUnicode().Value);
+        }
+
+        [Fact]
+        public void Can_only_override_existing_unicode_value_explicitly()
+        {
+            var metadata = CreateProperty();
+            metadata.IsUnicode(true);
+            var builder = CreateInternalPropertyBuilder(metadata);
+
+            Assert.True(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.IsUnicode(false, ConfigurationSource.DataAnnotation));
+
+            Assert.True(metadata.IsUnicode().Value);
+
+            Assert.True(builder.IsUnicode(false, ConfigurationSource.Explicit));
+            Assert.False(metadata.IsUnicode().Value);
+        }
+
+        [Fact]
         public void Can_only_override_lower_or_equal_source_Required()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -197,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.False(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(CoreStrings.CannotBeNullable(nameof(Customer.Id), typeof(Customer).Name, typeof(int).Name),
+            Assert.Equal(CoreStrings.CannotBeNullable(nameof(Customer.Id), typeof(Customer).Name, "int"),
                 Assert.Throws<InvalidOperationException>(() => builder.IsRequired(false, ConfigurationSource.Explicit)).Message);
         }
 

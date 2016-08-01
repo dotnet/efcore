@@ -4,7 +4,6 @@
 #if NET451
 
 using System;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.TestUtilities;
 using Xunit;
@@ -18,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
     public class ForwardingProxyTest
     {
-        [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Remoting on Mono is buggy")]
+        [Fact]
         public void Forwards_to_instances_of_a_different_type()
         {
             using (var directory = new TempDirectory())

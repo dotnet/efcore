@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     {
                         using (var context = new ChipsContext(ServiceProvider))
                         {
-                            context.Database.EnsureDeleted();
-                            context.Database.EnsureCreated();
+                            context.Database.EnsureClean();
                         }
                     });
             }

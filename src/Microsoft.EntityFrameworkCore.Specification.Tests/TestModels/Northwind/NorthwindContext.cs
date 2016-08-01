@@ -7,8 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
     {
         public static readonly string StoreName = "Northwind";
 
-        public NorthwindContext(DbContextOptions options)
-            : base(options)
+        public NorthwindContext(
+            DbContextOptions options, 
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            : base(queryTrackingBehavior == QueryTrackingBehavior.TrackAll 
+                  ? options
+                  : new DbContextOptionsBuilder(options).UseQueryTrackingBehavior(queryTrackingBehavior).Options)
         {
         }
 

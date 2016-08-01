@@ -144,6 +144,21 @@
   <data name="PropertyNotFound" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.</value>
   </data>
+  <data name="PropertyIsNavigation" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.</value>
+  </data>
+  <data name="NavigationIsProperty" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.</value>
+  </data>
+  <data name="ReferenceIsCollection" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.</value>
+  </data>
+  <data name="CollectionIsReference" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.</value>
+  </data>
+  <data name="ReferenceMustBeLoaded" xml:space="preserve">
+    <value>Navigation property '{navigation}' on entity type '{entityType}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.</value>
+  </data>
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
@@ -207,6 +222,12 @@
   <data name="NoValueGenerator" xml:space="preserve">
     <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
   </data>
+  <data name="BadValueGeneratorType" xml:space="preserve">
+    <value>The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.</value>
+  </data>
+  <data name="CannotCreateValueGenerator" xml:space="preserve">
+    <value>Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.</value>
+  </data>
   <data name="TempValuePersists" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
@@ -265,7 +286,7 @@
     <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.</value>
+    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no backing field was found by convention. Read-only collection navigation properties must be initialized before use.</value>
   </data>
   <data name="NavigationCannotCreateType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
@@ -377,6 +398,15 @@
   </data>
   <data name="CannotMaterializeAbstractType" xml:space="preserve">
     <value>Unable to create an instance of type entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.</value>
+  </data>
+  <data name="FindNotCompositeKey" xml:space="preserve">
+    <value>Entity type '{entityType}' is defined with a single key property, but {valuesCount} values were passed to the 'DbSet.Find' method.</value>
+  </data>
+  <data name="FindValueCountMismatch" xml:space="preserve">
+    <value>Entity type '{entityType}' is defined with a {propertiesCount}-part composite key, but {valuesCount} values were passed to the 'DbSet.Find' method.</value>
+  </data>
+  <data name="FindValueTypeMismatch" xml:space="preserve">
+    <value>The key value at position {index} of the call to 'DbSet&lt;{entityType}&gt;.Find' was of type '{valueType}', which does not match the property type of '{propertyType}'.</value>
   </data>
   <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
     <value>The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.</value>
@@ -517,7 +547,7 @@
     <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key on '{entityType}'. The foreign key must be defined on a type that is part of the relationship.</value>
   </data>
   <data name="PrincipalEntityTypeNotInRelationship" xml:space="preserve">
-    <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key targetting '{entityType}'. The foreign key must be targetting a type that is part of the relationship.</value>
+    <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key targeting '{entityType}'. The foreign key must be targeting a type that is part of the relationship.</value>
   </data>
   <data name="ForeignKeyPropertyInKey" xml:space="preserve">
     <value>The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in a key defined on a base entity type.</value>
@@ -547,7 +577,7 @@
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
   </data>
   <data name="NoClrSetter" xml:space="preserve">
-    <value>Could not find setter for property {property}</value>
+    <value>Could not find setter or matching backing field for property {property}</value>
   </data>
   <data name="NoPropertyType" xml:space="preserve">
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.</value>
@@ -580,9 +610,27 @@
     <value>{message} To configure this warning use the DbContextOptionsBuilder.ConfigureWarnings API (event id '{eventId}'). ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
-    <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
+    <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
   </data>
   <data name="NoProviderConfiguredFailedToResolveService" xml:space="preserve">
     <value>Unable to resolve service for type '{service}'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.</value>
+  </data>
+  <data name="ErrorMaterializingProperty" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
+  </data>
+  <data name="ErrorMaterializingPropertyInvalidCast" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+  </data>
+  <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
+  </data>
+  <data name="ErrorMaterializingValue" xml:space="preserve">
+    <value>An exception occured while reading a database value. See the inner exception for more information.</value>
+  </data>
+  <data name="ErrorMaterializingValueInvalidCast" xml:space="preserve">
+    <value>An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+  </data>
+  <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
+    <value>An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
 </root>

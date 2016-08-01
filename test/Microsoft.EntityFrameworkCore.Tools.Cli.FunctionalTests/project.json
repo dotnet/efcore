@@ -6,29 +6,20 @@
       "include": "TestProjects/"
     },
     "compile": {
-      "include": "**/*.cs",
-      "exclude": [
-        "obj",
-        "bin",
-        "TestProjects/"
-      ]
+      "exclude": "TestProjects/"
     }
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-rc3-000000-00",
-    "Microsoft.DotNet.Cli.Utils": "1.0.0-preview2-003121",
-    "xunit": "2.1.0"
+    "dotnet-test-xunit": "2.2.0-*",
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
+    "xunit": "2.2.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win8"
-      ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0",
+          "version": "1.0.0-*",
           "type": "platform"
         }
       }

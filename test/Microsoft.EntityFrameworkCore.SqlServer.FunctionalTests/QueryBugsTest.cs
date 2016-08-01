@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = new DeadlockContext(testStore.ConnectionString))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureClean();
                     context.EnsureSeeded();
 
                     var count
@@ -169,8 +169,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = new MyContext603(_fixture.ServiceProvider))
             {
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+                context.Database.EnsureClean();
 
                 context.Products.Add(new Product { Name = "Product 1" });
                 context.SaveChanges();
@@ -187,8 +186,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new MyContext603(_fixture.ServiceProvider))
             {
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+                context.Database.EnsureClean();
 
                 context.Products.Add(new Product { Name = "Product 1" });
                 context.SaveChanges();
@@ -264,7 +262,7 @@ WHERE EXISTS (
     WHERE ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName]))
 ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+                Assert.Equal(expectedSql, Sql);
             }
         }
 
@@ -296,7 +294,7 @@ ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
 FROM [Order] AS [o]
 LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+                Assert.Equal(expectedSql, Sql);
             }
         }
 
@@ -541,7 +539,7 @@ SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
 WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_details_LastName_1)";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+                Assert.Equal(expectedSql, Sql);
             }
         }
 
@@ -597,7 +595,9 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                 var query4 = ctx.Customers.Select(c => c.Orders4);
 
-                Assert.Equal(CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).FullName, typeof(MyInvalidCollection3758<Order3758>).FullName),
+                Assert.Equal(
+                    CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).Name,
+                        typeof(MyInvalidCollection3758<Order3758>).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
             }
         }
@@ -1078,6 +1078,11 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+
         private void CreateDatabase3101()
         {
             CreateTestStore(
@@ -1331,11 +1336,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                     using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
                     {
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            contextInitializer(context);
-                        }
+                        context.Database.EnsureClean();
+                        contextInitializer(context);
 
                         TestSqlLoggerFactory.Reset();
                     }

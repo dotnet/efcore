@@ -1320,7 +1320,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (typeMapping == null)
             {
-                throw new InvalidOperationException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.Name));
+                throw new InvalidOperationException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.ShortDisplayName()));
             }
 
             _relationalCommandBuilder.Append(typeMapping.StoreType);
@@ -1745,9 +1745,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _isSearchCondition = false;
                     var newExpression = base.VisitExtension(expression);
                     _isSearchCondition = parentIsSearchCondition;
+
                     return expression is AliasExpression || expression is ColumnExpression || expression is SelectExpression
                         ? Expression.Equal(newExpression, Expression.Constant(true, typeof(bool)))
                         : newExpression;
+                }
+                else
+                {
+                    if (IsSearchCondition(expression))
+                    {
+                        var newExpression = base.VisitExtension(expression);
+
+                        return Expression.Condition(
+                            newExpression,
+                            Expression.Constant(true),
+                            Expression.Constant(false));
+                    }
                 }
 
                 return base.VisitExtension(expression);

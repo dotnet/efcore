@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -66,6 +67,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(property, nameof(property));
 
             var storeType = GetColumnType(property);
+
+            if (storeType == null)
+            {
+                var principalProperty = property.FindPrincipal();
+                if (principalProperty != null)
+                {
+                    storeType = GetColumnType(principalProperty);
+                }
+            }
 
             return (storeType != null ? FindMapping(storeType) : null)
                    ?? FindCustomMapping(property)
@@ -187,11 +197,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            // TODO: Use unicode-ness defined in property metadata
+            var principal = property.FindPrincipal();
+
             return StringMapper?.FindMapping(
-                true,
+                property.IsUnicode() ?? principal?.IsUnicode() ?? true,
                 RequiresKeyMapping(property),
-                property.GetMaxLength());
+                property.GetMaxLength() ?? principal?.GetMaxLength());
         }
 
         /// <summary>
@@ -206,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ByteArrayMapper?.FindMapping(
                 property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate,
                 RequiresKeyMapping(property),
-                property.GetMaxLength());
+                property.GetMaxLength() ?? property.FindPrincipal()?.GetMaxLength());
         }
 
         /// <summary>

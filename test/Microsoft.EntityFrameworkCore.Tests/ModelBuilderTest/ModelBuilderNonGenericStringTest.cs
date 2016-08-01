@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var orderEntityType = modelBuilder.Entity(typeof(Order));
 
                 Assert.Equal(
-                    CoreStrings.NavigationToShadowEntity("Customer", typeof(Order).DisplayName(fullName: false), "Customer"),
+                    CoreStrings.NavigationToShadowEntity("Customer", typeof(Order).ShortDisplayName(), "Customer"),
                     Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne("Customer", "Customer")).Message);
             }
 
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var orderEntityType = modelBuilder.Entity(typeof(Order));
 
                 Assert.Equal(
-                    CoreStrings.NoClrNavigation("CustomerNavigation", typeof(Order).DisplayName(fullName: false)),
+                    CoreStrings.NoClrNavigation("CustomerNavigation", typeof(Order).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne(typeof(Customer), "CustomerNavigation")).Message);
             }
 
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var customerEntityType = modelBuilder.Entity(typeof(Customer));
 
                 Assert.Equal(
-                    CoreStrings.NavigationToShadowEntity("Orders", typeof(Customer).DisplayName(fullName: false), "Order"),
+                    CoreStrings.NavigationToShadowEntity("Orders", typeof(Customer).ShortDisplayName(), "Order"),
                     Assert.Throws<InvalidOperationException>(() => customerEntityType.HasMany("Order", "Orders")).Message);
             }
 
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var customerEntityType = modelBuilder.Entity(typeof(Customer));
 
                 Assert.Equal(
-                    CoreStrings.NoClrNavigation("OrdersNavigation", typeof(Customer).DisplayName(fullName: false)),
+                    CoreStrings.NoClrNavigation("OrdersNavigation", typeof(Customer).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => customerEntityType.HasMany(typeof(Order), "OrdersNavigation")).Message);
             }
 
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var orderEntityType = modelBuilder.Entity(typeof(Order));
 
                 Assert.Equal(
-                    CoreStrings.NavigationToShadowEntity(nameof(Order.Details), typeof(Order).DisplayName(fullName: false), nameof(OrderDetails)),
+                    CoreStrings.NavigationToShadowEntity(nameof(Order.Details), typeof(Order).ShortDisplayName(), nameof(OrderDetails)),
                     Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne(nameof(OrderDetails), nameof(Order.Details))).Message);
             }
 
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var orderEntityType = modelBuilder.Entity(typeof(Order));
 
                 Assert.Equal(
-                    CoreStrings.NoClrNavigation("OrderDetailsNavigation", typeof(Order).DisplayName(fullName: false)),
+                    CoreStrings.NoClrNavigation("OrderDetailsNavigation", typeof(Order).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne(typeof(OrderDetails), "OrderDetailsNavigation")).Message);
             }
 
@@ -175,6 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestModelBuilder Ignore<TEntity>()
                 => new NonGenericStringTestModelBuilder(ModelBuilder.Ignore(typeof(TEntity)));
+
+            public override string GetDisplayName(Type entityType) => entityType.FullName;
         }
 
         private class NonGenericStringTestEntityTypeBuilder<TEntity> : NonGenericTestEntityTypeBuilder<TEntity>

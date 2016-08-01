@@ -89,6 +89,46 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.
+        /// </summary>
+        public static string PropertyIsNavigation([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object PropertyMethod, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyIsNavigation", "property", "entityType", "PropertyMethod", "ReferenceMethod", "CollectionMethod"), property, entityType, PropertyMethod, ReferenceMethod, CollectionMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.
+        /// </summary>
+        public static string NavigationIsProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod, [CanBeNull] object PropertyMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationIsProperty", "property", "entityType", "ReferenceMethod", "CollectionMethod", "PropertyMethod"), property, entityType, ReferenceMethod, CollectionMethod, PropertyMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.
+        /// </summary>
+        public static string ReferenceIsCollection([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferenceIsCollection", "property", "entityType", "ReferenceMethod", "CollectionMethod"), property, entityType, ReferenceMethod, CollectionMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.
+        /// </summary>
+        public static string CollectionIsReference([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object CollectionMethod, [CanBeNull] object ReferenceMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionIsReference", "property", "entityType", "CollectionMethod", "ReferenceMethod"), property, entityType, CollectionMethod, ReferenceMethod);
+        }
+
+        /// <summary>
+        /// Navigation property '{navigation}' on entity type '{entityType}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.
+        /// </summary>
+        public static string ReferenceMustBeLoaded([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferenceMustBeLoaded", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
@@ -257,6 +297,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.
+        /// </summary>
+        public static string BadValueGeneratorType([CanBeNull] object givenType, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadValueGeneratorType", "givenType", "expectedType"), givenType, expectedType);
+        }
+
+        /// <summary>
+        /// Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.
+        /// </summary>
+        public static string CannotCreateValueGenerator([CanBeNull] object generatorType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotCreateValueGenerator", "generatorType"), generatorType);
+        }
+
+        /// <summary>
         /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
         /// </summary>
         public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)
@@ -409,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.
+        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no backing field was found by convention. Read-only collection navigation properties must be initialized before use.
         /// </summary>
         public static string NavigationNoSetter([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -710,6 +766,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string CannotMaterializeAbstractType([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CannotMaterializeAbstractType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// Entity type '{entityType}' is defined with a single key property, but {valuesCount} values were passed to the 'DbSet.Find' method.
+        /// </summary>
+        public static string FindNotCompositeKey([CanBeNull] object entityType, [CanBeNull] object valuesCount)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FindNotCompositeKey", "entityType", "valuesCount"), entityType, valuesCount);
+        }
+
+        /// <summary>
+        /// Entity type '{entityType}' is defined with a {propertiesCount}-part composite key, but {valuesCount} values were passed to the 'DbSet.Find' method.
+        /// </summary>
+        public static string FindValueCountMismatch([CanBeNull] object entityType, [CanBeNull] object propertiesCount, [CanBeNull] object valuesCount)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FindValueCountMismatch", "entityType", "propertiesCount", "valuesCount"), entityType, propertiesCount, valuesCount);
+        }
+
+        /// <summary>
+        /// The key value at position {index} of the call to 'DbSet&lt;{entityType}&gt;.Find' was of type '{valueType}', which does not match the property type of '{propertyType}'.
+        /// </summary>
+        public static string FindValueTypeMismatch([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object valueType, [CanBeNull] object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FindValueTypeMismatch", "index", "entityType", "valueType", "propertyType"), index, entityType, valueType, propertyType);
         }
 
         /// <summary>
@@ -1081,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key targetting '{entityType}'. The foreign key must be targetting a type that is part of the relationship.
+        /// You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key targeting '{entityType}'. The foreign key must be targeting a type that is part of the relationship.
         /// </summary>
         public static string PrincipalEntityTypeNotInRelationship([CanBeNull] object dependentEntityType, [CanBeNull] object principalEntityType, [CanBeNull] object entityType)
         {
@@ -1161,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not find setter for property {property}
+        /// Could not find setter or matching backing field for property {property}
         /// </summary>
         public static string NoClrSetter([CanBeNull] object property)
         {
@@ -1249,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
+        /// Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
         /// </summary>
         public static string ContextDisposed
         {
@@ -1262,6 +1342,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NoProviderConfiguredFailedToResolveService([CanBeNull] object service)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoProviderConfiguredFailedToResolveService", "service"), service);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingProperty", "entityType", "property"), entityType, property);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingPropertyInvalidCast([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType, [CanBeNull] object actualType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingPropertyInvalidCast", "entityType", "property", "expectedType", "actualType"), entityType, property, expectedType, actualType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingPropertyNullReference", "entityType", "property", "expectedType"), entityType, property, expectedType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingValue
+        {
+            get { return GetString("ErrorMaterializingValue"); }
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingValueInvalidCast", "expectedType", "actualType"), expectedType, actualType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingValueNullReference", "expectedType"), expectedType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

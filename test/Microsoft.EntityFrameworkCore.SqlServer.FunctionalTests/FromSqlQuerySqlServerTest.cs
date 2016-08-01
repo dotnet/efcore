@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -47,6 +49,38 @@ FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 WHERE [c].[ContactName] LIKE (N'%' + N'z') + N'%'",
+                Sql);
+        }
+
+        public override void From_sql_composed_contains()
+        {
+            base.From_sql_composed_contains();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [o0].[CustomerID]
+    FROM (
+        SELECT * FROM ""Orders""
+    ) AS [o0]
+)",
+                Sql);
+        }
+
+        public override void From_sql_composed_contains2()
+        {
+            base.From_sql_composed_contains2();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IN (
+    SELECT [o0].[CustomerID]
+    FROM (
+        SELECT * FROM ""Orders""
+    ) AS [o0]
+)",
                 Sql);
         }
 
@@ -333,9 +367,10 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1",
                 Sql);
         }
 
-        public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
@@ -345,6 +380,9 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1",
                 Value = value
             };
 
-        private static string Sql => TestSqlLoggerFactory.Sql;
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

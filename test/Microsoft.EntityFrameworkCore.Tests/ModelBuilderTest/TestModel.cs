@@ -96,9 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public CustomerDetails Details { get; set; }
         }
 
+        [NotMapped]
         protected class SpecialCustomer : Customer
         {
             public ICollection<SpecialOrder> SpecialOrders { get; set; }
+        }
+
+        protected class OtherCustomer : Customer
+        {
         }
 
         protected class CustomerDetails
@@ -124,8 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public OrderDetails Details { get; set; }
         }
 
+        [NotMapped]
         protected class SpecialOrder : Order
         {
+            public int? SpecialCustomerId { get; set; }
+            public SpecialCustomer SpecialCustomer { get; set; }
             public BackOrder BackOrder { get; set; }
             public OrderCombination SpecialOrderCombination { get; set; }
         }
@@ -254,88 +262,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class AnotherBookLabel : BookLabel
         {
-        }
-
-        private class Post
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("PostDetails")]
-            public int PostDetailsId { get; set; }
-
-            public PostDetails PostDetails { get; set; }
-
-            [ForeignKey("AuthorId")]
-            public Author Author { get; set; }
-        }
-
-        private class PostDetails
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("Post")]
-            public int PostId { get; set; }
-
-            public Post Post { get; set; }
-        }
-
-        private class Author
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("PostId")]
-            public Post Post { get; set; }
-
-            [ForeignKey("AuthorDetailsIdByAttribute")]
-            public AuthorDetails AuthorDetails { get; set; }
-        }
-
-        private class AuthorDetails
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("Author")]
-            public int AuthorId { get; set; }
-
-            public Author Author { get; set; }
-        }
-
-        private class A
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("B")]
-            public int BId { get; set; }
-
-            public B B { get; set; }
-        }
-
-        private class B
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("A")]
-            public int AId { get; set; }
-
-            [InverseProperty("B")]
-            public A A { get; set; }
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("DId")]
-            [InverseProperty("C")]
-            public D D { get; set; }
-        }
-
-        private class D
-        {
-            public int Id { get; set; }
-
-            [ForeignKey("CId")]
-            public C C { get; set; }
         }
 
         private class EntityWithoutId
@@ -471,12 +397,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected class EntityBase : IEntityBase
         {
-            int IEntityBase.Target { get; set; }
-        }
-
-        protected class EntityAnnotationBase : IEntityBase
-        {
-            [NotMapped]
             int IEntityBase.Target { get; set; }
         }
 

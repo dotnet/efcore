@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var propertiesList = properties.ToList();
                     var appendAction = propertiesList.Count > 2 ? AppendLine : Append;
 
-                    appendAction(stringBuilder, value.GetType().DisplayName(fullName: false) + " ");
+                    appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
                     appendAction(stringBuilder, "{ ");
 
                     stringBuilder.IncrementIndent();

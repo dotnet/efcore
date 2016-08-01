@@ -8,6 +8,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -17,7 +19,7 @@ using Microsoft.EntityFrameworkCore.Update;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract partial class InternalEntityEntry : IUpdateEntry
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private StoreGeneratedValues _storeGeneratedValues;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected InternalEntityEntry(
@@ -37,29 +39,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             StateManager = stateManager;
             EntityType = entityType;
-            _stateData = new StateData(entityType.PropertyCount());
+            _stateData = new StateData(entityType.PropertyCount(), entityType.NavigationCount());
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract object Entity { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEntityType EntityType { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IStateManager StateManager { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetEntityState(EntityState entityState, bool acceptChanges = false)
@@ -69,6 +71,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (PrepareForAdd(entityState))
             {
                 StateManager.ValueGeneration.Generate(this);
+            }
+
+            SetEntityState(oldState, entityState, acceptChanges);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual async Task SetEntityStateAsync(
+            EntityState entityState,
+            bool acceptChanges,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var oldState = _stateData.EntityState;
+
+            if (PrepareForAdd(entityState))
+            {
+                await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
@@ -180,28 +201,61 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.StopTracking(this);
             }
 
-            StateManager.Notify.StateChanged(this, oldState, StateManager.IsSingleQueryMode(EntityType), fromQuery: false);
+            if ((newState == EntityState.Deleted
+                 || newState == EntityState.Detached)
+                && HasConceptualNull)
+            {
+                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Null, flagged: false);
+            }
+
+            if (oldState == EntityState.Detached
+                || oldState == EntityState.Unchanged)
+            {
+                if (newState == EntityState.Added
+                    || newState == EntityState.Deleted
+                    || newState == EntityState.Modified)
+                {
+                    StateManager.ChangedCount++;
+                }
+            }
+            else if (newState == EntityState.Detached
+                     || newState == EntityState.Unchanged)
+            {
+                StateManager.ChangedCount--;
+            }
+
+            StateManager.Notify.StateChanged(this, oldState, fromQuery: false);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void MarkUnchangedFromQuery()
+        public virtual void MarkUnchangedFromQuery([CanBeNull] ISet<IForeignKey> handledForeignKeys)
         {
             StateManager.Notify.StateChanging(this, EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
-            StateManager.Notify.StateChanged(this, EntityState.Detached, StateManager.IsSingleQueryMode(EntityType), fromQuery: true);
+            StateManager.Notify.StateChanged(this, EntityState.Detached, fromQuery: true);
+
+            var trackingQueryMode = StateManager.GetTrackingQueryMode(EntityType);
+            if (trackingQueryMode != TrackingQueryMode.Simple)
+            {
+                StateManager.Notify.TrackedFromQuery(
+                    this,
+                    trackingQueryMode == TrackingQueryMode.Single
+                        ? handledForeignKeys
+                        : null);
+            }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityState EntityState => _stateData.EntityState;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsModified(IProperty property)
@@ -214,13 +268,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetPropertyModified(
             [NotNull] IProperty property,
             bool changeState = true,
-            bool isModified = true)
+            bool isModified = true,
+            bool isConceptualNull = false)
         {
             var propertyIndex = property.GetIndex();
             _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, false);
@@ -247,6 +302,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             if (changeState
+                && !isConceptualNull
                 && isModified
                 && property.IsKey())
             {
@@ -264,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             // Don't change entity state if it is Added or Deleted
-            if (isModified && currentState == EntityState.Unchanged)
+            if (isModified 
+                && currentState == EntityState.Unchanged)
             {
                 if (changeState)
                 {
@@ -276,7 +333,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (changeState)
                 {
-                    StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false, fromQuery: false);
+                    StateManager.ChangedCount++;
+                    StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
                 }
             }
             else if (changeState
@@ -285,28 +343,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 StateManager.Notify.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
-                StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false, fromQuery: false);
+                StateManager.ChangedCount--;
+                StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasConceptualNull
-            => _stateData.EntityState != EntityState.Deleted
-               && _stateData.AnyPropertiesFlagged(PropertyFlag.Null);
+            => _stateData.AnyPropertiesFlagged(PropertyFlag.Null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsConceptualNull([NotNull] IProperty property)
-            => _stateData.EntityState != EntityState.Deleted
-               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
+            => _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasTemporaryValue(IProperty property)
@@ -314,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void MarkAsTemporary([NotNull] IProperty property, bool isTemporary = true)
@@ -331,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void MarkShadowPropertiesNotSet([NotNull] IEntityType entityType)
@@ -349,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [UsedImplicitly]
@@ -381,28 +438,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .Single(m => m.Name == nameof(GetCurrentValue) && m.IsGenericMethod);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
             => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().CurrentValueGetter)(this);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual TProperty GetOriginalValue<TProperty>(IProperty property)
             => ((Func<InternalEntityEntry, TProperty>)property.GetPropertyAccessors().OriginalValueGetter)(this);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual TProperty GetRelationshipSnapshotValue<TProperty>([NotNull] IPropertyBase propertyBase)
             => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(this);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
@@ -413,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
@@ -424,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetCurrentValue(IPropertyBase propertyBase)
@@ -436,28 +493,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetOriginalValue(IPropertyBase propertyBase)
             => _originalValues.GetValue(this, (IProperty)propertyBase);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase)
             => _relationshipsSnapshot.GetValue(this, propertyBase);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetCurrentValue(IPropertyBase propertyBase, object value)
             => this[propertyBase] = value;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, int index = -1)
@@ -467,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
@@ -477,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void EnsureOriginalValues()
@@ -489,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void EnsureRelationshipSnapshot()
@@ -501,19 +558,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasOriginalValuesSnapshot => !_originalValues.IsEmpty;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasRelationshipSnapshot => !_relationshipsSnapshot.IsEmpty;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void RemoveFromCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] object removedEntity)
@@ -523,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddToCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] object addedEntity)
@@ -533,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddRangeToCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] IEnumerable<object> addedEntities)
@@ -543,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object this[[NotNull] IPropertyBase propertyBase]
@@ -559,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetProperty([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, bool setModified = true)
@@ -588,7 +645,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         if (value == null)
                         {
-                            _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Null, isFlagged: true);
+                            if (EntityState != EntityState.Deleted
+                                && EntityState != EntityState.Detached)
+                            {
+                                _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Null, isFlagged: true);
+                                SetPropertyModified(asProperty, changeState: true, isModified: true, isConceptualNull: true);
+                            }
                             writeValue = false;
                         }
                         else
@@ -607,6 +669,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Unknown, isFlagged: false);
                         }
 
+                        if (asProperty == null)
+                        {
+                            var navigation = (INavigation)propertyBase;
+                            if (!navigation.IsCollection()
+                                && value == null)
+                            {
+                                SetIsLoaded(navigation, loaded: false);
+                            }
+                        }
+
                         StateManager.Notify.PropertyChanged(this, propertyBase, setModified);
                     }
                 }
@@ -614,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AcceptChanges()
@@ -655,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry PrepareToSave()
@@ -704,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void HandleConceptualNulls()
@@ -713,11 +785,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var foreignKey in EntityType.GetForeignKeys())
             {
                 // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var property in foreignKey.Properties)
+                var properties = foreignKey.Properties;
+                foreach (var property in properties)
                 {
                     if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null))
                     {
-                        fks.Add(foreignKey);
+                        if (properties.Any(p => p.IsNullable))
+                        {
+                            foreach (var toNull in properties)
+                            {
+                                if (toNull.IsNullable)
+                                {
+                                    this[toNull] = null;
+                                }
+                                else
+                                {
+                                    _stateData.FlagProperty(toNull.GetIndex(), PropertyFlag.Null, isFlagged: false);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            fks.Add(foreignKey);
+                        }
                         break;
                     }
                 }
@@ -737,14 +827,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else
             {
-                throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
-                    EntityType.GetProperties().First(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null)).Name,
-                    EntityType.DisplayName()));
+                var property = EntityType.GetProperties().FirstOrDefault(
+                    p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
+
+                if (property != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
+                        property.Name,
+                        EntityType.DisplayName()));
+                }
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void CascadeDelete()
@@ -783,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void DiscardStoreGeneratedValues()
@@ -805,7 +901,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsStoreGenerated(IProperty property)
@@ -819,19 +915,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                || property.ClrType.IsDefaultValue(this[property]);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void HandleINotifyPropertyChanging([NotNull] object sender, [NotNull] PropertyChangingEventArgs eventArgs)
@@ -843,7 +939,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void HandleINotifyPropertyChanged([NotNull] object sender, [NotNull] PropertyChangedEventArgs eventArgs)
@@ -855,7 +951,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void HandleINotifyCollectionChanged([NotNull] object sender, [NotNull] NotifyCollectionChangedEventArgs eventArgs)
@@ -892,5 +988,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void SetIsLoaded([NotNull] INavigation navigation, bool loaded = true)
+        {
+            if (!loaded
+                && !navigation.IsCollection()
+                && this[navigation] != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ReferenceMustBeLoaded(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+            }
+
+            _stateData.FlagProperty(GetNavigationStateDataIndex(navigation), PropertyFlag.IsLoaded, isFlagged: loaded);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool IsLoaded([NotNull] INavigation navigation)
+            => (!navigation.IsCollection()
+                && EntityState != EntityState.Detached
+                && this[navigation] != null)
+               || _stateData.IsPropertyFlagged(GetNavigationStateDataIndex(navigation), PropertyFlag.IsLoaded);
+
+        private int GetNavigationStateDataIndex(INavigation navigation)
+            => navigation.GetIndex() - EntityType.PropertyCount();
     }
 }

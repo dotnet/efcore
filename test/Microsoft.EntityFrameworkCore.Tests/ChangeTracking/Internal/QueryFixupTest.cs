@@ -522,6 +522,343 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
         }
 
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_dependent_include_principal_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new Product { CategoryId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var dependent = context.Set<Product>().Include(e => e.Category).Single();
+                var principal = dependent.Category;
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Contains(dependent, principal.Products);
+
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Same(principal, newDependent.Category);
+                        Assert.Contains(newDependent, principal.Products);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_principal_include_dependent_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new Product { CategoryId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var principal = context.Set<Category>().Include(e => e.Products).Single();
+                var dependent = principal.Products.Single(e => e.Id != newDependent.Id);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Contains(dependent, principal.Products);
+
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Same(principal, newDependent.Category);
+                        Assert.Contains(newDependent, principal.Products);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_dependent_include_principal_unidirectional_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new ProductDN { CategoryId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var dependent = context.Set<ProductDN>().Include(e => e.Category).Single();
+                var principal = dependent.Category;
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Same(principal, newDependent.Category);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_principal_include_dependent_unidirectional_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new ProductPN { CategoryId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var principal = context.Set<CategoryPN>().Include(e => e.Products).Single();
+                var dependent = principal.Products.Single(e => e.Id != newDependent.Id);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Contains(dependent, principal.Products);
+
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Contains(newDependent, principal.Products);
+                    });
+            }
+        }
+
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_self_ref_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new Widget { ParentWidgetId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var widgets = context.Set<Widget>().ToList();
+                var dependent = widgets.Single(e => e.Id == 78);
+                var principal = widgets.Single(e => e.Id == 77);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Contains(dependent, principal.ChildWidgets);
+
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_dependent_include_principal_self_ref_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new Widget { ParentWidgetId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var widgets = context.Set<Widget>().Include(e => e.ParentWidget).ToList();
+                var dependent = widgets.Single(e => e.Id == 78);
+                var principal = widgets.Single(e => e.Id == 77);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Contains(dependent, principal.ChildWidgets);
+
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_principal_include_dependent_self_ref_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new Widget { ParentWidgetId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var widgets = context.Set<Widget>().Include(e => e.ChildWidgets).ToList();
+                var dependent = widgets.Single(e => e.Id == 78);
+                var principal = widgets.Single(e => e.Id == 77);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Contains(dependent, principal.ChildWidgets);
+
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_self_ref_prinipal_nav_only_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new WidgetPN { ParentWidgetId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var widgets = context.Set<WidgetPN>().ToList();
+                var dependent = widgets.Single(e => e.Id == 78);
+                var principal = widgets.Single(e => e.Id == 77);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Contains(dependent, principal.ChildWidgets);
+
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_self_ref_dependent_nav_only_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new WidgetDN { ParentWidgetId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var widgets = context.Set<WidgetDN>().ToList();
+                var dependent = widgets.Single(e => e.Id == 78);
+                var principal = widgets.Single(e => e.Id == 77);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_dependent_include_principal_self_ref_unidirectional_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new WidgetDN { ParentWidgetId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var widgets = context.Set<WidgetDN>().Include(e => e.ParentWidget).ToList();
+                var dependent = widgets.Single(e => e.Id == 78);
+                var principal = widgets.Single(e => e.Id == 77);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                    });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Query_principal_include_dependent_self_ref_unidirectional_with_existing(EntityState existingState)
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var newDependent = new WidgetPN { ParentWidgetId = 77 };
+                context.Entry(newDependent).State = existingState;
+
+                var widgets = context.Set<WidgetPN>().Include(e => e.ChildWidgets).ToList();
+                var dependent = widgets.Single(e => e.Id == 78);
+                var principal = widgets.Single(e => e.Id == 77);
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Contains(dependent, principal.ChildWidgets);
+
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
+            }
+        }
+
         private static void Seed()
         {
             using (var context = new QueryFixupContext())

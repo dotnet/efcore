@@ -262,7 +262,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Join_uses_database_semantics()
         {
             using (var context = CreateContext())
@@ -344,6 +343,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 && e.NullableStringA != prm3));
         }
 
+
+        [Fact]
+        public virtual void Where_coalesce()
+        {
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA ?? true));
+        }
+
         [Fact]
         public virtual void Where_equal_nullable_with_null_value_parameter()
         {
@@ -415,6 +421,36 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 e.NullableStringC != (e.NullableStringA == e.NullableStringB
                     ? e.StringA
                     : e.StringB)));
+        }
+
+        [Fact]
+        public virtual void Where_conditional_search_condition_in_result()
+        {
+            var prm = true;
+            var list = new string[] { "Foo", "Bar" };
+
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
+                prm ? list.Contains(e.StringA) : false));
+
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
+                !prm ? true : e.StringA.StartsWith("A")));
+        }
+
+        [Fact]
+        public virtual void Where_nested_conditional_search_condition_in_result()
+        {
+            var prm1 = true;
+            var prm2 = false;
+            var list = new string[] { "Foo", "Bar" };
+
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
+                prm1
+                    ? (prm2
+                        ? (e.BoolA
+                            ? e.StringA.StartsWith("A")
+                            : false)
+                        : true)
+                    : (e.BoolB ? list.Contains(e.StringA) : list.Contains(e.StringB)))); 
         }
 
         [Fact]

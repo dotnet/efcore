@@ -174,6 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         [UsedImplicitly]
         private static Exception CreateUnableToDiscriminateException(IEntityType entityType)
-            => new InvalidOperationException(RelationalStrings.UnableToDiscriminate(entityType.Name));
+            => new InvalidOperationException(RelationalStrings.UnableToDiscriminate(entityType.DisplayName()));
     }
 }

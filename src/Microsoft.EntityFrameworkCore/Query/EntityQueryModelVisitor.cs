@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -46,9 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly string _efTypeName = typeof(EF).FullName;
 
-        private static readonly MethodInfo _efPropertyMethod
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
-
         /// <summary>
         ///     Determines if a <see cref="MethodInfo"/> is referencing the <see cref="EF.Property{TProperty}(object, string)"/> method.
         /// </summary>
@@ -57,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     True if <paramref name="methodInfo"/> is referencing <see cref="EF.Property{TProperty}(object, string)"/>; otherwise fale;
         /// </returns>
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
-            ReferenceEquals(methodInfo, _efPropertyMethod)
+            ReferenceEquals(methodInfo, EF.PropertyMethod)
             ||
             (
                 // fallback to string comparison because MethodInfo.Equals is not
@@ -77,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static Expression CreatePropertyExpression([NotNull] Expression target, [NotNull] IProperty property)
             => Expression.Call(
                 null,
-                _efPropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
+                EF.PropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                 target,
                 Expression.Constant(property.Name));
 
