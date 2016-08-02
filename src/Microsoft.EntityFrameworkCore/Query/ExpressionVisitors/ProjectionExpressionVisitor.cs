@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -52,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = Expression.Call(
                             QueryModelVisitor.LinqOperatorProvider.ToQueryable
                                 .MakeGenericMethod(expression.Type.GetSequenceType()),
-                            subExpression);
+                            subExpression,
+                            Expression.Constant(QueryModelVisitor.QueryProvider));
                 }
                 else if (subQueryExpressionTypeInfo.IsGenericType)
                 {

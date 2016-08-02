@@ -91,11 +91,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public override Task Select_nested_collection_deep()
-        {
-            return base.Select_nested_collection_deep();
-        }
-
         public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

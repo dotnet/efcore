@@ -320,16 +320,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IAsyncEnumerable<TSource> source)
-            => new AsyncQueryableAdapter<TSource>(source);
+        private static IOrderedQueryable<TSource> _ToQueryable<TSource>(
+            IAsyncEnumerable<TSource> source, IAsyncQueryProvider queryProvider)
+            => new AsyncQueryableAdapter<TSource>(source, queryProvider);
 
         private sealed class AsyncQueryableAdapter<T> : IOrderedQueryable<T>
         {
             private readonly IAsyncEnumerable<T> _source;
+            private readonly ConstantExpression _constantExpression;
 
-            public AsyncQueryableAdapter(IAsyncEnumerable<T> source)
+            public AsyncQueryableAdapter(IAsyncEnumerable<T> source, IQueryProvider queryProvider)
             {
                 _source = source;
+                Provider = queryProvider;
+                _constantExpression = Expression.Constant(this);
             }
 
             IEnumerator<T> IEnumerable<T>.GetEnumerator() => _source.ToEnumerable().GetEnumerator();
@@ -338,15 +342,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public Type ElementType => typeof(T);
 
-            public Expression Expression
-            {
-                get { throw new NotImplementedException(); }
-            }
+            public Expression Expression => _constantExpression;
 
-            public IQueryProvider Provider
-            {
-                get { throw new NotImplementedException(); }
-            }
+            public IQueryProvider Provider { get; }
         }
 
         /// <summary>

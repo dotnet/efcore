@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -297,8 +298,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IEnumerable<TSource> source)
-            => new EnumerableQuery<TSource>(source);
+        private static IOrderedQueryable<TSource> _ToQueryable<TSource>(
+            IEnumerable<TSource> source, IQueryProvider queryProvider)
+            => new QueryableAdapter<TSource>(source, queryProvider);
+
+        private sealed class QueryableAdapter<T> : IOrderedQueryable<T>
+        {
+            private readonly IEnumerable<T> _source;
+            private readonly ConstantExpression _constantExpression;
+
+            public QueryableAdapter(IEnumerable<T> source, IQueryProvider queryProvider)
+            {
+                _source = source;
+                Provider = queryProvider;
+                _constantExpression = Expression.Constant(this);
+            }
+
+            IEnumerator<T> IEnumerable<T>.GetEnumerator() => _source.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
+
+            public Type ElementType => typeof(T);
+
+            public Expression Expression => _constantExpression;
+
+            public IQueryProvider Provider { get; }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

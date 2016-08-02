@@ -241,12 +241,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     propertyType);
                             }
                             
-                            var maybeMethodCallExpression= newExpression.Arguments[0] as MethodCallExpression;
+                            var maybeMethodCallExpression = newExpression.Arguments[0] as MethodCallExpression;
 
-                            if (maybeMethodCallExpression != null
+                            if ((maybeMethodCallExpression != null
                                 && maybeMethodCallExpression.Method.IsGenericMethod
                                 && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
                                 == DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
+                                || (newExpression.Arguments[0].NodeType == ExpressionType.Parameter
+                                    && !property.IsShadowProperty))
                             {
                                 // The target is a parameter, try and get the value from it directly.
                                 return Expression.Call(
@@ -255,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     Expression.Constant(property.GetGetter()),
                                     newExpression.Arguments[0]);
                             }
-                            
+
                             return Expression.Call(
                                 _getValueMethodInfo.MakeGenericMethod(propertyType),
                                 EntityQueryModelVisitor.QueryContextParameter,
