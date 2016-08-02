@@ -185,6 +185,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     VisitDefault((DefaultExpression)node);
                     break;
 
+                case ExpressionType.Try:
+                    VisitTry((TryExpression)node);
+                    break;
+
                 default:
                     UnhandledExpressionType(node.NodeType);
                     break;
@@ -589,6 +593,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitDefault(DefaultExpression node)
         {
             _stringBuilder.Append("default(" + node.Type + ")");
+
+            return node;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitTry(TryExpression node)
+        {
+            _stringBuilder.Append("try { ");
+            Visit(node.Body);
+            _stringBuilder.Append(" } ");
+            foreach (var handler in node.Handlers)
+            {
+                _stringBuilder.Append("catch (" + handler.Test.Name + ") { ... } ");
+            }
 
             return node;
         }
