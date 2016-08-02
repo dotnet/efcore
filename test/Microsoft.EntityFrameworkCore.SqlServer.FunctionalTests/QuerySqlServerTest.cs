@@ -2587,7 +2587,6 @@ INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[Cu
         {
             base.Join_client_new_expression();
 
-            // See issue#4458
             Assert.Contains(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
@@ -2615,7 +2614,6 @@ CROSS JOIN [Employees] AS [e]",
         {
             base.Client_Join_select_many();
 
-            // See issue#4458
             Assert.Contains(
                 @"SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
 FROM [Employees] AS [e2]",
@@ -2659,7 +2657,6 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
         {
             base.Join_customers_orders_with_subquery();
 
-            // See issue#4458
             Assert.Contains(
                 @"SELECT [o2].[CustomerID], [o2].[OrderID]
 FROM [Orders] AS [o2]
@@ -2694,7 +2691,6 @@ WHERE [t].[CustomerID] = N'ALFKI'",
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method();
 
-            // See issue#4458
             Assert.Contains(
                 @"SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]
@@ -2711,7 +2707,6 @@ FROM [Customers] AS [c]",
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method_with_take();
 
-            // See issue#4458
             Assert.Contains(
                 @"@__p_0: 5
 
@@ -2730,7 +2725,6 @@ FROM [Customers] AS [c]",
         {
             base.Join_customers_orders_with_subquery_predicate();
 
-            // See issue#4458
             Assert.Contains(
                 @"SELECT [o2].[CustomerID], [o2].[OrderID]
 FROM [Orders] AS [o2]
@@ -3264,7 +3258,6 @@ FROM [Customers] AS [c]",
         {
             base.OrderBy_multiple_queries();
 
-            // See issue#4458
             Assert.Contains(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",

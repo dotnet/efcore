@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var result = query.ToList();
 
-                Assert.Equal(3, result.Count);
+                Assert.Equal(4, result.Count);
             }
         }
 
@@ -164,9 +164,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var expectedCount = context.LevelOne.Count();
+
+                ClearLog();
+
                 var result = context.LevelOne.Include(e => e.OneToMany_Optional).ThenInclude(e => e.OneToMany_Optional).ToList();
 
-                Assert.Equal(10, result.Count);
+                Assert.Equal(expectedCount, result.Count);
 
                 var level1 = result.Single(e => e.Name == "L1 01");
 
@@ -190,9 +194,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var expectedCount = context.LevelOne.Count();
+
+                ClearLog();
+
                 var result = context.LevelOne.Include(e => e.OneToMany_Optional).ThenInclude(e => e.OneToMany_Optional).ThenInclude(e => e.OneToMany_Required_Inverse.OneToMany_Optional).ToList();
 
-                Assert.Equal(10, result.Count);
+                Assert.Equal(expectedCount, result.Count);
 
                 var level1 = result.Single(e => e.Name == "L1 01");
 
@@ -466,7 +474,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
+        // issue #5613
+        ////[ConditionalFact]
         public virtual void Navigation_inside_method_call_translated_to_join()
         {
 
@@ -474,6 +483,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = from e1 in context.LevelOne
                             where e1.OneToOne_Required_FK.Name.StartsWith("L")
+                            select e1;
+
+                var result = query.ToList();
+            }
+        }
+
+        // issue #5613
+        ////[ConditionalFact]
+        public virtual void Optional_navigation_inside_method_call_translated_to_join()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Optional_FK.Name.StartsWith("L")
                             select e1;
 
                 var result = query.ToList();
@@ -704,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 var expected = (from e3 in levelThrees
-                                join e1 in levelOnes on e3.Id equals e1?.OneToOne_Required_FK.OneToOne_Optional_FK?.Id
+                                join e1 in levelOnes on e3.Id equals e1?.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id
                                 select new { Id3 = e3.Id, Id1 = e1.Id }).ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -737,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 var expected = (from e4 in levelFours
-                                join e1 in levelOnes on e4.Name equals e1?.OneToOne_Required_FK.OneToOne_Optional_FK?.OneToOne_Required_PK?.Name
+                                join e1 in levelOnes on e4.Name equals e1?.OneToOne_Required_FK?.OneToOne_Optional_FK?.OneToOne_Required_PK?.Name
                                 select new { Id4 = e4.Id, Name4 = e4.Name, Id1 = e1.Id, Name1 = e1.Name }).ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -1452,7 +1475,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne.Select(e => e.OneToOne_Required_FK.OneToOne_Required_FK.Id);
+                var query = context.LevelOne.Select(e => (int?)e.OneToOne_Required_FK.OneToOne_Required_FK.Id);
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -1734,7 +1757,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK)
                     .ToList()
                     .Where(e =>
-                        e.OneToOne_Required_FK.OneToOne_Required_FK.Id == e.OneToOne_Required_FK.OneToOne_Optional_FK?.Id
+                        e.OneToOne_Required_FK?.OneToOne_Required_FK?.Id == e.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id
                         && e.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id != 7)
                     .Select(e => new KeyValuePair<string, int?>
                         (
@@ -2265,7 +2288,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 expected = context.LevelOne
                     .Include(e => e.OneToOne_Required_FK.OneToMany_Optional)
                     .ToList()
-                    .SelectMany(e => e.OneToOne_Required_FK.OneToMany_Optional).Select(e => e.Id)
+                    .SelectMany(e => e.OneToOne_Required_FK?.OneToMany_Optional ?? new List<Level3>()).Select(e => e.Id)
                     .ToList();
             }
 
@@ -2385,7 +2408,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Include(l1 => l1.OneToOne_Required_FK)
                     .ThenInclude(l1 => l1.OneToMany_Optional)
                     .ToList()
-                    .Where(l1 => l1?.OneToOne_Required_FK.OneToMany_Optional?.Count > 0)
+                    .Where(l1 => l1?.OneToOne_Required_FK?.OneToMany_Optional?.Count > 0)
                     .Select(e => e?.Name)
                     .ToList();
             }
