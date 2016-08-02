@@ -1429,7 +1429,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                 @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
-        b.Property<string>(""Id"");
+        b.Property<string>(""Id"")
+            .ValueGeneratedOnAdd();
 
         b.HasKey(""Id"");
 
@@ -1477,7 +1478,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
                 @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
-        b.Property<string>(""Id"");
+        b.Property<string>(""Id"")
+            .ValueGeneratedOnAdd();
 
         b.HasKey(""Id"");
 

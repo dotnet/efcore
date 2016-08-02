@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
     public class DiscriminatorTest
     {
         [Fact]
-        public void Can_save_enities_with_discriminators()
+        public void Can_save_entities_with_discriminators()
         {
             using (var context = new Context4285())
             {
@@ -21,13 +21,17 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             using (var context = new Context4285())
             {
                 var products = context.Products.ToList();
-                Assert.Equal("One", products.OfType<SubProduct>().Single().SomeName);
-                Assert.Equal("Two", products.OfType<SubProduct2>().Single().SomeName2);
+                var productOne = products.OfType<SubProduct>().Single();
+                Assert.Equal("One", productOne.SomeName);
+                Assert.Equal(nameof(SubProduct), context.Entry(productOne).Property<string>("Discriminator").CurrentValue);
+                var productTwo = products.OfType<SubProduct2>().Single();
+                Assert.Equal("Two", productTwo.SomeName2);
+                Assert.Equal(nameof(SubProduct2), context.Entry(productTwo).Property<string>("Discriminator").CurrentValue);
             }
         }
 
         [Fact]
-        public void Can_save_enities_with_int_discriminators()
+        public void Can_save_entities_with_int_discriminators()
         {
             using (var context = new Context4285())
             {
@@ -38,8 +42,12 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             using (var context = new Context4285())
             {
                 var products = context.IntProducts.ToList();
-                Assert.Equal("One", products.OfType<SubIntProduct>().Single().SomeName);
-                Assert.Equal("Two", products.OfType<SubIntProduct2>().Single().SomeName2);
+                var productOne = products.OfType<SubIntProduct>().Single();
+                Assert.Equal("One", productOne.SomeName);
+                Assert.Equal(1, context.Entry(productOne).Property<int>("IntDiscriminator").CurrentValue);
+                var productTwo = products.OfType<SubIntProduct2>().Single();
+                Assert.Equal("Two", productTwo.SomeName2);
+                Assert.Equal(2, context.Entry(productTwo).Property<int>("IntDiscriminator").CurrentValue);
             }
         }
 

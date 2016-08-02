@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -248,7 +249,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // TODO: #2132
             //propertyBuilder.ReadOnlyBeforeSave(true, configurationSource);
             propertyBuilder.ReadOnlyAfterSave(true, configurationSource);
-            propertyBuilder.RequiresValueGenerator(true, configurationSource);
+            propertyBuilder.HasValueGenerator(
+                (property, entityType) => new DiscriminatorValueGenerator(GetAnnotations(entityType).DiscriminatorValue),
+                configurationSource);
 
             return new DiscriminatorBuilder(Annotations, entityBuilder
                 => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource, ProviderFullAnnotationNames));

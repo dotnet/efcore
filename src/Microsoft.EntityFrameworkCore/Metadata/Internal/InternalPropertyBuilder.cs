@@ -201,13 +201,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Metadata.SetValueGenerated(valueGenerated, configurationSource);
 
-                if (Metadata.IsKey())
-                {
-                    RequiresValueGenerator(
-                        valueGenerated == EntityFrameworkCore.Metadata.ValueGenerated.OnAdd,
-                        ConfigurationSource.Convention);
-                }
-
                 return true;
             }
 

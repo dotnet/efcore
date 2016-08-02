@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
+    [DebuggerDisplay("{DebuggerDisplay, nq}")]
     public class Property : PropertyBase, IMutableProperty
     {
         private int _flags;
@@ -316,7 +316,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateRequiresValueGeneratorConfigurationSource(configurationSource);
         }
 
-        private static bool DefaultRequiresValueGenerator => false;
+        private bool DefaultRequiresValueGenerator
+            => this.IsKey()
+               && !this.IsForeignKey()
+               && ValueGenerated == ValueGenerated.OnAdd;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -460,6 +463,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string Format([NotNull] IEnumerable<IProperty> properties)
             => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
+
+        [UsedImplicitly]
+        private string DebuggerDisplay => $"{DeclaringEntityType.DisplayName()}.{Name} ({ClrType?.ShortDisplayName()})";
 
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;

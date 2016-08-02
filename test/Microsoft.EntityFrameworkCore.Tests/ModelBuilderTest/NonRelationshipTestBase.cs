@@ -152,7 +152,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Customer>().HasKey(b => b.Name);
 
                 Assert.Same(key, entity.GetKeys().Single());
-                Assert.Equal(Customer.NameProperty.Name, entity.FindPrimaryKey().Properties.Single().Name);
+
+                var nameProperty = entity.FindPrimaryKey().Properties.Single();
+                Assert.Equal(Customer.NameProperty.Name, nameProperty.Name);
+                Assert.True(nameProperty.RequiresValueGenerator);
+                Assert.Equal(ValueGenerated.OnAdd, nameProperty.ValueGenerated);
 
                 var idProperty = (IProperty)entity.FindProperty(Customer.IdProperty);
                 Assert.False(idProperty.RequiresValueGenerator);

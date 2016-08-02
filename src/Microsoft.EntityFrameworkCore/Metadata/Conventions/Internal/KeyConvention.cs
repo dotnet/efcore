@@ -16,19 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class KeyConvention
-        : IKeyConvention, IPrimaryKeyConvention, IForeignKeyConvention, IForeignKeyRemovedConvention, IModelConvention
+        : IPrimaryKeyConvention, IForeignKeyConvention, IForeignKeyRemovedConvention, IModelConvention
     {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
-        {
-            SetValueGeneration(keyBuilder.Metadata.Properties);
-
-            return keyBuilder;
-        }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
@@ -38,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var property in relationshipBuilder.Metadata.Properties)
             {
                 var propertyBuilder = property.Builder;
-                propertyBuilder.RequiresValueGenerator(false, ConfigurationSource.Convention);
                 propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
             }
 
@@ -52,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
             var properties = foreignKey.Properties;
-            SetValueGeneration(properties.Where(property => property.IsKey()));
-            SetIdentity(properties, entityTypeBuilder.Metadata);
+            SetKeyValueGeneration(properties, entityTypeBuilder.Metadata);
         }
 
         /// <summary>
@@ -67,24 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var property in previousPrimaryKey.Properties)
                 {
                     property.Builder?.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
-                    property.Builder?.RequiresValueGenerator(false, ConfigurationSource.Convention);
                 }
             }
 
-            SetIdentity(keyBuilder.Metadata.Properties, keyBuilder.Metadata.DeclaringEntityType);
+            SetKeyValueGeneration(keyBuilder.Metadata.Properties, keyBuilder.Metadata.DeclaringEntityType);
 
             return true;
-        }
-
-        private static void SetValueGeneration(IEnumerable<Property> properties)
-        {
-            var generatingProperties = properties.Where(property =>
-                !property.IsForeignKey()
-                && property.ValueGenerated == ValueGenerated.OnAdd);
-            foreach (var propertyBuilder in generatingProperties)
-            {
-                propertyBuilder.Builder?.RequiresValueGenerator(true, ConfigurationSource.Convention);
-            }
         }
 
         /// <summary>
@@ -103,27 +78,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var property = properties.First();
                 if (!property.IsForeignKey())
                 {
-                    var propertyType = property.ClrType.UnwrapNullableType();
-                    if (propertyType.IsInteger()
-                        || propertyType == typeof(Guid))
-                    {
-                        return property;
-                    }
+                    return property;
                 }
             }
             return null;
         }
 
-        private void SetIdentity(IReadOnlyList<Property> properties, EntityType entityType)
-        {
-            var candidateIdentityProperty = FindValueGeneratedOnAddProperty(properties, entityType);
-            if (candidateIdentityProperty != null)
-            {
-                var propertyBuilder = candidateIdentityProperty.Builder;
-                propertyBuilder?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-                propertyBuilder?.RequiresValueGenerator(true, ConfigurationSource.Convention);
-            }
-        }
+        private void SetKeyValueGeneration(IReadOnlyList<Property> properties, EntityType entityType)
+            => FindValueGeneratedOnAddProperty(properties, entityType)
+                ?.Builder?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

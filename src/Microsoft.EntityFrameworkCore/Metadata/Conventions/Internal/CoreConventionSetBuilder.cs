@@ -54,8 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
 
             var keyConvention = new KeyConvention();
-            conventionSet.KeyAddedConventions.Add(keyConvention);
-
             conventionSet.PrimaryKeySetConventions.Add(keyConvention);
 
             var cascadeDeleteConvention = new CascadeDeleteConvention();

@@ -105,6 +105,83 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public void Can_use_string_enum_or_byte_array_as_key()
+        {
+            var sNum1 = new SNum { TheWalrus = "I"};
+            var sNum2 = new SNum { TheWalrus = "Am" };
+
+            var enNum1 = new EnNum { TheWalrus = "Goo goo" };
+            var enNum2 = new EnNum { TheWalrus = "g'joob" };
+
+            var bNum1 = new BNum { TheWalrus = "Eggman" };
+            var bNum2 = new BNum { TheWalrus = "Eggmen" };
+
+            using (var context = new ENumContext())
+            {
+                context.Database.EnsureClean();
+
+                context.AddRange(sNum1, sNum2, enNum1, enNum2, bNum1, bNum2);
+
+                sNum1.Id = "1";
+                sNum2.Id = "2";
+                enNum1.Id = ENum.CNum;
+                enNum2.Id = ENum.BNum;
+                bNum1.Id = new byte[] { 1 };
+                bNum2.Id = new byte[] { 2 };
+
+                context.SaveChanges();
+            }
+
+            using (var context = new ENumContext())
+            {
+                Assert.Equal(sNum1.Id, context.SNums.Single(e => e.TheWalrus == "I").Id);
+                Assert.Equal(sNum2.Id, context.SNums.Single(e => e.TheWalrus == "Am").Id);
+
+                Assert.Equal(enNum1.Id, context.EnNums.Single(e => e.TheWalrus == "Goo goo").Id);
+                Assert.Equal(enNum2.Id, context.EnNums.Single(e => e.TheWalrus == "g'joob").Id);
+
+                Assert.Equal(bNum1.Id, context.BNums.Single(e => e.TheWalrus == "Eggman").Id);
+                Assert.Equal(bNum2.Id, context.BNums.Single(e => e.TheWalrus == "Eggmen").Id);
+            }
+        }
+
+        private class ENumContext : DbContext
+        {
+            public DbSet<SNum> SNums { get; set; }
+            public DbSet<EnNum> EnNums { get; set; }
+            public DbSet<BNum> BNums { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("ENum"));
+        }
+
+        private class SNum
+        {
+            public string Id { get; set; }
+            public string TheWalrus { get; set; }
+        }
+
+        private class EnNum
+        {
+            public ENum Id { get; set; }
+
+            public string TheWalrus { get; set; }
+        }
+
+        private enum ENum
+        {
+            ANum,
+            BNum,
+            CNum
+        }
+
+        private class BNum
+        {
+            public byte[] Id { get; set; }
+            public string TheWalrus { get; set; }
+        }
+
+        [Fact]
         public void Can_run_linq_query_on_entity_set()
         {
             using (SqlServerNorthwindContext.GetSharedStore())

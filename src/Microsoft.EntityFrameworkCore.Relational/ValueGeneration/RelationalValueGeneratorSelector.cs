@@ -31,12 +31,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            if ((property.DeclaringEntityType.BaseType == null)
-                && (RelationalExtensions.For(property.DeclaringEntityType).DiscriminatorProperty == property))
-            {
-                return new DiscriminatorValueGenerator(RelationalExtensions.For(entityType).DiscriminatorValue);
-            }
-
             if (property.ValueGenerated != ValueGenerated.Never)
             {
                 var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
@@ -61,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
                 if (propertyType == typeof(DateTime))
                 {
-                    return new TemporaryDateTimeOffsetValueGenerator();
+                    return new TemporaryDateTimeValueGenerator();
                 }
 
                 if (propertyType == typeof(DateTimeOffset))
