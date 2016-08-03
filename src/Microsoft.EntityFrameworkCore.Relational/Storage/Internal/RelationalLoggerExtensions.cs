@@ -38,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     = command.Parameters.Count > 0
                       && logger.LogSensitiveData;
 
+#pragma warning disable 618
                 var logData = new DbCommandLogData(
+#pragma warning restore 618
                     command.CommandText.TrimEnd(),
                     command.CommandType,
                     command.CommandTimeout,

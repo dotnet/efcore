@@ -14,6 +14,8 @@ using Xunit.Abstractions;
 using System.Runtime.Remoting.Messaging;
 
 #endif
+
+#pragma warning disable 618
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public class TestSqlLoggerFactory : ILoggerFactory

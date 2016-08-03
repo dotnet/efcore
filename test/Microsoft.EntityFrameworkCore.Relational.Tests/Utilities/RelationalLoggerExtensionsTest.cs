@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -529,6 +530,30 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
                 "'-08:00:00' (DbType = DateTime)",
                 new DbParameterLogData(
                     "@param", new TimeSpan(-8, 0, 0), true, ParameterDirection.Input, DbType.DateTime, false, 0, 0, 0).FormatParameter());
+        }
+
+        [Fact]
+        public void DbCommandLogData_implements_enumerable_of_key_value_pair()
+        {
+            var parameter = new DbParameterLogData(
+                "@param", "Muffin", true, ParameterDirection.Input, DbType.String, false, 0, 0, 0);
+
+#pragma warning disable 618
+            var logData = new DbCommandLogData(
+#pragma warning restore 618
+                "FakeCommand",
+                CommandType.Text,
+                30,
+                new List<DbParameterLogData> { parameter },
+                1000);
+
+            var keyValuePairs = logData.ToList();
+
+            Assert.Equal("FakeCommand", keyValuePairs.Single(kvp => kvp.Key == "CommandText").Value);
+            Assert.Equal(CommandType.Text, keyValuePairs.Single(kvp => kvp.Key == "CommandType").Value);
+            Assert.Equal(30, keyValuePairs.Single(kvp => kvp.Key == "CommandTimeout").Value);
+            Assert.Equal(parameter, ((List<DbParameterLogData>)keyValuePairs.Single(kvp => kvp.Key == "Parameters").Value).Single());
+            Assert.Equal(1000L, keyValuePairs.Single(kvp => kvp.Key == "ElapsedMilliseconds").Value);
         }
     }
 }

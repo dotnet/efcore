@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -18,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         to be directly constructed in your application code.    
     ///     </para>
     /// </summary>
-    public class DbCommandLogData
+    [Obsolete("This class is obsolete. It will be removed in a future release.")]
+    public class DbCommandLogData : IEnumerable<KeyValuePair<string, object>>
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbParameterLogData"/> class.
@@ -76,5 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets how many milliseconds the command took to execute (if it has completed).
         /// </summary>
         public virtual long? ElapsedMilliseconds { get; }
+
+        public virtual IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        {
+            yield return new KeyValuePair<string, object>("CommandText", CommandText);
+            yield return new KeyValuePair<string, object>("CommandType", CommandType);
+            yield return new KeyValuePair<string, object>("CommandTimeout", CommandTimeout);
+            yield return new KeyValuePair<string, object>("Parameters", Parameters);
+            yield return new KeyValuePair<string, object>("ElapsedMilliseconds", ElapsedMilliseconds);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
