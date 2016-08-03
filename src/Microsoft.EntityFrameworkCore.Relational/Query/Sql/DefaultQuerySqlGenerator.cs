@@ -1619,7 +1619,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 if (_isSearchCondition)
                 {
-                    if (expression.IsComparisonOperation())
+                    if (expression.IsComparisonOperation()
+                        || expression.NodeType == ExpressionType.Or
+                        || expression.NodeType == ExpressionType.And)
                     {
                         var parentIsSearchCondition = _isSearchCondition;
                         _isSearchCondition = false;
@@ -1632,10 +1634,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
                 else
                 {
-                    if (expression.IsLogicalOperation())
+                    if (expression.IsLogicalOperation()
+                        || expression.NodeType == ExpressionType.Or
+                        || expression.NodeType == ExpressionType.And)
                     {
                         var parentIsSearchCondition = _isSearchCondition;
-                        _isSearchCondition = true;
+                        _isSearchCondition = expression.IsLogicalOperation();
                         var left = Visit(expression.Left);
                         var right = Visit(expression.Right);
                         _isSearchCondition = parentIsSearchCondition;

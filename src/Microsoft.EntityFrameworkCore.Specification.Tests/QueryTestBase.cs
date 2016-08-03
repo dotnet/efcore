@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(cs =>
                 cs.Single(c => c.CustomerID == (string)context.Arguments["customerId"]));
         }
-        
+
         [ConditionalFact]
         public void Query_composition_against_ienumerable_set()
         {
@@ -5732,30 +5732,84 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void Environment_newline_is_funcletized()
         {
-            using (var context = CreateContext())
-            {
-                AssertQuery<Customer>(
-                    cs => cs.Where(c => c.CustomerID.Contains(Environment.NewLine)));
-            }
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.Contains(Environment.NewLine)));
         }
 
         [ConditionalFact]
         public virtual void String_concat_with_navigation1()
         {
-            using (var context = CreateContext())
-            {
-                AssertQuery<Order>(
-                    os => os.Select(o => o.CustomerID + " " + o.Customer.City));
-            }
+            AssertQuery<Order>(
+                os => os.Select(o => o.CustomerID + " " + o.Customer.City));
         }
 
         [ConditionalFact]
         public virtual void String_concat_with_navigation2()
         {
+            AssertQuery<Order>(
+                os => os.Select(o => o.Customer.City + " " + o.Customer.City));
+        }
+
+        [ConditionalFact]
+        public virtual void Bitwise_or_with_boolean_operators_in_predicate()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Bitwise_and_with_boolean_operators_in_predicate()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
+        }
+
+        [ConditionalFact]
+        public virtual void Bitwise_or_with_boolean_operators_in_projection()
+        {
             using (var context = CreateContext())
             {
-                AssertQuery<Order>(
-                    os => os.Select(o => o.Customer.City + " " + o.Customer.City));
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToList();
+
+                Assert.All(query.Take(2), t => Assert.Equal(true, t.Value));
+                Assert.All(query.Skip(2), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Bitwise_or_multiple_with_boolean_operators_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToList();
+
+                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
+                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Bitwise_and_with_boolean_operators_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToList();
+
+                Assert.All(query, t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Bitwise_and_or_with_boolean_operators_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON"}).ToList();
+
+                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.Equal(false, t.Value));
             }
         }
 

@@ -5707,6 +5707,114 @@ ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
+        public override void Bitwise_or_with_boolean_operators_in_predicate()
+        {
+            base.Bitwise_or_with_boolean_operators_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END | CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1",
+                Sql);
+        }
+
+        public override void Bitwise_and_with_boolean_operators_in_predicate()
+        {
+            base.Bitwise_and_with_boolean_operators_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END & CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1",
+                Sql);
+        }
+
+        public override void Bitwise_or_with_boolean_operators_in_projection()
+        {
+            base.Bitwise_or_with_boolean_operators_in_projection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END | CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Bitwise_or_multiple_with_boolean_operators_in_projection()
+        {
+            base.Bitwise_or_multiple_with_boolean_operators_in_projection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], (CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END | CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) | CASE
+    WHEN [c].[CustomerID] = N'ANTON'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Bitwise_and_with_boolean_operators_in_projection()
+        {
+            base.Bitwise_and_with_boolean_operators_in_projection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END & CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Bitwise_and_or_with_boolean_operators_in_projection()
+        {
+            base.Bitwise_and_or_with_boolean_operators_in_projection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], (CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END & CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) | CASE
+    WHEN [c].[CustomerID] = N'ANTON'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
