@@ -1770,6 +1770,98 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g].[Nickname] IS NULL",
                 Sql);
         }
 
+        public override void Join_predicate_value_equals_condition()
+        {
+            base.Join_predicate_value_equals_condition();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+INNER JOIN [Weapon] AS [w] ON [w].[SynergyWithId] IS NOT NULL
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
+                Sql);
+        }
+
+        public override void Join_predicate_value()
+        {
+            base.Join_predicate_value();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+INNER JOIN [Weapon] AS [w] ON [g].[HasSoulPatch] = 1
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
+                Sql);
+        }
+
+        public override void Join_predicate_condition_equals_condition()
+        {
+            base.Join_predicate_condition_equals_condition();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+INNER JOIN [Weapon] AS [w] ON CASE
+    WHEN [g].[FullName] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END = CASE
+    WHEN [w].[SynergyWithId] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
+                Sql);
+        }
+
+
+        // TODO: See issue#6145 - Incorrect query generated
+        public override void Left_join_predicate_value_equals_condition()
+        {
+            base.Left_join_predicate_value_equals_condition();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gear] AS [g]
+LEFT JOIN [Weapon] AS [w] ON [w].[SynergyWithId] IS NOT NULL
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY 1",
+                Sql);
+        }
+
+        public override void Left_join_predicate_value()
+        {
+            base.Left_join_predicate_value();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gear] AS [g]
+LEFT JOIN [Weapon] AS [w] ON [g].[HasSoulPatch] = 1
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[HasSoulPatch]",
+                Sql);
+        }
+
+        public override void Left_join_predicate_condition_equals_condition()
+        {
+            base.Left_join_predicate_condition_equals_condition();
+
+            Assert.Equal(
+               @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gear] AS [g]
+LEFT JOIN [Weapon] AS [w] ON CASE
+    WHEN [g].[FullName] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END = CASE
+    WHEN [w].[SynergyWithId] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY CASE
+    WHEN [g].[FullName] IS NULL
+    THEN CAST(0 AS BIT) ELSE CAST(1 AS BIT)
+END",
+               Sql);
+        }
+
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

@@ -274,19 +274,45 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return selectExpression;
         }
 
-        private Expression ApplyOptimizations(Expression expression, bool searchCondition)
+        private Expression ApplyOptimizations(Expression expression, bool searchCondition, bool joinCondition = false)
         {
             var newExpression
                 = new NullComparisonTransformingVisitor(_parametersValues)
                     .Visit(expression);
 
+            var binaryExpression = newExpression as BinaryExpression;
             var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
-            var optimizedExpression = relationalNullsOptimizedExpandingVisitor.Visit(newExpression);
+            var relationalNullsExpandingVisitor = new RelationalNullsExpandingVisitor();
 
-            newExpression
-                = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
-                    ? optimizedExpression
-                    : new RelationalNullsExpandingVisitor().Visit(newExpression);
+            if (joinCondition
+                && binaryExpression != null)
+            {
+                var optimizedLeftExpression = relationalNullsOptimizedExpandingVisitor.Visit(binaryExpression.Left);
+
+                optimizedLeftExpression
+                    = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
+                        ? optimizedLeftExpression
+                        : relationalNullsExpandingVisitor.Visit(binaryExpression.Left);
+
+                relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
+                var optimizedRightExpression = relationalNullsOptimizedExpandingVisitor.Visit(binaryExpression.Right);
+
+                optimizedRightExpression
+                    = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
+                        ? optimizedRightExpression
+                        : relationalNullsExpandingVisitor.Visit(binaryExpression.Right);
+
+                newExpression = Expression.MakeBinary(binaryExpression.NodeType, optimizedLeftExpression, optimizedRightExpression);
+            }
+            else
+            {
+                var optimizedExpression = relationalNullsOptimizedExpandingVisitor.Visit(newExpression);
+
+                newExpression
+                    = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
+                        ? optimizedExpression
+                        : relationalNullsExpandingVisitor.Visit(newExpression);
+            }
 
             newExpression = new PredicateReductionExpressionOptimizer().Visit(newExpression);
             newExpression = new PredicateNegationExpressionOptimizer().Visit(newExpression);
@@ -327,7 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             VisitJoin(orderings, t =>
                 {
-                    var aliasExpression = t.Expression as AliasExpression;
+                    var orderingExpression = t.Expression;
+                    var aliasExpression = orderingExpression as AliasExpression;
 
                     if (aliasExpression != null)
                     {
@@ -351,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     }
                     else
                     {
-                        Visit(t.Expression);
+                        Visit(ApplyOptimizations(orderingExpression, searchCondition: false));
                     }
 
                     if (t.OrderingDirection == OrderingDirection.Desc)
@@ -930,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.Append(" ON ");
 
-            Visit(innerJoinExpression.Predicate);
+            Visit(ApplyOptimizations(innerJoinExpression.Predicate, searchCondition: true, joinCondition: true));
 
             return innerJoinExpression;
         }
@@ -952,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.Append(" ON ");
 
-            Visit(leftOuterJoinExpression.Predicate);
+            Visit(ApplyOptimizations(leftOuterJoinExpression.Predicate, searchCondition: true, joinCondition: true));
 
             return leftOuterJoinExpression;
         }
@@ -1689,13 +1716,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _isSearchCondition = false;
                 }
 
+                if (expression.NodeType == ExpressionType.Not)
+                {
+                    _isSearchCondition = true;
+                }
+
                 var operand = Visit(expression.Operand);
 
-                if (expression.NodeType == ExpressionType.Convert)
+                if (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.Not)
                 {
                     _isSearchCondition = parentIsSearchCondition;
                 }
-
 
                 if (_isSearchCondition)
                 {

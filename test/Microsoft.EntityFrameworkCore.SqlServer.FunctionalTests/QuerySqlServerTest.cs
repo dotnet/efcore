@@ -3379,6 +3379,28 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void OrderBy_true()
+        {
+            base.OrderBy_true();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY 1",
+                Sql);
+        }
+
+        public override void OrderBy_integer()
+        {
+            base.OrderBy_integer();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY 3",
+                Sql);
+        }
+
         public override void OrderBy_anon()
         {
             base.OrderBy_anon();

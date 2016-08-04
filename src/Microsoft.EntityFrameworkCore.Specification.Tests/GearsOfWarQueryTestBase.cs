@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Where(g => (null ==  EF.Property<string>(g, "LeaderNickname") ? (bool?)null : (bool?)(g.LeaderNickname.Length == 5)) == (bool?)true)
+                    .Where(g => (null == EF.Property<string>(g, "LeaderNickname") ? (bool?)null : (bool?)(g.LeaderNickname.Length == 5)) == (bool?)true)
                     .ToList();
 
                 var result = query.ToList();
@@ -944,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null) 
+                    .Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null)
                     .ToList();
 
                 var result = query.ToList();
@@ -1367,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from g1 in context.Gears.Include(g => g.Weapons)
-                            join g2 in context.Gears 
+                            join g2 in context.Gears
                             on g1.LeaderNickname equals g2.Nickname into grouping
                             from g2 in grouping.DefaultIfEmpty()
                             select g2 ?? g1;
@@ -1384,7 +1384,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from g1 in context.Gears
-                            join g2 in context.Gears.Include(g => g.Weapons) 
+                            join g2 in context.Gears.Include(g => g.Weapons)
                             on g1.LeaderNickname equals g2.Nickname into grouping
                             from g2 in grouping.DefaultIfEmpty()
                             select g2 ?? g1;
@@ -1706,6 +1706,102 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 var resultList = result.Select(r => r.ToList()).ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_predicate_value_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on true equals w.SynergyWithId != null
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_predicate_value()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.HasSoulPatch equals true
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(20, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_predicate_condition_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.FullName != null equals w.SynergyWithId != null
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Left_join_predicate_value_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on true equals w.SynergyWithId != null
+                            into group1
+                            from w in group1.DefaultIfEmpty()
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Left_join_predicate_value()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.HasSoulPatch equals true
+                            into group1
+                            from w in group1.DefaultIfEmpty()
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(23, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Left_join_predicate_condition_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.FullName != null equals w.SynergyWithId != null
+                            into group1
+                            from w in group1.DefaultIfEmpty()
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
             }
         }
 
