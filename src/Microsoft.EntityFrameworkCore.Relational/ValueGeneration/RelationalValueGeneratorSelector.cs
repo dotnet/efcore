@@ -43,16 +43,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                     return _numberFactory.Create(property);
                 }
 
-                if (propertyType == typeof(string))
-                {
-                    return new StringValueGenerator(generateTemporaryValues: true);
-                }
-
-                if (propertyType == typeof(byte[]))
-                {
-                    return new BinaryValueGenerator(generateTemporaryValues: true);
-                }
-
                 if (propertyType == typeof(DateTime))
                 {
                     return new TemporaryDateTimeValueGenerator();

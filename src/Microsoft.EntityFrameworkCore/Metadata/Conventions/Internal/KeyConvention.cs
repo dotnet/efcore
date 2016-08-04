@@ -38,10 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
-        {
-            var properties = foreignKey.Properties;
-            SetKeyValueGeneration(properties, entityTypeBuilder.Metadata);
-        }
+            => SetKeyValueGeneration(foreignKey.Properties, entityTypeBuilder.Metadata);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -78,7 +75,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var property = properties.First();
                 if (!property.IsForeignKey())
                 {
-                    return property;
+                    var propertyType = property.ClrType.UnwrapNullableType();
+                    if (propertyType.IsInteger()
+                        || propertyType == typeof(Guid)
+                        || propertyType == typeof(string)
+                        || propertyType == typeof(byte[]))
+                    {
+                        return property;
+                    }
                 }
             }
             return null;

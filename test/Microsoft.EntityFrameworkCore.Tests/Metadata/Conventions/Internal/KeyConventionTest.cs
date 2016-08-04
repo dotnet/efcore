@@ -15,17 +15,23 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 {
     public class KeyConventionTest
     {
-        public class SampleEntity
+        private class SampleEntity
         {
             public int Id { get; set; }
             public int Number { get; set; }
             public string Name { get; set; }
         }
 
-        public class ReferencedEntity
+        private class ReferencedEntity
         {
             public int Id { get; set; }
             public int SampleEntityId { get; set; }
+        }
+
+        private enum Eenom
+        {
+            E,
+            Nom
         }
 
         #region RequiresValueGenerator
@@ -278,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Identity_set_when_primary_key_property_is_non_integer()
+        public void Identity_set_when_primary_key_property_is_string()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -289,6 +295,36 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.True(property.RequiresValueGenerator);
+        }
+
+        [Fact]
+        public void Identity_set_when_primary_key_property_is_byte_array()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityBuilder.Property("binaryKey", typeof(byte[]), ConfigurationSource.Explicit);
+
+            var keyBuilder = entityBuilder.PrimaryKey(new [] { "binaryKey" }, ConfigurationSource.Convention);
+
+            var property = keyBuilder.Metadata.Properties.First();
+
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+            Assert.True(property.RequiresValueGenerator);
+        }
+
+        [Fact]
+        public void Identity_not_set_when_primary_key_property_is_enum()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityBuilder.Property("enumKey", typeof(Eenom), ConfigurationSource.Explicit);
+
+            var keyBuilder = entityBuilder.PrimaryKey(new[] { "enumKey" }, ConfigurationSource.Convention);
+
+            var property = keyBuilder.Metadata.Properties.First();
+
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+            Assert.False(property.RequiresValueGenerator);
         }
 
         [Fact]

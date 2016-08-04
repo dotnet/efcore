@@ -107,11 +107,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_use_string_enum_or_byte_array_as_key()
         {
-            var sNum1 = new SNum { TheWalrus = "I"};
+            var sNum1 = new SNum { TheWalrus = "I" };
             var sNum2 = new SNum { TheWalrus = "Am" };
 
-            var enNum1 = new EnNum { TheWalrus = "Goo goo" };
-            var enNum2 = new EnNum { TheWalrus = "g'joob" };
+            var enNum1 = new EnNum { TheWalrus = "Goo goo", Id = ENum.BNum };
+            var enNum2 = new EnNum { TheWalrus = "g'joob", Id = ENum.CNum };
 
             var bNum1 = new BNum { TheWalrus = "Eggman" };
             var bNum2 = new BNum { TheWalrus = "Eggmen" };
@@ -121,13 +121,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 context.Database.EnsureClean();
 
                 context.AddRange(sNum1, sNum2, enNum1, enNum2, bNum1, bNum2);
-
-                sNum1.Id = "1";
-                sNum2.Id = "2";
-                enNum1.Id = ENum.CNum;
-                enNum2.Id = ENum.BNum;
-                bNum1.Id = new byte[] { 1 };
-                bNum2.Id = new byte[] { 2 };
 
                 context.SaveChanges();
             }
