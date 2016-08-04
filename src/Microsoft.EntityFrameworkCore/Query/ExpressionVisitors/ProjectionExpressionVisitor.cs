@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             QueryModelVisitor.LinqOperatorProvider.ToQueryable
                                 .MakeGenericMethod(expression.Type.GetSequenceType()),
                             subExpression,
-                            Expression.Constant(QueryModelVisitor.QueryProvider));
+                            EntityQueryModelVisitor.QueryContextParameter);
                 }
                 else if (subQueryExpressionTypeInfo.IsGenericType)
                 {

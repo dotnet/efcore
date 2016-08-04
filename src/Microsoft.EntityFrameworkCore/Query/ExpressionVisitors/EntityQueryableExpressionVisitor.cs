@@ -32,19 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="constantExpression"> The node being visited. </param>
         /// <returns> An expression to use in place of the node. </returns>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-        {
-            if (constantExpression.Type.GetTypeInfo().IsGenericType
-                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
-            {
-                var queryable = (IQueryable)constantExpression.Value;
-
-                QueryModelVisitor.QueryProvider = queryable.Provider;
-
-                return VisitEntityQueryable(queryable.ElementType);
-            }
-
-            return constantExpression;
-        }
+            => constantExpression.Type.GetTypeInfo().IsGenericType
+               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
+                ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
+                : constantExpression;
 
         /// <summary>
         ///     Visits entity type roots.
