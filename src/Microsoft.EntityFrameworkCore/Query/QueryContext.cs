@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -56,6 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The state manager.
         /// </value>
         public virtual LazyRef<IStateManager> StateManager { get; }
+
+        /// <summary>
+        ///     The query provider.
+        /// </summary>
+        /// <value>
+        ///     The query provider.
+        /// </value>
+        public virtual IQueryProvider QueryProvider => StateManager.Value.Context.QueryProvider;
 
         /// <summary>
         ///     Gets the concurrency detector.

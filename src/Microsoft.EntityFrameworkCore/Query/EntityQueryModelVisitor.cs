@@ -210,11 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; private set; }
 
         /// <summary>
-        ///     Gets the <see cref="IQueryProvider"/> being used for this query.
-        /// </summary>
-        public virtual IQueryProvider QueryProvider { get; [param: NotNull] set; }
-
-        /// <summary>
         ///     Creates an action to execute this query.
         /// </summary>
         /// <typeparam name="TResult"> The type of results that the query returns. </typeparam>
