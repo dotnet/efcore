@@ -29,41 +29,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 case ExpressionType.OrElse:
                 {
-                    var optimized
-                        = TryOptimize(
-                            node,
-                            equalityType: ExpressionType.Equal,
-                            inExpressionFactory: (c, vs) => new InExpression(c, vs));
-
-                    if (optimized != null)
-                    {
-                        return optimized;
-                    }
-
-                    break;
+                    return Optimize(
+                        node,
+                        equalityType: ExpressionType.Equal,
+                        inExpressionFactory: (c, vs) => new InExpression(c, vs));
                 }
 
                 case ExpressionType.AndAlso:
                 {
-                    var optimized
-                        = TryOptimize(
-                            node,
-                            equalityType: ExpressionType.NotEqual,
-                            inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
-
-                    if (optimized != null)
-                    {
-                        return optimized;
-                    }
-
-                    break;
+                    return Optimize(
+                        node,
+                        equalityType: ExpressionType.NotEqual,
+                        inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
                 }
             }
 
             return base.VisitBinary(node);
         }
 
-        private Expression TryOptimize(
+        private Expression Optimize(
             BinaryExpression binaryExpression,
             ExpressionType equalityType,
             Func<AliasExpression, List<Expression>, Expression> inExpressionFactory)
@@ -131,13 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     inArguments);
             }
 
-            if ((leftExpression != binaryExpression.Left)
-                || (rightExpression != binaryExpression.Right))
-            {
-                return binaryExpression.Update(leftExpression, binaryExpression.Conversion, rightExpression);
-            }
-
-            return null;
+            return binaryExpression.Update(leftExpression, binaryExpression.Conversion, rightExpression);
         }
 
         private static AliasExpression MatchEqualityExpression(
