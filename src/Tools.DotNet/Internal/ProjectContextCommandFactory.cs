@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
     public class ProjectContextCommandFactory
     {
-        private readonly ICommandResolver _resolver;
+        private readonly InternalNugetPackageCommandResolver _resolver;
 
-        public ProjectContextCommandFactory([NotNull] ICommandResolver resolver)
+        public ProjectContextCommandFactory([NotNull] InternalNugetPackageCommandResolver resolver)
         {
             _resolver = resolver;
         }

@@ -441,9 +441,9 @@ namespace Microsoft.EntityFrameworkCore.Design
     }
 
 #if NET451
-    public partial class OperationExecutor : MarshalByRefObject
+    partial class OperationExecutor : MarshalByRefObject
     {
-        public partial class OperationBase : MarshalByRefObject
+        partial class OperationBase : MarshalByRefObject
         { }
     }
 #endif

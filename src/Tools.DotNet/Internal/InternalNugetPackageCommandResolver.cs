@@ -12,7 +12,7 @@ using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
-    public class InternalNugetPackageCommandResolver : ICommandResolver
+    public class InternalNugetPackageCommandResolver
     {
         private readonly string _basePath = AppContext.BaseDirectory;
         protected virtual string NetCoreToolDir
