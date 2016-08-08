@@ -473,10 +473,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
 
-            return Expression.Call(
-                handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
+            return sqlExpression!= null
+                ? Expression.Call(handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
                     .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
-                oldGroupByCall.Arguments);
+                    oldGroupByCall.Arguments)
+                : oldGroupByCall;
         }
 
         private static Expression HandleLast(HandlerContext handlerContext)

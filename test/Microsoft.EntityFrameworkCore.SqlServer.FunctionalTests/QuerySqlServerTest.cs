@@ -3065,6 +3065,18 @@ ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
+        public override void GroupBy_DateTimeOffset_Property()
+        {
+            base.GroupBy_DateTimeOffset_Property();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL
+ORDER BY DATEPART(month, [o].[OrderDate])",
+                Sql);
+        }
+
         public override void Select_GroupBy()
         {
             base.Select_GroupBy();

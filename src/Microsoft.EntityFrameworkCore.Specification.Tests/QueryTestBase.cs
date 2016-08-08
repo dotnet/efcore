@@ -3570,6 +3570,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupBy_DateTimeOffset_Property()
+        {
+            AssertQuery<Order>(os =>
+                os.Where(o => o.OrderDate.HasValue)
+                    .GroupBy(o => o.OrderDate.Value.Month),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var efGroupings = efResults.Cast<IGrouping<int, Order>>().ToList();
+
+                    foreach (IGrouping<int, Order> l2oGrouping in l2oResults)
+                    {
+                        var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                    }
+                },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
         public virtual void OrderBy_GroupBy()
         {
             AssertQuery<Order>(os =>
