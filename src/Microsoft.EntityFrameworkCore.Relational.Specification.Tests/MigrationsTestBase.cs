@@ -149,6 +149,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Can_generate_one_up_script()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
+
+                SetSql(migrator.GenerateScript(fromMigration: "00000000000001_Migration1", toMigration: "00000000000002_Migration2"));
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_up_script_using_names()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
+
+                SetSql(migrator.GenerateScript(fromMigration: "Migration1", toMigration: "Migration2"));
+            }
+        }
+
+        [Fact]
         public virtual void Can_generate_idempotent_up_scripts()
         {
             using (var db = _fixture.CreateContext())
@@ -170,6 +192,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     migrator.GenerateScript(
                         fromMigration: "Migration2",
                         toMigration: Migration.InitialDatabase));
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_one_down_script()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
+
+                SetSql(
+                    migrator.GenerateScript(
+                        fromMigration: "00000000000002_Migration2",
+                        toMigration: "00000000000001_Migration1"));
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_down_script_using_names()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
+
+                SetSql(
+                    migrator.GenerateScript(
+                        fromMigration: "Migration2",
+                        toMigration: "Migration1"));
             }
         }
 
