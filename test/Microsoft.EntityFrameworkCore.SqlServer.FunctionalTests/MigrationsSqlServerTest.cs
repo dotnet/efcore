@@ -110,6 +110,42 @@ GO
                 Sql);
         }
 
+        public override void Can_generate_one_up_script()
+        {
+            base.Can_generate_one_up_script();
+
+            Assert.Equal(
+                @"EXEC sp_rename N'Table1', N'Table2';
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+
+GO
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_up_script_using_names()
+        {
+            base.Can_generate_up_script_using_names();
+
+            Assert.Equal(
+                @"EXEC sp_rename N'Table1', N'Table2';
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+
+GO
+
+",
+                Sql);
+        }
+
         public override void Can_generate_idempotent_up_scripts()
         {
             base.Can_generate_idempotent_up_scripts();
@@ -190,12 +226,7 @@ GO
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'00000000000003_Migration3';
-
-GO
-
-EXEC sp_rename N'Table2', N'Table1';
+                @"EXEC sp_rename N'Table2', N'Table1';
 
 GO
 
@@ -222,15 +253,7 @@ GO
             base.Can_generate_idempotent_down_scripts();
 
             Assert.Equal(
-                @"IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
-BEGIN
-    DELETE FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000003_Migration3';
-END;
-
-GO
-
-IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+                @"IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
 BEGIN
     EXEC sp_rename N'Table2', N'Table1';
 END;
@@ -257,6 +280,42 @@ BEGIN
     DELETE FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1';
 END;
+
+GO
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_one_down_script()
+        {
+            base.Can_generate_one_down_script();
+
+            Assert.Equal(
+                @"EXEC sp_rename N'Table2', N'Table1';
+
+GO
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000002_Migration2';
+
+GO
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_down_script_using_names()
+        {
+            base.Can_generate_down_script_using_names();
+
+            Assert.Equal(
+                @"EXEC sp_rename N'Table2', N'Table1';
+
+GO
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000002_Migration2';
 
 GO
 
