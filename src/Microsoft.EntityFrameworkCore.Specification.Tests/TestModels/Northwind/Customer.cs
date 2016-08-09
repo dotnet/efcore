@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
         public string Country { get; set; }
         public string Phone { get; set; }
         public string Fax { get; set; }
+        public DateTime Birthday { get; set; }
 
         public virtual ICollection<Order> Orders { get; set; }
 

@@ -30,6 +30,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Issue_6261()
+        { 
+            var now = new DateTime(1979, 4, 16, 11, 23, 01);
+
+            using (var context = CreateContext())
+            {
+                var result = context.Orders
+                    .Where(o => o.Customer.Birthday.AddDays(1) > now)
+                    .ToList();
+
+                Assert.Equal(144, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Local_array()
         {
             var context = new Context();

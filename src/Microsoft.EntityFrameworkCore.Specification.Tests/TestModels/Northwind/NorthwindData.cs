@@ -191,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "12209",
                     Country = "Germany",
                     Phone = "030-0074321",
-                    Fax = "030-0076545"
+                    Fax = "030-0076545",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -205,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05021",
                     Country = "Mexico",
                     Phone = "(5) 555-4729",
-                    Fax = "(5) 555-3745"
+                    Fax = "(5) 555-3745",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -219,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05023",
                     Country = "Mexico",
                     Phone = "(5) 555-3932",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -233,7 +236,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "WA1 1DP",
                     Country = "UK",
                     Phone = "(171) 555-7788",
-                    Fax = "(171) 555-6750"
+                    Fax = "(171) 555-6750",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -247,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "S-958 22",
                     Country = "Sweden",
                     Phone = "0921-12 34 65",
-                    Fax = "0921-12 34 67"
+                    Fax = "0921-12 34 67",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -261,7 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "68306",
                     Country = "Germany",
                     Phone = "0621-08460",
-                    Fax = "0621-08924"
+                    Fax = "0621-08924",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -275,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "67000",
                     Country = "France",
                     Phone = "88.60.15.31",
-                    Fax = "88.60.15.32"
+                    Fax = "88.60.15.32",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -289,7 +296,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "28023",
                     Country = "Spain",
                     Phone = "(91) 555 22 82",
-                    Fax = "(91) 555 91 99"
+                    Fax = "(91) 555 91 99",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -303,7 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "13008",
                     Country = "France",
                     Phone = "91.24.45.40",
-                    Fax = "91.24.45.41"
+                    Fax = "91.24.45.41",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -317,7 +326,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "T2F 8M4",
                     Country = "Canada",
                     Phone = "(604) 555-4729",
-                    Fax = "(604) 555-3745"
+                    Fax = "(604) 555-3745",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -331,7 +341,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "EC2 5NT",
                     Country = "UK",
                     Phone = "(171) 555-1212",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -345,7 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1010",
                     Country = "Argentina",
                     Phone = "(1) 135-5555",
-                    Fax = "(1) 135-4892"
+                    Fax = "(1) 135-4892",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -359,7 +371,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05022",
                     Country = "Mexico",
                     Phone = "(5) 555-3392",
-                    Fax = "(5) 555-7293"
+                    Fax = "(5) 555-7293",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -373,7 +386,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "3012",
                     Country = "Switzerland",
                     Phone = "0452-076545",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -387,7 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05432-043",
                     Country = "Brazil",
                     Phone = "(11) 555-7647",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -401,7 +416,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "WX1 6LT",
                     Country = "UK",
                     Phone = "(171) 555-2282",
-                    Fax = "(171) 555-9199"
+                    Fax = "(171) 555-9199",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -415,7 +431,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "52066",
                     Country = "Germany",
                     Phone = "0241-039123",
-                    Fax = "0241-059428"
+                    Fax = "0241-059428",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -429,7 +446,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "44000",
                     Country = "France",
                     Phone = "40.67.88.88",
-                    Fax = "40.67.89.89"
+                    Fax = "40.67.89.89",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -443,7 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "WX3 6FW",
                     Country = "UK",
                     Phone = "(171) 555-0297",
-                    Fax = "(171) 555-3373"
+                    Fax = "(171) 555-3373",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -457,7 +476,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "8010",
                     Country = "Austria",
                     Phone = "7675-3425",
-                    Fax = "7675-3426"
+                    Fax = "7675-3426",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -471,7 +491,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05442-030",
                     Country = "Brazil",
                     Phone = "(11) 555-9857",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -485,7 +506,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "28034",
                     Country = "Spain",
                     Phone = "(91) 555 94 44",
-                    Fax = "(91) 555 55 93"
+                    Fax = "(91) 555 55 93",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -499,7 +521,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "59000",
                     Country = "France",
                     Phone = "20.16.10.16",
-                    Fax = "20.16.10.17"
+                    Fax = "20.16.10.17",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -513,7 +536,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "S-844 67",
                     Country = "Sweden",
                     Phone = "0695-34 67 21",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -527,7 +551,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "80805",
                     Country = "Germany",
                     Phone = "089-0877310",
-                    Fax = "089-0877451"
+                    Fax = "089-0877451",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -541,7 +566,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "44000",
                     Country = "France",
                     Phone = "40.32.21.21",
-                    Fax = "40.32.21.20"
+                    Fax = "40.32.21.20",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -555,7 +581,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "10100",
                     Country = "Italy",
                     Phone = "011-4988260",
-                    Fax = "011-4988261"
+                    Fax = "011-4988261",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -569,7 +596,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1675",
                     Country = "Portugal",
                     Phone = "(1) 354-2534",
-                    Fax = "(1) 354-2535"
+                    Fax = "(1) 354-2535",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -583,7 +611,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "08022",
                     Country = "Spain",
                     Phone = "(93) 203 4560",
-                    Fax = "(93) 203 4561"
+                    Fax = "(93) 203 4561",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -597,7 +626,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "41101",
                     Country = "Spain",
                     Phone = "(95) 555 82 82",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -611,7 +641,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "04876-786",
                     Country = "Brazil",
                     Phone = "(11) 555-9482",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -625,7 +656,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "97403",
                     Country = "USA",
                     Phone = "(503) 555-7555",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -639,7 +671,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1081",
                     Country = "Venezuela",
                     Phone = "(2) 283-2951",
-                    Fax = "(2) 283-3397"
+                    Fax = "(2) 283-3397",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -653,7 +686,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05454-876",
                     Country = "Brazil",
                     Phone = "(21) 555-0091",
-                    Fax = "(21) 555-8765"
+                    Fax = "(21) 555-8765",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -667,7 +701,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "5022",
                     Country = "Venezuela",
                     Phone = "(5) 555-1340",
-                    Fax = "(5) 555-1948"
+                    Fax = "(5) 555-1948",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -681,7 +716,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "97827",
                     Country = "USA",
                     Phone = "(503) 555-6874",
-                    Fax = "(503) 555-2376"
+                    Fax = "(503) 555-2376",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -695,7 +731,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = null,
                     Country = "Ireland",
                     Phone = "2967 542",
-                    Fax = "2967 3333"
+                    Fax = "2967 3333",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -709,7 +746,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "PO31 7PJ",
                     Country = "UK",
                     Phone = "(198) 555-8888",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -723,7 +761,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "14776",
                     Country = "Germany",
                     Phone = "0555-09876",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -737,7 +776,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "78000",
                     Country = "France",
                     Phone = "30.59.84.10",
-                    Fax = "30.59.85.11"
+                    Fax = "30.59.85.11",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -751,7 +791,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "31000",
                     Country = "France",
                     Phone = "61.77.61.10",
-                    Fax = "61.77.61.11"
+                    Fax = "61.77.61.11",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -765,7 +806,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "V3F 2K1",
                     Country = "Canada",
                     Phone = "(604) 555-3392",
-                    Fax = "(604) 555-7293"
+                    Fax = "(604) 555-7293",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -779,7 +821,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "99362",
                     Country = "USA",
                     Phone = "(509) 555-7969",
-                    Fax = "(509) 555-6221"
+                    Fax = "(509) 555-6221",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -793,7 +836,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "60528",
                     Country = "Germany",
                     Phone = "069-0245984",
-                    Fax = "069-0245874"
+                    Fax = "069-0245874",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -807,7 +851,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "94117",
                     Country = "USA",
                     Phone = "(415) 555-5938",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -821,7 +866,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "3508",
                     Country = "Venezuela",
                     Phone = "(9) 331-6954",
-                    Fax = "(9) 331-7256"
+                    Fax = "(9) 331-7256",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -835,7 +881,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "4980",
                     Country = "Venezuela",
                     Phone = "(8) 34-56-12",
-                    Fax = "(8) 34-93-93"
+                    Fax = "(8) 34-93-93",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -849,7 +896,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "97219",
                     Country = "USA",
                     Phone = "(503) 555-9573",
-                    Fax = "(503) 555-9646"
+                    Fax = "(503) 555-9646",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -863,7 +911,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "24100",
                     Country = "Italy",
                     Phone = "035-640230",
-                    Fax = "035-640231"
+                    Fax = "035-640231",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -877,7 +926,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "B-1180",
                     Country = "Belgium",
                     Phone = "(02) 201 24 67",
-                    Fax = "(02) 201 24 68"
+                    Fax = "(02) 201 24 68",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -891,7 +941,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "H1J 1C3",
                     Country = "Canada",
                     Phone = "(514) 555-8054",
-                    Fax = "(514) 555-8055"
+                    Fax = "(514) 555-8055",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -905,7 +956,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "04179",
                     Country = "Germany",
                     Phone = "0342-023176",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -919,7 +971,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "SW7 1RZ",
                     Country = "UK",
                     Phone = "(171) 555-7733",
-                    Fax = "(171) 555-2530"
+                    Fax = "(171) 555-2530",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -933,7 +986,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1010",
                     Country = "Argentina",
                     Phone = "(1) 135-5333",
-                    Fax = "(1) 135-5535"
+                    Fax = "(1) 135-5535",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -947,7 +1001,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "99508",
                     Country = "USA",
                     Phone = "(907) 555-7584",
-                    Fax = "(907) 555-2880"
+                    Fax = "(907) 555-2880",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -961,7 +1016,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "50739",
                     Country = "Germany",
                     Phone = "0221-0644327",
-                    Fax = "0221-0765721"
+                    Fax = "0221-0765721",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -975,7 +1031,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "75012",
                     Country = "France",
                     Phone = "(1) 42.34.22.66",
-                    Fax = "(1) 42.34.22.77"
+                    Fax = "(1) 42.34.22.77",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -989,7 +1046,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05033",
                     Country = "Mexico",
                     Phone = "(5) 552-3745",
-                    Fax = "(5) 545-3745"
+                    Fax = "(5) 545-3745",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1003,7 +1061,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "5020",
                     Country = "Austria",
                     Phone = "6562-9722",
-                    Fax = "6562-9723"
+                    Fax = "6562-9723",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1017,7 +1076,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1756",
                     Country = "Portugal",
                     Phone = "(1) 356-5634",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1031,7 +1091,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "02389-673",
                     Country = "Brazil",
                     Phone = "(21) 555-4252",
-                    Fax = "(21) 555-4545"
+                    Fax = "(21) 555-4545",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1045,7 +1106,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05487-020",
                     Country = "Brazil",
                     Phone = "(11) 555-1189",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1059,7 +1121,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "01307",
                     Country = "Germany",
                     Phone = "0372-035188",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1073,7 +1136,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1010",
                     Country = "Argentina",
                     Phone = "(1) 123-5555",
-                    Fax = "(1) 123-5556"
+                    Fax = "(1) 123-5556",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1087,7 +1151,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "87110",
                     Country = "USA",
                     Phone = "(505) 555-5939",
-                    Fax = "(505) 555-3620"
+                    Fax = "(505) 555-3620",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1101,7 +1166,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "42100",
                     Country = "Italy",
                     Phone = "0522-556721",
-                    Fax = "0522-556722"
+                    Fax = "0522-556722",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1115,7 +1181,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "02389-890",
                     Country = "Brazil",
                     Phone = "(21) 555-3412",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1129,7 +1196,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1203",
                     Country = "Switzerland",
                     Phone = "0897-034214",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1143,7 +1211,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "28001",
                     Country = "Spain",
                     Phone = "(91) 745 6200",
-                    Fax = "(91) 745 6210"
+                    Fax = "(91) 745 6210",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1157,7 +1226,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "4110",
                     Country = "Norway",
                     Phone = "07-98 92 35",
-                    Fax = "07-98 92 47"
+                    Fax = "07-98 92 47",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1171,7 +1241,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "83720",
                     Country = "USA",
                     Phone = "(208) 555-8097",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1185,7 +1256,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "OX15 4NB",
                     Country = "UK",
                     Phone = "(171) 555-1717",
-                    Fax = "(171) 555-5646"
+                    Fax = "(171) 555-5646",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1199,7 +1271,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "1734",
                     Country = "Denmark",
                     Phone = "31 12 34 56",
-                    Fax = "31 13 35 57"
+                    Fax = "31 13 35 57",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1213,7 +1286,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "75016",
                     Country = "France",
                     Phone = "(1) 47.55.60.10",
-                    Fax = "(1) 47.55.60.20"
+                    Fax = "(1) 47.55.60.20",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1227,7 +1301,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "82520",
                     Country = "USA",
                     Phone = "(307) 555-4680",
-                    Fax = "(307) 555-6525"
+                    Fax = "(307) 555-6525",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1241,7 +1316,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "B-6000",
                     Country = "Belgium",
                     Phone = "(071) 23 67 22 20",
-                    Fax = "(071) 23 67 22 21"
+                    Fax = "(071) 23 67 22 21",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1255,7 +1331,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "97201",
                     Country = "USA",
                     Phone = "(503) 555-3612",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1269,7 +1346,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "59801",
                     Country = "USA",
                     Phone = "(406) 555-5834",
-                    Fax = "(406) 555-8083"
+                    Fax = "(406) 555-8083",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1283,7 +1361,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "44087",
                     Country = "Germany",
                     Phone = "0251-031259",
-                    Fax = "0251-035695"
+                    Fax = "0251-035695",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1297,7 +1376,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05033",
                     Country = "Mexico",
                     Phone = "(5) 555-2933",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1311,7 +1391,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "05634-030",
                     Country = "Brazil",
                     Phone = "(11) 555-2167",
-                    Fax = "(11) 555-2168"
+                    Fax = "(11) 555-2168",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1325,7 +1406,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "98034",
                     Country = "USA",
                     Phone = "(206) 555-8257",
-                    Fax = "(206) 555-2174"
+                    Fax = "(206) 555-2174",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1339,7 +1421,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "8200",
                     Country = "Denmark",
                     Phone = "86 21 32 43",
-                    Fax = "86 22 33 44"
+                    Fax = "86 22 33 44",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1353,7 +1436,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "69004",
                     Country = "France",
                     Phone = "78.32.54.86",
-                    Fax = "78.32.54.87"
+                    Fax = "78.32.54.87",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1367,7 +1451,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "51100",
                     Country = "France",
                     Phone = "26.47.15.10",
-                    Fax = "26.47.15.11"
+                    Fax = "26.47.15.11",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1381,7 +1466,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "70563",
                     Country = "Germany",
                     Phone = "0711-020361",
-                    Fax = "0711-035428"
+                    Fax = "0711-035428",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1395,7 +1481,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "90110",
                     Country = "Finland",
                     Phone = "981-443655",
-                    Fax = "981-443655"
+                    Fax = "981-443655",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1409,7 +1496,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "08737-363",
                     Country = "Brazil",
                     Phone = "(14) 555-8122",
-                    Fax = null
+                    Fax = null,
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1423,7 +1511,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "98128",
                     Country = "USA",
                     Phone = "(206) 555-4112",
-                    Fax = "(206) 555-4115"
+                    Fax = "(206) 555-4115",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1437,7 +1526,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "21240",
                     Country = "Finland",
                     Phone = "90-224 8858",
-                    Fax = "90-224 8858"
+                    Fax = "90-224 8858",
+                    Birthday = new DateTime(1980, 07, 06)
                 },
                 new Customer
                 {
@@ -1451,7 +1541,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
                     PostalCode = "01-012",
                     Country = "Poland",
                     Phone = "(26) 642-7012",
-                    Fax = "(26) 642-7012"
+                    Fax = "(26) 642-7012",
+                    Birthday = new DateTime(1980, 07, 06)
                 }
             };
 
