@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class Migrator : IMigrator
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly string _activeProvider;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public Migrator(
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Migrate(string targetMigration = null)
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task MigrateAsync(
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GenerateScript(
@@ -230,13 +230,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             string toMigration = null,
             bool idempotent = false)
         {
-            var skippedMigrations = _migrationsAssembly.Migrations
-                .Where(t => string.Compare(t.Key, fromMigration, StringComparison.OrdinalIgnoreCase) < 0)
-                .Select(t => t.Key);
+            IEnumerable<string> appliedMigrations;
+            if (string.IsNullOrEmpty(fromMigration) || fromMigration == Migration.InitialDatabase)
+            {
+                appliedMigrations = Enumerable.Empty<string>();
+            }
+            else
+            {
+                var fromMigrationId = _migrationsAssembly.GetMigrationId(fromMigration);
+                appliedMigrations = _migrationsAssembly.Migrations
+                    .Where(t => string.Compare(t.Key, fromMigrationId, StringComparison.OrdinalIgnoreCase) <= 0)
+                    .Select(t => t.Key);
+            }
 
             IReadOnlyList<Migration> migrationsToApply, migrationsToRevert;
             PopulateMigrations(
-                skippedMigrations,
+                appliedMigrations,
                 toMigration,
                 out migrationsToApply,
                 out migrationsToRevert);
@@ -307,14 +316,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration)
         {
             Check.NotNull(migration, nameof(migration));
 
-            var insertCommand =_rawSqlCommandBuilder.Build(
+            var insertCommand = _rawSqlCommandBuilder.Build(
                 _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())));
 
             return _migrationsSqlGenerator
@@ -324,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateDownSql(
