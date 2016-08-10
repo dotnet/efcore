@@ -61,6 +61,7 @@
     <Compile Include="ChangeTracking\CollectionEntryTest.cs" />
     <Compile Include="ChangeTracking\EntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
+    <Compile Include="ChangeTracking\Internal\FixupCompositeTest.cs" />
     <Compile Include="ChangeTracking\Internal\FixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryFactoryTest.cs" />

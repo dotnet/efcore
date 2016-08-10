@@ -89,6 +89,7 @@
     <Compile Include="SqliteForeignKeyTest.cs" />
     <Compile Include="SqliteTestHelpers.cs" />
     <Compile Include="SqliteTestStore.cs" />
+    <Compile Include="StoreGeneratedFixupSqliteTest.cs" />
     <Compile Include="StoreGeneratedSqliteTest.cs" />
     <Compile Include="TestModels\SqliteNorthwindContext.cs" />
     <Compile Include="TestSqliteModelSource.cs" />

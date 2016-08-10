@@ -295,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var foreignKey in containingForeignKeys)
                 {
-                    var newPrincipalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                    var newPrincipalEntry = stateManager.GetPrincipal(entry, foreignKey)
+                        ?? stateManager.GetPrincipalUsingPreStoreGeneratedValues(entry, foreignKey);
                     var oldPrincipalEntry = stateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
 
                     var principalToDependent = foreignKey.PrincipalToDependent;

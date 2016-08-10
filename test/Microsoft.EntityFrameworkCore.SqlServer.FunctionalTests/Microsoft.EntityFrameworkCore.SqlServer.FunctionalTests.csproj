@@ -132,6 +132,7 @@
     <Compile Include="SqlServerMigrationsTest.cs" />
     <Compile Include="SqlServerTriggersTest.cs" />
     <Compile Include="SqlServerValueGenerationScenariosTest.cs" />
+    <Compile Include="StoreGeneratedFixupSqlServerTest.cs" />
     <Compile Include="StoreGeneratedSqlServerTest.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
     <Compile Include="TransactionSqlServerFixture.cs" />

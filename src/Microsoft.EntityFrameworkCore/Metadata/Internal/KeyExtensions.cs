@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -42,6 +44,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsPrimaryKey([NotNull] this IKey key)
             => key == key.DeclaringEntityType.FindPrimaryKey();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string ToDebugString([NotNull] this IKey key)
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(string.Join(", ", key.Properties.Select(p => p.Name)));
+
+            if (key.IsPrimaryKey())
+            {
+                builder.Append(" PK");
+            }
+
+            return builder.ToString();
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
