@@ -897,7 +897,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (Metadata.IsUnique == unique)
             {
                 Metadata.SetIsUnique(unique, configurationSource);
-                Metadata.DeclaringEntityType.FindIndex(Metadata.Properties)?.SetIsUnique(unique, configurationSource);
 
                 return this;
             }
@@ -1271,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalRelationshipBuilder HasForeignKey(
             [CanBeNull] IReadOnlyList<Property> properties, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => HasForeignKey(
-                GetExistingProperties(properties, dependentEntityType),
+                dependentEntityType.Builder.GetActualProperties(properties, configurationSource),
                 dependentEntityType,
                 configurationSource,
                 runConventions: true);
@@ -1474,7 +1473,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder HasPrincipalKey(
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
-            => HasPrincipalKey(GetExistingProperties(properties, Metadata.PrincipalEntityType), configurationSource, runConventions: true);
+            => HasPrincipalKey(
+                Metadata.PrincipalEntityType.Builder.GetActualProperties(properties, configurationSource),
+                configurationSource,
+                runConventions: true);
 
         private InternalRelationshipBuilder HasPrincipalKey(
             IReadOnlyList<Property> properties, ConfigurationSource configurationSource, bool runConventions)
@@ -1640,8 +1642,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             principalEndConfigurationSource = principalEndConfigurationSource ??
                                               (principalEntityTypeBuilder.Metadata != dependentEntityTypeBuilder.Metadata
-                                               && (principalProperties != null
-                                                   || dependentProperties != null
+                                               && ((principalProperties != null && principalProperties.Any())
+                                                   || (dependentProperties != null && dependentProperties.Any())
                                                    || (navigationToDependent != null && isUnique == false))
                                                   ? configurationSource
                                                   : null);
@@ -1676,7 +1678,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool oldRelationshipInverted,
             ConfigurationSource? principalEndConfigurationSource,
             ConfigurationSource? configurationSource,
-            bool runConventions)
+            bool runConventions,
+            List<Tuple<InternalEntityTypeBuilder, InternalEntityTypeBuilder, string, PropertyInfo>> removedNavigations = null,
+            List<Tuple<InternalEntityTypeBuilder, ForeignKey>> removedForeignKeys = null)
         {
             Check.NotNull(principalEntityTypeBuilder, nameof(principalEntityTypeBuilder));
             Check.NotNull(dependentEntityTypeBuilder, nameof(dependentEntityTypeBuilder));
@@ -1707,8 +1711,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var dependentEntityType = dependentEntityTypeBuilder.Metadata;
             var principalEntityType = principalEntityTypeBuilder.Metadata;
-            var removedNavigations = new List<Tuple<InternalEntityTypeBuilder, InternalEntityTypeBuilder, string, PropertyInfo>>();
-            var removedForeignKeys = new List<Tuple<InternalEntityTypeBuilder, ForeignKey>>();
+            removedNavigations = removedNavigations
+                ?? new List<Tuple<InternalEntityTypeBuilder, InternalEntityTypeBuilder, string, PropertyInfo>>();
+            removedForeignKeys = removedForeignKeys
+                ?? new List<Tuple<InternalEntityTypeBuilder, ForeignKey>>();
             var addedForeignKeys = new List<InternalRelationshipBuilder>();
             bool existingRelationshipInverted;
             var newRelationshipBuilder = GetOrCreateRelationshipBuilder(
@@ -1731,6 +1737,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
+            var existingRelationship = newRelationshipBuilder.Metadata;
             var existingPrincipalEndConfigurationSource = newRelationshipBuilder.Metadata.GetPrincipalEndConfigurationSource();
             var strictPrincipal = principalEndConfigurationSource.HasValue
                                   && principalEndConfigurationSource.Value.Overrides(existingPrincipalEndConfigurationSource);
@@ -1829,8 +1836,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !oldRelationshipInverted
                 && Metadata.GetForeignKeyPropertiesConfigurationSource().HasValue)
             {
-                var oldDependentProperties = GetExistingProperties(
-                    Metadata.Properties, newRelationshipBuilder.Metadata.DeclaringEntityType);
+                var oldDependentProperties = newRelationshipBuilder.Metadata.DeclaringEntityType.Builder
+                    .GetActualProperties(Metadata.Properties, null);
                 if (oldDependentProperties != null
                     && CanSetRequiredOnProperties(
                         oldDependentProperties,
@@ -1956,6 +1963,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(
                         removedNavigation.Item1, removedNavigation.Item2, removedNavigation.Item3, removedNavigation.Item4);
+                }
+
+                if (newRelationshipBuilder.Metadata != existingRelationship)
+                {
+                    removedForeignKeys.Add(Tuple.Create(existingRelationship.DeclaringEntityType.Builder, existingRelationship));
                 }
 
                 foreach (var removedForeignKey in removedForeignKeys)
@@ -2544,7 +2556,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         false,
                         null,
                         configurationSource,
-                        runConventions: false);
+                        runConventions: false,
+                        removedForeignKeys: removedForeignKeys,
+                        removedNavigations: removedNavigations);
 
                     existingRelationshipInverted = false;
                 }
@@ -2715,10 +2729,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Debug.Assert(!Metadata.DeclaringEntityType.GetForeignKeys().Contains(Metadata));
 
-            List<Property> dependentProperties = null;
+            IReadOnlyList<Property> dependentProperties = null;
             if (Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) == true)
             {
-                dependentProperties = GetExistingProperties(Metadata.Properties, Metadata.DeclaringEntityType) ?? new List<Property>();
+                dependentProperties = Metadata.DeclaringEntityType.Builder.GetActualProperties(Metadata.Properties, null)
+                                      ?? new List<Property>();
             }
 
             IReadOnlyList<Property> principalProperties = null;
@@ -2736,30 +2751,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 principalProperties = principalKey.Properties;
             }
 
+            Metadata.DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRemoved(Metadata.DeclaringEntityType.Builder, Metadata);
+
             return ReplaceForeignKey(configurationSource,
                 dependentProperties: dependentProperties,
                 principalProperties: principalProperties);
-        }
-
-        private static List<Property> GetExistingProperties(IReadOnlyList<Property> properties, EntityType entityType)
-        {
-            if (properties == null)
-            {
-                return null;
-            }
-
-            var foundProperties = new List<Property>();
-            foreach (var property in properties)
-            {
-                var foundProperty = entityType.FindProperty(property.Name);
-                if (foundProperty == null)
-                {
-                    return null;
-                }
-                foundProperties.Add(foundProperty);
-            }
-
-            return foundProperties;
         }
 
         /// <summary>

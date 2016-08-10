@@ -902,6 +902,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Can_add_contained_indexes()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                var entityBuilder = modelBuilder.Entity<Customer>();
+                var firstIndexBuilder = entityBuilder.HasIndex(ix => new { ix.Id, ix.AlternateKey }).IsUnique();
+                var secondIndexBuilder = entityBuilder.HasIndex(ix => new { ix.Id });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Customer));
+
+                Assert.Equal(2, entityType.GetIndexes().Count());
+                Assert.True(firstIndexBuilder.Metadata.IsUnique);
+                Assert.False(secondIndexBuilder.Metadata.IsUnique);
+            }
+
+            [Fact]
             public virtual void Can_set_primary_key_by_convention_for_user_specified_shadow_property()
             {
                 var modelBuilder = CreateModelBuilder();

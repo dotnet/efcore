@@ -576,9 +576,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""Id"")
-            .IsUnique();
-
         b.ToTable(""EntityWithOneProperty"");
     });
 
@@ -1529,8 +1526,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""Id"");
-
         b.ToTable(""EntityWithOneProperty"");
     });
 
@@ -1574,9 +1569,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.Property<int>(""Id"");
 
         b.HasKey(""Id"");
-
-        b.HasIndex(""Id"")
-            .IsUnique();
 
         b.ToTable(""EntityWithOneProperty"");
     });

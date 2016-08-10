@@ -675,20 +675,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var originalBaseType = Metadata.BaseType;
             Metadata.HasBaseType(baseEntityType, configurationSource, runConventions: false);
 
-            detachedProperties?.Attach(this);
-
-            detachedKeys?.Attach();
-
-            foreach (var detachedRelationship in detachedRelationships)
-            {
-                detachedRelationship.Attach();
-            }
-
-            foreach (var changedRelationship in changedRelationships)
-            {
-                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(changedRelationship);
-            }
-
             foreach (var relationshipToBeRemoved in relationshipsToBeRemoved)
             {
                 var dependentEntityType = relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder;
@@ -710,6 +696,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(
                     relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder, relationshipToBeRemoved.ForeignKey);
+            }
+
+            foreach (var changedRelationship in changedRelationships)
+            {
+                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(changedRelationship);
+            }
+
+            detachedProperties?.Attach(this);
+
+            detachedKeys?.Attach();
+
+            foreach (var detachedRelationship in detachedRelationships)
+            {
+                detachedRelationship.Attach();
             }
 
             ModelBuilder.Metadata.ConventionDispatcher.OnBaseEntityTypeSet(this, originalBaseType);
@@ -962,14 +962,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             Debug.Assert(removedForeignKey == foreignKey);
 
-            var index = Metadata.FindIndex(foreignKey.Properties);
-            if (index != null
-                && !index.IsInUse())
-            {
-                // Remove index if created by convention
-                index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
-            }
-
             RemoveShadowPropertiesIfUnused(foreignKey.Properties.Where(p => p.DeclaringEntityType.FindDeclaredProperty(p.Name) != null).ToList());
             foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey);
 
@@ -1037,16 +1029,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-            => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), null, configurationSource);
+            => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-            => HasIndex(GetOrCreateProperties(clrProperties, configurationSource), null, configurationSource);
+            => HasIndex(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
-        private InternalIndexBuilder HasIndex(IReadOnlyList<Property> properties, bool? unique, ConfigurationSource configurationSource)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalIndexBuilder HasIndex([CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             if (properties == null)
             {
@@ -1062,10 +1058,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else if (existingIndex.DeclaringEntityType != Metadata)
             {
-                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, unique, configurationSource);
+                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, configurationSource);
             }
 
-            var indexBuilder = HasIndex(existingIndex, properties, unique, configurationSource);
+            var indexBuilder = HasIndex(existingIndex, properties, configurationSource);
 
             detachedIndexes?.Attach();
 
@@ -1073,7 +1069,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalIndexBuilder HasIndex(
-            Index index, IReadOnlyList<Property> properties, bool? unique, ConfigurationSource configurationSource)
+            Index index, IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             if (index == null)
             {
@@ -1082,11 +1078,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 index.UpdateConfigurationSource(configurationSource);
-            }
-
-            if (unique.HasValue)
-            {
-                index.SetIsUnique(unique.Value, configurationSource);
             }
 
             return index.Builder;
@@ -1302,8 +1293,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreignKey.UpdateConfigurationSource(configurationSource);
             principalType.UpdateConfigurationSource(configurationSource);
 
-            HasIndex(dependentProperties, foreignKey.IsUnique, ConfigurationSource.Convention);
-
             var value = foreignKey.Builder;
             if (runConventions)
             {
@@ -1452,6 +1441,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
                 }
                 return null;
+            }
+
+            if (newRelationship.Metadata == relationship.Metadata)
+            {
+                return Metadata.Model.ConventionDispatcher.OnForeignKeyAdded(newRelationship);
             }
 
             return newRelationship;
@@ -1776,7 +1770,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var builder = property.Builder != null && property.DeclaringEntityType.IsAssignableFrom(Metadata)
                     ? property.Builder
                     : Metadata.FindProperty(property.Name)?.Builder
-                      ?? Property(property.Name, property.ClrType, property.PropertyInfo, configurationSource);
+                      ?? (property.IsShadowProperty
+                          ? null
+                          : Property(property.Name, property.ClrType, property.PropertyInfo, configurationSource));
                 if (builder == null)
                 {
                     return null;

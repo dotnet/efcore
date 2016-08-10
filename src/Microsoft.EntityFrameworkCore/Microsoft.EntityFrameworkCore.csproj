@@ -233,6 +233,7 @@
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Conventions\Internal\BackingFieldConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\ForeignKeyIndexConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeIgnoredConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IgnoredMembersValidationConvention.cs" />
     <Compile Include="Metadata\PropertyAccessMode.cs" />

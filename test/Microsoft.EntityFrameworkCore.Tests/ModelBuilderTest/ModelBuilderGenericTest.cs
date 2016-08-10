@@ -45,14 +45,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 return entityTypeBuilder;
             }
         }
-        
+
         [Fact]
         public void Can_discover_large_models_through_navigations()
         {
             var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<GiantModel.RelatedEntity1>();
-            
+
             Assert.Equal(2000, modelBuilder.Model.GetEntityTypes().Count());
         }
 
