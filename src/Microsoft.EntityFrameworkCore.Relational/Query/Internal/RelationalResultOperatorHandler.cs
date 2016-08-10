@@ -652,7 +652,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             handlerContext.SelectExpression.Limit = Expression.Constant(2);
 
-            return handlerContext.EvalOnClient(requiresClientResultOperator: true);
+            var returnExpression = handlerContext.EvalOnClient(requiresClientResultOperator: true);
+
+            // For top level single, we do not require client eval
+            if (handlerContext.QueryModelVisitor.ParentQueryModelVisitor == null)
+            {
+                handlerContext.QueryModelVisitor.RequiresClientResultOperator = false;
+            }
+
+            return returnExpression;
         }
 
         private static Expression HandleSkip(HandlerContext handlerContext)
