@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.EntityFrameworkCore.Tools.Internal;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {

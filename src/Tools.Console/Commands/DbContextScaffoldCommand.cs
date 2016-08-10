@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.EntityFrameworkCore.Tools.Internal;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
@@ -114,7 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 ReportJsonResults(filesCreated);
             }
         }
-
 
         private void ReportJsonResults(IEnumerable<string> files)
         {

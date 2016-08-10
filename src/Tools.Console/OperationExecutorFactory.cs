@@ -30,13 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 }
 #endif
                 return new ReflectionOperationExecutor(
-                   assembly: options.Assembly,
-                   startupAssembly: options.StartupAssembly,
-                   projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
-                   dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
-                   contentRootPath: options.ContentRootPath,
-                   rootNamespace: options.RootNamespace,
-                   environment: options.EnvironmentName);
+                    assembly: options.Assembly,
+                    startupAssembly: options.StartupAssembly,
+                    projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
+                    dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
+                    contentRootPath: options.ContentRootPath,
+                    rootNamespace: options.RootNamespace,
+                    environment: options.EnvironmentName);
             }
             catch (FileNotFoundException ex) when (ex.FileName.StartsWith(OperationExecutorBase.DesignAssemblyName))
             {

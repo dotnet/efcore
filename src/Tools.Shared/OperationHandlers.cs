@@ -98,9 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Design
 
 #if NET451
     partial class OperationLogHandler : MarshalByRefObject
-    { }
+    {
+    }
 
     partial class OperationResultHandler : MarshalByRefObject
-    { }
+    {
+    }
 #endif
 }

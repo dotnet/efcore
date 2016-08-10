@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
             command.Command("remove", c => MigrationsRemoveCommand.Configure(c, options));
             command.Command("script", c => MigrationsScriptCommand.Configure(c, options));
             command.OnExecute(() =>
-            {
-                EfCommand.WriteLogo();
-                command.ShowHelp();
-            });
+                {
+                    EfCommand.WriteLogo();
+                    command.ShowHelp();
+                });
         }
     }
 }

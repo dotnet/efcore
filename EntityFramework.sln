@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -354,12 +355,12 @@ Global
 		{29BD1041-C597-41EE-A9A2-67A12B0C0B0D}.release_x86|Any CPU.Build.0 = Release|Any CPU
 		{29BD1041-C597-41EE-A9A2-67A12B0C0B0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29BD1041-C597-41EE-A9A2-67A12B0C0B0D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F80329E8-451E-44D2-9784-943238A4A1E2}.debug_x86|Any CPU.ActiveCfg = debug_x86|Any CPU
-		{F80329E8-451E-44D2-9784-943238A4A1E2}.debug_x86|Any CPU.Build.0 = debug_x86|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.debug_x86|Any CPU.ActiveCfg = Debug|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.debug_x86|Any CPU.Build.0 = Debug|Any CPU
 		{F80329E8-451E-44D2-9784-943238A4A1E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F80329E8-451E-44D2-9784-943238A4A1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F80329E8-451E-44D2-9784-943238A4A1E2}.release_x86|Any CPU.ActiveCfg = release_x86|Any CPU
-		{F80329E8-451E-44D2-9784-943238A4A1E2}.release_x86|Any CPU.Build.0 = release_x86|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.release_x86|Any CPU.ActiveCfg = Release|Any CPU
+		{F80329E8-451E-44D2-9784-943238A4A1E2}.release_x86|Any CPU.Build.0 = Release|Any CPU
 		{F80329E8-451E-44D2-9784-943238A4A1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F80329E8-451E-44D2-9784-943238A4A1E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

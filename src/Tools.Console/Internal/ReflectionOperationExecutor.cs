@@ -30,14 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
             _commandsAssembly = Assembly.Load(new AssemblyName { Name = DesignAssemblyName });
             var logHandlerType = _commandsAssembly.GetType(LogHandlerTypeName, throwOnError: true, ignoreCase: false);
 
-            var logHandler = Activator.CreateInstance(logHandlerType, new object[]
-            {
-                 (Action<string>)Reporter.Error,
-                 (Action<string>)Reporter.Warning,
-                 (Action<string>)Reporter.Output,
-                 (Action<string>)Reporter.Verbose,
-                 (Action<string>)Reporter.Verbose
-            });
+            var logHandler = Activator.CreateInstance(logHandlerType, 
+                (Action<string>)Reporter.Error, 
+                (Action<string>)Reporter.Warning, 
+                (Action<string>)Reporter.Output, 
+                (Action<string>)Reporter.Verbose, 
+                (Action<string>)Reporter.Verbose);
 
             _executor = Activator.CreateInstance(
                 _commandsAssembly.GetType(ExecutorTypeName, throwOnError: true, ignoreCase: false),

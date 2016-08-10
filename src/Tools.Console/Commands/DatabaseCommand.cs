@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
             command.Command("drop", c => DatabaseDropCommand.Configure(c, options));
 
             command.OnExecute(() =>
-            {
-                EfCommand.WriteLogo();
-                command.ShowHelp();
-            });
+                {
+                    EfCommand.WriteLogo();
+                    command.ShowHelp();
+                });
         }
     }
 }

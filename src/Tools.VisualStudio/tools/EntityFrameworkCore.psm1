@@ -615,11 +615,16 @@ function GetCsprojArguments($startupProject, $outputFileName) {
 
     $arch = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties PlatformTarget
     if ($arch -eq 'x86') {
+        Write-Verbose 'Using architecture x86'
         $exe = Join-Path $PSScriptRoot 'net451/ef.x86.exe'
-    } elseif ($arch -eq 'AnyCPU' -or $arch -eq 'x64') {
-        $exe = Join-Path $PSScriptRoot 'net451/ef.exe'
     } else {
-        throw "Cannot invoke command. The current configuration targets and unsupported architecture '$arch'"
+        if ($arch -ne 'AnyCPU' -and $arch -ne 'x64') {
+            Write-Verbose "Unrecognized architecture '$arch'. Falling back to x64."
+        } else {
+            Write-Verbose "Using architecture $arch"
+        }
+
+        $exe = Join-Path $PSScriptRoot 'net451/ef.exe'
     }
 
     $arguments += '--assembly', (Join-Path $outputPath $outputFileName)
@@ -678,7 +683,7 @@ function ProcessCommonParameters($startupProjectName, $projectName, $contextType
         $values = GetCsprojArguments $startupProject $outputFileName
     }
 
-	$arguments = @()
+    $arguments = @()
     $arguments += $values.Arguments
     $arguments += '--no-color', '--prefix-output', '--verbose'
     $arguments += '--project-dir', $projectDir
@@ -775,7 +780,7 @@ function InvokeOperation($commonParams, [switch] $json, [switch] $skipBuild) {
             Write-Debug 'Failed to write rsp file'
         }
 
-	    Write-Verbose "Running '$exe'"
+        Write-Verbose "Running '$exe'"
         $output = Invoke-Process -Executable $exe -Arguments $arguments -RedirectByPrefix -JsonOutput:$json -ErrorAction SilentlyContinue -ErrorVariable invokeErrors
     
     } finally {

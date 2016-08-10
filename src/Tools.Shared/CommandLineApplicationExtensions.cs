@@ -10,11 +10,11 @@ namespace Microsoft.Extensions.CommandLineUtils
         public static void OnExecute(this CommandLineApplication command, Action invoke)
             => command.OnExecute(
                 () =>
-                {
-                    invoke();
+                    {
+                        invoke();
 
-                    return 0;
-                });
+                        return 0;
+                    });
 
         public static CommandOption Option(this CommandLineApplication command, string template, string description, bool inherited = false)
             => command.Option(
@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.CommandLineUtils
                 template.IndexOf('<') != -1
                     ? CommandOptionType.SingleValue
                     : CommandOptionType.NoValue,
-                inherited: inherited);
+                inherited);
 
         public static CommandOption HelpOption(this CommandLineApplication command)
             => command.HelpOption("-h|--help");

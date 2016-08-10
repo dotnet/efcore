@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
             command.Command("list", c => DbContextListCommand.Configure(c, options));
             command.Command("scaffold", c => DbContextScaffoldCommand.Configure(c, options));
             command.OnExecute(() =>
-            {
-                EfCommand.WriteLogo();
-                command.ShowHelp();
-            });
+                {
+                    EfCommand.WriteLogo();
+                    command.ShowHelp();
+                });
         }
     }
 }

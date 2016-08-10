@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ex = ex.InnerException;
                 }
 
-                if (!(ex is OperationErrorException) && !(ex is CommandParsingException))
+                if (!(ex is OperationErrorException)
+                    && !(ex is CommandParsingException))
                 {
                     Reporter.Error(ex.ToString());
                 }
@@ -103,9 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     debug = true;
                     args = args.Take(i).Concat(args.Skip(i + 1)).ToArray();
 #if NET451
-                    Console.WriteLine("Waiting for debugger to attach");
                     Console.WriteLine($"Process ID: {Process.GetCurrentProcess().Id}");
-                    while (!Debugger.IsAttached);
+                    Debugger.Launch();
+                    while (!Debugger.IsAttached)
+                        ;
 #else
                     Console.WriteLine("Waiting for debugger to attach. Press ENTER to continue");
                     Console.WriteLine($"Process ID: {Process.GetCurrentProcess().Id}");
