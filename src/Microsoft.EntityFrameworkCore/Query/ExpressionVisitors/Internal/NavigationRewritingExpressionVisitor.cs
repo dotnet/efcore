@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 navigationJoins = navigationJoin.NavigationJoins;
             }
 
-            if (propertyType == null)
+             if (propertyType == null)
             {
                 return querySourceReferenceExpression;
             }
@@ -769,12 +769,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     ? Expression.Constant(null, propertyType)
                     : Expression.Constant(null, propertyType.MakeNullable());
 
-                return Expression.Condition(
+                var nullSafetyPropertyAccessOfOptionalReferenceExpression = Expression.Condition(
                     Expression.NotEqual(
                         querySourceReferenceExpression,
                         Expression.Constant(null, querySourceReferenceExpression.Type)),
                     memberAccessExpression,
                     constantNullExpression);
+
+                return nullSafetyPropertyAccessOfOptionalReferenceExpression;
             }
 
             return propertyCreator(querySourceReferenceExpression);

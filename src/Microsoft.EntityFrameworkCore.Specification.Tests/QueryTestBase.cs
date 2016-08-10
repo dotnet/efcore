@@ -30,17 +30,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Issue_6261()
+        public virtual void Non_nullable_property_from_optional_reference()
         { 
-            var now = new DateTime(1979, 4, 16, 11, 23, 01);
-
+            var now= new DateTime(1081, 01, 01);
             using (var context = CreateContext())
             {
                 var result = context.Orders
-                    .Where(o => o.Customer.Birthday.AddDays(1) > now)
+                    .Where(o => o.Customer.BirthDate.AddDays(1) > now)
                     .ToList();
 
-                Assert.Equal(144, result.Count);
+                Assert.Equal(20, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_nullable_bool_property_from_optional_reference()
+        {
+            var now = new DateTime(1081, 01, 01);
+            using (var context = CreateContext())
+            {
+                var result = context.Orders
+                    .Where(o => o.Customer.IsLondon.CompareTo(false) == 1) 
+                    .ToList();
+
+                Assert.Equal(46, result.Count);
             }
         }
 

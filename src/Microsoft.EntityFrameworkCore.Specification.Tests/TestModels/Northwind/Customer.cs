@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
         public string Country { get; set; }
         public string Phone { get; set; }
         public string Fax { get; set; }
-        public DateTime Birthday { get; set; }
+        public DateTime BirthDate { get; set; }
 
         public virtual ICollection<Order> Orders { get; set; }
 
