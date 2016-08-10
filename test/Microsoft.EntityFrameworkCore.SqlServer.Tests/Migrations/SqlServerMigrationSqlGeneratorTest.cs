@@ -71,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Name = "Id",
                     ClrType = typeof(int),
                     ColumnType = "int",
+                    DefaultValue = 0,
                     IsNullable = false,
                     [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
                         SqlServerValueGenerationStrategy.IdentityColumn
