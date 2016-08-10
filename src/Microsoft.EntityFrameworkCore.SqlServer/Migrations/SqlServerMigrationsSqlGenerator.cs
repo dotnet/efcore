@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -200,11 +201,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.Generate(operation, model, builder, terminate: false);
 
             var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
+            var nullableColumns = operation.Columns
+                .Where(
+                    c =>
+                    {
+                        var properties = FindProperties(model, operation.Schema, operation.Table, c);
+
+                        return !properties.Any() // Couldn't bind column to property
+                            || properties.Any(p => p.IsColumnNullable());
+                    })
+                .ToList();
             if (operation.IsUnique
-                && (clustered != true))
+                && (clustered != true)
+                && nullableColumns.Count != 0)
             {
                 builder.Append(" WHERE ");
-                for (var i = 0; i < operation.Columns.Length; i++)
+                for (var i = 0; i < nullableColumns.Count; i++)
                 {
                     if (i != 0)
                     {
@@ -212,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }
 
                     builder
-                        .Append(SqlGenerationHelper.DelimitIdentifier(operation.Columns[i]))
+                        .Append(SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
                         .Append(" IS NOT NULL");
                 }
             }
