@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _reporter = value;
         }
 
-        internal static string MaybeColor(this string raw, Func<string, string> formatter)
+        public static string MaybeColor(this string raw, Func<string, string> formatter)
             => SupportsColor
                 ? formatter(raw)
                 : raw;
