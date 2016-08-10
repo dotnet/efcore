@@ -15,7 +15,7 @@
     }
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-rc3-000000-00",
+    "dotnet-test-xunit": "1.0.0-rc3-000000-01",
     "Microsoft.DotNet.Cli.Utils": "1.0.0-preview2-003121",
     "xunit": "2.1.0"
   },

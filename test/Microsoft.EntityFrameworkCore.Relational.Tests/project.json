@@ -21,6 +21,10 @@
         }
       }
     },
-    "net451": {}
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Text.RegularExpressions": ""
+      }
+    }
   }
 }
