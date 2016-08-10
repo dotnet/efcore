@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -466,6 +468,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             Assert.Equal(
                 "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
+        }
+
+        [Fact]
+        public virtual void RenameIndexOperations_throws_when_no_table()
+        {
+            var migrationBuilder = new MigrationBuilder("SqlServer");
+
+            migrationBuilder.RenameIndex(
+                name: "IX_OldIndex",
+                newName: "IX_NewIndex");
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(migrationBuilder.Operations.ToArray()));
+
+            Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
         [Fact]

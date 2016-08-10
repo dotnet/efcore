@@ -5,6 +5,7 @@ using System;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -106,6 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
+
+            if (string.IsNullOrEmpty(operation.Table))
+            {
+                throw new InvalidOperationException(SqlServerStrings.IndexTableRequired);
+            }
 
             var qualifiedName = new StringBuilder();
             if (operation.Schema != null)
