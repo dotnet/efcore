@@ -183,6 +183,27 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Replaces the internal Entity Framework implementation of a service contract with a different
+        ///         implementation.
+        ///     </para>
+        ///     <para>
+        ///         This method can only be used when EF is building and managing its internal service provider.
+        ///         If the service provider is being built externally and passed to
+        ///         <see cref="UseInternalServiceProvider" />, then replacement services should be configured on
+        ///         that service provider before it is passed to EF.
+        ///     </para>
+        ///     <para>
+        ///         The replacement service gets the same scope as the EF service that it is replacing.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TService"> The type (usually an interface) that defines the contract of the service to replace. </typeparam>
+        /// <typeparam name="TImplementation"> The new implementation type for the service. </typeparam>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder ReplaceService<TService, TImplementation>() where TImplementation : TService
+            => SetOption(e => e.ReplaceService(typeof(TService), typeof(TImplementation)));
+
+        /// <summary>
+        ///     <para>
         ///         Adds the given extension to the options. If an existing extension of the same type already exists, it will be replaced.
         ///     </para>
         ///     <para>

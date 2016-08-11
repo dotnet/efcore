@@ -136,5 +136,26 @@ namespace Microsoft.EntityFrameworkCore
         public new virtual DbContextOptionsBuilder<TContext> ConfigureWarnings(
             [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
             => (DbContextOptionsBuilder<TContext>)base.ConfigureWarnings(warningsConfigurationBuilderAction);
+
+        /// <summary>
+        ///     <para>
+        ///         Replaces the internal Entity Framework implementation of a service contract with a different
+        ///         implementation.
+        ///     </para>
+        ///     <para>
+        ///         This method can only be used when EF is building and managing its internal service provider.
+        ///         If the service provider is being built externally and passed to
+        ///         <see cref="UseInternalServiceProvider" />, then replacement services should be configured on
+        ///         that service provider before it is passed to EF.
+        ///     </para>
+        ///     <para>
+        ///         The replacement service gets the same scope as the EF service that it is replacing.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TService"> The type (usually an interface) that defines the contract of the service to replace. </typeparam>
+        /// <typeparam name="TImplementation"> The new implementation type for the service. </typeparam>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TImplementation>() where TImplementation : TService
+            => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TImplementation>();
     }
 }

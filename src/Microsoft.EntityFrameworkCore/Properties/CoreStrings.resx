@@ -234,6 +234,9 @@
   <data name="NoEfServices" xml:space="preserve">
     <value>Entity Framework services have not been added to the internal service provider. Either remove the call to UseInternalServiceProvider so that EF will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. AddEntityFrameworkSqlServer).</value>
   </data>
+  <data name="InvalidReplaceService" xml:space="preserve">
+    <value>A call was made to {replaceService}, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to {useInternalServiceProvider}, or build replacement services into the service provider before passing it to {useInternalServiceProvider}.</value>
+  </data>
   <data name="MultipleProvidersAvailable" xml:space="preserve">
     <value>The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>

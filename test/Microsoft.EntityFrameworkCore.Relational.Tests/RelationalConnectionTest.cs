@@ -23,12 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
                 .Options;
 
-            using (var context = new ConstructorTestContext1A(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(() => new ConstructorTestContext1A(options)).Message);
         }
 
         [Fact]
@@ -43,11 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
-
                 Assert.Equal(
                     CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
             }
         }
 

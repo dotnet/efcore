@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -24,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private bool _isSensitiveDataLoggingEnabled;
         private WarningsConfiguration _warningsConfiguration;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+        private IDictionary<Type, Type> _replacedServices;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -46,6 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
+
+            if (copyFrom._replacedServices != null)
+            {
+                _replacedServices = new Dictionary<Type, Type>(copyFrom._replacedServices);
+            }
         }
 
         /// <summary>
@@ -123,6 +130,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return _queryTrackingBehavior; }
             set { _queryTrackingBehavior = value; }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void ReplaceService([NotNull] Type serviceType, [NotNull] Type implementationType)
+            => (_replacedServices ?? (_replacedServices = new Dictionary<Type, Type>()))[serviceType] = implementationType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyDictionary<Type, Type> ReplacedServices => (IReadOnlyDictionary<Type, Type>)_replacedServices;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

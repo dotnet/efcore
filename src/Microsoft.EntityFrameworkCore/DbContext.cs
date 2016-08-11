@@ -94,7 +94,13 @@ namespace Microsoft.EntityFrameworkCore
 
             _options = options;
 
-            InitializeSets(ServiceProviderCache.Instance.GetOrAdd(options));
+            var initializer = GetServiceProvider(options).GetService<IDbSetInitializer>();
+            if (initializer == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoEfServices);
+            }
+
+            initializer.InitializeSets(this);
         }
 
         private IChangeDetector ChangeDetector
@@ -137,10 +143,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var options = optionsBuilder.Options;
 
-                var serviceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider
-                                      ?? ServiceProviderCache.Instance.GetOrAdd(options);
-
-                _serviceScope = serviceProvider
+                _serviceScope = GetServiceProvider(options)
                     .GetRequiredService<IServiceScopeFactory>()
                     .CreateScope();
 
@@ -165,8 +168,20 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void InitializeSets(IServiceProvider internalServicesProvider)
-            => internalServicesProvider.GetRequiredService<IDbSetInitializer>().InitializeSets(this);
+        private static IServiceProvider GetServiceProvider(DbContextOptions options)
+        {
+            var coreExtension = options.FindExtension<CoreOptionsExtension>();
+            if (coreExtension?.InternalServiceProvider != null
+                && coreExtension.ReplacedServices != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidReplaceService(
+                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            }
+
+            return coreExtension?.InternalServiceProvider
+                   ?? ServiceProviderCache.Instance.GetOrAdd(options);
+        }
 
         /// <summary>
         ///     <para>

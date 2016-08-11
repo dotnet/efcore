@@ -329,6 +329,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// A call was made to {replaceService}, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to {useInternalServiceProvider}, or build replacement services into the service provider before passing it to {useInternalServiceProvider}.
+        /// </summary>
+        public static string InvalidReplaceService([CanBeNull] object replaceService, [CanBeNull] object useInternalServiceProvider)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidReplaceService", "replaceService", "useInternalServiceProvider"), replaceService, useInternalServiceProvider);
+        }
+
+        /// <summary>
         /// The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
         /// </summary>
         public static string MultipleProvidersAvailable([CanBeNull] object storeNames)

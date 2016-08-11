@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -4323,12 +4324,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
                 .Options;
 
-            using (var context = new ConstructorTestContextWithSets(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(() => new ConstructorTestContextWithSets(options)).Message);
         }
 
         [Fact]
@@ -4343,11 +4341,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>();
-
                 Assert.Equal(
                     CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>()).Message);
             }
         }
 
@@ -4358,12 +4355,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
                 .Options;
 
-            using (var context = new ConstructorTestContext1A(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(() => new ConstructorTestContext1A(options)).Message);
         }
 
         [Fact]
@@ -4378,11 +4372,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
-
                 Assert.Equal(
                     CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
             }
         }
 
@@ -4515,6 +4508,200 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_replace_services_in_OnConfiguring()
+        {
+            object replacedSingleton;
+            object replacedScoped;
+            object replacedProviderService;
+
+            using (var context = new ReplaceServiceContext1())
+            {
+                Assert.NotNull(replacedSingleton = context.GetService<IModelCustomizer>());
+                Assert.IsType<CustomModelCustomizer>(replacedSingleton);
+
+                Assert.NotNull(replacedScoped = context.GetService<IValueGeneratorSelector>());
+                Assert.IsType<CustomInMemoryValueGeneratorSelector>(replacedScoped);
+
+                Assert.NotNull(replacedProviderService = context.GetService<IInMemoryTableFactory>());
+                Assert.IsType<CustomInMemoryTableFactory>(replacedProviderService);
+            }
+
+            using (var context = new ReplaceServiceContext1())
+            {
+                Assert.Same(replacedSingleton, context.GetService<IModelCustomizer>());
+                Assert.NotSame(replacedScoped, context.GetService<IValueGeneratorSelector>());
+                Assert.Same(replacedProviderService, context.GetService<IInMemoryTableFactory>());
+            }
+        }
+
+        private class ReplaceServiceContext1 : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                    .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
+                    .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                    .UseInMemoryDatabase();
+        }
+
+        private class CustomModelCustomizer : ModelCustomizer
+        {
+        }
+
+        private class CustomInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
+        {
+            public CustomInMemoryValueGeneratorSelector(IValueGeneratorCache cache)
+                : base(cache)
+            {
+            }
+        }
+
+        private class CustomInMemoryTableFactory : InMemoryTableFactory
+        {
+        }
+
+        [Fact]
+        public void Can_replace_services_in_passed_options()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
+                .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                .Options;
+
+            object replacedSingleton;
+            object replacedScoped;
+            object replacedProviderService;
+
+            using (var context = new ConstructorTestContextWithOC3A(options))
+            {
+                Assert.NotNull(replacedSingleton = context.GetService<IModelCustomizer>());
+                Assert.IsType<CustomModelCustomizer>(replacedSingleton);
+
+                Assert.NotNull(replacedScoped = context.GetService<IValueGeneratorSelector>());
+                Assert.IsType<CustomInMemoryValueGeneratorSelector>(replacedScoped);
+
+                Assert.NotNull(replacedProviderService = context.GetService<IInMemoryTableFactory>());
+                Assert.IsType<CustomInMemoryTableFactory>(replacedProviderService);
+            }
+
+            using (var context = new ConstructorTestContextWithOC3A(options))
+            {
+                Assert.Same(replacedSingleton, context.GetService<IModelCustomizer>());
+                Assert.NotSame(replacedScoped, context.GetService<IValueGeneratorSelector>());
+                Assert.Same(replacedProviderService, context.GetService<IInMemoryTableFactory>());
+            }
+        }
+
+        [Fact]
+        public void Can_replace_services_using_AddDbContext()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    b => b.ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                        .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
+                        .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                        .UseInMemoryDatabase())
+                .BuildServiceProvider();
+
+            object replacedSingleton;
+            object replacedScoped;
+            object replacedProviderService;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.NotNull(replacedSingleton = context.GetService<IModelCustomizer>());
+                Assert.IsType<CustomModelCustomizer>(replacedSingleton);
+
+                Assert.NotNull(replacedScoped = context.GetService<IValueGeneratorSelector>());
+                Assert.IsType<CustomInMemoryValueGeneratorSelector>(replacedScoped);
+
+                Assert.NotNull(replacedProviderService = context.GetService<IInMemoryTableFactory>());
+                Assert.IsType<CustomInMemoryTableFactory>(replacedProviderService);
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.Same(replacedSingleton, context.GetService<IModelCustomizer>());
+                Assert.NotSame(replacedScoped, context.GetService<IValueGeneratorSelector>());
+                Assert.Same(replacedProviderService, context.GetService<IInMemoryTableFactory>());
+            }
+        }
+
+        [Fact]
+        public void Throws_replacing_services_in_OnConfiguring_when_UseInternalServiceProvider()
+        {
+            using (var context = new ReplaceServiceContext2())
+            {
+                Assert.Equal(
+                    CoreStrings.InvalidReplaceService(
+                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        private class ReplaceServiceContext2 : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                    .UseInternalServiceProvider(new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .BuildServiceProvider())
+                    .UseInMemoryDatabase();
+        }
+
+
+        [Fact]
+        public void Throws_replacing_services_in_options_when_UseInternalServiceProvider()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(new ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .BuildServiceProvider())
+                .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                .Options;
+
+            Assert.Equal(
+                CoreStrings.InvalidReplaceService(
+                    nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                Assert.Throws<InvalidOperationException>(() => new ConstructorTestContextWithOC3A(options)).Message);
+        }
+
+        [Fact]
+        public void Throws_replacing_services_with_AddDbContext_when_UseInternalServiceProvider()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    (p, b) => b.ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                        .UseInMemoryDatabase()
+                        .UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                Assert.Equal(
+                    CoreStrings.InvalidReplaceService(
+                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
             }
         }
 
