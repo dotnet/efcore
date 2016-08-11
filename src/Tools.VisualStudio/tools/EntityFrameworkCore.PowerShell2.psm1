@@ -19,6 +19,10 @@ function Script-Migration {
     throw $versionErrorMessage
 }
 
+function Drop-Database {
+    throw $versionErrorMessage
+}
+
 function Update-Database {
     Hint-Upgrade $MyInvocation.MyCommand
     throw $versionErrorMessage

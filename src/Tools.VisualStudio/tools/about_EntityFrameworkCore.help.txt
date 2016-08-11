@@ -27,6 +27,8 @@ LONG DESCRIPTION
 
         Script-Migration            Generates a SQL script from migrations.
 
+        Drop-Database               Drops the database.
+
         Update-Database             Updates the database to a specified migration.
 
         Use-DbContext               Sets the default DbContext to use.
@@ -36,5 +38,6 @@ SEE ALSO
     Remove-Migration
     Scaffold-DbContext
     Script-Migration
+    Drop-Database
     Update-Database
     Use-DbContext

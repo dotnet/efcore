@@ -68,7 +68,7 @@ Register-TabExpansion Add-Migration @{
     Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
     Project = { GetProjects }
     StartupProject = { GetProjects }
-    # Disables tab completion on output dir. 
+    # Disables tab completion on output dir.
     # PMC will show completion options relative to the solution directory, but OutputDir should be relative to project
     OutputDir = { }
 }
@@ -144,6 +144,81 @@ function Add-Migration {
     }
     ShowConsole
     Write-Output 'To undo this action, use Remove-Migration.'
+}
+
+
+#
+# Drop-Database
+#
+
+Register-TabExpansion Drop-Database @{
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Drops the database.
+
+.DESCRIPTION
+    Drops the database.
+
+.PARAMETER Context
+    Specifies the DbContext to use. If omitted, the default DbContext is used.
+
+.PARAMETER Project
+    Specifies the project to use. If omitted, the default project is used.
+
+.PARAMETER StartupProject
+    Specifies the startup project to use. If omitted, the solution's startup project is used.
+
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, "Development" is used.
+
+.PARAMETER WhatIf
+    Displays a message describing the effect of the database drop without actually dropping the database.
+
+.LINK
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Drop-Database {
+    [CmdletBinding(PositionalBinding = $false,
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'High')]
+    param (
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Environment)
+
+    $values = ProcessCommonParameters $StartupProject $Project $Context $Environment
+    if (IsUwpProject $values.Project) {
+        throw 'Drop-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.EnsureDeleted() at runtime.'
+    }
+
+    $info = InvokeOperation $values -json database drop --dry-run
+
+    ShowConsole
+
+    if (!($info)) {
+        Write-Output 'Could not find a database to remove'
+        return
+    }
+
+    $msg = 'This command will permanently drop the database:'
+    $msg += "`n    Database name : $($info.databaseName)"
+    $msg += "`n    Data source   : $($info.dataSource)"
+
+    if ($PSCmdlet.ShouldProcess(
+            "Dropping database '$($info.databaseName)' on '$($info.dataSource)'", # verbose and what-if output
+            'Are you sure you want to proceed?', # question
+            $msg # caption
+            )) {
+        Write-Output 'Starting database drop'
+        InvokeOperation $values -skipBuild database drop --force
+    }
 }
 
 #
@@ -342,7 +417,7 @@ function Remove-Migration {
             }
         }
     }
-    
+
     ShowConsole
 }
 
@@ -354,7 +429,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Provider = { param ($tabExpansionContext) GetProviders $tabExpansionContext.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
-    # Disables tab completion on output dir. 
+    # Disables tab completion on output dir.
     # PMC will show completion options relative to the solution directory, but OutputDir should be relative to project
     OutputDir = { }
 }
@@ -435,7 +510,7 @@ function Scaffold-DbContext {
     $options += $Tables | % { '--table', $_ }
 
     $result = InvokeOperation $values -json dbcontext scaffold $Connection $Provider @options
-   
+
     if (!(IsDotNetProject $values.Project) -and $result.files) {
         $result.files | %{ $values.Project.ProjectItems.AddFromFile($_) | Out-Null }
         $DTE.ItemOperations.OpenFile($result.files[0]) | Out-Null
@@ -479,7 +554,7 @@ function GetContextTypes($projectName, $startupProjectName, $environment) {
 
 function GetMigrations($contextTypeName, $projectName, $startupProjectName, $environment) {
     $values = ProcessCommonParameters $startupProjectName $projectName $contextTypeName $environment
-    $migrations = InvokeOperation $values -json -skipBuild migrations list 
+    $migrations = InvokeOperation $values -json -skipBuild migrations list
     return $migrations | %{ $_.safeName }
 }
 
@@ -752,7 +827,7 @@ function InvokeOperation($commonParams, [switch] $json, [switch] $skipBuild) {
     $arguments += $commonParams.Arguments
     $arguments += $args
     $arguments += $commonParams.Options
-    
+
     if ($json) {
         $arguments += '--json'
     }
@@ -775,8 +850,8 @@ function InvokeOperation($commonParams, [switch] $json, [switch] $skipBuild) {
         try {
             $intermediatePath = Join-Path (GetProperty $commonParams.StartupProject.Properties FullPath) obj
             $rspFile = Join-Path $intermediatePath 'ef.rsp'
-            $exe | Out-File -FilePath $rspFile
-            $arguments | Out-File -FilePath $rspFile -Append
+            $exe | Out-File -FilePath $rspFile -Confirm:$false -WhatIf:$false
+            $arguments | Out-File -FilePath $rspFile -Append -Confirm:$false -WhatIf:$false
         } catch {
             Write-Debug 'Failed to write rsp file'
         }
@@ -790,7 +865,7 @@ function InvokeOperation($commonParams, [switch] $json, [switch] $skipBuild) {
             # don't capture output. Output lines flow through
             Invoke-Process -Executable $exe -Arguments $arguments -RedirectByPrefix -ErrorAction SilentlyContinue -ErrorVariable invokeErrors
         }
-    
+
     } finally {
         if ($exeCopied) {
             Write-Debug "Cleaning up '$exe' and '$configFile'"
