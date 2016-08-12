@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (_migrationsAssembly.FindMigrationId(migrationName) != null)
             {
-                throw new InvalidOperationException(DesignStrings.DuplicateMigrationName(migrationName));
+                throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
             }
 
             var subNamespaceDefaulted = false;
@@ -199,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelSnapshot = _migrationsAssembly.ModelSnapshot;
             if (modelSnapshot == null)
             {
-                throw new InvalidOperationException(DesignStrings.NoSnapshot);
+                throw new OperationException(DesignStrings.NoSnapshot);
             }
 
             var language = _migrationCodeGenerator.FileExtension;
@@ -222,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     else if (_historyRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
                     {
-                        throw new InvalidOperationException(DesignStrings.UnapplyMigration(migration.GetId()));
+                        throw new OperationException(DesignStrings.UnapplyMigration(migration.GetId()));
                     }
 
                     var migrationFileName = migration.GetId() + language;
