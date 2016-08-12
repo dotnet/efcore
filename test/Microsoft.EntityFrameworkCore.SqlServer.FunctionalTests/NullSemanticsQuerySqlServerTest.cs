@@ -1043,11 +1043,9 @@ WHERE [e].[NullableBoolA] IS NULL",
             base.Where_equal_using_relational_null_semantics_complex_with_parameter();
 
             Assert.Equal(
-                @"@__prm_0: False
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR (@__prm_0 = 1)",
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
                 Sql);
         }
 
@@ -1078,11 +1076,9 @@ WHERE [e].[NullableBoolA] IS NOT NULL",
             base.Where_not_equal_using_relational_null_semantics_complex_with_parameter();
 
             Assert.Equal(
-                @"@__prm_0: False
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB]) OR (@__prm_0 = 1)",
+WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]",
                 Sql);
         }
 

@@ -5928,6 +5928,59 @@ CROSS JOIN [Orders] AS [o]
 CROSS JOIN [Employees] AS [e]",
                 Sql);
         }
+        
+        public override void Parameter_extraction_short_circuits_1()
+        {
+            base.Parameter_extraction_short_circuits_1();
+
+            Assert.Equal(
+                @"@__dateFilter_Value_Month_0: 7
+@__dateFilter_Value_Year_1: 1996
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] < 10400) AND (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10400",
+                Sql);
+        }
+
+        public override void Parameter_extraction_short_circuits_2()
+        {
+            base.Parameter_extraction_short_circuits_2();
+
+            Assert.Equal(
+                @"@__dateFilter_Value_Month_0: 7
+@__dateFilter_Value_Year_1: 1996
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] < 10400) AND (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE 0 = 1",
+                Sql);
+        }
+
+        public override void Parameter_extraction_short_circuits_3()
+        {
+            base.Parameter_extraction_short_circuits_3();
+
+            Assert.Equal(
+                @"@__dateFilter_Value_Month_0: 7
+@__dateFilter_Value_Year_1: 1996
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] < 10400) OR (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
 
         private const string FileLineEnding = @"
 ";
