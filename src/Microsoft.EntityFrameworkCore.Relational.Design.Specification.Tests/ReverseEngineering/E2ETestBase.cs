@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
 
                 try
                 {
-                    Assert.Equal(expectedContents, actualContents);
+                    Assert.Equal(expectedContents, actualContents, ignoreLineEndingDifferences: true);
                 }
                 catch (EqualException e)
                 {
