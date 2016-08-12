@@ -53,6 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
             AddAndApplyMigrationImpl("DesktopClassLibrary", "DesktopContext", "initialLibrary", startupProjectName: "DesktopStartupApp");
         }
 
+        [ConditionalFact]
+        [PlatformSkipCondition(TestPlatform.Linux | TestPlatform.Mac)]
+        public void MigrationsOnNetStandardClassLibraryWithDesktopExternalStartup()
+        {
+            AddAndApplyMigrationImpl("DesktopStartupApp", "NetStandardContext", "InitialMigration1");
+        }
+
         [Fact]
         public void AddMigrationToDifferentFolder()
         {
@@ -103,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
                 .Execute("--context", contextName));
 
             AssertCommand.Pass(new ScriptMigration(targetProject, _output, startupProject)
-                .Execute("--output", Path.Combine(Path.GetDirectoryName(targetProject), "obj/dotnet-ef/migrations.sql")));
+                .Execute("--context", contextName,
+                    "--output", Path.Combine(Path.GetDirectoryName(targetProject), "obj/dotnet-ef/migrations-" + contextName +".sql")));
         }
     }
 }

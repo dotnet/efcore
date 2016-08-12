@@ -7,8 +7,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
-using Microsoft.EntityFrameworkCore.Internal;
-using NuGet.Frameworks;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
@@ -22,12 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
 
         public virtual CommandSpec Resolve(ResolverArguments arguments)
-            => arguments.Framework.IsDesktop()
+            => arguments.IsDesktop
                 ? CreateDesktopCommandSpec(arguments)
                 : CreateNetCoreCommandSpec(arguments);
 
         private CommandSpec CreateNetCoreCommandSpec(ResolverArguments arguments)
         {
+            Check.NotEmpty(arguments.RuntimeConfigJson, "RuntimeConfigJson");
+            Check.NotEmpty(arguments.DepsJsonFile, "DepsJsonFile");
+
             var args = new List<string>();
 
             args.Add("exec");
@@ -56,11 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
         private CommandSpec CreateDesktopCommandSpec(ResolverArguments arguments)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                throw new OperationErrorException(ToolsDotNetStrings.DesktopCommandsRequiresWindows(arguments.Framework));
-            }
-
             var exeName = RuntimeInformation.OSArchitecture == Architecture.X86
                 ? "ef.x86" + FileNameSuffixes.Windows.Exe
                 : "ef" + FileNameSuffixes.Windows.Exe;

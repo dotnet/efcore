@@ -26,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet
 
                 HandleVerboseContext(options);
 
-                return new DispatchOperationExecutor(new ProjectContextCommandFactory(new EfConsoleCommandResolver()))
+                return new DispatchOperationExecutor(
+                    new ProjectContextFactory(), 
+                    new EfConsoleCommandSpecFactory(new EfConsoleCommandResolver()),
+                    new DotNetProjectBuilder())
                     .Execute(options);
             }
             catch (Exception ex)

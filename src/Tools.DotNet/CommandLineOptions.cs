@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet
 
             return options;
         }
-        
+
         private static void Configure(CommandLineApplication app, CommandLineOptions options)
         {
             var project = app.Option(
@@ -55,9 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet
             var framework = app.Option(
                 "-f|--framework <framework>",
                 $"Target framework to load from the startup project (defaults to the framework most compatible with {FrameworkConstants.CommonFrameworks.NetCoreApp10}).");
-            var buildBasePath = app.Option(
-                "-b|--build-base-path <output_dir>",
-                "Directory in which to find temporary outputs.");
             var output = app.Option(
                 "-o|--output <output_dir>",
                 "Directory in which to find outputs");
@@ -73,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet
                     options.Framework = framework.HasValue()
                         ? NuGetFramework.Parse(framework.Value())
                         : null;
-                    options.BuildBasePath = buildBasePath.Value();
                     options.BuildOutputPath = output.Value();
                     options.NoBuild = noBuild.HasValue();
                     options.IsVerbose = verbose.HasValue();

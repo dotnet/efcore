@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     using JetBrains.Annotations;
 
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public static class ToolsDotNetStrings
@@ -25,11 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not invoke this command on the startup project '{projectName}'. This preview of Entity Framework tools does not support commands on class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.
+        /// Could not invoke this command on the startup project '{projectName}'. This version of Entity Framework tools does not support commands on class library projects in ASP.NET Core and .NET Core applications. See http://go.microsoft.com/fwlink/?LinkId=798221 for details and workarounds.
         /// </summary>
-        public static string ClassLibrariesNotSupportedInCli([CanBeNull] object projectName, [CanBeNull] object fwlink)
+        public static string ClassLibrariesNotSupported([CanBeNull] object projectName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ClassLibrariesNotSupportedInCli", "projectName", "fwlink"), projectName, fwlink);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ClassLibrariesNotSupported", "projectName"), projectName);
         }
 
         /// <summary>

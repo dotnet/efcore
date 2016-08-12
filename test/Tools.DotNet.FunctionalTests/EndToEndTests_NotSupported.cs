@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
 {
-    public partial class EndToEndTests 
+    public partial class EndToEndTests
     {
         [ConditionalFact]
         [PlatformSkipCondition(TestPlatform.Linux | TestPlatform.Mac)]
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
             var result = new AddMigration(targetProject, "Initial", _output)
                 .ExecuteWithCapturedOutput();
             AssertCommand.Fail(result);
-            Assert.Contains(ToolsDotNetStrings.ClassLibrariesNotSupportedInCli("DesktopClassLibrary", "http://go.microsoft.com/fwlink/?LinkId=798221"), result.StdErr);
+            Assert.Contains(ToolsDotNetStrings.ClassLibrariesNotSupported("DesktopClassLibrary"), result.StdErr);
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
             var result = new AddMigration(targetProject, "Initial", _output)
                 .ExecuteWithCapturedOutput();
             AssertCommand.Fail(result);
-            Assert.Contains(ToolsDotNetStrings.ClassLibrariesNotSupportedInCli("NetStandardClassLibrary", "http://go.microsoft.com/fwlink/?LinkId=798221"), result.StdErr);
+            Assert.Contains(ToolsDotNetStrings.ClassLibrariesNotSupported("NetStandardClassLibrary"), result.StdErr);
         }
     }
 }
