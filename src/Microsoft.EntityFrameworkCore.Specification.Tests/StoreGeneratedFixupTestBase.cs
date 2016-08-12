@@ -4024,7 +4024,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             public virtual ICollection<Level> Levels { get; set; } = new List<Level>();
         }
-        
+
+        protected class TestTemp
+        {
+            public int Id { get; set; }
+            public int NotId { get; set; }
+        }
+
         protected void AssertFixup(DbContext context, Action asserts)
         {
             asserts();
@@ -4072,6 +4078,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             protected virtual void OnModelCreating(ModelBuilder modelBuilder)
             {
+                modelBuilder.Entity<TestTemp>();
+
                 modelBuilder.Entity<Parent>(b =>
                     {
                         b.HasKey(e => new { e.Id1, e.Id2 });

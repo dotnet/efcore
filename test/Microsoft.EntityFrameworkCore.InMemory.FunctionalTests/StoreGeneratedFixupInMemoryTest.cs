@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
@@ -14,6 +15,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public StoreGeneratedFixupInMemoryTest(StoreGeneratedFixupInMemoryFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact]
+        public void InMemory_database_does_not_use_temp_values()
+        {
+            using (var context = CreateContext())
+            {
+                var entry = context.Add(new TestTemp());
+
+                Assert.False(entry.Property(e => e.Id).IsTemporary);
+                Assert.False(entry.Property(e => e.NotId).IsTemporary);
+
+                var tempValue = entry.Property(e => e.Id).CurrentValue;
+
+                context.SaveChanges();
+
+                Assert.False(entry.Property(e => e.Id).IsTemporary);
+                Assert.Equal(tempValue, entry.Property(e => e.Id).CurrentValue);
+            }
         }
 
         protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)

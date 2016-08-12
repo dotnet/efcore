@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { Identity = "Masami" });
-                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.Identity).Metadata);
+                entry.Property(e => e.Identity).IsTemporary = true;
 
                 context.SaveChanges();
                 id = entry.Entity.Id;
@@ -214,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
-                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.AlwaysIdentity).Metadata);
+                entry.Property(e => e.AlwaysIdentity).IsTemporary = true;
 
                 context.SaveChanges();
                 id = entry.Entity.Id;
@@ -388,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { Computed = "Masami" });
-                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.Computed).Metadata);
+                entry.Property(e => e.Computed).IsTemporary = true;
 
                 context.SaveChanges();
                 id = entry.Entity.Id;
@@ -562,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
-                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.AlwaysComputed).Metadata);
+                entry.Property(e => e.AlwaysComputed).IsTemporary = true;
 
                 context.SaveChanges();
                 id = entry.Entity.Id;

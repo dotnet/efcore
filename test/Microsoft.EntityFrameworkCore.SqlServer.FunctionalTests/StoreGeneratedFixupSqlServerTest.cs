@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -17,24 +17,43 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
+        [Fact]
+        public void Temp_values_are_replaced_on_save()
+        {
+            using (var context = CreateContext())
+            {
+                var entry = context.Add(new TestTemp());
+
+                Assert.True(entry.Property(e => e.Id).IsTemporary);
+                Assert.False(entry.Property(e => e.NotId).IsTemporary);
+
+                var tempValue = entry.Property(e => e.Id).CurrentValue;
+
+                context.SaveChanges();
+
+                Assert.False(entry.Property(e => e.Id).IsTemporary);
+                Assert.NotEqual(tempValue, entry.Property(e => e.Id).CurrentValue);
+            }
+        }
+
         protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)
         {
             var entry = context.Entry(dependent);
-            entry.GetInfrastructure().MarkAsTemporary(entry.Property("Id1").Metadata);
-            entry.GetInfrastructure().MarkAsTemporary(entry.Property("Id2").Metadata);
+            entry.Property("Id1").IsTemporary = true;
+            entry.Property("Id2").IsTemporary = true;
 
             entry = context.Entry(principal);
-            entry.GetInfrastructure().MarkAsTemporary(entry.Property("Id1").Metadata);
-            entry.GetInfrastructure().MarkAsTemporary(entry.Property("Id2").Metadata);
+            entry.Property("Id1").IsTemporary = true;
+            entry.Property("Id2").IsTemporary = true;
         }
 
         protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object game, object level, object item)
         {
             var entry = context.Entry(game);
-            entry.GetInfrastructure().MarkAsTemporary(entry.Property("Id").Metadata);
+            entry.Property("Id").IsTemporary = true;
 
             entry = context.Entry(item);
-            entry.GetInfrastructure().MarkAsTemporary(entry.Property("Id").Metadata);
+            entry.Property("Id").IsTemporary = true;
         }
 
         protected override bool EnforcesFKs => true;

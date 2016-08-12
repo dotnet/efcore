@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (internalEntry.EntityType.FindNavigation(name) != null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.PropertyIsNavigation(name, internalEntry.EntityType.DisplayName(), 
-                        nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
+                        CoreStrings.PropertyIsNavigation(name, internalEntry.EntityType.DisplayName(),
+                            nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
                 }
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
             }
@@ -64,6 +64,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             get { return InternalEntry.IsModified(Metadata); }
             set { InternalEntry.SetPropertyModified(Metadata, changeState: true, isModified: value); }
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the value of this property is considered a
+        ///     temporary value which will be replaced by a value generated from the store when
+        ///     <see cref="DbContext.SaveChanges()" />is called.
+        /// </summary>
+        public virtual bool IsTemporary
+        {
+            get { return InternalEntry.HasTemporaryValue(Metadata); }
+            set { InternalEntry.MarkAsTemporary(Metadata, value); }
         }
 
         /// <summary>
