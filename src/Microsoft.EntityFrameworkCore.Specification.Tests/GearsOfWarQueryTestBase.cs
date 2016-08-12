@@ -939,6 +939,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Null_propagation_optimization6()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .Where(g => ((null != g.LeaderNickname ? (int?)(EF.Property<string>(g, "LeaderNickname").Length) : (int?)null) == 5) == (bool?)true)
+                    .ToList();
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+
+                var nickNames = result.Select(r => r.Nickname);
+                Assert.True(nickNames.Contains("Paduk"));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_null_propagation_negative1()
         {
             using (var context = CreateContext())
@@ -1510,6 +1528,54 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear.HasSoulPatch);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => !t.Gear.HasSoulPatch);
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_conditional_expression()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear.HasSoulPatch ? true : false);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_binary_expression()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear.HasSoulPatch || t.Note.Contains("Cole"));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Optional_navigation_type_compensation_works_with_projection()
         {
             using (var context = CreateContext())
@@ -1637,18 +1703,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(5, result.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_throws_rasonable_exception_for_nullable_values()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.Tags.Where(t => t.Gear.HasSoulPatch);
-
-                //Nullable object must have a value
-                Assert.Throws<InvalidOperationException>(() => query.ToList());
             }
         }
 

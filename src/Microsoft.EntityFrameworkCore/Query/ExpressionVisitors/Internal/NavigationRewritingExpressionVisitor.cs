@@ -361,6 +361,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return Expression.MakeBinary(node.NodeType, newLeft, newRight, node.IsLiftedToNull, node.Method);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            var test = Visit(node.Test);
+            if (test.Type == typeof(bool?))
+            {
+                test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
+            }
+
+            var ifTrue = Visit(node.IfTrue);
+            var ifFalse = Visit(node.IfFalse);
+
+            return node.Update(test, ifTrue, ifFalse);
+        }
+
         private static NewExpression CreateNullCompositeKey(Expression otherExpression)
             => Expression.New(
                 CompositeKey.CompositeKeyCtor,
@@ -451,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (!EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
-                base.VisitMethodCall(node);
+                return base.VisitMethodCall(node);
             }
 
             return
@@ -1020,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (whereClause.Predicate.Type == typeof(bool?))
                 {
-                    whereClause.Predicate = Expression.Convert(whereClause.Predicate, typeof(bool));
+                    whereClause.Predicate = Expression.Equal(whereClause.Predicate, Expression.Constant(true, typeof(bool?)));
                 }
             }
 

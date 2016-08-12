@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,27 +11,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
     {
         public static void Seed(ComplexNavigationsContext context)
         {
-            var l1_01 = new Level1 { Id = 1, Name = "L1 01" };
-            var l1_02 = new Level1 { Id = 2, Name = "L1 02" };
-            var l1_03 = new Level1 { Id = 3, Name = "L1 03" };
-            var l1_04 = new Level1 { Id = 4, Name = "L1 04" };
-            var l1_05 = new Level1 { Id = 5, Name = "L1 05" };
-            var l1_06 = new Level1 { Id = 6, Name = "L1 06" };
-            var l1_07 = new Level1 { Id = 7, Name = "L1 07" };
-            var l1_08 = new Level1 { Id = 8, Name = "L1 08" };
-            var l1_09 = new Level1 { Id = 9, Name = "L1 09" };
-            var l1_10 = new Level1 { Id = 10, Name = "L1 10" };
+            var l1_01 = new Level1 { Id = 1, Name = "L1 01", Date = new DateTime(2001, 1, 1) };
+            var l1_02 = new Level1 { Id = 2, Name = "L1 02", Date = new DateTime(2002, 2, 2) };
+            var l1_03 = new Level1 { Id = 3, Name = "L1 03", Date = new DateTime(2003, 3, 3) };
+            var l1_04 = new Level1 { Id = 4, Name = "L1 04", Date = new DateTime(2004, 4, 4) };
+            var l1_05 = new Level1 { Id = 5, Name = "L1 05", Date = new DateTime(2005, 5, 5) };
+            var l1_06 = new Level1 { Id = 6, Name = "L1 06", Date = new DateTime(2006, 6, 6) };
+            var l1_07 = new Level1 { Id = 7, Name = "L1 07", Date = new DateTime(2007, 7, 7) };
+            var l1_08 = new Level1 { Id = 8, Name = "L1 08", Date = new DateTime(2008, 8, 8) };
+            var l1_09 = new Level1 { Id = 9, Name = "L1 09", Date = new DateTime(2009, 9, 9) };
+            var l1_10 = new Level1 { Id = 10, Name = "L1 10", Date = new DateTime(2010, 10, 10) };
 
-            var l2_01 = new Level2 { Id = 1, Name = "L2 01" };
-            var l2_02 = new Level2 { Id = 2, Name = "L2 02" };
-            var l2_03 = new Level2 { Id = 3, Name = "L2 03" };
-            var l2_04 = new Level2 { Id = 4, Name = "L2 04" };
-            var l2_05 = new Level2 { Id = 5, Name = "L2 05" };
-            var l2_06 = new Level2 { Id = 6, Name = "L2 06" };
-            var l2_07 = new Level2 { Id = 7, Name = "L2 07" };
-            var l2_08 = new Level2 { Id = 8, Name = "L2 08" };
-            var l2_09 = new Level2 { Id = 9, Name = "L2 09" };
-            var l2_10 = new Level2 { Id = 10, Name = "L2 10" };
+            var l2_01 = new Level2 { Id = 1, Name = "L2 01", Date = new DateTime(2010, 10, 10) };
+            var l2_02 = new Level2 { Id = 2, Name = "L2 02", Date = new DateTime(2002, 2, 2) };
+            var l2_03 = new Level2 { Id = 3, Name = "L2 03", Date = new DateTime(2008, 8, 8) };
+            var l2_04 = new Level2 { Id = 4, Name = "L2 04", Date = new DateTime(2004, 4, 4) };
+            var l2_05 = new Level2 { Id = 5, Name = "L2 05", Date = new DateTime(2006, 6, 6) };
+            var l2_06 = new Level2 { Id = 6, Name = "L2 06", Date = new DateTime(2005, 5, 5) };
+            var l2_07 = new Level2 { Id = 7, Name = "L2 07", Date = new DateTime(2007, 7, 7) };
+            var l2_08 = new Level2 { Id = 8, Name = "L2 08", Date = new DateTime(2003, 3, 3) };
+            var l2_09 = new Level2 { Id = 9, Name = "L2 09", Date = new DateTime(2009, 9, 9) };
+            var l2_10 = new Level2 { Id = 10, Name = "L2 10", Date = new DateTime(2001, 1, 1) };
 
             var l3_01 = new Level3 { Id = 1, Name = "L3 01" };
             var l3_02 = new Level3 { Id = 2, Name = "L3 02" };

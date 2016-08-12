@@ -178,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case ExpressionType.Convert:
                 case ExpressionType.Throw:
+                case ExpressionType.Not:
                     VisitUnary((UnaryExpression)node);
                     break;
 
@@ -577,6 +578,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _stringBuilder.Append("throw ");
                 Visit(node.Operand);
+
+                return node;
+            }
+
+            if (node.NodeType == ExpressionType.Not)
+            {
+                _stringBuilder.Append("!(");
+                Visit(node.Operand);
+                _stringBuilder.Append(")");
 
                 return node;
             }

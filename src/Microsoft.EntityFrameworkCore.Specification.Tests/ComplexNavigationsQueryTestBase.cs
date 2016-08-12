@@ -469,11 +469,97 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void Navigation_inside_method_call_translated_to_join()
         {
-
             using (var context = CreateContext())
             {
                 var query = from e1 in context.LevelOne
                             where e1.OneToOne_Required_FK.Name.StartsWith("L")
+                            select e1;
+
+                var result = query.ToList();
+            }
+        }
+
+        // issue #5613
+        ////[ConditionalFact]
+        public virtual void Nested_null_ref_protection_translates_properly()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e2 in context.LevelTwo
+                            where ((e2.OneToOne_Required_FK_Inverse.Name != null ? e2.OneToOne_Required_FK_Inverse.Name : null) != null
+                                ? (e2.OneToOne_Required_FK_Inverse.Name != null ? e2.OneToOne_Required_FK_Inverse.Name : null).StartsWith("L")
+                                : (bool?)null) == true
+                            select e2;
+
+                var result = query.ToList();
+            }
+        }
+
+        // issue #5613
+        ////[ConditionalFact]
+        public virtual void Optional_navigation_inside_method_call_translated_to_join()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Optional_FK.Name.StartsWith("L")
+                            select e1;
+
+                var result = query.ToList();
+            }
+        }
+
+        // issue #5613
+        ////[ConditionalFact]
+        public virtual void Optional_navigation_inside_nested_method_call_translated_to_join()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Optional_FK.Name.ToUpper().StartsWith("L")
+                            select e1;
+
+                var result = query.ToList();
+            }
+        }
+
+        // issue #5613
+        ////[ConditionalFact]
+        public virtual void Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Optional_FK.Date.AddDays(10) > new DateTime(2000, 2, 1)
+                            select e1;
+
+                var result = query.ToList();
+            }
+        }
+
+
+        // issue #6261
+        ////[ConditionalFact]
+        public virtual void Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Optional_FK.Date.AddDays(10).AddDays(15).AddMonths(2) > new DateTime(2002, 2, 1)
+                            select e1;
+
+                var result = query.ToList();
+            }
+        }
+
+        // issue #6261
+        ////[ConditionalFact]
+        public virtual void Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Optional_FK.Date.AddDays(15).AddDays(e1.OneToOne_Optional_FK.Id) > new DateTime(2002, 2, 1)
                             select e1;
 
                 var result = query.ToList();

@@ -920,6 +920,17 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND LEN([g].[LeaderNickname])
                 Sql);
         }
 
+        public override void Null_propagation_optimization6()
+        {
+            base.Null_propagation_optimization6();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND LEN([g].[LeaderNickname]) = 5",
+                Sql);
+        }
+
         public override void Select_null_propagation_negative1()
         {
             base.Select_null_propagation_negative1();
@@ -1535,6 +1546,54 @@ FROM [Weapon] AS [w]",
         public override void Optional_navigation_type_compensation_works_with_predicate()
         {
             base.Optional_navigation_type_compensation_works_with_predicate();
+
+            Assert.Equal(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank]
+FROM [CogTag] AS [t]
+LEFT JOIN [Gear] AS [t.Gear] ON ([t].[GearNickName] = [t.Gear].[Nickname]) AND ([t].[GearSquadId] = [t.Gear].[SquadId])
+ORDER BY [t].[GearNickName], [t].[GearSquadId]",
+                Sql);
+        }
+
+        public override void Optional_navigation_type_compensation_works_with_predicate2()
+        {
+            base.Optional_navigation_type_compensation_works_with_predicate2();
+
+            Assert.Equal(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank]
+FROM [CogTag] AS [t]
+LEFT JOIN [Gear] AS [t.Gear] ON ([t].[GearNickName] = [t.Gear].[Nickname]) AND ([t].[GearSquadId] = [t.Gear].[SquadId])
+ORDER BY [t].[GearNickName], [t].[GearSquadId]",
+                Sql);
+        }
+
+        public override void Optional_navigation_type_compensation_works_with_predicate_negated()
+        {
+            base.Optional_navigation_type_compensation_works_with_predicate_negated();
+
+            Assert.Equal(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank]
+FROM [CogTag] AS [t]
+LEFT JOIN [Gear] AS [t.Gear] ON ([t].[GearNickName] = [t.Gear].[Nickname]) AND ([t].[GearSquadId] = [t.Gear].[SquadId])
+ORDER BY [t].[GearNickName], [t].[GearSquadId]",
+                Sql);
+        }
+
+        public override void Optional_navigation_type_compensation_works_with_conditional_expression()
+        {
+            base.Optional_navigation_type_compensation_works_with_conditional_expression();
+
+            Assert.Equal(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank]
+FROM [CogTag] AS [t]
+LEFT JOIN [Gear] AS [t.Gear] ON ([t].[GearNickName] = [t.Gear].[Nickname]) AND ([t].[GearSquadId] = [t.Gear].[SquadId])
+ORDER BY [t].[GearNickName], [t].[GearSquadId]",
+                Sql);
+        }
+
+        public override void Optional_navigation_type_compensation_works_with_binary_expression()
+        {
+            base.Optional_navigation_type_compensation_works_with_binary_expression();
 
             Assert.Equal(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank]

@@ -328,6 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 {
                     return null;
                 }
+
                 return Expression.Equal(newExpression, Expression.Constant(true, typeof(bool)));
             }
 
