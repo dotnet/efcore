@@ -12,13 +12,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class ModelSnapshotTest
     {
         private class EntityWithOneProperty
@@ -114,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
 
         #region Model
 
-        [ConditionalFact]
+        [Fact]
         public void Model_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -129,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -150,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Entities_are_stored_in_model_snapshot()
         {
             Test(
@@ -196,7 +194,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region EntityType
 
-        [ConditionalFact]
+        [Fact]
         public void EntityType_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -225,7 +223,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void BaseType_is_stored_in_snapshot()
         {
             Test(
@@ -277,7 +275,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Discriminator_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -338,7 +336,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Properties_are_stored_in_snapshot()
         {
             Test(
@@ -371,7 +369,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Primary_key_is_stored_in_snapshot()
         {
             Test(
@@ -403,7 +401,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Alternate_keys_are_stored_in_snapshot()
         {
             Test(
@@ -437,7 +435,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Indexes_are_stored_in_snapshot()
         {
             Test(
@@ -468,7 +466,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Indexes_are_stored_in_snapshot_including_composite_index()
         {
             Test(
@@ -502,7 +500,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Foreign_keys_are_stored_in_snapshot()
         {
             Test(
@@ -557,7 +555,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Relationship_principal_key_is_stored_in_snapshot()
         {
             Test(
@@ -607,7 +605,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void TableName_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -640,7 +638,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void PrimaryKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -676,7 +674,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AlternateKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -720,7 +718,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region Property
 
-        [ConditionalFact]
+        [Fact]
         public void Property_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -745,7 +743,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 );
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Custom_value_generator_is_ignored_in_snapshot()
         {
             Test(
@@ -769,7 +767,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 );
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_isNullable_is_stored_in_snapshot()
         {
             Test(
@@ -791,7 +789,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_ValueGenerated_value_is_stored_in_snapshot()
         {
             Test(
@@ -817,7 +815,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_maxLength_is_stored_in_snapshot()
         {
             Test(
@@ -839,7 +837,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_unicodeness_is_stored_in_snapshot()
         {
             Test(
@@ -861,7 +859,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Many_facets_chained_in_snapshot()
         {
             Test(
@@ -898,7 +896,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_RequiresValueGenerator_is_not_stored_in_snapshot()
         {
             Test(
@@ -923,7 +921,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("AlternateId").RequiresValueGenerator); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_concurrencyToken_is_stored_in_snapshot()
         {
             Test(
@@ -949,7 +947,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_column_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -975,7 +973,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_column_type_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1001,7 +999,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1028,7 +1026,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1055,7 +1053,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1082,7 +1080,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
         {
             Test(
@@ -1105,7 +1103,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Property_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1142,7 +1140,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region HasKey
 
-        [ConditionalFact]
+        [Fact]
         public void Key_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1170,7 +1168,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["AnnotationName"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Key_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1198,7 +1196,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("KeyName", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["Relational:Name"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Key_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1237,7 +1235,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region HasIndex
 
-        [ConditionalFact]
+        [Fact]
         public void Index_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1265,7 +1263,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Index_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -1293,7 +1291,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(true, o.GetEntityTypes().First().GetIndexes().First().IsUnique); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Index_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1321,7 +1319,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Index_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1360,7 +1358,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region ForeignKey
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1410,7 +1408,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_isRequired_is_stored_in_snapshot()
         {
             Test(
@@ -1461,7 +1459,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -1507,7 +1505,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_deleteBehavior_is_stored_in_snapshot()
         {
             Test(
@@ -1552,7 +1550,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
         {
             Test(
@@ -1596,7 +1594,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -1670,7 +1668,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_constraint_name_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1720,7 +1718,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]); });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ForeignKey_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1778,7 +1776,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
         {
             Test(

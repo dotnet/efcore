@@ -1,20 +1,18 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NET451
 using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Tools.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Code compilation fails")]
     public class SimpleProjectTest : IClassFixture<SimpleProjectTest.SimpleProject>
     {
         private readonly SimpleProject _project;
@@ -24,102 +22,102 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
             _project = project;
         }
 
-        private void AssertDefaultMigrationName(IDictionary artiConditionalFacts)
+        private void AssertDefaultMigrationName(IDictionary artifacts)
         {
-            Assert.Contains("namespace SimpleProject.Migrations", File.ReadAllText(artiConditionalFacts["MigrationFile"] as string));
+            Assert.Contains("namespace SimpleProject.Migrations", File.ReadAllText(artifacts["MigrationFile"] as string));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddMigration()
         {
-            var artiConditionalFacts = _project.Executor.AddMigration("EmptyMigration", "CustomFolder", "SimpleContext");
-            Assert.NotNull(artiConditionalFacts);
-            Assert.NotNull(artiConditionalFacts["MigrationFile"]);
-            Assert.NotNull(artiConditionalFacts["MetadataFile"]);
-            Assert.NotNull(artiConditionalFacts["SnapshotFile"]);
+            var artifacts = _project.Executor.AddMigration("EmptyMigration", "CustomFolder", "SimpleContext");
+            Assert.NotNull(artifacts);
+            Assert.NotNull(artifacts["MigrationFile"]);
+            Assert.NotNull(artifacts["MetadataFile"]);
+            Assert.NotNull(artifacts["SnapshotFile"]);
             Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, "CustomFolder")));
-            Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artiConditionalFacts["MigrationFile"] as string));
+            Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddMigration_output_dir_relative_to_projectdir()
         {
-            var artiConditionalFacts = _project.Executor.AddMigration("EmptyMigration1", "./CustomFolder", "SimpleContext");
-            Assert.NotNull(artiConditionalFacts);
-            Assert.StartsWith(Path.Combine(_project.TargetDir, "CustomFolder"), artiConditionalFacts["MigrationFile"] as string);
-            Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artiConditionalFacts["MigrationFile"] as string));
+            var artifacts = _project.Executor.AddMigration("EmptyMigration1", "./CustomFolder", "SimpleContext");
+            Assert.NotNull(artifacts);
+            Assert.StartsWith(Path.Combine(_project.TargetDir, "CustomFolder"), artifacts["MigrationFile"] as string);
+            Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddMigration_output_dir_relative_out_of_to_projectdir()
         {
-            var artiConditionalFacts = _project.Executor.AddMigration("EmptyMigration1", "../CustomFolder", "SimpleContext");
-            Assert.NotNull(artiConditionalFacts);
-            Assert.StartsWith(Path.GetFullPath(Path.Combine(_project.TargetDir, "../CustomFolder")), artiConditionalFacts["MigrationFile"] as string);
-            AssertDefaultMigrationName(artiConditionalFacts);
+            var artifacts = _project.Executor.AddMigration("EmptyMigration1", "../CustomFolder", "SimpleContext");
+            Assert.NotNull(artifacts);
+            Assert.StartsWith(Path.GetFullPath(Path.Combine(_project.TargetDir, "../CustomFolder")), artifacts["MigrationFile"] as string);
+            AssertDefaultMigrationName(artifacts);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddMigration_output_dir_absolute_path_in_project()
         {
             var outputDir = Path.Combine(_project.TargetDir, "A/B/C");
-            var artiConditionalFacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
-            Assert.NotNull(artiConditionalFacts);
-            Assert.Equal(Path.Combine(outputDir, Path.GetFileName(artiConditionalFacts["MigrationFile"] as string)), artiConditionalFacts["MigrationFile"]);
-            Assert.Contains("namespace SimpleProject.A.B.C", File.ReadAllText(artiConditionalFacts["MigrationFile"] as string));
+            var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
+            Assert.NotNull(artifacts);
+            Assert.Equal(Path.Combine(outputDir, Path.GetFileName(artifacts["MigrationFile"] as string)), artifacts["MigrationFile"]);
+            Assert.Contains("namespace SimpleProject.A.B.C", File.ReadAllText(artifacts["MigrationFile"] as string));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddMigration_output_dir_absolute_path_outside_project()
         {
             var outputDir = Path.GetTempPath();
-            var artiConditionalFacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
-            Assert.NotNull(artiConditionalFacts);
-            Assert.StartsWith(outputDir, artiConditionalFacts["MigrationFile"] as string);
-            AssertDefaultMigrationName(artiConditionalFacts);
+            var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
+            Assert.NotNull(artifacts);
+            Assert.StartsWith(outputDir, artifacts["MigrationFile"] as string);
+            AssertDefaultMigrationName(artifacts);
         }
 
-        [ConditionalTheory]
+        [Theory]
         [InlineData("")]
         [InlineData("     ")]
         [InlineData(null)]
         public void AddMigration_handles_empty_output_dir(string outputDir)
         {
-            var artiConditionalFacts = _project.Executor.AddMigration("EmptyMigration2", outputDir, "SimpleContext");
-            Assert.NotNull(artiConditionalFacts);
-            Assert.StartsWith(Path.Combine(_project.TargetDir, "Migrations"), artiConditionalFacts["MigrationFile"] as string);
-            AssertDefaultMigrationName(artiConditionalFacts);
+            var artifacts = _project.Executor.AddMigration("EmptyMigration2", outputDir, "SimpleContext");
+            Assert.NotNull(artifacts);
+            Assert.StartsWith(Path.Combine(_project.TargetDir, "Migrations"), artifacts["MigrationFile"] as string);
+            AssertDefaultMigrationName(artifacts);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void ScriptMigration()
         {
             var sql = _project.Executor.ScriptMigration(null, "InitialCreate", false, "SimpleContext");
             Assert.NotEmpty(sql);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetContextType()
         {
             var contextTypeName = _project.Executor.GetContextType("SimpleContext");
             Assert.StartsWith("SimpleProject.SimpleContext, ", contextTypeName);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetContextTypes()
         {
             var contextTypes = _project.Executor.GetContextTypes();
             Assert.Equal(1, contextTypes.Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetMigrations()
         {
             var migrations = _project.Executor.GetMigrations("SimpleContext");
             Assert.Equal(1, migrations.Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetContextInfo_returns_connection_string()
         {
             var info = _project.Executor.GetContextInfo("SimpleContext");
@@ -140,9 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
                     {
                         BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
-#if NET451
                         BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-#endif
                         BuildReference.ByName("Microsoft.AspNetCore.Hosting.Abstractions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
@@ -189,7 +185,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
                             }" }
                 };
                 var build = source.Build();
-#if NET451
                 Executor = new AppDomainOperationExecutor(build.TargetPath,
                     build.TargetPath,
                     build.TargetDir,
@@ -198,15 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
                     "SimpleProject",
                     null,
                     AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-#else
-                Executor = new ReflectionOperationExecutor(build.TargetPath,
-                    build.TargetPath,
-                    build.TargetDir,
-                    build.TargetDir,
-                    build.TargetDir,
-                    "SimpleProject",
-                    null);
-#endif
             }
 
             public string TargetDir => _directory.Path;
@@ -221,3 +207,4 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
         }
     }
 }
+#endif

@@ -9,17 +9,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class OperationCompilationTest
     {
         private static string EOL => Environment.NewLine;
 
-        [ConditionalFact]
+        [Fact]
         public void AddColumnOperation_required_args()
         {
             Test(
@@ -41,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddColumnOperation_all_args()
         {
             Test(
@@ -80,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddColumnOperation_DefaultValueSql()
         {
             Test(
@@ -105,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddColumnOperation_ComutedExpression()
         {
             Test(
@@ -130,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddForeignKeyOperation_required_args()
         {
             Test(
@@ -157,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddForeignKeyOperation_all_args()
         {
             Test(
@@ -196,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddForeignKeyOperation_composite()
         {
             Test(
@@ -224,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddPrimaryKey_required_args()
         {
             Test(
@@ -246,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddPrimaryKey_all_args()
         {
             Test(
@@ -271,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddPrimaryKey_composite()
         {
             Test(
@@ -293,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddUniqueConstraint_required_args()
         {
             Test(
@@ -315,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddUniqueConstraint_all_args()
         {
             Test(
@@ -340,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AddUniqueConstraint_composite()
         {
             Test(
@@ -362,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AlterColumnOperation_required_args()
         {
             Test(
@@ -384,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AlterColumnOperation_all_args()
         {
             Test(
@@ -423,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AlterColumnOperation_DefaultValueSql()
         {
             Test(
@@ -447,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AlterColumnOperation_computedColumnSql()
         {
             Test(
@@ -471,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AlterSequenceOperation_required_args()
         {
             Test(
@@ -481,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void AlterSequenceOperation_all_args()
         {
             Test(
@@ -512,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateIndexOperation_required_args()
         {
             Test(
@@ -534,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateIndexOperation_all_args()
         {
             Test(
@@ -562,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateIndexOperation_composite()
         {
             Test(
@@ -584,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateSchemaOperation_required_args()
         {
             Test(
@@ -594,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 o => Assert.Equal("my", o.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateSequenceOperation_required_args()
         {
             Test(
@@ -612,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateSequenceOperation_required_args_not_long()
         {
             Test(
@@ -630,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateSequenceOperation_all_args()
         {
             Test(
@@ -666,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateSequenceOperation_all_args_not_long()
         {
             Test(
@@ -702,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_Columns_required_args()
         {
             Test(
@@ -739,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_Columns_all_args()
         {
             Test(
@@ -790,7 +788,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_Columns_DefaultValueSql()
         {
             Test(
@@ -828,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_Columns_computedColumnSql()
         {
             Test(
@@ -866,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_ForeignKeys_required_args()
         {
             Test(
@@ -915,7 +913,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_ForeignKeys_all_args()
         {
             Test(
@@ -978,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_ForeignKeys_composite()
         {
             Test(
@@ -1029,7 +1027,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_PrimaryKey_required_args()
         {
             Test(
@@ -1067,7 +1065,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_PrimaryKey_all_args()
         {
             Test(
@@ -1109,7 +1107,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_PrimaryKey_composite()
         {
             Test(
@@ -1149,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_UniqueConstraints_required_args()
         {
             Test(
@@ -1190,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_UniqueConstraints_all_args()
         {
             Test(
@@ -1235,7 +1233,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void CreateTableOperation_UniqueConstraints_composite()
         {
             Test(
@@ -1278,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropColumnOperation_required_args()
         {
             Test(
@@ -1297,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropColumnOperation_all_args()
         {
             Test(
@@ -1319,7 +1317,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropForeignKeyOperation_required_args()
         {
             Test(
@@ -1338,7 +1336,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropForeignKeyOperation_all_args()
         {
             Test(
@@ -1360,7 +1358,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropIndexOperation_required_args()
         {
             Test(
@@ -1379,7 +1377,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropIndexOperation_all_args()
         {
             Test(
@@ -1401,7 +1399,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropPrimaryKeyOperation_required_args()
         {
             Test(
@@ -1420,7 +1418,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropPrimaryKeyOperation_all_args()
         {
             Test(
@@ -1442,7 +1440,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropSchemaOperation_required_args()
         {
             Test(
@@ -1452,7 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 o => Assert.Equal("my", o.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropSequenceOperation_required_args()
         {
             Test(
@@ -1462,7 +1460,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropSequenceOperation_all_args()
         {
             Test(
@@ -1481,7 +1479,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropTableOperation_required_args()
         {
             Test(
@@ -1491,7 +1489,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 o => Assert.Equal("Post", o.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropTableOperation_all_args()
         {
             Test(
@@ -1510,7 +1508,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropUniqueConstraintOperation_required_args()
         {
             Test(
@@ -1529,7 +1527,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void DropUniqueConstraintOperation_all_args()
         {
             Test(
@@ -1551,7 +1549,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameColumnOperation_required_args()
         {
             Test(
@@ -1573,7 +1571,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameColumnOperation_all_args()
         {
             Test(
@@ -1598,7 +1596,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameIndexOperation_required_args()
         {
             Test(
@@ -1620,7 +1618,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameIndexOperation_all_args()
         {
             Test(
@@ -1645,7 +1643,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameSequenceOperation_required_args()
         {
             Test(
@@ -1655,7 +1653,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameSequenceOperation_all_args()
         {
             Test(
@@ -1680,7 +1678,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameTableOperation_required_args()
         {
             Test(
@@ -1690,7 +1688,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 o => Assert.Equal("Post", o.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RenameTableOperation_all_args()
         {
             Test(
@@ -1715,7 +1713,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RestartSequenceOperation_required_args()
         {
             Test(
@@ -1734,7 +1732,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void RestartSequenceOperation_all_args()
         {
             Test(
@@ -1756,7 +1754,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [ConditionalFact]
+        [Fact]
         public void SqlOperation_required_args()
         {
             Test(

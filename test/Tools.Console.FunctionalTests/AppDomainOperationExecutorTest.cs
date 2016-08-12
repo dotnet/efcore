@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NET451
+using System;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Design.Internal;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
@@ -13,11 +15,30 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
 {
-    public abstract class OperationExecutorTestBase
+    public class AppDomainOperationExecutorTest
     {
-        protected abstract IOperationExecutor CreateExecutorFromBuildResult(BuildFileResult build, string rootNamespace = null);
+        private IOperationExecutor CreateExecutorFromBuildResult(BuildFileResult build, string rootNamespace = null) 
+            => new AppDomainOperationExecutor(build.TargetPath,
+                build.TargetPath, 
+                build.TargetDir,
+                build.TargetDir, 
+                build.TargetDir, 
+                rootNamespace, 
+                environment: null, 
+                configFile: null);
 
-        [ConditionalFact]
+
+        [Fact]
+        public void Assembly_load_errors_are_wrapped()
+        {
+            var targetDir = AppDomain.CurrentDomain.BaseDirectory;
+            using (var executor = new AppDomainOperationExecutor(Assembly.GetExecutingAssembly().Location, Path.Combine(targetDir, "Unknown.dll"), targetDir, null, null, null, null, null))
+            {
+                Assert.Throws<OperationErrorException>(() => executor.GetContextTypes());
+            }
+        }
+
+        [Fact]
         public virtual void GetMigrations_filters_by_context_name()
         {
             using (var directory = new TempDirectory())
@@ -106,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void GetContextType_works_with_multiple_assemblies()
         {
             using (var directory = new TempDirectory())
@@ -206,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void AddMigration_begins_new_namespace_when_foreign_migrations()
         {
             using (var directory = new TempDirectory())
@@ -276,14 +297,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
                 var build = source.Build();
                 using (var executor = CreateExecutorFromBuildResult(build, "MyProject"))
                 {
-                    var artiConditionalFacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
-                    Assert.Equal(3, artiConditionalFacts.Keys.Count);
+                    var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
+                    Assert.Equal(3, artifacts.Keys.Count);
                     Assert.True(Directory.Exists(Path.Combine(targetDir, @"Migrations\MySecond")));
                 }
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_no_parameterless_constructor()
         {
             using (var directory = new TempDirectory())
@@ -340,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void GetMigrations_throws_when_target_and_migrations_assemblies_mismatch()
         {
             using (var directory = new TempDirectory())
@@ -416,3 +437,4 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
         }
     }
 }
+#endif

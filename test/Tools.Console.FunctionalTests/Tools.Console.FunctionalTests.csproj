@@ -45,9 +45,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OperationExecutorTestBase.cs" />
-    <Compile Include="AppDomainOperationExecutorTest.net451.cs" />
-    <Compile Include="ReflectionOperationExecutorTest.netcore.cs" />
+    <Compile Include="AppDomainOperationExecutorTest.cs" />
     <Compile Include="SimpleProjectTest.cs" />
   </ItemGroup>
   <ItemGroup>
