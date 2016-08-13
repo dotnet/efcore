@@ -1258,7 +1258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            return index;
+            return Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -1369,6 +1369,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ? property.Indexes.Where(k => k != index).ToList()
                         : null;
             }
+
+            Model.ConventionDispatcher.OnIndexRemoved(Builder, index);
 
             return index;
         }

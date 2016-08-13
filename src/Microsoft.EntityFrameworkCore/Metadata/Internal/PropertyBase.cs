@@ -11,22 +11,22 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract class PropertyBase : ConventionalAnnotatable, IPropertyBase
     {
         private FieldInfo _fieldInfo;
         private ConfigurationSource? _fieldInfoConfigurationSource;
-        
+
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
-        
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected PropertyBase(
@@ -40,25 +40,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Name { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract EntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual PropertyInfo PropertyInfo { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual FieldInfo FieldInfo
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
@@ -87,17 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 FieldInfo fieldInfo;
                 if (fields.TryGetValue(fieldName, out fieldInfo))
                 {
-                    if (!fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(this.GetClrType().GetTypeInfo()))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.BadBackingFieldType(
-                                fieldName,
-                                fieldInfo.FieldType.ShortDisplayName(),
-                                DeclaringEntityType.DisplayName(),
-                                Name,
-                                this.GetClrType().ShortDisplayName()));
-                    }
-
                     SetFieldInfo(fieldInfo, configurationSource);
                     return;
                 }
@@ -108,37 +97,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetFieldInfo(
             [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
         {
+            if (fieldInfo != null
+                && !fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(this.GetClrType().GetTypeInfo()))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.BadBackingFieldType(
+                        fieldInfo.Name,
+                        fieldInfo.FieldType.ShortDisplayName(),
+                        DeclaringEntityType.DisplayName(),
+                        Name,
+                        this.GetClrType().ShortDisplayName()));
+            }
+
             UpdateFieldInfoConfigurationSource(configurationSource);
 
             if (!ReferenceEquals(FieldInfo, fieldInfo))
             {
+                var oldFieldInfo = FieldInfo;
                 _fieldInfo = fieldInfo;
 
                 DeclaringEntityType.PropertyMetadataChanged();
 
                 if (runConventions)
                 {
-                    OnFieldInfoSet();
+                    OnFieldInfoSet(oldFieldInfo);
                 }
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void OnFieldInfoSet()
+        protected virtual void OnFieldInfoSet([CanBeNull] FieldInfo oldFieldInfo)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConfigurationSource? GetFieldInfoConfigurationSource() => _fieldInfoConfigurationSource;
@@ -146,42 +148,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateFieldInfoConfigurationSource(ConfigurationSource configurationSource)
             => _fieldInfoConfigurationSource = configurationSource.Max(_fieldInfoConfigurationSource);
 
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual MemberInfo MemberInfo => (MemberInfo)PropertyInfo ?? FieldInfo;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract Type ClrType { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IClrPropertyGetter Getter
             => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IClrPropertySetter Setter
             => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual PropertyAccessors Accessors
             => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual PropertyIndexes PropertyIndexes

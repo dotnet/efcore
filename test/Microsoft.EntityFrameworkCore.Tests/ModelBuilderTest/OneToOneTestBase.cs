@@ -2781,6 +2781,40 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Does_not_create_index_if_covered_by_an_alternate_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
+                modelBuilder.Entity<Tomato>().HasAlternateKey(c => new { c.BurgerId1, c.BurgerId2 });
+                modelBuilder.Ignore<ToastedBun>();
+                modelBuilder.Ignore<Moostard>();
+
+                var dependentType = model.FindEntityType(typeof(Tomato));
+                var principalType = model.FindEntityType(typeof(Whoopper));
+
+                modelBuilder
+                    .Entity<Whoopper>().HasOne<Tomato>().WithOne()
+                    .HasForeignKey<Tomato>(e => new { e.BurgerId1 })
+                    .HasPrincipalKey<Whoopper>(e => new { e.AlternateKey1 });
+
+                var existingFk = dependentType.GetNavigations().Single().ForeignKey;
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Equal(2, principalType.GetKeys().Count());
+                Assert.Equal(2, dependentType.GetKeys().Count());
+                var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
+                Assert.Empty(principalType.GetIndexes());
+                Assert.Equal(dependentType.GetForeignKeys().Count() - 1, dependentType.GetIndexes().Count());
+
+                modelBuilder.Entity<Tomato>().Ignore(t => t.BurgerId2);
+
+                Assert.Equal(1, dependentType.GetKeys().Count());
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.Empty(principalType.GetIndexes());
+            }
+
+            [Fact]
             public virtual void Throws_on_existing_many_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();

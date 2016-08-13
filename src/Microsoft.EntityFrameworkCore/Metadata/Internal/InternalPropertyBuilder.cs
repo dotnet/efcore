@@ -145,6 +145,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool HasFieldInfo([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+        {
+            if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
+            {
+                Metadata.SetFieldInfo(fieldInfo, configurationSource);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool UsePropertyAccessMode(PropertyAccessMode propertyAccessMode, ConfigurationSource configurationSource) 
             => HasAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation, propertyAccessMode, configurationSource);
 
@@ -233,12 +248,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool IsStoreGeneratedAlways(bool isStoreGeneratedAlways, ConfigurationSource configurationSource)
+        {
+            if (configurationSource.Overrides(Metadata.GetIsStoreGeneratedAlwaysConfigurationSource())
+                || (Metadata.IsStoreGeneratedAlways == isStoreGeneratedAlways))
+            {
+                Metadata.SetIsStoreGeneratedAlways(isStoreGeneratedAlways, configurationSource);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalPropertyBuilder Attach(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder, ConfigurationSource configurationSource)
         {
             var newProperty = Metadata.DeclaringEntityType.FindProperty(Metadata.Name);
-            Debug.Assert(newProperty != null);
-            var newPropertyBuilder = entityTypeBuilder.Property(Metadata.Name, configurationSource);
+            InternalPropertyBuilder newPropertyBuilder = null;
+            if (newProperty != null
+                && newProperty.GetConfigurationSource().Overrides(configurationSource)
+                && ((Metadata.ClrType != null
+                     && Metadata.ClrType != newProperty.ClrType)
+                    || (Metadata.PropertyInfo != null
+                        && newProperty.PropertyInfo == null)))
+            {
+                newPropertyBuilder = newProperty.Builder;
+            }
+            else
+            {
+                newPropertyBuilder = Metadata.PropertyInfo == null
+                    ? entityTypeBuilder.Property(Metadata.Name, Metadata.ClrType, configurationSource)
+                    : entityTypeBuilder.Property(Metadata.PropertyInfo, configurationSource);
+            }
+
             if (newProperty == Metadata)
             {
                 return newPropertyBuilder;
@@ -279,6 +326,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (oldValueGeneratedConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, oldValueGeneratedConfigurationSource.Value);
+            }
+            var oldIsStoreGeneratedAlwaysConfigurationSource = Metadata.GetIsStoreGeneratedAlwaysConfigurationSource();
+            if (oldIsStoreGeneratedAlwaysConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.IsStoreGeneratedAlways(Metadata.IsStoreGeneratedAlways, oldIsStoreGeneratedAlwaysConfigurationSource.Value);
+            }
+            var oldFieldInfoConfigurationSource = Metadata.GetFieldInfoConfigurationSource();
+            if (oldFieldInfoConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.HasFieldInfo(Metadata.FieldInfo, oldFieldInfoConfigurationSource.Value);
             }
 
             return newPropertyBuilder;

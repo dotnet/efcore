@@ -1340,8 +1340,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             // FKs are not allowed to use properties from inherited keys since this could result in an ambiguous value space
-            Debug.Assert(configurationSource.HasValue);
-
             if (dependentEntityType.BaseType != null
                 && configurationSource != ConfigurationSource.Explicit // let it throw for explicit
                 && properties.Any(p => p.GetContainingKeys().Any(k => k.DeclaringEntityType != dependentEntityType)))
@@ -1394,9 +1392,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            if (!configurationSource.HasValue
-                || !configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
-                || (!overrideSameSource && configurationSource.Value == Metadata.GetForeignKeyPropertiesConfigurationSource()))
+            if (!configurationSource.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
+                 || (!overrideSameSource && configurationSource == Metadata.GetForeignKeyPropertiesConfigurationSource()))
             {
                 return false;
             }
@@ -1998,12 +1995,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(addedForeignKey);
                 }
 
-                if (newRelationshipBuilder == null)
-                {
-                    return null;
-                }
-
-                if (newRelationshipBuilder.Metadata.Builder == null)
+                if (newRelationshipBuilder?.Metadata.Builder == null)
                 {
                     newRelationshipBuilder = FindCurrentRelationshipBuilder(
                         principalEntityType,
@@ -2393,11 +2385,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // this should be replaced with reference counting
             // Issue #214
             var temporaryProperties = dependentProperties?.Where(p => p.GetConfigurationSource() == ConfigurationSource.Convention
-                                                                      && p.IsShadowProperty).ToList() ?? new List<Property>();
-            foreach (var temporaryProperty in temporaryProperties)
-            {
-                temporaryProperty.UpdateConfigurationSource(ConfigurationSource.DataAnnotation);
-            }
+                                                                      && p.IsShadowProperty).ToList();
+            var tempIndex = temporaryProperties != null
+                            && temporaryProperties.Any()
+                            && dependentEntityType.FindIndex(temporaryProperties) == null
+                ? dependentEntityType.Builder.HasIndex(temporaryProperties, ConfigurationSource.Convention)
+                : null;
 
             if (Metadata.Builder != null)
             {
@@ -2488,14 +2481,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (configurationSource == ConfigurationSource.Convention)
-            {
-                foreach (var temporaryProperty in temporaryProperties)
-                {
-                    temporaryProperty.SetConfigurationSource(ConfigurationSource.Convention);
-                }
-            }
-
             if (newRelationshipBuilder == null)
             {
                 var principalKey = principalProperties == null
@@ -2562,6 +2547,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     existingRelationshipInverted = false;
                 }
+            }
+
+            if (tempIndex != null)
+            {
+                dependentEntityType.RemoveIndex(tempIndex.Metadata.Properties);
             }
 
             return newRelationshipBuilder;
@@ -2727,7 +2717,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Attach(ConfigurationSource configurationSource)
         {
-            Debug.Assert(!Metadata.DeclaringEntityType.GetForeignKeys().Contains(Metadata));
+            if (Metadata.DeclaringEntityType.GetForeignKeys().Contains(Metadata, ReferenceEqualityComparer.Instance))
+            {
+                Debug.Assert(Metadata.Builder != null);
+                return Metadata.Builder;
+            }
 
             IReadOnlyList<Property> dependentProperties = null;
             if (Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) == true)

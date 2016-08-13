@@ -364,8 +364,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void SetIsUnique(bool unique, ConfigurationSource configurationSource)
         {
+            var isChanging = IsUnique != unique;
             _isUnique = unique;
             UpdateIsUniqueConfigurationSource(configurationSource);
+
+            if (isChanging)
+            {
+                DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder);
+            }
         }
 
         private bool DefaultIsUnique => false;

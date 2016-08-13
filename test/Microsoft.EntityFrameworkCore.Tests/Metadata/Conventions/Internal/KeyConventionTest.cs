@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
                 ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.ReferencedShadowKeyWithoutNavigations(
-                "{'Foo'}",
+                "{'TempId'}",
                 typeof(SampleEntity).Name,
                 "{'Foo'}",
                 typeof(ReferencedEntity).Name),

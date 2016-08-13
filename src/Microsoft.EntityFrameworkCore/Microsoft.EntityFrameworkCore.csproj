@@ -235,7 +235,12 @@
     <Compile Include="Metadata\Conventions\Internal\BackingFieldConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyIndexConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeIgnoredConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IForeignKeyUniquenessConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IgnoredMembersValidationConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IIndexConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IIndexRemovedConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IIndexUniquenessConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IPropertyFieldChangedConvention.cs" />
     <Compile Include="Metadata\PropertyAccessMode.cs" />
     <Compile Include="Storage\DatabaseProvider.cs" />
     <Compile Include="WarningBehavior.cs" />

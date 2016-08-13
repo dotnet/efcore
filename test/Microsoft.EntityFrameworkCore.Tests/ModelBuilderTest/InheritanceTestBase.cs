@@ -27,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.Null(pickle.BaseType);
                 var pickleClone = modelBuilder.Model.Clone().FindEntityType(pickle.Name);
-                var initialProperties = pickleClone.GetProperties();
-                var initialKeys = pickleClone.GetKeys();
-                var initialIndexes = pickleClone.GetIndexes();
-                var initialForeignKeys = pickleClone.GetForeignKeys();
-                var initialReferencingForeignKeys = pickleClone.GetReferencingForeignKeys();
+                var initialProperties = pickleClone.GetProperties().ToList();
+                var initialKeys = pickleClone.GetKeys().ToList();
+                var initialIndexes = pickleClone.GetIndexes().ToList();
+                var initialForeignKeys = pickleClone.GetForeignKeys().ToList();
+                var initialReferencingForeignKeys = pickleClone.GetReferencingForeignKeys().ToList();
 
                 pickleBuilder.HasBaseType<Ingredient>();
                 var ingredientBuilder = modelBuilder.Entity<Ingredient>();
@@ -297,6 +297,134 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(Order.Customer), otherDerivedFk.DependentToPrincipal.Name);
                 Assert.Null(otherDerivedFk.PrincipalToDependent);
                 Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Index_removed_when_covered_by_an_inherited_foreign_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<BackOrder>();
+                modelBuilder.Ignore<SpecialCustomer>();
+                modelBuilder.Ignore<SpecialOrder>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                var derivedPrincipalEntityBuilder = modelBuilder.Entity<OtherCustomer>();
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
+
+                principalEntityBuilder.HasMany(c => c.Orders).WithOne(o => o.Customer)
+                    .HasForeignKey(o => new { o.CustomerId, o.AnotherCustomerId })
+                    .HasPrincipalKey(c => new { c.Id, c.AlternateKey });
+
+                derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
+                    .HasForeignKey(o => new { o.CustomerId })
+                    .HasPrincipalKey(c => new { c.Id });
+
+                var dependentEntityType = dependentEntityBuilder.Metadata;
+                var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
+                var fk = dependentEntityType.GetForeignKeys().Single();
+                Assert.Equal(1, dependentEntityType.GetIndexes().Count());
+                Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
+
+                var backOrderClone = modelBuilder.Model.Clone().FindEntityType(derivedDependentEntityType.Name);
+                var initialProperties = backOrderClone.GetProperties().ToList();
+                var initialKeys = backOrderClone.GetKeys().ToList();
+                var initialIndexes = backOrderClone.GetIndexes().ToList();
+                var initialForeignKeys = backOrderClone.GetForeignKeys().ToList();
+
+                derivedDependentEntityBuilder.HasBaseType(null);
+
+                var derivedFk = derivedDependentEntityType.GetForeignKeys()
+                    .Single(foreignKey => foreignKey.PrincipalEntityType == derivedPrincipalEntityBuilder.Metadata);
+                Assert.Equal(2, derivedDependentEntityType.GetIndexes().Count());
+                Assert.False(derivedDependentEntityType.FindIndex(derivedFk.Properties).IsUnique);
+
+                derivedDependentEntityBuilder.HasBaseType<Order>();
+
+                fk = dependentEntityType.GetForeignKeys().Single();
+                Assert.Equal(1, dependentEntityType.GetIndexes().Count());
+                Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
+
+                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+                AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
+                AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
+                AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+
+                principalEntityBuilder.HasOne<Order>().WithOne()
+                    .HasPrincipalKey<Customer>(c => new { c.Id })
+                    .HasForeignKey<Order>(o => new { o.CustomerId });
+
+                fk = dependentEntityType.GetForeignKeys().Single(foreignKey => foreignKey.DependentToPrincipal == null);
+                Assert.Equal(2, dependentEntityType.GetIndexes().Count());
+                Assert.True(dependentEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
+            }
+
+            [Fact]
+            public virtual void Index_removed_when_covered_by_an_inherited_index()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<BackOrder>();
+                modelBuilder.Ignore<SpecialCustomer>();
+                modelBuilder.Ignore<SpecialOrder>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                var derivedPrincipalEntityBuilder = modelBuilder.Entity<OtherCustomer>();
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
+
+                dependentEntityBuilder.HasIndex(o => new { o.CustomerId, o.AnotherCustomerId })
+                    .IsUnique();
+
+                derivedPrincipalEntityBuilder.HasOne<BackOrder>().WithOne()
+                    .HasPrincipalKey<OtherCustomer>(c => new { c.Id })
+                    .HasForeignKey<BackOrder>(o => new { o.CustomerId });
+
+                var dependentEntityType = dependentEntityBuilder.Metadata;
+                var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
+                var fk = dependentEntityType.GetForeignKeys().Single();
+                Assert.Null(dependentEntityType.FindIndex(fk.Properties));
+                Assert.True(dependentEntityType.GetIndexes().Single().IsUnique);
+                Assert.True(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
+
+                var backOrderClone = modelBuilder.Model.Clone().FindEntityType(derivedDependentEntityType.Name);
+                var initialProperties = backOrderClone.GetProperties().ToList();
+                var initialKeys = backOrderClone.GetKeys().ToList();
+                var initialIndexes = backOrderClone.GetIndexes().ToList();
+                var initialForeignKeys = backOrderClone.GetForeignKeys().ToList();
+
+                derivedDependentEntityBuilder.HasBaseType(null);
+
+                var derivedFk = derivedDependentEntityType.GetForeignKeys()
+                    .Single(foreignKey => foreignKey.PrincipalEntityType == derivedPrincipalEntityBuilder.Metadata);
+                Assert.Equal(2, derivedDependentEntityType.GetIndexes().Count());
+                Assert.True(derivedDependentEntityType.FindIndex(derivedFk.Properties).IsUnique);
+
+                derivedDependentEntityBuilder.HasBaseType<Order>();
+
+                Assert.True(dependentEntityType.GetIndexes().Single().IsUnique);
+                Assert.True(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
+
+                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+                AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
+                AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
+                AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+
+                dependentEntityBuilder.HasIndex(o => new { o.CustomerId, o.AnotherCustomerId })
+                    .IsUnique(false);
+
+                Assert.False(dependentEntityType.GetIndexes().Single().IsUnique);
+                Assert.True(derivedDependentEntityType.GetDeclaredIndexes().Single().IsUnique);
             }
 
             [Fact]

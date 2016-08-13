@@ -4,13 +4,13 @@
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class CoreConventionSetBuilder : ICoreConventionSetBuilder
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConventionSet CreateConventionSet()
@@ -32,10 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
 
+            var foreignKeyIndexConvention = new ForeignKeyIndexConvention();
             conventionSet.BaseEntityTypeSetConventions.Add(propertyDiscoveryConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(keyDiscoveryConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(inversePropertyAttributeConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.BaseEntityTypeSetConventions.Add(foreignKeyIndexConvention);
 
             // An ambiguity might have been resolved
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
@@ -58,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var keyConvention = new KeyConvention();
             conventionSet.PrimaryKeySetConventions.Add(keyConvention);
 
-            var foreignKeyIndexConvention = new ForeignKeyIndexConvention();
             conventionSet.KeyAddedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.KeyRemovedConventions.Add(foreignKeyIndexConvention);
@@ -74,6 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyRemovedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 
+            conventionSet.ForeignKeyUniquenessConventions.Add(foreignKeyIndexConvention);
+
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
             conventionSet.ModelBuiltConventions.Add(keyConvention);
@@ -88,6 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
 
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
+
+            conventionSet.IndexAddedConventions.Add(foreignKeyIndexConvention);
+
+            conventionSet.IndexRemovedConventions.Add(foreignKeyIndexConvention);
+
+            conventionSet.IndexUniquenessConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.PropertyNullableChangedConventions.Add(cascadeDeleteConvention);
 

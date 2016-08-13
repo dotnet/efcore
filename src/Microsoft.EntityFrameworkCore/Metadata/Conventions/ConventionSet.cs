@@ -57,6 +57,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IPrimaryKeyConvention> PrimaryKeySetConventions { get; } = new List<IPrimaryKeyConvention>();
 
         /// <summary>
+        ///     Conventions to run when an index is added.
+        /// </summary>
+        public virtual IList<IIndexConvention> IndexAddedConventions { get; } = new List<IIndexConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an index is added.
+        /// </summary>
+        public virtual IList<IIndexRemovedConvention> IndexRemovedConventions { get; } = new List<IIndexRemovedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when the uniqueness of an index is changed.
+        /// </summary>
+        public virtual IList<IIndexUniquenessConvention> IndexUniquenessConventions { get; } = new List<IIndexUniquenessConvention>();
+
+        /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.
         /// </summary>
         public virtual IList<IPrincipalEndConvention> PrincipalEndSetConventions { get; } = new List<IPrincipalEndConvention>();
@@ -82,6 +97,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
 
         /// <summary>
+        ///     Conventions to run when the uniqueness of a foreign key is changed.
+        /// </summary>
+        public virtual IList<IForeignKeyUniquenessConvention> ForeignKeyUniquenessConventions { get; } = new List<IForeignKeyUniquenessConvention>();
+
+        /// <summary>
         ///     Conventions to run when a property is added.
         /// </summary>
         public virtual IList<IPropertyConvention> PropertyAddedConventions { get; } = new List<IPropertyConvention>();
@@ -92,8 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IPropertyNullableConvention> PropertyNullableChangedConventions { get; } = new List<IPropertyNullableConvention>();
 
         /// <summary>
-        ///     Conventions to run when the nullability of a property is changed.
+        ///     Conventions to run when the field of a property is changed.
         /// </summary>
-        public virtual IList<IPropertyConvention> PropertyFieldChangedConventions { get; } = new List<IPropertyConvention>();
+        public virtual IList<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } =
+            new List<IPropertyFieldChangedConvention>();
     }
 }

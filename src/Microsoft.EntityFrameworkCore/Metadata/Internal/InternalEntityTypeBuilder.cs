@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if ((propertyType != null
                      && propertyType != existingProperty.ClrType)
                     || (clrProperty != null
-                        && existingProperty.IsShadowProperty))
+                        && existingProperty.PropertyInfo == null))
                 {
                     if (!configurationSource.HasValue
                         || !configurationSource.Value.Overrides(existingProperty.GetConfigurationSource()))
@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var detachedRelationships = new HashSet<RelationshipBuilderSnapshot>();
+            var detachedRelationships = new List<RelationshipBuilderSnapshot>();
             PropertyBuildersSnapshot detachedProperties = null;
             KeyBuildersSnapshot detachedKeys = null;
             var changedRelationships = new List<InternalRelationshipBuilder>();
@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                var foreignKeysUsingKeyProperties = Metadata.GetDeclaredForeignKeys()
+                var foreignKeysUsingKeyProperties = Metadata.GetDerivedForeignKeysInclusive()
                     .Where(fk => relationshipsToBeRemoved.All(r => r.ForeignKey != fk)
                                  && fk.Properties.Any(p => baseEntityType.FindProperty(p.Name)?.IsKey() == true)).ToList();
 
@@ -672,8 +672,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 baseEntityType.UpdateConfigurationSource(configurationSource);
             }
 
+            var detachedIndexes = new List<IndexBuilderSnapshot>();
+            HashSet<Property> removedInheritedProperties = null;
+            if (Metadata.BaseType != null)
+            {
+                removedInheritedProperties = new HashSet<Property>(Metadata.BaseType.GetProperties()
+                    .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
+                if (removedInheritedProperties.Count != 0)
+                {
+                    foreach (var foreignKey in Metadata.GetDerivedForeignKeysInclusive()
+                        .Where(fk => fk.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                    {
+                        detachedRelationships.Add(DetachRelationship(foreignKey));
+                    }
+
+                    foreach (var index in Metadata.GetDerivedIndexesInclusive()
+                        .Where(i => i.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                    {
+                        detachedIndexes.Add(DetachIndex(index));
+                    }
+                }
+            }
+
             var originalBaseType = Metadata.BaseType;
             Metadata.HasBaseType(baseEntityType, configurationSource, runConventions: false);
+
+            if (removedInheritedProperties != null)
+            {
+                foreach (var property in removedInheritedProperties)
+                {
+                    property.Builder.Attach(this, property.GetConfigurationSource());
+                }
+            }
+
+            detachedProperties?.Attach(this);
+
+            detachedKeys?.Attach();
+
+            foreach (var indexBuilderSnapshot in detachedIndexes)
+            {
+                indexBuilderSnapshot.Attach();
+            }
+
+            foreach (var detachedRelationship in detachedRelationships)
+            {
+                detachedRelationship.Attach();
+            }
 
             foreach (var relationshipToBeRemoved in relationshipsToBeRemoved)
             {
@@ -703,15 +747,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(changedRelationship);
             }
 
-            detachedProperties?.Attach(this);
-
-            detachedKeys?.Attach();
-
-            foreach (var detachedRelationship in detachedRelationships)
-            {
-                detachedRelationship.Attach();
-            }
-
             ModelBuilder.Metadata.ConventionDispatcher.OnBaseEntityTypeSet(this, originalBaseType);
 
             return this;
@@ -734,7 +769,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            var detachedIndexes = DetachIndexes(propertiesToDetachList.SelectMany(p => p.GetContainingIndexes()).Distinct());
+            var detachedIndexes = propertiesToDetachList.SelectMany(p => p.GetContainingIndexes()).Distinct().ToList()
+                .Select(DetachIndex).ToList();
 
             var detachedKeys = DetachKeys(propertiesToDetachList.SelectMany(p => p.GetContainingKeys()).Distinct());
 
@@ -760,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             public PropertyBuildersSnapshot(
                 IReadOnlyList<Tuple<InternalPropertyBuilder, ConfigurationSource>> properties,
-                IndexBuildersSnapshot indexes,
+                IReadOnlyList<IndexBuilderSnapshot> indexes,
                 KeyBuildersSnapshot keys,
                 IReadOnlyList<RelationshipBuilderSnapshot> relationships)
             {
@@ -772,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             private IReadOnlyList<Tuple<InternalPropertyBuilder, ConfigurationSource>> Properties { get; }
             private IReadOnlyList<RelationshipBuilderSnapshot> Relationships { get; }
-            private IndexBuildersSnapshot Indexes { get; }
+            private IReadOnlyList<IndexBuilderSnapshot> Indexes { get; }
             private KeyBuildersSnapshot Keys { get; }
 
             public void Attach(InternalEntityTypeBuilder entityTypeBuilder)
@@ -782,7 +818,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     propertyTuple.Item1.Attach(entityTypeBuilder, propertyTuple.Item2);
                 }
 
-                Indexes?.Attach();
+                foreach (var indexBuilderSnapshot in Indexes)
+                {
+                    indexBuilderSnapshot.Attach();
+                }
 
                 Keys?.Attach();
 
@@ -991,7 +1030,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             foreach (var property in properties.ToList())
             {
-                if (property.IsShadowProperty)
+                if (property != null
+                    && property.IsShadowProperty)
                 {
                     RemovePropertyIfUnused(property);
                 }
@@ -1049,12 +1089,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            IndexBuildersSnapshot detachedIndexes = null;
+            List<IndexBuilderSnapshot> detachedIndexes = null;
             var existingIndex = Metadata.FindIndex(properties);
             if (existingIndex == null)
             {
-                var derivedIndexes = Metadata.FindDerivedIndexes(properties);
-                detachedIndexes = DetachIndexes(derivedIndexes);
+                detachedIndexes = Metadata.FindDerivedIndexes(properties).ToList().Select(DetachIndex).ToList();
             }
             else if (existingIndex.DeclaringEntityType != Metadata)
             {
@@ -1063,7 +1102,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var indexBuilder = HasIndex(existingIndex, properties, configurationSource);
 
-            detachedIndexes?.Attach();
+            if (detachedIndexes != null)
+            {
+                foreach (var indexBuilderSnapshot in detachedIndexes)
+                {
+                    indexBuilderSnapshot.Attach();
+                }
+            }
 
             return indexBuilder;
         }
@@ -1080,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 index.UpdateConfigurationSource(configurationSource);
             }
 
-            return index.Builder;
+            return index?.Builder;
         }
 
         /// <summary>
@@ -1103,44 +1148,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return currentConfigurationSource;
         }
 
-        private class IndexBuildersSnapshot
+        private class IndexBuilderSnapshot
         {
-            public IndexBuildersSnapshot(IReadOnlyList<Tuple<InternalIndexBuilder, ConfigurationSource>> indexes)
+            public IndexBuilderSnapshot(InternalIndexBuilder index, ConfigurationSource configurationSource)
             {
-                Indexes = indexes;
+                Index = index;
+                IndexConfigurationSource = configurationSource;
             }
 
-            private IReadOnlyList<Tuple<InternalIndexBuilder, ConfigurationSource>> Indexes { get; }
+            private InternalIndexBuilder Index { get; }
+            private ConfigurationSource IndexConfigurationSource { get; }
 
-            public void Attach()
-            {
-                foreach (var indexTuple in Indexes)
-                {
-                    indexTuple.Item1.Attach(indexTuple.Item2);
-                }
-            }
+            public void Attach() => Index.Attach(IndexConfigurationSource);
         }
 
-        private static IndexBuildersSnapshot DetachIndexes(IEnumerable<Index> indexesToDetach)
+        private static IndexBuilderSnapshot DetachIndex(Index indexToDetach)
         {
-            var indexesToDetachList = indexesToDetach.ToList();
-            if (indexesToDetachList.Count == 0)
-            {
-                return null;
-            }
-
-            var detachedIndexes = new List<Tuple<InternalIndexBuilder, ConfigurationSource>>();
-            foreach (var indexToDetach in indexesToDetachList)
-            {
-                var entityTypeBuilder = indexToDetach.DeclaringEntityType.Builder;
-                var indexBuilder = indexToDetach.Builder;
-                var removedConfigurationSource = entityTypeBuilder.RemoveIndex(indexToDetach, ConfigurationSource.Explicit);
-                Debug.Assert(removedConfigurationSource != null);
-
-                detachedIndexes.Add(Tuple.Create(indexBuilder, removedConfigurationSource.Value));
-            }
-
-            return new IndexBuildersSnapshot(detachedIndexes);
+            var entityTypeBuilder = indexToDetach.DeclaringEntityType.Builder;
+            var indexBuilder = indexToDetach.Builder;
+            var removedConfigurationSource = entityTypeBuilder.RemoveIndex(indexToDetach, ConfigurationSource.Explicit);
+            Debug.Assert(removedConfigurationSource != null);
+            return new IndexBuilderSnapshot(indexBuilder, removedConfigurationSource.Value);
         }
 
         /// <summary>
@@ -1587,17 +1615,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentProperties = GetActualProperties(dependentProperties, ConfigurationSource.Convention);
                 if (principalKey == null)
                 {
-                    var principalKeyProperties = new Property[dependentProperties.Count];
-                    for (var i = 0; i < dependentProperties.Count; i++)
-                    {
-                        IProperty foreignKeyProperty = dependentProperties[i];
-                        principalKeyProperties[i] = CreateUniqueProperty(
-                            foreignKeyProperty.Name,
-                            foreignKeyProperty.ClrType,
-                            principalBaseEntityTypeBuilder,
-                            isRequired: true);
-                    }
-
+                    var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
+                        dependentProperties.Count, null, Enumerable.Repeat("", dependentProperties.Count), dependentProperties.Select(p => p.ClrType), isRequired: true, baseName: "TempId");
                     var keyBuilder = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention);
 
                     principalKey = keyBuilder.Metadata;
@@ -1611,59 +1630,110 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (principalKey == null)
                 {
-                    var principalKeyProperty = CreateUniqueProperty(
-                        "TempId",
-                        typeof(int),
-                        principalBaseEntityTypeBuilder,
-                        isRequired: true);
+                    var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
+                        1, null, new[] { "TempId" }, new[] { typeof(int) }, isRequired: true, baseName: "");
 
-                    principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(new[] { principalKeyProperty }, ConfigurationSource.Convention).Metadata;
+                    principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention).Metadata;
                 }
 
                 var baseName = string.IsNullOrEmpty(navigationToPrincipalName) ? principalType.DisplayName() : navigationToPrincipalName;
-                var fkProperties = new Property[principalKey.Properties.Count];
-                for (var i = 0; i < principalKey.Properties.Count; i++)
-                {
-                    IProperty keyProperty = principalKey.Properties[i];
-                    var propertyName = (keyProperty.Name.StartsWith(baseName, StringComparison.OrdinalIgnoreCase) ? "" : baseName)
-                                       + keyProperty.Name;
-                    fkProperties[i] = CreateUniqueProperty(
-                        propertyName,
-                        isRequired ?? false ? keyProperty.ClrType : keyProperty.ClrType.MakeNullable(),
-                        this,
-                        isRequired);
-                }
-
-                dependentProperties = fkProperties;
+                dependentProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, baseName);
             }
 
             return CreateRelationshipBuilder(principalType, dependentProperties, principalKey, configurationSource, runConventions);
         }
 
-        private static Property CreateUniqueProperty(string baseName, Type propertyType, InternalEntityTypeBuilder entityTypeBuilder, bool? isRequired = null)
-        {
-            var index = -1;
-            while (true)
-            {
-                var name = baseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
-                var entityType = entityTypeBuilder.Metadata;
-                if (entityType.FindPropertiesInHierarchy(name).Any()
-                    || (entityType.ClrType?.GetRuntimeProperties().FirstOrDefault(p => p.Name == name) != null))
-                {
-                    continue;
-                }
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<Property> ReUniquifyTemporaryProperties(
+            [NotNull] IReadOnlyList<Property> currentProperties,
+            [NotNull] IReadOnlyList<Property> principalProperties,
+            bool isRequired,
+            [NotNull] string baseName) => CreateUniqueProperties(currentProperties, principalProperties, isRequired, baseName);
 
-                var propertyBuilder = entityTypeBuilder.Property(name, propertyType, ConfigurationSource.Convention);
-                if (propertyBuilder != null)
+        private IReadOnlyList<Property> CreateUniqueProperties(
+            IReadOnlyList<Property> currentProperties,
+            IReadOnlyList<Property> principalProperties,
+            bool isRequired,
+            string baseName)
+            => CreateUniqueProperties(
+                principalProperties.Count,
+                currentProperties,
+                principalProperties.Select(p => p.Name),
+                principalProperties.Select(p => p.ClrType),
+                isRequired,
+                baseName);
+
+        private IReadOnlyList<Property> CreateUniqueProperties(
+            int propertyCount,
+            IReadOnlyList<Property> currentProperties,
+            IEnumerable<string> principalPropertyNames,
+            IEnumerable<Type> principalPropertyTypes,
+            bool isRequired,
+            string baseName)
+        {
+            var newProperties = new Property[propertyCount];
+            var clrProperties = Metadata.ClrType == null
+                ? null
+                : new HashSet<string>(Metadata.ClrType.GetRuntimeProperties().Select(p => p.Name));
+            var noNewProperties = true;
+            using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
+            {
+                using (var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator())
                 {
-                    if (isRequired.HasValue
-                        && propertyType.IsNullableType())
+                    for (var i = 0; i < newProperties.Length
+                                    && principalPropertyNamesEnumerator.MoveNext()
+                                    && principalPropertyTypesEnumerator.MoveNext(); i++)
                     {
-                        propertyBuilder.IsRequired(isRequired.Value, ConfigurationSource.Convention);
+                        var keyPropertyName = principalPropertyNamesEnumerator.Current;
+                        var keyPropertyType = principalPropertyTypesEnumerator.Current;
+                        var keyModifiedBaseName = (keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase) ? "" : baseName)
+                                                  + keyPropertyName;
+                        string propertyName;
+                        var clrType = isRequired ? keyPropertyType : keyPropertyType.MakeNullable();
+                        var index = -1;
+                        while (true)
+                        {
+                            propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
+                            if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
+                                && (clrProperties?.Contains(propertyName) != true))
+                            {
+                                var propertyBuilder = Property(propertyName, clrType, ConfigurationSource.Convention);
+                                if (propertyBuilder == null)
+                                {
+                                    RemoveShadowPropertiesIfUnused(newProperties);
+                                    return null;
+                                }
+
+                                if (clrType.IsNullableType())
+                                {
+                                    propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
+                                }
+                                newProperties[i] = propertyBuilder.Metadata;
+                                noNewProperties = false;
+                                break;
+                            }
+                            else if (currentProperties != null
+                                     && newProperties.All(p => p == null || p.Name != propertyName))
+                            {
+                                var currentProperty = currentProperties.SingleOrDefault(p => p.Name == propertyName);
+                                if (currentProperty != null
+                                    && currentProperty.ClrType == clrType
+                                    && currentProperty.IsNullable == !isRequired)
+                                {
+                                    newProperties[i] = currentProperty;
+                                    noNewProperties = noNewProperties && newProperties[i] == currentProperties[i];
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    return propertyBuilder.Metadata;
                 }
             }
+
+            return noNewProperties ? null : newProperties;
         }
 
         /// <summary>

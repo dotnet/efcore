@@ -1980,7 +1980,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.Equal(
                     CoreStrings.ReferencedShadowKey(
-                        "{'AnotherCustomerId'}",
+                        "{'TempId'}",
                         typeof(Customer).Name + "." + nameof(Customer.Orders),
                         typeof(Order).Name + "." + nameof(Order.Customer)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
