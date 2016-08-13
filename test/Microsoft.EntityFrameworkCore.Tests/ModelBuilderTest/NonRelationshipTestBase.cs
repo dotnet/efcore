@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -540,6 +539,100 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Properties_can_have_access_mode_set()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                    {
+                        b.Property(e => e.Up);
+                        b.Property(e => e.Down).UsePropertyAccessMode(PropertyAccessMode.Field);
+                        b.Property<int>("Charm").UsePropertyAccessMode(PropertyAccessMode.Property);
+                        b.Property<string>("Strange").UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+                    });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty("Up").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Field, entityType.FindProperty("Down").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, entityType.FindProperty("Charm").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.FieldDuringConstruction, entityType.FindProperty("Strange").GetPropertyAccessMode());
+            }
+
+            [Fact]
+            public virtual void Access_mode_can_be_overriden_at_entity_and_property_levels()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<Hob>().Property(e => e.Id1);
+
+                modelBuilder.Entity<Quarks>(b =>
+                    {
+                        b.UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+                        b.Property(e => e.Up).UsePropertyAccessMode(PropertyAccessMode.Property);
+                    });
+
+                Assert.Equal(PropertyAccessMode.Field, model.GetPropertyAccessMode());
+
+                var hobsType = (IEntityType)model.FindEntityType(typeof(Hob));
+                Assert.Equal(PropertyAccessMode.Field, hobsType.GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Field, hobsType.FindProperty("Id1").GetPropertyAccessMode());
+
+                var quarksType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Down").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up").GetPropertyAccessMode());
+            }
+
+            [Fact]
+            public virtual void Properties_can_have_field_set()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                    {
+                        b.Property<int>("Up").HasField("_forUp");
+                        b.Property(e => e.Down).HasField("_forDown");
+                    });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Equal("_forUp", entityType.FindProperty("Up").GetField());
+                Assert.Equal("_forDown", entityType.FindProperty("Down").GetField());
+            }
+
+            [Fact]
+            public virtual void HasField_throws_if_field_is_not_found()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Quarks>(b =>
+                    {
+                        Assert.Equal(
+                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), nameof(Quarks)),
+                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
+                    });
+            }
+
+            [Fact]
+            public virtual void HasField_throws_if_field_is_wrong_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Quarks>(b =>
+                    {
+                        Assert.Equal(
+                            CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
+                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
+                    });
+            }
+
+            [Fact]
             public virtual void Properties_can_be_set_to_generate_values_on_Add()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -629,14 +722,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var model = modelBuilder.Model;
 
                 modelBuilder.Entity<Quarks>(b =>
-                {
-                    b.Property(e => e.Up).HasValueGenerator<CustomValueGenerator>();
-                    b.Property(e => e.Down).HasValueGenerator(typeof(CustomValueGenerator));
-                    b.Property<int>("Charm").HasValueGenerator((_, __) => new CustomValueGenerator());
-                    b.Property<string>("Strange").HasValueGenerator<CustomValueGenerator>();
-                    b.Property<int>("Top").HasValueGenerator(typeof(CustomValueGenerator));
-                    b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
-                });
+                    {
+                        b.Property(e => e.Up).HasValueGenerator<CustomValueGenerator>();
+                        b.Property(e => e.Down).HasValueGenerator(typeof(CustomValueGenerator));
+                        b.Property<int>("Charm").HasValueGenerator((_, __) => new CustomValueGenerator());
+                        b.Property<string>("Strange").HasValueGenerator<CustomValueGenerator>();
+                        b.Property<int>("Top").HasValueGenerator(typeof(CustomValueGenerator));
+                        b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
+                    });
 
                 var entityType = model.FindEntityType(typeof(Quarks));
 
@@ -665,11 +758,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<Quarks>(b =>
-                {
-                    Assert.Equal(
-                        CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                        Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
-                });
+                    {
+                        Assert.Equal(
+                            CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                            Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
+                    });
             }
 
             [Fact]
@@ -679,10 +772,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var model = modelBuilder.Model;
 
                 modelBuilder.Entity<Quarks>(b =>
-                {
-                    b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
-                    b.Property(e => e.Down).HasValueGenerator<BadCustomValueGenerator2>();
-                });
+                    {
+                        b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
+                        b.Property(e => e.Down).HasValueGenerator<BadCustomValueGenerator2>();
+                    });
 
                 var entityType = model.FindEntityType(typeof(Quarks));
 
@@ -806,6 +899,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.True(firstIndexBuilder.Metadata.IsUnique);
                 Assert.False(((IIndex)secondIndexBuilder.Metadata).IsUnique);
                 Assert.Equal("V1", secondIndexBuilder.Metadata["A1"]);
+            }
+
+            [Fact]
+            public virtual void Can_add_contained_indexes()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                var entityBuilder = modelBuilder.Entity<Customer>();
+                var firstIndexBuilder = entityBuilder.HasIndex(ix => new { ix.Id, ix.AlternateKey }).IsUnique();
+                var secondIndexBuilder = entityBuilder.HasIndex(ix => new { ix.Id });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Customer));
+
+                Assert.Equal(2, entityType.GetIndexes().Count());
+                Assert.True(firstIndexBuilder.Metadata.IsUnique);
+                Assert.False(secondIndexBuilder.Metadata.IsUnique);
             }
 
             [Fact]

@@ -31,6 +31,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
+        bool TryCreateFromPreStoreGeneratedCurrentValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromOriginalValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
 
         /// <summary>

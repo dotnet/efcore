@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -12,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ForeignKeyPropertyDiscoveryConvention : IForeignKeyConvention, INavigationConvention, IPropertyConvention, IPrincipalEndConvention
+    public class ForeignKeyPropertyDiscoveryConvention 
+        : IForeignKeyConvention, INavigationConvention, IPropertyConvention, IPrincipalEndConvention
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -25,8 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (foreignKeyProperties == null)
             {
                 // Try to invert if one to one or can be converted to one to one
-                if (foreignKey.IsUnique
-                    || (foreignKey.PrincipalToDependent == null))
+                if ((foreignKey.IsUnique
+                    || foreignKey.PrincipalToDependent == null)
+                    && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
                     var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
                     if (candidatePropertiesOnPrincipal != null
@@ -56,8 +60,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            if ((foreignKeyProperties == null)
-                || foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties).Any())
+            if (foreignKeyProperties == null)
+            {
+                return ShouldResetTemporaryProperties(foreignKey)
+                    ? relationshipBuilder.HasForeignKey(
+                        null, foreignKey.DeclaringEntityType, ConfigurationSource.Convention, runConventions: true)
+                    : relationshipBuilder;
+            }
+
+            if (foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties).Any())
             {
                 return relationshipBuilder;
             }
@@ -230,6 +241,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
             return null;
+        }
+
+        private static bool ShouldResetTemporaryProperties(ForeignKey foreignKey)
+        {
+            if (foreignKey.GetForeignKeyPropertiesConfigurationSource() != null)
+            {
+                return false;
+            }
+
+            var baseName = foreignKey.DependentToPrincipal == null
+                ? foreignKey.PrincipalEntityType.DisplayName() : foreignKey.DependentToPrincipal.Name;
+            var entityType = foreignKey.DeclaringEntityType;
+            var clrProperties = entityType.ClrType?.GetRuntimeProperties().ToList();
+            for (var i = 0; i < foreignKey.Properties.Count; i++)
+            {
+                var keyProperty = foreignKey.PrincipalKey.Properties[i];
+                var keyModifiedBaseName = (keyProperty.Name.StartsWith(baseName, StringComparison.OrdinalIgnoreCase) ? "" : baseName)
+                                          + keyProperty.Name;
+
+                string propertyName;
+                var index = -1;
+                do
+                {
+                    propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
+                    if (!entityType.FindPropertiesInHierarchy(propertyName).Any()
+                        && (clrProperties?.FirstOrDefault(p => p.Name == propertyName) == null))
+                    {
+                        return true;
+                    }
+                }
+                while (propertyName != foreignKey.Properties[i].Name);
+            }
+
+            return false;
         }
 
         /// <summary>

@@ -64,6 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         return (bool)constantRight.Value ? newRight : newLeft;
                     }
                 }
+
+                return node.Update(newLeft, node.Conversion, newRight);
             }
 
             // a == true -> a
@@ -85,6 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     return newLeft.Type == typeof(bool) ? newLeft : Expression.Convert(newLeft, typeof(bool));
                 }
+
+                return node.Update(newLeft, node.Conversion, newRight);
             }
 
             return base.VisitBinary(node);

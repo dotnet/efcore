@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
 
@@ -167,10 +168,25 @@ namespace Microsoft.EntityFrameworkCore.Tests
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
         private class Quarks : INotifyPropertyChanging, INotifyPropertyChanged
         {
+            private int _forUp;
+            private string _forDown;
+
             public int Id { get; set; }
 
-            public int Up { get; set; }
-            public string Down { get; set; }
+            // ReSharper disable once ConvertToAutoProperty
+            public int Up
+            {
+                get { return _forUp; }
+                set { _forUp = value; }
+            }
+
+            // ReSharper disable once ConvertToAutoProperty
+            public string Down
+            {
+                get { return _forDown; }
+                set { _forDown = value; }
+            }
+
 #pragma warning disable 67
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;

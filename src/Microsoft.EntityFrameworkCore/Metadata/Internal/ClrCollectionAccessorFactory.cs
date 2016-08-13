@@ -63,53 +63,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         property.PropertyType.ShortDisplayName()));
             }
 
-            if (property.GetMethod == null)
-            {
-                throw new InvalidOperationException(CoreStrings.NavigationNoGetter(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
-            }
-
             var boundMethod = _genericCreate.MakeGenericMethod(
                 property.DeclaringType, property.PropertyType, elementType);
 
-            return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { navigation });
+            var memberInfo = navigation.GetMemberInfo(forConstruction: false, forSet: false);
+
+            return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { navigation, memberInfo });
         }
 
         [UsedImplicitly]
-        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation)
+        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation, MemberInfo memberInfo)
             where TEntity : class
             where TCollection : class, IEnumerable<TElement>
         {
-            var property = navigation.GetPropertyInfo();
+            var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
+            var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
-            var getterDelegate = (Func<TEntity, TCollection>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TCollection>));
+            var getterDelegate = Expression.Lambda<Func<TEntity, TCollection>>(
+                        Expression.MakeMemberAccess(
+                            entityParameter,
+                            memberInfo),
+                        entityParameter).Compile();
 
             Action<TEntity, TCollection> setterDelegate = null;
             Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetDelegate = null;
             Func<TCollection> createDelegate = null;
 
-            var setterProperty = property.DeclaringType
-                .GetPropertiesInHierarchy(property.Name)
-                .FirstOrDefault(p => p.SetMethod != null);
-
-            if (setterProperty != null)
+            var setterMemberInfo = navigation.GetMemberInfo(forConstruction: false, forSet: true);
+            if (setterMemberInfo != null)
             {
-                setterDelegate = (Action<TEntity, TCollection>)property.SetMethod.CreateDelegate(typeof(Action<TEntity, TCollection>));
-            }
-            else
-            {
-                var fieldInfo = navigation.DeclaringEntityType.Model.GetMemberMapper().FindBackingField(navigation);
-                if (fieldInfo != null)
-                {
-                    var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
-                    var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
-
-                    setterDelegate = Expression.Lambda<Action<TEntity, TCollection>>(
-                        Expression.Assign(
-                            Expression.Field(entityParameter, fieldInfo),
-                            valueParameter),
-                        entityParameter,
-                        valueParameter).Compile();
-                }
+                setterDelegate = Expression.Lambda<Action<TEntity, TCollection>>(
+                    Expression.Assign(
+                        Expression.MakeMemberAccess(
+                            entityParameter,
+                            setterMemberInfo),
+                        valueParameter),
+                    entityParameter,
+                    valueParameter).Compile();
             }
 
             if (setterDelegate != null)
@@ -129,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
-                property.Name, getterDelegate, setterDelegate, createAndSetDelegate, createDelegate);
+                navigation.Name, getterDelegate, setterDelegate, createAndSetDelegate, createDelegate);
         }
 
         [UsedImplicitly]

@@ -131,6 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate() == null ? null : this;
 
             public virtual string GetDisplayName(Type entityType) => entityType.Name;
+
+            public virtual ModelBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+                => ModelBuilder.UsePropertyAccessMode(propertyAccessMode);
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>
@@ -170,6 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 where TRelatedEntity : class;
 
             public abstract TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
+
+            public abstract TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         }
 
         public class TestKeyBuilder
@@ -219,6 +224,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>() where TGenerator : ValueGenerator;
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory);
+
+            public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
+            public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         }
 
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>

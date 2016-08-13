@@ -198,23 +198,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
         }
 
-        [Fact]
-        public void Can_get_default_MemberMapper()
-        {
-            Assert.IsType<MemberMapper>(new Model().GetMemberMapper());
-        }
-
-        [Fact]
-        public void Can_change_MemberMapper()
-        {
-            var memberMapper = new MemberMapper(new FieldMatcher());
-            var model = new Model();
-
-            model.SetMemberMapper(memberMapper);
-
-            Assert.Same(memberMapper, model.GetMemberMapper());
-        }
-
         private class Customer
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");

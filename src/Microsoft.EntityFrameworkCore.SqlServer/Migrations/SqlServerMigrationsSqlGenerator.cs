@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -107,6 +109,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            if (string.IsNullOrEmpty(operation.Table))
+            {
+                throw new InvalidOperationException(SqlServerStrings.IndexTableRequired);
+            }
+
             var qualifiedName = new StringBuilder();
             if (operation.Schema != null)
             {
@@ -194,11 +201,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.Generate(operation, model, builder, terminate: false);
 
             var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
+            var nullableColumns = operation.Columns
+                .Where(
+                    c =>
+                    {
+                        var properties = FindProperties(model, operation.Schema, operation.Table, c);
+
+                        return !properties.Any() // Couldn't bind column to property
+                            || properties.Any(p => p.IsColumnNullable());
+                    })
+                .ToList();
             if (operation.IsUnique
-                && (clustered != true))
+                && (clustered != true)
+                && nullableColumns.Count != 0)
             {
                 builder.Append(" WHERE ");
-                for (var i = 0; i < operation.Columns.Length; i++)
+                for (var i = 0; i < nullableColumns.Count; i++)
                 {
                     if (i != 0)
                     {
@@ -206,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }
 
                     builder
-                        .Append(SqlGenerationHelper.DelimitIdentifier(operation.Columns[i]))
+                        .Append(SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
                         .Append(" IS NOT NULL");
                 }
             }
@@ -417,7 +435,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 maxLength,
                 rowVersion,
                 nullable,
-                defaultValue,
+                identity
+                    ? null
+                    : defaultValue,
                 defaultValueSql,
                 computedColumnSql,
                 annotatable,

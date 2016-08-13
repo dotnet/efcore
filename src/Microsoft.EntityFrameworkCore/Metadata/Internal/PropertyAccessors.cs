@@ -19,11 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public PropertyAccessors(
             [NotNull] Delegate currentValueGetter,
+            [NotNull] Delegate preStoreGeneratedCurrentValueGetter,
             [CanBeNull] Delegate originalValueGetter,
             [NotNull] Delegate relationshipSnapshotGetter,
             [CanBeNull] Func<ValueBuffer, object> valueBufferGetter)
         {
             CurrentValueGetter = currentValueGetter;
+            PreStoreGeneratedCurrentValueGetter = preStoreGeneratedCurrentValueGetter;
             OriginalValueGetter = originalValueGetter;
             RelationshipSnapshotGetter = relationshipSnapshotGetter;
             ValueBufferGetter = valueBufferGetter;
@@ -34,6 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public Delegate CurrentValueGetter { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public Delegate PreStoreGeneratedCurrentValueGetter { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

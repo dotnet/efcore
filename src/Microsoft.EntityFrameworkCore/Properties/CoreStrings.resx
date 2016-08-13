@@ -196,13 +196,31 @@
     <value>Cannot change ObservableHashSet during a CollectionChanged event.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
-    <value>The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.</value>
+    <value>The specified field '{field}' could not be found for property '{property}' on entity type '{entityType}'.</value>
   </data>
   <data name="BadBackingFieldType" xml:space="preserve">
-    <value>The annotated backing field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.</value>
+    <value>The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.</value>
+  </data>
+  <data name="NoBackingField" xml:space="preserve">
+    <value>No field was found backing property '{property}' of entity type '{entity}'. Either configure a backing field or use a different '{pam}'.</value>
   </data>
   <data name="NoFieldOrSetter" xml:space="preserve">
-    <value>The property '{entityType}.{property}' does not have a setter and no backing field was found by convention. Either remove the property from the model, add a property setter, or configure a backing field (see http://go.microsoft.com/fwlink/?LinkId=723277).</value>
+    <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.</value>
+  </data>
+  <data name="NoFieldOrGetter" xml:space="preserve">
+    <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.</value>
+  </data>
+  <data name="ReadonlyField" xml:space="preserve">
+    <value>Field '{field}' of entity type '{entity}' is readonly and so cannot be set.</value>
+  </data>
+  <data name="NoProperty" xml:space="preserve">
+    <value>No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{pam}'.</value>
+  </data>
+  <data name="NoSetter" xml:space="preserve">
+    <value>The property '{property}' of entity type '{entity}' does not have a setter. Either make the property writable or use a different '{pam}'.</value>
+  </data>
+  <data name="NoGetter" xml:space="preserve">
+    <value>The property '{property}' of entity type '{entity}' does not have a getter. Either make the property readable or use a different '{pam}'.</value>
   </data>
   <data name="NoClrType" xml:space="preserve">
     <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
@@ -282,11 +300,8 @@
   <data name="NavigationArray" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
   </data>
-  <data name="NavigationNoGetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.</value>
-  </data>
   <data name="NavigationNoSetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no backing field was found by convention. Read-only collection navigation properties must be initialized before use.</value>
+    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.</value>
   </data>
   <data name="NavigationCannotCreateType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
@@ -575,9 +590,6 @@
   </data>
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
-  </data>
-  <data name="NoClrSetter" xml:space="preserve">
-    <value>Could not find setter or matching backing field for property {property}</value>
   </data>
   <data name="NoPropertyType" xml:space="preserve">
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.</value>

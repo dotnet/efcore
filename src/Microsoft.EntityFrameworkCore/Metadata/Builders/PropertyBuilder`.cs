@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public class PropertyBuilder<TProperty> : PropertyBuilder
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyBuilder([NotNull] InternalPropertyBuilder builder)
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
-        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned 
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
         ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
         ///     </para>
         ///     <para>
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
-        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned 
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
         ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
         ///     </para>
         ///     <para>
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
-        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned 
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
         ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
         ///     </para>
         ///     <para>
@@ -182,5 +182,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate()
             => (PropertyBuilder<TProperty>)base.ValueGeneratedOnAddOrUpdate();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the backing field to use for this property.
+        ///     </para>
+        ///     <para>
+        ///         Backing fields are normally found by convention as described
+        ///         here: http://go.microsoft.com/fwlink/?LinkId=723277.
+        ///         This method is useful for setting backing fields explicitly in cases where the
+        ///         correct field is not found by convention.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses. This can be changed by calling
+        ///         <see cref="UsePropertyAccessMode" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="fieldName"> The field name. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasField([NotNull] string fieldName)
+            => (PropertyBuilder<TProperty>)base.HasField(fieldName);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for this property.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found by convention or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses.  Calling this method witll change that behavior
+        ///         for this property as described in the <see cref="PropertyAccessMode" /> enum.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method overrrides for this property any access mode that was set on the
+        ///         entity type or model.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            => (PropertyBuilder<TProperty>)base.UsePropertyAccessMode(propertyAccessMode);
     }
 }

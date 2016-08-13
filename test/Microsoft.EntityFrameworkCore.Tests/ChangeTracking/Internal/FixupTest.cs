@@ -3464,7 +3464,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private class Parent
         {
-            private readonly int _id;
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private int _id;
             private Child _child;
 
             public Parent(int id)
@@ -3483,7 +3484,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private class Child
         {
-            private readonly int _id;
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private int _id;
             private int _parentId;
             private Parent _parent;
 

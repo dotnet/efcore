@@ -295,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var foreignKey in containingForeignKeys)
                 {
-                    var newPrincipalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                    var newPrincipalEntry = stateManager.GetPrincipal(entry, foreignKey)
+                        ?? stateManager.GetPrincipalUsingPreStoreGeneratedValues(entry, foreignKey);
                     var oldPrincipalEntry = stateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
 
                     var principalToDependent = foreignKey.PrincipalToDependent;
@@ -516,6 +517,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var principalToDependent = foreignKey.PrincipalToDependent;
                         if (principalToDependent != null)
                         {
+                            if (!principalToDependent.IsCollection())
+                            {
+                                var oldDependent = principalEntry[principalToDependent];
+                                if (oldDependent != null
+                                    && !ReferenceEquals(entry.Entity, oldDependent))
+                                {
+                                    var oldDependentEntry = stateManager.TryGetEntry(oldDependent);
+                                    if (oldDependentEntry != null
+                                        && oldDependentEntry.EntityState != EntityState.Detached)
+                                    {
+                                        ConditionallyNullForeignKeyProperties(oldDependentEntry, null, foreignKey);
+                                        SetNavigation(principalEntry, principalToDependent, null);
+                                    }
+                                }
+                            }
+
                             SetReferenceOrAddToCollection(
                                 principalEntry,
                                 principalToDependent,

@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": false
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Sqlite": {
+      "target": "project"
+    }
+  },
+  "frameworks": {
+    "net451": { }
+  }
+}

@@ -59,6 +59,7 @@
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="F1SqlServerFixture.cs" />
+    <Compile Include="FieldMappingSqlServerTest.cs" />
     <Compile Include="FindSqlServerTest.cs" />
     <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="SqlServerMigrationsTest.cs" />
     <Compile Include="SqlServerTriggersTest.cs" />
     <Compile Include="SqlServerValueGenerationScenariosTest.cs" />
+    <Compile Include="StoreGeneratedFixupSqlServerTest.cs" />
     <Compile Include="StoreGeneratedSqlServerTest.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
     <Compile Include="TransactionSqlServerFixture.cs" />

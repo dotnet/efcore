@@ -189,9 +189,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
-
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryDatabase();
             }
 
             public override InMemoryTestStore CreateTestStore()

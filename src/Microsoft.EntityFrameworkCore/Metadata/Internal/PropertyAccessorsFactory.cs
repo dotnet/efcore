@@ -34,13 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var property = propertyBase as IProperty;
             return new PropertyAccessors(
-                CreateCurrentValueGetter<TProperty>(propertyBase),
+                CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: true),
+                CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: false),
                 property == null ? null : CreateOriginalValueGetter<TProperty>(property),
                 CreateRelationshipSnapshotGetter<TProperty>(propertyBase),
                 property == null ? null : CreateValueBufferGetter(property));
         }
 
-        private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(IPropertyBase propertyBase)
+        private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(
+            IPropertyBase propertyBase, bool useStoreGeneratedValues)
         {
             var entityClrType = propertyBase.DeclaringEntityType.ClrType;
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
@@ -56,15 +58,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                currentValueExpression = Expression.Property(
-                    Expression.Convert(
-                        Expression.Property(entryParameter, "Entity"),
-                        entityClrType),
-                    propertyBase.GetPropertyInfo());
+                var convertedExpression = Expression.Convert(
+                    Expression.Property(entryParameter, "Entity"),
+                    entityClrType);
+
+                currentValueExpression = Expression.MakeMemberAccess(
+                    convertedExpression, 
+                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
-            if (storeGeneratedIndex >= 0)
+            if (useStoreGeneratedValues 
+                && storeGeneratedIndex >= 0)
             {
                 currentValueExpression = Expression.Call(
                     entryParameter,

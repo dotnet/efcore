@@ -27,6 +27,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
+        public virtual void Does_not_throw_for_top_level_single()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders.Single(x => x.OrderID == 10248);
+
+                Assert.NotNull(query);
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected WarningsTestBase(TFixture fixture)

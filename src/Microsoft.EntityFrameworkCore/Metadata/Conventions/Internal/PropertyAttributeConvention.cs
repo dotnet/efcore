@@ -25,13 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var propertyInfo = propertyBuilder.Metadata.PropertyInfo;
-            var attributes = propertyInfo?.GetCustomAttributes<TAttribute>(true);
+            var memberInfo = propertyBuilder.Metadata.MemberInfo;
+            var attributes = memberInfo?.GetCustomAttributes<TAttribute>(true);
             if (attributes != null)
             {
                 foreach (var attribute in attributes)
                 {
-                    propertyBuilder = Apply(propertyBuilder, attribute, propertyInfo);
+                    propertyBuilder = Apply(propertyBuilder, attribute, memberInfo);
                     if (propertyBuilder == null)
                     {
                         break;
@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public abstract InternalPropertyBuilder Apply([NotNull] InternalPropertyBuilder propertyBuilder, [NotNull] TAttribute attribute, [NotNull] PropertyInfo clrProperty);
+        public abstract InternalPropertyBuilder Apply(
+            [NotNull] InternalPropertyBuilder propertyBuilder, [NotNull] TAttribute attribute, [NotNull] MemberInfo clrMember);
     }
 }

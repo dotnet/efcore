@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Adds_index_on_foreign_key_properties_by_convention()
+        public void Does_not_add_index_on_foreign_key_properties_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
@@ -404,11 +404,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 ConfigurationSource.Convention);
             Assert.NotNull(relationshipBuilder);
 
-            var index = dependentEntityBuilder.Metadata.GetIndexes().FirstOrDefault();
-            Assert.NotNull(index);
-            Assert.Equal(Order.CustomerIdProperty.Name, index.Properties.First().Name);
-
-            Assert.Equal(ConfigurationSource.Convention, dependentEntityBuilder.RemoveIndex(index, ConfigurationSource.DataAnnotation));
             Assert.Empty(dependentEntityBuilder.Metadata.GetIndexes());
         }
 

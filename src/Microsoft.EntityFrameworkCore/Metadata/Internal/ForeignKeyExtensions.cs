@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -246,6 +248,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IDependentsMap CreateDependentsMapFactory([NotNull] this IForeignKey foreignKey)
             => foreignKey.AsForeignKey().DependentsMapFactory();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string ToDebugString([NotNull] this IForeignKey foreignKey)
+        {
+            var builder = new StringBuilder();
+
+            builder
+                .Append(string.Join(", ", foreignKey.Properties.Select(p => p.Name)))
+                .Append(" -> ")
+                .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => p.DeclaringEntityType.DisplayName() + "." + p.Name)));
+
+            if (foreignKey.IsUnique)
+            {
+                builder.Append(" Unique");
+            }
+
+            if (foreignKey.PrincipalToDependent != null)
+            {
+                builder.Append(" ToDependent: ").Append(foreignKey.PrincipalToDependent.Name);
+            }
+
+            if (foreignKey.DependentToPrincipal != null)
+            {
+                builder.Append(" ToPrincipal: ").Append(foreignKey.DependentToPrincipal.Name);
+            }
+
+            return builder.ToString();
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

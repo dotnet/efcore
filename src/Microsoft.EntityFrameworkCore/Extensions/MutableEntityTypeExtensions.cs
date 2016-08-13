@@ -389,5 +389,24 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.FindIndex(properties) ?? entityType.AddIndex(properties);
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual properties can override this access mode. The value set here will
+        ///         be used for any property for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type for which to set the access mode. </param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
+        public static void SetPropertyAccessMode(
+            [NotNull] this IMutableEntityType entityType, PropertyAccessMode? propertyAccessMode)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            entityType[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
+        }
     }
 }

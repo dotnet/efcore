@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{74A7774B-270E-4D7F-8735-BECB05CACA71}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
+    <AssemblyName>ef</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591;</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </Content>
+    <EmbeddedResource Include="Properties\ToolsStrings.resx">
+      <LogicalName>Tools.Console.Properties.ToolsStrings.resources</LogicalName>
+    </EmbeddedResource>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Tools.Shared\CommandLineApplicationExtensions.cs">
+      <Link>Extensions\CommandLineApplicationExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Tools.Shared\OperationHandlers.cs">
+      <Link>Internal\OperationHandlers.cs</Link>
+    </Compile>
+    <Compile Include="ColorConsoleReporter.cs" />
+    <Compile Include="Commands\EfCommand.cs" />
+    <Compile Include="Commands\MigrationsCommand.cs" />
+    <Compile Include="Commands\DbContextCommand.cs" />
+    <Compile Include="Commands\DatabaseCommand.cs" />
+    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\MigrationsScriptCommand.cs" />
+    <Compile Include="ConsoleReporter.cs" />
+    <Compile Include="Internal\IOperationExecutor.cs" />
+    <Compile Include="Internal\ReflectionOperationExecutor.cs" />
+    <Compile Include="Internal\OperationExecutorBase.cs" />
+    <Compile Include="IReporter.cs" />
+    <Compile Include="OperationErrorException.cs" />
+    <Compile Include="OperationExecutorFactory.cs" />
+    <Compile Include="PrefixConsoleReporter.cs" />
+    <Compile Include="Properties\ToolsStrings.Designer.cs">
+      <DependentUpon>ToolsStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Reporter.cs" />
+    <Compile Include="Commands\DatabaseDropCommand.cs" />
+    <Compile Include="Commands\DatabaseUpdateCommand.cs" />
+    <Compile Include="Commands\DbContextListCommand.cs" />
+    <Compile Include="Commands\DbContextScaffoldCommand.cs" />
+    <Compile Include="CommandLineOptions.cs" />
+    <Compile Include="Extensions\AnsiColorExtensions.cs" />
+    <Compile Include="Internal\AppDomainOperationExecutor.cs" />
+    <Compile Include="Commands\MigrationsAddCommand.cs" />
+    <Compile Include="Commands\MigrationsListCommand.cs" />
+    <Compile Include="Commands\MigrationsRemoveCommand.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

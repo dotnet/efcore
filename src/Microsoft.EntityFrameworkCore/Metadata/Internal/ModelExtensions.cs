@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -39,15 +40,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static Model AsModel([NotNull] this IModel model, [CallerMemberName] [NotNull] string methodName = "")
-            => model.AsConcreteMetadataType<IModel, Model>(methodName);
+        public static string ToDebugString([NotNull] this IModel model, [NotNull] string indent = "")
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(indent).Append("Model ").Append(model.GetProductVersion());
+
+            if (model.GetPropertyAccessMode() != null)
+            {
+                builder.Append(" PropertyAccessMode.").Append(model.GetPropertyAccessMode());
+            }
+
+            if (model.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                builder.Append(" ChangeTrackingStrategy.").Append(model.GetChangeTrackingStrategy());
+            }
+
+            var entityTypes = model.GetEntityTypes().ToList();
+            foreach (var entityType in entityTypes)
+            {
+                builder.AppendLine().Append(indent).Append(entityType.ToDebugString(indent + "  "));
+            }
+
+            return builder.ToString();
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IMemberMapper GetMemberMapper([NotNull] this IModel model)
-            => model[CoreAnnotationNames.MemberMapperAnnotation] as IMemberMapper
-               ?? new MemberMapper(new FieldMatcher());
+        public static Model AsModel([NotNull] this IModel model, [CallerMemberName] [NotNull] string methodName = "")
+            => model.AsConcreteMetadataType<IModel, Model>(methodName);
     }
 }

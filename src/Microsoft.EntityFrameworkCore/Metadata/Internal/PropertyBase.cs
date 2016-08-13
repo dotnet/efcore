@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -15,12 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public abstract class PropertyBase : ConventionalAnnotatable, IPropertyBase
     {
+        private FieldInfo _fieldInfo;
+        private ConfigurationSource? _fieldInfoConfigurationSource;
+        
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
-
+        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
@@ -52,6 +56,102 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual PropertyInfo PropertyInfo { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual FieldInfo FieldInfo
+        {
+            get { return _fieldInfo; }
+            [param: CanBeNull] set { SetFieldInfo(value, ConfigurationSource.Explicit); }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        {
+            if (fieldName == null)
+            {
+                SetFieldInfo(null, configurationSource);
+                return;
+            }
+
+            var typesInHierarchy = DeclaringEntityType.ClrType.GetTypesInHierarchy().ToList();
+
+            foreach (var type in typesInHierarchy)
+            {
+                var fields = type.GetRuntimeFields().ToDictionary(f => f.Name);
+                FieldInfo fieldInfo;
+                if (fields.TryGetValue(fieldName, out fieldInfo))
+                {
+                    if (!fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(this.GetClrType().GetTypeInfo()))
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.BadBackingFieldType(
+                                fieldName,
+                                fieldInfo.FieldType.ShortDisplayName(),
+                                DeclaringEntityType.DisplayName(),
+                                Name,
+                                this.GetClrType().ShortDisplayName()));
+                    }
+
+                    SetFieldInfo(fieldInfo, configurationSource);
+                    return;
+                }
+            }
+
+            throw new InvalidOperationException(
+                CoreStrings.MissingBackingField(fieldName, Name, DeclaringEntityType.DisplayName()));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void SetFieldInfo(
+            [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
+        {
+            UpdateFieldInfoConfigurationSource(configurationSource);
+
+            if (!ReferenceEquals(FieldInfo, fieldInfo))
+            {
+                _fieldInfo = fieldInfo;
+
+                DeclaringEntityType.PropertyMetadataChanged();
+
+                if (runConventions)
+                {
+                    OnFieldInfoSet();
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void OnFieldInfoSet()
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ConfigurationSource? GetFieldInfoConfigurationSource() => _fieldInfoConfigurationSource;
+
+        private void UpdateFieldInfoConfigurationSource(ConfigurationSource configurationSource)
+            => _fieldInfoConfigurationSource = configurationSource.Max(_fieldInfoConfigurationSource);
+
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MemberInfo MemberInfo => (MemberInfo)PropertyInfo ?? FieldInfo;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

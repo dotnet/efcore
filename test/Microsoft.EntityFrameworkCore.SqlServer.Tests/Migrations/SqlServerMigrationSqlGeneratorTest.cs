@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -69,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Name = "Id",
                     ClrType = typeof(int),
                     ColumnType = "int",
+                    DefaultValue = 0,
                     IsNullable = false,
                     [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
                         SqlServerValueGenerationStrategy.IdentityColumn
@@ -346,6 +349,66 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public virtual void CreateIndexOperation_unique_bound_null()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_unique_bound_not_null()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_composite_unique_bound_one_not_null()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity(
+                    "People",
+                    x =>
+                    {
+                        x.Property<string>("FirstName");
+                        x.Property<string>("LastName").IsRequired();
+                    }),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "FirstName", "LastName" },
+                    IsUnique = true
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL;" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void CreateSchemaOperation()
         {
             Generate(new EnsureSchemaOperation { Name = "my" });
@@ -466,6 +529,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             Assert.Equal(
                 "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
+        }
+
+        [Fact]
+        public virtual void RenameIndexOperations_throws_when_no_table()
+        {
+            var migrationBuilder = new MigrationBuilder("SqlServer");
+
+            migrationBuilder.RenameIndex(
+                name: "IX_OldIndex",
+                newName: "IX_NewIndex");
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(migrationBuilder.Operations.ToArray()));
+
+            Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
         [Fact]

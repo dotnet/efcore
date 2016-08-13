@@ -29,6 +29,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public override ModelBuilder Field_annotations_are_enabled()
+        {
+            var modelBuilder = base.Field_annotations_are_enabled();
+
+            var relational = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        [Fact]
         public override ModelBuilder Key_and_column_work_together()
         {
             var modelBuilder = base.Key_and_column_work_together();

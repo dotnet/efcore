@@ -473,10 +473,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
 
-            return Expression.Call(
-                handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
+            return sqlExpression!= null
+                ? Expression.Call(handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
                     .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
-                oldGroupByCall.Arguments);
+                    oldGroupByCall.Arguments)
+                : oldGroupByCall;
         }
 
         private static Expression HandleLast(HandlerContext handlerContext)
@@ -651,7 +652,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             handlerContext.SelectExpression.Limit = Expression.Constant(2);
 
-            return handlerContext.EvalOnClient(requiresClientResultOperator: true);
+            var returnExpression = handlerContext.EvalOnClient(requiresClientResultOperator: true);
+
+            // For top level single, we do not require client eval
+            if (handlerContext.QueryModelVisitor.ParentQueryModelVisitor == null)
+            {
+                handlerContext.QueryModelVisitor.RequiresClientResultOperator = false;
+            }
+
+            return returnExpression;
         }
 
         private static Expression HandleSkip(HandlerContext handlerContext)

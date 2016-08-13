@@ -49,6 +49,7 @@
     <Compile Include="DataAnnotationFixtureBase.cs" />
     <Compile Include="DataAnnotationTestBase.cs" />
     <Compile Include="F1FixtureBase.cs" />
+    <Compile Include="FieldMappingTestBase.cs" />
     <Compile Include="FindTestBase.cs" />
     <Compile Include="FunkyDataQueryFixtureBase.cs" />
     <Compile Include="FunkyDataQueryTestBase.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryNavigationsTestBase.cs" />
     <Compile Include="QueryTestBase.cs" />
+    <Compile Include="StoreGeneratedFixupTestBase.cs" />
     <Compile Include="StoreGeneratedTestBase.cs" />
     <Compile Include="TestFileLogger.cs" />
     <Compile Include="TestHelpers.cs" />
