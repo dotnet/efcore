@@ -16,3 +16,4 @@ using System.Resources;
 [assembly: AssemblyCompany("Microsoft Corporation.")]
 [assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
 [assembly: AssemblyProduct("Microsoft EntityFramework Core")]
+[assembly: AssemblyDescription("Visual Studio tools for Entity Framework Core")]
