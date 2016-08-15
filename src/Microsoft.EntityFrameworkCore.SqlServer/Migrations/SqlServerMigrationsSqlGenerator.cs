@@ -57,6 +57,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            if (operation.ComputedColumnSql != null)
+            {
+                var addColumnOperation = new AddColumnOperation
+                {
+                    Schema = operation.Schema,
+                    Table = operation.Table,
+                    Name = operation.Name,
+                    ClrType = operation.ClrType,
+                    ColumnType = operation.ColumnType,
+                    IsUnicode = operation.IsUnicode,
+                    MaxLength = operation.MaxLength,
+                    IsRowVersion = operation.IsRowVersion,
+                    IsNullable = operation.IsNullable,
+                    DefaultValue = operation.DefaultValue,
+                    DefaultValueSql = operation.DefaultValueSql,
+                    ComputedColumnSql = operation.ComputedColumnSql
+                };
+                foreach (var annotation in operation.GetAnnotations())
+                {
+                    addColumnOperation.AddAnnotation(annotation.Name, annotation.Value);
+                }
+
+                Generate(
+                    new DropColumnOperation
+                    {
+                        Schema = operation.Schema,
+                        Table = operation.Table,
+                        Name = operation.Name
+                    },
+                    model,
+                    builder);
+                Generate(addColumnOperation, model, builder);
+
+                return;
+            }
+
             DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
 
             builder

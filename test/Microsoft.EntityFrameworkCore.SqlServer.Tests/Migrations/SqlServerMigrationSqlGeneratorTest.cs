@@ -265,6 +265,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public virtual void AlterColumnOperation_computed()
+        {
+            Generate(
+                new AlterColumnOperation
+                {
+                    Table = "People",
+                    Name = "FullName",
+                    ClrType = typeof(string),
+                    ComputedColumnSql = "[FirstName] + ' ' + [LastName]"
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'FullName');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "ALTER TABLE [People] DROP COLUMN [FullName];" + EOL +
+                "GO" + EOL +
+                EOL +
+                "ALTER TABLE [People] ADD [FullName] AS [FirstName] + ' ' + [LastName];" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void CreateDatabaseOperation()
         {
             Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind" });
