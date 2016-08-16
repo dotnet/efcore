@@ -454,8 +454,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        internal static string Format(IEnumerable<IProperty> properties)
-            => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
+        internal static string Format(IEnumerable<IProperty> properties, bool includeTypes = false)
+            => "{"
+               + string.Join(", ",
+                   properties.Select(p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
+               + "}";
 
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;

@@ -7,9 +7,11 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -127,7 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 where TEntity : class;
 
             public virtual TestModelBuilder Validate()
-                => ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate() == null ? null : this;
+            {
+                var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
+                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())).Validate(modelBuilder.Metadata);
+                return modelBuilder == null ? null : this;
+            }
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>

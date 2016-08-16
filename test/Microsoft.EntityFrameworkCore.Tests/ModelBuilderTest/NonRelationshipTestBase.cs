@@ -711,20 +711,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
             }
-
-            [Fact]
-            public virtual void Throws_for_shadow_key()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var entityType = (EntityType)modelBuilder.Entity<SelfRef>().Metadata;
-                var shadowProperty = entityType.AddProperty("ShadowProperty", typeof(string), configurationSource: ConfigurationSource.Convention);
-                shadowProperty.IsNullable = false;
-                entityType.AddKey(shadowProperty);
-
-                Assert.Equal(
-                    CoreStrings.ShadowKey("{'ShadowProperty'}", typeof(SelfRef).Name, "{'ShadowProperty'}"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
-            }
         }
     }
 }

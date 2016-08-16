@@ -2257,6 +2257,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 temporaryProperty.UpdateConfigurationSource(ConfigurationSource.DataAnnotation);
             }
 
+            var temporaryKeyProperties = principalProperties?.Where(p => p.GetConfigurationSource() == ConfigurationSource.Convention
+                                                                      && p.IsShadowProperty).ToList();
+            var keyTempIndex = temporaryKeyProperties != null
+                               && temporaryKeyProperties.Any()
+                               && principalEntityType.FindIndex(temporaryKeyProperties) == null
+                ? principalEntityType.Builder.HasIndex(temporaryKeyProperties, ConfigurationSource.Convention).Metadata
+                : null;
+
             if (Metadata.Builder != null)
             {
                 RemoveForeignKey(Metadata, removedNavigations, removedForeignKeys);
@@ -2418,6 +2426,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     existingRelationshipInverted = false;
                 }
+            }
+
+            if (keyTempIndex?.Builder != null)
+            {
+                keyTempIndex.DeclaringEntityType.Builder.RemoveIndex(keyTempIndex, ConfigurationSource.Convention);
             }
 
             return newRelationshipBuilder;

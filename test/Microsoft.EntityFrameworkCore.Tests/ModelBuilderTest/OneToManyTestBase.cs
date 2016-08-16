@@ -1776,9 +1776,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.Equal(
                     CoreStrings.ReferencedShadowKey(
-                        "{'AnotherCustomerId'}",
+                        typeof(Order).Name + "." + nameof(Order.Customer),
                         typeof(Customer).Name + "." + nameof(Customer.Orders),
-                        typeof(Order).Name + "." + nameof(Order.Customer)),
+                        "{'AnotherCustomerId' : Guid}",
+                        "{'AnotherCustomerId' : Guid}"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 

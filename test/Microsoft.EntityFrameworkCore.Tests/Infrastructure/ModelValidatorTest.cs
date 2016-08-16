@@ -34,6 +34,67 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
         }
 
         [Fact]
+        public virtual void Detects_shadow_keys_by_convention()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityType);
+            var keyProperty = entityType.AddProperty("Key", typeof(int), configurationSource: ConfigurationSource.Convention);
+            entityType.AddKey(keyProperty);
+
+            VerifyWarning(CoreStrings.ShadowKey("{'Key'}", typeof(A).Name, "{'Key'}"), model);
+        }
+
+        [Fact]
+        public virtual void Detects_shadow_key_referenced_by_foreign_key()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            dependentEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            dependentEntityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
+            var principalEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+            principalEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            principalEntityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
+
+            dependentEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
+            principalEntityBuilder.Property("ReferencedFoo", typeof(string), ConfigurationSource.Convention);
+            dependentEntityBuilder.HasForeignKey(
+                principalEntityBuilder,
+                dependentEntityBuilder.GetOrCreateProperties(new List<string> { "Foo" }, ConfigurationSource.Convention),
+                principalEntityBuilder.HasKey(new[] { "ReferencedFoo" }, ConfigurationSource.Convention).Metadata,
+                ConfigurationSource.Explicit);
+
+            VerifyWarning(CoreStrings.ShadowKey("{'ReferencedFoo'}", typeof(ReferencedEntity).Name, "{'ReferencedFoo'}"), modelBuilder.Metadata);
+        }
+
+        [Fact]
+        public virtual void Detects_shadow_key_referenced_by_foreign_key_by_convention()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            dependentEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            dependentEntityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
+            var principalEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+            principalEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            principalEntityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
+
+            dependentEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
+            principalEntityBuilder.Property("ReferencedFoo", typeof(string), ConfigurationSource.Convention);
+            dependentEntityBuilder.HasForeignKey(
+                principalEntityBuilder,
+                dependentEntityBuilder.GetOrCreateProperties(new List<string> { "Foo" }, ConfigurationSource.Convention),
+                principalEntityBuilder.HasKey(new[] { "ReferencedFoo" }, ConfigurationSource.Convention).Metadata,
+                ConfigurationSource.Convention);
+
+            VerifyError(CoreStrings.ReferencedShadowKey(
+                typeof(SampleEntity).Name,
+                typeof(ReferencedEntity).Name,
+                "{'Foo' : string}",
+                "{'ReferencedFoo' : string}"),
+                modelBuilder.Metadata);
+        }
+
+        [Fact]
         public virtual void Detects_a_null_primary_key()
         {
             var model = new Model();
@@ -368,6 +429,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
 
         protected class Generic<T> : Abstract
         {
+        }
+
+        public class SampleEntity
+        {
+            public int Id { get; set; }
+            public int Number { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class ReferencedEntity
+        {
+            public int Id { get; set; }
+            public int SampleEntityId { get; set; }
         }
 
         protected virtual void Validate(IModel model) => CreateModelValidator().Validate(model);
