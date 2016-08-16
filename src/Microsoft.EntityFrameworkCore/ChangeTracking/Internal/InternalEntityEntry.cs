@@ -532,7 +532,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, int index = -1)
         {
             EnsureOriginalValues();
-            _originalValues.SetValue((IProperty)propertyBase, value, index);
+
+            var property = (IProperty)propertyBase;
+
+            _originalValues.SetValue(property, value, index);
+
+            // If setting the original value results in the current value being different from the
+            // original value, then mark the property as modified.
+            if (!IsModified(property))
+            {
+                var currentValue = this[propertyBase];
+                var propertyIndex = property.GetIndex();
+                if (!Equals(currentValue, value)
+                    && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown))
+                {
+                    SetPropertyModified(property);
+                }
+            }
         }
 
         /// <summary>

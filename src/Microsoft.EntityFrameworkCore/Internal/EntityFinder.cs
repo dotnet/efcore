@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task LoadAsync(
-            INavigation navigation, 
+            INavigation navigation,
             InternalEntityEntry entry,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -118,7 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var keyValues = GetLoadValues(navigation, entry);
             if (keyValues != null)
             {
-
                 await Query(navigation, keyValues).LoadAsync(cancellationToken);
             }
 
@@ -143,7 +142,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return Query(navigation, keyValues);
         }
 
-        private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues) 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual object[] GetDatabaseValues(InternalEntityEntry entry)
+            => GetDatabaseValuesQuery(entry)?.FirstOrDefault();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Task<object[]> GetDatabaseValuesAsync(
+            InternalEntityEntry entry, CancellationToken cancellationToken = new CancellationToken())
+            => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken);
+
+        private IQueryable<object[]> GetDatabaseValuesQuery(InternalEntityEntry entry)
+        {
+            var entityType = entry.EntityType;
+            var properties = entityType.FindPrimaryKey().Properties;
+
+            var keyValues = new object[properties.Count];
+            for (var i = 0; i < keyValues.Length; i++)
+            {
+                keyValues[i] = entry[properties[i]];
+                if (keyValues[i] == null)
+                {
+                    return null;
+                }
+            }
+
+            return _set.AsNoTracking()
+                .Where(BuildObjectLambda(properties, new ValueBuffer(keyValues)))
+                .Select(BuildProjection(entityType));
+        }
+
+        private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
             => _set.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
 
         /// <summary>
@@ -177,7 +211,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => navigation.IsDependentToPrincipal()
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;
-
 
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
@@ -258,6 +291,29 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 predicate = predicate == null ? equalsExpression : Expression.AndAlso(predicate, equalsExpression);
             }
             return predicate;
+        }
+
+        private static Expression<Func<object, object[]>> BuildProjection(IEntityType entityType)
+        {
+            var entityParameter = Expression.Parameter(typeof(object), "e");
+
+            var projections = new List<Expression>();
+            foreach (var property in entityType.GetProperties())
+            {
+                projections.Add(
+                    Expression.Convert(
+                        Expression.Convert(
+                            Expression.Call(
+                                EF.PropertyMethod.MakeGenericMethod(property.ClrType),
+                                entityParameter,
+                                Expression.Constant(property.Name, typeof(string))),
+                            property.ClrType),
+                        typeof(object)));
+            }
+
+            return Expression.Lambda<Func<object, object[]>>(
+                Expression.NewArrayInit(typeof(object), projections),
+                entityParameter);
         }
     }
 }

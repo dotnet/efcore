@@ -65,16 +65,19 @@
     <Compile Include="ChangeTracking\EntityEntry.cs" />
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\EntityEntry`.cs" />
+    <Compile Include="ChangeTracking\Internal\ArrayPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeDependentValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\CompositePrincipalKeyValueFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\CurrentPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\DependentKeyValueFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\DependentsMap.cs" />
     <Compile Include="ChangeTracking\Internal\DependentsMapFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EmptyShadowValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityEntryGraphIterator.cs" />
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
+    <Compile Include="ChangeTracking\Internal\EntryPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IdentityMap.cs" />
@@ -111,6 +114,7 @@
     <Compile Include="ChangeTracking\Internal\MultiSnapshot.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\NullableKeyIdentityMap.cs" />
+    <Compile Include="ChangeTracking\Internal\OriginalPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValues.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\RelationshipSnapshotFactoryFactory.cs" />
@@ -134,6 +138,7 @@
     <Compile Include="ChangeTracking\ObservableHashSet.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
+    <Compile Include="ChangeTracking\PropertyValues.cs" />
     <Compile Include="ChangeTracking\ReferenceEntry.cs" />
     <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
     <Compile Include="DbContext.cs" />

@@ -59,6 +59,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
+                if (value == null
+                    && !property.ClrType.IsNullableType())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ValueCannotBeNull(
+                            property.Name, property.DeclaringEntityType.DisplayName(), property.ClrType.DisplayName()));
+                }
+
                 _values[index] = value;
             }
 

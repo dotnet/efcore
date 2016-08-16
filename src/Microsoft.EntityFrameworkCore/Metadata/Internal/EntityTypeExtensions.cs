@@ -9,9 +9,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -437,6 +439,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return builder.ToString();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IProperty GetProperty([NotNull] this IEntityType entityType, [NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var property = entityType.FindProperty(name);
+            if (property == null)
+            {
+                if (entityType.FindNavigation(name) != null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyIsNavigation(name, entityType.DisplayName(),
+                            nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
+                }
+                throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, entityType.DisplayName()));
+            }
+            return property;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IProperty CheckPropertyBelongsToType([NotNull] this IEntityType entityType, [NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            if (!property.DeclaringEntityType.IsAssignableFrom(entityType))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringEntityType.DisplayName(), entityType.DisplayName()));
+            }
+
+            return property;
         }
 
         /// <summary>

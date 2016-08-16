@@ -4,6 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -27,6 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
+
+        private IEntityFinderSource _entityFinderSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -200,5 +204,69 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     otherwise true.
         /// </summary>
         public virtual bool IsKeySet => InternalEntry.IsKeySet;
+
+        /// <summary>
+        ///     Gets the current property values for this entity.
+        /// </summary>
+        /// <value> The current values. </value>
+        public virtual PropertyValues CurrentValues => new CurrentPropertyValues(InternalEntry);
+
+        /// <summary>
+        ///     Gets the original property values for this entity. The original values are the property
+        ///     values as they were when the entity was retrieved from the database.
+        /// </summary>
+        /// <value> The original values. </value>
+        public virtual PropertyValues OriginalValues => new OriginalPropertyValues(InternalEntry);
+
+        /// <summary>
+        ///     <para>
+        ///         Queries the database for copies of the values of the tracked entity as they currently
+        ///         exist in the database. If the entity is not found in the database, then null is returned.
+        ///     </para>
+        ///     <para>
+        ///         Note that changing the values in the returned dictionary will not update the values
+        ///         in the database.
+        ///     </para>
+        /// </summary>
+        /// <returns> The store values, or null if the entity does not exist in the database. </returns>
+        public virtual PropertyValues GetDatabaseValues()
+        {
+            var values = Finder.GetDatabaseValues(InternalEntry);
+
+            return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Queries the database for copies of the values of the tracked entity as they currently
+        ///         exist in the database. If the entity is not found in the database, then null is returned.
+        ///     </para>
+        ///     <para>
+        ///         Note that changing the values in the returned dictionary will not update the values
+        ///         in the database.
+        ///     </para>
+        ///     <para>
+        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         that any asynchronous operations have completed before calling another method on this context.
+        ///     </para>
+        /// </summary>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+        /// </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the store values,
+        ///     or null if the entity does not exist in the database.
+        /// </returns>
+        public virtual async Task<PropertyValues> GetDatabaseValuesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken);
+
+            return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
+        }
+
+        private IEntityFinder Finder
+            => (_entityFinderSource
+                ?? (_entityFinderSource = InternalEntry.StateManager.Context.GetService<IEntityFinderSource>()))
+                .Create(InternalEntry.StateManager.Context, InternalEntry.EntityType.ClrType);
     }
 }

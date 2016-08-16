@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static readonly MethodInfo _readValue
             = typeof(ValueBuffer).GetTypeInfo().DeclaredProperties
                 .Single(p => p.GetIndexParameters().Any()).GetMethod;
+
+        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>> _materializers;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -143,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             blockExpressions.AddRange(
                 from property in entityType.GetProperties().Where(p => !p.IsShadowProperty)
                 let targetMember = Expression.MakeMemberAccess(
-                    instanceVariable, 
+                    instanceVariable,
                     property.GetMemberInfo(forConstruction: true, forSet: true))
                 select
                     Expression.Assign(
@@ -158,5 +161,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return Expression.Block(new[] { instanceVariable }, blockExpressions);
         }
+
+        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>> Materializers
+            => _materializers
+               ?? (_materializers = new ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>>());
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<ValueBuffer, object> GetMaterializer(IEntityType entityType)
+            => Materializers.GetOrAdd(entityType, e =>
+                {
+                    var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "values");
+
+                    return Expression.Lambda<Func<ValueBuffer, object>>(
+                        CreateMaterializeExpression(e, valueBufferParameter),
+                        valueBufferParameter)
+                        .Compile();
+                });
     }
 }

@@ -48,5 +48,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         IQueryable Query([NotNull] INavigation navigation, [NotNull] InternalEntityEntry entry);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        object[] GetDatabaseValues([NotNull] InternalEntityEntry entry);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        Task<object[]> GetDatabaseValuesAsync(
+            [NotNull] InternalEntityEntry entry, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

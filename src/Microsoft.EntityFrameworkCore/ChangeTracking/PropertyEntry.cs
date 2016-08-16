@@ -1,10 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
-            : this(internalEntry, GetProperty(internalEntry, name))
+            : this(internalEntry, internalEntry.EntityType.GetProperty(name))
         {
         }
 
@@ -37,22 +35,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] IProperty property)
             : base(internalEntry, property)
         {
-        }
-
-        private static IProperty GetProperty(InternalEntityEntry internalEntry, string name)
-        {
-            var property = internalEntry.EntityType.FindProperty(name);
-            if (property == null)
-            {
-                if (internalEntry.EntityType.FindNavigation(name) != null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.PropertyIsNavigation(name, internalEntry.EntityType.DisplayName(),
-                            nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
-                }
-                throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
-            }
-            return property;
         }
 
         /// <summary>

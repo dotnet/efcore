@@ -192,6 +192,15 @@
   <data name="OriginalValueNotTracked" xml:space="preserve">
     <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.</value>
   </data>
+  <data name="ValueCannotBeNull" xml:space="preserve">
+    <value>The value for property '{property}' of entity type '{entityType}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.</value>
+  </data>
+  <data name="InvalidType" xml:space="preserve">
+    <value>The value for property '{property}' of entity type '{entityType}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.</value>
+  </data>
+  <data name="PropertyDoesNotBelong" xml:space="preserve">
+    <value>The property '{property}' belongs to entity type '{entityType}' but is being used with an instance of entity type '{expectedType}'.</value>
+  </data>
   <data name="ObservableCollectionReentrancy" xml:space="preserve">
     <value>Cannot change ObservableHashSet during a CollectionChanged event.</value>
   </data>

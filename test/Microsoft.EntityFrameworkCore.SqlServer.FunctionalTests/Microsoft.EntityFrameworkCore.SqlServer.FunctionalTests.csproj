@@ -96,6 +96,7 @@
     <Compile Include="OptimisticConcurrencySqlServerTest.cs" />
     <Compile Include="Properties\TestAssemblyConditions.cs" />
     <Compile Include="PropertyEntrySqlServerTest.cs" />
+    <Compile Include="PropertyValuesSqlServerTest.cs" />
     <Compile Include="QueryBugsTest.cs" />
     <Compile Include="QueryLoggingSqlServerTest.cs" />
     <Compile Include="QueryNavigationsSqlServerTest.cs" />

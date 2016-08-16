@@ -217,6 +217,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The value for property '{property}' of entity type '{entityType}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.
+        /// </summary>
+        public static string ValueCannotBeNull([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ValueCannotBeNull", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
+        /// <summary>
+        /// The value for property '{property}' of entity type '{entityType}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.
+        /// </summary>
+        public static string InvalidType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object valueType, [CanBeNull] object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidType", "property", "entityType", "valueType", "propertyType"), property, entityType, valueType, propertyType);
+        }
+
+        /// <summary>
+        /// The property '{property}' belongs to entity type '{entityType}' but is being used with an instance of entity type '{expectedType}'.
+        /// </summary>
+        public static string PropertyDoesNotBelong([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyDoesNotBelong", "property", "entityType", "expectedType"), property, entityType, expectedType);
+        }
+
+        /// <summary>
         /// Cannot change ObservableHashSet during a CollectionChanged event.
         /// </summary>
         public static string ObservableCollectionReentrancy

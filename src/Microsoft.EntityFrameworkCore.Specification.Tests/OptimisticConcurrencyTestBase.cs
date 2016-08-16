@@ -2,15 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
 using Xunit;
 
@@ -19,130 +13,29 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     // TODO: Remove these once available in the product
     internal static class TestExtensions
     {
-        public static void SetValues(this InternalEntityEntry internalEntry, Dictionary<IProperty, object> values)
+        public static void Reload(this EntityEntry entry, DbContext context)
         {
-            foreach (var value in values)
-            {
-                internalEntry[value.Key] = ConvertValue(value.Key.ClrType, value.Value);
-            }
-        }
-
-        public static void SetOriginalValues(this InternalEntityEntry internalEntry, Dictionary<IProperty, object> values)
-        {
-            foreach (var value in values)
-            {
-                internalEntry.SetOriginalValue(value.Key, ConvertValue(value.Key.ClrType, value.Value));
-            }
-        }
-
-        public static void SetValues(this EntityEntry entry, Dictionary<IProperty, object> values)
-            => entry.GetInfrastructure().SetValues(values);
-
-        public static void SetOriginalValues(this EntityEntry entry, Dictionary<IProperty, object> values)
-            => entry.GetInfrastructure().SetOriginalValues(values);
-        
-        private static object ConvertValue(Type expectedType, object valueToSet)
-        {
-            var expectedTypeInfo = expectedType.GetTypeInfo();
-            if (expectedTypeInfo.IsValueType
-                && valueToSet != null)
-            {
-                if (expectedTypeInfo.IsGenericType
-                    && expectedTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    valueToSet = Convert.ChangeType(valueToSet, Nullable.GetUnderlyingType(expectedType));
-                }
-                else
-                {
-                    valueToSet = Convert.ChangeType(valueToSet, expectedType);
-                }
-            }
-            return valueToSet;
-        }
-
-        public static void Reload(this InternalEntityEntry internalEntry, DbContext context)
-        {
-            if (internalEntry.EntityState == EntityState.Detached)
+            if (entry.State == EntityState.Detached)
             {
                 throw new InvalidOperationException("Can't reload an unknown entity");
             }
 
-            if (internalEntry.EntityState == EntityState.Added)
+            if (entry.State == EntityState.Added)
             {
                 throw new InvalidOperationException("Can't reload an added entity");
             }
 
-            var storeValues = internalEntry.GetDatabaseValues(context);
+            var storeValues = entry.GetDatabaseValues();
             if (storeValues == null)
             {
-                internalEntry.SetEntityState(EntityState.Detached);
+                entry.State = EntityState.Detached;
             }
             else
             {
-                internalEntry.SetValues(storeValues);
-                internalEntry.SetOriginalValues(storeValues);
-                internalEntry.SetEntityState(EntityState.Unchanged);
+                entry.CurrentValues.SetValues(storeValues);
+                entry.OriginalValues.SetValues(storeValues);
+                entry.State = EntityState.Unchanged;
             }
-        }
-
-        public static void Reload(this EntityEntry entityEntry, DbContext context)
-            => entityEntry.GetInfrastructure().Reload(context);
-        
-        public static Dictionary<IProperty, object> GetDatabaseValues(this EntityEntry entry, DbContext context)
-            => entry.GetInfrastructure().GetDatabaseValues(context);
-
-        public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)
-        {
-            if (internalEntry.EntityType.ClrType == typeof(Driver))
-            {
-                var id = ((Driver)internalEntry.Entity).Id;
-                
-                return SelectDatabaseValues(context.Set<Driver>()
-                    .Where(d => d.Id == id), internalEntry.EntityType)
-                    .SingleOrDefault();
-            }
-
-            if (internalEntry.EntityType.ClrType == typeof(Engine))
-            {
-                var id = ((Engine)internalEntry.Entity).Id;
-
-                return SelectDatabaseValues(context.Set<Engine>()
-                    .Where(d => d.Id == id), internalEntry.EntityType)
-                    .SingleOrDefault();
-            }
-
-            return null;
-        }
-
-        private static readonly NewExpression _newDictionaryExpression =
-            Expression.New(typeof(Dictionary<IProperty, object>));
-
-        private static readonly MethodInfo _dictionaryAddMethod =
-            typeof(Dictionary<IProperty, object>).GetMethod(nameof(Dictionary<IProperty, object>.Add));
-
-        private static readonly MethodInfo _efPropertyMethodInfo =
-            typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
-
-        private static IQueryable<Dictionary<IProperty, object>> SelectDatabaseValues<TEntity>(
-            IQueryable<TEntity> query, IEntityType entityType)
-        {
-            var entityParameterExpression = Expression.Parameter(typeof(TEntity), "entity");
-
-            var elementInitList = entityType.GetProperties().Select(property =>
-                Expression.ElementInit(
-                    _dictionaryAddMethod,
-                    Expression.Constant(property),
-                    Expression.Convert(
-                        Expression.Call(
-                            null,
-                            _efPropertyMethodInfo.MakeGenericMethod(property.ClrType),
-                            entityParameterExpression,
-                            Expression.Constant(property.Name)),
-                        typeof(object))));
-
-            return query.Select(Expression.Lambda<Func<TEntity, Dictionary<IProperty, object>>>(
-                Expression.ListInit(_newDictionaryExpression, elementInitList),
-                entityParameterExpression));
         }
     }
 
@@ -185,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClientPodiums, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        driverEntry.SetOriginalValues(driverEntry.GetDatabaseValues(c));
+                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
                         ResolveConcurrencyTokens(driverEntry);
                     });
         }
@@ -197,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 StorePodiums, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        var storeValues = driverEntry.GetDatabaseValues(c);
-                        driverEntry.SetValues(storeValues);
-                        driverEntry.SetOriginalValues(storeValues);
+                        var storeValues = driverEntry.GetDatabaseValues();
+                        driverEntry.CurrentValues.SetValues(storeValues);
+                        driverEntry.OriginalValues.SetValues(storeValues);
                         ResolveConcurrencyTokens(driverEntry);
                     });
         }
@@ -211,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 10, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        driverEntry.SetOriginalValues(driverEntry.GetDatabaseValues(c));
+                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
                         ResolveConcurrencyTokens(driverEntry);
                         ((Driver)driverEntry.Entity).Podiums = 10;
                     });
@@ -224,9 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 StorePodiums, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        var storeValues = driverEntry.GetDatabaseValues(c);
-                        driverEntry.SetValues(storeValues);
-                        driverEntry.SetOriginalValues(storeValues);
+                        var storeValues = driverEntry.GetDatabaseValues();
+                        driverEntry.CurrentValues.SetValues(storeValues);
+                        driverEntry.OriginalValues.SetValues(storeValues);
                         driverEntry.State = EntityState.Unchanged;
                     });
         }
@@ -512,9 +405,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
 
                         entry.State = EntityState.Unchanged;
-                        var storeValues = entry.GetDatabaseValues(c);
-                        entry.SetOriginalValues(storeValues);
-                        entry.SetValues(storeValues);
+                        var storeValues = entry.GetDatabaseValues();
+                        entry.OriginalValues.SetValues(storeValues);
+                        entry.CurrentValues.SetValues(storeValues);
                         ResolveConcurrencyTokens(entry);
                     },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
@@ -549,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        var storeValues = entry.GetDatabaseValues(c);
+                        var storeValues = entry.GetDatabaseValues();
                         Assert.Null(storeValues);
                         entry.State = EntityState.Detached;
                     },

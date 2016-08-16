@@ -644,10 +644,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetOriginalValue(idProperty, 3);
             entry.SetOriginalValue(nameProperty, "Franks");
 
-            Assert.Equal(3, entry.GetOriginalValue(idProperty));
+            Assert.Equal(1, entry.GetOriginalValue(idProperty));
             Assert.Equal("Franks", entry.GetOriginalValue(nameProperty));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);

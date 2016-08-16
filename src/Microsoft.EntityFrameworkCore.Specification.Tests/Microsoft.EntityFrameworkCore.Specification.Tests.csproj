@@ -71,6 +71,7 @@
     <Compile Include="OneToOneQueryFixtureBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyValuesTestBase.cs" />
     <Compile Include="QueryNavigationsTestBase.cs" />
     <Compile Include="QueryTestBase.cs" />
     <Compile Include="StoreGeneratedFixupTestBase.cs" />
