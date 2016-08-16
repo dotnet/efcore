@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -981,6 +982,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return newOperand != explicitCast.Operand
                     ? new ExplicitCastExpression(newOperand, explicitCast.Type)
                     : expression;
+            }
+
+            var nullConditional = expression as NullConditionalExpression;
+            if (nullConditional != null)
+            {
+                return Visit(nullConditional.AccessOperation);
             }
 
             return base.VisitExtension(expression);

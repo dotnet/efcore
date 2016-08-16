@@ -254,19 +254,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     variableName = "var" + _parametersInScope.Count;
                     _parametersInScope.Add(variable, variableName);
                 }
-
-                _stringBuilder.Append("var " + variableName);
             }
 
-            if (node.Variables.Count > 0)
-            {
-                _stringBuilder.AppendLine();
-            }
+            var expressions = node.Result != null
+                ? node.Expressions.Except(new[] { node.Result })
+                : node.Expressions;
 
-            foreach (var expression in node.Expressions)
+            foreach (var expression in expressions)
             {
                 Visit(expression);
                 _stringBuilder.AppendLine();
+            }
+
+            if (node.Result != null)
+            {
+                _stringBuilder.AppendLine("return " + node.Result);
             }
 
             _stringBuilder.DecrementIndent();

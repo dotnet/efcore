@@ -11,6 +11,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
@@ -407,7 +408,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             node.Expression,
                             node.Member.Name, 
                             node.Type,
-                            e => Expression.MakeMemberAccess(e, node.Member));
+                            e => Expression.MakeMemberAccess(e, node.Member),
+                            e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
                     })
                 ?? base.VisitMember(node);
         }
@@ -467,13 +469,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(node, nameof(node));
 
-            if (!EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
-                return base.VisitMethodCall(node);
-            }
-
-            return
-                _queryModelVisitor.BindNavigationPathPropertyExpression(
+                var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     node,
                     (ps, qs) =>
                     {
@@ -483,9 +481,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             node.Arguments[0],
                             (string)((ConstantExpression)node.Arguments[1]).Value,
                             node.Type,
-                            e => Expression.Call(node.Method, e, node.Arguments[1]));
-                    })
-                ?? base.VisitMethodCall(node);
+                            e => Expression.Call(node.Method, e, node.Arguments[1]),
+                            e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                    });
+
+                    if (result != null)
+                    {
+                        return result;
+                    }
+            }
+
+            Expression newObject = Visit(node.Object);
+            var newArguments = node.Arguments.Select(Visit);
+
+            if (newObject != node.Object && newObject.Type.IsNullableType() && newObject is NullConditionalExpression)
+            {
+                var newMethodCallExpression = node.Update(node.Object, newArguments);
+
+                return new NullConditionalExpression(newObject, node.Object, newMethodCallExpression);
+            }
+
+            return node.Update(newObject, newArguments);
         }
 
         private Expression RewriteNavigationProperties(
@@ -494,7 +510,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Expression declaringExpression,
             string propertyName,
             Type propertyType,
-            Func<Expression, Expression> propertyCreator)
+            Func<Expression, Expression> propertyCreator,
+            Func<Expression, Expression> conditionalAccessPropertyCreator)
         {
             var navigations = properties.OfType<INavigation>().ToList();
 
@@ -535,7 +552,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     outerQuerySourceReferenceExpression,
                     navigations,
                     properties.Count == navigations.Count ? null : propertyType,
-                    propertyCreator);
+                    propertyCreator,
+                    conditionalAccessPropertyCreator);
 
                 return navigationResultExpression;
             }
@@ -661,7 +679,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             QuerySourceReferenceExpression outerQuerySourceReferenceExpression,
             IEnumerable<INavigation> navigations,
             Type propertyType,
-            Func<Expression, Expression> propertyCreator)
+            Func<Expression, Expression> propertyCreator,
+            Func<Expression, Expression> conditionalAccessPropertyCreator)
         {
             var querySourceReferenceExpression = outerQuerySourceReferenceExpression;
             var navigationJoins = _navigationJoins;
@@ -775,27 +794,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return querySourceReferenceExpression;
             }
 
-            if (optionalNavigationInChain)
-            {
-                var memberAccessExpression = propertyCreator(querySourceReferenceExpression);
-                if (!propertyType.IsNullableType())
-                {
-                    memberAccessExpression = Expression.Convert(memberAccessExpression, propertyType.MakeNullable());
-                }
-
-                var constantNullExpression = propertyType.IsNullableType()
-                    ? Expression.Constant(null, propertyType)
-                    : Expression.Constant(null, propertyType.MakeNullable());
-
-                return Expression.Condition(
-                    Expression.NotEqual(
-                        querySourceReferenceExpression,
-                        Expression.Constant(null, querySourceReferenceExpression.Type)),
-                    memberAccessExpression,
-                    constantNullExpression);
-            }
-
-            return propertyCreator(querySourceReferenceExpression);
+            return optionalNavigationInChain 
+                ? conditionalAccessPropertyCreator(querySourceReferenceExpression) 
+                : propertyCreator(querySourceReferenceExpression);
         }
 
         private Expression RewriteSelectManyNavigationsIntoJoins(
