@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
@@ -13,12 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
     public class EfConsoleCommandResolver
     {
-        private readonly string _basePath = AppContext.BaseDirectory;
+        private static Assembly s_thisAssembly = typeof(Program).GetTypeInfo().Assembly;
+        private readonly string _basePath = Path.GetDirectoryName(s_thisAssembly.Location);
         protected virtual string NetCoreToolDir
-            => Path.Combine(_basePath, "tools", "netcoreapp1.0");
+            => Path.Combine(_basePath, "..", "..", "tools", "netcoreapp1.0");
         protected virtual string DesktopToolDir
-            => Path.Combine(_basePath, "tools", "net451");
-
+            => Path.Combine(_basePath, "..", "..", "tools", "net451");
 
         public virtual CommandSpec Resolve(ResolverArguments arguments)
             => arguments.IsDesktop

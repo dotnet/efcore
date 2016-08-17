@@ -53,13 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
             AddAndApplyMigrationImpl("DesktopClassLibrary", "DesktopContext", "initialLibrary", startupProjectName: "DesktopStartupApp");
         }
 
-        [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Linux | TestPlatform.Mac)]
-        public void MigrationsOnNetStandardClassLibraryWithDesktopExternalStartup()
-        {
-            AddAndApplyMigrationImpl("DesktopStartupApp", "NetStandardContext", "InitialMigration1");
-        }
-
         [Fact]
         public void AddMigrationToDifferentFolder()
         {

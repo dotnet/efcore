@@ -51,7 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests.Utilities
                 "--depsfile", _depsJson,
                 "--additionalprobingpath", _nugetPackageDir,
                 s_dotnetEfPath,
-                "--verbose"
+                "--verbose",
+                "--configuration", System.Environment.GetEnvironmentVariable("Configuration")
+#if DEBUG
+                ?? "Debug"
+#else
+                ?? "Release"
+#endif
             }
                 .Concat(_startupArgs)
                 .Concat(BuildArgs())

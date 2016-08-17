@@ -15,12 +15,9 @@
     "Microsoft.AspNetCore.Hosting": "1.0.0-*",
     "DesktopClassLibrary": {
       "target": "project"
-    },
-    "NetStandardClassLibrary": {
-      "target": "project"
     }
   },
   "frameworks": {
-    "net46": { }
+    "net451": { }
   }
 }
