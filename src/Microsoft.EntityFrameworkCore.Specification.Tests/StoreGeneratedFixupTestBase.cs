@@ -4044,9 +4044,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         protected abstract bool EnforcesFKs { get; }
 
-        protected abstract void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal);
+        protected virtual void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)
+        {
+        }
 
-        protected abstract void MarkIdsTemporary(StoreGeneratedFixupContext context, object game, object level, object item);
+        protected virtual void MarkIdsTemporary(StoreGeneratedFixupContext context, object game, object level, object item)
+        {
+        }
 
         protected class StoreGeneratedFixupContext : DbContext
         {

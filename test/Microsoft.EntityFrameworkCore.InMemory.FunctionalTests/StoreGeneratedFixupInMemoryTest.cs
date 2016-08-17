@@ -36,14 +36,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
         }
 
-        protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)
-        {
-        }
-
-        protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object game, object level, object item)
-        {
-        }
-
         protected override bool EnforcesFKs => false;
 
         public class StoreGeneratedFixupInMemoryFixture : StoreGeneratedFixupFixtureBase

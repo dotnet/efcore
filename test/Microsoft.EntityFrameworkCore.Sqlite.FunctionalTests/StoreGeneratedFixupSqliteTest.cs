@@ -37,26 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             }
         }
 
-        protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)
-        {
-            // TODO: Uncomment this when #6292 is fixed
-            //var entry = context.Entry(dependent);
-            //entry.Property("Id1").IsTemporary = true;
-
-            //entry = context.Entry(principal);
-            //entry.Property("Id1").IsTemporary = true;
-        }
-
-        protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object game, object level, object item)
-        {
-            // TODO: Uncomment this when #6292 is fixed
-            //var entry = context.Entry(game);
-            //entry.Property("Id").IsTemporary = true;
-
-            //entry = context.Entry(item);
-            //entry.Property("Id").IsTemporary = true;
-        }
-
         protected override bool EnforcesFKs => true;
 
         public class StoreGeneratedFixupSqliteFixture : StoreGeneratedFixupFixtureBase
@@ -99,47 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 context.Database.UseTransaction(testStore.Transaction);
 
                 return context;
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.Entity<Parent>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<Child>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ParentPN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ChildPN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ParentDN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ChildDN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ParentNN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ChildNN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<CategoryDN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ProductDN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<CategoryPN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ProductPN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<CategoryNN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<ProductNN>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<Category>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<Product>(b => { b.Property(e => e.Id1).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<Item>(b => { b.Property(e => e.Id).ValueGeneratedOnAdd(); });
-
-                modelBuilder.Entity<Game>(b => { b.Property(e => e.Id).ValueGeneratedOnAdd(); });
             }
         }
     }
