@@ -599,17 +599,39 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
         [Fact]
         public virtual void Include_does_not_close_user_opened_connection_for_empty_result()
         {
-            using (var ctx = CreateContext())
+            using (var context = CreateContext())
             {
-                ctx.Database.OpenConnection();
+                context.Database.OpenConnection();
 
-                var query = ctx.Customers
+                var query = context.Customers
                     .Include(v => v.Orders)
                     .Where(v => v.CustomerID == "MAMRFC")
                     .ToList();
 
                 Assert.Empty(query);
-                Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);
+                Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_with_db_parameters_called_multiple_times()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = CreateDbParameter("@id", "ALFKI");
+
+                var query = context.Customers
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
+                        parameter);
+
+                var result1 = query.ToList();
+
+                Assert.Equal(1 , result1.Count);
+
+                // This should not throw exception.
+                var result2 = query.ToList();
+
+                Assert.Equal(1, result2.Count);
             }
         }
 

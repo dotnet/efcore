@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public override void Clear()
         {
-            throw new NotImplementedException();
+            // no-op to test that parameters are passed correctly to db command.
         }
 
         public override bool Contains(string value)

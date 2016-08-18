@@ -276,6 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             finally
             {
+                dbCommand.Parameters.Clear();
+
                 if (closeConnection)
                 {
                     connection.Close();

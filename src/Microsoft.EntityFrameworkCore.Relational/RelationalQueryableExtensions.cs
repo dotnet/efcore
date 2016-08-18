@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         You can also construct a DbParameter and supply it to as a parameter value. This allows you to use named
         ///         parameters in the SQL query string - 
-        ///         <code>context.Blogs.SqlQuery("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>    
+        ///         <code>context.Blogs.FromSql("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>    
         /// </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the elements of <paramref name="source" />. </typeparam>

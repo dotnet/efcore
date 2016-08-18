@@ -367,6 +367,21 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1",
                 Sql);
         }
 
+        public override void From_sql_with_db_parameters_called_multiple_times()
+        {
+            base.From_sql_with_db_parameters_called_multiple_times();
+
+            Assert.Equal(
+                @"@id: ALFKI (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id
+
+@id: ALFKI (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
+                Sql);
+        }
+
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
