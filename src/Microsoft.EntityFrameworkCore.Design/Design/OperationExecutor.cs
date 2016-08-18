@@ -25,15 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly string _projectDir;
 
         public OperationExecutor([NotNull] object logHandler, [NotNull] IDictionary args)
-            : this(logHandler, args, new AssemblyLoader())
-        {
-        }
-
-        public OperationExecutor([NotNull] object logHandler, [NotNull] IDictionary args, [NotNull] AssemblyLoader assemblyLoader)
         {
             Check.NotNull(logHandler, nameof(logHandler));
             Check.NotNull(args, nameof(args));
-            Check.NotNull(assemblyLoader, nameof(assemblyLoader));
 
             var unwrappedLogHandler = ForwardingProxy.Unwrap<IOperationLogHandler>(logHandler);
             var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
@@ -47,13 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             // NOTE: LazyRef is used so any exceptions get passed to the resultHandler
             var startupAssembly = new LazyRef<Assembly>(
-                () => assemblyLoader.Load(startupTargetName));
+                () => Assembly.Load(new AssemblyName(startupTargetName)));
             var assembly = new LazyRef<Assembly>(
                 () =>
                     {
                         try
                         {
-                            return assemblyLoader.Load(targetName);
+                            return Assembly.Load(new AssemblyName(targetName));
                         }
                         catch (Exception ex)
                         {
@@ -72,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     loggerProvider,
-                    assemblyLoader,
                     startupAssembly.Value,
                     environment,
                     _projectDir,
@@ -82,7 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 () => new MigrationsOperations(
                     loggerProvider,
                     assembly.Value,
-                    assemblyLoader,
                     startupAssembly.Value,
                     environment,
                     _projectDir,

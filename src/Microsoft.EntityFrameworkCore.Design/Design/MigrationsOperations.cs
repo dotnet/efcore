@@ -31,14 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         public MigrationsOperations(
             [NotNull] ILoggerProvider loggerProvider,
             [NotNull] Assembly assembly,
-            [NotNull] AssemblyLoader startupAssemblyLoader,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string contentRootPath,
             [NotNull] string rootNamespace)
         {
-            Check.NotNull(startupAssemblyLoader, nameof(startupAssemblyLoader));
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
@@ -61,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 contentRootPath);
 
             var startup = new StartupInvoker(_logger, startupAssembly, environment, contentRootPath);
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssemblyLoader, startup);
+            _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
         public virtual MigrationFiles AddMigration(

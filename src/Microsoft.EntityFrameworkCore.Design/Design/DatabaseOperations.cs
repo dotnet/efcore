@@ -25,14 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         public DatabaseOperations(
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] AssemblyLoader startupAssemblyLoader,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string contentRootPath,
             [NotNull] string rootNamespace)
         {
-            Check.NotNull(startupAssemblyLoader, nameof(startupAssemblyLoader));
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
@@ -45,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
             var startup = new StartupInvoker(logger, startupAssembly, environment, contentRootPath);
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssemblyLoader, startup);
+            _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
         public virtual Task<ReverseEngineerFiles> ReverseEngineerAsync(

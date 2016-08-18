@@ -65,7 +65,6 @@
     <Compile Include="..\Tools.Shared\OperationHandlers.cs">
       <Link>Design\OperationHandlers.cs</Link>
     </Compile>
-    <Compile Include="Design\AssemblyLoader.cs" />
     <Compile Include="Design\DatabaseOperations.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
     <Compile Include="Design\Internal\CommandLogger.cs" />

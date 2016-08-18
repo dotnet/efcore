@@ -24,18 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class DesignTimeServicesBuilder
     {
-        private readonly AssemblyLoader _assemblyLoader;
         private readonly StartupInvoker _startup;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public DesignTimeServicesBuilder(
-            [NotNull] AssemblyLoader assemblyLoader,
-            [NotNull] StartupInvoker startupInvoker)
+        public DesignTimeServicesBuilder([NotNull] StartupInvoker startupInvoker)
         {
-            _assemblyLoader = assemblyLoader;
             _startup = startupInvoker;
         }
 
@@ -116,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assembly providerAssembly;
             try
             {
-                providerAssembly = _assemblyLoader.Load(provider);
+                providerAssembly = Assembly.Load(new AssemblyName(provider));
             }
             catch (Exception ex)
             {
@@ -145,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assembly designTimeProviderAssembly;
             try
             {
-                designTimeProviderAssembly = _assemblyLoader.Load(providerServicesAttribute.AssemblyName);
+                designTimeProviderAssembly = Assembly.Load(new AssemblyName(providerServicesAttribute.AssemblyName));
             }
             catch (Exception ex)
                 when (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException)
