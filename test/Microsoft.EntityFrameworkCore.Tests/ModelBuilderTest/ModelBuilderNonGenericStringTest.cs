@@ -30,9 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal("Orders", modelBuilder.Model.FindEntityType("Customer")?.GetNavigations().Single().Name);
                 Assert.False(foreignKey.IsUnique);
 
-                // TODO: Issue#4016 - The Exception message here should be about shadow entity type instead of shadow key.
                 Assert.Equal(
-                    CoreStrings.ReferencedShadowKey("{'TempId'}", "Customer.Orders", "Order.Customer"),
+                    CoreStrings.ShadowEntity("Customer"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -76,9 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal("Orders", modelBuilder.Model.FindEntityType("Customer")?.GetNavigations().Single().Name);
                 Assert.False(foreignKey.IsUnique);
 
-                // TODO: Issue#4016 - The Exception message here should be about shadow entity type instead of shadow key.
                 Assert.Equal(
-                    CoreStrings.ReferencedShadowKey("{'TempId'}", "Customer.Orders", "Order.Customer"),
+                    CoreStrings.ShadowEntity("Customer"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -116,15 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var foreignKey = modelBuilder.Entity("Order")
                     .HasOne("OrderDetails", "OrderDetails")
                     .WithOne("Order")
+                    .HasForeignKey("OrderDetails", "OrderId")
                     .Metadata;
 
                 Assert.Equal("OrderDetails", modelBuilder.Model.FindEntityType("Order")?.GetNavigations().Single().Name);
                 Assert.Equal("Order", modelBuilder.Model.FindEntityType("OrderDetails")?.GetNavigations().Single().Name);
                 Assert.True(foreignKey.IsUnique);
 
-                // TODO: Issue#4016 - The Exception message here should be about shadow entity type instead of shadow key.
                 Assert.Equal(
-                    CoreStrings.ReferencedShadowKey("{'TempId'}", "OrderDetails.Order", "Order.OrderDetails"),
+                    CoreStrings.ShadowEntity("Order"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -292,6 +290,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 ReferenceReferenceBuilder = referenceReferenceBuilder;
             }
+
+            public NonGenericStringTestReferenceReferenceBuilder HasForeignKey(
+                string dependentEntityTypeName, params string[] foreignKeyPropertyNames)
+                => new NonGenericStringTestReferenceReferenceBuilder(
+                    ReferenceReferenceBuilder.HasForeignKey(dependentEntityTypeName, foreignKeyPropertyNames));
+
+            public NonGenericStringTestReferenceReferenceBuilder HasPrincipalKey(
+                string principalEntityTypeName, params string[] keyPropertyNames)
+                => new NonGenericStringTestReferenceReferenceBuilder
+                    (ReferenceReferenceBuilder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames));
 
             private ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
             public IMutableForeignKey Metadata => ReferenceReferenceBuilder.Metadata;

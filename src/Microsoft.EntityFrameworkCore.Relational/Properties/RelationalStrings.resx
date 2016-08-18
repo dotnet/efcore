@@ -284,7 +284,7 @@
     <value>{conflictingConfiguration} cannot be set for '{property}', because {existingConfiguration} is already set.</value>
   </data>
   <data name="DuplicateForeignKeyColumnMismatch" xml:space="preserve">
-    <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different columns ({columnNames1} and {columnNames2}).</value>
+    <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).</value>
   </data>
   <data name="DuplicateForeignKeyDeleteBehaviorMismatch" xml:space="preserve">
     <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').</value>

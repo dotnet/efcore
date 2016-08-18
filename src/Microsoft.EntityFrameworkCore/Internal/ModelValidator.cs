@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual void Validate(IModel model)
         {
             EnsureNoShadowEntities(model);
-            EnsureNoShadowKeys(model);
             EnsureNonNullPrimaryKeys(model);
+            EnsureNoShadowKeys(model);
             EnsureClrInheritance(model);
             EnsureChangeTrackingStrategy(model);
             EnsureFieldMapping(model);
@@ -53,15 +53,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
         {
-            var messages = KeyConvention.GetShadowKeyExceptionMessage(model, key => key.Properties.Any(p => p.IsShadowProperty));
-            if (messages == null)
+            foreach (var entityType in model.GetEntityTypes().Where(t => t.ClrType != null))
             {
-                return;
-            }
+                foreach (var key in entityType.GetDeclaredKeys())
+                {
+                    if (key.Properties.Any(p => p.IsShadowProperty))
+                    {
+                        var referencingFk = key.GetReferencingForeignKeys().FirstOrDefault();
+                        var conventionalKey = key as Key;
+                        if (referencingFk != null
+                            && conventionalKey != null
+                            && ConfigurationSource.Convention.Overrides(conventionalKey.GetConfigurationSource()))
+                        {
+                            ShowError(CoreStrings.ReferencedShadowKey(
+                                referencingFk.DeclaringEntityType.DisplayName() +
+                                (referencingFk.DependentToPrincipal == null
+                                    ? ""
+                                    : "." + referencingFk.DependentToPrincipal.Name),
+                                entityType.DisplayName() +
+                                (referencingFk.PrincipalToDependent == null
+                                    ? ""
+                                    : "." + referencingFk.PrincipalToDependent.Name),
+                                Property.Format(referencingFk.Properties, includeTypes: true),
+                                Property.Format(entityType.FindPrimaryKey().Properties, includeTypes: true)));
+                            continue;
+                        }
 
-            foreach (var message in messages)
-            {
-                ShowWarning(message);
+                        ShowWarning(CoreStrings.ShadowKey(
+                            Property.Format(key.Properties),
+                            entityType.DisplayName(),
+                            Property.Format(key.Properties)));
+                    }
+                }
             }
         }
 

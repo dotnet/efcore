@@ -79,7 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
-            conventionSet.ModelBuiltConventions.Add(keyConvention);
             conventionSet.ModelBuiltConventions.Add(new IgnoredMembersValidationConvention());
             conventionSet.ModelBuiltConventions.Add(new PropertyMappingValidationConvention());
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());

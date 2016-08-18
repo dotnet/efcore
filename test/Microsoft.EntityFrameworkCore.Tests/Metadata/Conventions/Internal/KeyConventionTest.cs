@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -432,86 +431,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.True(new KeyConvention().Apply(keyBuilder, null));
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        }
-
-        #endregion
-
-        #region ShadowKeys
-
-        [Fact]
-        public void Throws_an_exception_when_shadow_key_is_defined_by_convention()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
-            entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.Convention);
-
-            Assert.Equal(CoreStrings.ShadowKey("{'Foo'}", typeof(SampleEntity).Name, "{'Foo'}"),
-                Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
-        }
-
-        [Fact]
-        public void Does_not_throw_an_exception_when_shadow_key_is_not_defined_by_convention()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
-            entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.DataAnnotation);
-
-            Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
-        }
-
-        [Fact]
-        public void Does_not_throw_an_exception_when_key_is_defined_on_shadow_properties_which_are_not_defined_by_convention()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("Foo", typeof(string), ConfigurationSource.DataAnnotation);
-            entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.Convention);
-
-            Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
-        }
-
-        [Fact]
-        public void Throws_an_exception_when_shadow_key_is_referenced_by_foreign_key()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
-
-            referencedEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
-            var properties = new List<string> { "Foo" };
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
-                referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                ConfigurationSource.Convention);
-
-            Assert.Equal(CoreStrings.ReferencedShadowKeyWithoutNavigations(
-                "{'TempId'}",
-                typeof(SampleEntity).Name,
-                "{'Foo'}",
-                typeof(ReferencedEntity).Name),
-                Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
-        }
-
-        [Fact]
-        public void Does_not_throw_an_exception_when_key_is_referenced_by_foreign_key_and_defined_on_shadow_properties_which_are_not_defined_by_convention()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
-
-            principalEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.DataAnnotation);
-            referencedEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.DataAnnotation);
-            var properties = new List<string> { "Foo" };
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
-                referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                ConfigurationSource.Convention)
-                .HasPrincipalKey(principalEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                    ConfigurationSource.Convention);
-
-            Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
         }
 
         #endregion

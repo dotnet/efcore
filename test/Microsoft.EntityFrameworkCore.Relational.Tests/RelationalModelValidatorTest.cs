@@ -212,12 +212,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasConstraintName("FK");
-            modelBuilder.Entity<Dog>().HasOne<Animal>().WithMany().HasForeignKey(d => d.Name).HasConstraintName("FK");
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
+            modelBuilder.Entity<Dog>().HasOne<Animal>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyPrincipalTableMismatch(
-                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                "{'FriendId'}", nameof(Dog),
+                "{'FriendId'}", nameof(Cat),
                 nameof(Animal), "FK",
                 nameof(Animal),
                 nameof(Person)),
@@ -228,16 +228,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_column_count()
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
-            modelBuilder.Entity<Animal>().Property<int>("Shadow");
-            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(nameof(Cat.Name), "Shadow").HasConstraintName("FK");
-            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasConstraintName("FK");
+            modelBuilder.Entity<Animal>().Property<int>("FriendId");
+            modelBuilder.Entity<Animal>().Property<string>("Shadow");
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId", "Shadow").HasPrincipalKey(p => new { p.Id, p.Name }).HasConstraintName("FK");
+            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyColumnMismatch(
-                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "', 'Shadow'}", nameof(Cat),
+                "{'FriendId'}", nameof(Dog),
+                "{'FriendId', 'Shadow'}", nameof(Cat),
                 nameof(Animal), "FK",
-                "{'" + nameof(Dog.Name) + "'}",
-                "{'" + nameof(Cat.Name) + "', 'Shadow'}"),
+                "{'FriendId'}",
+                "{'FriendId', 'Shadow'}"),
                 modelBuilder.Model);
         }
 
@@ -246,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasConstraintName("FK");
-            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Breed, d.Name }).HasConstraintName("FK");
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
+            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Breed, d.Name }).HasPrincipalKey(p => new { p.FavoriteBreed, p.Name }).HasConstraintName("FK");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyColumnMismatch(
                 "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}", nameof(Dog),
@@ -263,8 +264,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasConstraintName("FK");
-            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Name, d.Breed }).HasConstraintName("FK");
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
+            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Name, d.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyColumnMismatch(

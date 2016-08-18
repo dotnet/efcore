@@ -2389,7 +2389,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var tempIndex = temporaryProperties != null
                             && temporaryProperties.Any()
                             && dependentEntityType.FindIndex(temporaryProperties) == null
-                ? dependentEntityType.Builder.HasIndex(temporaryProperties, ConfigurationSource.Convention)
+                ? dependentEntityType.Builder.HasIndex(temporaryProperties, ConfigurationSource.Convention).Metadata
+                : null;
+
+            var temporaryKeyProperties = principalProperties?.Where(p => p.GetConfigurationSource() == ConfigurationSource.Convention
+                                                                      && p.IsShadowProperty).ToList();
+            var keyTempIndex = temporaryKeyProperties != null
+                               && temporaryKeyProperties.Any()
+                               && principalEntityType.FindIndex(temporaryKeyProperties) == null
+                ? principalEntityType.Builder.HasIndex(temporaryKeyProperties, ConfigurationSource.Convention).Metadata
                 : null;
 
             if (Metadata.Builder != null)
@@ -2549,9 +2557,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (tempIndex != null)
+            if (tempIndex?.Builder != null)
             {
-                dependentEntityType.RemoveIndex(tempIndex.Metadata.Properties);
+                dependentEntityType.RemoveIndex(tempIndex.Properties);
+            }
+
+            if (keyTempIndex?.Builder != null)
+            {
+                keyTempIndex.DeclaringEntityType.RemoveIndex(keyTempIndex.Properties);
             }
 
             return newRelationshipBuilder;

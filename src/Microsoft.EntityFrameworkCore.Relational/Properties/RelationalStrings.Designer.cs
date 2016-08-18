@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string PossibleIncorrectResultsUsingLikeOperator([CanBeNull] object function)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PossibleIncorrectResultsUsingLikeOperator", "function", "right"), function);
+            return string.Format(CultureInfo.CurrentCulture, GetString("PossibleIncorrectResultsUsingLikeOperator", "function"), function);
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different columns ({columnNames1} and {columnNames2}).
+        /// The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).
         /// </summary>
         public static string DuplicateForeignKeyColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
         {

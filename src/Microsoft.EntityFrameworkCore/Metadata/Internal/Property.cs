@@ -468,8 +468,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string Format([NotNull] IEnumerable<IProperty> properties)
-            => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
+        public static string Format([NotNull] IEnumerable<IProperty> properties, bool includeTypes = false)
+            => "{"
+               + string.Join(", ",
+                   properties.Select(p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
+               + "}";
 
         [UsedImplicitly]
         private string DebuggerDisplay => $"{DeclaringEntityType.DisplayName()}.{Name} ({ClrType?.ShortDisplayName()})";

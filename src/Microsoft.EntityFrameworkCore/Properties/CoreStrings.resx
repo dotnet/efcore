@@ -163,7 +163,7 @@
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
-    <value>The entity type '{entityType}' requires a key to be defined.</value>
+    <value>The entity type '{entityType}' requires a primary key to be defined.</value>
   </data>
   <data name="KeyPropertiesWrongEntity" xml:space="preserve">
     <value>The specified key properties {key} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
@@ -388,10 +388,7 @@
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
-    <value>The key {key} contains properties in shadow state and is referenced by a relationship from '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.</value>
-  </data>
-  <data name="ReferencedShadowKeyWithoutNavigations" xml:space="preserve">
-    <value>The key {key} on entity type '{entityType}' contains properties in shadow state and is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'. Configure a non-shadow principal key for this relationship.</value>
+    <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
   </data>
   <data name="ShadowKey" xml:space="preserve">
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>
