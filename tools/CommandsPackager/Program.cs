@@ -20,7 +20,7 @@ namespace CommandPackager
             }
             try
             {
-                new CommandPackager(Directory.GetCurrentDirectory(), args[0]).Run().GetAwaiter().GetResult();
+                new CommandPackager(Directory.GetCurrentDirectory(), args[0]).Run();
                 return 0;
             }
             catch (Exception e)

@@ -44,10 +44,19 @@ k-standard-goals
     }
   }
 
-#repack-tools .remove-intermediates target='compile' if='Directory.Exists("src") && !IsTravisCi'
+#repack-tools .remove-intermediates target='compile' if='Directory.Exists("src")'
   @{
         var configurationX86 = E("Configuration") + "_x86";
         DotnetBuild("src/Tools.Console", configurationX86, "net451");
-        Dotnet("restore tools/");
-        Dotnet("run -p tools/CommandsPackager " + E("Configuration"));
+
+        try
+        {
+          File.Move("tools/CommandsPackager/project.json.ignore", "tools/CommandsPackager/project.json");
+          Dotnet("restore tools/");
+          Dotnet("run -p tools/CommandsPackager " + E("Configuration"));
+        }
+        finally
+        {
+          File.Move("tools/CommandsPackager/project.json", "tools/CommandsPackager/project.json.ignore");
+        }
    }
