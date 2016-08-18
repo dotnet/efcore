@@ -362,6 +362,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         [InlineData(typeof(int?), 0)]
         [InlineData(typeof(string), "")]
         [InlineData(typeof(byte[]), new byte[0])]
+        [InlineData(typeof(SomeEnum), 0)]
+        [InlineData(typeof(SomeEnum?), 0)]
         public void Add_column_not_null(Type type, object expectedDefault)
         {
             Execute(
@@ -389,6 +391,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal("Value", operation.Name);
                         Assert.Equal(expectedDefault, operation.DefaultValue);
                     });
+        }
+
+        private enum SomeEnum
+        {
+            Default
         }
 
         [Fact]
