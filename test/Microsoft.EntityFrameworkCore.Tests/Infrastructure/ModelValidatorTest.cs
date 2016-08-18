@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
                 typeof(SampleEntity).Name,
                 typeof(ReferencedEntity).Name,
                 "{'Foo' : string}",
-                "{'ReferencedFoo' : string}"),
+                "{'Id' : int}"),
                 modelBuilder.Metadata);
         }
 

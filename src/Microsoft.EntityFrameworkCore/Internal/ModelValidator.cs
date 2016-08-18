@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                     ? ""
                                     : "." + referencingFk.PrincipalToDependent.Name),
                                 Property.Format(referencingFk.Properties, includeTypes: true),
-                                Property.Format(key.Properties, includeTypes: true)));
+                                Property.Format(entityType.FindPrimaryKey().Properties, includeTypes: true)));
                             continue;
                         }
 

@@ -1779,7 +1779,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                         typeof(Order).Name + "." + nameof(Order.Customer),
                         typeof(Customer).Name + "." + nameof(Customer.Orders),
                         "{'AnotherCustomerId' : Guid}",
-                        "{'AnotherCustomerId' : Guid}"),
+                        "{'Id' : int}"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 

@@ -982,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        public virtual InternalIndexBuilder HasIndex([CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             if (properties == null)
             {
@@ -1020,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 index.UpdateConfigurationSource(configurationSource);
             }
 
-            return index.Builder;
+            return index?.Builder;
         }
 
         /// <summary>
