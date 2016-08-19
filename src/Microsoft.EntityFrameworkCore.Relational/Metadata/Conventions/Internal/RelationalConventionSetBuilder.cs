@@ -68,13 +68,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.ModelBuiltConventions, (PropertyMappingValidationConvention)new RelationalPropertyMappingValidationConvention(_typeMapper));
 
-            conventionSet.PropertyAddedConventions.Add(new RelationalColumnAttributeConvention());
+            var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention();
+            conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
 
             conventionSet.BaseEntityTypeSetConventions.Add(new DiscriminatorConvention());
 
             conventionSet.BaseEntityTypeSetConventions.Add(new TableNameFromDbSetConvention(_context, _setFinder));
+
+            conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
 
             return conventionSet;
         }

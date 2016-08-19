@@ -23,6 +23,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         }
 
         [Fact]
+        public void ColumnAttribute_on_field_sets_column_name_and_type_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+
+            var entityBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.Relational().ColumnName);
+            Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.Relational().ColumnType);
+        }
+
+        [Fact]
         public void ColumnAttribute_overrides_configuration_from_convention_source()
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -70,6 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
             public string Name { get; set; }
+        }
+
+        public class F
+        {
+            public int Id { get; set; }
+
+            [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
+            public string Name;
         }
     }
 }

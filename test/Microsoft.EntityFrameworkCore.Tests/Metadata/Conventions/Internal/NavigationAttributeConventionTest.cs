@@ -386,6 +386,28 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
+        public void ForeignKeyAttribute_on_field_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentField>();
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(PrincipalField), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                principalEntityTypeBuilder,
+                "AnotherPrincipalField",
+                "DependentField",
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { DependentField.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
+
+            Assert.Equal("PrincipalFieldId", relationshipBuilder.Metadata.Properties.First().Name);
+
+            relationshipBuilder = new ForeignKeyAttributeConvention().Apply(relationshipBuilder);
+
+            Assert.Equal("_principalFieldAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
+        }
+
+        [Fact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_after_inverting_when_applied_on_property_on_principal_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
@@ -594,6 +616,33 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             [ForeignKey("PrincipalId, PrincipalFk")]
             public Principal CompositePrincipal { get; set; }
+        }
+
+        private class PrincipalField
+        {
+            public int Id { get; set; }
+
+            public int DependentFieldId { get; set; }
+
+            public DependentField DependentField { get; set; }
+        }
+
+        private class DependentField
+        {
+            public static readonly PropertyInfo PrincipalIdProperty = typeof(DependentField).GetProperty("PrincipalFieldId");
+
+            public int Id { get; set; }
+
+            public int PrincipalFieldId { get; set; }
+
+            public int PrincipalFieldFk { get; set; }
+
+            [ForeignKey(nameof(AnotherPrincipalField))]
+#pragma warning disable 169
+            private int _principalFieldAnotherFk;
+#pragma warning restore 169
+
+            public PrincipalField AnotherPrincipalField { get; set; }
         }
 
         private class SelfReferencingEntity

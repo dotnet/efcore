@@ -196,41 +196,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            var candidateProperties = new List<string>();
-            foreach (var propertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
+            string candidateProperty = null;
+            var clrType = entityType.ClrType;
+            foreach (var memberInfo in clrType.GetRuntimeProperties().Cast<MemberInfo>()
+                .Concat(clrType.GetRuntimeFields()))
             {
-                var targetType = FindCandidateNavigationPropertyType(propertyInfo);
-                if (targetType != null)
+                var propertyInfo = memberInfo as PropertyInfo;
+                if (propertyInfo != null
+                    && FindCandidateNavigationPropertyType(propertyInfo) != null)
                 {
                     continue;
                 }
 
-                var attribute = propertyInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
+                var attribute = memberInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
                 if ((attribute != null)
                     && (attribute.Name == navigationName))
                 {
-                    candidateProperties.Add(propertyInfo.Name);
+                    if (candidateProperty != null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.CompositeFkOnProperty(navigationName, entityType.DisplayName()));
+                    }
+                    candidateProperty = memberInfo.Name;
                 }
             }
 
-            if (candidateProperties.Count > 1)
-            {
-                throw new InvalidOperationException(CoreStrings.CompositeFkOnProperty(navigationName, entityType.DisplayName()));
-            }
-
-            if (candidateProperties.Count == 1)
+            if (candidateProperty != null)
             {
                 var fkAttributeOnNavigation = GetForeignKeyAttribute(entityType, navigationName);
                 if ((fkAttributeOnNavigation != null)
-                    && (fkAttributeOnNavigation.Name != candidateProperties.First()))
+                    && (fkAttributeOnNavigation.Name != candidateProperty))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.FkAttributeOnPropertyNavigationMismatch(
-                            candidateProperties.First(), navigationName, entityType.DisplayName()));
+                            candidateProperty, navigationName, entityType.DisplayName()));
                 }
             }
 
-            return candidateProperties.FirstOrDefault();
+            return candidateProperty;
         }
 
         /// <summary>

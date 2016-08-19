@@ -46,13 +46,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var keyAttributeConvention = new KeyAttributeConvention();
             var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention();
             var backingFieldConvention = new BackingFieldConvention();
+            var concurrencyCheckAttributeConvention = new ConcurrencyCheckAttributeConvention();
+            var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention();
+            var requiredPropertyAttributeConvention = new RequiredPropertyAttributeConvention();
+            var maxLengthAttributeConvention = new MaxLengthAttributeConvention();
+            var stringLengthAttributeConvention = new StringLengthAttributeConvention();
+            var timestampAttributeConvention = new TimestampAttributeConvention();
             conventionSet.PropertyAddedConventions.Add(backingFieldConvention);
-            conventionSet.PropertyAddedConventions.Add(new ConcurrencyCheckAttributeConvention());
-            conventionSet.PropertyAddedConventions.Add(new DatabaseGeneratedAttributeConvention());
-            conventionSet.PropertyAddedConventions.Add(new RequiredPropertyAttributeConvention());
-            conventionSet.PropertyAddedConventions.Add(new MaxLengthAttributeConvention());
-            conventionSet.PropertyAddedConventions.Add(new StringLengthAttributeConvention());
-            conventionSet.PropertyAddedConventions.Add(new TimestampAttributeConvention());
+            conventionSet.PropertyAddedConventions.Add(concurrencyCheckAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(databaseGeneratedAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(requiredPropertyAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(maxLengthAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(stringLengthAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(timestampAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
@@ -104,6 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyFieldChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyFieldChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PropertyFieldChangedConventions.Add(keyAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(concurrencyCheckAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(databaseGeneratedAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(requiredPropertyAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(maxLengthAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(stringLengthAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(timestampAttributeConvention);
 
             return conventionSet;
         }
