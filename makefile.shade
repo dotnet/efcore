@@ -48,6 +48,5 @@ k-standard-goals
   @{
         var configurationX86 = E("Configuration") + "_x86";
         DotnetBuild("src/Tools.Console", configurationX86, "net451");
-        Dotnet("restore tools/");
         Dotnet("run -p tools/CommandsPackager " + E("Configuration"));
    }

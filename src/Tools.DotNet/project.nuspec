@@ -10,11 +10,9 @@
     <description>.NET Core CLI command line tools for Entity Framework Core.</description>
     <tags>Entity Framework Core,entity-framework-core,EF,Data,O/RM</tags>
     <serviceable>true</serviceable>
-    <!--TODO When package type is supported:
     <packageTypes>
-      <packageType type="DotnetCliTool" />
+      <packageType name="DotnetCliTool" />
     </packageTypes>
-    -->
     <dependencies>
       <group targetFramework=".NETCoreApp1.0">
         <dependency id="Microsoft.DotNet.Cli.Utils" version="$dotnetcliutils$" />

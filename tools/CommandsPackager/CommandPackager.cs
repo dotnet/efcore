@@ -90,13 +90,13 @@ namespace CommandPackager
                 return Environment.GetEnvironmentVariable("KOREBUILD_NUGET_EXE");
             }
 
-            var nugetPath = Path.Combine(_baseDir, ".build", "nuget.3.5.0-beta2.exe");
+            var nugetPath = Path.Combine(_baseDir, ".build", "nuget.3.5.0-rc1.exe");
             if (File.Exists(nugetPath))
             {
                 return nugetPath;
             }
-            Console.WriteLine("log : Downloading nuget.exe 3.5.0-beta2".Bold().Black());
-            var response = await new HttpClient().GetAsync("https://dist.nuget.org/win-x86-commandline/v3.5.0-beta2/NuGet.exe");
+            Console.WriteLine("log : Downloading nuget.exe 3.5.0-rc1".Bold().Black());
+            var response = await new HttpClient().GetAsync("https://dist.nuget.org/win-x86-commandline/v3.5.0-rc1/NuGet.exe");
             using (var file = new FileStream(nugetPath, FileMode.CreateNew))
             {
                 response.EnsureSuccessStatusCode();
