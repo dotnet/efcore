@@ -65,8 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
             Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogBeginDispatch(startupProject.ProjectName));
 
             return Command.Create(commandSpec)
-                .ForwardStdErr()
-                .ForwardStdOut()
                 .Execute()
                 .ExitCode;
         }

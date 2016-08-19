@@ -17,6 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Tools.Console.Properties.ToolsStrings", typeof(ToolsStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        /// Cannot execute this command because the version of Microsoft.EntityFrameworkCore.Design installed is not compatible with this tool.
+        /// </summary>
+        public static string DesignDependencyIncompatible
+        {
+            get { return GetString("DesignDependencyIncompatible"); }
+        }
+
+        /// <summary>
         /// Cannot execute this command because Microsoft.EntityFrameworkCore.Design is not installed.
         /// </summary>
         public static string DesignDependencyNotFound

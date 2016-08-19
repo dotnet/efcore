@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DesignDependencyIncompatible" xml:space="preserve">
+    <value>Cannot execute this command because the version of Microsoft.EntityFrameworkCore.Design installed is not compatible with this tool.</value>
+  </data>
   <data name="DesignDependencyNotFound" xml:space="preserve">
     <value>Cannot execute this command because Microsoft.EntityFrameworkCore.Design is not installed.</value>
   </data>

@@ -5,7 +5,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+#if NET451
+using System.Runtime.Remoting;
+#endif
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Internal
 {
@@ -83,6 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                 {
                     Reporter.Verbose(resultHandler.ErrorStackTrace);
                 }
+#if NET451
+                else if (resultHandler.ErrorType == typeof(RemotingException).FullName)
+                {
+                    Reporter.Verbose(resultHandler.ErrorStackTrace);
+                    throw new OperationErrorException(ToolsStrings.DesignDependencyIncompatible);
+                }
+#endif
                 else
                 {
                     Reporter.Error(resultHandler.ErrorStackTrace, suppressColor: true);
