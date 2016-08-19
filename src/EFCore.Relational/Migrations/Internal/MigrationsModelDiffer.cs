@@ -343,9 +343,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var schemaOperations = source != null && target != null
                 ? DiffAnnotations(source, target)
-                    .Concat(Diff(GetSchemas(source), GetSchemas(target)))
+                    .Concat(Diff(GetSchemas(source), GetSchemas(target), diffContext))
                     .Concat(Diff(diffContext.GetSourceTables(), diffContext.GetTargetTables(), diffContext))
-                    .Concat(Diff(source.Relational().Sequences, target.Relational().Sequences))
+                    .Concat(Diff(source.Relational().Sequences, target.Relational().Sequences, diffContext))
                     .Concat(
                         Diff(
                             diffContext.GetSourceTables().SelectMany(s => s.GetForeignKeys()),
@@ -406,9 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IModel target, [NotNull] DiffContext diffContext)
             => DiffAnnotations(null, target)
-                .Concat(GetSchemas(target).SelectMany(Add))
+                .Concat(GetSchemas(target).SelectMany(t => Add(t, diffContext)))
                 .Concat(diffContext.GetTargetTables().SelectMany(t => Add(t, diffContext)))
-                .Concat(target.Relational().Sequences.SelectMany(Add))
+                .Concat(target.Relational().Sequences.SelectMany(t => Add(t, diffContext)))
                 .Concat(diffContext.GetTargetTables().SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext)
             => DiffAnnotations(source, null)
                 .Concat(diffContext.GetSourceTables().SelectMany(t => Remove(t, diffContext)))
-                .Concat(source.Relational().Sequences.SelectMany(Remove));
+                .Concat(source.Relational().Sequences.SelectMany(t => Remove(t, diffContext)));
 
         #endregion
 
@@ -428,27 +428,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IEnumerable<string> source, [NotNull] IEnumerable<string> target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IEnumerable<string> source, [NotNull] IEnumerable<string> target, [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
+                diffContext,
                 Diff,
                 Add,
                 Remove,
-                (s, t) => s == t);
+                (s, t, c) => s == t);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] string source, [NotNull] string target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] string source, [NotNull] string target, [NotNull] DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] string target)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] string target, [NotNull] DiffContext diffContext)
         {
             yield return new EnsureSchemaOperation { Name = target };
         }
@@ -457,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source, [NotNull] DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         #endregion
@@ -475,16 +476,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => DiffCollection(
                 source,
                 target,
-                (s, t) =>
-                    {
-                        diffContext.AddMapping(s, t);
-
-                        return Diff(s, t, diffContext);
-                    },
-                t => Add(t, diffContext),
-                s => Remove(s, diffContext),
-                (s, t) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))),
-                (s, t) => string.Equals(
+                diffContext,
+                Diff,
+                Add,
+                Remove,
+                (s, t, c) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))),
+                (s, t, c) => string.Equals(
                               s.Schema,
                               t.Schema,
                               StringComparison.OrdinalIgnoreCase)
@@ -492,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                               s.Name,
                               t.Name,
                               StringComparison.OrdinalIgnoreCase),
-                (s, t) => string.Equals(
+                (s, t, c) => string.Equals(
                     s.Name,
                     t.Name,
                     StringComparison.OrdinalIgnoreCase));
@@ -741,25 +738,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => DiffCollection(
                 source,
                 target,
-                (s, t) =>
-                    {
-                        diffContext.AddMapping(s, t);
-
-                        return Diff(s, t);
-                    },
-                t => Add(t, diffContext),
+                diffContext,
+                Diff,
+                (t, c) => Add(t, c),
                 Remove,
-                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                    && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, diffContext),
-                (s, t) => string.Equals(
+                (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                    && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c),
+                (s, t, c) => string.Equals(
                     s.Relational().ColumnName,
                     t.Relational().ColumnName,
                     StringComparison.OrdinalIgnoreCase),
-                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                     && PropertyStructureEquals(s, t),
-                (s, t) => EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, diffContext)
+                (s, t, c) => EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c)
                     && PropertyStructureEquals(s, t),
-                (s, t) => PropertyStructureEquals(s, t));
+                (s, t, c) => PropertyStructureEquals(s, t));
 
         private static bool PropertyStructureEquals(IProperty source, IProperty target)
             => source.ClrType == target.ClrType
@@ -832,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IProperty source, [NotNull] IProperty target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IProperty source, [NotNull] IProperty target, [NotNull] DiffContext diffContext)
         {
             var sourceAnnotations = source.Relational();
             var targetEntityTypeAnnotations = target.DeclaringEntityType.RootType().Relational();
@@ -918,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IProperty source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IProperty source, [NotNull] DiffContext diffContext)
         {
             var sourceEntityTypeAnnotations = source.DeclaringEntityType.RootType().Relational();
 
@@ -976,12 +969,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => DiffCollection(
                 source,
                 target,
-                (s, t) => Diff(s, t, diffContext),
-                t => Add(t, diffContext),
-                s => Remove(s, diffContext),
-                (s, t) => s.Relational().Name == t.Relational().Name
+                diffContext,
+                Diff,
+                Add,
+                Remove,
+                (s, t, c) => s.Relational().Name == t.Relational().Name
                           && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                              t.Properties.Select(diffContext.FindSourceColumn))
+                              t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
                           && s.IsPrimaryKey() == t.IsPrimaryKey()
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
@@ -1081,16 +1075,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => DiffCollection(
                 source,
                 target,
-                (s, t) => Diff(s, t, diffContext),
-                t => Add(t, diffContext),
-                s => Remove(s, diffContext),
-                (s, t) => s.Relational().Name == t.Relational().Name
+                diffContext,
+                Diff,
+                Add,
+                Remove,
+                (s, t, c) => s.Relational().Name == t.Relational().Name
                           && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                              t.Properties.Select(diffContext.FindSourceColumn))
-                          && diffContext.FindTarget(diffContext.FindSourceTable(s.PrincipalEntityType))
-                          == diffContext.FindTargetTable(t.PrincipalEntityType)
+                              t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
+                          && c.FindSourceTable(s.PrincipalEntityType)
+                          == c.FindSource(c.FindTargetTable(t.PrincipalEntityType))
                           && s.PrincipalKey.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                              t.PrincipalKey.Properties.Select(diffContext.FindSourceColumn))
+                              t.PrincipalKey.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
                           && s.DeleteBehavior == t.DeleteBehavior
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
@@ -1179,10 +1174,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => DiffCollection(
                 source,
                 target,
-                (s, t) => Diff(s, t, diffContext),
-                t => Add(t, diffContext),
+                diffContext,
+                Diff,
+                Add,
                 Remove,
-                (s, t) => string.Equals(
+                (s, t, c) => string.Equals(
                     s.Relational().Name,
                     t.Relational().Name,
                     StringComparison.OrdinalIgnoreCase)
@@ -1190,13 +1186,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                           && s.Relational().Filter == t.Relational().Filter
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
                           && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                              t.Properties.Select(diffContext.FindSourceColumn)),
-                // ReSharper disable once ImplicitlyCapturedClosure
-                (s, t) => s.IsUnique == t.IsUnique
+                              t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName)),
+                (s, t, c) => s.IsUnique == t.IsUnique
                           && s.Relational().Filter == t.Relational().Filter
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
                           && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                              t.Properties.Select(diffContext.FindSourceColumn)));
+                              t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1251,7 +1246,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IIndex source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IIndex source, [NotNull] DiffContext diffContext)
         {
             var sourceEntityTypeAnnotations = source.DeclaringEntityType.RootType().Relational();
 
@@ -1276,24 +1271,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<ISequence> source,
-            [NotNull] IEnumerable<ISequence> target)
+            [NotNull] IEnumerable<ISequence> target,
+            [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
+                diffContext,
                 Diff,
                 Add,
                 Remove,
-                (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
+                (s, t, c) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
                           && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                           && s.ClrType == t.ClrType,
-                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                           && s.ClrType == t.ClrType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] ISequence source, [NotNull] ISequence target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] ISequence source, [NotNull] ISequence target, [NotNull] DiffContext diffContext)
         {
             var schemaChanged = source.Schema != target.Schema;
             var renamed = source.Name != target.Name;
@@ -1344,7 +1341,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] ISequence target)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] ISequence target, [NotNull] DiffContext diffContext)
         {
             var operation = new CreateSequenceOperation
             {
@@ -1361,7 +1358,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ISequence source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ISequence source, [NotNull] DiffContext diffContext)
         {
             var operation = new DropSequenceOperation
             {
@@ -1476,8 +1473,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var keyPropertiesMap = new List<IProperty>();
                     foreach (var keyProperty in targetKey.Properties)
                     {
-                        var sourceProperty = diffContext.FindCompatibleSource(keyProperty, sourceEntityType);
-                        if (sourceProperty == null)
+                        var sourceProperty = diffContext.FindSource(keyProperty);
+                        if (sourceProperty?.ClrType != keyProperty.ClrType)
                         {
                             break;
                         }
@@ -1550,15 +1547,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                         foreach (var targetProperty in entry.EntityType.GetProperties())
                         {
-                            var sourceProperty = diffContext.FindCompatibleSource(targetProperty, sourceEntityType);
+                            var sourceProperty = diffContext.FindSource(targetProperty);
+                            if (sourceProperty != null
+                                && !sourceEntityType.GetProperties().Contains(sourceProperty))
+                            {
+                                continue;
+                            }
+
                             if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
                             {
-                                if (sourceProperty != null)
+                                if (sourceProperty?.ClrType == targetProperty.ClrType)
                                 {
                                     entry.SetOriginalValue(targetProperty, sourceEntry.GetCurrentValue(sourceProperty));
                                 }
                             }
-                            else if (sourceProperty == null
+                            else if (sourceProperty?.ClrType != targetProperty.ClrType
                                      || !Equals(sourceEntry.GetCurrentValue(sourceProperty), entry.GetCurrentValue(targetProperty)))
                             {
                                 entryMapping.RebuildRequired = true;
@@ -1722,13 +1725,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> DiffCollection<T>(
             [NotNull] IEnumerable<T> sources,
             [NotNull] IEnumerable<T> targets,
-            [NotNull] Func<T, T, IEnumerable<MigrationOperation>> diff,
-            [NotNull] Func<T, IEnumerable<MigrationOperation>> add,
-            [NotNull] Func<T, IEnumerable<MigrationOperation>> remove,
-            [NotNull] params Func<T, T, bool>[] predicates)
+            [NotNull] DiffContext diffContext,
+            [NotNull] Func<T, T, DiffContext, IEnumerable<MigrationOperation>> diff,
+            [NotNull] Func<T, DiffContext, IEnumerable<MigrationOperation>> add,
+            [NotNull] Func<T, DiffContext, IEnumerable<MigrationOperation>> remove,
+            [NotNull] params Func<T, T, DiffContext, bool>[] predicates)
         {
             var sourceList = sources.ToList();
             var targetList = targets.ToList();
+            var pairedList = new List<(T source, T target)>();
 
             foreach (var predicate in predicates)
             {
@@ -1740,15 +1745,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var target = targetList[j];
 
-                        if (predicate(source, target))
+                        if (predicate(source, target, diffContext))
                         {
                             sourceList.RemoveAt(i);
                             targetList.RemoveAt(j);
-
-                            foreach (var operation in diff(source, target))
-                            {
-                                yield return operation;
-                            }
+                            pairedList.Add((source, target));
+                            diffContext.AddMapping(source, target);
 
                             break;
                         }
@@ -1756,9 +1758,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
+            foreach (var (source, target) in pairedList)
+            {
+                foreach (var operation in diff(source, target, diffContext))
+                {
+                    yield return operation;
+                }
+            }
+
             foreach (var source in sourceList)
             {
-                foreach (var operation in remove(source))
+                foreach (var operation in remove(source, diffContext))
                 {
                     yield return operation;
                 }
@@ -1766,7 +1776,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var target in targetList)
             {
-                foreach (var operation in add(target))
+                foreach (var operation in add(target, diffContext))
                 {
                     yield return operation;
                 }
@@ -1876,9 +1886,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IDictionary<IEntityType, TableMapping> _targetEntitiesMap
                 = new Dictionary<IEntityType, TableMapping>();
 
-            private readonly IDictionary<TableMapping, TableMapping> _tableMappingMap = new Dictionary<TableMapping, TableMapping>();
-            private readonly IDictionary<string, Dictionary<string, string>> _inverseColumnMap =
-                new Dictionary<string, Dictionary<string, string>>();
+            private readonly IDictionary<object, object> _targetToSource = new Dictionary<object, object>();
 
             private readonly IDictionary<IEntityType, CreateTableOperation> _createTableOperations
                 = new Dictionary<IEntityType, CreateTableOperation>();
@@ -1936,16 +1944,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public virtual void AddMapping([NotNull] TableMapping source, [NotNull] TableMapping target)
-                => _tableMappingMap.Add(source, target);
-
-            /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            public virtual void AddMapping([NotNull] IProperty source, [NotNull] IProperty target)
-                => _inverseColumnMap.GetOrAddNew(target.DeclaringEntityType.Relational().TableName)
-                    .Add(target.Relational().ColumnName, source.Relational().ColumnName);
+            public virtual void AddMapping<T>([NotNull] T source, [NotNull] T target)
+                => _targetToSource.Add(target, source);
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1989,33 +1989,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public virtual TableMapping FindTarget([NotNull] TableMapping source)
-                => _tableMappingMap.TryGetValue(source, out var target)
-                    ? target
-                    : null;
+            public virtual T FindSource<T>([NotNull] T target)
+                => _targetToSource.TryGetValue(target, out var source)
+                    ? (T)source
+                    : default;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public virtual string FindSourceColumn([NotNull] IProperty target)
-                => _inverseColumnMap.TryGetValue(target.DeclaringEntityType.Relational().TableName, out var map)
-                    ? map.TryGetValue(target.Relational().ColumnName, out var source)
-                        ? source
-                        : null
-                    : null;
-
-            /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            public virtual IProperty FindCompatibleSource([NotNull] IProperty target, IEntityType sourceEntityType)
+            public virtual IProperty FindSource([NotNull] IProperty target)
             {
-                var sourceColumn = FindSourceColumn(target);
-                return sourceColumn == null
-                    ? null
-                    : sourceEntityType.GetProperties().FirstOrDefault(p => p.ClrType == target.ClrType
-                                                                           && p.Relational().ColumnName == sourceColumn);
+                var source = FindSource<IProperty>(target);
+                if (source != null)
+                {
+                    return source;
+                }
+
+                var synonymousTargets = FindTargetTable(target.DeclaringEntityType).GetProperties()
+                    .Where(p => p != target && p.Relational().ColumnName == target.Relational().ColumnName);
+                foreach (var synonymousTarget in synonymousTargets)
+                {
+                    source = FindSource<IProperty>(synonymousTarget);
+                    if (source != null)
+                    {
+                        _targetToSource.Add(target, source);
+
+                        return source;
+                    }
+                }
+
+                return null;
             }
 
             /// <summary>
