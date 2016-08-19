@@ -35,16 +35,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             typeof(AddPrimaryKeyOperation),
             typeof(AddUniqueConstraintOperation),
-            typeof(AlterColumnOperation),
-            typeof(AlterSequenceOperation),
-            typeof(CreateIndexOperation),
-            typeof(RestartSequenceOperation)
+            typeof(AlterSequenceOperation)
         };
 
         private static readonly Type[] _renameOperationTypes =
         {
+            typeof(RenameColumnOperation),
             typeof(RenameIndexOperation),
             typeof(RenameSequenceOperation)
+        };
+
+        private static readonly Type[] _columnOperationTypes =
+        {
+            typeof(AddColumnOperation),
+            typeof(AlterColumnOperation)
+        };
+
+        private static readonly Type[] _constraintOperationTypes =
+        {
+            typeof(AddForeignKeyOperation),
+            typeof(CreateIndexOperation)
         };
 
         /// <summary>
@@ -118,10 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var ensureSchemaOperations = new List<MigrationOperation>();
             var createSequenceOperations = new List<MigrationOperation>();
             var createTableOperations = new List<CreateTableOperation>();
-            var addColumnOperations = new List<MigrationOperation>();
+            var columnOperations = new List<MigrationOperation>();
             var alterOperations = new List<MigrationOperation>();
-            var addForeignKeyOperations = new List<MigrationOperation>();
-            var renameColumnOperations = new List<MigrationOperation>();
+            var restartSequenceOperations = new List<MigrationOperation>();
+            var constraintOperations = new List<MigrationOperation>();
             var renameOperations = new List<MigrationOperation>();
             var renameTableOperations = new List<MigrationOperation>();
             var leftovers = new List<MigrationOperation>();
@@ -157,21 +167,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     createTableOperations.Add((CreateTableOperation)operation);
                 }
-                else if (type == typeof(AddColumnOperation))
+                else if (_columnOperationTypes.Contains(type))
                 {
-                    addColumnOperations.Add(operation);
+                    columnOperations.Add(operation);
                 }
                 else if (_alterOperationTypes.Contains(type))
                 {
                     alterOperations.Add(operation);
                 }
-                else if (type == typeof(AddForeignKeyOperation))
+                else if (type == typeof(RestartSequenceOperation))
                 {
-                    addForeignKeyOperations.Add(operation);
+                    restartSequenceOperations.Add(operation);
                 }
-                else if (type == typeof(RenameColumnOperation))
+                else if (_constraintOperationTypes.Contains(type))
                 {
-                    renameColumnOperations.Add(operation);
+                    constraintOperations.Add(operation);
                 }
                 else if (_renameOperationTypes.Contains(type))
                 {
@@ -215,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                         {
                             createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
-                            addForeignKeyOperations.Add(cyclicAddForeignKeyOperation);
+                            constraintOperations.Add(cyclicAddForeignKeyOperation);
                         }
 
                         return true;
@@ -251,18 +261,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }).ToList();
 
             return dropForeignKeyOperations
+                .Concat(dropTableOperations)
                 .Concat(dropOperations)
                 .Concat(dropColumnOperations)
-                .Concat(dropTableOperations)
                 .Concat(ensureSchemaOperations)
-                .Concat(createSequenceOperations)
-                .Concat(createTableOperations)
-                .Concat(addColumnOperations)
-                .Concat(alterOperations)
-                .Concat(addForeignKeyOperations)
-                .Concat(renameColumnOperations)
-                .Concat(renameOperations)
                 .Concat(renameTableOperations)
+                .Concat(renameOperations)
+                .Concat(createSequenceOperations)
+                .Concat(columnOperations)
+                .Concat(alterOperations)
+                .Concat(restartSequenceOperations)
+                .Concat(createTableOperations)
+                .Concat(constraintOperations)
                 .Concat(leftovers)
                 .ToArray();
         }
@@ -515,15 +525,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IProperty source, [NotNull] IProperty target)
         {
             var sourceAnnotations = Annotations.For(source);
-            var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
+            var targetEntityTypeAnnotations = Annotations.For(target.DeclaringEntityType.RootType());
             var targetAnnotations = Annotations.For(target);
 
             if (sourceAnnotations.ColumnName != targetAnnotations.ColumnName)
             {
                 yield return new RenameColumnOperation
                 {
-                    Schema = sourceEntityTypeAnnotations.Schema,
-                    Table = sourceEntityTypeAnnotations.TableName,
+                    Schema = targetEntityTypeAnnotations.Schema,
+                    Table = targetEntityTypeAnnotations.TableName,
                     Name = sourceAnnotations.ColumnName,
                     NewName = targetAnnotations.ColumnName
                 };
@@ -554,9 +564,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var alterColumnOperation = new AlterColumnOperation
                 {
-                    Schema = sourceEntityTypeAnnotations.Schema,
-                    Table = sourceEntityTypeAnnotations.TableName,
-                    Name = sourceAnnotations.ColumnName,
+                    Schema = targetEntityTypeAnnotations.Schema,
+                    Table = targetEntityTypeAnnotations.TableName,
+                    Name = targetAnnotations.ColumnName,
                     ClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType(),
                     ColumnType = targetAnnotations.ColumnType,
                     MaxLength = target.GetMaxLength(),
@@ -587,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var targetAnnotations = Annotations.For(target);
             var targetEntityTypeAnnotations = Annotations.For(
-                diffContext.FindSource(target.DeclaringEntityType.RootType()));
+                target.DeclaringEntityType.RootType());
             var targetClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             var operation = new AddColumnOperation
@@ -672,8 +682,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var targetAnnotations = Annotations.For(target);
             var targetEntityTypeAnnotations = Annotations.For(
-                diffContext.FindSource(target.DeclaringEntityType.RootType()));
-            var columns = GetColumns(target.Properties.Select(diffContext.FindSource));
+                target.DeclaringEntityType.RootType());
+            var columns = GetColumns(target.Properties);
 
             MigrationOperation operation;
             if (target.IsPrimaryKey())
@@ -711,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var sourceAnnotations = Annotations.For(source);
             var sourceEntityTypeAnnotations = Annotations.For(
-                diffContext.FindSource(source.DeclaringEntityType.RootType()));
+                source.DeclaringEntityType.RootType());
 
             if (source.IsPrimaryKey())
             {
@@ -774,19 +784,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
         {
             var declaringRootEntityType = target.DeclaringEntityType.RootType();
-            var targetEntityTypeAnnotations = Annotations.For(diffContext.FindSource(declaringRootEntityType));
-            var targetPrincipalEntityTypeAnnotations = Annotations.For(
-                diffContext.FindSource(target.PrincipalEntityType.RootType()));
+            var targetEntityTypeAnnotations = Annotations.For(declaringRootEntityType);
+            var targetPrincipalEntityTypeAnnotations = Annotations.For(target.PrincipalEntityType.RootType());
 
             var operation = new AddForeignKeyOperation
             {
                 Schema = targetEntityTypeAnnotations.Schema,
                 Table = targetEntityTypeAnnotations.TableName,
                 Name = Annotations.For(target).Name,
-                Columns = GetColumns(target.Properties.Select(diffContext.FindSource)),
+                Columns = GetColumns(target.Properties),
                 PrincipalSchema = targetPrincipalEntityTypeAnnotations.Schema,
                 PrincipalTable = targetPrincipalEntityTypeAnnotations.TableName,
-                PrincipalColumns = GetColumns(target.PrincipalKey.Properties.Select(diffContext.FindSource)),
+                PrincipalColumns = GetColumns(target.PrincipalKey.Properties),
                 OnDelete = target.DeleteBehavior == DeleteBehavior.Cascade
                     ? ReferentialAction.Cascade
                     : target.DeleteBehavior == DeleteBehavior.SetNull
@@ -848,9 +857,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Annotations.For(s).Name,
                     Annotations.For(t).Name,
                     StringComparison.OrdinalIgnoreCase)
+                          && s.IsUnique == t.IsUnique
+                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
                 // ReSharper disable once ImplicitlyCapturedClosure
-                (s, t) => s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
+                (s, t) => s.IsUnique == t.IsUnique
+                    && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
+                    && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -861,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IIndex target,
             [NotNull] DiffContext diffContext)
         {
-            var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
+            var targetEntityTypeAnnotations = Annotations.For(target.DeclaringEntityType.RootType());
             var sourceName = Annotations.For(source).Name;
             var targetName = Annotations.For(target).Name;
 
@@ -869,21 +882,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return new RenameIndexOperation
                 {
-                    Schema = sourceEntityTypeAnnotations.Schema,
-                    Table = sourceEntityTypeAnnotations.TableName,
+                    Schema = targetEntityTypeAnnotations.Schema,
+                    Table = targetEntityTypeAnnotations.TableName,
                     Name = sourceName,
                     NewName = targetName
                 };
-            }
-
-            if ((source.IsUnique != target.IsUnique)
-                || HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target)))
-            {
-                var operations = Remove(source).Concat(Add(target, diffContext));
-                foreach (var operation in operations)
-                {
-                    yield return operation;
-                }
             }
         }
 
@@ -896,14 +899,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] DiffContext diffContext)
         {
             var targetEntityTypeAnnotations = Annotations.For(
-                diffContext.FindSource(target.DeclaringEntityType.RootType()));
+                target.DeclaringEntityType.RootType());
 
             var operation = new CreateIndexOperation
             {
                 Name = Annotations.For(target).Name,
                 Schema = targetEntityTypeAnnotations.Schema,
                 Table = targetEntityTypeAnnotations.TableName,
-                Columns = GetColumns(target.Properties.Select(diffContext.FindSource)),
+                Columns = GetColumns(target.Properties),
                 IsUnique = target.IsUnique
             };
             CopyAnnotations(MigrationsAnnotations.For(target), operation);
@@ -970,8 +973,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return new RestartSequenceOperation
                 {
-                    Schema = source.Schema,
-                    Name = source.Name,
+                    Schema = target.Schema,
+                    Name = target.Name,
                     StartValue = target.StartValue
                 };
             }
@@ -983,8 +986,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return new AlterSequenceOperation
                 {
-                    Schema = source.Schema,
-                    Name = source.Name,
+                    Schema = target.Schema,
+                    Name = target.Name,
                     IncrementBy = target.IncrementBy,
                     MinValue = target.MinValue,
                     MaxValue = target.MaxValue,
