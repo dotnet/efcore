@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Metadata;
             derivedType.BaseType = entityType;
 
-            Assert.Equal(RelationalStrings.DiscriminatorPropertyMustBeOnRoot(typeof(SpecialCustomer).FullName),
+            Assert.Equal(RelationalStrings.DiscriminatorPropertyMustBeOnRoot(nameof(SpecialCustomer)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.Relational().DiscriminatorProperty = property).Message);
         }
 
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var property = entityType.AddProperty("D", typeof(string), shadow: true);
 
-            Assert.Equal(RelationalStrings.DiscriminatorPropertyNotFound("D", typeof(SpecialCustomer).FullName),
+            Assert.Equal(RelationalStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
                 Assert.Throws<InvalidOperationException>(() => otherType.Relational().DiscriminatorProperty = property).Message);
         }
 

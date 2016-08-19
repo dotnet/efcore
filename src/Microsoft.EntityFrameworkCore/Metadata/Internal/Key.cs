@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -17,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Key : ConventionalAnnotatable, IMutableKey
     {
         private ConfigurationSource _configurationSource;
@@ -121,7 +119,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual List<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
 
-        [UsedImplicitly]
-        private string DebuggerDisplay => Property.Format(Properties);
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString() => this.ToDebugString();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DebugView<Key> DebugView
+            => new DebugView<Key>(this, m => m.ToDebugString(false));
     }
 }

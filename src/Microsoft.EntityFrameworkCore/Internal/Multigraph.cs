@@ -22,6 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected virtual string ToString([NotNull] TVertex vertex) => vertex.ToString();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<TEdge> Edges => _edges;
 
         /// <summary>
@@ -239,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.CircularDependency(
-                                    cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
+                                    cycle.Select(ToString).Join(" -> ")));
                         }
                         // Build the cycle message data
                         currentCycleVertex = cycle.First();
@@ -392,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.CircularDependency(
-                            cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
+                            cycle.Select(ToString).Join(" -> ")));
                 }
                 // Build the cycle message data
                 currentCycleVertex = cycle.First();

@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -44,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var builder = new StringBuilder();
 
-            builder.Append(indent).Append("Model ").Append(model.GetProductVersion());
+            builder.Append(indent).Append("Model: ");
 
             if (model.GetPropertyAccessMode() != null)
             {
@@ -59,8 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityTypes = model.GetEntityTypes().ToList();
             foreach (var entityType in entityTypes)
             {
-                builder.AppendLine().Append(indent).Append(entityType.ToDebugString(indent + "  "));
+                builder.AppendLine().Append(entityType.ToDebugString(false, indent + "  "));
             }
+
+            builder.Append(model.AnnotationsToDebugString(indent));
 
             return builder.ToString();
         }

@@ -246,6 +246,8 @@
     <Compile Include="Metadata\Conventions\Internal\IIndexRemovedConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IIndexUniquenessConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPropertyFieldChangedConvention.cs" />
+    <Compile Include="Metadata\Internal\AnnotatableExtensions.cs" />
+    <Compile Include="Metadata\Internal\DebugView.cs" />
     <Compile Include="Metadata\PropertyAccessMode.cs" />
     <Compile Include="Storage\DatabaseProvider.cs" />
     <Compile Include="WarningBehavior.cs" />

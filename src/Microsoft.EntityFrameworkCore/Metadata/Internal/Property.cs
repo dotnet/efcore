@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    [DebuggerDisplay("{DebuggerDisplay, nq}")]
     public class Property : PropertyBase, IMutableProperty
     {
         private int _flags;
@@ -474,9 +473,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                    properties.Select(p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
                + "}";
 
-        [UsedImplicitly]
-        private string DebuggerDisplay => $"{DeclaringEntityType.DisplayName()}.{Name} ({ClrType?.ShortDisplayName()})";
-
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
 
@@ -529,5 +525,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString() => this.ToDebugString();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DebugView<Property> DebugView
+            => new DebugView<Property>(this, m => m.ToDebugString(false));
     }
 }

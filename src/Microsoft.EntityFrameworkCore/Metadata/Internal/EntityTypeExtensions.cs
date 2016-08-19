@@ -377,11 +377,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string ToDebugString([NotNull] this IEntityType entityType, [NotNull] string indent = "")
+        public static string ToDebugString([NotNull] this IEntityType entityType, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
-            builder.Append(indent).Append(entityType.DisplayName());
+            builder.Append(indent).Append("EntityType: ").Append(entityType.DisplayName());
 
             if (entityType.BaseType != null)
             {
@@ -398,44 +398,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" ChangeTrackingStrategy.").Append(entityType.GetChangeTrackingStrategy());
             }
 
-            var properties = entityType.GetDeclaredProperties().ToList();
-            if (properties.Count != 0)
+            if (!singleLine)
             {
-                builder.AppendLine().Append(indent).Append("  Properties: ");
-                foreach (var property in properties)
+                var properties = entityType.GetDeclaredProperties().ToList();
+                if (properties.Count != 0)
                 {
-                    builder.AppendLine().Append(indent).Append("    ").Append(property.ToDebugString());
+                    builder.AppendLine().Append(indent).Append("  Properties: ");
+                    foreach (var property in properties)
+                    {
+                        builder.AppendLine().Append(property.ToDebugString(false, indent + "    "));
+                    }
                 }
-            }
 
-            var navigations = entityType.GetDeclaredNavigations().ToList();
-            if (navigations.Count != 0)
-            {
-                builder.AppendLine().Append(indent).Append("  Navigations: ");
-                foreach (var navigation in navigations)
+                var navigations = entityType.GetDeclaredNavigations().ToList();
+                if (navigations.Count != 0)
                 {
-                    builder.AppendLine().Append(indent).Append("    ").Append(navigation.ToDebugString());
+                    builder.AppendLine().Append(indent).Append("  Navigations: ");
+                    foreach (var navigation in navigations)
+                    {
+                        builder.AppendLine().Append(navigation.ToDebugString(false, indent + "    "));
+                    }
                 }
-            }
 
-            var keys = entityType.GetDeclaredKeys().ToList();
-            if (keys.Count != 0)
-            {
-                builder.AppendLine().Append(indent).Append("  Keys: ");
-                foreach (var key in keys)
+                var keys = entityType.GetDeclaredKeys().ToList();
+                if (keys.Count != 0)
                 {
-                    builder.AppendLine().Append(indent).Append("    ").Append(key.ToDebugString());
+                    builder.AppendLine().Append(indent).Append("  Keys: ");
+                    foreach (var key in keys)
+                    {
+                        builder.AppendLine().Append(key.ToDebugString(false, indent + "    "));
+                    }
                 }
-            }
 
-            var fks = entityType.GetDeclaredForeignKeys().ToList();
-            if (fks.Count != 0)
-            {
-                builder.AppendLine().Append(indent).Append("  Foreign keys: ");
-                foreach (var fk in fks)
+                var fks = entityType.GetDeclaredForeignKeys().ToList();
+                if (fks.Count != 0)
                 {
-                    builder.AppendLine().Append(indent).Append("    ").Append(fk.ToDebugString());
+                    builder.AppendLine().Append(indent).Append("  Foreign keys: ");
+                    foreach (var fk in fks)
+                    {
+                        builder.AppendLine().Append(fk.ToDebugString(false, indent + "    "));
+                    }
                 }
+
+                builder.Append(entityType.AnnotationsToDebugString(indent + "  "));
             }
 
             return builder.ToString();

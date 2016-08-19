@@ -81,15 +81,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.HasBaseType(c);
 
             Assert.Equal(
-                CoreStrings.CircularInheritance(a, a),
+                CoreStrings.CircularInheritance(a.DisplayName(), a.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(a); }).Message);
 
             Assert.Equal(
-                CoreStrings.CircularInheritance(a, b),
+                CoreStrings.CircularInheritance(a.DisplayName(), b.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
 
             Assert.Equal(
-                CoreStrings.CircularInheritance(a, d),
+                CoreStrings.CircularInheritance(a.DisplayName(), d.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(d); }).Message);
         }
 
@@ -1722,7 +1722,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var fkProperty = entityType.AddProperty("fk", typeof(int));
 
             Assert.Equal(
-                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName),
+                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'" + Customer.IdProperty.Name + "'}", nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty }, key, entityType)).Message);
         }
 
@@ -1735,7 +1735,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var idProperty = principalEntityType.GetOrAddProperty(Order.IdProperty);
 
             Assert.Equal(
-                CoreStrings.EntityTypeModelMismatch(typeof(Customer).FullName, typeof(Order).FullName),
+                CoreStrings.EntityTypeModelMismatch(nameof(Customer), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => dependentEntityType.AddForeignKey(new[] { fkProperty }, principalEntityType.GetOrAddKey(idProperty), principalEntityType)).Message);
         }
 

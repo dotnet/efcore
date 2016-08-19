@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -15,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
     public class Navigation : PropertyBase, IMutableNavigation
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
@@ -65,12 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => this.IsDependentToPrincipal()
                 ? ForeignKey.DeclaringEntityType
                 : ForeignKey.PrincipalEntityType;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override string ToString() => DeclaringEntityType + "." + Name;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -208,5 +200,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableNavigation.DeclaringEntityType => DeclaringEntityType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString() => this.ToDebugString();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DebugView<Navigation> DebugView
+            => new DebugView<Navigation>(this, m => m.ToDebugString(false));
     }
 }

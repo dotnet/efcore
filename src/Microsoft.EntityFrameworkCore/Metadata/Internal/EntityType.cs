@@ -63,9 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(model, nameof(model));
 
             _typeOrName = name;
-#if DEBUG
-            DebugName = this.DisplayName();
-#endif
         }
 
         /// <summary>
@@ -79,9 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(model, nameof(model));
 
             _typeOrName = clrType;
-#if DEBUG
-            DebugName = this.DisplayName();
-#endif
         }
 
         private EntityType([NotNull] Model model, ConfigurationSource configurationSource)
@@ -91,11 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
             Builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
-
-#if DEBUG
-        [UsedImplicitly]
-        private string DebugName { get; set; }
-#endif
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -297,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string ToString() => Name;
+        public override string ToString() => this.ToDebugString();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -719,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (principalEntityType.Model != Model)
             {
-                throw new InvalidOperationException(CoreStrings.EntityTypeModelMismatch(this, principalEntityType));
+                throw new InvalidOperationException(CoreStrings.EntityTypeModelMismatch(this.DisplayName(), principalEntityType.DisplayName()));
             }
 
             _foreignKeys.Add(foreignKey);
@@ -1860,5 +1849,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : 1;
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DebugView<EntityType> DebugView
+            => new DebugView<EntityType>(this, m => m.ToDebugString(false));
     }
 }

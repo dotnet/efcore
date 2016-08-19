@@ -149,18 +149,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string ToDebugString([NotNull] this IProperty property)
+        public static string ToDebugString([NotNull] this IProperty property, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
-            builder.Append(property.Name);
 
-            if (property.GetField() == null)
+            builder.Append(indent);
+
+            if (singleLine)
             {
-                builder.Append(" (no field, ");
+                builder.Append("Property: ").Append(property.DeclaringEntityType.DisplayName()).Append(".");
             }
-            else
+
+            builder.Append(property.Name).Append(" (");
+
+            var field = property.GetField();
+            if (field == null)
             {
-                builder.Append(" (").Append(property.GetField()).Append(", ");
+                builder.Append("no field, ");
+            }
+            else if (!field.EndsWith(">k__BackingField"))
+            {
+                builder.Append(field).Append(", ");
             }
 
             builder.Append(property.ClrType.ShortDisplayName()).Append(")");
@@ -247,6 +256,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             builder.Append(" ").Append(indexes.RelationshipIndex);
             builder.Append(" ").Append(indexes.ShadowIndex);
             builder.Append(" ").Append(indexes.StoreGenerationIndex);
+
+            if (!singleLine)
+            {
+                builder.Append(property.AnnotationsToDebugString(indent + "  "));
+            }
 
             return builder.ToString();
         }

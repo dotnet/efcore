@@ -253,14 +253,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string ToDebugString([NotNull] this IForeignKey foreignKey)
+        public static string ToDebugString([NotNull] this IForeignKey foreignKey, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
+            builder.Append(indent);
+
+            if (singleLine)
+            {
+                builder.Append("ForeignKey: ");
+            }
+
             builder
-                .Append(string.Join(", ", foreignKey.Properties.Select(p => p.Name)))
+                .Append(string.Join(
+                    ", ",
+                    foreignKey.Properties.Select(
+                        p => singleLine
+                            ? p.DeclaringEntityType.DisplayName() + "." + p.Name
+                            : p.Name)))
                 .Append(" -> ")
-                .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => p.DeclaringEntityType.DisplayName() + "." + p.Name)));
+                .Append(string.Join(
+                    ", ",
+                    foreignKey.PrincipalKey.Properties.Select(
+                        p => p.DeclaringEntityType.DisplayName() + "." + p.Name)));
 
             if (foreignKey.IsUnique)
             {
@@ -275,6 +290,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (foreignKey.DependentToPrincipal != null)
             {
                 builder.Append(" ToPrincipal: ").Append(foreignKey.DependentToPrincipal.Name);
+            }
+
+            if (!singleLine)
+            {
+                builder.Append(foreignKey.AnnotationsToDebugString(indent + "  "));
             }
 
             return builder.ToString();

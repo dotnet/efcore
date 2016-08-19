@@ -49,15 +49,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string ToDebugString([NotNull] this IKey key)
+        public static string ToDebugString([NotNull] this IKey key, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
-            builder.Append(string.Join(", ", key.Properties.Select(p => p.Name)));
+            builder.Append(indent);
+
+            if (singleLine)
+            {
+                builder.Append("Key: ");
+            }
+
+            builder.Append(string.Join(", ", key.Properties.Select(
+                p => singleLine
+                    ? p.DeclaringEntityType.DisplayName() + "." + p.Name
+                    : p.Name)));
 
             if (key.IsPrimaryKey())
             {
                 builder.Append(" PK");
+            }
+
+            if (!singleLine)
+            {
+                builder.Append(key.AnnotationsToDebugString(indent + "  "));
             }
 
             return builder.ToString();

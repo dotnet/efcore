@@ -124,13 +124,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 if (EntityType != EntityType.RootType())
                 {
                     throw new InvalidOperationException(
-                        RelationalStrings.DiscriminatorPropertyMustBeOnRoot(EntityType));
+                        RelationalStrings.DiscriminatorPropertyMustBeOnRoot(EntityType.DisplayName()));
                 }
 
                 if (value.DeclaringEntityType != EntityType)
                 {
                     throw new InvalidOperationException(
-                        RelationalStrings.DiscriminatorPropertyNotFound(value.Name, EntityType));
+                        RelationalStrings.DiscriminatorPropertyNotFound(value.Name, EntityType.DisplayName()));
                 }
             }
 
