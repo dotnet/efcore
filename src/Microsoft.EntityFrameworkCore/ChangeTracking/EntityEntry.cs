@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -125,6 +126,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
+        ///     Provides access to change tracking information and operations for all
+        ///     properties and navigation properties of this entity.
+        /// </summary>
+        public virtual IEnumerable<MemberEntry> Members 
+            => Properties.Cast<MemberEntry>().Concat(Navigations);
+
+        /// <summary>
         ///     Provides access to change tracking information and operations for a given
         ///     navigation property of this entity.
         /// </summary>
@@ -154,6 +162,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
+        ///     Provides access to change tracking information and operations for all
+        ///     navigation properties of this entity.
+        /// </summary>
+        public virtual IEnumerable<NavigationEntry> Navigations
+            => InternalEntry.EntityType.GetNavigations().Select(navigation => navigation.IsCollection()
+                ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation)
+                : new ReferenceEntry(InternalEntry, navigation));
+
+        /// <summary>
         ///     Provides access to change tracking information and operations for a given
         ///     property of this entity.
         /// </summary>
@@ -165,6 +182,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             return new PropertyEntry(InternalEntry, propertyName);
         }
+
+        /// <summary>
+        ///     Provides access to change tracking information and operations for all
+        ///     properties of this entity.
+        /// </summary>
+        public virtual IEnumerable<PropertyEntry> Properties
+            => InternalEntry.EntityType.GetProperties().Select(property => new PropertyEntry(InternalEntry, property));
 
         /// <summary>
         ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
@@ -183,6 +207,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
+        ///     Provides access to change tracking information and loading information for all
+        ///     reference (i.e. non-collection) navigation properties of this entity.
+        /// </summary>
+        public virtual IEnumerable<ReferenceEntry> References
+            => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection())
+                .Select(navigation => new ReferenceEntry(InternalEntry, navigation));
+
+        /// <summary>
         ///     Provides access to change tracking and loading information for a collection
         ///     navigation property that associates this entity to a collection of another entities.
         /// </summary>
@@ -197,6 +229,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             return new CollectionEntry(InternalEntry, navigationPropertyName);
         }
+
+        /// <summary>
+        ///     Provides access to change tracking information and loading information for all
+        ///     collection navigation properties of this entity.
+        /// </summary>
+        public virtual IEnumerable<CollectionEntry> Collections
+            => InternalEntry.EntityType.GetNavigations().Where(n => n.IsCollection())
+                .Select(navigation => new CollectionEntry(InternalEntry, navigation));
 
         /// <summary>
         ///     Gets a value indicating if the key values of this entity have been assigned a value.

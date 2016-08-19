@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -539,6 +540,121 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             }
         }
 
+        [Fact]
+        public void Can_get_all_modified_properties()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Attach(new Chunky()).Entity;
+
+                var modified = context.Entry(entity).Properties
+                    .Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
+
+                Assert.Empty(modified);
+
+                entity.Nonkey = "Blue";
+                entity.GarciaId = 77;
+
+                context.ChangeTracker.DetectChanges();
+
+                modified = context.Entry(entity).Properties
+                    .Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
+
+                Assert.Equal(new List<string> { "GarciaId", "Nonkey" }, modified);
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_member_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Id", "GarciaId", "Monkey", "Nonkey", "Garcia" },
+                    context.Attach(new Chunky()).Members.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Garcia", "Baked", "Monkeys" },
+                    context.Attach(new Cherry()).Members.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Baked", "GarciaId", "Garcia" },
+                    context.Attach(new Half()).Members.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_property_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Id", "GarciaId", "Monkey", "Nonkey" },
+                    context.Attach(new Chunky()).Properties.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Garcia" },
+                    context.Attach(new Cherry()).Properties.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Baked", "GarciaId" },
+                    context.Attach(new Half()).Properties.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_navigation_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Chunky()).Navigations.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Baked", "Monkeys" },
+                    context.Attach(new Cherry()).Navigations.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Half()).Navigations.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_reference_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Chunky()).References.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Baked" },
+                    context.Attach(new Cherry()).References.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Half()).References.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_collection_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Empty(context.Attach(new Chunky()).Collections.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Monkeys" },
+                    context.Attach(new Cherry()).Collections.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Empty(context.Attach(new Half()).Collections.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
         private class Chunky
         {
             public int Monkey { get; set; }
@@ -555,6 +671,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             public int Id { get; set; }
 
             public ICollection<Chunky> Monkeys { get; set; }
+
+            public Half Baked { get; set; }
+        }
+
+        private class Half
+        {
+            public int Baked { get; set; }
+            public int Id { get; set; }
+
+            public int? GarciaId { get; set; }
+            public Cherry Garcia { get; set; }
         }
 
         private class FreezerContext : DbContext
