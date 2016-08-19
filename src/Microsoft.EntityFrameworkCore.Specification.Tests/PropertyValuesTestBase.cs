@@ -1140,6 +1140,93 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+
+        [Fact]
+        public virtual void Current_values_can_be_set_from_dictionary()
+        {
+            TestDictionarySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        }
+
+        [Fact]
+        public virtual void Original_values_can_be_set_from_dictionary()
+        {
+            TestDictionarySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        }
+
+        private void TestDictionarySetValues(
+            Func<EntityEntry, PropertyValues> getPropertyValues,
+            Func<EntityEntry, string, object> getValue)
+        {
+            using (var context = CreateContext())
+            {
+                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var buildingValues = getPropertyValues(context.Entry(building));
+
+                var dictionary = new Dictionary<string, object>
+                {
+                    { "BuildingId", new Guid(building.BuildingId.ToString()) },
+                    { "Name", "Values End" },
+                    { "Value", building.Value },
+                    { "Shadow1", 13 },
+                    { "Shadow2", "Pine Walk" },
+                    { "PrincipalMailRoomId", 0 }
+                };
+
+                buildingValues.SetValues(dictionary);
+
+                // Check Values
+
+                Assert.Equal("Values End", buildingValues["Name"]);
+                Assert.Equal(1500000m, buildingValues["Value"]);
+                Assert.Equal(13, buildingValues["Shadow1"]);
+                Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
+
+                ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
+            }
+        }
+
+        [Fact]
+        public virtual void Current_values_can_be_set_from_dictionary_some_missing()
+        {
+            TestPartialDictionarySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        }
+
+        [Fact]
+        public virtual void Original_values_can_be_set_from_dictionary_some_missing()
+        {
+            TestPartialDictionarySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        }
+
+        private void TestPartialDictionarySetValues(
+            Func<EntityEntry, PropertyValues> getPropertyValues,
+            Func<EntityEntry, string, object> getValue)
+        {
+            using (var context = CreateContext())
+            {
+                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var buildingValues = getPropertyValues(context.Entry(building));
+
+                var dictionary = new Dictionary<string, object>
+                {
+                    { "BuildingId", new Guid(building.BuildingId.ToString()) },
+                    { "Name", "Values End" },
+                    { "Value", building.Value },
+                    { "Shadow1", 777 }
+                };
+
+                buildingValues.SetValues(dictionary);
+
+                // Check Values
+
+                Assert.Equal("Values End", buildingValues["Name"]);
+                Assert.Equal(1500000m, buildingValues["Value"]);
+                Assert.Equal(777, buildingValues["Shadow1"]);
+                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+
+                ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
+            }
+        }
+
         [Fact]
         public virtual void Current_values_can_be_set_from_one_generic_dictionary_to_another_generic_dictionary()
         {

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -77,6 +78,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyValues"> The object from which values should be coiped. </param>
         public abstract void SetValues([NotNull] PropertyValues propertyValues);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the values of this object by copying values from the given dictionary.
+        ///     </para>
+        ///     <para>
+        ///         The keys of the dictionary must match property names. Any key in the dictionary
+        ///         that does not match the name of a property in the entity type will be ignored.
+        ///     </para>
+        /// </summary>
+        /// <param name="values"> The dictionary to read values from. </param>
+        public virtual void SetValues([NotNull] IDictionary<string, object> values)
+        {
+            Check.NotNull(values, nameof(values));
+
+            foreach (var property in Properties)
+            {
+                object value;
+                if (values.TryGetValue(property.Name, out value))
+                {
+                    this[property] = value;
+                }
+            }
+        }
 
         /// <summary>
         ///     Gets the properties for which this object is storing values.
