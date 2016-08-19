@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
-    // TODO: Structural matching
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
@@ -386,8 +385,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IEnumerable<string> source, [NotNull] IEnumerable<string> target)
             => DiffCollection(
-                source, target,
-                Diff, Add, Remove,
+                source,
+                target,
+                Diff,
+                Add,
+                Remove,
                 (s, t) => s == t);
 
         /// <summary>
@@ -410,7 +412,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source) => Enumerable.Empty<MigrationOperation>();
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source)
+            => Enumerable.Empty<MigrationOperation>();
 
         #endregion
 
@@ -427,7 +430,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => DiffCollection(
                 source,
                 target,
-                (s, t) => Diff(s, t, diffContext),
+                (s, t) =>
+                {
+                    diffContext.AddMapping(s, t);
+
+                    return Diff(s, t, diffContext);
+                },
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
@@ -468,8 +476,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     NewName = renamed ? targetAnnotations.TableName : null
                 };
             }
-
-            diffContext.AddMapping(source, target);
 
             var operations = DiffAnnotations(source, target)
                 .Concat(Diff(GetPropertiesInHierarchy(source), GetPropertiesInHierarchy(target), diffContext))
@@ -594,7 +600,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t) => string.Equals(
                     Annotations.For(s).ColumnName,
                     Annotations.For(t).ColumnName,
-                    StringComparison.OrdinalIgnoreCase));
+                    StringComparison.OrdinalIgnoreCase),
+                (s, t) =>
+                {
+                    var sAnnotations = Annotations.For(s);
+                    var tAnnotations = Annotations.For(t);
+
+                    return s.ClrType == t.ClrType
+                        && s.IsConcurrencyToken == t.IsConcurrencyToken
+                        && s.ValueGenerated == t.ValueGenerated
+                        && s.GetMaxLength() == t.GetMaxLength()
+                        && s.IsColumnNullable() == t.IsColumnNullable()
+                        && s.IsUnicode() == t.IsUnicode()
+                        && sAnnotations.ColumnType == tAnnotations.ColumnType
+                        && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
+                        && sAnnotations.DefaultValue == tAnnotations.DefaultValue
+                        && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
+                });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -741,13 +763,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 [NotNull] IEnumerable<IKey> target,
                 [NotNull] DiffContext diffContext)
             => DiffCollection(
-                source, target,
+                source,
+                target,
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
                 (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                          && (s.IsPrimaryKey() == t.IsPrimaryKey()));
+                          && (s.IsPrimaryKey() == t.IsPrimaryKey())
+                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -757,9 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 [NotNull] IKey source,
                 [NotNull] IKey target,
                 [NotNull] DiffContext diffContext)
-            => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
-                ? Remove(source, diffContext).Concat(Add(target, diffContext))
-                : Enumerable.Empty<MigrationOperation>();
+            => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -855,7 +877,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                           && (diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType())
                           && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
-                          && (s.DeleteBehavior == t.DeleteBehavior));
+                          && (s.DeleteBehavior == t.DeleteBehavior)
+                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -863,9 +886,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
                 [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
-            => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
-                ? Remove(source, diffContext).Concat(Add(target, diffContext))
-                : Enumerable.Empty<MigrationOperation>();
+            => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -942,7 +963,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 [NotNull] IEnumerable<IIndex> target,
                 [NotNull] DiffContext diffContext)
             => DiffCollection(
-                source, target,
+                source,
+                target,
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
                 Remove,
@@ -1038,8 +1060,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 [NotNull] IEnumerable<ISequence> source,
                 [NotNull] IEnumerable<ISequence> target)
             => DiffCollection(
-                source, target,
-                Diff, Add, Remove,
+                source,
+                target,
+                Diff,
+                Add,
+                Remove,
                 (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
                           && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                           && (s.ClrType == t.ClrType),
@@ -1166,7 +1191,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 for (var i = sourceList.Count - 1; i >= 0; i--)
                 {
                     var source = sourceList[i];
-                    var paired = false;
 
                     for (var j = targetList.Count - 1; j >= 0; j--)
                     {
@@ -1174,8 +1198,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                         if (predicate(source, target))
                         {
+                            sourceList.RemoveAt(i);
                             targetList.RemoveAt(j);
-                            paired = true;
 
                             foreach (var operation in diff(source, target))
                             {
@@ -1184,11 +1208,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             break;
                         }
-                    }
-
-                    if (paired)
-                    {
-                        sourceList.RemoveAt(i);
                     }
                 }
             }

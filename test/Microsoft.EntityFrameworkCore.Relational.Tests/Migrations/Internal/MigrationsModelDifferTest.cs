@@ -12,7 +12,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 {
-    // TODO: Test matching
     public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
         [Fact]
@@ -487,6 +486,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                             x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
                         }),
                 Assert.Empty);
+        }
+
+        [Fact]
+        public void Rename_property_and_column()
+        {
+            Execute(
+                source => source.Entity("Buffalo").Property<int>("BuffaloId"),
+                target => target.Entity("Buffalo").Property<int>("Id"),
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.Equal("Buffalo", operation.Table);
+                        Assert.Equal("BuffaloId", operation.Name);
+                        Assert.Equal("Id", operation.NewName);
+                    });
         }
 
         [Fact]
