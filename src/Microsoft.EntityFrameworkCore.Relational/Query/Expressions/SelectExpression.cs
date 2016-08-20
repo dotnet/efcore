@@ -641,7 +641,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             if (_projection.Any()
                 || !IsProjectStar)
             {
-                return _projection.Select(e => e.Type);
+                return _projection.Select(e =>
+                    e.NodeType == ExpressionType.Convert
+                    && e.Type == typeof(object)
+                        ? ((UnaryExpression)e).Operand.Type
+                        : e.Type);
             }
 
             return _tables.OfType<SelectExpression>().SelectMany(e => e.GetProjectionTypes());

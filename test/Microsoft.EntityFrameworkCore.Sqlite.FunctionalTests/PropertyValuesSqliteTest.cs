@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,32 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             : base(fixture)
         {
         }
-
-        // Disabled due to Issue #6337
-        public override Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary() => Task.FromResult(true);
-        public override Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_property_dictionary() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_into_a_cloned_dictionary() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_into_a_cloned_dictionary_asynchronously() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_as_a_property_dictionary_using_IProperty() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary_using_IProperty() => Task.FromResult(true);
-        public override Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary() => Task.FromResult(true);
-        public override Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary() => Task.FromResult(true);
-        public override Task Store_values_really_are_store_values_not_current_or_original_values() => Task.FromResult(true);
-        public override Task Store_values_really_are_store_values_not_current_or_original_values_async() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_into_an_object() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_into_an_object_asynchronously() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary_using_IProperty() => Task.FromResult(true);
-        public override Task Store_values_for_derived_object_can_be_copied_into_an_object() => Task.FromResult(true);
-        public override Task Store_values_for_derived_object_can_be_copied_into_an_object_asynchronously() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_as_a_property_dictionary() => Task.FromResult(true);
-        public override Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_into_a_non_generic_cloned_dictionary() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_asynchronously_into_a_non_generic_cloned_dictionary() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_non_generic_property_dictionary_into_an_object() => Task.FromResult(true);
-        public override Task Store_values_can_be_copied_asynchronously_non_generic_property_dictionary_into_an_object() => Task.FromResult(true);
 
         public class PropertyValuesSqliteFixture : PropertyValuesFixtureBase
         {

@@ -889,6 +889,44 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Project_to_object_array()
+        {
+            AssertQuery<Employee>(
+                es => es.Where(e => e.EmployeeID == 1)
+                .Select(e => new object[] { e.EmployeeID, e.ReportsTo, EF.Property<string>(e, "Title") }),
+                entryCount: 0,
+                asserter: (e, a) => AssertArrays<object>(e, a, 3));
+        }
+
+        private static void AssertArrays<T>(IList<object> e, IList<object> a, int count)
+        {
+            Assert.Equal(1, e.Count);
+            Assert.Equal(1, a.Count);
+
+            var expectedArray = (T[])e[0];
+            var actualArray = (T[])a[0];
+
+            Assert.Equal(count, expectedArray.Length);
+            Assert.Equal(count, actualArray.Length);
+
+            for (var i = 0; i < expectedArray.Length; i++)
+            {
+                Assert.Same(expectedArray[i].GetType(), actualArray[i].GetType());
+                Assert.Equal(expectedArray[i], actualArray[i]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Project_to_int_array()
+        {
+            AssertQuery<Employee>(
+                es => es.Where(e => e.EmployeeID == 1)
+                .Select(e => new[] { e.EmployeeID, e.ReportsTo }),
+                entryCount: 0,
+                asserter: (e, a) => AssertArrays<int?>(e, a, 2));
+        }
+
+        [ConditionalFact]
         public virtual void Where_simple_shadow()
         {
             AssertQuery<Employee>(

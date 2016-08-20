@@ -24,6 +24,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
+        public override void Project_to_object_array()
+        {
+            base.Project_to_object_array();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] = 1",
+                Sql);
+        }
+
+        public override void Project_to_int_array()
+        {
+            base.Project_to_int_array();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[ReportsTo]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] = 1",
+                Sql);
+        }
+
         public override void Local_array()
         {
             base.Local_array();
