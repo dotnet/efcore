@@ -2560,6 +2560,78 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Complex_multi_include_with_order_by_and_paging_joins_on_correct_key()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
+                    .ToList()
+                    .OrderBy(t => t.Name)
+                    .Skip(0).Take(10)
+                    .Select(e => e.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
+                    .OrderBy(t => t.Name)
+                    .Skip(0).Take(10);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_multi_include_with_order_by_and_paging_joins_on_correct_key2()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
+                    .ToList()
+                    .OrderBy(t => t.Name)
+                    .Skip(0).Take(10)
+                    .Select(e => e.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
+                    .OrderBy(t => t.Name)
+                    .Skip(0).Take(10);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Multiple_include_with_multiple_optional_navigations()
         {
             List<Level1> expected;
