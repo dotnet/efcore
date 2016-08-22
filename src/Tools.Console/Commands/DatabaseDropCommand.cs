@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             if (!_force)
             {
                 Reporter.Output("Are you sure you want to proceed? (y/N)".MaybeColor(s => s.Bold()));
-                var readedKey = Console.ReadKey().KeyChar;
-                var confirmed = (readedKey == 'y') || (readedKey == 'Y');
+                var readedKey = Console.ReadLine().Trim();
+                var confirmed = (readedKey == "y") || (readedKey == "Y");
                 if (!confirmed)
                 {
                     Reporter.Output("Cancelled");
@@ -98,8 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             Reporter.Output("This command will " + "permanently".MaybeColor(s => s.Bold()) + " drop the database:");
             Reporter.Output("");
-            Reporter.Output($"    {"Database name".MaybeColor(s => s.Bold().Blue())} : {result["DatabaseName"]}");
-            Reporter.Output($"    {"Data source  ".MaybeColor(s => s.Bold().Blue())} : {result["DataSource"]}");
+            Reporter.Output($"    {"Database name".MaybeColor(s => s.Bold().Green())} : {result["DatabaseName"]}");
+            Reporter.Output($"    {"Data source  ".MaybeColor(s => s.Bold().Green())} : {result["DataSource"]}");
             Reporter.Output("");
         }
 

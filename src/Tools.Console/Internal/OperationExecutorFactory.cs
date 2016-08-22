@@ -1,13 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Tools.Internal;
 
 // ReSharper disable ArgumentsStyleNamedExpression
 // ReSharper disable ArgumentsStyleOther
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools.Internal
 {
     public class OperationExecutorFactory
     {
@@ -38,9 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     rootNamespace: options.RootNamespace,
                     environment: options.EnvironmentName);
             }
-            catch (FileNotFoundException ex) when (ex.FileName.StartsWith(OperationExecutorBase.DesignAssemblyName))
+            catch (TypeLoadException ex) when (ex.TypeName.StartsWith(OperationExecutorBase.DesignAssemblyName, StringComparison.Ordinal))
             {
-                throw new OperationErrorException(ToolsStrings.DesignDependencyNotFound);
+                throw new OperationErrorException(ToolsStrings.DesignDependencyIncompatible, ex);
+            }
+            catch (FileNotFoundException ex) when (ex.FileName.StartsWith(OperationExecutorBase.DesignAssemblyName, StringComparison.Ordinal))
+            {
+                throw new OperationErrorException(ToolsStrings.DesignDependencyNotFound, ex);
             }
         }
     }

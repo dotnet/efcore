@@ -79,7 +79,7 @@
     <Compile Include="Internal\OperationExecutorBase.cs" />
     <Compile Include="IReporter.cs" />
     <Compile Include="OperationErrorException.cs" />
-    <Compile Include="OperationExecutorFactory.cs" />
+    <Compile Include="Internal\OperationExecutorFactory.cs" />
     <Compile Include="PrefixConsoleReporter.cs" />
     <Compile Include="Properties\ToolsStrings.Designer.cs">
       <DependentUpon>ToolsStrings.resx</DependentUpon>

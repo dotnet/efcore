@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Tools.Internal;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 if (!(ex is OperationErrorException)
                     && !(ex is CommandParsingException))
                 {
-                    Reporter.Error(ex.ToString());
+                    Reporter.Error(ex.ToString(), suppressColor: true);
                 }
 
                 Reporter.Error(ex.Message);
