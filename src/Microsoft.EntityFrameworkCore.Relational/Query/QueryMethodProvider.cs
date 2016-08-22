@@ -272,8 +272,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var outerGroupJoinIncludeContext = outerGroupJoinInclude?.Initialize(queryContext);
             var innerGroupJoinIncludeContext = innerGroupJoinInclude?.Initialize(queryContext);
 
-            var hasOuters = (innerShaper as EntityShaper)?.ValueBufferOffset > 0;
-
             try
             {
                 using (var sourceEnumerator = source.GetEnumerator())
@@ -319,17 +317,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
 
-                                if (hasOuters)
+                                nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
+
+                                if (!Equals(outer, nextOuter))
                                 {
-                                    nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
-
-                                    if (!Equals(outer, nextOuter))
-                                    {
-                                        break;
-                                    }
-
-                                    nextOuter = default(TOuter);
+                                    break;
                                 }
+
+                                nextOuter = default(TOuter);
 
                                 inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
 

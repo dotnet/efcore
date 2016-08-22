@@ -4651,6 +4651,48 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupJoin_with_different_outer_elements_with_same_key()
+        {
+            AssertQuery<Order, Customer>((os, cs) =>
+                 os.GroupJoin(cs,
+                     o => o.CustomerID,
+                     c => c.CustomerID,
+                     (o, cg) => new
+                     {
+                         o.OrderID,
+                         Name = cg.Select(c => c.ContactName).FirstOrDefault()
+                     }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_different_outer_elements_with_same_key_with_predicate()
+        {
+            AssertQuery<Order, Customer>((os, cs) =>
+                 os.Where(o => o.OrderID > 11500).GroupJoin(cs,
+                     o => o.CustomerID,
+                     c => c.CustomerID,
+                     (o, cg) => new
+                     {
+                         o.OrderID,
+                         Name = cg.Select(c => c.ContactName).FirstOrDefault()
+                     }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_different_outer_elements_with_same_key_projected_from_another_entity()
+        {
+            AssertQuery<OrderDetail, Customer>((ods, cs) =>
+                 ods.Select(od => od.Order).GroupJoin(cs,
+                     o => o.CustomerID,
+                     c => c.CustomerID,
+                     (o, cg) => new
+                     {
+                         o.OrderID,
+                         Name = cg.Select(c => c.ContactName).FirstOrDefault()
+                     }));
+        }
+
+        [ConditionalFact]
         public virtual void SelectMany_Joined()
         {
             AssertQuery<Customer, Order>((cs, os) =>
