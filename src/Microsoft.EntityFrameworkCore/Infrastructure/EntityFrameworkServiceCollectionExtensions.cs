@@ -77,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<INavigationListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IQueryTrackingListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
-                .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>()));
+                .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>())
+                .AddScoped<IEntityStateListener, ILocalViewListener>(p => p.GetService<ILocalViewListener>()));
 
             serviceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
@@ -93,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<LoggingModelValidator>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()
+                .AddScoped<ILocalViewListener, LocalViewListener>()
                 .AddScoped<IStateManager, StateManager>()
                 .AddScoped<IConcurrencyDetector, ConcurrencyDetector>()
                 .AddScoped<IInternalEntityEntryFactory, InternalEntityEntryFactory>()

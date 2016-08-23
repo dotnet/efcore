@@ -47,6 +47,7 @@
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="DataAnnotationSqliteFixture.cs" />
     <Compile Include="DataAnnotationSqliteTest.cs" />
+    <Compile Include="DatabindingSqliteTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
     <Compile Include="FieldMappingSqliteTest.cs" />

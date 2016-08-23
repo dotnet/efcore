@@ -56,6 +56,7 @@
     <Compile Include="ConnectionSpecificationTest.cs" />
     <Compile Include="DataAnnotationSqlServerFixture.cs" />
     <Compile Include="DataAnnotationSqlServerTest.cs" />
+    <Compile Include="DatabindingSqlServerTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="F1SqlServerFixture.cs" />

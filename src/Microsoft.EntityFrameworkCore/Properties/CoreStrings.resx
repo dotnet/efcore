@@ -490,7 +490,7 @@
     <value>A relationship cannot be established from property '{property}' on type '{entityType}' to property '{referencedProperty}' on type '{referencedEntityType}'. Check the values in the InversePropertyAttribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.</value>
   </data>
   <data name="DataBindingWithIListSource" xml:space="preserve">
-    <value>Data binding directly to a store query is not supported. Instead materialize the results into a collection, by calling a method such as ToList() or ToArray(), and bind to the collection. This should be done to avoid sending a query to the database each time the databound control iterates the data.</value>
+    <value>Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to DbSet.Local. For WinForms bind to DbSet.Local.ToBindingList(). For ASP.NET WebForms bind to DbSet.ToList() or use Model Binding.</value>
   </data>
   <data name="KeyAttributeOnDerivedEntity" xml:space="preserve">
     <value>The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.</value>

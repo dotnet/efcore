@@ -264,13 +264,11 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            var stateManager = StateManager;
-
-            TryDetectChanges(stateManager);
+            TryDetectChanges();
 
             try
             {
-                return stateManager.SaveChanges(acceptAllChangesOnSuccess);
+                return StateManager.SaveChanges(acceptAllChangesOnSuccess);
             }
             catch (Exception exception)
             {
@@ -284,11 +282,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void TryDetectChanges(IStateManager stateManager)
+        private void TryDetectChanges()
         {
             if (ChangeTracker.AutoDetectChangesEnabled)
             {
-                ChangeDetector.DetectChanges(stateManager);
+                ChangeTracker.DetectChanges();
             }
         }
 
@@ -340,16 +338,11 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = StateManager;
-
-            if (ChangeTracker.AutoDetectChangesEnabled)
-            {
-                ChangeDetector.DetectChanges(stateManager);
-            }
+            TryDetectChanges();
 
             try
             {
-                return await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+                return await StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -395,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entity, nameof(entity));
 
-            TryDetectChanges(StateManager);
+            TryDetectChanges();
 
             return EntryWithoutDetectChanges(entity);
         }
@@ -420,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entity, nameof(entity));
 
-            TryDetectChanges(StateManager);
+            TryDetectChanges();
 
             return EntryWithoutDetectChanges(entity);
         }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -483,6 +484,32 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             Assert.Equal(1, collectionChanged);
             Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
         }
+        
+#if NET451
+
+        [Fact]
+        public void The_BindingList_returned_from_ObservableHasSet_is_cached()
+        {
+            var ols = new ObservableHashSet<string>();
+            var bindingList = ols.ToBindingList();
+
+            Assert.Same(bindingList, ols.ToBindingList());
+        }
+
+        [Fact]
+        public void ToBindingList_returns_a_new_binding_list_each_time_when_called_on_non_DbLocalView_ObervableCollections()
+        {
+            var oc = new ObservableCollection<string>();
+
+            var bindingList = oc.ToBindingList();
+            Assert.NotNull(bindingList);
+
+            var bindingListAgain = oc.ToBindingList();
+            Assert.NotNull(bindingListAgain);
+            Assert.NotSame(bindingList, bindingListAgain);
+        }
+
+#endif
 
         private static void AssertCountChanging<T>(
             ObservableHashSet<T> hashSet,

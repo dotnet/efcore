@@ -48,6 +48,7 @@
     <Compile Include="ComplexNavigationsQueryTestBase.cs" />
     <Compile Include="DataAnnotationFixtureBase.cs" />
     <Compile Include="DataAnnotationTestBase.cs" />
+    <Compile Include="DatabindingTestBase.cs" />
     <Compile Include="F1FixtureBase.cs" />
     <Compile Include="FieldMappingTestBase.cs" />
     <Compile Include="FindTestBase.cs" />

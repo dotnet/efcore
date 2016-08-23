@@ -71,8 +71,12 @@
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableBackedBindingListTest.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableCollectionListSourceTest.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableHashSetListSourceTest.cs" />
     <Compile Include="ChangeTracking\Internal\QueryFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\ShadowFkFixupTest.cs" />
+    <Compile Include="ChangeTracking\Internal\SortableBindingListTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
     <Compile Include="ChangeTracking\MemberEntryTest.cs" />

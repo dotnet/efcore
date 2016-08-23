@@ -63,6 +63,8 @@
     <Compile Include="DataAnnotationInMemoryFixture.cs" />
     <Compile Include="DataAnnotationInMemoryTest.cs" />
     <Compile Include="DatabaseInMemoryTest.cs" />
+    <Compile Include="DatabindingInMemoryTest.cs" />
+    <Compile Include="F1InMemoryFixture.cs" />
     <Compile Include="FieldMappingInMemoryTest.cs" />
     <Compile Include="FindInMemoryTest.cs" />
     <Compile Include="LoadInMemoryTest.cs" />

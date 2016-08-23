@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -45,6 +46,28 @@ namespace Microsoft.EntityFrameworkCore
         : IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
         where TEntity : class
     {
+        /// <summary>
+        ///     <para>
+        ///         Gets an <see cref="LocalView{T}" /> that represents a local view of all Added, Unchanged,
+        ///         and Modified entities in this set.
+        ///     </para>
+        ///     <para>
+        ///         This local view will stay in sync as entities are added or removed from the context. Likewise, entities
+        ///         added to or removed from the local view will automatically be added to or removed
+        ///         from the context.
+        ///     </para>
+        ///     <para>
+        ///         This property can be used for data binding by populating the set with data, for example by using the
+        ///         <see cref="EntityFrameworkQueryableExtensions.Load{TSource}" /> extension method,
+        ///         and then binding to the local data through this property.  For WPF bind to this property
+        ///         directly.  For Windows Forms bind to the result of calling ToBindingList on this property.
+        ///     </para>
+        /// </summary>
+        public virtual LocalView<TEntity> Local
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public virtual void Services_wire_up_correctly()
         {
             // Listeners
-            VerifyScoped<IEntityStateListener>(isExistingReplaced: true);
+            VerifyScoped<IEntityStateListener>(2, isExistingReplaced: true);
             VerifyScoped<INavigationListener>(isExistingReplaced: true);
             VerifyScoped<IKeyListener>(isExistingReplaced: true);
             VerifyScoped<IPropertyListener>(isExistingReplaced: true);
@@ -138,10 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
             return VerifyService<TService>(isExistingReplaced, isSingleton: true, isRequired: true);
         }
 
-        protected TService VerifyScoped<TService>(bool isExistingReplaced = false)
+        protected TService VerifyScoped<TService>(int count = 1, bool isExistingReplaced = false)
             where TService : class
         {
-            return VerifyService<TService>(isExistingReplaced, isSingleton: false, isRequired: true);
+            return VerifyService<TService>(isExistingReplaced, isSingleton: false, isRequired: true, count: count);
         }
 
         protected TService VerifyOptionalSingleton<TService>()
@@ -159,7 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private TService VerifyService<TService>(
             bool isExistingReplaced,
             bool isSingleton,
-            bool isRequired)
+            bool isRequired,
+            int count = 1)
             where TService : class
         {
             var provider = ((IInfrastructure<IServiceProvider>)_firstContext).Instance;
@@ -177,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 Assert.Same(service, otherScopeService);
             }
-            Assert.Equal(1, ((IInfrastructure<IServiceProvider>)_firstContext).Instance.GetServices<TService>().Count());
+            Assert.Equal(count, ((IInfrastructure<IServiceProvider>)_firstContext).Instance.GetServices<TService>().Count());
 
             if (typeof(TService) != typeof(IDbContextServices))
             {
@@ -189,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     if (isExistingReplaced)
                     {
                         Assert.NotSame(service, serviceProviderWithCustomService.GetService<TService>());
-                        Assert.Equal(2, serviceProviderWithCustomService.GetServices<TService>().Count());
+                        Assert.Equal(count + 1, serviceProviderWithCustomService.GetServices<TService>().Count());
                     }
                     else
                     {

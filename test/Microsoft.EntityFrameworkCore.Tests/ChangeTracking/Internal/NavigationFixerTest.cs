@@ -1230,9 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             return builder.Model;
         }
 
-        private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices)
-        {
-            return (INavigationFixer)contextServices.GetRequiredService<IEntityStateListener>();
-        }
+        private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices) 
+            => contextServices.GetRequiredService<INavigationFixer>();
     }
 }

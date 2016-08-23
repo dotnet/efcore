@@ -4,12 +4,17 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel
 {
     public class Team
     {
+#if NET451
+        private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
+#else
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollection<Driver>();
+#endif
         private readonly ObservableCollection<Sponsor> _sponsors = new ObservableCollection<Sponsor>();
         
         public int Id { get; set; }

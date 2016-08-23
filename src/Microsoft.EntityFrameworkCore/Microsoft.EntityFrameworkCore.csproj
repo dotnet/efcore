@@ -94,6 +94,7 @@
     <Compile Include="ChangeTracking\Internal\IInternalEntityEntrySubscriber.cs" />
     <Compile Include="ChangeTracking\Internal\IKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\IKeyPropagator.cs" />
+    <Compile Include="ChangeTracking\Internal\ILocalViewListener.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationListener.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntry.cs" />
@@ -111,9 +112,11 @@
     <Compile Include="ChangeTracking\Internal\IValueGenerationManager.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagator.cs" />
     <Compile Include="ChangeTracking\Internal\KeyValueFactoryFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\LocalViewListener.cs" />
     <Compile Include="ChangeTracking\Internal\MultiSnapshot.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\NullableKeyIdentityMap.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableBackedBindingList.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValues.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValuesFactoryFactory.cs" />
@@ -128,14 +131,18 @@
     <Compile Include="ChangeTracking\Internal\Snapshot.cs" />
     <Compile Include="ChangeTracking\Internal\SnapshotFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SnapshotFactoryFactory`.cs" />
+    <Compile Include="ChangeTracking\Internal\SortableBindingList.cs" />
     <Compile Include="ChangeTracking\Internal\StateData.cs" />
     <Compile Include="ChangeTracking\Internal\StateManager.cs" />
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\Internal\TrackingQueryMode.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
+    <Compile Include="ChangeTracking\LocalView.cs" />
     <Compile Include="ChangeTracking\MemberEntry.cs" />
     <Compile Include="ChangeTracking\NavigationEntry.cs" />
     <Compile Include="ChangeTracking\ObservableHashSet.cs" />
+    <Compile Include="ChangeTracking\ObservableCollectionListSource.cs" />
+    <Compile Include="ChangeTracking\ObservableHashSetListSource.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
     <Compile Include="ChangeTracking\PropertyValues.cs" />
@@ -168,6 +175,7 @@
     <Compile Include="Extensions\MutableNavigationExtensions.cs" />
     <Compile Include="Extensions\MutablePropertyExtensions.cs" />
     <Compile Include="Extensions\NavigationExtensions.cs" />
+    <Compile Include="Extensions\ObservableCollectionExtensions.cs" />
     <Compile Include="Extensions\PropertyBaseExtensions.cs" />
     <Compile Include="Extensions\PropertyExtensions.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
