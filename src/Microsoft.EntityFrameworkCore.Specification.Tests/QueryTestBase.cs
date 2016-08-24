@@ -228,6 +228,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Join_Customers_Orders_Orders_Skip_Take_Same_Properties()
+        {
+            AssertQuery<Customer, Order>((cs, os) => (
+                from o in os
+                join ca in cs on o.CustomerID equals ca.CustomerID
+                join cb in cs on o.CustomerID equals cb.CustomerID
+                orderby o.OrderID
+                select new
+                {
+                    o.OrderID,
+                    CustomerIDA = ca.CustomerID,
+                    CustomerIDB = cb.CustomerID,
+                    ContactNameA = ca.ContactName,
+                    ContactNameB = cb.ContactName,
+                }).Skip(10).Take(5));
+        }
+
+        [ConditionalFact]
         public virtual void Distinct_Skip_Take()
         {
             AssertQuery<Customer>(

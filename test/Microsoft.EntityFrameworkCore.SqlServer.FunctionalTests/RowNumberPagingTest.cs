@@ -112,6 +112,25 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
                 Sql);
         }
 
+        public override void Join_Customers_Orders_Orders_Skip_Take_Same_Properties()
+        {
+            base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties();
+
+            Assert.Equal(
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[c0] AS [c0], [t].[ContactName], [t].[c1] AS [c1]
+FROM (
+    SELECT [o].[OrderID], [ca].[CustomerID], [cb].[CustomerID] AS [c0], [ca].[ContactName], [cb].[ContactName] AS [c1], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    FROM [Orders] AS [o]
+    INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
+    INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]
+) AS [t]
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
+                Sql);
+        }
+
         public override void Take_Skip()
         {
             base.Take_Skip();

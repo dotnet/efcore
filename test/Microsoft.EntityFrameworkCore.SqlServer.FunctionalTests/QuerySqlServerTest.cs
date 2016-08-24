@@ -1184,6 +1184,25 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Join_Customers_Orders_Orders_Skip_Take_Same_Properties()
+        {
+            base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties();
+
+            Assert.Equal(
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [o].[OrderID], [ca].[CustomerID], [cb].[CustomerID], [ca].[ContactName], [cb].[ContactName]
+FROM [Orders] AS [o]
+INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
+INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]
+ORDER BY [o].[OrderID]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
+                Sql);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Take_Skip()
         {
             base.Take_Skip();

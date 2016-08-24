@@ -518,6 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                             return ce != null && ce.Property == columnExpression?.Property
                                    && ce.TableAlias == columnExpression?.TableAlias
+                                   && ce.Name == columnExpression?.Name
                                    || ae?.Expression == expression;
                         });
 
