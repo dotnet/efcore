@@ -1827,16 +1827,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<Property> GetActualProperties([CanBeNull] IEnumerable<Property> properties, ConfigurationSource? configurationSource)
+        public virtual IReadOnlyList<Property> GetActualProperties([CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource? configurationSource)
         {
             if (properties == null)
             {
                 return null;
             }
 
-            var actualProperties = new List<Property>();
-            foreach (var property in properties)
+            var actualProperties = new Property[properties.Count];
+            for (var i = 0; i < actualProperties.Length; i++)
             {
+                var property = properties[i];
                 var builder = property.Builder != null && property.DeclaringEntityType.IsAssignableFrom(Metadata)
                     ? property.Builder
                     : Metadata.FindProperty(property.Name)?.Builder
@@ -1848,8 +1849,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                actualProperties.Add(builder.Metadata);
+                actualProperties[i] = builder.Metadata;
             }
+
             return actualProperties;
         }
 

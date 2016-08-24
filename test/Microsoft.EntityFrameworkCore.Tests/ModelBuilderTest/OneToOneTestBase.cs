@@ -816,8 +816,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-                Assert.Empty(dependentType.GetIndexes());
-                Assert.True(principalType.GetForeignKeys().Single().IsUnique);
+                Assert.Null(dependentType.FindIndex(fk.Properties));
             }
 
             [Fact]
@@ -1768,7 +1767,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
                 Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
-                Assert.Empty(principalType.GetIndexes());
             }
 
             [Fact]

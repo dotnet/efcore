@@ -24,6 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
+            if (!ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
+            {
+                return relationshipBuilder;
+            }
+
             var foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true);
             if (foreignKeyProperties == null)
             {
@@ -51,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 // Try to use PK properties if principal end is not ambiguous
                 if (foreignKey.IsUnique
                     && !foreignKey.IsSelfReferencing()
-                    && !ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
+                    && !ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
+                    && foreignKey.DeclaringEntityType.BaseType == null)
                 {
                     foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
                         foreignKey.DeclaringEntityType,
@@ -75,8 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     : relationshipBuilder;
             }
 
-            if (foreignKeyProperties == null
-                || foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties).Any())
+            if (foreignKeyProperties == null)
             {
                 return relationshipBuilder;
             }
@@ -96,6 +101,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                     return relationshipBuilder;
                 }
+            }
+
+            if (foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties).Any())
+            {
+                return relationshipBuilder;
             }
 
             var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
@@ -177,33 +187,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            var foreignKeyProperties = new List<Property>();
-            foreach (IProperty referencedProperty in propertiesToReference)
+            var foreignKeyProperties = new Property[propertiesToReference.Count];
+            var matchFound = true;
+            for (var i = 0; i < propertiesToReference.Count; i++)
             {
+                var referencedProperty = propertiesToReference[i];
                 var property = TryGetProperty(dependentEntityType,
-                    baseName + referencedProperty.Name,
+                    baseName, referencedProperty.Name,
                     referencedProperty.ClrType.UnwrapNullableType());
 
-                if (property != null)
+                if (property == null)
                 {
-                    foreignKeyProperties.Add(property);
+                    matchFound = false;
+                    continue;
                 }
+
+                foreignKeyProperties[i] = property;
             }
 
-            if ((propertiesToReference.Count == 1)
-                && (foreignKeyProperties.Count == 0))
+            if (!matchFound
+                && propertiesToReference.Count == 1)
             {
                 var property = TryGetProperty(dependentEntityType,
-                    baseName + "Id",
+                    baseName, "Id",
                     propertiesToReference.Single().ClrType.UnwrapNullableType());
 
                 if (property != null)
                 {
-                    foreignKeyProperties.Add(property);
+                    foreignKeyProperties[0] = property;
+                    matchFound = true;
                 }
             }
 
-            if (foreignKeyProperties.Count < propertiesToReference.Count)
+            if (!matchFound)
             {
                 return null;
             }
@@ -218,18 +234,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            var primaryKey = dependentEntityType.FindPrimaryKey();
-            if (primaryKey != null)
+            var primaryKeyProperties = dependentEntityType.FindPrimaryKey()?.Properties;
+            if (primaryKeyProperties != null
+                && primaryKeyProperties.Count == foreignKeyProperties.Length
+                && foreignKeyProperties.All(property => primaryKeyProperties.Contains(property)))
             {
-                if (foreignKeyProperties.All(property => primaryKey.Properties.Contains(property)))
-                {
-                    return null;
-                }
+                return null;
             }
 
             // Don't match with only Id since it is ambiguous. PK in dependent entity used as FK is matched elsewhere
-            if ((foreignKeyProperties.Count == 1)
-                && (foreignKeyProperties.Single().Name == "Id"))
+            if (foreignKeyProperties.Length == 1
+                && foreignKeyProperties[0].Name == "Id")
             {
                 return null;
             }
@@ -237,12 +252,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return foreignKeyProperties;
         }
 
-        private static Property TryGetProperty(EntityType entityType, string name, Type type)
+        private static Property TryGetProperty(EntityType entityType, string prefix, string suffix, Type type)
         {
             foreach (var property in entityType.GetProperties())
             {
-                if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
-                    && (!property.IsShadowProperty || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+                if ((!property.IsShadowProperty || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+                    && property.Name.Length == prefix.Length + suffix.Length
+                    && property.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+                    && property.Name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
                     && (property.ClrType.UnwrapNullableType() == type))
                 {
                     return property;

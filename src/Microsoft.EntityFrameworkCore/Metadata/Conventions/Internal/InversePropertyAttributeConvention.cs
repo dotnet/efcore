@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                return null;
+                return entityTypeBuilder.Metadata.FindNavigation(navigationPropertyInfo)?.ForeignKey.Builder;
             }
 
             return targetEntityTypeBuilder.Relationship(
@@ -295,18 +295,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private List<Tuple<PropertyInfo, Type>> AddInverseNavigation(
             EntityType entityType, PropertyInfo navigation, Type inverseEntityClrType, PropertyInfo inverseNavigation)
         {
-            var inverseNavigations = GetInverseNavigations(entityType);
-            if (inverseNavigations == null)
+            var referencingNavigationsWithAttribute = GetInverseNavigations(entityType);
+            if (referencingNavigationsWithAttribute == null)
             {
-                inverseNavigations = new Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>>();
-                SetInverseNavigations(entityType.Builder, inverseNavigations);
+                referencingNavigationsWithAttribute = new Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>>();
+                SetInverseNavigations(entityType.Builder, referencingNavigationsWithAttribute);
             }
 
             List<Tuple<PropertyInfo, Type>> inverseNavigationsList;
-            if (!inverseNavigations.TryGetValue(navigation, out inverseNavigationsList))
+            if (!referencingNavigationsWithAttribute.TryGetValue(navigation, out inverseNavigationsList))
             {
                 inverseNavigationsList = new List<Tuple<PropertyInfo, Type>>();
-                inverseNavigations[navigation] = inverseNavigationsList;
+                referencingNavigationsWithAttribute[navigation] = inverseNavigationsList;
             }
 
             foreach (var inverseTuple in inverseNavigationsList)

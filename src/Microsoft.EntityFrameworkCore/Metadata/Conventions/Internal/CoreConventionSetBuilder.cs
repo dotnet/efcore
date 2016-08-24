@@ -78,7 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);
-            conventionSet.ForeignKeyRemovedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyUniquenessConventions.Add(foreignKeyIndexConvention);

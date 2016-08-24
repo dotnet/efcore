@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeConvention,
         IBaseTypeConvention,
         INavigationRemovedConvention,
-        IForeignKeyRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
         INavigationConvention
     {
@@ -496,33 +495,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             return true;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
-        {
-            var principalEntityTypeBuilder = foreignKey.PrincipalEntityType.Builder;
-
-            var dependentToPrincipal = foreignKey.DependentToPrincipal;
-            var candidateDependentToPrincipal = IsCandidateNavigationProperty(
-                foreignKey.DeclaringEntityType.Builder, dependentToPrincipal?.Name, dependentToPrincipal?.PropertyInfo);
-
-            var principalToDependent = foreignKey.PrincipalToDependent;
-            var candidatePrincipalToDependent = IsCandidateNavigationProperty(
-                principalEntityTypeBuilder, principalToDependent?.Name, principalToDependent?.PropertyInfo);
-
-            if (candidateDependentToPrincipal)
-            {
-                Apply(foreignKey.DeclaringEntityType.Builder.Metadata, dependentToPrincipal.PropertyInfo, foreignKey.PrincipalEntityType.Builder.Metadata);
-            }
-
-            if (candidatePrincipalToDependent)
-            {
-                Apply(foreignKey.PrincipalEntityType.Builder.Metadata, principalToDependent.PropertyInfo, foreignKey.DeclaringEntityType.Builder.Metadata);
-            }
         }
 
         /// <summary>

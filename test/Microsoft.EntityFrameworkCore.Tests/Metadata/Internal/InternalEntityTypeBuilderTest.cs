@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 customerEntityBuilder.Metadata.Name,
                 new[] { "ShadowCustomerId" },
                 ConfigurationSource.Convention);
-            
+
             var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
             Assert.NotNull(shadowProperty);
             Assert.True(((IProperty)shadowProperty).IsShadowProperty);
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 new[] { Order.IdProperty.Name },
                 primaryKey,
                 ConfigurationSource.DataAnnotation)
-                .IsUnique(true, ConfigurationSource.Convention));
+                .IsUnique(true, ConfigurationSource.DataAnnotation));
 
             entityBuilder.HasForeignKey(
                 principalEntityBuilder.Metadata.Name,
@@ -1188,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Same(keyBuilder.Metadata, principalEntityBuilder.Metadata.FindPrimaryKey());
             var fk = dependentEntityBuilder.Metadata.GetForeignKeys().Single();
-            Assert.Equal(new List<Property> { fkProperty1, fkProperty2 }, fk.Properties);
+            Assert.Equal(new [] { fkProperty1, fkProperty2 }, fk.Properties);
         }
 
         [Fact]

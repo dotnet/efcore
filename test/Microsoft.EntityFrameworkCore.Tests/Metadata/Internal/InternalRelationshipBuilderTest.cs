@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             specialOrderEntityBuilder.HasBaseType(orderEntityBuilder.Metadata, ConfigurationSource.Explicit);
             var relationshipBuilder = specialOrderEntityBuilder
                 .Relationship(specialOrderEntityBuilder, ConfigurationSource.Convention)
-                .PrincipalToDependent(nameof(SpecialOrder.SpecialOrder), ConfigurationSource.Convention);
+                .PrincipalToDependent(nameof(SpecialOrder.SpecialOrder), ConfigurationSource.Explicit);
 
             relationshipBuilder = relationshipBuilder.PrincipalEntityType(
                 orderEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);
