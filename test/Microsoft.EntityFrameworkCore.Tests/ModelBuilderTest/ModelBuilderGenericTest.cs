@@ -206,6 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public override TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsUnicode(unicode));
 
+            public override TestPropertyBuilder<TProperty> IsRowVersion()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsRowVersion());
+
             public override TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsConcurrencyToken(isConcurrencyToken));
 

@@ -221,6 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
             public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
             public abstract TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true);
+            public abstract TestPropertyBuilder<TProperty> IsRowVersion();
             public abstract TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true);
 
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedNever();

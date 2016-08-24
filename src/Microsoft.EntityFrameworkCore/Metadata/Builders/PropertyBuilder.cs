@@ -106,6 +106,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     <para>
+        ///         Configures the property as <see cref="ValueGeneratedOnAddOrUpdate" /> and
+        ///         <see cref="IsConcurrencyToken" />.
+        ///     </para>
+        ///     <para>
+        ///         Database providers can choose to interpret this in different way, but it is commonly used
+        ///         to indicate some form of automatic row-versioning as used for optimistic concurrency detection.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder IsRowVersion()
+        {
+            Builder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Explicit);
+            Builder.IsConcurrencyToken(true, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Configures the <see cref="ValueGenerator" /> that will generate values for this property.
         ///     </para>
         ///     <para>
@@ -294,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         entity type or model.
         ///     </para>
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode"/> to use for this property. </param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
         {

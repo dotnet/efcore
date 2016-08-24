@@ -689,6 +689,31 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Properties_can_set_row_version()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.HasKey(e => e.Id);
+                    b.Property(e => e.Up).IsRowVersion();
+                    b.Property(e => e.Down).ValueGeneratedNever();
+                    b.Property<int>("Charm").IsRowVersion();
+                });
+
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Up").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Down").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Charm").ValueGenerated);
+
+                Assert.True(entityType.FindProperty("Up").IsConcurrencyToken);
+                Assert.False(entityType.FindProperty("Down").IsConcurrencyToken);
+                Assert.True(entityType.FindProperty("Charm").IsConcurrencyToken);
+            }
+
+            [Fact]
             public virtual void Can_set_max_length_for_properties()
             {
                 var modelBuilder = CreateModelBuilder();

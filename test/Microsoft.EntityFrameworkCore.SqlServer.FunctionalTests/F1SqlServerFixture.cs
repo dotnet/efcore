@@ -60,26 +60,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Chassis>(b =>
-                {
-                    b.Property<byte[]>("Version")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                });
+            modelBuilder.Entity<Chassis>().Property<byte[]>("Version").IsRowVersion();
+            modelBuilder.Entity<Driver>().Property<byte[]>("Version").IsRowVersion();
 
-            modelBuilder.Entity<Driver>(b =>
-                {
-                    b.Property<byte[]>("Version")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                });
-
-            modelBuilder.Entity<Team>(b =>
-                {
-                    b.Property<byte[]>("Version")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                });
+            modelBuilder.Entity<Team>().Property<byte[]>("Version")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
         }
     }
 }
