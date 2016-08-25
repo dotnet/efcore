@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                             return (ce != null
                                     && columnExpression != null
-                                    && (ce.Property == columnExpression.Property || ce.Name == columnExpression.Name)
+                                    && ce.Name == columnExpression.Name
                                     && ce.TableAlias == columnExpression.TableAlias)
                                 || ae?.Expression == expression;
                         });
@@ -599,7 +599,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             var ce = e.TryGetColumnExpression();
 
                             return ce != null
-                                && ce.Property == columnExpression.Property
                                 && ce.Name == columnExpression.Name
                                 && ce.TableAlias == columnExpression.TableAlias;
                         });
