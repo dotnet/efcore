@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -24,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         if it does not already exist.
         ///     </para>
         ///      <para>
-        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations 
-        ///         to create the database and therefore the database that is created cannot be later updated using migrations. 
+        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations
+        ///         to create the database and therefore the database that is created cannot be later updated using migrations.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -33,13 +35,61 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
 
         /// <summary>
+        ///     Gets all the migrations that are defined in the configured migrations assembly.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <returns>The list of migrations.</returns>
+        public static IEnumerable<string> GetMigrations([NotNull] this DatabaseFacade databaseFacade)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrationsAssembly>().Migrations.Keys;
+
+        /// <summary>
+        ///     Gets all migrations that have been applied to the target database.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <returns> The list of migrations. </returns>
+        public static IEnumerable<string> GetAppliedMigrations([NotNull] this DatabaseFacade databaseFacade)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IHistoryRepository>()
+                .GetAppliedMigrations().Select(hr => hr.MigrationId);
+
+        /// <summary>
+        ///     Asynchronously gets all migrations that have been applied to the target database.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => (await Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IHistoryRepository>()
+                .GetAppliedMigrationsAsync(cancellationToken)).Select(hr => hr.MigrationId);
+
+        /// <summary>
+        ///     Gets all migrations that are defined in the assembly but haven't been applied to the target database.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <returns> The list of migrations. </returns>
+        public static IEnumerable<string> GetPendingMigrations([NotNull] this DatabaseFacade databaseFacade)
+            => GetMigrations(databaseFacade).Except(GetAppliedMigrations(databaseFacade));
+
+        /// <summary>
+        ///     Asynchronously gets all migrations that are defined in the assembly but haven't been applied to the target database.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => GetMigrations(databaseFacade).Except(await GetAppliedMigrationsAsync(databaseFacade, cancellationToken));
+
+        /// <summary>
         ///     <para>
         ///         Asynchronously applies any pending migrations for the context to the database. Will create the database
         ///         if it does not already exist.
         ///     </para>
         ///      <para>
-        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations 
-        ///         to create the database and therefore the database that is created cannot be later updated using migrations. 
+        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations
+        ///         to create the database and therefore the database that is created cannot be later updated using migrations.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>

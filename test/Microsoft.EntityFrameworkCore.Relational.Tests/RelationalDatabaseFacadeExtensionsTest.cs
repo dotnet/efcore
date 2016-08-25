@@ -2,11 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
@@ -195,6 +199,127 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 RelationalStrings.RelationalNotInUse,
                 Assert.Throws<InvalidOperationException>(
                     () => context.Database.UseTransaction(dbTransaction)).Message);
+        }
+
+        [Fact]
+        public void GetMigrations_works()
+        {
+            var migrations = new[]
+            {
+                "00000000000001_One",
+                "00000000000002_Two",
+                "00000000000003_Three"
+            };
+            var migrationsAssembly = new Mock<IMigrationsAssembly>();
+            migrationsAssembly.SetupGet(a => a.Migrations)
+                .Returns(migrations.ToDictionary(x => x, x => default(TypeInfo)));
+
+            var db = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton(migrationsAssembly.Object));
+
+            var result = db.Database.GetMigrations();
+
+            Assert.Equal(migrations, result);
+        }
+
+        [Fact]
+        public void GetAppliedMigrations_works()
+        {
+            var migrations = new[]
+            {
+                "00000000000001_One",
+                "00000000000002_Two"
+            };
+            var historyRepository = new Mock<IHistoryRepository>();
+            historyRepository.Setup(a => a.GetAppliedMigrations())
+                .Returns(migrations.Select(id => new HistoryRow(id, "1.1.0")).ToList());
+
+            var db = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton(historyRepository.Object));
+
+            var result = db.Database.GetAppliedMigrations();
+
+            Assert.Equal(migrations, result);
+        }
+
+        [Fact]
+        public async Task GetAppliedMigrationsAsync_works()
+        {
+            var migrations = new[]
+            {
+                "00000000000001_One",
+                "00000000000002_Two"
+            };
+            var historyRepository = new Mock<IHistoryRepository>();
+            historyRepository.Setup(a => a.GetAppliedMigrationsAsync(It.IsAny<CancellationToken>())).Returns(
+                Task.FromResult<IReadOnlyList<HistoryRow>>(
+                    migrations.Select(id => new HistoryRow(id, "1.1.0")).ToList()));
+
+            var db = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton(historyRepository.Object));
+
+            var result = await db.Database.GetAppliedMigrationsAsync();
+
+            Assert.Equal(migrations, result);
+        }
+
+        [Fact]
+        public void GetPendingMigrations_works()
+        {
+            var migrations = new[]
+            {
+                "00000000000001_One",
+                "00000000000002_Two",
+                "00000000000003_Three"
+            };
+            var appliedMigrations = new[]
+            {
+                "00000000000001_One",
+                "00000000000002_Two"
+            };
+            var migrationsAssembly = new Mock<IMigrationsAssembly>();
+            migrationsAssembly.SetupGet(a => a.Migrations)
+                .Returns(migrations.ToDictionary(x => x, x => default(TypeInfo)));
+            var historyRepository = new Mock<IHistoryRepository>();
+            historyRepository.Setup(a => a.GetAppliedMigrations())
+                .Returns(appliedMigrations.Select(id => new HistoryRow(id, "1.1.0")).ToList());
+
+            var db = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton(migrationsAssembly.Object).AddSingleton(historyRepository.Object));
+
+            var result = db.Database.GetPendingMigrations();
+
+            Assert.Equal(new[] { "00000000000003_Three" }, result);
+        }
+
+        [Fact]
+        public async Task GetPendingMigrationsAsync_works()
+        {
+            var migrations = new[]
+            {
+                "00000000000001_One",
+                "00000000000002_Two",
+                "00000000000003_Three"
+            };
+            var appliedMigrations = new[]
+            {
+                "00000000000001_One",
+                "00000000000002_Two"
+            };
+            var migrationsAssembly = new Mock<IMigrationsAssembly>();
+            migrationsAssembly.SetupGet(a => a.Migrations)
+                .Returns(migrations.ToDictionary(x => x, x => default(TypeInfo)));
+            var historyRepository = new Mock<IHistoryRepository>();
+            historyRepository.Setup(a => a.GetAppliedMigrationsAsync(It.IsAny<CancellationToken>())).Returns(
+                Task.FromResult<IReadOnlyList<HistoryRow>>(
+                    appliedMigrations.Select(id => new HistoryRow(id, "1.1.0")).ToList()));
+
+            var db = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton(migrationsAssembly.Object).AddSingleton(historyRepository.Object));
+
+            var result = await db.Database.GetPendingMigrationsAsync();
+
+            Assert.Equal(new[] { "00000000000003_Three" }, result);
         }
     }
 }
