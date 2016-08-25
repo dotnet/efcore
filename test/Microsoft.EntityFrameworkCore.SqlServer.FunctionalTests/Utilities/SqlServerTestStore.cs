@@ -24,8 +24,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
+        public static SqlServerTestStore GetOrCreateShared(string name, bool useTransaction, Action initializeDatabase)
+            => new SqlServerTestStore(name).CreateShared(initializeDatabase, useTransaction);
+
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
-            => new SqlServerTestStore(name).CreateShared(initializeDatabase);
+            => GetOrCreateShared(name, true, initializeDatabase);
 
         /// <summary>
         ///     A non-transactional, transient, isolated test database. Use this in the case
@@ -64,16 +67,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             return name;
         }
 
-        private SqlServerTestStore CreateShared(Action initializeDatabase)
+        private SqlServerTestStore CreateShared(Action initializeDatabase, bool useTransaction)
         {
             CreateShared(typeof(SqlServerTestStore).Name + _name, initializeDatabase);
 
             _connectionString = CreateConnectionString(_name);
             _connection = new SqlConnection(_connectionString);
 
-            _connection.Open();
+            if (useTransaction)
+            {
+                _connection.Open();
 
-            _transaction = _connection.BeginTransaction();
+                _transaction = _connection.BeginTransaction();
+            }
 
             return this;
         }
@@ -317,29 +323,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             return userFolder != null
                    && (File.Exists(Path.Combine(userFolder, name + ".mdf"))
                        || File.Exists(Path.Combine(userFolder, name + "_log.ldf")));
-        }
-
-        private async Task DeleteDatabaseAsync(string name)
-        {
-            using (var master = new SqlConnection(CreateConnectionString("master")))
-            {
-                await master.OpenAsync();
-
-                using (var command = master.CreateCommand())
-                {
-                    command.CommandTimeout = CommandTimeout; // Query will take a few seconds if (and only if) there are active connections
-
-                    // SET SINGLE_USER will close any open connections that would prevent the drop
-                    command.CommandText
-                        = string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
-                                          BEGIN
-                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                                              DROP DATABASE [{0}];
-                                          END", name);
-
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
         }
 
         private void DeleteDatabase(string name)

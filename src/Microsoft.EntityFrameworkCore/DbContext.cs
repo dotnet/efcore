@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         private IDbSetInitializer _setInitializer;
         private IEntityFinderSource _entityFinderSource;
         private ChangeTracker _changeTracker;
+        private DatabaseFacade _database;
         private IStateManager _stateManager;
         private IChangeDetector _changeDetector;
         private IEntityGraphAttacher _graphAttacher;
@@ -897,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Provides access to database related information and operations for this context.
         /// </summary>
-        public virtual DatabaseFacade Database => new DatabaseFacade(this);
+        public virtual DatabaseFacade Database => _database ?? (_database = new DatabaseFacade(this));
 
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.

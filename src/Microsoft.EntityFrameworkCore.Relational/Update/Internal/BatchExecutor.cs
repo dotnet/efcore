@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -14,6 +16,21 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class BatchExecutor : IBatchExecutor
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public BatchExecutor([NotNull] ICurrentDbContext currentContext)
+        {
+            CurrentContext = currentContext;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ICurrentDbContext CurrentContext { get; }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
@@ -29,7 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (connection.CurrentTransaction == null)
                 {
-                    startedTransaction = connection.BeginTransaction();
+                    if (CurrentContext.Context.Database.AutoTransactionsEnabled)
+                    {
+                        startedTransaction = connection.BeginTransaction();
+                    }
+                    else
+                    {
+                        connection.Open();
+                    }
                 }
 
                 foreach (var commandbatch in commandBatches)
@@ -65,7 +89,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (connection.CurrentTransaction == null)
                 {
-                    startedTransaction = await connection.BeginTransactionAsync(cancellationToken);
+                    if (CurrentContext.Context.Database.AutoTransactionsEnabled)
+                    {
+                        startedTransaction = await connection.BeginTransactionAsync(cancellationToken);
+                    }
+                    else
+                    {
+                        await connection.OpenAsync(cancellationToken);
+                    }
                 }
 
                 foreach (var commandbatch in commandBatches)

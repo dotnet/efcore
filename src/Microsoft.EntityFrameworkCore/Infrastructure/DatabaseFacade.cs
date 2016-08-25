@@ -155,6 +155,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
+        ///         Gets or sets a value indicating whether or not a transaction will be created
+        ///         automatically by <see cref="DbContext.SaveChanges()" /> if none of the
+        ///         'BeginTransaction' or 'UseTransaction' methods have been called.
+        ///     </para>
+        ///     <para>
+        ///         The default value is true, meaning that SaveChanges will always use a transaction
+        ///         when saving changes.
+        ///     </para>
+        ///     <para>
+        ///         Setting this value to false should only be done with caution since the database
+        ///         could be left in a corrupted state if SaveChanges fails.
+        ///     </para>
+        /// </summary>
+        public virtual bool AutoTransactionsEnabled { get; set; } = true;
+
+        /// <summary>
+        ///     <para>
         ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
         ///     </para>
         ///     <para>

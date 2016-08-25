@@ -22,14 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override SqliteTestStore CreateTestStore()
         {
-            var db = SqliteTestStore.CreateScratch(sharedCache: true);
-
-            using (var context = CreateContext(db))
+            return SqliteTestStore.GetOrCreateShared(DatabaseName, false, true, () =>
             {
-                Seed(context);
-            }
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
 
-            return db;
+                using (var context = new DbContext(optionsBuilder.Options))
+                {
+                    context.Database.EnsureClean();
+                }
+            });
         }
 
         public override DbContext CreateContext(SqliteTestStore testStore)

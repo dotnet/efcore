@@ -14,8 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         private static int _scratchCount;
 
+        public static SqliteTestStore GetOrCreateShared(string name, bool useTransaction, bool sharedCache, Action initializeDatabase = null) =>
+            new SqliteTestStore(name).CreateShared(initializeDatabase, useTransaction, sharedCache);
+
         public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
-            new SqliteTestStore(name).CreateShared(initializeDatabase);
+            GetOrCreateShared(name, true, false, initializeDatabase);
 
 #if NETCOREAPP1_0
         private static string BaseDirectory => AppContext.BaseDirectory;
@@ -49,28 +52,39 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override string ConnectionString => Connection.ConnectionString;
 
-        private SqliteTestStore CreateShared(Action initializeDatabase)
+        private SqliteTestStore CreateShared(Action initializeDatabase, bool useTransaction, bool sharedCache)
         {
             CreateShared(typeof(SqliteTestStore).Name + _name, initializeDatabase);
 
-            CreateAndOpenConnection();
+            CreateConnection(sharedCache);
 
-            _transaction = _connection.BeginTransaction();
+            if (useTransaction)
+            {
+                OpenConnection();
+
+                _transaction = _connection.BeginTransaction();
+            }
 
             return this;
         }
 
         private SqliteTestStore CreateTransient(bool sharedCache)
         {
-            CreateAndOpenConnection(sharedCache);
+            CreateConnection(sharedCache);
+            OpenConnection();
 
             return AsTransient();
         }
 
-        private void CreateAndOpenConnection(bool sharedCache = false)
+        private void CreateConnection(bool sharedCache = false)
         {
             _connection = new SqliteConnection(CreateConnectionString(_name, sharedCache));
 
+            OpenConnection();
+        }
+
+        public override void OpenConnection()
+        {
             _connection.Open();
 
             var command = _connection.CreateCommand();

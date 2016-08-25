@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor();
+            var batchExecutor = new BatchExecutor(new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)));
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor();
+            var batchExecutor = new BatchExecutor(new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)));
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 

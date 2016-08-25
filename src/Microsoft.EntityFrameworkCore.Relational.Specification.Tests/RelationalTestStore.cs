@@ -10,5 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public abstract DbConnection Connection { get; }
         public abstract DbTransaction Transaction { get; }
         public abstract string ConnectionString { get; }
+        public virtual void OpenConnection() => Connection.Open();
     }
 }
