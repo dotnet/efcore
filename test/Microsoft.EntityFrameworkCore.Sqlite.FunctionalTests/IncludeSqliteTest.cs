@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         [SqliteVersionCondition(Min = "3.8.8", SkipReason = "Distinct & Order By gives incorrect result in older version of Sqlite.")]
-        public override void Include_collection_order_by_non_key_with_take()
+        public override void Include_collection_order_by_non_key_with_take(bool useString)
         {
-            base.Include_collection_order_by_non_key_with_take();
+            base.Include_collection_order_by_non_key_with_take(useString);
         }
     }
 }

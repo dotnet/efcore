@@ -291,6 +291,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));
 
             methodInfoBasedNodeTypeRegistry
+                .Register(StringIncludeExpressionNode.SupportedMethods, typeof(StringIncludeExpressionNode));
+
+            methodInfoBasedNodeTypeRegistry
                 .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
 
             var innerProviders

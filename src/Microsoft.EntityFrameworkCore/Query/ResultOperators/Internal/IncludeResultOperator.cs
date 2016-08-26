@@ -34,6 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             QuerySource = GetQuerySource(navigationPropertyPath);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IncludeResultOperator([NotNull] string navigationPropertyPath)
+        {
+            StringNavigationPropertyPath = navigationPropertyPath;
+        }
+
         private static IQuerySource GetQuerySource(MemberExpression expression)
         {
             var expressionWithoutConvert = expression.Expression.RemoveConvert();
@@ -64,6 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual string StringNavigationPropertyPath { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<PropertyInfo> ChainedNavigationProperties => _chainedNavigationProperties;
 
         /// <summary>
@@ -86,10 +101,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public override string ToString()
             => "Include("
-               + NavigationPropertyPath
-               + (_chainedNavigationProperties != null
-                   ? "." + _chainedNavigationProperties.Select(p => p.Name).Join(".")
-                   : string.Empty)
+               + (StringNavigationPropertyPath ??
+                  NavigationPropertyPath
+                  + (_chainedNavigationProperties != null
+                      ? "." + _chainedNavigationProperties.Select(p => p.Name).Join(".")
+                      : string.Empty))
                + ")";
 
         /// <summary>
@@ -97,10 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override ResultOperatorBase Clone(CloneContext cloneContext)
-            => new IncludeResultOperator(NavigationPropertyPath)
-            {
-                _chainedNavigationProperties = _chainedNavigationProperties
-            };
+            => StringNavigationPropertyPath != null
+                ? new IncludeResultOperator(StringNavigationPropertyPath)
+                : new IncludeResultOperator(NavigationPropertyPath)
+                {
+                    _chainedNavigationProperties = _chainedNavigationProperties
+                };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

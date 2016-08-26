@@ -681,6 +681,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.
+        /// </summary>
+        public static string IncludeBadNavigation([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IncludeBadNavigation", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
         /// Compiling query model: '{queryModel}'
         /// </summary>
         public static string LogCompilingQueryModel([CanBeNull] object queryModel)

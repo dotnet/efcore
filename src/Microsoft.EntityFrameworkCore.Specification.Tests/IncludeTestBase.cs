@@ -45,6 +45,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Include_bad_navigation_property()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.IncludeBadNavigation("CustomerID", nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Set<Order>().Include("Customer.CustomerID").ToList()).Message);
+            }
+        }
+
+        [Fact]
         public virtual void Include_property_expression_invalid()
         {
             var anonymousType = new { Customer = default(Customer), OrderDetails = default(ICollection<OrderDetail>) }.GetType();
@@ -76,18 +88,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         }).Message);
         }
 
-        [Fact]
-        public virtual void Then_include_collection_order_by_collection_column()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Then_include_collection_order_by_collection_column(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .ThenInclude(o => o.OrderDetails)
-                        .Where(c => c.CustomerID.StartsWith("W"))
-                        .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
-                        .FirstOrDefault();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders.OrderDetails")
+                            .Where(c => c.CustomerID.StartsWith("W"))
+                            .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
+                            .FirstOrDefault()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .ThenInclude(o => o.OrderDetails)
+                            .Where(c => c.CustomerID.StartsWith("W"))
+                            .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
+                            .FirstOrDefault();
 
                 Assert.NotNull(customer);
                 Assert.Equal("WHITC", customer.CustomerID);
@@ -140,12 +160,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         }).Message);
         }
 
-        [Fact]
-        public virtual void Include_closes_reader()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_closes_reader(bool useString)
         {
             using (var context = CreateContext())
             {
-                var customer = context.Set<Customer>().Include(c => c.Orders).FirstOrDefault();
+                var customer = useString 
+                    ? context.Set<Customer>().Include("Orders").FirstOrDefault()
+                    : context.Set<Customer>().Include(c => c.Orders).FirstOrDefault();
+
                 var products = context.Products.ToList();
 
                 Assert.NotNull(customer);
@@ -153,29 +178,41 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_when_result_operator()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_when_result_operator(bool useString)
         {
             using (var context = CreateContext())
             {
                 var any
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Any();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Any()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Any();
 
                 Assert.True(any);
             }
         }
 
-        [Fact]
-        public virtual void Include_collection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
@@ -194,16 +231,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_skip_no_order_by()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_skip_no_order_by(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Skip(10)
-                        .Include(c => c.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Skip(10)
+                            .Include("Orders")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Skip(10)
+                            .Include(c => c.Orders)
+                            .ToList();
 
                 Assert.Equal(81, customers.Count);
                 Assert.True(customers.All(c => c.Orders != null));
@@ -220,17 +264,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_skip_take_no_order_by()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_skip_take_no_order_by(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Skip(10)
-                        .Take(5)
-                        .Include(c => c.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Skip(10)
+                            .Take(5)
+                            .Include("Orders")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Skip(10)
+                            .Take(5)
+                            .Include(c => c.Orders)
+                            .ToList();
 
                 Assert.Equal(5, customers.Count);
                 Assert.True(customers.All(c => c.Orders != null));
@@ -247,15 +299,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_list()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_list(bool useString)
         {
             using (var context = CreateContext())
             {
                 var products
-                    = context.Set<Product>()
-                        .Include(c => c.OrderDetails).ThenInclude(od => od.Order)
-                        .ToList();
+                    = useString
+                        ? context.Set<Product>()
+                            .Include("OrderDetails.Order")
+                            .ToList()
+                        : context.Set<Product>()
+                            .Include(p => p.OrderDetails).ThenInclude(od => od.Order)
+                            .ToList();
 
                 Assert.Equal(77, products.Count);
 
@@ -270,15 +328,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_alias_generation()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_alias_generation(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.OrderDetails)
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("OrderDetails")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.OrderDetails)
+                            .ToList();
 
                 Assert.Equal(830, orders.Count);
 
@@ -295,16 +359,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_and_reference()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_and_reference(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.OrderDetails)
-                        .Include(o => o.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("OrderDetails")
+                            .Include("Customer")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.OrderDetails)
+                            .Include(o => o.Customer)
+                            .ToList();
 
                 Assert.Equal(830, orders.Count);
 
@@ -321,16 +392,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_as_no_tracking()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_as_no_tracking(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .AsNoTracking()
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .AsNoTracking()
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .AsNoTracking()
+                            .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
@@ -349,18 +427,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_as_no_tracking2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_as_no_tracking2(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .AsNoTracking()
-                        .OrderBy(c => c.CustomerID)
-                        .Take(5)
-                        .Include(c => c.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .AsNoTracking()
+                            .OrderBy(c => c.CustomerID)
+                            .Take(5)
+                            .Include("Orders")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .AsNoTracking()
+                            .OrderBy(c => c.CustomerID)
+                            .Take(5)
+                            .Include(c => c.Orders)
+                            .ToList();
 
                 Assert.Equal(5, customers.Count);
                 Assert.Equal(48, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
@@ -379,8 +466,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_dependent_already_tracked()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_dependent_already_tracked(bool useString)
         {
             using (var context = CreateContext())
             {
@@ -392,9 +481,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
 
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Single(c => c.CustomerID == "ALFKI");
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Single(c => c.CustomerID == "ALFKI")
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Single(c => c.CustomerID == "ALFKI");
 
                 Assert.Equal(orders, customer.Orders, ReferenceEqualityComparer.Instance);
                 Assert.Equal(6, customer.Orders.Count);
@@ -410,8 +503,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_dependent_already_tracked_as_no_tracking()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_dependent_already_tracked_as_no_tracking(bool useString)
         {
             using (var context = CreateContext())
             {
@@ -423,10 +518,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
 
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .AsNoTracking()
-                        .Single(c => c.CustomerID == "ALFKI");
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .AsNoTracking()
+                            .Single(c => c.CustomerID == "ALFKI")
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .AsNoTracking()
+                            .Single(c => c.CustomerID == "ALFKI");
 
                 Assert.NotEqual(orders, customer.Orders, ReferenceEqualityComparer.Instance);
                 Assert.Equal(6, customer.Orders.Count);
@@ -442,16 +542,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_on_additional_from_clause()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_additional_from_clause(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                       from c2 in context.Set<Customer>().Include(c => c.Orders)
-                       select c2)
-                        .ToList();
+                    = useString
+                        ? (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                           from c2 in context.Set<Customer>().Include("Orders")
+                           select c2)
+                            .ToList()
+                        : (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                           from c2 in context.Set<Customer>().Include(c2 => c2.Orders)
+                           select c2)
+                            .ToList();
 
                 Assert.Equal(455, customers.Count);
                 Assert.Equal(4150, customers.SelectMany(c => c.Orders).Count());
@@ -470,16 +577,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_on_additional_from_clause_no_tracking()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_additional_from_clause_no_tracking(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                       from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
-                       select c2)
-                        .ToList();
+                    = useString
+                        ? (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                           from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
+                           select c2)
+                            .ToList()
+                        : (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                           from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
+                           select c2)
+                            .ToList();
 
                 Assert.Equal(455, customers.Count);
                 Assert.Equal(4150, customers.SelectMany(c => c.Orders).Count());
@@ -498,18 +612,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_on_additional_from_clause_with_filter()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_additional_from_clause_with_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c1 in context.Set<Customer>()
-                       from c2 in context.Set<Customer>()
-                           .Include(c => c.Orders)
-                           .Where(c => c.CustomerID == "ALFKI")
-                       select c2)
-                        .ToList();
+                    = useString
+                        ? (from c1 in context.Set<Customer>()
+                           from c2 in context.Set<Customer>()
+                               .Include("Orders")
+                               .Where(c => c.CustomerID == "ALFKI")
+                           select c2)
+                            .ToList()
+                        : (from c1 in context.Set<Customer>()
+                           from c2 in context.Set<Customer>()
+                               .Include(c => c.Orders)
+                               .Where(c => c.CustomerID == "ALFKI")
+                           select c2)
+                            .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(546, customers.SelectMany(c => c.Orders).Count());
@@ -528,16 +651,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_on_additional_from_clause2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_additional_from_clause2(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                       from c2 in context.Set<Customer>().Include(c => c.Orders)
-                       select c1)
-                        .ToList();
+                    = useString
+                        ? (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                           from c2 in context.Set<Customer>().Include("Orders")
+                           select c1)
+                            .ToList()
+                        : (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                           from c2 in context.Set<Customer>().Include(c2 => c2.Orders)
+                           select c1)
+                            .ToList();
 
                 Assert.Equal(455, customers.Count);
                 Assert.True(customers.All(c => c.Orders == null));
@@ -555,40 +685,63 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_where_skip_take_projection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_where_skip_take_projection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.OrderDetails.Include(od => od.Order)
-                        .Where(od => od.Quantity == 10)
-                        .OrderBy(od => od.OrderID)
-                        .ThenBy(od => od.ProductID)
-                        .Skip(1)
-                        .Take(2)
-                        .Select(od =>
-                            new
-                            {
-                                od.Order.CustomerID
-                            })
-                        .ToList();
+                    = useString
+                        ? context.OrderDetails.Include("Order")
+                            .Where(od => od.Quantity == 10)
+                            .OrderBy(od => od.OrderID)
+                            .ThenBy(od => od.ProductID)
+                            .Skip(1)
+                            .Take(2)
+                            .Select(od =>
+                                new
+                                {
+                                    od.Order.CustomerID
+                                })
+                            .ToList()
+                        : context.OrderDetails.Include(od => od.Order)
+                            .Where(od => od.Quantity == 10)
+                            .OrderBy(od => od.OrderID)
+                            .ThenBy(od => od.ProductID)
+                            .Skip(1)
+                            .Take(2)
+                            .Select(od =>
+                                new
+                                {
+                                    od.Order.CustomerID
+                                })
+                            .ToList();
 
                 Assert.Equal(2, orders.Count);
             }
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_on_join_clause_with_filter()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_join_clause_with_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c in context.Set<Customer>().Include(c => c.Orders)
-                       join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
-                       where c.CustomerID == "ALFKI"
-                       select c)
-                        .ToList();
+                    = useString
+                        ? (from c in context.Set<Customer>().Include("Orders")
+                           join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
+                           where c.CustomerID == "ALFKI"
+                           select c)
+                            .ToList()
+                        : (from c in context.Set<Customer>().Include(c => c.Orders)
+                           join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
+                           where c.CustomerID == "ALFKI"
+                           select c)
+                            .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(36, customers.SelectMany(c => c.Orders).Count());
@@ -607,18 +760,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_on_join_clause_with_order_by_and_filter()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_join_clause_with_order_by_and_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c in context.Set<Customer>().Include(c => c.Orders)
-                       join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
-                       where c.CustomerID == "ALFKI"
-                       orderby c.City
-                       select c)
-                        .ToList();
+                    = useString
+                        ? (from c in context.Set<Customer>().Include("Orders")
+                           join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
+                           where c.CustomerID == "ALFKI"
+                           orderby c.City
+                           select c)
+                            .ToList()
+                        : (from c in context.Set<Customer>().Include(c => c.Orders)
+                           join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
+                           where c.CustomerID == "ALFKI"
+                           orderby c.City
+                           select c)
+                            .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(36, customers.SelectMany(c => c.Orders).Count());
@@ -637,17 +799,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_on_group_join_clause_with_filter()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_group_join_clause_with_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c in context.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.Customer)
-                       join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
-                        .ToList();
+                    = useString
+                        ? (from c in context.Set<Customer>().Include("Orders.Customer")
+                           join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
+                           where c.CustomerID == "ALFKI"
+                           select new { c, g })
+                            .ToList()
+                        : (from c in context.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.Customer)
+                           join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
+                           where c.CustomerID == "ALFKI"
+                           select new { c, g })
+                            .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.c.Orders).Count());
@@ -666,18 +836,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_on_inner_group_join_clause_with_filter()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_on_inner_group_join_clause_with_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c in context.Set<Customer>()
-                       join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
-                           on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
-                        .ToList();
+                    = useString
+                        ? (from c in context.Set<Customer>()
+                           join o in context.Set<Order>().Include("OrderDetails").Include("Customer")
+                               on c.CustomerID equals o.CustomerID into g
+                           where c.CustomerID == "ALFKI"
+                           select new { c, g })
+                            .ToList()
+                        : (from c in context.Set<Customer>()
+                           join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
+                               on c.CustomerID equals o.CustomerID into g
+                           where c.CustomerID == "ALFKI"
+                           select new { c, g })
+                            .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.g).Count());
@@ -697,16 +876,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_when_groupby()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_when_groupby(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c in context.Set<Customer>().Include(c => c.Orders)
-                       where c.CustomerID == "ALFKI"
-                       group c by c.City)
-                        .ToList();
+                    = useString
+                        ? (from c in context.Set<Customer>().Include("Orders")
+                           where c.CustomerID == "ALFKI"
+                           group c by c.City)
+                            .ToList()
+                        : (from c in context.Set<Customer>().Include(c => c.Orders)
+                           where c.CustomerID == "ALFKI"
+                           group c by c.City)
+                            .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.Single().Orders).Count());
@@ -724,17 +910,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_order_by_collection_column()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_order_by_collection_column(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Where(c => c.CustomerID.StartsWith("W"))
-                        .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
-                        .FirstOrDefault();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Where(c => c.CustomerID.StartsWith("W"))
+                            .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
+                            .FirstOrDefault()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID.StartsWith("W"))
+                            .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
+                            .FirstOrDefault();
 
                 Assert.NotNull(customer);
                 Assert.Equal("WHITC", customer.CustomerID);
@@ -750,16 +944,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_order_by_key()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_order_by_key(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.CustomerID)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.CustomerID)
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CustomerID)
+                            .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
@@ -778,16 +979,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_order_by_non_key()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_order_by_non_key(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.City)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.City)
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.City)
+                            .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
@@ -806,17 +1014,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_order_by_non_key_with_take()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_order_by_non_key_with_take(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.ContactTitle)
-                        .Take(10)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.ContactTitle)
+                            .Take(10)
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.ContactTitle)
+                            .Take(10)
+                            .ToList();
 
                 Assert.Equal(10, customers.Count);
                 Assert.Equal(116, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
@@ -835,17 +1051,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_order_by_non_key_with_skip()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_order_by_non_key_with_skip(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.ContactTitle)
-                        .Skip(10)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.ContactTitle)
+                            .Skip(10)
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.ContactTitle)
+                            .Skip(10)
+                            .ToList();
 
                 Assert.Equal(81, customers.Count);
                 Assert.Equal(714, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
@@ -864,16 +1088,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_order_by_non_key_with_first_or_default()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_order_by_non_key_with_first_or_default(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderByDescending(c => c.CompanyName)
-                        .FirstOrDefault();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderByDescending(c => c.CompanyName)
+                            .FirstOrDefault()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderByDescending(c => c.CompanyName)
+                            .FirstOrDefault();
 
                 Assert.NotNull(customer);
                 Assert.Equal(7, customer.Orders.Count);
@@ -889,17 +1120,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_order_by_subquery()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_order_by_subquery(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Where(c => c.CustomerID == "ALFKI")
-                        .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault())
-                        .FirstOrDefault();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Where(c => c.CustomerID == "ALFKI")
+                            .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault())
+                            .FirstOrDefault()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID == "ALFKI")
+                            .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault())
+                            .FirstOrDefault();
 
                 Assert.NotNull(customer);
                 Assert.NotNull(customer.Orders);
@@ -914,8 +1153,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_principal_already_tracked()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_principal_already_tracked(bool useString)
         {
             using (var context = CreateContext())
             {
@@ -926,9 +1167,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
 
                 var customer2
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Single(c => c.CustomerID == "ALFKI");
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Single(c => c.CustomerID == "ALFKI")
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Single(c => c.CustomerID == "ALFKI");
 
                 Assert.Same(customer1, customer2);
                 Assert.Equal(6, customer2.Orders.Count);
@@ -944,8 +1189,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_principal_already_tracked_as_no_tracking()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_principal_already_tracked_as_no_tracking(bool useString)
         {
             using (var context = CreateContext())
             {
@@ -956,10 +1203,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
 
                 var customer2
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .AsNoTracking()
-                        .Single(c => c.CustomerID == "ALFKI");
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .AsNoTracking()
+                            .Single(c => c.CustomerID == "ALFKI")
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .AsNoTracking()
+                            .Single(c => c.CustomerID == "ALFKI");
 
                 Assert.Equal(customer1.CustomerID, customer2.CustomerID);
                 Assert.Null(customer1.Orders);
@@ -976,46 +1228,66 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_single_or_default_no_result()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_single_or_default_no_result(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .SingleOrDefault(c => c.CustomerID == "ALFKI ?");
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .SingleOrDefault(c => c.CustomerID == "ALFKI ?")
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .SingleOrDefault(c => c.CustomerID == "ALFKI ?");
 
                 Assert.Null(customer);
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_when_projection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_when_projection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var productIds
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Select(c => c.CustomerID)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Select(c => c.CustomerID)
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include("Orders")
+                            .Select(c => c.CustomerID)
+                            .ToList();
 
                 Assert.Equal(91, productIds.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_with_filter()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_with_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Where(c => c.CustomerID == "ALFKI")
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Where(c => c.CustomerID == "ALFKI")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID == "ALFKI")
+                            .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.Orders).Count());
@@ -1034,16 +1306,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_with_filter_reordered()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_with_filter_reordered(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Where(c => c.CustomerID == "ALFKI")
-                        .Include(c => c.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Where(c => c.CustomerID == "ALFKI")
+                            .Include("Orders")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Where(c => c.CustomerID == "ALFKI")
+                            .Include(c => c.Orders)
+                            .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.Orders).Count());
@@ -1062,23 +1341,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_duplicate_collection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_duplicate_collection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c1 in context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.CustomerID)
-                        .Take(2)
-                       from c2 in context.Set<Customer>()
-                           .Include(c => c.Orders)
-                           .OrderBy(c => c.CustomerID)
-                           .Skip(2)
-                           .Take(2)
-                       select new { c1, c2 })
-                        .ToList();
+                    = useString
+                        ? (from c1 in context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
+                           from c2 in context.Set<Customer>()
+                               .Include("Orders")
+                               .OrderBy(c => c.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { c1, c2 })
+                            .ToList()
+                        : (from c1 in context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
+                           from c2 in context.Set<Customer>()
+                               .Include(c => c.Orders)
+                               .OrderBy(c => c.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { c1, c2 })
+                            .ToList();
 
                 Assert.Equal(4, customers.Count);
                 Assert.Equal(20, customers.SelectMany(c => c.c1.Orders).Count());
@@ -1109,24 +1402,39 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_duplicate_collection_result_operator()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_duplicate_collection_result_operator(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c1 in context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.CustomerID)
-                        .Take(2)
-                       from c2 in context.Set<Customer>()
-                           .Include(c => c.Orders)
-                           .OrderBy(c => c.CustomerID)
-                           .Skip(2)
-                           .Take(2)
-                       select new { c1, c2 })
-                        .Take(1)
-                        .ToList();
+                    = useString
+                        ? (from c1 in context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
+                           from c2 in context.Set<Customer>()
+                               .Include("Orders")
+                               .OrderBy(c => c.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { c1, c2 })
+                            .Take(1)
+                            .ToList()
+                        : (from c1 in context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
+                           from c2 in context.Set<Customer>()
+                               .Include(c => c.Orders)
+                               .OrderBy(c => c.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { c1, c2 })
+                            .Take(1)
+                            .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.c1.Orders).Count());
@@ -1157,23 +1465,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_duplicate_collection_result_operator2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_duplicate_collection_result_operator2(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c1 in context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.CustomerID)
-                        .Take(2)
-                       from c2 in context.Set<Customer>()
-                           .OrderBy(c => c.CustomerID)
-                           .Skip(2)
-                           .Take(2)
-                       select new { c1, c2 })
-                        .Take(1)
-                        .ToList();
+                    = useString
+                        ? (from c1 in context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
+                           from c2 in context.Set<Customer>()
+                               .OrderBy(c => c.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { c1, c2 })
+                            .Take(1)
+                            .ToList()
+                        : (from c1 in context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
+                           from c2 in context.Set<Customer>()
+                               .OrderBy(c => c.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { c1, c2 })
+                            .Take(1)
+                            .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.c1.Orders).Count());
@@ -1203,23 +1525,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_duplicate_reference()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_duplicate_reference(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = (from o1 in context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .OrderBy(o => o.CustomerID)
-                        .Take(2)
-                       from o2 in context.Set<Order>()
-                           .Include(o => o.Customer)
-                           .OrderBy(o => o.CustomerID)
-                           .Skip(2)
-                           .Take(2)
-                       select new { o1, o2 })
-                        .ToList();
+                    = useString
+                        ? (from o1 in context.Set<Order>()
+                            .Include("Customer")
+                            .OrderBy(o => o.CustomerID)
+                            .Take(2)
+                           from o2 in context.Set<Order>()
+                               .Include("Customer")
+                               .OrderBy(o => o.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { o1, o2 })
+                            .ToList()
+                        : (from o1 in context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .OrderBy(o => o.CustomerID)
+                            .Take(2)
+                           from o2 in context.Set<Order>()
+                               .Include(o => o.Customer)
+                               .OrderBy(o => o.CustomerID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { o1, o2 })
+                            .ToList();
 
                 Assert.Equal(4, orders.Count);
                 Assert.True(orders.All(o => o.o1.Customer != null));
@@ -1252,22 +1588,35 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_duplicate_reference2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_duplicate_reference2(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = (from o1 in context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .OrderBy(o => o.OrderID)
-                        .Take(2)
-                       from o2 in context.Set<Order>()
-                           .OrderBy(o => o.OrderID)
-                           .Skip(2)
-                           .Take(2)
-                       select new { o1, o2 })
-                        .ToList();
+                    = useString
+                        ? (from o1 in context.Set<Order>()
+                            .Include("Customer")
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
+                           from o2 in context.Set<Order>()
+                               .OrderBy(o => o.OrderID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { o1, o2 })
+                            .ToList()
+                        : (from o1 in context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
+                           from o2 in context.Set<Order>()
+                               .OrderBy(o => o.OrderID)
+                               .Skip(2)
+                               .Take(2)
+                           select new { o1, o2 })
+                            .ToList();
 
                 Assert.Equal(4, orders.Count);
                 Assert.True(orders.All(o => o.o1.Customer != null));
@@ -1299,22 +1648,35 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_duplicate_reference3()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_duplicate_reference3(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = (from o1 in context.Set<Order>()
-                        .OrderBy(o => o.OrderID)
-                        .Take(2)
-                       from o2 in context.Set<Order>()
-                           .OrderBy(o => o.OrderID)
-                           .Include(o => o.Customer)
-                           .Skip(2)
-                           .Take(2)
-                       select new { o1, o2 })
-                        .ToList();
+                    = useString
+                        ? (from o1 in context.Set<Order>()
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
+                           from o2 in context.Set<Order>()
+                               .OrderBy(o => o.OrderID)
+                               .Include("Customer")
+                               .Skip(2)
+                               .Take(2)
+                           select new { o1, o2 })
+                            .ToList()
+                        : (from o1 in context.Set<Order>()
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
+                           from o2 in context.Set<Order>()
+                               .OrderBy(o => o.OrderID)
+                               .Include(o => o.Customer)
+                               .Skip(2)
+                               .Take(2)
+                           select new { o1, o2 })
+                            .ToList();
 
                 Assert.Equal(4, orders.Count);
                 Assert.True(orders.All(o => o.o1.Customer == null));
@@ -1346,16 +1708,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_with_client_filter()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_with_client_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Where(c => c.IsLondon)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Where(c => c.IsLondon)
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Where(c => c.IsLondon)
+                            .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(46, customers.SelectMany(c => c.Orders).Count());
@@ -1376,15 +1745,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multi_level_reference_and_collection_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multi_level_reference_and_collection_predicate(bool useString)
         {
             using (var context = CreateContext())
             {
                 var order
-                    = context.Set<Order>()
-                        .Include(o => o.Customer.Orders)
-                        .Single(o => o.OrderID == 10248);
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer.Orders")
+                            .Single(o => o.OrderID == 10248)
+                        : context.Set<Order>()
+                            .Include(o => o.Customer.Orders)
+                            .Single(o => o.OrderID == 10248);
 
                 Assert.NotNull(order.Customer);
                 Assert.True(order.Customer.Orders.All(o => o != null));
@@ -1399,15 +1774,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multi_level_collection_and_then_include_reference_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multi_level_collection_and_then_include_reference_predicate(bool useString)
         {
             using (var context = CreateContext())
             {
                 var order
-                    = context.Set<Order>()
-                        .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
-                        .Single(o => o.OrderID == 10248);
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("OrderDetails.Product")
+                            .Single(o => o.OrderID == 10248)
+                        : context.Set<Order>()
+                            .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                            .Single(o => o.OrderID == 10248);
 
                 Assert.NotNull(order.OrderDetails);
                 Assert.True(order.OrderDetails.Count > 0);
@@ -1423,16 +1804,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(o => o.Order)
-                        .Include(o => o.Product)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order")
+                            .Include("Product")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(o => o.Order)
+                            .Include(o => o.Product)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(o => o.Order != null));
@@ -1453,16 +1841,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_and_collection_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_and_collection_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order.Customer.Orders)
-                        .Include(od => od.Product)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer.Orders")
+                            .Include("Product")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Order.Customer.Orders)
+                            .Include(od => od.Product)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -1481,16 +1876,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_and_collection_multi_level_reverse()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_and_collection_multi_level_reverse(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order.Customer.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Product")
+                            .Include("Order.Customer.Orders")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Product)
+                            .Include(od => od.Order.Customer.Orders)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -1509,16 +1911,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order.Customer)
-                        .Include(od => od.Product)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer")
+                            .Include("Product")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(o => o.Order.Customer)
+                            .Include(o => o.Product)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -1536,16 +1945,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_multi_level_reverse()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_multi_level_reverse(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Product")
+                            .Include("Order.Customer")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(o => o.Product)
+                            .Include(o => o.Order.Customer)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -1563,15 +1979,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .ToList();
 
                 Assert.Equal(830, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
@@ -1591,15 +2013,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_alias_generation()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_alias_generation(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(o => o.Order)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(o => o.Order)
+                            .ToList();
 
                 Assert.True(orderDetails.Any());
 
@@ -1616,16 +2044,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_and_collection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_and_collection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .Include(o => o.OrderDetails)
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .Include("OrderDetails")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .Include(o => o.OrderDetails)
+                            .ToList();
 
                 Assert.Equal(830, orders.Count);
 
@@ -1642,16 +2077,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_force_alias_uniquefication()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_force_alias_uniquefication(bool useString)
         {
             using (var context = CreateContext())
             {
                 var result
-                    = (from o in context.Set<Order>().Include(o => o.OrderDetails)
-                       where o.CustomerID == "ALFKI"
-                       select o)
-                        .ToList();
+                    = useString
+                        ? (from o in context.Set<Order>().Include("OrderDetails")
+                           where o.CustomerID == "ALFKI"
+                           select o)
+                            .ToList()
+                        : (from o in context.Set<Order>().Include(o => o.OrderDetails)
+                           where o.CustomerID == "ALFKI"
+                           select o)
+                            .ToList();
 
                 Assert.Equal(6, result.Count);
                 Assert.True(result.SelectMany(r => r.OrderDetails).All(od => od.Order != null));
@@ -1669,16 +2111,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_as_no_tracking()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_as_no_tracking(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .AsNoTracking()
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .AsNoTracking()
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .AsNoTracking()
+                            .ToList();
 
                 Assert.Equal(830, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
@@ -1697,8 +2146,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_dependent_already_tracked()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_dependent_already_tracked(bool useString)
         {
             using (var context = CreateContext())
             {
@@ -1710,9 +2161,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
 
                 var orders2
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .ToList();
 
                 Assert.True(orders1.All(o1 => orders2.Contains(o1, ReferenceEqualityComparer.Instance)));
                 Assert.True(orders2.All(o => o.Customer != null));
@@ -1731,46 +2186,66 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_single_or_default_when_no_result()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_single_or_default_when_no_result(bool useString)
         {
             using (var context = CreateContext())
             {
                 var order
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .SingleOrDefault(o => o.OrderID == -1);
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .SingleOrDefault(o => o.OrderID == -1)
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .SingleOrDefault(o => o.OrderID == -1);
 
                 Assert.Null(order);
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_when_projection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_when_projection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .Select(o => o.CustomerID)
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .Select(o => o.CustomerID)
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .Select(o => o.CustomerID)
+                            .ToList();
 
                 Assert.Equal(830, orders.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_when_entity_in_projection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_when_entity_in_projection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .Select(o => new { o, o.CustomerID })
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .Select(o => new { o, o.CustomerID })
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .Select(o => new { o, o.CustomerID })
+                            .ToList();
 
                 Assert.Equal(830, orders.Count);
                 Assert.Equal(919, context.ChangeTracker.Entries().Count());
@@ -1788,16 +2263,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_with_filter()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_with_filter(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .Where(o => o.CustomerID == "ALFKI")
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer")
+                            .Where(o => o.CustomerID == "ALFKI")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer)
+                            .Where(o => o.CustomerID == "ALFKI")
+                            .ToList();
 
                 Assert.Equal(6, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
@@ -1817,16 +2299,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_with_filter_reordered()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_with_filter_reordered(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>()
-                        .Where(o => o.CustomerID == "ALFKI")
-                        .Include(o => o.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<Order>()
+                            .Where(o => o.CustomerID == "ALFKI")
+                            .Include("Customer")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Where(o => o.CustomerID == "ALFKI")
+                            .Include(o => o.Customer)
+                            .ToList();
 
                 Assert.Equal(6, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
@@ -1846,15 +2335,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_references_and_collection_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_references_and_collection_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order.Customer.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer.Orders")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(o => o.Order.Customer.Orders)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -1873,15 +2368,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_then_include_collection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_then_include_collection(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders.OrderDetails")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
+                            .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.True(customers.All(c => c.Orders != null));
@@ -1899,15 +2400,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_then_include_collection_then_include_reference()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_then_include_collection_then_include_reference(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ThenInclude(od => od.Product)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders.OrderDetails.Product")
+                            .ToList()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ThenInclude(od => od.Product)
+                            .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.True(customers.All(c => c.Orders != null));
@@ -1925,15 +2432,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_collection_then_include_collection_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_then_include_collection_predicate(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customer
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
-                        .SingleOrDefault(c => c.CustomerID == "ALFKI");
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders.OrderDetails")
+                            .SingleOrDefault(c => c.CustomerID == "ALFKI")
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
+                            .SingleOrDefault(c => c.CustomerID == "ALFKI");
 
                 Assert.NotNull(customer);
                 Assert.Equal(6, customer.Orders.Count);
@@ -1948,16 +2461,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_references_and_collection_multi_level_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_references_and_collection_multi_level_predicate(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order.Customer.Orders)
-                        .Where(od => od.OrderID == 10248)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer.Orders")
+                            .Where(od => od.OrderID == 10248)
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Order.Customer.Orders)
+                            .Where(od => od.OrderID == 10248)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -1976,15 +2496,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_references_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_references_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(o => o.Order.Customer)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2002,15 +2528,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multi_level_reference_then_include_collection_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multi_level_reference_then_include_collection_predicate(bool useString)
         {
             using (var context = CreateContext())
             {
                 var order
-                    = context.Set<Order>()
-                        .Include(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Single(o => o.OrderID == 10248);
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer.Orders")
+                            .Single(o => o.OrderID == 10248)
+                        : context.Set<Order>()
+                            .Include(o => o.Customer).ThenInclude(c => c.Orders)
+                            .Single(o => o.OrderID == 10248);
 
                 Assert.NotNull(order.Customer);
                 Assert.True(order.Customer.Orders.All(o => o != null));
@@ -2025,16 +2557,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_then_include_collection_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_then_include_collection_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Include(od => od.Product)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer.Orders")
+                            .Include("Product")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
+                            .Include(od => od.Product)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2053,16 +2592,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_then_include_collection_multi_level_reverse()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_then_include_collection_multi_level_reverse(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include(nameof(OrderDetail.Product))
+                            .Include(nameof(OrderDetail.Order) + "." + nameof(Order.Customer) + "." + nameof(Customer.Orders))
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Product)
+                            .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2081,16 +2627,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_then_include_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_then_include_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
-                        .Include(od => od.Product)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer")
+                            .Include("Product")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Order).ThenInclude(o => o.Customer)
+                            .Include(od => od.Product)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2108,16 +2661,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_multiple_references_then_include_multi_level_reverse()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_multiple_references_then_include_multi_level_reverse(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Product")
+                            .Include("Order.Customer")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Product)
+                            .Include(od => od.Order).ThenInclude(o => o.Customer)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2135,15 +2695,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_references_then_include_collection_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_references_then_include_collection_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer.Orders")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2162,16 +2728,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_references_then_include_collection_multi_level_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_references_then_include_collection_multi_level_predicate(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Where(od => od.OrderID == 10248)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer.Orders")
+                            .Where(od => od.OrderID == 10248)
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
+                            .Where(od => od.OrderID == 10248)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2190,15 +2763,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_references_then_include_multi_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_references_then_include_multi_level(bool useString)
         {
             using (var context = CreateContext())
             {
                 var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
-                        .ToList();
+                    = useString
+                        ? context.Set<OrderDetail>()
+                            .Include("Order.Customer")
+                            .ToList()
+                        : context.Set<OrderDetail>()
+                            .Include(od => od.Order).ThenInclude(o => o.Customer)
+                            .ToList();
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
@@ -2216,19 +2795,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_with_complex_projection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_with_complex_projection(bool useString)
         {
             using (var context = CreateContext())
             {
-                var query = from o in context.Orders.Include(o => o.Customer)
-                            select new
-                            {
-                                CustomerId = new
-                                {
-                                    Id = o.Customer.CustomerID
-                                }
-                            };
+                var query = useString
+                    ? from o in context.Orders.Include("Customer")
+                      select new
+                      {
+                          CustomerId = new
+                          {
+                              Id = o.Customer.CustomerID
+                          }
+                      }
+                    : from o in context.Orders.Include(o => o.Customer)
+                      select new
+                      {
+                          CustomerId = new
+                          {
+                              Id = o.Customer.CustomerID
+                          }
+                      };
 
                 var results = query.ToList();
 
@@ -2236,17 +2826,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_with_take()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_with_take(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Set<Customer>()
-                        .OrderByDescending(c => c.City)
-                        .Include(c => c.Orders)
-                        .Take(10)
-                        .ToList();
+                    = useString
+                        ? context.Set<Customer>()
+                            .OrderByDescending(c => c.City)
+                            .Include("Orders")
+                            .Take(10)
+                            .ToList()
+                        : context.Set<Customer>()
+                            .OrderByDescending(c => c.City)
+                            .Include(c => c.Orders)
+                            .Take(10)
+                            .ToList();
 
                 Assert.True(customers.All(c => c.Orders.Count > 0));
 
@@ -2262,17 +2860,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Include_with_skip()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_with_skip(bool useString)
         {
             using (var context = CreateContext())
             {
                 var customers
-                    = context.Customers
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.ContactName)
-                        .Skip(80)
-                        .ToList();
+                    = useString
+                        ? context.Customers
+                            .Include("Orders")
+                            .OrderBy(c => c.ContactName)
+                            .Skip(80)
+                            .ToList()
+                        : context.Customers
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.ContactName)
+                            .Skip(80)
+                            .ToList();
 
                 Assert.True(customers.All(c => c.Orders.Count > 0));
 

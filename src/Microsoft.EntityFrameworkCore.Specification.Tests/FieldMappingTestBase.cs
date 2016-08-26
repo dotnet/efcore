@@ -231,21 +231,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Update_read_only_props_with_named_fields()
             => Update<BlogReadOnlyExplicit>("Posts");
 
-        // [Fact] TODO: Use string-based include or EF.Property when available
+        [Fact]
         public virtual void Include_collection_write_only_props()
         {
             using (var context = CreateContext())
             {
-                //AssertGraph(context.Set<BlogWriteOnly>().Include(e => e.Posts).ToList());
+                AssertGraph(context.Set<BlogWriteOnly>().Include("Posts").ToList());
             }
         }
 
-        // [Fact] TODO: Use string-based include or EF.Property when available
+        [Fact]
         public virtual void Include_reference_write_only_props()
         {
             using (var context = CreateContext())
             {
-                //AssertGraph(context.Set<PostWriteOnly>().Include(e => e.Blog).ToList());
+                AssertGraph(context.Set<PostWriteOnly>().Include("Blog").ToList());
             }
         }
 
@@ -273,21 +273,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Update_write_only_props()
             => Update<BlogWriteOnly>("Posts");
 
-        // [Fact] TODO: Use string-based include or EF.Property when available
+        [Fact]
         public virtual void Include_collection_write_only_props_with_named_fields()
         {
             using (var context = CreateContext())
             {
-                //AssertGraph(context.Set<BlogWriteOnlyExplicit>().Include(e => e.Posts).ToList());
+                AssertGraph(context.Set<BlogWriteOnlyExplicit>().Include("Posts").ToList());
             }
         }
 
-        // [Fact] TODO: Use string-based include or EF.Property when available
+        [Fact]
         public virtual void Include_reference_write_only_props_with_named_fields()
         {
             using (var context = CreateContext())
             {
-                //AssertGraph(context.Set<PostWriteOnlyExplicit>().Include(e => e.Blog).ToList());
+                AssertGraph(context.Set<PostWriteOnlyExplicit>().Include("Blog").ToList());
             }
         }
 
