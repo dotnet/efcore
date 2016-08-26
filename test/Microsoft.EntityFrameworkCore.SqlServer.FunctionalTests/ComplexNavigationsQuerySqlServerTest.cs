@@ -1524,6 +1524,43 @@ END",
                 Sql);
         }
 
+        public override void GroupJoin_on_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
+        {
+            base.GroupJoin_on_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected();
+
+            Assert.Equal(
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_InverseId], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_PK_InverseId], [t].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+LEFT JOIN (
+    SELECT [l20].[Id], [l20].[Date], [l20].[Level1_Optional_Id], [l20].[Level1_Required_Id], [l20].[Name], [l20].[OneToMany_Optional_InverseId], [l20].[OneToMany_Optional_Self_InverseId], [l20].[OneToMany_Required_InverseId], [l20].[OneToMany_Required_Self_InverseId], [l20].[OneToOne_Optional_PK_InverseId], [l20].[OneToOne_Optional_SelfId]
+    FROM [Level2] AS [l20]
+    WHERE ([l20].[Name] <> N'L2 01') OR [l20].[Name] IS NULL
+) AS [t] ON [l1].[Id] = [t].[Level1_Optional_Id]
+ORDER BY [l1].[Id]",
+                Sql);
+        }
+
+        public override void GroupJoin_on_complex_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
+        {
+            base.GroupJoin_on_complex_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected();
+
+            Assert.Contains(
+                @"SELECT [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_InverseId], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_PK_InverseId], [t].[OneToOne_Optional_SelfId]
+FROM (
+    SELECT [l1.OneToOne_Required_FK0].[Id], [l1.OneToOne_Required_FK0].[Date], [l1.OneToOne_Required_FK0].[Level1_Optional_Id], [l1.OneToOne_Required_FK0].[Level1_Required_Id], [l1.OneToOne_Required_FK0].[Name], [l1.OneToOne_Required_FK0].[OneToMany_Optional_InverseId], [l1.OneToOne_Required_FK0].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Required_FK0].[OneToMany_Required_InverseId], [l1.OneToOne_Required_FK0].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Required_FK0].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Required_FK0].[OneToOne_Optional_SelfId]
+    FROM [Level1] AS [l11]
+    INNER JOIN [Level2] AS [l1.OneToOne_Required_FK0] ON [l11].[Id] = [l1.OneToOne_Required_FK0].[Level1_Required_Id]
+    WHERE ([l11].[Name] <> N'L1 01') OR [l11].[Name] IS NULL
+) AS [t]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]",
+                Sql);
+
+        }
+
         private const string FileLineEnding = @"
 ";
 
