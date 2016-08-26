@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var typeIsExpressionTranslatingVisitor 
+            var typeIsExpressionTranslatingVisitor
                 = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
 
             queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
@@ -417,19 +417,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
+            var previousQuerySource = FindPreviousQuerySource(queryModel, index);
+
+            var previousSelectExpression
+                = previousQuerySource != null
+                    ? TryGetQuery(previousQuerySource)
+                    : null;
+
+            var previousSelectProjectionCount
+                = previousSelectExpression?.Projection.Count ?? -1;
+
             base.VisitAdditionalFromClause(fromClause, queryModel, index);
-            
-            var fromQuerySourceReferenceExpression 
+
+            var fromQuerySourceReferenceExpression
                 = fromClause.FromExpression as QuerySourceReferenceExpression;
 
             if (fromQuerySourceReferenceExpression != null)
             {
-                var previousQuerySource = FindPreviousQuerySource(queryModel, index - 1);
+                previousQuerySource = FindPreviousQuerySource(queryModel, index - 1);
 
                 if (previousQuerySource != null
                     && !RequiresClientJoin)
                 {
-                    var previousSelectExpression = TryGetQuery(previousQuerySource);
+                    previousSelectExpression = TryGetQuery(previousQuerySource);
 
                     if (previousSelectExpression != null)
                     {
@@ -447,55 +457,47 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (selectExpression != null
                 && selectExpression.Tables.Count == 1)
             {
-                var previousQuerySource = FindPreviousQuerySource(queryModel, index);
-
-                if (previousQuerySource != null
-                    && !RequiresClientJoin)
+                if (previousSelectExpression != null
+                      && !RequiresClientJoin
+                      && CanFlattenSelectMany())
                 {
-                    var previousSelectExpression = TryGetQuery(previousQuerySource);
-
-                    if (previousSelectExpression != null
-                        && CanFlattenSelectMany())
+                    if (!QueryCompilationContext.QuerySourceRequiresMaterialization(previousQuerySource))
                     {
-                        if (!QueryCompilationContext.QuerySourceRequiresMaterialization(previousQuerySource))
-                        {
-                            previousSelectExpression.ClearProjection();
-                            previousSelectExpression.IsProjectStar = false;
-                        }
-
-                        var readerOffset = previousSelectExpression.Projection.Count;
-
-                        var correlated = selectExpression.IsCorrelated();
-
-                        if (correlated)
-                        {
-                            if (!QueryCompilationContext.IsLateralJoinSupported)
-                            {
-                                return;
-                            }
-
-                            previousSelectExpression
-                                .AddLateralJoin(selectExpression.Tables.First(), selectExpression.Projection);
-                        }
-                        else
-                        {
-                            previousSelectExpression
-                                .AddCrossJoin(selectExpression.Tables.First(), selectExpression.Projection);
-                        }
-
-                        QueriesBySource.Remove(fromClause);
-
-                        Expression
-                            = _queryFlattenerFactory
-                                .Create(
-                                    fromClause,
-                                    QueryCompilationContext,
-                                    LinqOperatorProvider.SelectMany,
-                                    readerOffset)
-                                .Flatten((MethodCallExpression)Expression);
-
-                        RequiresClientSelectMany = false;
+                        previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
                     }
+
+                    var readerOffset = previousSelectExpression.Projection.Count;
+
+                    var correlated = selectExpression.IsCorrelated();
+
+                    if (correlated)
+                    {
+                        if (!QueryCompilationContext.IsLateralJoinSupported)
+                        {
+                            return;
+                        }
+
+                        previousSelectExpression
+                            .AddLateralJoin(selectExpression.Tables.First(), selectExpression.Projection);
+                    }
+                    else
+                    {
+                        previousSelectExpression
+                            .AddCrossJoin(selectExpression.Tables.First(), selectExpression.Projection);
+                    }
+
+                    QueriesBySource.Remove(fromClause);
+
+                    Expression
+                        = _queryFlattenerFactory
+                            .Create(
+                                fromClause,
+                                QueryCompilationContext,
+                                LinqOperatorProvider.SelectMany,
+                                readerOffset)
+                            .Flatten((MethodCallExpression)Expression);
+
+                    RequiresClientSelectMany = false;
                 }
             }
 
@@ -651,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(operatorToFlatten, nameof(operatorToFlatten));
 
             RequiresClientJoin = true;
-            
+
             var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
             var previousSelectExpression
@@ -663,8 +665,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = previousSelectExpression?.Projection.Count ?? -1;
 
             baseVisitAction();
-            
-            if (!RequiresClientSelectMany 
+
+            if (!RequiresClientSelectMany
                 && previousSelectExpression != null
                 && (!operatorToFlatten.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin) || CanFlattenGroupJoin()))
             {
@@ -749,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return true;
         }
-    
+
         private class OuterJoinOrderingExtractor : ExpressionVisitor
         {
             private readonly List<Expression> _expressions = new List<Expression>();

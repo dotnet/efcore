@@ -5917,6 +5917,18 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Handle_materialization_properly_when_more_than_two_query_sources_are_involved()
+        {
+            base.Handle_materialization_properly_when_more_than_two_query_sources_are_involved();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+CROSS JOIN [Employees] AS [e]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

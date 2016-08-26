@@ -5932,10 +5932,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Customers.OrderBy(c => c.CustomerID)
-                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON"}).ToList();
+                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToList();
 
                 Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.Equal(false, t.Value));
             }
+        }
+
+        [ConditionalFact]
+        public virtual void Handle_materialization_properly_when_more_than_two_query_sources_are_involved()
+        {
+            AssertQuery<Customer, Order, Employee>((cs, os, es) =>
+                      (from c in cs
+                       from o in os
+                       from e in es
+                       select new { c }).FirstOrDefault());
         }
 
         protected NorthwindContext CreateContext()
