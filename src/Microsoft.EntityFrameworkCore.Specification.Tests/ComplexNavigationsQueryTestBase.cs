@@ -2858,5 +2858,94 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_on_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne.ToList()
+                    .GroupJoin(
+                        context.LevelTwo.ToList().Where(l2 => l2.Name != "L2 01"),
+                        l1 => l1.Id,
+                        l2 => l2.Level1_Optional_Id,
+                        (l1, l2s) => new { l1, l2s })
+                    .Where(r => r.l2s.Any())
+                    .Select(r => r.l1.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                   .GroupJoin(
+                        context.LevelTwo.Where(l2 => l2.Name != "L2 01"),
+                        l1 => l1.Id,
+                        l2 => l2.Level1_Optional_Id,
+                        (l1, l2s) => new { l1, l2s })
+                   .Where(r => r.l2s.Any())
+                   .Select(r => r.l1);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_on_complex_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne.ToList()
+                    .GroupJoin(
+                        context.LevelOne
+                            .Include(l1 => l1.OneToOne_Required_FK)
+                            .ToList()
+                            .Where(l1 => l1.Name != "L1 01")
+                            .Select(l1 => l1.OneToOne_Required_FK),
+                        l1 => l1.Id,
+                        l2 => l2.Level1_Optional_Id,
+                        (l1, l2s) => new
+                        {
+                            l1,
+                            l2s
+                        })
+                    .Where(r => r.l2s.Any())
+                    .Select(r => r.l1.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .GroupJoin(
+                        context.LevelOne.Where(l1 => l1.Name != "L1 01").Select(l1 => l1.OneToOne_Required_FK),
+                        l1 => l1.Id,
+                        l2 => l2.Level1_Optional_Id,
+                        (l1, l2s) => new { l1, l2s })
+                    .Where(r => r.l2s.Any())
+                    .Select(r => r.l1);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Name));
+                }
+            }
+        }
     }
 }
