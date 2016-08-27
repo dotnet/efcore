@@ -10,35 +10,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
-    // TODO: Remove these once available in the product
-    internal static class TestExtensions
-    {
-        public static void Reload(this EntityEntry entry, DbContext context)
-        {
-            if (entry.State == EntityState.Detached)
-            {
-                throw new InvalidOperationException("Can't reload an unknown entity");
-            }
-
-            if (entry.State == EntityState.Added)
-            {
-                throw new InvalidOperationException("Can't reload an added entity");
-            }
-
-            var storeValues = entry.GetDatabaseValues();
-            if (storeValues == null)
-            {
-                entry.State = EntityState.Detached;
-            }
-            else
-            {
-                entry.CurrentValues.SetValues(storeValues);
-                entry.OriginalValues.SetValues(storeValues);
-                entry.State = EntityState.Unchanged;
-            }
-        }
-    }
-
     public abstract class OptimisticConcurrencyTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : F1FixtureBase<TTestStore>, new()
@@ -127,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
         {
-            return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload(c));
+            return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload());
         }
 
         // TODO: Uncomment the tests below when lazy loading works
@@ -152,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                             var entry = ex.Entries.Single();
                             Assert.IsAssignableFrom<Chassis>(entry.Entity);
-                            entry.Reload(c);
+                            entry.Reload();
 
                             try
                             {
@@ -163,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             {
                                 var entry2 = ex2.Entries.Single();
                                 Assert.IsAssignableFrom<Team>(entry2.Entity);
-                                entry2.Reload(c);
+                                entry2.Reload();
                             }
                         },
                 c =>
@@ -195,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                             var entry = ex.Entries.Single();
                             Assert.IsAssignableFrom<Driver>(entry.Entity);
-                            entry.Reload(c);
+                            entry.Reload();
 
                             try
                             {
@@ -206,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             {
                                 var entry2 = ex2.Entries.Single();
                                 Assert.IsAssignableFrom<Team>(entry2.Entity);
-                                entry2.Reload(c);
+                                entry2.Reload();
                             }
                         },
                 c =>
@@ -234,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c =>
                     Assert.Equal(
@@ -328,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c =>
                     Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
@@ -369,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
@@ -386,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
         }
@@ -425,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
@@ -453,8 +424,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         #region Tests for calling Reload on an entity in various states
 
-        [Fact]
-        public virtual void Calling_Reload_on_an_Added_entity_throws()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an__Added_entity_that_is_not_in_database_is_no_op(bool async)
         {
             using (var context = CreateF1Context())
             {
@@ -465,52 +438,122 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         TeamId = Team.Ferrari
                     });
 
-                Assert.Equal("Can't reload an added entity",
-                    Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
+                if (async)
+                {
+                    await entry.ReloadAsync();
+                }
+                else
+                {
+                    entry.Reload();
+                }
+
+                Assert.Equal(EntityState.Added, entry.State);
             }
         }
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_detached_entity_throws()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an_Unchanged_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Unchanged, async);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Modified_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Modified, async);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Deleted_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Deleted, async);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Detached, async);
+
+        private async Task TestReloadGone(EntityState state, bool async)
         {
             using (var context = CreateF1Context())
             {
                 var entry = context.Drivers.Add(
                     new Driver
                     {
+                        Id = 676,
                         Name = "Larry David",
                         TeamId = Team.Ferrari
                     });
-                entry.State = EntityState.Detached;
 
-                Assert.Equal("Can't reload an unknown entity",
-                    Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
+                entry.State = state;
+
+                if (async)
+                {
+                    await entry.ReloadAsync();
+                }
+                else
+                {
+                    entry.Reload();
+                }
+
+                Assert.Equal(EntityState.Detached, entry.State);
             }
         }
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_Unchanged_entity_makes_the_entity_unchanged()
-            => TestReloadPositive(EntityState.Unchanged);
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Unchanged, async);
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged()
-            => TestReloadPositive(EntityState.Modified);
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Modified, async);
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged()
-            => TestReloadPositive(EntityState.Deleted);
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Deleted, async);
 
-        private void TestReloadPositive(EntityState state)
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Added, async);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Detached, async);
+
+        private async Task TestReloadPositive(EntityState state, bool async)
         {
             using (var context = CreateF1Context())
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
+                larry.Name = "Rory Gilmore";
                 var entry = context.Entry(larry);
+                entry.Property(e => e.Name).CurrentValue = "Emily Gilmore";
                 entry.State = state;
 
-                entry.Reload(context);
+                if (async)
+                {
+                    await entry.ReloadAsync();
+                }
+                else
+                {
+                    entry.Reload();
+                }
 
                 Assert.Equal(EntityState.Unchanged, entry.State);
+                Assert.Equal("Jenson Button", larry.Name);
+                Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
             }
         }
 

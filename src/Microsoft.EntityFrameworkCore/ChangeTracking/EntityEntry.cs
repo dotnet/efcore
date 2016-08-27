@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking information and operations for all
         ///     properties and navigation properties of this entity.
         /// </summary>
-        public virtual IEnumerable<MemberEntry> Members 
+        public virtual IEnumerable<MemberEntry> Members
             => Properties.Cast<MemberEntry>().Concat(Navigations);
 
         /// <summary>
@@ -302,6 +302,58 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken);
 
             return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Reloads the entity from the database overwriting any property values with values from the database.
+        ///     </para>
+        ///     <para>
+        ///         The entity will be in the <see cref="EntityState.Unchanged" /> state after calling this method,
+        ///         unless the entity does not exist in the database, in which case the entity will be
+        ///         <see cref="EntityState.Detached" />. Finally, calling Reload on an <see cref="EntityState.Added" />
+        ///         entity that does not exist in the database is a no-op. Note, however, that an Added entity may
+        ///         not yet have had its permanent key value created.
+        ///     </para>
+        /// </summary>
+        public virtual void Reload() => Reload(GetDatabaseValues());
+
+        /// <summary>
+        ///     <para>
+        ///         Reloads the entity from the database overwriting any property values with values from the database.
+        ///     </para>
+        ///     <para>
+        ///         The entity will be in the <see cref="EntityState.Unchanged" /> state after calling this method,
+        ///         unless the entity does not exist in the database, in which case the entity will be
+        ///         <see cref="EntityState.Detached" />. Finally, calling Reload on an <see cref="EntityState.Added" />
+        ///         entity that does not exist in the database is a no-op. Note, however, that an Added entity may
+        ///         not yet have had its permanent key value created.
+        ///     </para>
+        /// </summary>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+        /// </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation.
+        /// </returns>
+        public virtual async Task ReloadAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Reload(await GetDatabaseValuesAsync(cancellationToken));
+
+        private void Reload(PropertyValues storeValues)
+        {
+            if (storeValues == null)
+            {
+                if (State != EntityState.Added)
+                {
+                    State = EntityState.Detached;
+                }
+            }
+            else
+            {
+                CurrentValues.SetValues(storeValues);
+                OriginalValues.SetValues(storeValues);
+                State = EntityState.Unchanged;
+            }
         }
 
         private IEntityFinder Finder
