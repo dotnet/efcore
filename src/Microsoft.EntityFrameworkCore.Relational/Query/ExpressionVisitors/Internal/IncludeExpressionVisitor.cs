@@ -592,7 +592,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (selectExpression != null)
             {
-                return selectExpression.Projection.ToList();
+                if (selectExpression.IsProjectStar)
+                {
+                    return selectExpression.Tables.SelectMany(ExtractProjections);
+                }
+                else
+                {
+                    return selectExpression.Projection.ToList();
+                }
             }
 
             var joinExpression = tableExpression as JoinExpressionBase;
