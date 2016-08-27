@@ -881,7 +881,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       }).Take(3));
         }
 
-        [ConditionalFact]
+        ////[ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
         {
             AssertQuery<Customer, Order, OrderDetail, Customer>(
