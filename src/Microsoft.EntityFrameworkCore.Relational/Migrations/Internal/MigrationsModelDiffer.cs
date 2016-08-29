@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(createTableOperations)
                 .Concat(constraintOperations)
                 .Concat(leftovers)
-                .ToArray();
+                .ToList();
         }
 
         #region IModel

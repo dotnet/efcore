@@ -30,14 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             var schema = command.Schema;
             var operations = command.ColumnModifications;
 
-            var writeOperations = operations.Where(o => o.IsWrite).ToArray();
-            var readOperations = operations.Where(o => o.IsRead).ToArray();
+            var writeOperations = operations.Where(o => o.IsWrite).ToList();
+            var readOperations = operations.Where(o => o.IsRead).ToList();
 
             AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
 
-            if (readOperations.Length > 0)
+            if (readOperations.Count > 0)
             {
-                var keyOperations = operations.Where(o => o.IsKey).ToArray();
+                var keyOperations = operations.Where(o => o.IsKey).ToList();
 
                 return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
             }
@@ -54,15 +54,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var schema = command.Schema;
             var operations = command.ColumnModifications;
 
-            var writeOperations = operations.Where(o => o.IsWrite).ToArray();
-            var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
-            var readOperations = operations.Where(o => o.IsRead).ToArray();
+            var writeOperations = operations.Where(o => o.IsWrite).ToList();
+            var conditionOperations = operations.Where(o => o.IsCondition).ToList();
+            var readOperations = operations.Where(o => o.IsRead).ToList();
 
             AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, conditionOperations);
 
-            if (readOperations.Length > 0)
+            if (readOperations.Count > 0)
             {
-                var keyOperations = operations.Where(o => o.IsKey).ToArray();
+                var keyOperations = operations.Where(o => o.IsKey).ToList();
 
                 return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
             }
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var name = command.TableName;
             var schema = command.Schema;
-            var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToArray();
+            var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToList();
 
             AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
 

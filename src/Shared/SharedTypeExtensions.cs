@@ -114,9 +114,9 @@ namespace System
         {
             if (!type.GetTypeInfo().IsGenericTypeDefinition)
             {
-                var types = GetGenericTypeImplementations(type, interfaceOrBaseType).ToArray();
+                var types = GetGenericTypeImplementations(type, interfaceOrBaseType).ToList();
 
-                return types.Length == 1 ? types[0].GetTypeInfo().GenericTypeArguments.FirstOrDefault() : null;
+                return types.Count == 1 ? types[0].GetTypeInfo().GenericTypeArguments.FirstOrDefault() : null;
             }
 
             return null;

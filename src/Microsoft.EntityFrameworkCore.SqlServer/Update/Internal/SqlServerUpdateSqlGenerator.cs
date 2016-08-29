@@ -222,23 +222,23 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var schema = command.Schema;
             var operations = command.ColumnModifications;
 
-            var writeOperations = operations.Where(o => o.IsWrite).ToArray();
-            var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
-            var readOperations = operations.Where(o => o.IsRead).ToArray();
+            var writeOperations = operations.Where(o => o.IsWrite).ToList();
+            var conditionOperations = operations.Where(o => o.IsCondition).ToList();
+            var readOperations = operations.Where(o => o.IsRead).ToList();
 
-            if (readOperations.Length > 0)
+            if (readOperations.Count > 0)
             {
                 AppendDeclareTable(commandStringBuilder, InsertedTableBaseName, commandPosition, readOperations);
             }
             AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
-            if (readOperations.Length > 0)
+            if (readOperations.Count > 0)
             {
                 AppendOutputClause(commandStringBuilder, readOperations, InsertedTableBaseName, commandPosition);
             }
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator);
 
-            if (readOperations.Length > 0)
+            if (readOperations.Count > 0)
             {
                 return AppendSelectCommand(commandStringBuilder, readOperations, InsertedTableBaseName, commandPosition);
             }

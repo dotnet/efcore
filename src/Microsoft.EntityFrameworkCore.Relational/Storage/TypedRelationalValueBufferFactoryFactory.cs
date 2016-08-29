@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return new TypedRelationalValueBufferFactory(
                 _cache.GetOrAdd(
-                    new CacheKey(valueTypes.ToArray(), indexMap),
+                    new CacheKey(valueTypes, indexMap),
                     CreateArrayInitializer));
         }
 

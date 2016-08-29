@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class IdentityMap<TKey> : IIdentityMap
     {
         private readonly Dictionary<TKey, InternalEntityEntry> _identityMap;
-        private readonly IList<IForeignKey> _foreignKeys;
+        private readonly IForeignKey[] _foreignKeys;
         private Dictionary<IForeignKey, IDependentsMap> _dependentMaps;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .GetDerivedTypesInclusive()
                     .SelectMany(e => e.GetForeignKeys())
                     .Distinct()
-                    .ToList();
+                    .ToArray();
             }
         }
 

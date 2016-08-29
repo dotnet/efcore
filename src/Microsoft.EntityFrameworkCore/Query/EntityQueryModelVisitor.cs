@@ -383,10 +383,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     includeResultOperator.NavigationPropertyPath,
                                     (ps, _) =>
                                         {
-                                            var properties = ps.ToArray();
-                                            var navigations = properties.OfType<INavigation>().ToArray();
+                                            var properties = ps.ToList();
+                                            var navigations = properties.OfType<INavigation>().ToList();
 
-                                            if (properties.Length != navigations.Length)
+                                            if (properties.Count != navigations.Count)
                                             {
                                                 throw new InvalidOperationException(
                                                     CoreStrings.IncludeNonBindableExpression(

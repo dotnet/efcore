@@ -125,14 +125,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
-            return (propertyInfos != null) && (propertyInfos.Length == 1) ? propertyInfos[0] : null;
+            return (propertyInfos != null) && (propertyInfos.Count == 1) ? propertyInfos[0] : null;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static PropertyInfo[] GetComplexPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
+        public static IReadOnlyList<PropertyInfo> GetComplexPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return propertyPath;
         }
 
-        private static PropertyInfo[] MatchPropertyAccess(
+        private static IReadOnlyList<PropertyInfo> MatchPropertyAccess(
             this Expression parameterExpression, Expression propertyAccessExpression)
         {
             var propertyInfos = new List<PropertyInfo>();
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
             while (memberExpression.Expression.RemoveConvert() != parameterExpression);
 
-            return propertyInfos.ToArray();
+            return propertyInfos;
         }
 
         /// <summary>

@@ -129,14 +129,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var relationalOptionsExtensions
                 = options.Extensions
                     .OfType<RelationalOptionsExtension>()
-                    .ToArray();
+                    .ToList();
 
-            if (relationalOptionsExtensions.Length == 0)
+            if (relationalOptionsExtensions.Count == 0)
             {
                 throw new InvalidOperationException(RelationalStrings.NoProviderConfigured);
             }
 
-            if (relationalOptionsExtensions.Length > 1)
+            if (relationalOptionsExtensions.Count > 1)
             {
                 throw new InvalidOperationException(RelationalStrings.MultipleProvidersConfigured);
             }

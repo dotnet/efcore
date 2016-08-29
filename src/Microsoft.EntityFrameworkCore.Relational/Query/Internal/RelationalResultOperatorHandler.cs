@@ -555,9 +555,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToArray();
+                = entityType.GetConcreteTypesInHierarchy().ToList();
 
-            if (concreteEntityTypes.Length != 1
+            if (concreteEntityTypes.Count != 1
                 || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
             {
                 var relationalMetadataExtensionProvider

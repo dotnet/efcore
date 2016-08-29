@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToArray();
+                = entityType.GetConcreteTypesInHierarchy().ToList();
 
             var indexMap = new int[concreteEntityTypes[0].PropertyCount()];
             var propertyIndex = 0;
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     .CreateMaterializeExpression(
                         concreteEntityTypes[0], valueBufferParameter, indexMap);
 
-            if (concreteEntityTypes.Length == 1
+            if (concreteEntityTypes.Count == 1
                 && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
                 return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
 
-            if (concreteEntityTypes.Length == 1)
+            if (concreteEntityTypes.Count == 1)
             {
                 selectExpression.Predicate
                     = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);

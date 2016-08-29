@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual IRelationalValueBufferFactory Create(
             IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
         {
-            var processValuesAction = _cache.GetOrAdd(new CacheKey(valueTypes.ToArray()), _createValueProcessorDelegate);
+            var processValuesAction = _cache.GetOrAdd(new CacheKey(valueTypes), _createValueProcessorDelegate);
 
             return indexMap == null
                 ? (IRelationalValueBufferFactory)new UntypedRelationalValueBufferFactory(processValuesAction)

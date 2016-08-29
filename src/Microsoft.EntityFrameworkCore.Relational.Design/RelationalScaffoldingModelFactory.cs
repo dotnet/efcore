@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             var unmappedColumns = keyColumns
                 .Where(c => _unmappedColumns.Contains(c))
-                .Select(c => c.Name).ToArray();
+                .Select(c => c.Name).ToList();
             if (unmappedColumns.Any())
             {
                 Logger.LogWarning(RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound(
@@ -385,10 +385,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             var indexColumns = index.IndexColumns
                 .OrderBy(ic => ic.Ordinal)
-                .Select(ic => ic.Column).ToArray();
+                .Select(ic => ic.Column).ToList();
             var unmappedColumns = indexColumns
                 .Where(c => _unmappedColumns.Contains(c))
-                .Select(c => c.Name).ToArray();
+                .Select(c => c.Name).ToList();
             if (unmappedColumns.Any())
             {
                 Logger.LogWarning(RelationalDesignStrings.UnableToScaffoldIndexMissingProperty(
@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 .Select(fc => fc.Column)
                 .Where(c => _unmappedColumns.Contains(c))
                 .Select(c => c.Name)
-                .ToArray();
+                .ToList();
             if (unmappedDependentColumns.Any())
             {
                 Logger.LogWarning(RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 .Select(fc => fc.PrincipalColumn)
                 .Where(pc => principalEntityType.FindProperty(GetPropertyName(pc)) == null)
                 .Select(pc => pc.Name)
-                .ToArray();
+                .ToList();
             if (unmappedPrincipalColumns.Any())
             {
                 Logger.LogWarning(RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(

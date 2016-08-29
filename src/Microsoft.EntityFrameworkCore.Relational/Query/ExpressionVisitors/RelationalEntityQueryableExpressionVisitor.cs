@@ -283,9 +283,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             IEntityType entityType, SelectExpression selectExpression, IQuerySource querySource)
         {
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToArray();
+                = entityType.GetConcreteTypesInHierarchy().ToList();
 
-            if (concreteEntityTypes.Length == 1
+            if (concreteEntityTypes.Count == 1
                 && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
                 return;
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
 
-            if (concreteEntityTypes.Length == 1)
+            if (concreteEntityTypes.Count == 1)
             {
                 selectExpression.Predicate
                     = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
