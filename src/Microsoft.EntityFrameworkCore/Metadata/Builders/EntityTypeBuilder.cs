@@ -135,6 +135,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
+        ///         When adding a new property with this overload the property name must match the
+        ///         name of a CLR property or field on the entity type. This overload cannot be used to
+        ///         add a new shadow state property.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <returns> An object that can be used to configure the property. </returns>
+        public virtual PropertyBuilder Property([NotNull] string propertyName)
+            => new PropertyBuilder(Builder.Property(
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                ConfigurationSource.Explicit));
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a property of the entity type.
+        ///         If no property with the given name exists, then a new property will be added.
+        ///     </para>
+        ///     <para>
         ///         When adding a new property, if a property with the same name exists in the entity class
         ///         then it will be added to the model. If no property exists in the entity class, then
         ///         a new shadow state property will be added. A shadow state property is one that does not have a

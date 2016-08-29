@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<FieldAnnotationClass>().Property<string>("_personFirstName");
+            modelBuilder.Entity<FieldAnnotationClass>().Property("_personFirstName");
 
             Validate(modelBuilder);
 

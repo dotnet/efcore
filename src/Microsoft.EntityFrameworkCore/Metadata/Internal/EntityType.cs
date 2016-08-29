@@ -1390,22 +1390,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             ValidateCanAddProperty(name);
 
+            FieldInfo fieldInfo = null;
+
             if (shadow != true)
             {
                 var clrProperty = ClrType?.GetPropertiesInHierarchy(name).FirstOrDefault();
                 if (clrProperty != null)
                 {
-                    if (propertyType != null
-                        && propertyType != clrProperty.PropertyType)
-                    {
-                        throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(
-                            name,
-                            this.DisplayName(),
-                            clrProperty.PropertyType.ShortDisplayName(),
-                            propertyType.ShortDisplayName()));
-                    }
+                    CheckPropertyType(name, propertyType, clrProperty.PropertyType);
 
                     return AddProperty(clrProperty, configurationSource, runConventions);
+                }
+
+                fieldInfo = ClrType?.GetTypesInHierarchy()
+                    .SelectMany(e => e.GetRuntimeFields()
+                    .Where(f => f.Name == name))
+                    .FirstOrDefault();
+
+                if (fieldInfo != null)
+                {
+                    CheckPropertyType(name, propertyType, fieldInfo.FieldType);
+
+                    propertyType = fieldInfo.FieldType;
                 }
 
                 if (shadow == false)
@@ -1423,7 +1429,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
             }
-            return AddProperty(new Property(name, propertyType, this, configurationSource), runConventions);
+
+            var property = new Property(name, propertyType, this, configurationSource);
+
+            if (fieldInfo != null)
+            {
+                property.SetFieldInfo(fieldInfo, ConfigurationSource.Convention, runConventions: false);
+            }
+
+            return AddProperty(property, runConventions);
+        }
+
+        private void CheckPropertyType(string name, Type propertyType, Type clrMemberType)
+        {
+            if (propertyType != null
+                && propertyType != clrMemberType)
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(
+                    name,
+                    this.DisplayName(),
+                    clrMemberType.ShortDisplayName(),
+                    propertyType.ShortDisplayName()));
+            }
         }
 
         /// <summary>
