@@ -401,8 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (_sourceEnumerator == null)
                     {
-                        outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
-                        innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.CreateIncludeContext(_groupJoinAsyncEnumerable._queryContext);
+                        innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.CreateIncludeContext(_groupJoinAsyncEnumerable._queryContext);
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
                         _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
                         _nextOuter = default(TOuter);
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The create reference related entities loader method.
         /// </summary>
-        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod 
+        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod
             => _createReferenceRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createReferenceRelatedEntitiesLoaderMethod
@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The create collection related entities loader method.
         /// </summary>
-        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod 
+        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod
             => _createCollectionRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createCollectionRelatedEntitiesLoaderMethod

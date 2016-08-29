@@ -7,11 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
     using System.Resources;
     using JetBrains.Annotations;
 
-	/// <summary>
-	///		This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    /// <summary>
+    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
-	/// </summary>
-    public static class SqlServerDesignStrings
+    /// </summary>
+    public static partial class SqlServerDesignStrings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Design.Properties.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);

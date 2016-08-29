@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,7 +21,7 @@ using Remotion.Linq.Parsing;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class NavigationRewritingExpressionVisitor : RelinqExpressionVisitor
@@ -128,10 +127,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private IAsyncQueryProvider _entityQueryProvider;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool navigationExpansionSubquery = false)
+        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
+            : this(queryModelVisitor, false)
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool navigationExpansionSubquery)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
@@ -140,9 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private NavigationRewritingExpressionVisitor(
-            EntityQueryModelVisitor queryModelVisitor, 
-            IAsyncQueryProvider entityQueryProvider, 
-            NavigationRewritingExpressionVisitor parentvisitor, 
+            EntityQueryModelVisitor queryModelVisitor,
+            IAsyncQueryProvider entityQueryProvider,
+            NavigationRewritingExpressionVisitor parentvisitor,
             bool navigationExpansionSubquery)
             : this(queryModelVisitor, navigationExpansionSubquery)
         {
@@ -151,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Rewrite([NotNull] QueryModel queryModel)
@@ -169,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression node)
@@ -210,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
@@ -223,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression node)
@@ -245,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
@@ -371,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         ((NewArrayExpression)((NewExpression)otherExpression).Arguments.Single()).Expressions.Count)));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMember(MemberExpression node)
@@ -384,10 +392,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     (ps, qs) =>
                     {
                         return RewriteNavigationProperties(
-                            ps.ToList(), 
-                            qs, 
+                            ps.ToList(),
+                            qs,
                             node.Expression,
-                            node.Member.Name, 
+                            node.Member.Name,
                             node.Type,
                             e => Expression.MakeMemberAccess(e, node.Member));
                     })
@@ -395,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
@@ -408,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override ElementInit VisitElementInit(ElementInit node)
@@ -425,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitNewArray(NewArrayExpression node)
@@ -442,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -471,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private Expression RewriteNavigationProperties(
-            List<IPropertyBase> properties, 
+            List<IPropertyBase> properties,
             IQuerySource querySource,
             Expression declaringExpression,
             string propertyName,
@@ -506,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (_navigationRewritingQueryModelVisitor.InsideInnerKeySelector)
                 {
                     var translated = CreateSubqueryForNavigations(
-                        outerQuerySourceReferenceExpression, 
+                        outerQuerySourceReferenceExpression,
                         navigations,
                         propertyCreator);
 
@@ -611,10 +619,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery(bool navigationExpansionSubquery = false)
+        public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery()
+            => CreateVisitorForSubQuery(false);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery(bool navigationExpansionSubquery)
             => new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider, this, navigationExpansionSubquery);
 
         private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
@@ -997,8 +1012,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public AdditionalFromClause AdditionalFromClauseBeingProcessed { get; private set; }
 
             public NavigationRewritingQueryModelVisitor(
-                NavigationRewritingExpressionVisitor transformingVisitor, 
-                EntityQueryModelVisitor queryModelVisitor, 
+                NavigationRewritingExpressionVisitor transformingVisitor,
+                EntityQueryModelVisitor queryModelVisitor,
                 bool navigationExpansionSubquery)
                 : base(transformingVisitor)
             {

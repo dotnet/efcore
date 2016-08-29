@@ -269,8 +269,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             GroupJoinInclude outerGroupJoinInclude,
             GroupJoinInclude innerGroupJoinInclude)
         {
-            var outerGroupJoinIncludeContext = outerGroupJoinInclude?.Initialize(queryContext);
-            var innerGroupJoinIncludeContext = innerGroupJoinInclude?.Initialize(queryContext);
+            var outerGroupJoinIncludeContext = outerGroupJoinInclude?.CreateIncludeContext(queryContext);
+            var innerGroupJoinIncludeContext = innerGroupJoinInclude?.CreateIncludeContext(queryContext);
 
             try
             {

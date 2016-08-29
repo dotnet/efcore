@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class GroupJoinInclude : IDisposable
@@ -20,9 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly bool _querySourceRequiresTracking;
 
         private GroupJoinInclude _previous;
+        private GroupJoinIncludeContext _currentContext;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public GroupJoinInclude(
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetPrevious([NotNull] GroupJoinInclude previous)
@@ -52,10 +53,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual GroupJoinIncludeContext Initialize([NotNull] RelationalQueryContext queryContext)
+        [Obsolete(
+            "This method is obsolete and will be removed in the 1.1.0 release. Use CreateIncludeContext instead.",
+             error: true)]
+        public virtual void Initialize([NotNull] RelationalQueryContext queryContext)
+            => CreateIncludeContext(queryContext);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual GroupJoinIncludeContext CreateIncludeContext([NotNull] RelationalQueryContext queryContext)
         {
             var groupJoinIncludeContext
                 = new GroupJoinIncludeContext(
@@ -66,11 +77,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (_previous != null)
             {
-                groupJoinIncludeContext.SetPrevious(_previous.Initialize(queryContext));
+                groupJoinIncludeContext.SetPrevious(_previous.CreateIncludeContext(queryContext));
             }
 
-            return groupJoinIncludeContext;
+            return _currentContext = groupJoinIncludeContext;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [Obsolete(
+            "This method is obsolete and will be removed in the 1.1.0 release. Use Include on the object returned by CreateIncludeContext instead.",
+             error: true)]
+        public virtual void Include([CanBeNull] object entity)
+            => _currentContext.Include(entity);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -78,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void Dispose()
         {
-            // no-op
+            _currentContext?.Dispose();
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class AsyncGroupJoinInclude : IDisposable
@@ -22,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly bool _querySourceRequiresTracking;
 
         private AsyncGroupJoinInclude _previous;
+        private AsyncGroupJoinIncludeContext _currentContext;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public AsyncGroupJoinInclude(
@@ -52,12 +53,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _previous = previous;
             }
         }
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [Obsolete(
+            "This method is obsolete and will be removed in the 1.1.0 release. Use CreateIncludeContext instead.",
+             error: true)]
+        public virtual void Initialize([NotNull] RelationalQueryContext queryContext)
+            => CreateIncludeContext(queryContext);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual AsyncGroupJoinIncludeContext Initialize([NotNull] RelationalQueryContext queryContext)
+        public virtual AsyncGroupJoinIncludeContext CreateIncludeContext([NotNull] RelationalQueryContext queryContext)
         {
             var asyncGroupJoinIncludeContext
                 = new AsyncGroupJoinIncludeContext(
@@ -68,11 +78,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (_previous != null)
             {
-                asyncGroupJoinIncludeContext.SetPrevious(_previous.Initialize(queryContext));
+                asyncGroupJoinIncludeContext.SetPrevious(_previous.CreateIncludeContext(queryContext));
             }
 
-            return asyncGroupJoinIncludeContext;
+            return _currentContext = asyncGroupJoinIncludeContext;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [Obsolete(
+            "This method is obsolete and will be removed in the 1.1.0 release. Use IncludeAsync on the object returned by CreateIncludeContext instead.",
+             error: true)]
+        public virtual Task IncludeAsync([CanBeNull] object entity, CancellationToken cancellationToken)
+            => _currentContext.IncludeAsync(entity, cancellationToken);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -80,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void Dispose()
         {
-            // no-op
+            _currentContext?.Dispose();
         }
 
         /// <summary>
