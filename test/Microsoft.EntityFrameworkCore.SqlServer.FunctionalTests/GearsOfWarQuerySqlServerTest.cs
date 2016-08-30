@@ -701,6 +701,116 @@ WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AN
                 Sql);
         }
 
+        [ConditionalFact]
+        public override void Where_has_flag()
+        {
+            base.Where_has_flag();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 5) = 5)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_has_flag_db_value()
+        {
+            base.Where_has_flag_db_value();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & (
+    SELECT TOP(1) [x].[Rank]
+    FROM [Gear] AS [x]
+    WHERE ([x].[Discriminator] = N'Officer') OR ([x].[Discriminator] = N'Gear')
+    ORDER BY [x].[Nickname], [x].[SquadId]
+)) = (
+    SELECT TOP(1) [x0].[Rank]
+    FROM [Gear] AS [x0]
+    WHERE ([x0].[Discriminator] = N'Officer') OR ([x0].[Discriminator] = N'Gear')
+    ORDER BY [x0].[Nickname], [x0].[SquadId]
+))
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & (
+    SELECT TOP(1) [x].[Rank]
+    FROM [Gear] AS [x]
+    WHERE ([x].[Discriminator] = N'Officer') OR ([x].[Discriminator] = N'Gear')
+    ORDER BY [x].[Nickname], [x].[SquadId]
+)) = (
+    SELECT TOP(1) [x0].[Rank]
+    FROM [Gear] AS [x0]
+    WHERE ([x0].[Discriminator] = N'Officer') OR ([x0].[Discriminator] = N'Gear')
+    ORDER BY [x0].[Nickname], [x0].[SquadId]
+))
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & [g].[Rank]) = [g].[Rank])",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_has_flag_with_non_nullable_parameter()
+        {
+            base.Where_has_flag_with_non_nullable_parameter();
+
+            Assert.Equal(
+                @"@__parameter_0: Corporal
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & @__parameter_0) = @__parameter_0)",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_has_flag_with_nullable_parameter()
+        {
+            base.Where_has_flag_with_nullable_parameter();
+
+            Assert.Equal(
+                @"@__parameter_0: Corporal (Nullable = true)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & @__parameter_0) = @__parameter_0)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Has_flag_throws_when_translating_null_constant()
+        {
+            base.Has_flag_throws_when_translating_null_constant();
+        }
+
+        [ConditionalFact]
+        public override void Has_flag_projects_boolean_values_in_select()
+        {
+            base.Has_flag_projects_boolean_values_in_select();
+        }
+
+        [ConditionalFact]
+        public override void Where_has_flag_with_incorrect_type_throws_ArgumentException()
+        {
+            base.Where_has_flag_with_incorrect_type_throws_ArgumentException();
+        }
+
         public override void Where_count_subquery_without_collision()
         {
             base.Where_count_subquery_without_collision();
