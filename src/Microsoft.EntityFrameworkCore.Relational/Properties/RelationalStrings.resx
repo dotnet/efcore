@@ -307,7 +307,4 @@
   <data name="UnsupportedPropertyType" xml:space="preserve">
     <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
   </data>
-  <data name="Argument_EnumTypeDoesNotMatch" xml:space="preserve">
-    <value>The argument type, '{0}', is not the same as the enum type '{1}'.</value>
-  </data>
 </root>

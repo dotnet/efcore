@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                 {
                     new ContainsTranslator(logger),
                     new EndsWithTranslator(logger),
+                    new EnumHasFlagTranslator(),
                     new EqualsTranslator(logger),
                     new IsNullOrEmptyTranslator(),
                     new StartsWithTranslator(logger)

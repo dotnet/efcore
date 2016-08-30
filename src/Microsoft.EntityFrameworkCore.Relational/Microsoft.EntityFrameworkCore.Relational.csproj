@@ -205,6 +205,7 @@
     <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\EnumHasFlagTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\IsNullOrEmptyTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\ContainsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\EndsWithTranslator.cs" />

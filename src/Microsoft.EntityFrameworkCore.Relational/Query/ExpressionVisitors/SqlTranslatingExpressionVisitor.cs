@@ -925,6 +925,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
 
+            if (underlyingType == typeof(Enum))
+            {
+                underlyingType = expression.Value.GetType();
+            }
+
             return _relationalTypeMapper.FindMapping(underlyingType) != null
                 ? expression
                 : null;

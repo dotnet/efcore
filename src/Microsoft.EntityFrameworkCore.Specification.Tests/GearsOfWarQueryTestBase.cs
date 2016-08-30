@@ -686,34 +686,49 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Where_has_flag()
+        public virtual void Where_enum_has_flag()
         {
             using (var context = CreateContext())
             {
+                // Constant
                 var gears = context.Gears
                     .Where(g => g.Rank.HasFlag(MilitaryRank.Corporal))
                     .ToList();
 
                 Assert.Equal(2, gears.Count);
 
-
+                // Expression
                 gears = context.Gears
                     .Where(g => g.Rank.HasFlag(MilitaryRank.Corporal | MilitaryRank.Captain))
                     .ToList();
 
                 Assert.Equal(0, gears.Count);
 
-
+                // Casting
                 gears = context.Gears
                     .Where(g => g.Rank.HasFlag((MilitaryRank)1))
                     .ToList();
 
                 Assert.Equal(2, gears.Count);
+
+                // Casting to nullable
+                gears = context.Gears
+                    .Where(g => g.Rank.HasFlag((MilitaryRank?)1))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                // QuerySource
+                gears = context.Gears
+                    .Where(g => MilitaryRank.Corporal.HasFlag(g.Rank))
+                    .ToList();
+
+                Assert.Equal(4, gears.Count);
             }
         }
 
         [ConditionalFact]
-        public virtual void Where_has_flag_db_value()
+        public virtual void Where_enum_has_flag_subquery()
         {
             using (var context = CreateContext())
             {
@@ -728,17 +743,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList();
 
                 Assert.Equal(5, gears.Count);
-
-                gears = context.Gears
-                    .Where(g => MilitaryRank.Corporal.HasFlag(g.Rank))
-                    .ToList();
-
-                Assert.Equal(4, gears.Count);
             }
         }
 
         [ConditionalFact]
-        public virtual void Where_has_flag_with_non_nullable_parameter()
+        public virtual void Where_enum_has_flag_with_non_nullable_parameter()
         {
             using (var context = CreateContext())
             {
@@ -764,28 +773,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList();
 
                 Assert.Equal(2, gears.Count);
-
-
-                gears = context.Gears
-                    .Where(g => g.Rank.HasFlag((MilitaryRank?)1))
-                    .ToList();
-
-                Assert.Equal(2, gears.Count);
             }
         }
 
         [ConditionalFact]
-        public virtual void Has_flag_throws_when_translating_null_constant()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("flag", Assert.Throws<ArgumentNullException>(() => context.Gears.FirstOrDefault(b => b.Rank.HasFlag(null))).ParamName);
-            }
-        }
-
-
-        [ConditionalFact]
-        public virtual void Has_flag_projects_boolean_values_in_select()
+        public virtual void Select_enum_has_flag()
         {
             using (var context = CreateContext())
             {
@@ -799,18 +791,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.True(gear.hasFlagTrue);
                 Assert.False(gear.hasFlagFalse);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Where_has_flag_with_incorrect_type_throws_ArgumentException()
-        {
-            using (var context = CreateContext())
-            {
-                AmmunitionType parameter = AmmunitionType.Cartridge;
-
-                Assert.Throws<ArgumentException>(() => context.Gears.Where(g => g.Rank.HasFlag(parameter)).ToList());
-                
             }
         }
 
