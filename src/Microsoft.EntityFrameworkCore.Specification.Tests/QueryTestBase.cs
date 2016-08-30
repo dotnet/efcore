@@ -4818,6 +4818,51 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 from o in orders
                 select new { c, o });
         }
+        
+        [ConditionalFact]
+        public virtual void GroupJoin_outer_projection()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                cs.GroupJoin(os, c => c.CustomerID, o => o.CustomerID, (c, o) => new { c.City, o }),
+                asserter: (l2oResults, efResults) => { Assert.Equal(l2oResults.Count, efResults.Count); });
+        }
+        
+        [ConditionalFact]
+        public virtual void GroupJoin_outer_projection2()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                cs.GroupJoin(os, c => c.CustomerID, o => o.CustomerID, (c, g) => new { c.City, g = g.Select(o => o.CustomerID) }),
+                asserter: (l2oResults, efResults) => { Assert.Equal(l2oResults.Count, efResults.Count); });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_outer_projection_reverse()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                os.GroupJoin(cs, o => o.CustomerID, c => c.CustomerID, (o, c) => new { o.CustomerID, c }),
+                asserter: (l2oResults, efResults) => { Assert.Equal(l2oResults.Count, efResults.Count); });
+        }
+        
+        [ConditionalFact]
+        public virtual void GroupJoin_outer_projection_reverse2()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                os.GroupJoin(cs, o => o.CustomerID, c => c.CustomerID, (o, g) => new { o.CustomerID, g = g.Select(c => c.City) }),
+                asserter: (l2oResults, efResults) => { Assert.Equal(l2oResults.Count, efResults.Count); });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_subquery_projection_outer_mixed()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o0 in os.Take(1)
+                join o1 in os on c.CustomerID equals o1.CustomerID into orders
+                from o2 in orders
+                select new { A = c.CustomerID, B = o0.CustomerID, C = o2.CustomerID },
+                asserter:
+                    (l2oResults, efResults) => { Assert.Equal(l2oResults.Count, efResults.Count); });
+        }
 
         [ConditionalFact]
         public virtual void GroupJoin_DefaultIfEmpty()

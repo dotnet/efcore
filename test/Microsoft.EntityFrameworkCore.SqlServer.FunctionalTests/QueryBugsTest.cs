@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable AccessToDisposedClosure
@@ -23,6 +24,106 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {
+        private readonly SqlServerFixture _fixture;
+
+        public QueryBugsTest(SqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        {
+            _fixture = fixture;
+
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
+        [Fact]
+        public void Left_outer_join_bug_6091()
+        {
+            using (var testStore = SqlServerTestStore.CreateScratch())
+            {
+                testStore.ExecuteNonQuery(@"
+CREATE TABLE [dbo].[Customers](
+    [CustomerID] [int] NOT NULL PRIMARY KEY,
+    [CustomerName] [varchar](120) NULL,
+    [PostcodeID] [int] NULL);
+
+CREATE TABLE [dbo].[Postcodes](
+    [PostcodeID] [int] NOT NULL PRIMARY KEY,
+    [PostcodeValue] [varchar](100) NOT NULL,
+    [TownName] [varchar](255) NOT NULL);
+
+INSERT [dbo].[Customers] ([CustomerID], [CustomerName], [PostcodeID]) VALUES (1, N'Sam Tippet', 5);
+INSERT [dbo].[Customers] ([CustomerID], [CustomerName], [PostcodeID]) VALUES (2, N'William Greig', 2);
+INSERT [dbo].[Customers] ([CustomerID], [CustomerName], [PostcodeID]) VALUES (3, N'Steve Jones', 3);
+INSERT [dbo].[Customers] ([CustomerID], [CustomerName], [PostcodeID]) VALUES (4, N'Jim Warren', NULL);
+INSERT [dbo].[Customers] ([CustomerID], [CustomerName], [PostcodeID]) VALUES (5, N'Andrew Smith', 5);
+
+INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (2, N'1000', N'Town 1');
+INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (3, N'2000', N'Town 2');
+INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (4, N'3000', N'Town 3');
+INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, N'4000', N'Town 4');
+");
+                var loggingFactory = new TestSqlLoggerFactory();
+                var serviceProvider = new ServiceCollection()
+                    .AddEntityFrameworkSqlServer()
+                    .AddSingleton<ILoggerFactory>(loggingFactory)
+                    .BuildServiceProvider();
+
+                using (var context = new Bug6091Context(serviceProvider, testStore.ConnectionString))
+                {
+                    var customers
+                        = from customer in context.Customers
+                          join postcode in context.Postcodes
+                              on customer.PostcodeID equals postcode.PostcodeID into custPCTmp
+                          from custPC in custPCTmp.DefaultIfEmpty()
+                          select new
+                          {
+                              customer.CustomerID,
+                              customer.CustomerName,
+                              TownName = custPC == null ? string.Empty : custPC.TownName,
+                              PostcodeValue = custPC == null ? string.Empty : custPC.PostcodeValue
+                          };
+
+                    var results = customers.ToList();
+
+                    Assert.Equal(5, results.Count);
+                    Assert.True(results[3].CustomerName != results[4].CustomerName);
+                }
+            }
+        }
+
+        private class Bug6091Context : DbContext
+        {
+            private readonly IServiceProvider _serviceProvider;
+            private readonly string _connectionString;
+
+            public Bug6091Context(IServiceProvider serviceProvider, string connectionString)
+            {
+                _serviceProvider = serviceProvider;
+                _connectionString = connectionString;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInternalServiceProvider(_serviceProvider).UseSqlServer(_connectionString);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Customer>().ToTable("Customers");
+
+            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Postcode> Postcodes { get; set; }
+
+            public class Customer
+            {
+                public int CustomerID { get; set; }
+                public string CustomerName { get; set; }
+                public int? PostcodeID { get; set; }
+            }
+
+            public class Postcode
+            {
+                public int PostcodeID { get; set; }
+                public string PostcodeValue { get; set; }
+                public string TownName { get; set; }
+            }
+        }
+
         [Fact]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
@@ -547,13 +648,6 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
-        }
-
-        private readonly SqlServerFixture _fixture;
-
-        public QueryBugsTest(SqlServerFixture fixture)
-        {
-            _fixture = fixture;
         }
 
         [Fact]

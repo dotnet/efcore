@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             SelectExpression selectExpression;
             return QueriesBySource.TryGetValue(querySource, out selectExpression)
                 ? selectExpression
-                : QueriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource));
+                : QueriesBySource.Values.LastOrDefault(se => se.HandlesQuerySource(querySource));
         }
 
         /// <summary>
