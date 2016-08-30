@@ -2378,7 +2378,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(CoreStrings.NoClrProperty("Random", nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty("Random", typeof(int), shadow: false)).Message);
+                    entityType.AddProperty("Random", null, shadow: false)).Message);
+        }
+
+        [Fact]
+        public void AddProperty_throws_if_no_clr_property_or_field()
+        {
+            var entityType = new Model().AddEntityType(typeof(Customer));
+
+            Assert.Equal(CoreStrings.NoPropertyType("_foo", nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityType.AddProperty("_foo")).Message);
         }
 
         [Fact]

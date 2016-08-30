@@ -1313,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property or field. To add a shadow state property the property type needs to be specified.
         /// </summary>
         public static string NoPropertyType([CanBeNull] object property, [CanBeNull] object entityType)
         {

@@ -1390,6 +1390,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             ValidateCanAddProperty(name);
 
+            FieldInfo fieldInfo = null;
+            
             if (shadow != true)
             {
                 var clrProperty = ClrType?.GetPropertiesInHierarchy(name).FirstOrDefault();
@@ -1408,6 +1410,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return AddProperty(clrProperty, configurationSource, runConventions);
                 }
 
+                fieldInfo = ClrType?.GetTypesInHierarchy()
+                    .SelectMany(e => e.GetRuntimeFields()
+                        .Where(f => f.Name == name
+                                    && (propertyType == null
+                                        || f.FieldType.GetTypeInfo().IsAssignableFrom(propertyType.GetTypeInfo()))))
+                    .FirstOrDefault();
+
+                if (fieldInfo != null
+                    && propertyType == null)
+                {
+                    propertyType = fieldInfo.FieldType;
+                }
+
                 if (shadow == false)
                 {
                     if (ClrType == null)
@@ -1423,7 +1438,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
             }
-            return AddProperty(new Property(name, propertyType, this, configurationSource), runConventions);
+
+            var property = new Property(name, propertyType, this, configurationSource);
+
+            if (fieldInfo != null)
+            {
+                property.SetFieldInfo(fieldInfo, ConfigurationSource.Convention, runConventions: false);
+            }
+
+            return AddProperty(property, runConventions);
         }
 
         /// <summary>
