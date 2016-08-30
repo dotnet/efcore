@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -114,6 +115,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Annotation OnEntityTypeAnnotationSet(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
+            [NotNull] string name,
+            [CanBeNull] Annotation annotation,
+            [CanBeNull] Annotation oldAnnotation)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(name, nameof(name));
+
+            foreach (var entityTypeAnnotationSetConvention in _conventionSet.EntityTypeAnnotationSetConventions)
+            {
+                var newAnnotation = entityTypeAnnotationSetConvention.Apply(entityTypeBuilder, name, annotation, oldAnnotation);
+                if (newAnnotation != annotation)
+                {
+                    return newAnnotation;
+                }
+            }
+
+            return annotation;
         }
 
         /// <summary>

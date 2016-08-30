@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var writeOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsWrite).ToList();
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = defaultValuesOnly
-                ? modificationCommands.First().ColumnModifications
+                ? modificationCommands[0].ColumnModifications
                     .Where(o => o.Property.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
                     .ToList()
                 : new List<ColumnModification>();
@@ -92,6 +93,17 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             if (defaultValuesOnly)
             {
                 return AppendBulkInsertWithServerValuesOnly(commandStringBuilder, modificationCommands, commandPosition, nonIdentityOperations, readOperations);
+            }
+
+            if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
+                .Any(e => e.SqlServer().IsMemoryOptimized))
+            {
+                foreach (var modification in modificationCommands)
+                {
+                    AppendInsertOperation(commandStringBuilder, modification, commandPosition);
+                }
+
+                return ResultSetMapping.LastInResultSet;
             }
 
             return AppendBulkInsertWithServerValues(commandStringBuilder, modificationCommands, commandPosition, writeOperations, readOperations);

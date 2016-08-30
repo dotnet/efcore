@@ -51,41 +51,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 foreach (var index in databaseModel.Tables
                     .SelectMany(t => t.Indexes.Where(AcceptIndex)))
                 {
-                    operations.Add(new DropIndexOperation
-                    {
-                        Name = index.Name,
-                        Table = index.Table.Name,
-                        Schema = index.Table.SchemaName
-                    });
+                    operations.Add(Drop(index));
                 }
 
                 foreach (var foreignKey in databaseModel.Tables
                     .SelectMany(t => t.ForeignKeys.Where(AcceptForeignKey)))
                 {
-                    operations.Add(new DropForeignKeyOperation
-                    {
-                        Name = foreignKey.Name,
-                        Table = foreignKey.Table.Name,
-                        Schema = foreignKey.Table.SchemaName
-                    });
+                    operations.Add(Drop(foreignKey));
                 }
 
                 foreach (var table in databaseModel.Tables.Where(AcceptTable))
                 {
-                    operations.Add(new DropTableOperation
-                    {
-                        Name = table.Name,
-                        Schema = table.SchemaName
-                    });
+                    operations.Add(Drop(table));
                 }
 
                 foreach (var sequence in databaseModel.Sequences.Where(AcceptSequence))
                 {
-                    operations.Add(new DropSequenceOperation
-                    {
-                        Name = sequence.Name,
-                        Schema = sequence.SchemaName
-                    });
+                    operations.Add(Drop(sequence));
                 }
 
                 var commands = sqlGenerator.Generate(operations);
@@ -109,5 +91,35 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             creator.CreateTables();
         }
+
+        protected virtual DropSequenceOperation Drop(SequenceModel sequence)
+            => new DropSequenceOperation
+        {
+            Name = sequence.Name,
+            Schema = sequence.SchemaName
+        };
+
+        protected virtual DropTableOperation Drop(TableModel table)
+            => new DropTableOperation
+        {
+            Name = table.Name,
+            Schema = table.SchemaName
+        };
+
+        protected virtual DropForeignKeyOperation Drop(ForeignKeyModel foreignKey)
+            => new DropForeignKeyOperation
+        {
+            Name = foreignKey.Name,
+            Table = foreignKey.Table.Name,
+            Schema = foreignKey.Table.SchemaName,
+        };
+
+        protected virtual DropIndexOperation Drop(IndexModel index)
+            => new DropIndexOperation
+        {
+            Name = index.Name,
+            Table = index.Table.Name,
+            Schema = index.Table.SchemaName,
+        };
     }
 }

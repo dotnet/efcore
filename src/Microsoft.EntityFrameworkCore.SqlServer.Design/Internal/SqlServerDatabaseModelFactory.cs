@@ -10,6 +10,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
@@ -136,6 +137,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private bool SupportsSequences => _serverVersion?.Major >= 11;
 
+        private string MemoryOptimizedTableColumn =>
+            _serverVersion?.Major >= 12 ? @",
+    t.is_memory_optimized" : string.Empty;
+
         private string TemporalTableWhereClause =>
             _serverVersion?.Major >= 13 ? " AND t.temporal_type <> 1" : string.Empty;
 
@@ -246,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             command.CommandText =
                 @"SELECT
     schema_name(t.schema_id) AS [schema],
-    t.name
+    t.name" + MemoryOptimizedTableColumn + @"
     FROM sys.tables AS t
     WHERE t.is_ms_shipped = 0
     AND NOT EXISTS (SELECT *
@@ -266,6 +271,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         SchemaName = reader.GetValueOrDefault<string>("schema"),
                         Name = reader.GetValueOrDefault<string>("name")
                     };
+
+                    if (!string.IsNullOrEmpty(MemoryOptimizedTableColumn))
+                    {
+                        table[SqlServerFullAnnotationNames.Instance.MemoryOptimized] = reader.GetValueOrDefault<bool?>("is_memory_optimized");
+                    }
 
                     Logger.LogTrace(SqlServerDesignStrings.FoundTable(table.SchemaName, table.Name));
 

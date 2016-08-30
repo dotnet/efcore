@@ -303,6 +303,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 Sql);
         }
 
+        [Fact]
+        public virtual void AlterDatabaseOperationOperation()
+        {
+            Generate(new AlterDatabaseOperation { [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true });
+
+            Assert.Contains(
+                "CONTAINS MEMORY_OPTIMIZED_DATA;",
+                Sql);
+        }
+
         public override void CreateIndexOperation_nonunique()
         {
             base.CreateIndexOperation_nonunique();

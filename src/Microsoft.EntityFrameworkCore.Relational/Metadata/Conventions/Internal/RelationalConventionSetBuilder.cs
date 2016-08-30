@@ -80,7 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return conventionSet;
         }
 
-        private static void ReplaceConvention<T1, T2>(IList<T1> conventionsList, T2 newConvention)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ReplaceConvention<T1, T2>([NotNull] IList<T1> conventionsList, [NotNull] T2 newConvention)
             where T2 : T1
         {
             var oldConvention = conventionsList.OfType<T2>().FirstOrDefault();

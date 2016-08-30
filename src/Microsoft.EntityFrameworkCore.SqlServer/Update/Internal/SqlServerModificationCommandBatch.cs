@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
         {
-            if (_maxBatchSize <= ModificationCommands.Count)
+            if (ModificationCommands.Count >= _maxBatchSize)
             {
                 return false;
             }

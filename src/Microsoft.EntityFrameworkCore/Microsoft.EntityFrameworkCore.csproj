@@ -247,6 +247,7 @@
     <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Conventions\Internal\BackingFieldConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyIndexConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IEntityTypeAnnotationSetConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeIgnoredConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IForeignKeyUniquenessConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IgnoredMembersValidationConvention.cs" />

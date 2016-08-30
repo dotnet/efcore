@@ -28,6 +28,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.ModelInitializedConventions.Add(new SqlServerValueGenerationStrategyConvention());
 
+            var sqlServerInMemoryTablesConvention = new SqlServerInMemoryTablesConvention();
+            var cascadeDeleteConvention = new SqlServerCascadeDeleteConvention();
+            conventionSet.EntityTypeAnnotationSetConventions.Add(sqlServerInMemoryTablesConvention);
+            conventionSet.EntityTypeAnnotationSetConventions.Add(cascadeDeleteConvention);
+
+            conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (CascadeDeleteConvention)cascadeDeleteConvention);
+
+            conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
+
+            ReplaceConvention(conventionSet.PropertyNullableChangedConventions, (CascadeDeleteConvention)cascadeDeleteConvention);
+
             return conventionSet;
         }
 

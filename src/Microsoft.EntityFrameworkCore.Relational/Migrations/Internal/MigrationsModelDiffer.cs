@@ -128,6 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var ensureSchemaOperations = new List<MigrationOperation>();
             var createSequenceOperations = new List<MigrationOperation>();
             var createTableOperations = new List<CreateTableOperation>();
+            var alterDatabaseOperations = new List<MigrationOperation>();
+            var alterTableOperations = new List<MigrationOperation>();
             var columnOperations = new List<MigrationOperation>();
             var alterOperations = new List<MigrationOperation>();
             var restartSequenceOperations = new List<MigrationOperation>();
@@ -166,6 +168,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 else if (type == typeof(CreateTableOperation))
                 {
                     createTableOperations.Add((CreateTableOperation)operation);
+                }
+                else if (type == typeof(AlterDatabaseOperation))
+                {
+                    alterDatabaseOperations.Add(operation);
+                }
+                else if (type == typeof(AlterTableOperation))
+                {
+                    alterTableOperations.Add(operation);
                 }
                 else if (_columnOperationTypes.Contains(type))
                 {
@@ -267,7 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(ensureSchemaOperations)
                 .Concat(renameTableOperations)
                 .Concat(renameOperations)
+                .Concat(alterDatabaseOperations)
                 .Concat(createSequenceOperations)
+                .Concat(alterTableOperations)
                 .Concat(columnOperations)
                 .Concat(alterOperations)
                 .Concat(restartSequenceOperations)
@@ -288,7 +300,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [CanBeNull] IModel target,
             [NotNull] DiffContext diffContext)
             => (source != null) && (target != null)
-                ? Diff(GetSchemas(source), GetSchemas(target))
+                ? DiffAnnotations(source, target)
+                    .Concat(Diff(GetSchemas(source), GetSchemas(target)))
                     .Concat(Diff(source.GetRootEntityTypes(), target.GetRootEntityTypes(), diffContext))
                     .Concat(
                         Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
@@ -303,12 +316,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         ? Remove(source, diffContext)
                         : Enumerable.Empty<MigrationOperation>();
 
+        private IEnumerable<MigrationOperation> DiffAnnotations(
+            IModel source,
+            IModel target)
+        {
+            var sourceMigrationsAnnotations = source == null ? null : MigrationsAnnotations.For(source).ToList();
+            var targetMigrationsAnnotations = target == null ? null : MigrationsAnnotations.For(target).ToList();
+
+            if (source == null)
+            {
+                if (targetMigrationsAnnotations != null
+                    && targetMigrationsAnnotations.Count > 0)
+                {
+                    var alterDatabaseOperation = new AlterDatabaseOperation();
+                    CopyAnnotations(targetMigrationsAnnotations, alterDatabaseOperation);
+                    yield return alterDatabaseOperation;
+                }
+                yield break;
+            }
+
+            if (target == null)
+            {
+                sourceMigrationsAnnotations = MigrationsAnnotations.ForRemove(source).ToList();
+                if (sourceMigrationsAnnotations.Count > 0)
+                {
+                    var alterDatabaseOperation = new AlterDatabaseOperation();
+                    CopyAnnotations(MigrationsAnnotations.ForRemove(source), alterDatabaseOperation.OldDatabase);
+                    yield return alterDatabaseOperation;
+                }
+                yield break;
+            }
+
+            if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
+            {
+                var alterDatabaseOperation = new AlterDatabaseOperation();
+                CopyAnnotations(targetMigrationsAnnotations, alterDatabaseOperation);
+                CopyAnnotations(sourceMigrationsAnnotations, alterDatabaseOperation.OldDatabase);
+                yield return alterDatabaseOperation;
+            }
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IModel target, [NotNull] DiffContext diffContext)
-            => GetSchemas(target).SelectMany(Add)
+            => DiffAnnotations(null, target)
+                .Concat(GetSchemas(target).SelectMany(Add))
                 .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
                 .Concat(Annotations.For(target).Sequences.SelectMany(Add))
                 .Concat(target.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy).SelectMany(k => Add(k, diffContext)));
@@ -317,8 +371,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext) =>
-            source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext))
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext)
+            => DiffAnnotations(source, null)
+                .Concat(source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext)))
                 .Concat(Annotations.For(source).Sequences.SelectMany(Remove));
 
         #endregion
@@ -416,12 +471,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             diffContext.AddMapping(source, target);
 
-            var operations = Diff(GetPropertiesInHierarchy(source), GetPropertiesInHierarchy(target), diffContext)
+            var operations = DiffAnnotations(source, target)
+                .Concat(Diff(GetPropertiesInHierarchy(source), GetPropertiesInHierarchy(target), diffContext))
                 .Concat(Diff(source.GetKeys(), target.GetKeys(), diffContext))
                 .Concat(Diff(GetIndexesInHierarchy(source), GetIndexesInHierarchy(target), diffContext));
             foreach (var operation in operations)
             {
                 yield return operation;
+            }
+        }
+
+        private IEnumerable<MigrationOperation> DiffAnnotations(
+            [NotNull] IEntityType source,
+            [NotNull] IEntityType target)
+        {
+            var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
+            var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
+            if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
+            {
+                var targetAnnotations = Annotations.For(target);
+                var alterTableOperation = new AlterTableOperation
+                {
+                    Name = targetAnnotations.TableName,
+                    Schema = targetAnnotations.Schema
+                };
+                CopyAnnotations(targetMigrationsAnnotations, alterTableOperation);
+
+                CopyAnnotations(sourceMigrationsAnnotations, alterTableOperation.OldTable);
+                yield return alterTableOperation;
             }
         }
 
@@ -472,6 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Schema = sourceAnnotations.Schema,
                 Name = sourceAnnotations.TableName
             };
+            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
             diffContext.AddDrop(source, operation);
 
             yield return operation;
@@ -544,6 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var targetColumnType = targetAnnotations.ColumnType
                                    ?? TypeMapper.GetMapping(target).StoreType;
 
+            var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
 
             var isSourceColumnNullable = source.IsColumnNullable();
@@ -556,10 +635,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || sourceAnnotations.DefaultValueSql != targetAnnotations.DefaultValueSql
                 || sourceAnnotations.ComputedColumnSql != targetAnnotations.ComputedColumnSql
                 || !Equals(sourceAnnotations.DefaultValue, targetAnnotations.DefaultValue)
-                || HasDifferences(MigrationsAnnotations.For(source), targetMigrationsAnnotations))
+                || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
-                                          // TODO: Detect type narrowing
+                    // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
@@ -567,20 +646,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Schema = targetEntityTypeAnnotations.Schema,
                     Table = targetEntityTypeAnnotations.TableName,
                     Name = targetAnnotations.ColumnName,
-                    ClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType(),
-                    ColumnType = targetAnnotations.ColumnType,
-                    MaxLength = target.GetMaxLength(),
-                    IsUnicode = target.IsUnicode(),
-                    IsRowVersion = target.ClrType == typeof(byte[])
-                        && target.IsConcurrencyToken
-                        && target.ValueGenerated == ValueGenerated.OnAddOrUpdate,
-                    IsNullable = isTargetColumnNullable,
-                    DefaultValue = targetAnnotations.DefaultValue,
-                    DefaultValueSql = targetAnnotations.DefaultValueSql,
-                    ComputedColumnSql = targetAnnotations.ComputedColumnSql,
                     IsDestructiveChange = isDestructiveChange
                 };
-                CopyAnnotations(targetMigrationsAnnotations, alterColumnOperation);
+
+                Initialize(
+                    alterColumnOperation, target, isTargetColumnNullable, targetAnnotations, targetMigrationsAnnotations, true);
+
+                Initialize(
+                    alterColumnOperation.OldColumn, source, isSourceColumnNullable, sourceAnnotations, sourceMigrationsAnnotations, true);
 
                 yield return alterColumnOperation;
             }
@@ -596,31 +669,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             bool inline = false)
         {
             var targetAnnotations = Annotations.For(target);
-            var targetEntityTypeAnnotations = Annotations.For(
-                target.DeclaringEntityType.RootType());
-            var targetClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType();
+            var targetEntityTypeAnnotations = Annotations.For(target.DeclaringEntityType.RootType());
 
             var operation = new AddColumnOperation
             {
                 Schema = targetEntityTypeAnnotations.Schema,
                 Table = targetEntityTypeAnnotations.TableName,
-                Name = targetAnnotations.ColumnName,
-                ClrType = targetClrType,
-                ColumnType = targetAnnotations.ColumnType,
-                MaxLength = target.GetMaxLength(),
-                IsUnicode = target.IsUnicode(),
-                IsRowVersion = target.ClrType == typeof(byte[])
-                    && target.IsConcurrencyToken
-                    && target.ValueGenerated == ValueGenerated.OnAddOrUpdate,
-                IsNullable = target.IsColumnNullable(),
-                DefaultValue = targetAnnotations.DefaultValue
-                               ?? (inline || target.IsColumnNullable()
-                                   ? null
-                                   : GetDefaultValue(targetClrType)),
-                DefaultValueSql = targetAnnotations.DefaultValueSql,
-                ComputedColumnSql = targetAnnotations.ComputedColumnSql
+                Name = targetAnnotations.ColumnName
             };
-            CopyAnnotations(MigrationsAnnotations.For(target), operation);
+            Initialize(operation, target, target.IsColumnNullable(), targetAnnotations, MigrationsAnnotations.For(target), inline);
 
             yield return operation;
         }
@@ -633,12 +690,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
 
-            yield return new DropColumnOperation
+            var operation = new DropColumnOperation
             {
                 Schema = sourceEntityTypeAnnotations.Schema,
                 Table = sourceEntityTypeAnnotations.TableName,
                 Name = Annotations.For(source).ColumnName
             };
+            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+
+            yield return operation;
+        }
+
+        private ColumnOperation Initialize(
+            ColumnOperation columnOperation,
+            IProperty property,
+            bool isNullable,
+            IRelationalPropertyAnnotations annotations,
+            IEnumerable<IAnnotation> migrationsAnnotations,
+            bool inline = false)
+        {
+            columnOperation.ClrType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+            columnOperation.ColumnType = annotations.ColumnType;
+            columnOperation.MaxLength = property.GetMaxLength();
+            columnOperation.IsUnicode = property.IsUnicode();
+            columnOperation.IsRowVersion = property.ClrType == typeof(byte[])
+                                           && property.IsConcurrencyToken
+                                           && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
+            columnOperation.IsNullable = isNullable;
+            columnOperation.DefaultValue = annotations.DefaultValue
+                                           ?? (inline || isNullable
+                                               ? null
+                                               : GetDefaultValue(columnOperation.ClrType));
+            columnOperation.DefaultValueSql = annotations.DefaultValueSql;
+            columnOperation.ComputedColumnSql = annotations.ComputedColumnSql;
+            CopyAnnotations(migrationsAnnotations, columnOperation);
+
+            return columnOperation;
         }
 
         #endregion
@@ -720,12 +807,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] DiffContext diffContext)
         {
             var sourceAnnotations = Annotations.For(source);
-            var sourceEntityTypeAnnotations = Annotations.For(
-                source.DeclaringEntityType.RootType());
+            var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
 
+            MigrationOperation operation;
             if (source.IsPrimaryKey())
             {
-                yield return new DropPrimaryKeyOperation
+                operation = new DropPrimaryKeyOperation
                 {
                     Schema = sourceEntityTypeAnnotations.Schema,
                     Table = sourceEntityTypeAnnotations.TableName,
@@ -734,13 +821,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
             else
             {
-                yield return new DropUniqueConstraintOperation
+                operation = new DropUniqueConstraintOperation
                 {
                     Schema = sourceEntityTypeAnnotations.Schema,
                     Table = sourceEntityTypeAnnotations.TableName,
                     Name = sourceAnnotations.Name
                 };
             }
+            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+
+            yield return operation;
         }
 
         #endregion
@@ -827,12 +917,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var dropTableOperation = diffContext.FindDrop(declaringRootEntityType);
             if (dropTableOperation == null)
             {
-                yield return new DropForeignKeyOperation
+                var operation = new DropForeignKeyOperation
                 {
                     Schema = sourceEntityTypeAnnotations.Schema,
                     Table = sourceEntityTypeAnnotations.TableName,
                     Name = Annotations.For(source).Name
                 };
+                CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+
+                yield return operation;
             }
         }
 
@@ -862,8 +955,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
                 // ReSharper disable once ImplicitlyCapturedClosure
                 (s, t) => s.IsUnique == t.IsUnique
-                    && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
-                    && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
+                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -922,12 +1015,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
 
-            yield return new DropIndexOperation
+            var operation = new DropIndexOperation
             {
                 Name = Annotations.For(source).Name,
                 Schema = sourceEntityTypeAnnotations.Schema,
                 Table = sourceEntityTypeAnnotations.TableName
             };
+            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+
+            yield return operation;
         }
 
         #endregion
@@ -979,20 +1075,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
             }
 
+            var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
+            var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
+
             if ((source.IncrementBy != target.IncrementBy)
                 || (source.MaxValue != target.MaxValue)
                 || (source.MinValue != target.MinValue)
-                || (source.IsCyclic != target.IsCyclic))
+                || (source.IsCyclic != target.IsCyclic)
+                || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
-                yield return new AlterSequenceOperation
+                var alterSequenceOperation = new AlterSequenceOperation
                 {
                     Schema = target.Schema,
-                    Name = target.Name,
-                    IncrementBy = target.IncrementBy,
-                    MinValue = target.MinValue,
-                    MaxValue = target.MaxValue,
-                    IsCyclic = target.IsCyclic
+                    Name = target.Name
                 };
+                Initialize(alterSequenceOperation, target, targetMigrationsAnnotations);
+
+                Initialize(alterSequenceOperation.OldSequence, source, sourceMigrationsAnnotations);
+
+                yield return alterSequenceOperation;
             }
         }
 
@@ -1002,17 +1103,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] ISequence target)
         {
-            yield return new CreateSequenceOperation
+            var operation = new CreateSequenceOperation
             {
                 Schema = target.Schema,
                 Name = target.Name,
                 ClrType = target.ClrType,
-                StartValue = target.StartValue,
-                IncrementBy = target.IncrementBy,
-                MinValue = target.MinValue,
-                MaxValue = target.MaxValue,
-                IsCyclic = target.IsCyclic
+                StartValue = target.StartValue
             };
+
+            yield return Initialize(operation, target, MigrationsAnnotations.For(target));
         }
 
         /// <summary>
@@ -1021,11 +1120,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ISequence source)
         {
-            yield return new DropSequenceOperation
+            var operation = new DropSequenceOperation
             {
                 Schema = source.Schema,
                 Name = source.Name
             };
+            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+
+            yield return operation;
+        }
+
+        private SequenceOperation Initialize(
+            SequenceOperation sequenceOperation,
+            ISequence sequence,
+            IEnumerable<IAnnotation> migrationsAnnotations)
+        {
+            sequenceOperation.IncrementBy = sequence.IncrementBy;
+            sequenceOperation.MinValue = sequence.MinValue;
+            sequenceOperation.MaxValue = sequence.MaxValue;
+            sequenceOperation.IsCyclic = sequence.IsCyclic;
+            CopyAnnotations(migrationsAnnotations, sequenceOperation);
+
+            return sequenceOperation;
         }
 
         #endregion

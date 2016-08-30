@@ -609,6 +609,46 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Can_set_MemoryOptimized()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerIsMemoryOptimized();
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.True(entityType.SqlServer().IsMemoryOptimized);
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerIsMemoryOptimized(false);
+
+            Assert.False(entityType.SqlServer().IsMemoryOptimized);
+        }
+
+        [Fact]
+        public void Can_set_MemoryOptimized_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .ForSqlServerIsMemoryOptimized();
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.True(entityType.SqlServer().IsMemoryOptimized);
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .ForSqlServerIsMemoryOptimized(false);
+
+            Assert.False(entityType.SqlServer().IsMemoryOptimized);
+        }
+
+        [Fact]
         public void Can_set_index_clustering()
         {
             var modelBuilder = CreateConventionModelBuilder();

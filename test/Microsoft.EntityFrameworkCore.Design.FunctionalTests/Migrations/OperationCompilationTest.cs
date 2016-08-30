@@ -379,6 +379,23 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                         Assert.Equal("Id", o.Name);
                         Assert.Equal("Post", o.Table);
                         Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Null(o.ColumnType);
+                        Assert.Null(o.IsUnicode);
+                        Assert.Null(o.MaxLength);
+                        Assert.False(o.IsRowVersion);
+                        Assert.False(o.IsNullable);
+                        Assert.Null(o.DefaultValue);
+                        Assert.Null(o.DefaultValueSql);
+                        Assert.Null(o.ComputedColumnSql);
+                        Assert.Equal(typeof(int), o.OldColumn.ClrType);
+                        Assert.Null(o.OldColumn.ColumnType);
+                        Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.MaxLength);
+                        Assert.False(o.OldColumn.IsRowVersion);
+                        Assert.False(o.OldColumn.IsNullable);
+                        Assert.Null(o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
                     });
         }
 
@@ -397,7 +414,17 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     MaxLength = 30,
                     IsRowVersion = true,
                     IsNullable = true,
-                    DefaultValue = 1
+                    DefaultValue = 1,
+                    OldColumn =
+                    {
+                        ClrType = typeof(string),
+                        ColumnType = "string",
+                        IsUnicode = false,
+                        MaxLength = 20,
+                        IsRowVersion = true,
+                        IsNullable = true,
+                        DefaultValue = 0
+                    }
                 },
                 "mb.AlterColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
@@ -408,7 +435,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 "    maxLength: 30," + EOL +
                 "    rowVersion: true," + EOL +
                 "    nullable: true," + EOL +
-                "    defaultValue: 1);",
+                "    defaultValue: 1," + EOL +
+                "    oldClrType: typeof(string)," + EOL +
+                "    oldType: \"string\"," + EOL +
+                "    oldUnicode: false," + EOL +
+                "    oldMaxLength: 20," + EOL +
+                "    oldRowVersion: true," + EOL +
+                "    oldNullable: true," + EOL +
+                "    oldDefaultValue: 0);",
                 o =>
                     {
                         Assert.Equal("Id", o.Name);
@@ -416,8 +450,22 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                         Assert.Equal("Post", o.Table);
                         Assert.Equal(typeof(int), o.ClrType);
                         Assert.Equal("int", o.ColumnType);
+                        Assert.False(o.IsUnicode);
+                        Assert.Equal(30, o.MaxLength);
+                        Assert.True(o.IsRowVersion);
                         Assert.True(o.IsNullable);
                         Assert.Equal(1, o.DefaultValue);
+                        Assert.Null(o.DefaultValueSql);
+                        Assert.Null(o.ComputedColumnSql);
+                        Assert.Equal(typeof(string), o.OldColumn.ClrType);
+                        Assert.Equal("string", o.OldColumn.ColumnType);
+                        Assert.False(o.OldColumn.IsUnicode);
+                        Assert.Equal(20, o.OldColumn.MaxLength);
+                        Assert.True(o.OldColumn.IsRowVersion);
+                        Assert.True(o.OldColumn.IsNullable);
+                        Assert.Equal(0, o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
                     });
         }
 
@@ -442,6 +490,23 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                         Assert.Equal("Id", o.Name);
                         Assert.Equal("Post", o.Table);
                         Assert.Equal("1", o.DefaultValueSql);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Null(o.ColumnType);
+                        Assert.Null(o.IsUnicode);
+                        Assert.Null(o.MaxLength);
+                        Assert.False(o.IsRowVersion);
+                        Assert.False(o.IsNullable);
+                        Assert.Null(o.DefaultValue);
+                        Assert.Null(o.ComputedColumnSql);
+                        Assert.Equal(typeof(int), o.OldColumn.ClrType);
+                        Assert.Null(o.OldColumn.ColumnType);
+                        Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.MaxLength);
+                        Assert.False(o.OldColumn.IsRowVersion);
+                        Assert.False(o.OldColumn.IsNullable);
+                        Assert.Null(o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
                     });
         }
 
@@ -466,7 +531,46 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                         Assert.Equal("Id", o.Name);
                         Assert.Equal("Post", o.Table);
                         Assert.Equal("1", o.ComputedColumnSql);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Null(o.ColumnType);
+                        Assert.Null(o.IsUnicode);
+                        Assert.Null(o.MaxLength);
+                        Assert.False(o.IsRowVersion);
+                        Assert.False(o.IsNullable);
+                        Assert.Null(o.DefaultValue);
+                        Assert.Null(o.DefaultValueSql);
+                        Assert.Equal(typeof(int), o.OldColumn.ClrType);
+                        Assert.Null(o.OldColumn.ColumnType);
+                        Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.MaxLength);
+                        Assert.False(o.OldColumn.IsRowVersion);
+                        Assert.False(o.OldColumn.IsNullable);
+                        Assert.Null(o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
                     });
+        }
+
+        [Fact]
+        public void AlterDatabaseOperation()
+        {
+            Test(
+                new AlterDatabaseOperation
+                {
+                    ["foo"] = "bar",
+                    OldDatabase =
+                    {
+                        ["bar"] = "foo"
+                    }
+                },
+                "mb.AlterDatabase()" + EOL +
+                "    .Annotation(\"foo\", \"bar\")" + EOL +
+                "    .OldAnnotation(\"bar\", \"foo\");",
+                o =>
+                {
+                    Assert.Equal("bar", o["foo"]);
+                    Assert.Equal("foo", o.OldDatabase["bar"]);
+                });
         }
 
         [Fact]
@@ -476,7 +580,19 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
                 "mb.AlterSequence(" + EOL +
                 "    name: \"EntityFrameworkHiLoSequence\");",
-                o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
+                o =>
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Null(o.Schema);
+                        Assert.Equal(1, o.IncrementBy);
+                        Assert.Null(o.MinValue);
+                        Assert.Null(o.MaxValue);
+                        Assert.False(o.IsCyclic);
+                        Assert.Equal(1, o.OldSequence.IncrementBy);
+                        Assert.Null(o.OldSequence.MinValue);
+                        Assert.Null(o.OldSequence.MaxValue);
+                        Assert.False(o.OldSequence.IsCyclic);
+                    });
         }
 
         [Fact]
@@ -490,7 +606,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     IncrementBy = 3,
                     MinValue = 2,
                     MaxValue = 4,
-                    IsCyclic = true
+                    IsCyclic = true,
+                    OldSequence =
+                    {
+                        IncrementBy = 4,
+                        MinValue = 3,
+                        MaxValue = 5,
+                        IsCyclic = true,
+                    }
                 },
                 "mb.AlterSequence(" + EOL +
                 "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
@@ -498,7 +621,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 "    incrementBy: 3," + EOL +
                 "    minValue: 2L," + EOL +
                 "    maxValue: 4L," + EOL +
-                "    cyclic: true);",
+                "    cyclic: true," + EOL +
+                "    oldIncrementBy: 4," + EOL +
+                "    oldMinValue: 3L," + EOL +
+                "    oldMaxValue: 5L," + EOL +
+                "    oldCyclic: true);",
                 o =>
                     {
                         Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -507,7 +634,30 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                         Assert.Equal(2, o.MinValue);
                         Assert.Equal(4, o.MaxValue);
                         Assert.True(o.IsCyclic);
+                        Assert.Equal(4, o.OldSequence.IncrementBy);
+                        Assert.Equal(3, o.OldSequence.MinValue);
+                        Assert.Equal(5, o.OldSequence.MaxValue);
+                        Assert.True(o.OldSequence.IsCyclic);
                     });
+        }
+
+        [Fact]
+        public void AlterTableOperation()
+        {
+            Test(
+                new AlterTableOperation
+                {
+                    Name = "Customer",
+                    Schema = "dbo"
+                },
+                "mb.AlterTable(" + EOL +
+                "    name: \"Customer\"," + EOL +
+                "    schema: \"dbo\");",
+                o =>
+                {
+                    Assert.Equal("Customer", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                });
         }
 
         [Fact]

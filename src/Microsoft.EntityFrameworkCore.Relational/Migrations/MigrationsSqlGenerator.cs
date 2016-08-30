@@ -26,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(AddPrimaryKeyOperation), (g, o, m, b) => g.Generate((AddPrimaryKeyOperation)o, m, b) },
                 { typeof(AddUniqueConstraintOperation), (g, o, m, b) => g.Generate((AddUniqueConstraintOperation)o, m, b) },
                 { typeof(AlterColumnOperation), (g, o, m, b) => g.Generate((AlterColumnOperation)o, m, b) },
+                { typeof(AlterDatabaseOperation), (g, o, m, b) => g.Generate((AlterDatabaseOperation)o, m, b) },
                 { typeof(AlterSequenceOperation), (g, o, m, b) => g.Generate((AlterSequenceOperation)o, m, b) },
+                { typeof(AlterTableOperation), (g, o, m, b) => g.Generate((AlterTableOperation)o, m, b) },
                 { typeof(CreateIndexOperation), (g, o, m, b) => g.Generate((CreateIndexOperation)o, m, b) },
                 { typeof(CreateSequenceOperation), (g, o, m, b) => g.Generate((CreateSequenceOperation)o, m, b) },
                 { typeof(CreateTableOperation), (g, o, m, b) => g.Generate((CreateTableOperation)o, m, b) },
@@ -107,6 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] AddColumnOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -118,15 +127,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             ColumnDefinition(operation, model, builder);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] AddForeignKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] AddForeignKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -138,15 +156,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             ForeignKeyConstraint(operation, model, builder);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] AddPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] AddPrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -156,8 +183,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD ");
             PrimaryKeyConstraint(operation, model, builder);
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder);
+
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -186,6 +217,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected virtual void Generate(
+            [NotNull] AlterDatabaseOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+        }
+
+        protected virtual void Generate(
             [NotNull] RenameIndexOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
@@ -210,6 +248,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.AppendLine(SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder);
+        }
+
+        protected virtual void Generate(
+            [NotNull] AlterTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
         }
 
         protected virtual void Generate(
@@ -256,7 +301,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (terminate)
             {
                 builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-
                 EndStatement(builder);
             }
         }
@@ -303,6 +347,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] CreateTableOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -346,17 +397,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.AppendLine();
             }
 
-            builder
-                .Append(")")
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+            builder.Append(")");
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] DropColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropColumnOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -365,16 +425,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER TABLE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP COLUMN ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] DropForeignKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropForeignKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -383,10 +453,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER TABLE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -401,6 +474,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] DropPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropPrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -409,10 +489,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER TABLE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -451,16 +534,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] DropTableOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
             builder
                 .Append("DROP TABLE ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -873,6 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.EndCommand(suppressTransaction);
         }
 
-        private string ColumnList(string[] columns) => string.Join(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier));
+        protected virtual string ColumnList([NotNull] string[] columns)
+            => string.Join(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier));
     }
 }

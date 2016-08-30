@@ -32,6 +32,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
                 }
+                if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
+                {
+                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? true;
+                }
                 if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
                 {
                     isMet &= TestEnvironment.DefaultConnection.Contains("database.windows.net");
@@ -59,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         SupportsSequences = 1 << 0,
         SupportsOffset = 1 << 1,
         IsSqlAzure = 1 << 2,
-        IsNotSqlAzure = 1 << 3
+        IsNotSqlAzure = 1 << 3,
+        SupportsMemoryOptimized = 1 << 4
     }
 }

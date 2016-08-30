@@ -82,6 +82,7 @@
     <Compile Include="LoadSqlServerTest.cs" />
     <Compile Include="MappingQuerySqlServerFixture.cs" />
     <Compile Include="MappingQuerySqlServerTest.cs" />
+    <Compile Include="MemoryOptimizedTablesTest.cs" />
     <Compile Include="MigrationsSqlServerFixture.cs" />
     <Compile Include="MigrationsSqlServerTest.cs" />
     <Compile Include="MonsterFixupSqlServerTest.cs" />

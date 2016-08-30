@@ -2,15 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
-    public class AlterSequenceOperation : SequenceOperation, IAlterMigrationOperation
+    public class AlterTableOperation : MigrationOperation, IAlterMigrationOperation
     {
-        public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual string Name { get; [param: NotNull] set; }
-        public virtual SequenceOperation OldSequence { get; [param: NotNull] set; } = new SequenceOperation();
-        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldSequence;
+        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual Annotatable OldTable { get; [param: NotNull] set; } = new Annotatable();
+        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldTable;
     }
 }

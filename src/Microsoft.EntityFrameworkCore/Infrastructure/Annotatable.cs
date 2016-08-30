@@ -77,10 +77,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation SetAnnotation([NotNull] string name, [NotNull] Annotation annotation)
         {
+            var oldAnnotation = FindAnnotation(name);
+
             _annotations.Value[name] = annotation;
 
-            return annotation;
+            return OnAnnotationSet(name, annotation, oldAnnotation);
         }
+
+        /// <summary>
+        ///     Runs the corresponding conventions when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected virtual Annotation OnAnnotationSet(
+            [NotNull] string name, [CanBeNull] Annotation annotation, [CanBeNull] Annotation oldAnnotation)
+            => annotation;
 
         /// <summary>
         ///     Adds an annotation to this object or returns the existing annotation if one with the specified name
@@ -134,6 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             _annotations.Value.Remove(name);
 
+            OnAnnotationSet(name, null, annotation);
+
             return annotation;
         }
 
@@ -161,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
                 else
                 {
-                    _annotations.Value[name] = CreateAnnotation(name, value);
+                    SetAnnotation(name, CreateAnnotation(name, value));
                 }
             }
         }

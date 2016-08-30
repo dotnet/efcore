@@ -129,4 +129,7 @@
   <data name="IndexTableRequired" xml:space="preserve">
     <value>SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to MigrationBuilder.RenameIndex.</value>
   </data>
+  <data name="AlterMemoryOptimizedTable" xml:space="preserve">
+    <value>To set memory-optimized on a table on or off the table needs to be dropped and recreated.</value>
+  </data>
 </root>

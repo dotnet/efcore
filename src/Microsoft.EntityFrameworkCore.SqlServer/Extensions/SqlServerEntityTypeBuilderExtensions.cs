@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class SqlServerEntityTypeBuilderExtensions
     {
-
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server.
         /// </summary>
@@ -82,5 +81,33 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ForSqlServerToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
+
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder ForSqlServerIsMemoryOptimized(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder, bool memoryOptimized = true)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            entityTypeBuilder.Metadata.SqlServer().IsMemoryOptimized = memoryOptimized;
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ForSqlServerIsMemoryOptimized<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder, bool memoryOptimized = true)
+            where TEntity : class
+            => (EntityTypeBuilder<TEntity>)ForSqlServerIsMemoryOptimized((EntityTypeBuilder)entityTypeBuilder, memoryOptimized);
     }
 }

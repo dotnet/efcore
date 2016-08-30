@@ -48,6 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("IndexTableRequired"); }
         }
 
+        /// <summary>
+        /// To set memory-optimized on a table on or off the table needs to be dropped and recreated.
+        /// </summary>
+        public static string AlterMemoryOptimizedTable
+        {
+            get { return GetString("AlterMemoryOptimizedTable"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

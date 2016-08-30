@@ -381,9 +381,88 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(_code.UnknownLiteral(operation.DefaultValue));
                 }
 
+                if (operation.OldColumn.ClrType != null)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldClrType: typeof(")
+                        .Append(_code.Reference(operation.OldColumn.ClrType))
+                        .Append(")");
+                }
+
+                if (operation.OldColumn.ColumnType != null)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldType: ")
+                        .Append(_code.Literal(operation.OldColumn.ColumnType));
+                }
+
+                if (operation.OldColumn.IsUnicode == false)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldUnicode: false");
+                }
+
+                if (operation.OldColumn.MaxLength.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldMaxLength: ")
+                        .Append(_code.Literal(operation.OldColumn.MaxLength.Value));
+                }
+
+                if (operation.OldColumn.IsRowVersion)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldRowVersion: true");
+                }
+
+                if (operation.OldColumn.IsNullable)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldNullable: true");
+                }
+
+                if (operation.OldColumn.DefaultValueSql != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldDefaultValueSql: ")
+                        .Append(_code.Literal(operation.OldColumn.DefaultValueSql));
+                }
+                else if (operation.OldColumn.ComputedColumnSql != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldComputedColumnSql: ")
+                        .Append(_code.UnknownLiteral(operation.OldColumn.ComputedColumnSql));
+                }
+                else if (operation.OldColumn.DefaultValue != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldDefaultValue: ")
+                        .Append(_code.UnknownLiteral(operation.OldColumn.DefaultValue));
+                }
+
                 builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
+                OldAnnotations(operation.OldColumn.GetAnnotations(), builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] AlterDatabaseOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.Append(".AlterDatabase()");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.GetAnnotations(), builder);
+                OldAnnotations(operation.OldDatabase.GetAnnotations(), builder);
             }
         }
 
@@ -439,9 +518,69 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("cyclic: true");
                 }
 
+                if (operation.OldSequence.IncrementBy != 1)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldIncrementBy: ")
+                        .Append(_code.Literal(operation.OldSequence.IncrementBy));
+                }
+
+                if (operation.OldSequence.MinValue != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldMinValue: ")
+                        .Append(_code.Literal(operation.OldSequence.MinValue));
+                }
+
+                if (operation.OldSequence.MaxValue != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldMaxValue: ")
+                        .Append(_code.Literal(operation.OldSequence.MaxValue));
+                }
+
+                if (operation.OldSequence.IsCyclic)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldCyclic: true");
+                }
+
                 builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
+                OldAnnotations(operation.OldSequence.GetAnnotations(), builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] AlterTableOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".AlterTable(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.GetAnnotations(), builder);
+                OldAnnotations(operation.OldTable.GetAnnotations(), builder);
             }
         }
 
@@ -1244,6 +1383,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 builder
                     .AppendLine()
                     .Append(".Annotation(")
+                    .Append(_code.Literal(annotation.Name))
+                    .Append(", ")
+                    .Append(_code.UnknownLiteral(annotation.Value))
+                    .Append(")");
+            }
+        }
+
+        protected virtual void OldAnnotations(
+            [NotNull] IEnumerable<Annotation> annotations,
+            [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(builder, nameof(builder));
+
+            foreach (var annotation in annotations)
+            {
+                // TODO: Give providers an opportunity to render these as provider-specific extension methods
+                builder
+                    .AppendLine()
+                    .Append(".OldAnnotation(")
                     .Append(_code.Literal(annotation.Name))
                     .Append(", ")
                     .Append(_code.UnknownLiteral(annotation.Value))

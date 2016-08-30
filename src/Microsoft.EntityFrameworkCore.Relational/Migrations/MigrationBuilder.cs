@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             return new OperationBuilder<AddUniqueConstraintOperation>(operation);
         }
 
-        public virtual OperationBuilder<AlterColumnOperation> AlterColumn<T>(
+        public virtual AlterOperationBuilder<AlterColumnOperation> AlterColumn<T>(
             [NotNull] string name,
             [NotNull] string table,
             [CanBeNull] string type = null,
@@ -189,7 +189,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
-            [CanBeNull] string computedColumnSql = null)
+            [CanBeNull] string computedColumnSql = null,
+            [CanBeNull] Type oldClrType = null,
+            [CanBeNull] string oldType = null,
+            [CanBeNull] bool? oldUnicode = null,
+            [CanBeNull] int? oldMaxLength = null,
+            bool oldRowVersion = false,
+            bool oldNullable = false,
+            [CanBeNull] object oldDefaultValue = null,
+            [CanBeNull] string oldDefaultValueSql = null,
+            [CanBeNull] string oldComputedColumnSql = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -207,20 +216,45 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
-                ComputedColumnSql = computedColumnSql
+                ComputedColumnSql = computedColumnSql,
+                OldColumn = new ColumnOperation
+                {
+                    ClrType = oldClrType ?? typeof(T),
+                    ColumnType = oldType,
+                    IsUnicode = oldUnicode,
+                    MaxLength = oldMaxLength,
+                    IsRowVersion = oldRowVersion,
+                    IsNullable = oldNullable,
+                    DefaultValue = oldDefaultValue,
+                    DefaultValueSql = oldDefaultValueSql,
+                    ComputedColumnSql = oldComputedColumnSql
+                }
             };
+
             Operations.Add(operation);
 
-            return new OperationBuilder<AlterColumnOperation>(operation);
+            return new AlterOperationBuilder<AlterColumnOperation>(operation);
         }
 
-        public virtual OperationBuilder<AlterSequenceOperation> AlterSequence(
+        public virtual AlterOperationBuilder<AlterDatabaseOperation> AlterDatabase()
+        {
+            var operation = new AlterDatabaseOperation();
+            Operations.Add(operation);
+
+            return new AlterOperationBuilder<AlterDatabaseOperation>(operation);
+        }
+
+        public virtual AlterOperationBuilder<AlterSequenceOperation> AlterSequence(
             [NotNull] string name,
             [CanBeNull] string schema = null,
             int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
-            bool cyclic = false)
+            bool cyclic = false,
+            int oldIncrementBy = 1,
+            [CanBeNull] long? oldMinValue = null,
+            [CanBeNull] long? oldMaxValue = null,
+            bool oldCyclic = false)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -231,11 +265,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 IncrementBy = incrementBy,
                 MinValue = minValue,
                 MaxValue = maxValue,
-                IsCyclic = cyclic
+                IsCyclic = cyclic,
+                OldSequence = new SequenceOperation
+                {
+                    IncrementBy = oldIncrementBy,
+                    MinValue = oldMinValue,
+                    MaxValue = oldMaxValue,
+                    IsCyclic = oldCyclic
+                }
             };
             Operations.Add(operation);
 
-            return new OperationBuilder<AlterSequenceOperation>(operation);
+            return new AlterOperationBuilder<AlterSequenceOperation>(operation);
+        }
+
+        public virtual AlterOperationBuilder<AlterTableOperation> AlterTable(
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new AlterTableOperation
+            {
+                Schema = schema,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new AlterOperationBuilder<AlterTableOperation>(operation);
         }
 
         public virtual OperationBuilder<CreateIndexOperation> CreateIndex(

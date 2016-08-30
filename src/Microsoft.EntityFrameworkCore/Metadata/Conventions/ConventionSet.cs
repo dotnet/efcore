@@ -27,9 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new List<IEntityTypeMemberIgnoredConvention>();
 
         /// <summary>
-        ///     Conventions to run when a base entity type is configured for an inheritance hierarchy.
+        ///     Conventions to run when the base entity type is set or removed.
         /// </summary>
         public virtual IList<IBaseTypeConvention> BaseEntityTypeSetConventions { get; } = new List<IBaseTypeConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is set or removed on an entity type.
+        /// </summary>
+        public virtual IList<IEntityTypeAnnotationSetConvention> EntityTypeAnnotationSetConventions { get; }
+            = new List<IEntityTypeAnnotationSetConvention>();
 
         /// <summary>
         ///     Conventions to run when a foreign key is added.

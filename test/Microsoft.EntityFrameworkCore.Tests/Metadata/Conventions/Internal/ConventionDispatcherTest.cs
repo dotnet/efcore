@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -162,6 +163,85 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             else
             {
                 builder.Metadata.HasBaseType(builder.Metadata.Model.AddEntityType(typeof(Order)), ConfigurationSource.Convention);
+            }
+
+            Assert.NotNull(entityTypeBuilder);
+        }
+
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnEntityTypeAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder)
+        {
+            var conventions = new ConventionSet();
+
+            InternalEntityTypeBuilder entityTypeBuilder = null;
+            Annotation annotationSet = null;
+            Annotation oldAnnotation = null;
+            var convention = new Mock<IEntityTypeAnnotationSetConvention>();
+            convention.Setup(c => c.Apply(
+                It.IsAny<InternalEntityTypeBuilder>(),
+                It.IsAny<string>(),
+                It.IsAny<Annotation>(),
+                It.IsAny<Annotation>()))
+                .Returns<InternalEntityTypeBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.NotNull(b);
+                    Assert.Equal("foo", n);
+                    entityTypeBuilder = b;
+                    annotationSet = a;
+                    oldAnnotation = o;
+                    return a;
+                });
+            conventions.EntityTypeAnnotationSetConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IEntityTypeAnnotationSetConvention>();
+            nullConvention.Setup(c => c.Apply(
+                It.IsAny<InternalEntityTypeBuilder>(),
+                It.IsAny<string>(),
+                It.IsAny<Annotation>(),
+                It.IsAny<Annotation>()))
+                .Returns<InternalEntityTypeBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.Same(entityTypeBuilder, b);
+                    Assert.Equal("foo", n);
+                    return a == null ? new Annotation(n, n) : null;
+                });
+            conventions.EntityTypeAnnotationSetConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IEntityTypeAnnotationSetConvention>();
+            extraConvention.Setup(c => c.Apply(
+                It.IsAny<InternalEntityTypeBuilder>(),
+                It.IsAny<string>(),
+                It.IsAny<Annotation>(),
+                It.IsAny<Annotation>()))
+                .Returns<InternalEntityTypeBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.False(true);
+                    return null;
+                });
+            conventions.EntityTypeAnnotationSetConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(conventions))
+                .Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.Equal("bar", annotationSet.Value);
+                Assert.Null(oldAnnotation);
+                Assert.NotNull(builder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+                Assert.Null(annotationSet);
+                Assert.Equal("bar", oldAnnotation?.Value);
+            }
+            else
+            {
+                builder.Metadata["foo"] = "bar";
+                Assert.Equal("bar", annotationSet.Value);
+                Assert.Null(oldAnnotation);
+                builder.Metadata.RemoveAnnotation("foo");
+                Assert.Null(annotationSet);
+                Assert.Equal("bar", oldAnnotation?.Value);
             }
 
             Assert.NotNull(entityTypeBuilder);
