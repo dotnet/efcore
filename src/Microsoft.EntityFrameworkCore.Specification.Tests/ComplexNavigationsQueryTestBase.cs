@@ -3368,5 +3368,33 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual void SelectMany_where_with_subquery()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne.Include(l1 => l1.OneToMany_Required).ThenInclude(l2 => l2.OneToMany_Required)
+                    .ToList()
+                    .SelectMany(l1 => l1.OneToMany_Required).Where(l2 => l2.OneToMany_Required.Any())
+                    .Select(l2 => l2.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.SelectMany(l1 => l1.OneToMany_Required).Where(l2 => l2.OneToMany_Required.Any());
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
     }
 }

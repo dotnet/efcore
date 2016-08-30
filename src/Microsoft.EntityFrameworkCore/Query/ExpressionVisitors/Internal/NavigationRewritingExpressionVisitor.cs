@@ -862,6 +862,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 return base.VisitQuerySourceReference(expression);
             }
+
+            protected override Expression VisitSubQuery(SubQueryExpression expression)
+            {
+                expression.QueryModel.TransformExpressions(Visit);
+
+                return expression;
+            }
         }
 
         private JoinClause BuildJoinFromNavigation(

@@ -1838,6 +1838,21 @@ ORDER BY [l1].[Id]",
                 Sql);
         }
 
+        public override void SelectMany_where_with_subquery()
+        {
+            base.SelectMany_where_with_subquery();
+
+            Assert.Equal(
+                @"SELECT [l1.OneToMany_Required].[Id], [l1.OneToMany_Required].[Date], [l1.OneToMany_Required].[Level1_Optional_Id], [l1.OneToMany_Required].[Level1_Required_Id], [l1.OneToMany_Required].[Name], [l1.OneToMany_Required].[OneToMany_Optional_InverseId], [l1.OneToMany_Required].[OneToMany_Optional_Self_InverseId], [l1.OneToMany_Required].[OneToMany_Required_InverseId], [l1.OneToMany_Required].[OneToMany_Required_Self_InverseId], [l1.OneToMany_Required].[OneToOne_Optional_PK_InverseId], [l1.OneToMany_Required].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+INNER JOIN [Level2] AS [l1.OneToMany_Required] ON [l1].[Id] = [l1.OneToMany_Required].[OneToMany_Required_InverseId]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Level3] AS [l]
+    WHERE [l1.OneToMany_Required].[Id] = [l].[OneToMany_Required_InverseId])",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
