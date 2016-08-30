@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             "This method is obsolete and will be removed in the 1.1.0 release. Use CreateIncludeContext instead.",
              error: true)]
         public virtual void Initialize([NotNull] RelationalQueryContext queryContext)
-            => CreateIncludeContext(queryContext);
+            => _currentContext = CreateIncludeContext(queryContext);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 asyncGroupJoinIncludeContext.SetPrevious(_previous.CreateIncludeContext(queryContext));
             }
 
-            return _currentContext = asyncGroupJoinIncludeContext;
+            return asyncGroupJoinIncludeContext;
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             "This method is obsolete and will be removed in the 1.1.0 release. Use IncludeAsync on the object returned by CreateIncludeContext instead.",
              error: true)]
         public virtual Task IncludeAsync([CanBeNull] object entity, CancellationToken cancellationToken)
-            => _currentContext.IncludeAsync(entity, cancellationToken);
+            => _currentContext?.IncludeAsync(entity, cancellationToken) ?? Task.FromResult(0);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
