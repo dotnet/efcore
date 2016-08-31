@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class AsyncGroupJoinInclude : GroupJoinIncludeBase
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private AsyncGroupJoinInclude _previous;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public AsyncGroupJoinInclude(
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual AsyncGroupJoinIncludeContext Initialize([NotNull] RelationalQueryContext queryContext)
+        public virtual AsyncGroupJoinIncludeContext CreateIncludeContext([NotNull] RelationalQueryContext queryContext)
         {
             var asyncGroupJoinIncludeContext
                 = new AsyncGroupJoinIncludeContext(
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (_previous != null)
             {
-                asyncGroupJoinIncludeContext.SetPrevious(_previous.Initialize(queryContext));
+                asyncGroupJoinIncludeContext.SetPrevious(_previous.CreateIncludeContext(queryContext));
             }
 
             return asyncGroupJoinIncludeContext;

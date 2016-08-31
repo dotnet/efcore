@@ -674,9 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var keyOrIndex = false;
 
-            // Any property that maps to the column will work because model validator has
-            // checked that all properties result in the same type mapping.
-            var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
+            var property = FindProperty(model, schema, table, name);
             if (property != null)
             {
                 if (unicode == property.IsUnicode()
@@ -856,13 +854,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => model?.GetEntityTypes().Where(
                 t => (_annotations.For(t).TableName == tableName) && (_annotations.For(t).Schema == schema));
 
-        protected virtual IEnumerable<IProperty> FindProperties(
+        protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
             [NotNull] string tableName,
             [NotNull] string columnName)
+            // Any property that maps to the column will work because model validator has
+            // checked that all properties result in the same column definition.
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .Where(p => _annotations.For(p).ColumnName == columnName);
+                .FirstOrDefault(p => _annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,

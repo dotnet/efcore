@@ -270,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             GroupJoinInclude outerGroupJoinInclude,
             GroupJoinInclude innerGroupJoinInclude)
         {
-            var outerGroupJoinIncludeContext = outerGroupJoinInclude?.Initialize(queryContext);
-            var innerGroupJoinIncludeContext = innerGroupJoinInclude?.Initialize(queryContext);
+            var outerGroupJoinIncludeContext = outerGroupJoinInclude?.CreateIncludeContext(queryContext);
+            var innerGroupJoinIncludeContext = innerGroupJoinInclude?.CreateIncludeContext(queryContext);
             var outerAccessor = outerGroupJoinInclude?.EntityAccessor as Func<TOuter, object>;
             var innerAccessor = innerGroupJoinInclude?.EntityAccessor as Func<TInner, object>;
 

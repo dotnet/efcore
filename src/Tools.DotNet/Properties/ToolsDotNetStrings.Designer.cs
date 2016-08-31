@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public static class ToolsDotNetStrings
+    public static partial class ToolsDotNetStrings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.DotNet.Properties.ToolsDotNetStrings", typeof(ToolsDotNetStrings).GetTypeInfo().Assembly);

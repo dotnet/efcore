@@ -403,8 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (_sourceEnumerator == null)
                     {
-                        _outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
-                        _innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        _outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.CreateIncludeContext(_groupJoinAsyncEnumerable._queryContext);
+                        _innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.CreateIncludeContext(_groupJoinAsyncEnumerable._queryContext);
                         _outerEntityAccessor = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.EntityAccessor as Func<TOuter, object>;
                         _innerEntityAccessor = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.EntityAccessor as Func<TInner, object>;
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();

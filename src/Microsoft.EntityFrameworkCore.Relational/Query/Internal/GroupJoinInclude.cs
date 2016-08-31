@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class GroupJoinInclude : GroupJoinIncludeBase
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private GroupJoinInclude _previous;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public GroupJoinInclude(
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetPrevious([NotNull] GroupJoinInclude previous)
@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual GroupJoinIncludeContext Initialize([NotNull] RelationalQueryContext queryContext)
+        public virtual GroupJoinIncludeContext CreateIncludeContext([NotNull] RelationalQueryContext queryContext)
         {
             var groupJoinIncludeContext
                 = new GroupJoinIncludeContext(
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (_previous != null)
             {
-                groupJoinIncludeContext.SetPrevious(_previous.Initialize(queryContext));
+                groupJoinIncludeContext.SetPrevious(_previous.CreateIncludeContext(queryContext));
             }
 
             return groupJoinIncludeContext;
