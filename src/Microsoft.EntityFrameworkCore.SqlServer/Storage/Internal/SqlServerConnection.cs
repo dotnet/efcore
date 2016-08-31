@@ -50,10 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ISqlServerConnection CreateMasterConnection()
-            => new SqlServerConnection(new DbContextOptionsBuilder()
-                .UseSqlServer(
-                    new SqlConnectionStringBuilder { ConnectionString = ConnectionString, InitialCatalog = "master" }.ConnectionString,
-                    b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout)).Options, Logger);
+        {
+            var builder = new SqlConnectionStringBuilder(ConnectionString) { InitialCatalog = "master" };
+            builder.Remove("AttachDBFilename");
+
+            return new SqlServerConnection(new DbContextOptionsBuilder()
+                .UseSqlServer(builder.ConnectionString, b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout)).Options, Logger);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

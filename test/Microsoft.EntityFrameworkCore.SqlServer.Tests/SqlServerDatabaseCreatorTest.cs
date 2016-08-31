@@ -45,6 +45,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
+        public async Task Create_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(1832, async: false);
+        }
+
+        [Fact]
+        public async Task Create_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(5120, async: false);
+        }
+
+        [Fact]
         public async Task CreateAsync_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(233, async: true);
@@ -60,6 +72,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(4060, async: true);
+        }
+
+        [Fact]
+        public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(1832, async: true);
+        }
+
+        [Fact]
+        public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(5120, async: true);
         }
 
         private async Task Create_checks_for_existence_and_retries_until_it_passes(int errorNumber, bool async)

@@ -8,5 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     public class SqlServerCreateDatabaseOperation : MigrationOperation
     {
         public virtual string Name { get; [param: NotNull] set; }
+
+        public virtual string FileName { get; [param: CanBeNull] set; }
     }
 }
