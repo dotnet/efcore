@@ -241,10 +241,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Where(
                     c =>
                     {
-                        var properties = FindProperties(model, operation.Schema, operation.Table, c);
+                        var property = FindProperty(model, operation.Schema, operation.Table, c);
 
-                        return !properties.Any() // Couldn't bind column to property
-                            || properties.Any(p => p.IsColumnNullable());
+                        return property == null // Couldn't bind column to property
+                            || property.IsColumnNullable();
                     })
                 .ToList();
             if (operation.IsUnique
