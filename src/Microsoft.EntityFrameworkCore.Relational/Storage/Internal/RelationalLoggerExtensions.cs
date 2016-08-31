@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
@@ -130,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
         }
 
+        private static readonly double TimestampToMilliseconds = (double)TimeSpan.TicksPerSecond / (Stopwatch.Frequency * TimeSpan.TicksPerMillisecond);
         private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
-            => (currentTimestamp - startTimestamp) / TimeSpan.TicksPerMillisecond;
+            => (long)((currentTimestamp - startTimestamp) * TimestampToMilliseconds);
     }
 }
