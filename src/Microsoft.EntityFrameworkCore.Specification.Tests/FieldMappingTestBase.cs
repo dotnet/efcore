@@ -1350,30 +1350,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     modelBuilder.Entity<PostWriteOnly>(b =>
                         {
                             b.HasKey("Id");
-                            b.Property<string>("Title");
-                            b.Property<int>("BlogId");
+                            b.Property("Title");
+                            b.Property("BlogId");
                         });
 
                     modelBuilder.Entity<BlogWriteOnly>(b =>
                         {
                             b.HasKey("Id");
-                            b.Property<string>("Title");
+                            b.Property("Title");
                             b.HasMany(typeof(PostWriteOnly).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
                         });
 
                     modelBuilder.Entity<PostWriteOnlyExplicit>(b =>
                         {
                             b.HasKey("Id");
-                            b.Property<int>("Id").HasField("_myid");
-                            b.Property<string>("Title").HasField("_mytitle");
-                            b.Property<int>("BlogId").HasField("_myblogId");
+                            b.Property("Id").HasField("_myid");
+                            b.Property("Title").HasField("_mytitle");
+                            b.Property("BlogId").HasField("_myblogId");
                         });
 
                     modelBuilder.Entity<BlogWriteOnlyExplicit>(b =>
                         {
                             b.HasKey("Id");
-                            b.Property<int>("Id").HasField("_myid");
-                            b.Property<string>("Title").HasField("_mytitle");
+                            b.Property("Id").HasField("_myid");
+                            b.Property("Title").HasField("_mytitle");
                             b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
                         });
 
@@ -1382,17 +1382,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                     modelBuilder.Entity<PostFields>(b =>
                     {
-                        b.Property<int>("_id");
+                        b.Property("_id");
                         b.HasKey("_id");
-                        b.Property<string>("_title");
-                        b.Property<int>("_blogId");
+                        b.Property("_title");
+                        b.Property("_blogId");
                     });
 
                     modelBuilder.Entity<BlogFields>(b =>
                     {
-                        b.Property<int>("_id");
+                        b.Property("_id");
                         b.HasKey("_id");
-                        b.Property<string>("_title");
+                        b.Property("_title");
                         b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
                     });
                 }

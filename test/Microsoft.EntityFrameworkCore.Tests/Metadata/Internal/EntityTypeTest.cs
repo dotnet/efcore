@@ -2393,6 +2393,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void AddProperty_throws_if_field_clr_type_does_not_match()
+        {
+            var entityType = new Model().AddEntityType(typeof(Customer));
+
+            Assert.Equal(CoreStrings.PropertyWrongClrType(
+                nameof(Customer._toast), nameof(Customer), typeof(int).DisplayName(), typeof(string).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityType.AddProperty(nameof(Customer._toast), typeof(string), shadow: false)).Message);
+        }
+
+        [Fact]
         public void Cannot_remove_property_when_used_by_primary_key()
         {
             var model = new Model();
@@ -3031,6 +3042,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             public IEnumerable<Order> EnumerableOrders { get; set; }
             public Order NotCollectionOrders { get; set; }
+
+#pragma warning disable 649
+            public int _toast;
+#pragma warning restore 649
         }
 
         private class SpecialCustomer : Customer
