@@ -52,7 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual ISqlServerConnection CreateMasterConnection()
             => new SqlServerConnection(new DbContextOptionsBuilder()
                 .UseSqlServer(
-                    new SqlConnectionStringBuilder { ConnectionString = ConnectionString, InitialCatalog = "master" }.ConnectionString,
+                    new SqlConnectionStringBuilder(ConnectionString)
+                    {
+                        InitialCatalog = "master",
+                        AttachDBFilename = string.Empty
+                    }.ToString(),
                     b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout)).Options, Logger);
 
         /// <summary>
