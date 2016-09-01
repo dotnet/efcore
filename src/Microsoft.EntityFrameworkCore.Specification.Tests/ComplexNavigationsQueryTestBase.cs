@@ -1092,6 +1092,39 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Join_navigation_translated_to_subquery_deeply_nested_required()
+        {
+            List<Level1> levelOnes;
+            List<Level4> levelFours;
+            using (var context = CreateContext())
+            {
+                levelFours = context.LevelFour.Include(e => e.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Required_PK_Inverse).ToList();
+                levelOnes = context.LevelOne.ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            join e4 in context.LevelFour on e1.Name equals e4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Required_PK_Inverse.Name
+                            select new { Id4 = e4.Id, Name4 = e4.Name, Id1 = e1.Id, Name1 = e1.Name };
+
+                var result = query.ToList();
+
+                var expected = (from e1 in levelOnes
+                                join e4 in levelFours on e1.Name equals e4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Required_PK_Inverse.Name
+                                select new { Id4 = e4.Id, Name4 = e4.Name, Id1 = e1.Id, Name1 = e1.Name }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
         // issue #3180
         [ConditionalFact]
         public virtual void Multiple_complex_includes()
@@ -3282,8 +3315,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         // issue #6429
-        ////[ConditionalFact]
-        public virtual void Null_protection_logic_work_for_key_access_of_manually_created_GroupJoin1()
+        [ConditionalFact]
+        public virtual void Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin1()
         {
             List<string> expected;
             using (var context = CreateContext())
@@ -3328,7 +3361,52 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Null_protection_logic_work_for_key_access_of_manually_created_GroupJoin2()
+        public virtual void Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin2()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne.ToList()
+                    .GroupJoin(
+                        context.LevelOne
+                            .Include(l1 => l1.OneToOne_Required_FK)
+                            .ToList()
+                            .Select(l1 => l1.OneToOne_Required_FK),
+                        l1 => l1.Id,
+                        l2 => l2?.Level1_Optional_Id,
+                        (l1, l2s) => new
+                        {
+                            l1,
+                            l2s
+                        })
+                    .Select(r => r.l1.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .GroupJoin(
+                        context.LevelOne.Select(l1 => l1.OneToOne_Required_FK),
+                        l1 => l1.Id,
+                        l2 => EF.Property<int?>(l2, "Level1_Optional_Id"),
+                        (l1, l2s) => new { l1, l2s })
+                    .Select(r => r.l1);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin()
         {
             List<string> expected;
             using (var context = CreateContext())
@@ -3336,14 +3414,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 expected = context.LevelOne.Include(l1 => l1.OneToOne_Required_FK).ToList().Select(l1 => l1.OneToOne_Required_FK)
                     .GroupJoin(
                         context.LevelOne,
-                        l1 => l1?.Level1_Optional_Id,
-                        l2 => l2.Id,
-                        (l1, l2s) => new
+                        l2 => l2?.Level1_Optional_Id,
+                        l1 => l1.Id,
+                        (l2, l1s) => new
                         {
-                            l1,
-                            l2s
+                            l2,
+                            l1s
                         })
-                    .Select(r => r.l1?.Name)
+                    .Select(r => r.l2?.Name)
                     .ToList();
             }
 
@@ -3354,10 +3432,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = context.LevelOne.Select(l1 => l1.OneToOne_Required_FK)
                     .GroupJoin(
                         context.LevelOne,
-                        l1 => l1.Level1_Optional_Id,
-                        l2 => l2.Id,
-                        (l1, l2s) => new { l1, l2s })
-                    .Select(r => r.l1);
+                        l2 => l2.Level1_Optional_Id,
+                        l1 => l1.Id,
+                        (l2, l1s) => new { l2, l1s })
+                    .Select(r => r.l2);
 
                 var result = query.ToList();
 

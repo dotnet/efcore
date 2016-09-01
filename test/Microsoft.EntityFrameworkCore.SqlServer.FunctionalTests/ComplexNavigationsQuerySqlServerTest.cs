@@ -618,6 +618,23 @@ FROM [Level4] AS [e4]",
                 Sql);
         }
 
+        public override void Join_navigation_translated_to_subquery_deeply_nested_required()
+        {
+            base.Join_navigation_translated_to_subquery_deeply_nested_required();
+
+            Assert.Equal(
+                @"SELECT [e4].[Id], [e4].[Name], [e1].[Id], [e1].[Name]
+FROM [Level1] AS [e1]
+INNER JOIN [Level4] AS [e4] ON [e1].[Name] = (
+    SELECT TOP(1) [subQuery.OneToOne_Required_FK_Inverse.OneToOne_Required_PK_Inverse0].[Name]
+    FROM [Level3] AS [subQuery0]
+    INNER JOIN [Level2] AS [subQuery.OneToOne_Required_FK_Inverse0] ON [subQuery0].[Level2_Required_Id] = [subQuery.OneToOne_Required_FK_Inverse0].[Id]
+    INNER JOIN [Level1] AS [subQuery.OneToOne_Required_FK_Inverse.OneToOne_Required_PK_Inverse0] ON [subQuery.OneToOne_Required_FK_Inverse0].[Id] = [subQuery.OneToOne_Required_FK_Inverse.OneToOne_Required_PK_Inverse0].[Id]
+    WHERE [subQuery0].[Id] = [e4].[Level3_Required_Id]
+)",
+                Sql);
+        }
+
         public override void Multiple_complex_includes()
         {
             base.Multiple_complex_includes();
@@ -1829,22 +1846,47 @@ FROM [Level1] AS [l1]",
                 Sql);
         }
 
-        public override void Null_protection_logic_work_for_key_access_of_manually_created_GroupJoin1()
+        public override void Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin1()
         {
-            base.Null_protection_logic_work_for_key_access_of_manually_created_GroupJoin1();
+            base.Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin1();
 
-            Assert.Equal(
-                @"",
+            Assert.Contains(
+                @"SELECT [l1.OneToOne_Required_FK].[Id], [l1.OneToOne_Required_FK].[Date], [l1.OneToOne_Required_FK].[Level1_Optional_Id], [l1.OneToOne_Required_FK].[Level1_Required_Id], [l1.OneToOne_Required_FK].[Name], [l1.OneToOne_Required_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Required_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Required_FK].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l10]
+LEFT JOIN [Level2] AS [l1.OneToOne_Required_FK] ON [l10].[Id] = [l1.OneToOne_Required_FK].[Level1_Required_Id]
+ORDER BY [l10].[Id]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]",
                 Sql);
         }
 
-        public override void Null_protection_logic_work_for_key_access_of_manually_created_GroupJoin2()
+        public override void Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin2()
         {
-            base.Null_protection_logic_work_for_key_access_of_manually_created_GroupJoin2();
+            base.Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin2();
 
             Assert.Contains(
-                @"SELECT [l2].[Id], [l2].[Date], [l2].[Name], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_SelfId]
-FROM [Level1] AS [l2]",
+                @"SELECT [l1.OneToOne_Required_FK].[Id], [l1.OneToOne_Required_FK].[Date], [l1.OneToOne_Required_FK].[Level1_Optional_Id], [l1.OneToOne_Required_FK].[Level1_Required_Id], [l1.OneToOne_Required_FK].[Name], [l1.OneToOne_Required_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Required_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Required_FK].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l10]
+LEFT JOIN [Level2] AS [l1.OneToOne_Required_FK] ON [l10].[Id] = [l1.OneToOne_Required_FK].[Level1_Required_Id]
+ORDER BY [l10].[Id]",
+                Sql);
+
+            Assert.Contains(
+            @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]",
+                Sql);
+        }
+
+        public override void Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin()
+        {
+            base.Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin();
+
+            Assert.Contains(
+                @"SELECT [l10].[Id], [l10].[Date], [l10].[Name], [l10].[OneToMany_Optional_Self_InverseId], [l10].[OneToMany_Required_Self_InverseId], [l10].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l10]",
                 Sql);
 
             Assert.Contains(

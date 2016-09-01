@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
+            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel, parentQueryModel: null);
 
             QueryCompilationContext.Logger
                 .LogDebug(

@@ -378,6 +378,23 @@ ORDER BY [w].[OwnerFullName]",
         {
             base.Include_where_list_contains_navigation();
 
+            Assert.Equal(
+                @"SELECT [t].[Id]
+FROM [CogTag] AS [t]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+FROM [Gear] AS [g]
+LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g.Tag].[Id] IS NOT NULL
+ORDER BY [g].[Nickname], [g].[SquadId]",
+                Sql);
+        }
+
+        public override void Include_where_list_contains_navigation2()
+        {
+            base.Include_where_list_contains_navigation2();
+
             // Separate asserts to account for ordering differences on .NETCore
 
             Assert.Contains(
@@ -386,8 +403,8 @@ FROM [CogTag] AS [t]",
                 Sql);
 
             Assert.Contains(
-                @"SELECT [g.Tag1].[Id], [g.Tag1].[GearNickName], [g.Tag1].[GearSquadId], [g.Tag1].[Note]
-FROM [CogTag] AS [g.Tag1]",
+                @"SELECT [g.CityOfBirth].[Name], [g.CityOfBirth].[Location]
+FROM [City] AS [g.CityOfBirth]",
                 Sql);
 
             Assert.Contains(
@@ -395,6 +412,22 @@ FROM [CogTag] AS [g.Tag1]",
 FROM [Gear] AS [g]
 LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
 LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Nickname], [g].[SquadId]",
+                Sql);
+        }
+
+        public override void Navigation_accessed_twice_outside_and_inside_subquery()
+        {
+            base.Navigation_accessed_twice_outside_and_inside_subquery();
+
+            Assert.Equal(
+                @"SELECT [t].[Id]
+FROM [CogTag] AS [t]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]
+FROM [Gear] AS [g]
+LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g.Tag].[Id] IS NOT NULL
 ORDER BY [g].[Nickname], [g].[SquadId]",
                 Sql);
