@@ -27,15 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string DisplayName([NotNull] this IEntityType entityType)
-            => entityType.ClrType != null
-                ? entityType.ClrType.ShortDisplayName()
-                : entityType.Name;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
         {
             var baseTypes = new List<IEntityType>();
@@ -206,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool HasClrType([NotNull] this IEntityType entityType)
+        public static bool HasClrType([NotNull] this IStructuralType entityType)
             => entityType.ClrType != null;
 
         /// <summary>

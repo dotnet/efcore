@@ -11,16 +11,16 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IPropertyBase" />.
     /// </summary>
-    public static class PropertyBaseExtensions
+    public static class AccessiblePropertyExtensions
     {
         /// <summary>
         ///     Gets the name of the backing field for this property, or null if the backing field
         ///     is not known.
         /// </summary>
-        /// <param name="propertyBase"> The property for which the backing field will be returned. </param>
+        /// <param name="property"> The property for which the backing field will be returned. </param>
         /// <returns> The name of the backing field, or null. </returns>
-        public static string GetField([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.GetFieldInfo()?.Name;
+        public static string GetField([NotNull] this IAccessibleProperty property)
+            => property.FieldInfo?.Name;
 
         /// <summary>
         ///     <para>
@@ -28,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         Null indicates that the default property access mode is being used.
         ///     </para>
         /// </summary>
-        /// <param name="propertyBase"> The property for which to get the access mode. </param>
+        /// <param name="property"> The property for which to get the access mode. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         public static PropertyAccessMode? GetPropertyAccessMode(
-            [NotNull] this IPropertyBase propertyBase)
-            => (PropertyAccessMode?)Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
-               ?? propertyBase.DeclaringEntityType.GetPropertyAccessMode();
+            [NotNull] this IAccessibleProperty property)
+            => (PropertyAccessMode?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.PropertyAccessModeAnnotation]
+               ?? property.DeclaringType.GetPropertyAccessMode();
     }
 }

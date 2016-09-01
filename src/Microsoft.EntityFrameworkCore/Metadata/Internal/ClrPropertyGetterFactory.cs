@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            PropertyInfo propertyInfo, IPropertyBase propertyBase)
+            PropertyInfo propertyInfo, IAccessibleProperty property)
         {
-            var memberInfo = propertyBase?.GetMemberInfo(forConstruction: false, forSet: false)
+            var memberInfo = property?.GetMemberInfo(forConstruction: false, forSet: false)
                              ?? propertyInfo.FindGetterProperty();
 
             if (memberInfo == null)

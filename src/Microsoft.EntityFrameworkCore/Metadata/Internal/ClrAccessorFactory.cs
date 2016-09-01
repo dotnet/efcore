@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual TAccessor Create([NotNull] IPropertyBase property)
+        public virtual TAccessor Create([NotNull] IAccessibleProperty property)
             => property as TAccessor ?? Create(null, property);
 
         /// <summary>
@@ -32,13 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual TAccessor Create([NotNull] PropertyInfo propertyInfo)
             => Create(propertyInfo, null);
 
-        private TAccessor Create(PropertyInfo propertyInfo, IPropertyBase propertyBase)
+        private TAccessor Create(PropertyInfo propertyInfo, IAccessibleProperty property)
         {
-            var boundMethod = propertyBase != null
+            var boundMethod = property != null
                 ? _genericCreate.MakeGenericMethod(
-                    propertyBase.DeclaringEntityType.ClrType,
-                    propertyBase.GetClrType(),
-                    propertyBase.GetClrType().UnwrapNullableType())
+                    property.DeclaringType.ClrType,
+                    property.ClrType,
+                    property.ClrType.UnwrapNullableType())
                 : _genericCreate.MakeGenericMethod(
                     propertyInfo.DeclaringType,
                     propertyInfo.PropertyType,
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             try
             {
-                return (TAccessor)boundMethod.Invoke(this, new object[] { propertyInfo, propertyBase });
+                return (TAccessor)boundMethod.Invoke(this, new object[] { propertyInfo, property });
             }
             catch (TargetInvocationException e) when (e.InnerException != null)
             {
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected abstract TAccessor CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
             [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] IPropertyBase propertyBase)
+            [CanBeNull] IAccessibleProperty property)
             where TEntity : class;
     }
 }

@@ -14,10 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class Navigation : PropertyBase, IMutableNavigation
+    public class Navigation : AccessibleProperty, IMutableNavigation
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor _collectionAccessor;
+        private PropertyIndexes _indexes;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -59,7 +60,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override EntityType DeclaringEntityType
+        public new virtual StructuralType DeclaringType => DeclaringEntityType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType DeclaringEntityType
             => this.IsDependentToPrincipal()
                 ? ForeignKey.DeclaringEntityType
                 : ForeignKey.PrincipalEntityType;
@@ -173,6 +180,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual PropertyIndexes PropertyIndexes
+        {
+            get
+            {
+                return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
+                    property => property.DeclaringEntityType.CalculateIndexes(property));
+            }
+
+            [param: CanBeNull]
+            set
+            {
+                if (value == null)
+                {
+                    // This path should only kick in when the model is still mutable and therefore access does not need
+                    // to be thread-safe.
+                    _indexes = null;
+                }
+                else
+                {
+                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
+                }
+            }
         }
 
         /// <summary>

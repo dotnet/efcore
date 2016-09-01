@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Use_of_custom_IPropertyBase_throws()
+        public void Use_of_custom_IAccessibleProperty_throws()
         {
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), "IPropertyBaseProxy"),
-                Assert.Throws<NotSupportedException>(() => Mock.Of<IPropertyBase>().AsPropertyBase()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IAccessibleProperty_throws), nameof(IAccessibleProperty), "IAccessiblePropertyProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IAccessibleProperty>().AsAccessibleProperty()).Message);
         }
 
         [Fact]

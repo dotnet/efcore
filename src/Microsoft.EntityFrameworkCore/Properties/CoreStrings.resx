@@ -352,7 +352,16 @@
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
   </data>
   <data name="DuplicateEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>
+    <value>The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
+  </data>
+  <data name="DuplicateComplexType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
+  </data>
+  <data name="ComplexTypeAlreadyExists" xml:space="preserve">
+    <value>The type '{type}' cannot be added to the model as an entity type because a complex type with the same name already exists.</value>
+  </data>
+  <data name="EntityTypeAlreadyExists" xml:space="preserve">
+    <value>The type '{type}' cannot be added to the model as a complex type because an entity type with the same name already exists.</value>
   </data>
   <data name="DuplicateAnnotation" xml:space="preserve">
     <value>The annotation '{annotation}' cannot be added because an annotation with the same name already exists.</value>

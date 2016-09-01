@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Model : ConventionalAnnotatable, IMutableModel
     {
-        private readonly SortedDictionary<string, EntityType> _entityTypes
-            = new SortedDictionary<string, EntityType>();
+        private readonly SortedDictionary<string, StructuralType> _structuralTypes
+            = new SortedDictionary<string, StructuralType>();
 
-        private readonly IDictionary<Type, EntityType> _clrTypeMap
-            = new Dictionary<Type, EntityType>();
+        private readonly IDictionary<Type, StructuralType> _clrTypeMap
+            = new Dictionary<Type, StructuralType>();
 
-        private readonly Dictionary<string, ConfigurationSource> _ignoredEntityTypeNames
+        private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
             = new Dictionary<string, ConfigurationSource>();
 
         /// <summary>
@@ -71,8 +71,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<EntityType> GetEntityTypes() => _entityTypes.Values;
+        public virtual IEnumerable<EntityType> GetEntityTypes() => _structuralTypes.Values.OfType<EntityType>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<ComplexType> GetComplexTypes() => _structuralTypes.Values.OfType<ComplexType>();
+
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<StructuralType> GetStructuralTypes() => _structuralTypes.Values;
+        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
@@ -85,9 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            var entityType = new EntityType(name, this, configurationSource);
-
-            return AddEntityType(entityType, runConventions);
+            return AddEntityType(new EntityType(name, this, configurationSource), runConventions);
         }
 
         /// <summary>
@@ -105,23 +116,81 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new EntityType(type, this, configurationSource);
 
             _clrTypeMap[type] = entityType;
+
             return AddEntityType(entityType, runConventions);
         }
 
         private EntityType AddEntityType(EntityType entityType, bool runConventions)
         {
-            var previousLength = _entityTypes.Count;
-            _entityTypes[entityType.Name] = entityType;
-            if (previousLength == _entityTypes.Count)
+            AddStructuralType(entityType);
+
+            return runConventions ? ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata : entityType;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexType AddComplexType(
+            [NotNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return AddComplexType(new ComplexType(name, this, configurationSource), runConventions);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexType AddComplexType(
+            [NotNull] Type type,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+        {
+            Check.NotNull(type, nameof(type));
+
+            var complexType = new ComplexType(type, this, configurationSource);
+
+            _clrTypeMap[type] = complexType;
+
+            return AddComplexType(complexType, runConventions);
+        }
+
+        private ComplexType AddComplexType(ComplexType complexType, bool runConventions)
+        {
+            AddStructuralType(complexType);
+
+            // TOSO: Builders
+            //return runConventions ? ConventionDispatcher.OnEntityTypeAdded(complexType.Builder)?.Metadata : complexType;
+            return complexType;
+        }
+
+        private void AddStructuralType(StructuralType structuralType)
+        {
+            var existing = FindStructuralType(structuralType.Name);
+            if (existing != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
+                if (existing is EntityType)
+                {
+                    if (structuralType is EntityType)
+                    {
+                        throw new InvalidOperationException(CoreStrings.DuplicateEntityType(structuralType.DisplayName()));
+                    }
+                    throw new InvalidOperationException(CoreStrings.EntityTypeAlreadyExists(structuralType.DisplayName()));
+                }
+                if (structuralType is ComplexType)
+                {
+                    throw new InvalidOperationException(CoreStrings.DuplicateComplexType(structuralType.DisplayName()));
+                }
+                throw new InvalidOperationException(CoreStrings.ComplexTypeAlreadyExists(structuralType.DisplayName()));
             }
 
-            if (runConventions)
-            {
-                return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
-            }
-            return entityType;
+            _structuralTypes[structuralType.Name] = structuralType;
         }
 
         /// <summary>
@@ -142,11 +211,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType FindEntityType([NotNull] Type type)
+        public virtual ComplexType GetOrAddComplexType([NotNull] Type type)
+            => FindComplexType(type) ?? AddComplexType(type);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexType GetOrAddComplexType([NotNull] string name)
+            => FindComplexType(name) ?? AddComplexType(name);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType FindEntityType([NotNull] Type type) 
+            => FindStructuralType(type) as EntityType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType FindEntityType([NotNull] string name)
+            => FindStructuralType(name) as EntityType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexType FindComplexType([NotNull] Type type)
+            => FindStructuralType(type) as ComplexType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexType FindComplexType([NotNull] string name)
+            => FindStructuralType(name) as ComplexType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual StructuralType FindStructuralType([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            EntityType entityType;
+            StructuralType entityType;
             return _clrTypeMap.TryGetValue(type, out entityType)
                 ? entityType
                 : FindEntityType(type.DisplayName());
@@ -156,12 +267,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType FindEntityType([NotNull] string name)
+        public virtual StructuralType FindStructuralType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            EntityType entityType;
-            return _entityTypes.TryGetValue(name, out entityType)
+            StructuralType entityType;
+            return _structuralTypes.TryGetValue(name, out entityType)
                 ? entityType
                 : null;
         }
@@ -171,58 +282,87 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] Type type)
-        {
-            var entityType = FindEntityType(type);
-            return entityType == null
-                ? null
-                : RemoveEntityType(entityType);
-        }
+            => (EntityType)RemoveStructuralType(FindEntityType(type));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] string name)
-        {
-            var entityType = FindEntityType(name);
-            return entityType == null
-                ? null
-                : RemoveEntityType(entityType);
-        }
+            => (EntityType)RemoveStructuralType(FindEntityType(name));
 
-        private EntityType RemoveEntityType([NotNull] EntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexType RemoveComplexType([NotNull] Type type)
+            => (ComplexType)RemoveStructuralType(FindComplexType(type));
 
-            var referencingForeignKey = entityType.GetDeclaredReferencingForeignKeys().FirstOrDefault();
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexType RemoveComplexType([NotNull] string name)
+            => (ComplexType)RemoveStructuralType(FindComplexType(name));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual StructuralType RemoveStructuralType([NotNull] Type type)
+            => RemoveStructuralType(FindStructuralType(type));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual StructuralType RemoveStructuralType([NotNull] string name) 
+            => RemoveStructuralType(FindStructuralType(name));
+
+        private StructuralType RemoveStructuralType(StructuralType structuralType)
+        {
+            if (structuralType == null)
+            {
+                return null;
+            }
+
+            // TODO: FKs that use Complex Type
+            var entityType = (structuralType as EntityType);
+
+            var referencingForeignKey = entityType?.GetDeclaredReferencingForeignKeys().FirstOrDefault();
             if (referencingForeignKey != null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.EntityTypeInUseByForeignKey(
-                        entityType.DisplayName(),
+                        structuralType.DisplayName(),
                         Property.Format(referencingForeignKey.Properties),
                         referencingForeignKey.DeclaringEntityType.DisplayName()));
             }
 
-            var derivedEntityType = entityType.GetDirectlyDerivedTypes().FirstOrDefault();
+            var derivedEntityType = entityType?.GetDirectlyDerivedTypes().FirstOrDefault();
             if (derivedEntityType != null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.EntityTypeInUseByDerived(
-                        entityType.DisplayName(),
+                        structuralType.DisplayName(),
                         derivedEntityType.DisplayName()));
             }
 
-            if (entityType.ClrType != null)
+            if (structuralType.ClrType != null)
             {
-                _clrTypeMap.Remove(entityType.ClrType);
+                _clrTypeMap.Remove(structuralType.ClrType);
             }
 
-            var removed = _entityTypes.Remove(entityType.Name);
+            var removed = _structuralTypes.Remove(structuralType.Name);
             Debug.Assert(removed);
-            entityType.Builder = null;
 
-            return entityType;
+            if (entityType != null)
+            {
+                // TODO: Builders
+                entityType.Builder = null;
+            }
+
+            return structuralType;
         }
 
         /// <summary>
@@ -249,13 +389,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool runConventions)
         {
             ConfigurationSource existingIgnoredConfigurationSource;
-            if (_ignoredEntityTypeNames.TryGetValue(name, out existingIgnoredConfigurationSource))
+            if (_ignoredTypeNames.TryGetValue(name, out existingIgnoredConfigurationSource))
             {
                 configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
                 runConventions = false;
             }
 
-            _ignoredEntityTypeNames[name] = configurationSource;
+            _ignoredTypeNames[name] = configurationSource;
 
             if (runConventions)
             {
@@ -267,28 +407,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? FindIgnoredEntityTypeConfigurationSource([NotNull] Type type)
+        public virtual ConfigurationSource? FindIgnoredTypeConfigurationSource([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            return FindIgnoredEntityTypeConfigurationSource(type.DisplayName());
+            return FindIgnoredTypeConfigurationSource(type.DisplayName());
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? FindIgnoredEntityTypeConfigurationSource([NotNull] string name)
+        public virtual ConfigurationSource? FindIgnoredTypeConfigurationSource([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
             ConfigurationSource ignoredConfigurationSource;
-            if (_ignoredEntityTypeNames.TryGetValue(name, out ignoredConfigurationSource))
-            {
-                return ignoredConfigurationSource;
-            }
-
-            return null;
+            return _ignoredTypeNames.TryGetValue(name, out ignoredConfigurationSource) 
+                ? (ConfigurationSource?)ignoredConfigurationSource 
+                : null;
         }
 
         /// <summary>
@@ -308,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void Unignore([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
-            _ignoredEntityTypeNames.Remove(name);
+            _ignoredTypeNames.Remove(name);
         }
 
         /// <summary>

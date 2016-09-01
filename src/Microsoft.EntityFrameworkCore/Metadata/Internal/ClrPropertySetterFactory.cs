@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            PropertyInfo propertyInfo, IPropertyBase propertyBase)
+            PropertyInfo propertyInfo, IAccessibleProperty property)
         {
-            var memberInfo = propertyBase?.GetMemberInfo(forConstruction: false, forSet: true)
+            var memberInfo = property?.GetMemberInfo(forConstruction: false, forSet: true)
                              ?? propertyInfo.FindGetterProperty();
 
             if (memberInfo == null)
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityParameter,
                 valueParameter).Compile();
 
-            var propertyType = propertyBase?.GetClrType() ?? propertyInfo?.PropertyType;
+            var propertyType = property?.ClrType ?? propertyInfo?.PropertyType;
 
             return propertyType.IsNullableType()
                    && propertyType.UnwrapNullableType().GetTypeInfo().IsEnum

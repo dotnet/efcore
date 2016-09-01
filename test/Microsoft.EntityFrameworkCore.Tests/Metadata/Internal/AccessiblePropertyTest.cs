@@ -14,7 +14,7 @@ using Xunit;
 // ReSharper disable ConvertToAutoProperty
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
-    public class PropertyBaseTest
+    public class AccessiblePropertyTest
     {
         private const string Property = "Foo";
         private const string Reference = "Reference";
@@ -555,12 +555,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         public void MemberInfoTestCommon(
-            IPropertyBase propertyBase, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
+            IAccessibleProperty property, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
         {
             string failMessage = null;
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: true, forSet: true);
+                var memberInfo = property.GetMemberInfo(forConstruction: true, forSet: true);
                 Assert.Equal(forConstruction, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: false, forSet: true);
+                var memberInfo = property.GetMemberInfo(forConstruction: false, forSet: true);
                 Assert.Equal(forSet, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: false, forSet: false);
+                var memberInfo = property.GetMemberInfo(forConstruction: false, forSet: false);
                 Assert.Equal(forGet, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -611,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                new TestModelValidator().Validate(propertyBase.DeclaringEntityType.Model);
+                new TestModelValidator().Validate(property.DeclaringType.Model);
                 Assert.Null(failMessage);
             }
             catch (InvalidOperationException ex)
@@ -684,35 +684,35 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 foreignKey.HasDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
         }
 
-        public virtual void Properties_can_have_field_cleared(PropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
+        public virtual void Properties_can_have_field_cleared(AccessibleProperty property, PropertyInfo propertyInfo, string fieldName)
         {
-            Assert.Null(propertyBase.GetField());
-            Assert.Null(propertyBase.GetFieldInfo());
-            Assert.Same(propertyInfo, propertyBase.MemberInfo);
+            Assert.Null(property.GetField());
+            Assert.Null(property.FieldInfo);
+            Assert.Same(propertyInfo, property.MemberInfo);
 
-            propertyBase.SetField(fieldName, ConfigurationSource.Explicit);
+            property.SetField(fieldName, ConfigurationSource.Explicit);
 
-            Assert.Equal(fieldName, propertyBase.GetField());
-            var fieldInfo = propertyBase.GetFieldInfo();
+            Assert.Equal(fieldName, property.GetField());
+            var fieldInfo = property.FieldInfo;
             Assert.Equal(fieldName, fieldInfo.Name);
-            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.MemberInfo);
+            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, property.MemberInfo);
 
-            propertyBase.SetField(null, ConfigurationSource.Explicit);
+            property.SetField(null, ConfigurationSource.Explicit);
 
-            Assert.Null(propertyBase.GetField());
-            Assert.Null(propertyBase.GetFieldInfo());
-            Assert.Same(propertyInfo, propertyBase.MemberInfo);
+            Assert.Null(property.GetField());
+            Assert.Null(property.FieldInfo);
+            Assert.Same(propertyInfo, property.MemberInfo);
 
-            propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Explicit);
+            property.SetFieldInfo(fieldInfo, ConfigurationSource.Explicit);
 
-            Assert.Equal(fieldName, propertyBase.GetField());
-            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.MemberInfo);
+            Assert.Equal(fieldName, property.GetField());
+            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, property.MemberInfo);
 
-            propertyBase.SetFieldInfo(null, ConfigurationSource.Explicit);
+            property.SetFieldInfo(null, ConfigurationSource.Explicit);
 
-            Assert.Null(propertyBase.GetField());
-            Assert.Null(propertyBase.GetFieldInfo());
-            Assert.Same(propertyInfo, propertyBase.MemberInfo);
+            Assert.Null(property.GetField());
+            Assert.Null(property.FieldInfo);
+            Assert.Same(propertyInfo, property.MemberInfo);
         }
 
         private class AutoProp
