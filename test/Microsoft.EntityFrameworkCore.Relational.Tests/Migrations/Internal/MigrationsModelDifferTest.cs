@@ -490,6 +490,220 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         }
 
         [Fact]
+        public void Rename_foreignKey_property()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity("Trainer").Property<int>("Id");
+                    source.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("Monsters").HasForeignKey("TrainerId")
+                                .HasConstraintName("FK_Monster_Trainer_MasterId");
+                            x.HasIndex("TrainerId").HasName("IX_Monster_MasterId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity("Trainer").Property<int>("Id");
+                    target.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("Monsters").HasForeignKey("MasterId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Monster", operation.Table);
+                    Assert.Equal("TrainerId", operation.Name);
+                    Assert.Equal("MasterId", operation.NewName);
+                });
+        }
+
+        [Fact]
+        public void Rename_foreignKey_and_reference_property()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity("Trainer").Property<int>("Id");
+                    source.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Trainer").WithMany("Monsters").HasForeignKey("TrainerId")
+                                .HasConstraintName("FK_Monster_Trainer_MasterId");
+                            x.HasIndex("TrainerId").HasName("IX_Monster_MasterId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity("Trainer").Property<int>("Id");
+                    target.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("Monsters").HasForeignKey("MasterId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Monster", operation.Table);
+                    Assert.Equal("TrainerId", operation.Name);
+                    Assert.Equal("MasterId", operation.NewName);
+                });
+        }
+
+        [Fact]
+        public void Rename_foreignKey_and_inverse_property()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity("Trainer").Property<int>("Id");
+                    source.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("MonsterCollection").HasForeignKey("TrainerId")
+                                .HasConstraintName("FK_Monster_Trainer_MasterId");
+                            x.HasIndex("TrainerId").HasName("IX_Monster_MasterId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity("Trainer").Property<int>("Id");
+                    target.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("Monsters").HasForeignKey("MasterId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Monster", operation.Table);
+                    Assert.Equal("TrainerId", operation.Name);
+                    Assert.Equal("MasterId", operation.NewName);
+                });
+        }
+
+        [Fact]
+        public void Rename_composite_foreignKey_property()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Trainer",
+                        x =>
+                        {
+                            x.Property<int>("Id1");
+                            x.Property<int>("Id2");
+                            x.HasKey("Id1", "Id2");
+                        });
+                    source.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("Monsters").HasForeignKey("TrainerId1", "MasterId2")
+                                .HasConstraintName("FK_Monster_Trainer_MasterId1_MasterId2");
+                            x.HasIndex("TrainerId1", "MasterId2").HasName("IX_Monster_MasterId1_MasterId2");
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Trainer",
+                        x =>
+                        {
+                            x.Property<int>("Id1");
+                            x.Property<int>("Id2");
+                            x.HasKey("Id1", "Id2");
+                        });
+                    target.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("Monsters").HasForeignKey("MasterId1", "MasterId2");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Monster", operation.Table);
+                    Assert.Equal("TrainerId1", operation.Name);
+                    Assert.Equal("MasterId1", operation.NewName);
+                });
+        }
+
+        [Fact]
+        public void Rename_shared_foreignKey_and_reference_property()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity("Trainer").Property<int>("Id");
+                    source.Entity("TrainerDetails").Property<int>("Id");
+                    source.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Trainer").WithMany("Monsters").HasForeignKey("TrainerId")
+                                .HasConstraintName("FK_Monster_Trainer_MasterId");
+                            x.HasOne("TrainerDetails", "MasterDetails").WithMany("Monsters").HasForeignKey("TrainerId")
+                                .HasConstraintName("FK_Monster_TrainerDetails_MasterId");
+                            x.HasIndex("TrainerId").HasName("IX_Monster_MasterId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity("Trainer").Property<int>("Id");
+                    target.Entity("TrainerDetails").Property<int>("Id");
+                    target.Entity(
+                        "Monster",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Trainer", "Master").WithMany("Monsters").HasForeignKey("MasterId");
+                            x.HasOne("TrainerDetails", "MasterDetails").WithMany("Monsters").HasForeignKey("MasterId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Monster", operation.Table);
+                    Assert.Equal("TrainerId", operation.Name);
+                    Assert.Equal("MasterId", operation.NewName);
+                });
+        }
+
+        [Fact]
         public void Add_custom_value_generator()
         {
             Execute(
