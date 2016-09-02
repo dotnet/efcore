@@ -1171,21 +1171,24 @@ WHERE [ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL",
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
-#if NET451
-            Assert.StartsWith(
+
+            Assert.Contains(
                 @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[HasSoulPatch], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
 FROM [Gear] AS [ct2.Gear]
-WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')
+WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')",
+                Sql);
 
-SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
+            Assert.Contains(
+                @"SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
 FROM [CogTag] AS [ct1]
 LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
-ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]
+ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]",
+                Sql);
 
-SELECT [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
+            Assert.Contains(
+                @"SELECT [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Id]
 FROM [CogTag] AS [ct2]",
                 Sql);
-#endif
         }
 
         public override void Optional_Navigation_Null_Coalesce_To_Clr_Type()

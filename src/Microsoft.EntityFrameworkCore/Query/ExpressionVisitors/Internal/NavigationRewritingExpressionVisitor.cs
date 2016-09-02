@@ -701,9 +701,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var querySourceReferenceExpression = outerQuerySourceReferenceExpression;
             var navigationJoins = _navigationJoins;
             var optionalNavigationInChain = false;
+            var addNullCheckToOuterKeySelector = false;
 
             foreach (var navigation in navigations)
             {
+                addNullCheckToOuterKeySelector = optionalNavigationInChain;
                 if (!navigation.ForeignKey.IsRequired || !navigation.IsDependentToPrincipal())
                 {
                     optionalNavigationInChain = true;
@@ -750,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         querySourceReferenceExpression,
                         navigation,
                         targetEntityType,
-                        optionalNavigationInChain,
+                        addNullCheckToOuterKeySelector,
                         out innerQuerySourceReferenceExpression);
 
                     var additionalBodyClauses = new List<IBodyClause>();
