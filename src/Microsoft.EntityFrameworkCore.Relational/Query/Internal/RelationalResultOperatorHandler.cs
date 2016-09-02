@@ -22,7 +22,7 @@ using Remotion.Linq.Parsing;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class RelationalResultOperatorHandler : IResultOperatorHandler
@@ -73,13 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public SqlTranslatingExpressionVisitor CreateSqlTranslatingVisitor(bool bindParentQueries = false)
-            {
-                return _sqlTranslatingExpressionVisitorFactory
+                => _sqlTranslatingExpressionVisitorFactory
                     .Create(
                         QueryModelVisitor,
                         SelectExpression,
                         bindParentQueries: bindParentQueries);
-            }
         }
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
@@ -112,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ResultOperatorHandler _resultOperatorHandler;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalResultOperatorHandler(
@@ -130,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression HandleResultOperator(
@@ -473,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
 
-            return sqlExpression!= null
+            return sqlExpression != null
                 ? Expression.Call(handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
                     .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
                     oldGroupByCall.Arguments)

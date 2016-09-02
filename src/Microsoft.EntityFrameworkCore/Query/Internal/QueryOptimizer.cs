@@ -98,6 +98,72 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
+        {
+            base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
+
+            // Attempts to rewrite GroupJoin/SelectMany to regular join
+
+            var additionalFromClause 
+                = queryModel.BodyClauses.ElementAtOrDefault(index + 1)
+                    as AdditionalFromClause;
+
+            var querySourceReferenceExpression 
+                = additionalFromClause?.FromExpression as QuerySourceReferenceExpression;
+
+            if (querySourceReferenceExpression != null
+                && querySourceReferenceExpression.ReferencedQuerySource == groupJoinClause)
+            {
+                var referenceCount = 0;
+
+                Func<Expression, Expression> groupReferenceFinder = null;
+
+                groupReferenceFinder 
+                    = e =>
+                    {
+                        var qsre = e as QuerySourceReferenceExpression;
+
+                        if (qsre?.ReferencedQuerySource == groupJoinClause)
+                        {
+                            referenceCount++;
+                        }
+
+                        var sq = e as SubQueryExpression;
+
+                        sq?.QueryModel.TransformExpressions(groupReferenceFinder);
+
+                        return e;
+                    };
+
+                queryModel.TransformExpressions(groupReferenceFinder);
+
+                if (referenceCount == 1)
+                {
+                    // GroupJoin/SelectMany can be rewritten to regular Join.
+
+                    queryModel.BodyClauses.RemoveAt(index + 1);
+                    queryModel.BodyClauses.RemoveAt(index);
+                    queryModel.BodyClauses.Insert(index, groupJoinClause.JoinClause);
+
+                    var querySourceMapping = new QuerySourceMapping();
+
+                    querySourceMapping.AddMapping(
+                        additionalFromClause,
+                        new QuerySourceReferenceExpression(groupJoinClause.JoinClause));
+
+                    queryModel.TransformExpressions(e =>
+                        ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
+                            e,
+                            querySourceMapping,
+                            throwOnUnmappedReferences: false));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void FlattenSubQuery(
             [NotNull] SubQueryExpression subQueryExpression,
             [NotNull] IFromClause fromClause,

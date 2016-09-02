@@ -668,7 +668,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!RequiresClientSelectMany
                 && previousSelectExpression != null
-                && (!operatorToFlatten.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin) || CanFlattenGroupJoin()))
+                && (!operatorToFlatten.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin) 
+                    || CanFlattenGroupJoin()))
             {
                 var selectExpression = TryGetQuery(joinClause);
 

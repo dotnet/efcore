@@ -4925,7 +4925,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_DefaultIfEmpty_Where_OrderBy()
+        public virtual void GroupJoin_Where_OrderBy()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
@@ -4934,6 +4934,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 where o.CustomerID == "ALFKI" || c.CustomerID == "ANATR"
                 orderby c.City
                 select o);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_DefaultIfEmpty_Where()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders.DefaultIfEmpty()
+                where o != null && o.CustomerID == "ALFKI"
+                select o);
+        }
+        
+        [ConditionalFact]
+        public virtual void GroupJoin_DefaultIfEmpty_Project()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders.DefaultIfEmpty()
+                select o != null ? (object)o.OrderID : null);
         }
 
         [ConditionalFact]
