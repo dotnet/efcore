@@ -445,6 +445,45 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                });
+
+            Assert.Equal(
+                "ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true,
+                    [SqlServerFullAnnotationNames.Instance.Clustered] = false
+                });
+
+            Assert.Equal(
+                "ALTER TABLE [People] ADD INDEX [IX_People_Name] UNIQUE NONCLUSTERED ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void CreateSchemaOperation()
         {
             Generate(new EnsureSchemaOperation { Name = "my" });

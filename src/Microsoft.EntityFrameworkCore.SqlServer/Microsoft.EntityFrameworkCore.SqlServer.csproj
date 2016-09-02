@@ -73,7 +73,6 @@
     <Compile Include="Infrastructure\Internal\SqlServerModelSource.cs" />
     <Compile Include="Infrastructure\Internal\SqlServerOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqlServerDbContextOptionsBuilder.cs" />
-    <Compile Include="Metadata\Conventions\Internal\SqlServerCascadeDeleteConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerInMemoryTablesConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilder.cs" />

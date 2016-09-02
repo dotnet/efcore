@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     {
                         eb.ForSqlServerIsMemoryOptimized();
                         eb.HasIndex(e => e.Name).IsUnique();
-                        eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired(true);
+                        eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired(true).OnDelete(DeleteBehavior.Restrict);
                     });
 
 

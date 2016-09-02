@@ -300,6 +300,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            var nullableColumns = operation.Columns
+                .Where(
+                    c =>
+                    {
+                        var property = FindProperty(model, operation.Schema, operation.Table, c);
+
+                        return property == null // Couldn't bind column to property
+                            || property.IsColumnNullable();
+                    })
+                .ToList();
+
             var memoryOptimized = IsMemoryOptimized(operation);
             if (memoryOptimized)
             {
@@ -309,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" ");
 
-                if (operation.IsUnique)
+                if (operation.IsUnique
+                    && nullableColumns.Count == 0)
                 {
                     builder.Append("UNIQUE ");
                 }
@@ -317,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 IndexTraits(operation, model, builder);
 
                 builder
-                    .Append(" (")
+                    .Append("(")
                     .Append(ColumnList(operation.Columns))
                     .Append(")");
             }
@@ -326,16 +338,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 base.Generate(operation, model, builder, terminate: false);
 
                 var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
-                var nullableColumns = operation.Columns
-                    .Where(
-                        c =>
-                        {
-                            var property = FindProperty(model, operation.Schema, operation.Table, c);
-
-                            return property == null // Couldn't bind column to property
-                                || property.IsColumnNullable();
-                        })
-                    .ToList();
                 if (operation.IsUnique
                     && (clustered != true)
                     && nullableColumns.Count != 0)
