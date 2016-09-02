@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     && targetMigrationsAnnotations.Count > 0)
                 {
                     var alterDatabaseOperation = new AlterDatabaseOperation();
-                    CopyAnnotations(targetMigrationsAnnotations, alterDatabaseOperation);
+                    alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
                     yield return alterDatabaseOperation;
                 }
                 yield break;
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 if (sourceMigrationsAnnotations.Count > 0)
                 {
                     var alterDatabaseOperation = new AlterDatabaseOperation();
-                    CopyAnnotations(MigrationsAnnotations.ForRemove(source), alterDatabaseOperation.OldDatabase);
+                    alterDatabaseOperation.OldDatabase.AddAnnotations(MigrationsAnnotations.ForRemove(source));
                     yield return alterDatabaseOperation;
                 }
                 yield break;
@@ -350,8 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var alterDatabaseOperation = new AlterDatabaseOperation();
-                CopyAnnotations(targetMigrationsAnnotations, alterDatabaseOperation);
-                CopyAnnotations(sourceMigrationsAnnotations, alterDatabaseOperation.OldDatabase);
+                alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
+                alterDatabaseOperation.OldDatabase.AddAnnotations(sourceMigrationsAnnotations);
                 yield return alterDatabaseOperation;
             }
         }
@@ -495,9 +495,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Name = targetAnnotations.TableName,
                     Schema = targetAnnotations.Schema
                 };
-                CopyAnnotations(targetMigrationsAnnotations, alterTableOperation);
+                alterTableOperation.AddAnnotations(targetMigrationsAnnotations);
 
-                CopyAnnotations(sourceMigrationsAnnotations, alterTableOperation.OldTable);
+                alterTableOperation.OldTable.AddAnnotations(sourceMigrationsAnnotations);
                 yield return alterTableOperation;
             }
         }
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Schema = targetAnnotations.Schema,
                 Name = targetAnnotations.TableName
             };
-            CopyAnnotations(MigrationsAnnotations.For(target), createTableOperation);
+            createTableOperation.AddAnnotations(MigrationsAnnotations.For(target));
 
             createTableOperation.Columns.AddRange(
                 GetPropertiesInHierarchy(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
@@ -549,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Schema = sourceAnnotations.Schema,
                 Name = sourceAnnotations.TableName
             };
-            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
             diffContext.AddDrop(source, operation);
 
             yield return operation;
@@ -638,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
-                    // TODO: Detect type narrowing
+                                          // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Table = sourceEntityTypeAnnotations.TableName,
                 Name = Annotations.For(source).ColumnName
             };
-            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
             yield return operation;
         }
@@ -723,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                                : GetDefaultValue(columnOperation.ClrType));
             columnOperation.DefaultValueSql = annotations.DefaultValueSql;
             columnOperation.ComputedColumnSql = annotations.ComputedColumnSql;
-            CopyAnnotations(migrationsAnnotations, columnOperation);
+            columnOperation.AddAnnotations(migrationsAnnotations);
 
             return columnOperation;
         }
@@ -793,7 +793,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Columns = columns
                 };
             }
-            CopyAnnotations(MigrationsAnnotations.For(target), operation);
+            operation.AddAnnotations(MigrationsAnnotations.For(target));
 
             yield return operation;
         }
@@ -828,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Name = sourceAnnotations.Name
                 };
             }
-            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
             yield return operation;
         }
@@ -892,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         ? ReferentialAction.SetNull
                         : ReferentialAction.Restrict
             };
-            CopyAnnotations(MigrationsAnnotations.For(target), operation);
+            operation.AddAnnotations(MigrationsAnnotations.For(target));
 
             var createTableOperation = diffContext.FindCreate(declaringRootEntityType);
             if (createTableOperation != null)
@@ -923,7 +923,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Table = sourceEntityTypeAnnotations.TableName,
                     Name = Annotations.For(source).Name
                 };
-                CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+                operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
                 yield return operation;
             }
@@ -1002,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Columns = GetColumns(target.Properties),
                 IsUnique = target.IsUnique
             };
-            CopyAnnotations(MigrationsAnnotations.For(target), operation);
+            operation.AddAnnotations(MigrationsAnnotations.For(target));
 
             yield return operation;
         }
@@ -1021,7 +1021,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Schema = sourceEntityTypeAnnotations.Schema,
                 Table = sourceEntityTypeAnnotations.TableName
             };
-            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
             yield return operation;
         }
@@ -1125,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Schema = source.Schema,
                 Name = source.Name
             };
-            CopyAnnotations(MigrationsAnnotations.ForRemove(source), operation);
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
             yield return operation;
         }
@@ -1139,7 +1139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             sequenceOperation.MinValue = sequence.MinValue;
             sequenceOperation.MaxValue = sequence.MaxValue;
             sequenceOperation.IsCyclic = sequence.IsCyclic;
-            CopyAnnotations(migrationsAnnotations, sequenceOperation);
+            sequenceOperation.AddAnnotations(migrationsAnnotations);
 
             return sequenceOperation;
         }
@@ -1237,18 +1237,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             return unmatched.Count != 0;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void CopyAnnotations([NotNull] IEnumerable<IAnnotation> annotations, [NotNull] IMutableAnnotatable annotatable)
-        {
-            foreach (var annotation in annotations)
-            {
-                annotatable.AddAnnotation(annotation.Name, annotation.Value);
-            }
         }
 
         /// <summary>

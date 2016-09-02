@@ -17,15 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
+        private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
+
         private int _variableCounter;
 
         public SqlServerMigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalAnnotationProvider annotations)
+            [NotNull] IRelationalAnnotationProvider annotations,
+            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
             : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
         {
+            _migrationsAnnotations = migrationsAnnotations;
         }
 
         protected override void Generate(MigrationOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -53,11 +57,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             AddColumnOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected override void Generate(
+            AddColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate)
         {
             base.Generate(operation, model, builder, terminate: false);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            if (terminate)
+            {
+                builder
+                    .AppendLine(SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+            }
         }
 
         protected override void Generate(
@@ -67,8 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Generate(operation, model, builder, terminate: false);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            builder
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
         }
 
         protected override void Generate(
@@ -78,8 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Generate(operation, model, builder, terminate: false);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            builder
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
         }
 
         protected override void Generate(
@@ -90,8 +107,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            var property = FindProperty(model, operation.Schema, operation.Table, operation.Name);
+
             if (operation.ComputedColumnSql != null)
             {
+                var dropColumnOperation = new DropColumnOperation
+                {
+                    Schema = operation.Schema,
+                    Table = operation.Table,
+                    Name = operation.Name
+                };
+                if (property != null)
+                {
+                    dropColumnOperation.AddAnnotations(_migrationsAnnotations.ForRemove(property));
+                }
+
                 var addColumnOperation = new AddColumnOperation
                 {
                     Schema = operation.Schema,
@@ -107,23 +137,49 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValueSql = operation.DefaultValueSql,
                     ComputedColumnSql = operation.ComputedColumnSql
                 };
-                foreach (var annotation in operation.GetAnnotations())
-                {
-                    addColumnOperation.AddAnnotation(annotation.Name, annotation.Value);
-                }
+                addColumnOperation.AddAnnotations(operation.GetAnnotations());
 
-                Generate(
-                    new DropColumnOperation
-                    {
-                        Schema = operation.Schema,
-                        Table = operation.Table,
-                        Name = operation.Name
-                    },
-                    model,
-                    builder);
-                Generate(addColumnOperation, model, builder);
+                // TODO: Use a column rebuild instead
+                DropIndexes(property, builder);
+                Generate(dropColumnOperation, model, builder, terminate: false);
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                Generate(addColumnOperation, model, builder, terminate: false);
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                CreateIndexes(property, builder);
+                builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
 
                 return;
+            }
+
+            var narrowed = false;
+            if (IsOldColumnSupported(model))
+            {
+                var type = operation.ColumnType
+                    ?? GetColumnType(
+                        operation.Schema,
+                        operation.Table,
+                        operation.Name,
+                        operation.ClrType,
+                        operation.IsUnicode,
+                        operation.MaxLength,
+                        operation.IsRowVersion,
+                        model);
+                var oldType = operation.OldColumn.ColumnType
+                    ?? GetColumnType(
+                        operation.Schema,
+                        operation.Table,
+                        operation.Name,
+                        operation.OldColumn.ClrType,
+                        operation.OldColumn.IsUnicode,
+                        operation.OldColumn.MaxLength,
+                        operation.OldColumn.IsRowVersion,
+                        model);
+                narrowed = type != oldType || (!operation.IsNullable && operation.OldColumn.IsNullable);
+            }
+
+            if (narrowed)
+            {
+                DropIndexes(property, builder);
             }
 
             DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
@@ -167,7 +223,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .AppendLine(SqlGenerationHelper.StatementTerminator);
             }
 
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            if (narrowed)
+            {
+                CreateIndexes(property, builder);
+            }
+
+            builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
         }
 
         protected override void Generate(
@@ -196,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(operation.Name);
 
             Rename(qualifiedName.ToString(), operation.NewName, "INDEX", builder);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
         }
 
         protected override void Generate(RenameSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -226,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
             }
 
-            EndStatement(builder);
+            builder.EndCommand();
         }
 
         protected override void Generate(
@@ -250,8 +311,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: memoryOptimized);
+            builder
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: memoryOptimized);
         }
 
         protected override void Generate(
@@ -284,18 +346,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
             }
 
-            EndStatement(builder);
+            builder.EndCommand();
         }
 
         protected override void Generate(DropTableOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             base.Generate(operation, model, builder, terminate: false);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            builder
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
         }
 
-        protected override void Generate(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
+        protected override void Generate(
+            CreateIndexOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected override void Generate(
+            CreateIndexOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -357,9 +430,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder, suppressTransaction: memoryOptimized);
+            if (terminate)
+            {
+                builder
+                    .AppendLine(SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: memoryOptimized);
+            }
         }
 
         protected override void Generate(
@@ -369,8 +445,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Generate(operation, model, builder, terminate: false);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            builder
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
         }
 
         protected override void Generate(EnsureSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -388,10 +465,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.GenerateLiteral(operation.Name))
                 .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(SqlGenerationHelper.StatementTerminator)
                 .Append("')")
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder);
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand();
         }
 
         protected virtual void Generate(
@@ -403,17 +480,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .EndCommand()
                 .Append("CREATE DATABASE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true)
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" SET READ_COMMITTED_SNAPSHOT ON')")
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder, suppressTransaction: true);
+                .Append(" SET READ_COMMITTED_SNAPSHOT ON")
+                .Append(SqlGenerationHelper.StatementTerminator)
+                .Append("')")
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: true);
         }
 
         protected virtual void Generate(
@@ -425,17 +502,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .EndCommand()
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE')")
+                .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE")
+                .Append(SqlGenerationHelper.StatementTerminator)
+                .Append("')")
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true)
                 .Append("DROP DATABASE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder, suppressTransaction: true);
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: true);
         }
 
         protected override void Generate(
@@ -521,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .AppendLine("SET MEMORY_OPTIMIZED_ELEVATE_TO_SNAPSHOT ON;')");
             }
 
-            EndStatement(builder, suppressTransaction: true);
+            builder.EndCommand(suppressTransaction: true);
         }
 
         protected override void Generate(AlterTableOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -539,14 +616,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Generate(operation, model, builder, terminate: false);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            builder
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
         }
 
         protected override void Generate(
             DropIndexOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropIndexOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -555,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (memoryOptimized)
             {
                 builder
-                    .Append("ALTER TABLE  ")
+                    .Append("ALTER TABLE ")
                     .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                     .Append(" DROP INDEX ")
                     .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
@@ -566,17 +651,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append("DROP INDEX ")
                     .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" ON ")
-                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                    .AppendLine(SqlGenerationHelper.StatementTerminator);
+                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
             }
 
-            EndStatement(builder, suppressTransaction: memoryOptimized);
+            if (terminate)
+            {
+                builder
+                    .AppendLine(SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: memoryOptimized);
+            }
         }
 
         protected override void Generate(
             DropColumnOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected override void Generate(
+            DropColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -584,8 +680,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
             base.Generate(operation, model, builder, terminate: false);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder, suppressTransaction: IsMemoryOptimized(operation));
+            if (terminate)
+            {
+                builder
+                    .AppendLine(SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+            }
         }
 
         protected override void Generate(
@@ -609,7 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(operation.Name);
 
             Rename(qualifiedName.ToString(), operation.NewName, "COLUMN", builder);
-            EndStatement(builder);
+            builder.EndCommand();
         }
 
         protected override void ColumnDefinition(
@@ -825,7 +925,64 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.DelimitIdentifier(tableName, schema))
                 .Append(" DROP CONSTRAINT [' + ")
                 .Append(variable)
-                .AppendLine(" + ']');");
+                .Append(" + ']")
+                .Append(SqlGenerationHelper.StatementTerminator)
+                .Append("')")
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
+        }
+
+        protected virtual void DropIndexes(
+            [CanBeNull] IProperty property,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            if (property == null)
+            {
+                return;
+            }
+
+            foreach (var index in property.GetContainingIndexes())
+            {
+                var operation = new DropIndexOperation
+                {
+                    Schema = Annotations.For(index.DeclaringEntityType).Schema,
+                    Table = Annotations.For(index.DeclaringEntityType).TableName,
+                    Name = Annotations.For(index).Name
+                };
+                operation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
+
+                Generate(operation, index.DeclaringEntityType.Model, builder, terminate: false);
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+            }
+        }
+
+        protected virtual void CreateIndexes(
+            [CanBeNull] IProperty property,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            if (property == null)
+            {
+                return;
+            }
+
+            foreach (var index in property.GetContainingIndexes())
+            {
+                var operation = new CreateIndexOperation
+                {
+                    IsUnique = index.IsUnique,
+                    Name = Annotations.For(index).Name,
+                    Schema = Annotations.For(index.DeclaringEntityType).Schema,
+                    Table = Annotations.For(index.DeclaringEntityType).TableName,
+                    Columns = index.Properties.Select(p => Annotations.For(p).ColumnName).ToArray(),
+                };
+                operation.AddAnnotations(_migrationsAnnotations.For(index));
+
+                Generate(operation, index.DeclaringEntityType.Model, builder, terminate: false);
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+            }
         }
 
         private static bool IsMemoryOptimized(Annotatable annotatable)

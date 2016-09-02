@@ -356,11 +356,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
+                var ex = async
+                    ? await Assert.ThrowsAsync<SqlException>(() => creator.CreateAsync())
+                    : Assert.Throws<SqlException>(() => creator.Create());
                 Assert.Equal(
                     1801, // Database with given name already exists
-                    async
-                        ? (await Assert.ThrowsAsync<SqlException>(() => creator.CreateAsync())).Number
-                        : Assert.Throws<SqlException>(() => creator.Create()).Number);
+                    ex.Number);
             }
         }
 

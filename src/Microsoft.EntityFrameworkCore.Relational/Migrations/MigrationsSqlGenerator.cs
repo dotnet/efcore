@@ -50,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
 
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly IRelationalAnnotationProvider _annotations;
 
         public MigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
@@ -66,11 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             _commandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             TypeMapper = typeMapper;
-            _annotations = annotations;
+            Annotations = annotations;
         }
 
         protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
+        protected virtual IRelationalAnnotationProvider Annotations { get; }
 
         public virtual IReadOnlyList<MigrationCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().Where(
-                t => (_annotations.For(t).TableName == tableName) && (_annotations.For(t).Schema == schema));
+                t => (Annotations.For(t).TableName == tableName) && (Annotations.For(t).Schema == schema));
 
         protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,
@@ -955,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             // Any property that maps to the column will work because model validator has
             // checked that all properties result in the same column definition.
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .FirstOrDefault(p => _annotations.For(p).ColumnName == columnName);
+                .FirstOrDefault(p => Annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,
@@ -968,5 +968,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected virtual string ColumnList([NotNull] string[] columns)
             => string.Join(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier));
+
+        protected virtual bool IsOldColumnSupported([CanBeNull] IModel model)
+        {
+            if (model == null)
+            {
+                return false;
+            }
+
+            var versionString = model[CoreAnnotationNames.ProductVersionAnnotation] as string;
+            if (versionString == null)
+            {
+                return false;
+            }
+
+            var prereleaseIndex = versionString.IndexOf("-");
+            if (prereleaseIndex != -1)
+            {
+                versionString = versionString.Substring(0, prereleaseIndex);
+            }
+
+            return new Version(versionString) >= new Version(1, 1, 0);
+        }
     }
 }

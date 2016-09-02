@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Migrations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
@@ -30,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         typeMapper),
                     new SqlServerSqlGenerationHelper(),
                     typeMapper,
-                    new SqlServerAnnotationProvider());
+                    new SqlServerAnnotationProvider(),
+                    new SqlServerMigrationsAnnotationProvider());
             }
         }
 
@@ -219,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'dbo.People') AND [c].[name] = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL +
                 "ALTER TABLE [dbo].[People] ADD DEFAULT 7 FOR [LuckyNumber];" + EOL,
                 Sql);
@@ -235,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL,
                 Sql);
         }
@@ -259,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'Id');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;" + EOL,
                 Sql);
         }
@@ -282,11 +284,228 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'FullName');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [People] DROP COLUMN [FullName];" + EOL +
-                "GO" + EOL +
-                EOL +
                 "ALTER TABLE [People] ADD [FullName] AS [FirstName] + ' ' + [LastName];" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_computed_with_index()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity("Person", x =>
+                    {
+                        x.Property<string>("FullName").ForSqlServerHasComputedColumnSql("[FirstName] + ' ' + [LastName]");
+                        x.HasIndex("FullName");
+                    }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "FullName",
+                    ClrType = typeof(string),
+                    ComputedColumnSql = "[FirstName] + ' ' + [LastName]",
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        ComputedColumnSql = "[LastName] + ', ' + [FirstName]"
+                    }
+                });
+
+            Assert.Equal(
+                "DROP INDEX [IX_Person_FullName] ON [Person];" + EOL +
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'FullName');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] DROP COLUMN [FullName];" + EOL +
+                "ALTER TABLE [Person] ADD [FullName] AS [FirstName] + ' ' + [LastName];" + EOL +
+                "CREATE INDEX [IX_Person_FullName] ON [Person] ([FullName]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_memoryOptimized_with_index()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity("Person", x =>
+                    {
+                        x.ForSqlServerIsMemoryOptimized();
+                        x.Property<string>("Name");
+                        x.HasIndex("Name");
+                    }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                    },
+                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                });
+
+            Assert.Equal(
+                "ALTER TABLE [Person] DROP INDEX [IX_Person_Name];" + EOL +
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NOT NULL;" + EOL +
+                "ALTER TABLE [Person] ADD INDEX [IX_Person_Name] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_index_no_narrowing()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity("Person", x =>
+                    {
+                        x.Property<string>("Name");
+                        x.HasIndex("Name");
+                    }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsNullable = true,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = false
+                    }
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_index()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity("Person", x =>
+                    {
+                        x.Property<string>("Name").HasMaxLength(30);
+                        x.HasIndex("Name");
+                    }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true
+                    }
+                });
+
+            Assert.Equal(
+                "DROP INDEX [IX_Person_Name] ON [Person];" + EOL +
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30);" + EOL +
+                "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_index_no_oldColumn()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.0.0-rtm")
+                    .Entity("Person", x =>
+                    {
+                        x.Property<string>("Name").HasMaxLength(30);
+                        x.HasIndex("Name");
+                    }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true,
+                    OldColumn = new ColumnOperation()
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_composite_index()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity("Person", x =>
+                    {
+                        x.Property<string>("FirstName").IsRequired();
+                        x.Property<string>("LastName");
+                        x.HasIndex("FirstName", "LastName");
+                    }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "FirstName",
+                    ClrType = typeof(string),
+                    IsNullable = false,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true
+                    }
+                });
+
+            Assert.Equal(
+                "DROP INDEX [IX_Person_FirstName_LastName] ON [Person];" + EOL +
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'FirstName');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;" + EOL +
+                "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]);" + EOL,
                 Sql);
         }
 
@@ -299,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "CREATE DATABASE [Northwind];" + EOL +
                 "GO" + EOL +
                 EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON');" + EOL,
+                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;');" + EOL,
                 Sql);
         }
 
@@ -489,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             Generate(new EnsureSchemaOperation { Name = "my" });
 
             Assert.Equal(
-                "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my]');" + EOL,
+                "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');" + EOL,
                 Sql);
         }
 
@@ -513,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'dbo.People') AND [c].[name] = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [dbo].[People] DROP COLUMN [LuckyNumber];" + EOL,
                 Sql);
         }
@@ -524,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             Generate(new SqlServerDropDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE');" + EOL +
+                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;');" + EOL +
                 "GO" + EOL +
                 EOL +
                 "DROP DATABASE [Northwind];" + EOL,
@@ -537,6 +756,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
 
             Assert.Equal(
                 "DROP INDEX [IX_People_Name] ON [dbo].[People];" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void DropIndexOperation_memoryOptimized()
+        {
+            Generate(
+                new DropIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                });
+
+            Assert.Equal(
+                "ALTER TABLE [People] DROP INDEX [IX_People_Name];" + EOL,
                 Sql);
         }
 
