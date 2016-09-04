@@ -18,7 +18,7 @@ mono:
   - 4.0.5
 os:
   - linux
-  - osx
+  # - osx CoreCLR tests time out too frequently on OSX to be useful.
 osx_image: xcode7.1
 branches:
   only:
