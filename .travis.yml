@@ -1,4 +1,5 @@
 language: csharp
+sudo: required
 dist: trusty
 os:
   - linux
@@ -16,8 +17,8 @@ addons:
     - zlib1g
 env:
   global:
-    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    - DOTNET_CLI_TELEMETRY_OPTOUT: 1
 branches:
   only:
     - master
