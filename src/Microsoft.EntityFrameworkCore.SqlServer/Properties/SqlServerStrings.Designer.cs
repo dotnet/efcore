@@ -56,6 +56,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("AlterMemoryOptimizedTable"); }
         }
 
+        /// <summary>
+        /// To change the IDENTITY property of a column, the column needs to be dropped and recreated.
+        /// </summary>
+        public static string AlterIdentityColumn
+        {
+            get { return GetString("AlterIdentityColumn"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

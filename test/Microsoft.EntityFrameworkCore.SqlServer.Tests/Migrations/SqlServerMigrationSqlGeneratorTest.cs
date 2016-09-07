@@ -510,6 +510,77 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public virtual void AlterColumnOperation_identity()
+        {
+            Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0"),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Id",
+                    ClrType = typeof(long),
+                    [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(int),
+                        [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
+                    }
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Id');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_add_identity()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(
+                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0"),
+                    new AlterColumnOperation
+                    {
+                        Table = "Person",
+                        Name = "Id",
+                        ClrType = typeof(int),
+                        [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
+                        OldColumn = new ColumnOperation
+                        {
+                            ClrType = typeof(int)
+                        }
+                    }));
+
+            Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_remove_identity()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(
+                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0"),
+                    new AlterColumnOperation
+                    {
+                        Table = "Person",
+                        Name = "Id",
+                        ClrType = typeof(int),
+                        OldColumn = new ColumnOperation
+                        {
+                            ClrType = typeof(int),
+                            [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
+                        }
+                    }));
+
+            Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
+        }
+
+        [Fact]
         public virtual void CreateDatabaseOperation()
         {
             Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind" });

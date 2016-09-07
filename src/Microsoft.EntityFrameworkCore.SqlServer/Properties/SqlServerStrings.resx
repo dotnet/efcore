@@ -132,4 +132,7 @@
   <data name="AlterMemoryOptimizedTable" xml:space="preserve">
     <value>To set memory-optimized on a table on or off the table needs to be dropped and recreated.</value>
   </data>
+  <data name="AlterIdentityColumn" xml:space="preserve">
+    <value>To change the IDENTITY property of a column, the column needs to be dropped and recreated.</value>
+  </data>
 </root>

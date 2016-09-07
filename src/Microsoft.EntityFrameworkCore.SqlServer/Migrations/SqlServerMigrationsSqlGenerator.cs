@@ -154,6 +154,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var narrowed = false;
             if (IsOldColumnSupported(model))
             {
+                var valueGenerationStrategy = operation[
+                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+                var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
+                var oldValueGenerationStrategy = operation.OldColumn[
+                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+                var oldIdentity = oldValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
+                if (identity != oldIdentity)
+                {
+                    throw new InvalidOperationException(SqlServerStrings.AlterIdentityColumn);
+                }
+
                 var type = operation.ColumnType
                     ?? GetColumnType(
                         operation.Schema,
