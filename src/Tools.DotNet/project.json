@@ -11,7 +11,7 @@
     "xmlDoc": true,
     "compile": {
       "include": [
-        "../Shared/*.cs",
+        "../Shared/CodeAnnotations.cs",
         "../Tools.Shared/CommandLineApplicationExtensions.cs"
       ]
     },
@@ -22,7 +22,6 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Design": "1.0.0-*",
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.DotNet.ProjectModel": "1.0.0-*",
     "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",

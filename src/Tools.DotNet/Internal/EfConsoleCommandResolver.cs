@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
         private CommandSpec CreateNetCoreCommandSpec(ResolverArguments arguments)
         {
-            Check.NotEmpty(arguments.RuntimeConfigJson, "RuntimeConfigJson");
-            Check.NotEmpty(arguments.DepsJsonFile, "DepsJsonFile");
+            Debug.Assert(!string.IsNullOrEmpty(arguments.RuntimeConfigJson), "RuntimeConfigJson is null or empty.");
+            Debug.Assert(!string.IsNullOrEmpty(arguments.DepsJsonFile), "DepsJsonFile is null or empty.");
 
             var args = new List<string>();
 

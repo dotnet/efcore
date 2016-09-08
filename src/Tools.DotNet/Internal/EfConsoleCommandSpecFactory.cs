@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
@@ -110,17 +110,26 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
             [NotNull] string contentRootPath,
             [NotNull] string rootNamespace,
             bool verbose)
-            => new[]
+        {
+            Debug.Assert(!string.IsNullOrEmpty(assembly), "assembly is null or empty.");
+            Debug.Assert(!string.IsNullOrEmpty(startupAssembly), "startupAssembly is null or empty.");
+            Debug.Assert(!string.IsNullOrEmpty(dataDir), "dataDir is null or empty.");
+            Debug.Assert(!string.IsNullOrEmpty(projectDir), "projectDir is null or empty.");
+            Debug.Assert(!string.IsNullOrEmpty(contentRootPath), "contentRootPath is null or empty.");
+            Debug.Assert(!string.IsNullOrEmpty(rootNamespace), "rootNamespace is null or empty.");
+
+            return new[]
             {
-                AssemblyOptionTemplate, Check.NotEmpty(assembly, nameof(assembly)),
-                StartupAssemblyOptionTemplate, Check.NotEmpty(startupAssembly, nameof(startupAssembly)),
-                DataDirectoryOptionTemplate, Check.NotEmpty(dataDir, nameof(dataDir)),
-                ProjectDirectoryOptionTemplate, Check.NotEmpty(projectDir, nameof(projectDir)),
-                ContentRootPathOptionTemplate, Check.NotEmpty(contentRootPath, nameof(contentRootPath)),
-                RootNamespaceOptionTemplate, Check.NotEmpty(rootNamespace, nameof(rootNamespace)),
+                AssemblyOptionTemplate, assembly,
+                StartupAssemblyOptionTemplate, startupAssembly,
+                DataDirectoryOptionTemplate, dataDir,
+                ProjectDirectoryOptionTemplate, projectDir,
+                ContentRootPathOptionTemplate, contentRootPath,
+                RootNamespaceOptionTemplate, rootNamespace,
             }
             .Concat(verbose
                 ? new[] { VerboseOptionTemplate }
                 : Enumerable.Empty<string>());
+        }
     }
 }

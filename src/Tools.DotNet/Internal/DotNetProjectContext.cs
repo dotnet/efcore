@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.DotNet.ProjectModel;
-using Microsoft.EntityFrameworkCore.Utilities;
 using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
             [NotNull] string configuration,
             [CanBeNull] string outputPath)
         {
-            Check.NotNull(wrappedProject, nameof(wrappedProject));
-            Check.NotEmpty(configuration, nameof(configuration));
+            Debug.Assert(wrappedProject != null, "wrappedProject is null.");
+            Debug.Assert(!string.IsNullOrEmpty(configuration), "configuration is null or empty.");
 
             _project = wrappedProject;
             _paths = wrappedProject.GetOutputPaths(configuration, /* buildBasePath: */ null, outputPath);

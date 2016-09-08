@@ -19,7 +19,6 @@
         <dependency id="Microsoft.DotNet.ProjectModel" version="$projectmodel$" />
         <dependency id="Microsoft.Extensions.CommandLineUtils" version="$cliutils$" />
         <dependency id="Microsoft.NETCore.App" version="$netcoreapp$" />
-        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
     </dependencies>
   </metadata>
