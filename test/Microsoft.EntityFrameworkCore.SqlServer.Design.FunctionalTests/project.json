@@ -1,14 +1,7 @@
 {
   "buildOptions": {
     "warningsAsErrors": true,
-    "keyFile": "../../tools/Key.snk",
-    "preserveCompilationContext": true,
-    "copyToOutput": {
-      "include": [
-        "ReverseEngineering/**/*.expected",
-        "ReverseEngineering/**/*.sql"
-      ]
-    }
+    "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
@@ -17,12 +10,6 @@
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": {
       "target": "project"
     }
-  },
-  "publishOptions": {
-    "include": [
-      "ReverseEngineering/**/*.expected",
-      "ReverseEngineering/**/*.sql"
-    ]
   },
   "testRunner": "xunit",
   "frameworks": {

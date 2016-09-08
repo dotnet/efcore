@@ -35,13 +35,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DesignTimeProviderServicesTest.cs" />
-    <Compile Include="ReverseEngineering\E2ETestBase.cs" />
-    <Compile Include="ReverseEngineering\FileSet.cs" />
-    <Compile Include="ReverseEngineering\InMemoryCommandLogger.cs" />
-    <Compile Include="ReverseEngineering\InMemoryFileService.cs" />
-    <Compile Include="TestUtilities\BuildFileResult.cs" />
-    <Compile Include="TestUtilities\BuildReference.cs" />
-    <Compile Include="TestUtilities\BuildSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
@@ -58,10 +51,6 @@
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
       <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Design\Microsoft.EntityFrameworkCore.Design.csproj">
-      <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>

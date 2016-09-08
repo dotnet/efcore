@@ -38,119 +38,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\TestAssemblyConditions.cs" />
-    <Compile Include="ReverseEngineering\SqlServerE2EFixture.cs" />
-    <Compile Include="ReverseEngineering\SqlServerE2ETests.cs" />
     <Compile Include="SqlServerDatabaseModelFactoryTest.cs" />
     <Compile Include="SqlServerDatabaseModelFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="project.json" />
-    <None Include="ReverseEngineering\Expected\AllFluentApi\AllDataTypes.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\MultipleFKsDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\MultipleFKsPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToManyDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToManyPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneFKToUniqueKeyDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneFKToUniqueKeyPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOnePrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneSeparateFKDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneSeparateFKPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\PropertyConfiguration.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\SelfReferencing.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\SqlServerReverseEngineerTestE2EContext.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\TestSpacesKeywordsTable.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\UnmappablePKColumn.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\AllDataTypes.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\AttributesContext.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\MultipleFKsDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\MultipleFKsPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToManyDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToManyPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToOneDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToOneFKToUniqueKeyDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToOneFKToUniqueKeyPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToOnePrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToOneSeparateFKDependent.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\OneToOneSeparateFKPrincipal.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\PropertyConfiguration.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\SelfReferencing.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\TestSpacesKeywordsTable.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Attributes\UnmappablePKColumn.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\PrimaryKeyWithSequence.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\PrimaryKeyWithSequenceContext.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\SequenceContext.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.csproj">
@@ -181,10 +74,6 @@
       <Project>{99595b81-d47c-40ba-8c61-5328a5a0e4ab}</Project>
       <Name>Microsoft.EntityFrameworkCore.SqlServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Design\Microsoft.EntityFrameworkCore.Design.csproj">
-      <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Design</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
@@ -193,9 +82,6 @@
       <Project>{87ab43b7-767b-467b-9aa9-47badf850d6a}</Project>
       <Name>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="ReverseEngineering\E2E.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
