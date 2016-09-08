@@ -5,7 +5,6 @@
         ],
         "packages": {
             "Microsoft.EntityFrameworkCore": { },
-            "Microsoft.EntityFrameworkCore.Design": { },
             "Microsoft.EntityFrameworkCore.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.InMemory": { },
             "Microsoft.EntityFrameworkCore.SqlServer": { },
@@ -16,12 +15,6 @@
             "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.Sqlite": { },
             "Microsoft.EntityFrameworkCore.Sqlite.Design": { },
-            "Microsoft.EntityFrameworkCore.Tools.DotNet": {
-                "DOC_MISSING": {
-                    "lib/netcoreapp1.0/dotnet-ef.dll": "Not a class library. Docs not required for CLI tools"
-                }
-            },
-            "Microsoft.EntityFrameworkCore.Tools.VisualStudio": { }
         }
     },
     "Default": { // Rules to run for packages not listed in any other set.

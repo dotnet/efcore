@@ -1,11 +1,7 @@
 {
   "buildOptions": {
     "warningsAsErrors": true,
-    "keyFile": "../../tools/Key.snk",
-    "preserveCompilationContext": true,
-    "copyToOutput": {
-      "include": "ReverseEngineering/**/*.expected"
-    }
+    "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.0-*",
@@ -13,9 +9,6 @@
       "target": "project"
     },
     "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.0-*"
-  },
-  "publishOptions": {
-    "include": "ReverseEngineering/**/*.expected"
   },
   "testRunner": "xunit",
   "frameworks": {
