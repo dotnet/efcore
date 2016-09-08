@@ -1,14 +1,8 @@
-use namespace="System.IO"
-use namespace="System.IO.Compression"
-use namespace="System.Linq"
-
-default BASE_DIR_LOCAL='${Directory.GetCurrentDirectory()}'
-default BUILD_DIR_LOCAL='${Path.Combine(BASE_DIR_LOCAL, "artifacts", "build")}'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
 var AUTHORS='Microsoft Open Technologies, Inc.'
--BuildQuality = '';
+
 use-standard-lifecycle
 k-standard-goals
 
@@ -31,22 +25,3 @@ k-standard-goals
       Dotnet(string.Format("publish --configuration Release --output {0} --framework {1} {2}", output, tfm, projectFile));
     }
   }
-
-#remove-intermediates
-  @{
-    Directory.CreateDirectory(BUILD_DIR_LOCAL);
-    foreach (var p in Files
-      .Include(Path.Combine(BUILD_DIR_LOCAL, "**\\Tools.*.nupkg"))
-      )
-    {
-      Log.Info("Deleting " + p);
-      File.Delete(p);
-    }
-  }
-
-#repack-tools .remove-intermediates target='compile' if='Directory.Exists("src") && !IsTravisCi'
-  @{
-        var configurationX86 = E("Configuration") + "_x86";
-        DotnetBuild("src/Tools.Console", configurationX86, "net451");
-        Dotnet("run -p tools/CommandsPackager " + E("Configuration"));
-   }
