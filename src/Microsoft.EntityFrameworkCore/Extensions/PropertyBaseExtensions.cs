@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBase"> The property for which the backing field will be returned. </param>
         /// <returns> The name of the backing field, or null. </returns>
         public static string GetField([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.GetFieldInfo()?.Name;
+            => propertyBase.FieldInfo?.Name;
 
         /// <summary>
         ///     <para>
@@ -33,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyAccessMode? GetPropertyAccessMode(
             [NotNull] this IPropertyBase propertyBase)
             => (PropertyAccessMode?)Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
-               ?? propertyBase.DeclaringEntityType.GetPropertyAccessMode();
+               ?? propertyBase.DeclaringType.GetPropertyAccessMode();
     }
 }

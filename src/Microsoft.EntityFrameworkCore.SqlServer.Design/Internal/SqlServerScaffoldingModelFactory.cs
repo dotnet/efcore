@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (column.DefaultValue != null)
             {
-                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
+                ((Property)propertyBuilder.Metadata).Facets.SetValueGenerated(null, ConfigurationSource.Explicit);
                 propertyBuilder.Metadata.Relational().DefaultValueSql = null;
 
                 var defaultExpression = ConvertSqlServerDefaultValue(column.DefaultValue);
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (column.ComputedValue != null)
             {
-                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
+                ((Property)propertyBuilder.Metadata).Facets.SetValueGenerated(null, ConfigurationSource.Explicit);
                 propertyBuilder.Metadata.Relational().ComputedColumnSql = null;
 
                 var computedExpression = ConvertSqlServerDefaultValue(column.ComputedValue);

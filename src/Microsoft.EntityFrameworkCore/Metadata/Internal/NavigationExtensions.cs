@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" (").Append(navigation.GetField()).Append(", ");
             }
 
-            builder.Append(navigation.GetClrType()?.ShortDisplayName()).Append(")");
+            builder.Append(navigation.ClrType?.ShortDisplayName()).Append(")");
 
             if (navigation.IsCollection())
             {

@@ -46,11 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_only_override_existing_ConcurrencyToken_value_explicitly()
         {
             var metadata = CreateProperty();
-            Assert.Null(metadata.GetIsConcurrencyTokenConfigurationSource());
+            Assert.Null(metadata.Facets.IsConcurrencyTokenConfigurationSource);
             metadata.IsConcurrencyToken = true;
             var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsConcurrencyTokenConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, metadata.Facets.IsConcurrencyTokenConfigurationSource);
             Assert.True(builder.IsConcurrencyToken(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.IsConcurrencyToken(false, ConfigurationSource.DataAnnotation));
 
@@ -79,11 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_only_override_existing_RequiresValueGenerator_value_explicitly()
         {
             var metadata = CreateProperty();
-            Assert.Null(metadata.GetRequiresValueGeneratorConfigurationSource());
+            Assert.Null(metadata.Facets.RequiresValueGeneratorConfigurationSource);
             metadata.RequiresValueGenerator = true;
             var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.Equal(ConfigurationSource.Explicit, metadata.GetRequiresValueGeneratorConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, metadata.Facets.RequiresValueGeneratorConfigurationSource);
             Assert.True(builder.RequiresValueGenerator(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.RequiresValueGenerator(false, ConfigurationSource.DataAnnotation));
 
@@ -112,11 +112,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_only_override_existing_ValueGenerated_value_explicitly()
         {
             var metadata = CreateProperty();
-            Assert.Null(metadata.GetValueGeneratedConfigurationSource());
+            Assert.Null(metadata.Facets.ValueGeneratedConfigurationSource);
             metadata.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.Equal(ConfigurationSource.Explicit, metadata.GetValueGeneratedConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, metadata.Facets.ValueGeneratedConfigurationSource);
             Assert.True(builder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.DataAnnotation));
             Assert.False(builder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.DataAnnotation));
 
@@ -321,11 +321,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_only_override_existing_Required_value_explicitly()
         {
             var metadata = CreateProperty();
-            Assert.Null(metadata.GetIsNullableConfigurationSource());
+            Assert.Null(metadata.Facets.IsNullableConfigurationSource);
             metadata.IsNullable = false;
             var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsNullableConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, metadata.Facets.IsNullableConfigurationSource);
             Assert.True(builder.IsRequired(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
@@ -367,11 +367,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_only_override_existing_ReadOnlyAfterSave_value_explicitly()
         {
             var metadata = CreateProperty();
-            Assert.Null(metadata.GetIsReadOnlyAfterSaveConfigurationSource());
+            Assert.Null(metadata.Facets.IsReadOnlyAfterSaveConfigurationSource);
             metadata.IsReadOnlyAfterSave = false;
             var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsReadOnlyAfterSaveConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, metadata.Facets.IsReadOnlyAfterSaveConfigurationSource);
             Assert.True(builder.ReadOnlyAfterSave(false, ConfigurationSource.DataAnnotation));
             Assert.False(builder.ReadOnlyAfterSave(true, ConfigurationSource.DataAnnotation));
 
@@ -400,11 +400,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_only_override_existing_ReadOnlyBeforeSave_value_explicitly()
         {
             var metadata = CreateProperty();
-            Assert.Null(metadata.GetIsReadOnlyBeforeSaveConfigurationSource());
+            Assert.Null(metadata.Facets.IsReadOnlyBeforeSaveConfigurationSource);
             metadata.IsReadOnlyBeforeSave = true;
             var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsReadOnlyBeforeSaveConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, metadata.Facets.IsReadOnlyBeforeSaveConfigurationSource);
             Assert.True(builder.ReadOnlyBeforeSave(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.ReadOnlyBeforeSave(false, ConfigurationSource.DataAnnotation));
 

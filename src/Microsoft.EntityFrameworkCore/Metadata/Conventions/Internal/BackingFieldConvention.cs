@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             if (ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
             {
-                foreach (var type in propertyBase.DeclaringEntityType.ClrType.GetTypesInHierarchy().ToList())
+                foreach (var type in propertyBase.DeclaringType.ClrType.GetTypesInHierarchy().ToList())
                 {
                     var fieldInfo = TryMatchFieldName(type, propertyBase.ClrType, propertyBase.Name);
                     if (fieldInfo != null)

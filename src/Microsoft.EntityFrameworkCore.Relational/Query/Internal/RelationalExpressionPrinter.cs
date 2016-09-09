@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     stringBuilder.IncrementIndent();
                     foreach (var property in propertiesList)
                     {
-                        appendAction(stringBuilder, property.DeclaringEntityType.ClrType.Name + "." + property.Name + ", ");
+                        appendAction(stringBuilder, property.DeclaringType.ClrType.Name + "." + property.Name + ", ");
                     }
 
                     stringBuilder.DecrementIndent();

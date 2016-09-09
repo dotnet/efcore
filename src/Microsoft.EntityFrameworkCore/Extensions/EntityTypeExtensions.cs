@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for properties of this entity type.
+        ///         Gets the <see cref="PropertyAccessMode" /> being used for properties of this type.
         ///         Null indicates that the default property access mode is being used.
         ///     </para>
         ///     <para>
@@ -262,11 +262,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         be used for any property for which no override has been specified.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type for which to get the access mode. </param>
+        /// <param name="typeBase"> The type for which to get the access mode. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         public static PropertyAccessMode? GetPropertyAccessMode(
-            [NotNull] this IEntityType entityType)
-            => (PropertyAccessMode?)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.PropertyAccessModeAnnotation]
-               ?? entityType.Model.GetPropertyAccessMode();
+            [NotNull] this ITypeBase typeBase)
+            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
+               ?? typeBase.Model.GetPropertyAccessMode();
     }
 }

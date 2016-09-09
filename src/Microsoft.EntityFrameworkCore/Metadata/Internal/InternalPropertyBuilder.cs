@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Debug.Assert(removed.HasValue);
                     }
                 }
-                Metadata.SetIsNullable(!isRequired, configurationSource);
+                Metadata.Facets.SetIsNullable(!isRequired, configurationSource);
 
                 return true;
             }
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetRequired(bool isRequired, ConfigurationSource? configurationSource)
             => ((Metadata.IsNullable == !isRequired)
                 || (configurationSource.HasValue &&
-                    configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource())))
+                    configurationSource.Value.Overrides(Metadata.Facets.IsNullableConfigurationSource)))
                && (isRequired
                    || Metadata.ClrType.IsNullableType()
                    || (configurationSource == ConfigurationSource.Explicit)); // let it throw for Explicit
@@ -169,10 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsConcurrencyToken(bool concurrencyToken, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetIsConcurrencyTokenConfigurationSource())
+            if (configurationSource.Overrides(Metadata.Facets.IsConcurrencyTokenConfigurationSource)
                 || (Metadata.IsConcurrencyToken == concurrencyToken))
             {
-                Metadata.SetIsConcurrencyToken(concurrencyToken, configurationSource);
+                Metadata.Facets.SetIsConcurrencyToken(concurrencyToken, configurationSource);
                 return true;
             }
 
@@ -185,10 +185,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool ReadOnlyAfterSave(bool isReadOnlyAfterSave, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetIsReadOnlyAfterSaveConfigurationSource())
+            if (configurationSource.Overrides(Metadata.Facets.IsReadOnlyAfterSaveConfigurationSource)
                 || (Metadata.IsReadOnlyAfterSave == isReadOnlyAfterSave))
             {
-                Metadata.SetIsReadOnlyAfterSave(isReadOnlyAfterSave, configurationSource);
+                Metadata.Facets.SetIsReadOnlyAfterSave(isReadOnlyAfterSave, configurationSource);
                 return true;
             }
 
@@ -201,10 +201,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool ReadOnlyBeforeSave(bool isReadOnlyBeforeSave, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetIsReadOnlyBeforeSaveConfigurationSource())
+            if (configurationSource.Overrides(Metadata.Facets.IsReadOnlyBeforeSaveConfigurationSource)
                 || (Metadata.IsReadOnlyBeforeSave == isReadOnlyBeforeSave))
             {
-                Metadata.SetIsReadOnlyBeforeSave(isReadOnlyBeforeSave, configurationSource);
+                Metadata.Facets.SetIsReadOnlyBeforeSave(isReadOnlyBeforeSave, configurationSource);
                 return true;
             }
 
@@ -217,10 +217,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool RequiresValueGenerator(bool generateValue, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetRequiresValueGeneratorConfigurationSource())
+            if (configurationSource.Overrides(Metadata.Facets.RequiresValueGeneratorConfigurationSource)
                 || (Metadata.RequiresValueGenerator == generateValue))
             {
-                Metadata.SetRequiresValueGenerator(generateValue, configurationSource);
+                Metadata.Facets.SetRequiresValueGenerator(generateValue, configurationSource);
                 return true;
             }
 
@@ -233,10 +233,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool ValueGenerated(ValueGenerated valueGenerated, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetValueGeneratedConfigurationSource())
+            if (configurationSource.Overrides(Metadata.Facets.ValueGeneratedConfigurationSource)
                 || (Metadata.ValueGenerated == valueGenerated))
             {
-                Metadata.SetValueGenerated(valueGenerated, configurationSource);
+                Metadata.Facets.SetValueGenerated(valueGenerated, configurationSource);
 
                 return true;
             }
@@ -250,10 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsStoreGeneratedAlways(bool isStoreGeneratedAlways, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetIsStoreGeneratedAlwaysConfigurationSource())
+            if (configurationSource.Overrides(Metadata.Facets.IsStoreGeneratedAlwaysConfigurationSource)
                 || (Metadata.IsStoreGeneratedAlways == isStoreGeneratedAlways))
             {
-                Metadata.SetIsStoreGeneratedAlways(isStoreGeneratedAlways, configurationSource);
+                Metadata.Facets.SetIsStoreGeneratedAlways(isStoreGeneratedAlways, configurationSource);
 
                 return true;
             }
@@ -293,41 +293,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             newPropertyBuilder.MergeAnnotationsFrom(this);
 
-            var oldIsReadOnlyAfterSaveConfigurationSource = Metadata.GetIsReadOnlyAfterSaveConfigurationSource();
+            var oldIsReadOnlyAfterSaveConfigurationSource = Metadata.Facets.IsReadOnlyAfterSaveConfigurationSource;
             if (oldIsReadOnlyAfterSaveConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ReadOnlyAfterSave(Metadata.IsReadOnlyAfterSave,
                     oldIsReadOnlyAfterSaveConfigurationSource.Value);
             }
-            var oldIsReadOnlyBeforeSaveConfigurationSource = Metadata.GetIsReadOnlyBeforeSaveConfigurationSource();
+            var oldIsReadOnlyBeforeSaveConfigurationSource = Metadata.Facets.IsReadOnlyBeforeSaveConfigurationSource;
             if (oldIsReadOnlyBeforeSaveConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ReadOnlyBeforeSave(Metadata.IsReadOnlyBeforeSave,
                     oldIsReadOnlyBeforeSaveConfigurationSource.Value);
             }
-            var oldIsNullableConfigurationSource = Metadata.GetIsNullableConfigurationSource();
+            var oldIsNullableConfigurationSource = Metadata.Facets.IsNullableConfigurationSource;
             if (oldIsNullableConfigurationSource.HasValue)
             {
                 newPropertyBuilder.IsRequired(!Metadata.IsNullable, oldIsNullableConfigurationSource.Value);
             }
-            var oldIsConcurrencyTokenConfigurationSource = Metadata.GetIsConcurrencyTokenConfigurationSource();
+            var oldIsConcurrencyTokenConfigurationSource = Metadata.Facets.IsConcurrencyTokenConfigurationSource;
             if (oldIsConcurrencyTokenConfigurationSource.HasValue)
             {
                 newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken,
                     oldIsConcurrencyTokenConfigurationSource.Value);
             }
-            var oldRequiresValueGeneratorConfigurationSource = Metadata.GetRequiresValueGeneratorConfigurationSource();
+            var oldRequiresValueGeneratorConfigurationSource = Metadata.Facets.RequiresValueGeneratorConfigurationSource;
             if (oldRequiresValueGeneratorConfigurationSource.HasValue)
             {
                 newPropertyBuilder.RequiresValueGenerator(Metadata.RequiresValueGenerator,
                     oldRequiresValueGeneratorConfigurationSource.Value);
             }
-            var oldValueGeneratedConfigurationSource = Metadata.GetValueGeneratedConfigurationSource();
+            var oldValueGeneratedConfigurationSource = Metadata.Facets.ValueGeneratedConfigurationSource;
             if (oldValueGeneratedConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, oldValueGeneratedConfigurationSource.Value);
             }
-            var oldIsStoreGeneratedAlwaysConfigurationSource = Metadata.GetIsStoreGeneratedAlwaysConfigurationSource();
+            var oldIsStoreGeneratedAlwaysConfigurationSource = Metadata.Facets.IsStoreGeneratedAlwaysConfigurationSource;
             if (oldIsStoreGeneratedAlwaysConfigurationSource.HasValue)
             {
                 newPropertyBuilder.IsStoreGeneratedAlways(Metadata.IsStoreGeneratedAlways, oldIsStoreGeneratedAlwaysConfigurationSource.Value);
