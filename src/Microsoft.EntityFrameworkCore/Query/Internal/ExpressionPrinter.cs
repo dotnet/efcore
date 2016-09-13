@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     break;
 
                 default:
-                    UnhandledExpressionType(node.NodeType);
+                    UnhandledExpressionType(node);
                     break;
             }
 
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 string operand;
                 if (!_binaryOperandMap.TryGetValue(node.NodeType, out operand))
                 {
-                    UnhandledExpressionType(node.NodeType);
+                    UnhandledExpressionType(node);
                 }
                 else
                 {
@@ -244,15 +244,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var variable in node.Variables)
             {
-                string variableName;
-                if (_parametersInScope.ContainsKey(variable))
+                if (!_parametersInScope.ContainsKey(variable))
                 {
-                    variableName = _parametersInScope[variable];
-                }
-                else
-                {
-                    variableName = "var" + _parametersInScope.Count;
-                    _parametersInScope.Add(variable, variableName);
+                    _parametersInScope.Add(variable, "var" + _parametersInScope.Count);
                 }
             }
 
@@ -384,6 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
             else
             {
+                // ReSharper disable once PossibleNullReferenceException
                 _stringBuilder.Append(node.Member.DeclaringType.Name);
             }
 
@@ -436,25 +431,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 "get_Item"
             };
 
-            if (node.Method.Name == "_InterceptExceptions")
+            switch (node.Method.Name)
             {
-                Visit(node.Arguments[0]);
+                case "_InterceptExceptions":
+                    Visit(node.Arguments[0]);
 
-                return node;
+                    return node;
+                case "_TrackEntities":
+                    TrackedQuery = true;
+                    Visit(node.Arguments[0]);
+
+                    return node;
             }
 
-            if (node.Method.Name == "_TrackEntities")
-            {
-                TrackedQuery = true;
-                Visit(node.Arguments[0]);
-
-                return node;
-            }
-
-            if (node.Method.ReturnType != null)
-            {
-                _stringBuilder.Append(node.Method.ReturnType.ShortDisplayName() + " ");
-            }
+            _stringBuilder.Append(node.Method.ReturnType.ShortDisplayName() + " ");
 
             if (node.Object != null)
             {
@@ -567,33 +557,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Convert)
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (node.NodeType)
             {
-                _stringBuilder.Append("(" + node.Type.ShortDisplayName() + ") ");
+                case ExpressionType.Convert:
+                    _stringBuilder.Append("(" + node.Type.ShortDisplayName() + ") ");
 
-                Visit(node.Operand);
+                    Visit(node.Operand);
 
-                return node;
+                    return node;
+                case ExpressionType.Throw:
+                    _stringBuilder.Append("throw ");
+                    Visit(node.Operand);
+
+                    return node;
+                case ExpressionType.Not:
+                    _stringBuilder.Append("!(");
+                    Visit(node.Operand);
+                    _stringBuilder.Append(")");
+
+                    return node;
             }
 
-            if (node.NodeType == ExpressionType.Throw)
-            {
-                _stringBuilder.Append("throw ");
-                Visit(node.Operand);
-
-                return node;
-            }
-
-            if (node.NodeType == ExpressionType.Not)
-            {
-                _stringBuilder.Append("!(");
-                Visit(node.Operand);
-                _stringBuilder.Append(")");
-
-                return node;
-            }
-
-            _stringBuilder.AppendLine(CoreStrings.UnhandledNodeType(node.NodeType));
+            UnhandledExpressionType(node);
 
             return node;
         }
@@ -640,8 +626,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return processedPlan;
         }
 
-        private void UnhandledExpressionType(ExpressionType expressionType)
-            => _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
+        private void UnhandledExpressionType(Expression e)
+            => _stringBuilder.AppendLine(e);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -653,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            bool TryPrintConstant([NotNull] object value, [NotNull] IndentedStringBuilder stringBuilder);
+            bool TryPrintConstant([CanBeNull] object value, [NotNull] IndentedStringBuilder stringBuilder);
         }
 
         private class CollectionConstantPrinter : IConstantPrinter
@@ -705,6 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
             {
                 var stringValue = "null";
+
                 if (value != null)
                 {
                     stringValue = value.ToString() != value.GetType().ToString()

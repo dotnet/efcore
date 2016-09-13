@@ -1169,22 +1169,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Unhandled expression type: {expressionType}
-        /// </summary>
-        public static string UnhandledExpressionType([CanBeNull] object expressionType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "expressionType"), expressionType);
-        }
-
-        /// <summary>
-        /// Unhandled node type: {nodeType}
-        /// </summary>
-        public static string UnhandledNodeType([CanBeNull] object nodeType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledNodeType", "nodeType"), nodeType);
-        }
-
-        /// <summary>
         /// Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.
         /// </summary>
         public static string InvalidKeyValue([CanBeNull] object entityType)

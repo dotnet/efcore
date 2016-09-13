@@ -549,12 +549,6 @@
   <data name="InvalidMemberInitBinding" xml:space="preserve">
     <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
   </data>
-  <data name="UnhandledExpressionType" xml:space="preserve">
-    <value>Unhandled expression type: {expressionType}</value>
-  </data>
-  <data name="UnhandledNodeType" xml:space="preserve">
-    <value>Unhandled node type: {nodeType}</value>
-  </data>
   <data name="InvalidKeyValue" xml:space="preserve">
     <value>Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.</value>
   </data>

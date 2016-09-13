@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -17,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
 
@@ -500,10 +500,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
             }
 
-            Expression newObject = Visit(node.Object);
+            var newObject = Visit(node.Object);
             var newArguments = node.Arguments.Select(Visit);
 
-            if (newObject != node.Object && newObject.Type.IsNullableType() && newObject is NullConditionalExpression)
+            if (newObject != node.Object 
+                && newObject.Type.IsNullableType() 
+                && newObject is NullConditionalExpression)
             {
                 var newMethodCallExpression = node.Update(node.Object, newArguments);
 
@@ -701,11 +703,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var querySourceReferenceExpression = outerQuerySourceReferenceExpression;
             var navigationJoins = _navigationJoins;
             var optionalNavigationInChain = false;
-            var addNullCheckToOuterKeySelector = false;
 
             foreach (var navigation in navigations)
             {
-                addNullCheckToOuterKeySelector = optionalNavigationInChain;
+                var addNullCheckToOuterKeySelector = optionalNavigationInChain;
+
                 if (!navigation.ForeignKey.IsRequired || !navigation.IsDependentToPrincipal())
                 {
                     optionalNavigationInChain = true;
@@ -831,6 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var targetEntityType = navigation.GetTargetType();
 
                 QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
+
                 var joinClause = BuildJoinFromNavigation(
                     querySourceReferenceExpression,
                     navigation,
@@ -844,49 +847,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             _queryModel.BodyClauses.RemoveAt(additionalJoinIndex);
+
             for (var i = 0; i < joinClauses.Count; i++)
             {
                 _queryModel.BodyClauses.Insert(additionalJoinIndex + i, joinClauses[i]);
             }
 
-            var querySourceReplacingVisitor = new QuerySourceReplacingExpressionVisitor(
-                additionalFromClauseBeingProcessed, querySourceReferenceExpression);
+            var querySourceMapping = new QuerySourceMapping();
+            querySourceMapping.AddMapping(additionalFromClauseBeingProcessed, querySourceReferenceExpression);
 
-            var queryModelVisitor = new ExpressionTransformingQueryModelVisitor(querySourceReplacingVisitor);
-            queryModelVisitor.VisitQueryModel(_queryModel);
+            _queryModel.TransformExpressions(e => 
+                ReferenceReplacingExpressionVisitor
+                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
             return querySourceReferenceExpression;
-        }
-
-        private class QuerySourceReplacingExpressionVisitor : RelinqExpressionVisitor
-        {
-            private readonly IQuerySource _querySourceToReplace;
-            private readonly QuerySourceReferenceExpression _targetQuerySourceReferenceExpression;
-
-            public QuerySourceReplacingExpressionVisitor(
-                IQuerySource querySourceToReplace,
-                QuerySourceReferenceExpression targetQuerySourceReferenceExpression)
-            {
-                _querySourceToReplace = querySourceToReplace;
-                _targetQuerySourceReferenceExpression = targetQuerySourceReferenceExpression;
-            }
-
-            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
-            {
-                if (expression.ReferencedQuerySource == _querySourceToReplace)
-                {
-                    return _targetQuerySourceReferenceExpression;
-                }
-
-                return base.VisitQuerySourceReference(expression);
-            }
-
-            protected override Expression VisitSubQuery(SubQueryExpression expression)
-            {
-                expression.QueryModel.TransformExpressions(Visit);
-
-                return expression;
-            }
         }
 
         private JoinClause BuildJoinFromNavigation(
@@ -1041,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public AdditionalFromClause AdditionalFromClauseBeingProcessed { get; private set; }
 
             public NavigationRewritingQueryModelVisitor(
-                NavigationRewritingExpressionVisitor transformingVisitor,
+                RelinqExpressionVisitor transformingVisitor,
                 EntityQueryModelVisitor queryModelVisitor,
                 bool navigationExpansionSubquery)
                 : base(transformingVisitor)

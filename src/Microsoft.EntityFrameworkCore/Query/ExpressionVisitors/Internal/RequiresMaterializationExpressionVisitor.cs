@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -236,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return expression;
         }
 
-        private Expression SetResultOperationSourceExpression(ResultOperatorBase resultOperator)
+        private static Expression SetResultOperationSourceExpression(ResultOperatorBase resultOperator)
         {
             var concatOperator = resultOperator as ConcatResultOperator;
             if (concatOperator != null)

@@ -1,27 +1,30 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Logic in this file is based on https://github.com/bartdesmet/ExpressionFutures/
 
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
 {
     /// <summary>
     ///     Expression representing null-conditional access.
+    ///     Logic in this file is based on https://github.com/bartdesmet/ExpressionFutures
     /// </summary>
     public class NullConditionalExpression : Expression
     {
-        private Type _type;
+        private readonly Type _type;
 
         /// <summary>
         ///     Creates a new instance of NullConditionalExpression.
         /// </summary>
-        /// <param name="nullableCaller"> Expression representing potentially nullable caller that needs to be tested for it's nullability. </param>
-        /// <param name="caller"> Expression representig actual caller for the access operation. </param>
+        /// <param name="nullableCaller">
+        ///     Expression representing potentially nullable caller that
+        ///     needs to be tested for it's nullability.
+        /// </param>
+        /// <param name="caller"> Expression representing actual caller for the access operation. </param>
         /// <param name="accessOperation"> Expression representing access operation. </param>
         public NullConditionalExpression(
             [NotNull] Expression nullableCaller,
@@ -36,27 +39,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             Caller = caller;
             AccessOperation = accessOperation;
 
-            _type = AccessOperation.Type.IsNullableType() ? AccessOperation.Type : AccessOperation.Type.MakeNullable();
+            _type = accessOperation.Type.IsNullableType()
+                ? accessOperation.Type
+                : accessOperation.Type.MakeNullable();
         }
 
         /// <summary>
         ///     Expression representing potentially nullable caller that needs to be tested for it's nullability.
         /// </summary>
-        public virtual Expression NullableCaller { get; [param: NotNull] private set; }
+        public virtual Expression NullableCaller { get; }
 
         /// <summary>
-        ///     Expression representig actual caller for the access operation.
+        ///     Expression representing actual caller for the access operation.
         /// </summary>
-        public virtual Expression Caller { get; [param: NotNull] private set; }
+        public virtual Expression Caller { get; }
 
         /// <summary>
         ///     Expression representing access operation.
         /// </summary>
-        public virtual Expression AccessOperation { get; [param: NotNull] private set; }
+        public virtual Expression AccessOperation { get; }
 
         /// <summary>
         ///     Indicates that the node can be reduced to a simpler node. If this returns true,
-        ///     Reduce() can be called to produce the reduced form. 
+        ///     Reduce() can be called to produce the reduced form.
         /// </summary>
         public override bool CanReduce => true;
 
@@ -85,38 +90,67 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                 ? (Expression)Convert(nullableCaller, Caller.Type)
                 : nullableCaller;
 
-            var operation = new CallerReplacingExpressionVisitor(Caller, caller).Visit(AccessOperation);
+            var operation
+                = ReplacingExpressionVisitor
+                    .Replace(Caller, caller, AccessOperation);
+
             if (operation.Type != _type)
             {
                 operation = Convert(operation, _type);
             }
 
-            var resultExpression =
-                Block(
+            var resultExpression
+                = Block(
                     new[] { nullableCaller, result },
                     Assign(nullableCaller, NullableCaller),
                     Assign(result, Default(_type)),
                     IfThen(
                         NotEqual(nullableCaller, Default(nullableCallerType)),
                         Assign(result, operation)),
-                    result
-                );
+                    result);
 
             return resultExpression;
         }
 
-        private class CallerReplacingExpressionVisitor : ExpressionVisitorBase
+        /// <summary>
+        ///     Reduces the node and then calls the visitor delegate on the reduced expression.
+        ///     The method throws an exception if the node is not
+        ///     reducible.
+        /// </summary>
+        /// <returns>
+        ///     The expression being visited, or an expression which should replace it in the tree.
+        /// </returns>
+        /// <param name="visitor">An instance of <see cref="T:System.Func`2" />.</param>
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            private readonly Expression _originalCaller;
-            private readonly Expression _newCaller;
+            var newNullableCaller = visitor.Visit(NullableCaller);
+            var newCaller = visitor.Visit(Caller);
 
-            public CallerReplacingExpressionVisitor(Expression originalCaller, Expression newCaller)
+            var newAccessOperation
+                = visitor.Visit(
+                    ReplacingExpressionVisitor
+                        .Replace(Caller, newCaller, AccessOperation));
+
+            if (newNullableCaller != NullableCaller
+                || newCaller != Caller
+                || newAccessOperation != AccessOperation)
             {
-                _originalCaller = originalCaller;
-                _newCaller = newCaller;
+                return new NullConditionalExpression(
+                    newNullableCaller, newCaller, newAccessOperation);
             }
 
-            public override Expression Visit([CanBeNull] Expression node) => node == _originalCaller ? _newCaller : base.Visit(node);
+            return this;
         }
+
+        /// <summary>
+        ///     Returns a textual representation of the <see cref="T:System.Linq.Expressions.Expression" />.
+        /// </summary>
+        /// <returns>
+        ///     A textual representation of the <see cref="T:System.Linq.Expressions.Expression" />.
+        /// </returns>
+        public override string ToString()
+            => AccessOperation.ToString()
+                .Replace("?.", ".")
+                .Replace(".", "?.");
     }
 }

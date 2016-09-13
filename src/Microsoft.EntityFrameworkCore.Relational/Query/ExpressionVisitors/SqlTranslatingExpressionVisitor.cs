@@ -618,9 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore);
             }
 
-            return expression == null
-                ? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression)
-                : expression;
+            return expression ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
         /// <summary>
@@ -688,9 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return aliasExpression == null
-                ? _queryModelVisitor.BindMemberToOuterQueryParameter(expression)
-                : aliasExpression;
+            return aliasExpression ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
         }
 
         private AliasExpression CreateAliasedColumnExpression(
@@ -963,6 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitExtension(Expression expression)
         {
             var stringCompare = expression as StringCompareExpression;
+
             if (stringCompare != null)
             {
                 var newLeft = Visit(stringCompare.Left);
@@ -974,12 +971,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return null;
                 }
 
-                return newLeft != stringCompare.Left || newRight != stringCompare.Right
-                    ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
-                    : expression;
+                return newLeft != stringCompare.Left 
+                    || newRight != stringCompare.Right
+                        ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
+                        : expression;
             }
 
             var explicitCast = expression as ExplicitCastExpression;
+
             if (explicitCast != null)
             {
                 var newOperand = Visit(explicitCast.Operand);
@@ -987,12 +986,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return newOperand != explicitCast.Operand
                     ? new ExplicitCastExpression(newOperand, explicitCast.Type)
                     : expression;
-            }
-
-            var nullConditional = expression as NullConditionalExpression;
-            if (nullConditional != null)
-            {
-                return Visit(nullConditional.AccessOperation);
             }
 
             return base.VisitExtension(expression);

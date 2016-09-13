@@ -4634,11 +4634,6 @@ FROM [Customers] AS [c0]",
                 Sql);
         }
 
-        public override void Select_nested_collection_deep()
-        {
-            base.Select_nested_collection_deep();
-        }
-
         public override void Where_math_power()
         {
             base.Where_math_power();
