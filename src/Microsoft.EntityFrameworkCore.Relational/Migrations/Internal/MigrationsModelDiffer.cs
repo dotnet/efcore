@@ -203,7 +203,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
                 else
                 {
-                    Debug.Assert(false, "Unexpected operation type: " + operation.GetType());
                     leftovers.Add(operation);
                 }
             }
