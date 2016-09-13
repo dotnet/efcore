@@ -6,11 +6,10 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Update;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public abstract class RelationalDatabaseProviderServices : DatabaseProviderServices, IRelationalDatabaseProviderServices
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDatabaseProviderServices"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDatabaseProviderServices" /> class.
         /// </summary>
         /// <param name="services"> The service provider to resolve services from. </param>
         protected RelationalDatabaseProviderServices([NotNull] IServiceProvider services)
@@ -138,6 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IExpressionFragmentTranslator" /> for the database provider.
         /// </summary>
         public virtual IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<RelationalCompositeExpressionFragmentTranslator>();
+
+        /// <summary>
+        ///     The <see cref="IMigrationsModelDiffer" /> for the database provider.
+        /// </summary>
+        public virtual IMigrationsModelDiffer MigrationsModelDiffer => GetService<MigrationsModelDiffer>();
 
         /// <summary>
         ///     Gets the <see cref="IMethodCallTranslator" /> for the database provider.

@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             VerifyScoped<RelationalValueGeneratorSelector>();
             VerifyScoped<CommandBatchPreparer>();
             VerifyScoped<RelationalModelValidator>();
+            VerifyScoped<MigrationsModelDiffer>();
 
             VerifyScoped<IMethodCallTranslator>();
             VerifyScoped<IMemberTranslator>();

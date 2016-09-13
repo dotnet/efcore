@@ -109,5 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The <see cref="IQuerySqlGeneratorFactory"/> for the provider.
         /// </summary>
         IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; }
+
+        /// <summary>
+        ///     The <see cref="IMigrationsModelDiffer"/> for the provider.
+        /// </summary>
+        IMigrationsModelDiffer MigrationsModelDiffer { get; }
     }
 }
