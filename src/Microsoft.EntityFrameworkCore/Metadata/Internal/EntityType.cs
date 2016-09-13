@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class EntityType : ConventionalAnnotatable, IMutableEntityType
+    public class EntityType : TypeBase, IMutableEntityType
     {
         private readonly SortedSet<ForeignKey> _foreignKeys
             = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance);
@@ -32,19 +32,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private readonly SortedDictionary<string, Property> _properties;
 
+        private readonly SortedDictionary<string, ComplexTypeUsage> _complexTypeUsages
+            = new SortedDictionary<string, ComplexTypeUsage>(StringComparer.Ordinal);
+
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
 
-        private readonly object _typeOrName;
         private Key _primaryKey;
         private EntityType _baseType;
 
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
-        private ConfigurationSource _configurationSource;
         private ConfigurationSource? _baseTypeConfigurationSource;
         private ConfigurationSource? _primaryKeyConfigurationSource;
-        private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new Dictionary<string, ConfigurationSource>();
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts _counts;
@@ -58,12 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityType([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
+            : base(name, model, configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(model, nameof(model));
-
-            _typeOrName = name;
+            _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
+            Builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
 
         /// <summary>
@@ -71,18 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityType([NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
+            : base(clrType, model, configurationSource)
         {
-            Check.ValidEntityType(clrType, nameof(clrType));
-            Check.NotNull(model, nameof(model));
-
-            _typeOrName = clrType;
-        }
-
-        private EntityType([NotNull] Model model, ConfigurationSource configurationSource)
-        {
-            Model = model;
-            _configurationSource = configurationSource;
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
             Builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
@@ -92,18 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityTypeBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Type ClrType => _typeOrName as Type;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Model Model { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -271,36 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Name
-        {
-            get
-            {
-                if (ClrType != null)
-                {
-                    return ClrType.DisplayName() ?? (string)_typeOrName;
-                }
-                return (string)_typeOrName;
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public override string ToString() => this.ToDebugString();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
-            => _configurationSource = _configurationSource.Max(configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -1643,11 +1590,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void PropertyMetadataChanged()
+        public override void PropertyMetadataChanged()
         {
-            foreach (var indexedProperty in this.GetPropertiesAndNavigations().OfType<PropertyBase>())
+            foreach (var property in GetProperties())
             {
-                indexedProperty.PropertyIndexes = null;
+                property.PropertyIndexes = null;
+            }
+
+            foreach (var navigation in GetNavigations())
+            {
+                navigation.PropertyIndexes = null;
             }
 
             // This path should only kick in when the model is still mutable and therefore access does not need
@@ -1702,54 +1654,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
-        {
-            Check.NotNull(name, nameof(name));
-
-            ConfigurationSource existingIgnoredConfigurationSource;
-            if (_ignoredMembers.TryGetValue(name, out existingIgnoredConfigurationSource))
-            {
-                configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
-            }
-
-            _ignoredMembers[name] = configurationSource;
-
-            if (runConventions)
-            {
-                Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IReadOnlyList<string> GetIgnoredMembers()
-            => _ignoredMembers.Keys.ToList();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ConfigurationSource? FindDeclaredIgnoredMemberConfigurationSource([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            ConfigurationSource ignoredConfigurationSource;
-            if (_ignoredMembers.TryGetValue(name, out ignoredConfigurationSource))
-            {
-                return ignoredConfigurationSource;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ConfigurationSource? FindIgnoredMemberConfigurationSource([NotNull] string name)
+        public override ConfigurationSource? FindIgnoredMemberConfigurationSource(string name)
         {
             var ignoredSource = FindDeclaredIgnoredMemberConfigurationSource(name);
 
@@ -1757,22 +1662,82 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Unignore([NotNull] string name)
-        {
-            Check.NotNull(name, nameof(name));
-            _ignoredMembers.Remove(name);
-        }
+        public override void OnTypeMemberIgnored(string name)
+            => Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
 
         #endregion
 
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public virtual ComplexTypeUsage FindComplexTypeUsage([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            ComplexTypeUsage property;
+            return _complexTypeUsages.TryGetValue(name, out property)
+                ? property
+                : null;
+        }
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public virtual IEnumerable<ComplexTypeUsage> GetComplexTypeUsages() => _complexTypeUsages.Values;
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public virtual ComplexTypeUsage AddComplexTypeUsage([NotNull] string name, [NotNull] ComplexTypeDefinition complexTypeDefinition)
+        {
+            // TODO: ComplexType validation
+            return new ComplexTypeUsage(name, this, complexTypeDefinition, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public virtual ComplexTypeUsage RemoveComplexTypeUsage([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var usage = FindComplexTypeUsage(name);
+            return usage == null
+                ? null
+                : RemoveComplexTypeUsage(usage);
+        }
+
+        private ComplexTypeUsage RemoveComplexTypeUsage(ComplexTypeUsage usage)
+        {
+            // TODO: ComplexType Check if property usage is in use in any entity.
+
+            _complexTypeUsages.Remove(usage.Name);
+
+            // TODO: ComplexType builders
+            //property.Builder = null;
+
+            PropertyMetadataChanged();
+
+            return usage;
+        }
+
         #region Explicit interface implementations
 
-        IModel IEntityType.Model => Model;
+        IComplexTypeUsage IEntityType.FindComplexTypeUsage(string name) => FindComplexTypeUsage(name);
+        IMutableComplexTypeUsage IMutableEntityType.FindComplexTypeUsage(string name) => FindComplexTypeUsage(name);
+
+        IEnumerable<IComplexTypeUsage> IEntityType.GetComplexTypeUsages() => GetComplexTypeUsages();
+        IEnumerable<IMutableComplexTypeUsage> IMutableEntityType.GetComplexTypeUsages() => GetComplexTypeUsages();
+
+        IMutableComplexTypeUsage IMutableEntityType.AddComplexTypeUsage(string name, IMutableComplexTypeDefinition complexTypeDefinition) => AddComplexTypeUsage(name, (ComplexTypeDefinition)complexTypeDefinition);
+        IMutableComplexTypeUsage IMutableEntityType.RemoveComplexTypeUsage(string name) => RemoveComplexTypeUsage(name);
+
+        IModel ITypeBase.Model => Model;
+        IMutableModel IMutableTypeBase.Model => Model;
         IMutableModel IMutableEntityType.Model => Model;
-        Type IEntityType.ClrType => ClrType;
         IEntityType IEntityType.BaseType => _baseType;
 
         IMutableEntityType IMutableEntityType.BaseType

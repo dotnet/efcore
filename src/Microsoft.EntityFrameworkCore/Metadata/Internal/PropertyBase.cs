@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public abstract class PropertyBase : ConventionalAnnotatable, IPropertyBase
+    public abstract class PropertyBase : ConventionalAnnotatable, IMutablePropertyBase
     {
         private FieldInfo _fieldInfo;
         private ConfigurationSource? _fieldInfoConfigurationSource;
@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IClrPropertyGetter _getter;
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
-        private PropertyIndexes _indexes;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -46,10 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string Name { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Gets the type that this property belongs to.
         /// </summary>
-        public abstract EntityType DeclaringEntityType { get; }
+        public virtual IMutableTypeBase DeclaringType => ((IMutablePropertyBase)this).DeclaringType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -79,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            var typesInHierarchy = DeclaringEntityType.ClrType.GetTypesInHierarchy().ToList();
+            var typesInHierarchy = DeclaringType.ClrType.GetTypesInHierarchy().ToList();
 
             foreach (var type in typesInHierarchy)
             {
@@ -93,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             throw new InvalidOperationException(
-                CoreStrings.MissingBackingField(fieldName, Name, DeclaringEntityType.DisplayName()));
+                CoreStrings.MissingBackingField(fieldName, Name, DeclaringType.DisplayName()));
         }
 
         /// <summary>
@@ -104,15 +102,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
         {
             if (fieldInfo != null
-                && !fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(this.GetClrType().GetTypeInfo()))
+                && !fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
             {
                 throw new InvalidOperationException(
                     CoreStrings.BadBackingFieldType(
                         fieldInfo.Name,
                         fieldInfo.FieldType.ShortDisplayName(),
-                        DeclaringEntityType.DisplayName(),
+                        DeclaringType.DisplayName(),
                         Name,
-                        this.GetClrType().ShortDisplayName()));
+                        ClrType.ShortDisplayName()));
             }
 
             UpdateFieldInfoConfigurationSource(configurationSource);
@@ -122,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var oldFieldInfo = FieldInfo;
                 _fieldInfo = fieldInfo;
 
-                DeclaringEntityType.PropertyMetadataChanged();
+                PropertyMetadataChanged();
 
                 if (runConventions)
                 {
@@ -130,6 +128,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected abstract void PropertyMetadataChanged();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -181,34 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessors Accessors
             => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual PropertyIndexes PropertyIndexes
-        {
-            get
-            {
-                return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
-                    property => property.DeclaringEntityType.CalculateIndexes(property));
-            }
-
-            [param: CanBeNull]
-            set
-            {
-                if (value == null)
-                {
-                    // This path should only kick in when the model is still mutable and therefore access does not need
-                    // to be thread-safe.
-                    _indexes = null;
-                }
-                else
-                {
-                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
-                }
-            }
-        }
-
-        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
+        ITypeBase IPropertyBase.DeclaringType => DeclaringType;
+        IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
     }
 }

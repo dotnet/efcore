@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in properties)
             {
-                property.SetIsNullable(!required, configurationSource);
+                property.Facets.SetIsNullable(!required, configurationSource);
             }
 
             UpdateIsRequiredConfigurationSource(configurationSource);

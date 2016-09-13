@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (!((Property)propertyConfiguration.Property).GetValueGeneratedConfigurationSource().HasValue)
+            if (!((Property)propertyConfiguration.Property).Facets.ValueGeneratedConfigurationSource.HasValue)
             {
                 return;
             }

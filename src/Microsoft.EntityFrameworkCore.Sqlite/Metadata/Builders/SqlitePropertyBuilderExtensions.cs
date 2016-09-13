@@ -85,9 +85,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(sql, nameof(sql));
 
             var property = (Property)propertyBuilder.Metadata;
-            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            if (ConfigurationSource.Convention.Overrides(property.Facets.ValueGeneratedConfigurationSource))
             {
-                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+                property.Facets.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
             }
 
             propertyBuilder.Metadata.Sqlite().DefaultValueSql = sql;
@@ -120,9 +120,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             var property = (Property)propertyBuilder.Metadata;
-            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            if (ConfigurationSource.Convention.Overrides(property.Facets.ValueGeneratedConfigurationSource))
             {
-                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+                property.Facets.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
             }
 
             propertyBuilder.Metadata.Sqlite().DefaultValue = value;
