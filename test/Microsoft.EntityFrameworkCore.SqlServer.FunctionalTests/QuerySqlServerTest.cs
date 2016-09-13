@@ -3246,7 +3246,7 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID]",
                 Sql);
         }
-        
+
         public override void GroupJoin_DefaultIfEmpty_Project()
         {
             base.GroupJoin_DefaultIfEmpty_Project();
@@ -5983,7 +5983,7 @@ CROSS JOIN [Orders] AS [o]
 CROSS JOIN [Employees] AS [e]",
                 Sql);
         }
-        
+
         public override void Parameter_extraction_short_circuits_1()
         {
             base.Parameter_extraction_short_circuits_1();
@@ -6034,6 +6034,22 @@ WHERE ([o].[OrderID] < 10400) OR (([o].[OrderDate] IS NOT NULL AND (DATEPART(mon
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Subquery_member_pushdown_does_not_change_original_subquery_model()
+        {
+            base.Subquery_member_pushdown_does_not_change_original_subquery_model();
+
+            Assert.StartsWith(
+                @"SELECT [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(2) [c0].[City]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] = @_outer_CustomerID",
                 Sql);
         }
 

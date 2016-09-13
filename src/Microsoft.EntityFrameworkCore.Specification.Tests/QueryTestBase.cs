@@ -6159,6 +6159,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Subquery_member_pushdown_does_not_change_original_subquery_model()
+        {
+            AssertQuery<Order, Customer>((os, cs) =>
+                 os.Select(o => new
+                 {
+                     OrderId = o.OrderID,
+                     City = cs.SingleOrDefault(c => c.CustomerID == o.CustomerID).City
+                 })
+                 .OrderBy(o => o.City)
+                 .Skip(0)
+                 .Take(10));
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();

@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (subSelector is QuerySourceReferenceExpression
                 || subSelector is SubQueryExpression)
             {
-                var subQueryModel = subQueryExpression.QueryModel;
+                var subQueryModel = subQueryExpression.QueryModel.Clone();
 
-                subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subSelector));
+                subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subQueryModel.SelectClause.Selector));
                 subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
 
                 return new SubQueryExpression(subQueryModel);
