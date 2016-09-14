@@ -8,7 +8,7 @@
     <ProjectGuid>{313F46FE-9962-4A15-805F-FCBDF5A6181E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Tests</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -166,6 +166,7 @@
     <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="Storage\DatabaseProviderSelectorTest.cs" />
+    <Compile Include="Storage\ExecutionStrategyTests.cs" />
     <Compile Include="TestUtilities\ListLogger.cs" />
     <Compile Include="TestUtilities\ListLoggerFactory.cs" />
     <Compile Include="TestUtilities\ListLogger`.cs" />

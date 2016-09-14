@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Moq;
@@ -30,11 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor(new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)));
+            var batchExecutor = new BatchExecutor(
+                new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)), new ExecutionStrategyFactory());
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
-            mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken));
+            mockRelationalConnection.Verify(rc => rc.BeginTransactionAsync(cancellationToken));
             mockRelationalConnection.Verify(rc => rc.Close());
             transactionMock.Verify(t => t.Commit());
 
@@ -55,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor(new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)));
+            var batchExecutor = new BatchExecutor(
+                new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)), new ExecutionStrategyFactory());
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 

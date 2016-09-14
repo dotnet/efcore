@@ -135,4 +135,7 @@
   <data name="AlterIdentityColumn" xml:space="preserve">
     <value>To change the IDENTITY property of a column, the column needs to be dropped and recreated.</value>
   </data>
+  <data name="TransientExceptionDetected" xml:space="preserve">
+    <value>An exception has been raised that is likely due to a transient failure. If you are connecting to a SQL Azure database consider using SqlAzureExecutionStrategy.</value>
+  </data>
 </root>

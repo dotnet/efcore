@@ -426,6 +426,122 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
                 Assert.Equal(2, dbConnection.OpenCount);
                 Assert.Equal(2, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Open);
+
+                connection.Open();
+
+                Assert.Equal(2, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Closed);
+
+                connection.Close();
+
+                Assert.Equal(2, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+                connection.Open();
+                connection.Open();
+
+                Assert.Equal(3, dbConnection.OpenCount);
+
+                dbConnection.SetState(ConnectionState.Closed);
+
+                connection.Open();
+
+                Assert.Equal(4, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Closed);
+
+                connection.Close();
+
+                Assert.Equal(4, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+            }
+        }
+
+        [Fact]
+        public async Task Existing_connection_can_be_opened_and_closed_externally_async()
+        {
+            var dbConnection = new FakeDbConnection(
+                "Database=FrodoLives",
+                state: ConnectionState.Closed);
+
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                await connection.OpenAsync();
+
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                Assert.Equal(1, dbConnection.OpenCount);
+
+                connection.Close();
+
+                Assert.Equal(1, dbConnection.OpenCount);
+                Assert.Equal(1, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Open);
+
+                await connection.OpenAsync();
+
+                Assert.Equal(1, dbConnection.OpenCount);
+                Assert.Equal(1, dbConnection.CloseCount);
+
+                connection.Close();
+
+                Assert.Equal(1, dbConnection.OpenCount);
+                Assert.Equal(1, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Closed);
+
+                await connection.OpenAsync();
+
+                Assert.Equal(2, dbConnection.OpenCount);
+                Assert.Equal(1, dbConnection.CloseCount);
+
+                connection.Close();
+
+                Assert.Equal(2, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Open);
+
+                await connection.OpenAsync();
+
+                Assert.Equal(2, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Closed);
+
+                connection.Close();
+
+                Assert.Equal(2, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+                await connection.OpenAsync();
+                await connection.OpenAsync();
+
+                Assert.Equal(3, dbConnection.OpenCount);
+
+                dbConnection.SetState(ConnectionState.Closed);
+
+                await connection.OpenAsync();
+
+                Assert.Equal(4, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
+
+                dbConnection.SetState(ConnectionState.Closed);
+
+                connection.Close();
+
+                Assert.Equal(4, dbConnection.OpenCount);
+                Assert.Equal(2, dbConnection.CloseCount);
             }
         }
 

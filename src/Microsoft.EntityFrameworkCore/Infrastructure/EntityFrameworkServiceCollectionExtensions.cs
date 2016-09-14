@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
@@ -108,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<IDatabaseProviderSelector, DatabaseProviderSelector>()
                 .AddScoped<IEntityGraphAttacher, EntityGraphAttacher>()
                 .AddScoped<ValueGeneratorSelector>()
+                .AddSingleton<ExecutionStrategyFactory>()
                 .AddScoped(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>))
                 .AddScoped(typeof(ILogger<>), typeof(InterceptingLogger<>))
                 .AddScoped(p => GetContextServices(p).Model)
@@ -122,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped(p => GetProviderServices(p).ValueGeneratorCache)
                 .AddScoped(p => GetProviderServices(p).ModelSource)
                 .AddScoped(p => GetProviderServices(p).ModelValidator)
+                .AddScoped(p => GetProviderServices(p).ExecutionStrategyFactory)
                 .AddQuery());
 
             return serviceCollection;

@@ -33,24 +33,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer"/> to be used. </param>
         /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator"/> to be used. </param>
         /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor"/> to be used. </param>
+        /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory"/> to be used. </param>
         protected RelationalDatabaseCreator(
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IMigrationCommandExecutor migrationCommandExecutor)
+            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
+            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
 
             Model = model;
             Connection = connection;
             _modelDiffer = modelDiffer;
             _migrationsSqlGenerator = migrationsSqlGenerator;
             MigrationCommandExecutor = migrationCommandExecutor;
+            ExecutionStrategyFactory = executionStrategyFactory;
         }
 
         /// <summary>
@@ -67,6 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IMigrationCommandExecutor"/> to be used.
         /// </summary>
         protected virtual IMigrationCommandExecutor MigrationCommandExecutor { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="IExecutionStrategyFactory"/> to be used.
+        /// </summary>
+        protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
         /// Determines whether the physical database exists. No attempt is made to determine if the database

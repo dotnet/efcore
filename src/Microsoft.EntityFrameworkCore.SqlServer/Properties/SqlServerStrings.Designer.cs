@@ -64,6 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("AlterIdentityColumn"); }
         }
 
+        /// <summary>
+        /// An exception has been raised that is likely due to a transient failure. If you are connecting to a SQL Azure database consider using SqlAzureExecutionStrategy.
+        /// </summary>
+        public static string TransientExceptionDetected
+        {
+            get { return GetString("TransientExceptionDetected"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IModel model,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
-            : base(model, connection, modelDiffer, migrationsSqlGenerator, migrationCommandExecutor)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            : base(model, connection, modelDiffer, migrationsSqlGenerator, migrationCommandExecutor, executionStrategyFactory)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 
@@ -83,14 +84,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override bool HasTables()
-            => (int)CreateHasTablesCommand().ExecuteScalar(_connection) != 0;
+            => ExecutionStrategyFactory.Create().Execute(
+                connection => (int)CreateHasTablesCommand().ExecuteScalar(connection) != 0,
+                _connection);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => (int)await CreateHasTablesCommand().ExecuteScalarAsync(_connection, cancellationToken: cancellationToken) != 0;
+        protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => ExecutionStrategyFactory.Create().ExecuteAsync(
+                async (connection, ct) => (int)await CreateHasTablesCommand().ExecuteScalarAsync(connection, cancellationToken: ct) != 0,
+                _connection,
+                cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
             => _rawSqlCommandBuilder
@@ -99,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private IReadOnlyList<MigrationCommand> CreateCreateOperations()
         {
             var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
-            return _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } }); 
+            return _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } });
         }
 
         /// <summary>
@@ -110,33 +116,36 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => Exists(retryOnNotExists: false);
 
         private bool Exists(bool retryOnNotExists)
-        {
-            var retryCount = 0;
-            var giveUp = DateTime.UtcNow + TimeSpan.FromMinutes(1);
-            while (true)
-            {
-                try
-                {
-                    _connection.Open();
-                    _connection.Close();
-                    return true;
-                }
-                catch (SqlException e)
-                {
-                    if (!retryOnNotExists
-                        && IsDoesNotExist(e))
+            => ExecutionStrategyFactory.Create().Execute(
+                giveUp =>
                     {
-                        return false;
-                    }
+                        var retryCount = 0;
+                        while (true)
+                        {
+                            try
+                            {
+                                _connection.Open();
+                                _connection.Close();
+                                return true;
+                            }
+                            catch (SqlException e)
+                            {
+                                if (!retryOnNotExists
+                                    && IsDoesNotExist(e))
+                                {
+                                    return false;
+                                }
 
-                    if (DateTime.UtcNow > giveUp
-                        || !RetryOnExistsFailure(e, ref retryCount))
-                    {
-                        throw;
-                    }
-                }
-            }
-        }
+                                if (DateTime.UtcNow > giveUp
+                                    || !RetryOnExistsFailure(e, ref retryCount))
+                                {
+                                    throw;
+                                }
+
+                                Thread.Sleep(100);
+                            }
+                        }
+                    }, DateTime.UtcNow + TimeSpan.FromMinutes(1));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -145,31 +154,39 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
             => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
-        private async Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
+        private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
         {
-            var retryCount = 0;
-            while (true)
-            {
-                try
-                {
-                    await _connection.OpenAsync(cancellationToken);
-                    _connection.Close();
-                    return true;
-                }
-                catch (SqlException e)
-                {
-                    if (!retryOnNotExists
-                        && IsDoesNotExist(e))
+            return ExecutionStrategyFactory.Create().ExecuteAsync(
+                async (giveUp, ct) =>
                     {
-                        return false;
-                    }
+                        var retryCount = 0;
+                        while (true)
+                        {
+                            try
+                            {
+                                await _connection.OpenAsync(ct);
 
-                    if (!RetryOnExistsFailure(e, ref retryCount))
-                    {
-                        throw;
-                    }
-                }
-            }
+                                _connection.Close();
+                                return true;
+                            }
+                            catch (SqlException e)
+                            {
+                                if (!retryOnNotExists
+                                    && IsDoesNotExist(e))
+                                {
+                                    return false;
+                                }
+
+                                if (DateTime.UtcNow > giveUp
+                                    || !RetryOnExistsFailure(e, ref retryCount))
+                                {
+                                    throw;
+                                }
+
+                                await Task.Delay(100, ct);
+                            }
+                        }
+                    }, DateTime.UtcNow + TimeSpan.FromMinutes(1), cancellationToken);
         }
 
         // Login failed is thrown when database does not exist (See Issue #776)

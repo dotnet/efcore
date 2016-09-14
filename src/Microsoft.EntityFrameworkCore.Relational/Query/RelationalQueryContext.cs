@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IRelationalConnection connection,
             [NotNull] LazyRef<IStateManager> stateManager,
-            [NotNull] IConcurrencyDetector concurrencyDetector)
+            [NotNull] IConcurrencyDetector concurrencyDetector,
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
             : base(
                 Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),
                 Check.NotNull(stateManager, nameof(stateManager)),
@@ -42,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(connection, nameof(connection));
 
             Connection = connection;
+            ExecutionStrategyFactory = executionStrategyFactory;
         }
 
         /// <summary>
@@ -59,6 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The semaphore.
         /// </value>
         public virtual SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1);
+
+        /// <summary>
+        ///     The execution strategy factory.
+        /// </summary>
+        /// <value>
+        ///     The execution strategy factory.
+        /// </value>
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
         ///     Registers a value buffer cursor.

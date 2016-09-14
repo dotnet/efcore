@@ -164,6 +164,7 @@
     <Compile Include="EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="Extensions\EntityTypeExtensions.cs" />
+    <Compile Include="Extensions\ExecutionStrategyExtensions.cs" />
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
@@ -244,6 +245,8 @@
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\Multigraph.cs" />
     <Compile Include="Internal\NonCapturingLazyInitializer.cs" />
+    <Compile Include="Storage\Internal\ExecutionStrategyFactory.cs" />
+    <Compile Include="Storage\Internal\NoopExecutionStrategy.cs" />
     <Compile Include="Internal\ProductInfo.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
@@ -271,6 +274,11 @@
     <Compile Include="Query\Internal\QueryModelExtensions.cs" />
     <Compile Include="Query\ResultOperators\Internal\StringIncludeExpressionNode.cs" />
     <Compile Include="Storage\DatabaseProvider.cs" />
+    <Compile Include="Storage\ExecutionStrategy.cs" />
+    <Compile Include="Storage\IExecutionStrategy.cs" />
+    <Compile Include="Storage\IExecutionStrategyFactory.cs" />
+    <Compile Include="Storage\ExecutionStrategyContext.cs" />
+    <Compile Include="Storage\RetryLimitExceededException.cs" />
     <Compile Include="WarningBehavior.cs" />
     <Compile Include="Internal\WarningsConfiguration.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />

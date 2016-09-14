@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             VerifyScoped<SqlServerHistoryRepository>();
             VerifyScoped<SqlServerCompositeMethodCallTranslator>();
             VerifyScoped<SqlServerCompositeMemberTranslator>();
+            VerifyScoped<SqlServerExecutionStrategyFactory>();
         }
 
         public SqlServerServiceCollectionExtensionsTest()

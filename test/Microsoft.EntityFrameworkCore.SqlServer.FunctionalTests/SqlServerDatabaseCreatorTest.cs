@@ -401,8 +401,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 IMigrationsSqlGenerator sqlGenerator,
                 IMigrationCommandExecutor migrationCommandExecutor,
                 IModel model,
-                IRawSqlCommandBuilder rawSqlCommandBuilder)
-                : base(connection, modelDiffer, sqlGenerator, migrationCommandExecutor, model, rawSqlCommandBuilder)
+                IRawSqlCommandBuilder rawSqlCommandBuilder,
+                IExecutionStrategyFactory executionStrategyFactory)
+                : base(connection, modelDiffer, sqlGenerator, migrationCommandExecutor, model, rawSqlCommandBuilder, executionStrategyFactory)
             {
             }
 
@@ -410,6 +411,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default(CancellationToken))
                 => HasTablesAsync(cancellationToken);
+
+            public new IExecutionStrategyFactory ExecutionStrategyFactory => base.ExecutionStrategyFactory;
         }
     }
 }

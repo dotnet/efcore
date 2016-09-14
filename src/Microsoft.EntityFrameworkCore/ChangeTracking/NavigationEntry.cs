@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     A task that represents the asynchronous save operation.
         /// </returns>
-        public virtual Task LoadAsync(CancellationToken cancellationToken = new CancellationToken())
+        public virtual Task LoadAsync(CancellationToken cancellationToken = default(CancellationToken))
             => IsLoaded
                 ? Task.FromResult(0)
                 : Finder(Metadata.GetTargetType().ClrType)

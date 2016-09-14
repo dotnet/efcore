@@ -262,8 +262,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CheckForAmbientTransactions();
 
-            if ((_openedCount == 0)
-                && (_connection.Value.State != ConnectionState.Open))
+            if (_connection.Value.State == ConnectionState.Broken)
+            {
+                _connection.Value.Close();
+            }
+
+            if (_connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogDebug(
                     RelationalEventId.OpeningConnection,
@@ -278,10 +282,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.DataSource));
 
                 _connection.Value.Open();
-                _openedInternally = true;
-            }
 
-            _openedCount++;
+                if (_openedCount == 0)
+                {
+                    _openedInternally = true;
+                    _openedCount++;
+                }
+            }
+            else
+            {
+                _openedCount++;
+            }
         }
 
         /// <summary>
@@ -295,8 +306,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CheckForAmbientTransactions();
 
-            if ((_openedCount == 0)
-                && (_connection.Value.State != ConnectionState.Open))
+            if (_connection.Value.State == ConnectionState.Broken)
+            {
+                _connection.Value.Close();
+            }
+
+            if (_connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogDebug(
                     RelationalEventId.OpeningConnection,
@@ -311,10 +326,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.DataSource));
 
                 await _connection.Value.OpenAsync(cancellationToken);
-                _openedInternally = true;
-            }
 
-            _openedCount++;
+                if (_openedCount == 0)
+                {
+                    _openedInternally = true;
+                    _openedCount++;
+                }
+            }
+            else
+            {
+                _openedCount++;
+            }
         }
 
         private void CheckForAmbientTransactions()
@@ -334,26 +356,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Close()
         {
-            // TODO: Consider how to handle open/closing to make sure that a connection that is passed in
-            // as open is never erroneously closed without placing undue burdon on users of the connection.
-
-            if ((_openedCount > 0)
-                && (--_openedCount == 0)
+            if (_openedCount > 0
+                && --_openedCount == 0
                 && _openedInternally)
             {
-                _logger.LogDebug(
-                    RelationalEventId.ClosingConnection,
-                    new
-                    {
-                        _connection.Value.Database,
-                        _connection.Value.DataSource
-                    },
-                    state =>
-                        RelationalStrings.RelationalLoggerClosingConnection(
-                            state.Database,
-                            state.DataSource));
-
-                _connection.Value.Close();
+                if (_connection.Value.State != ConnectionState.Closed)
+                {
+                    _logger.LogDebug(
+                        RelationalEventId.ClosingConnection,
+                        new
+                        {
+                            _connection.Value.Database,
+                            _connection.Value.DataSource
+                        },
+                        state =>
+                            RelationalStrings.RelationalLoggerClosingConnection(
+                                state.Database,
+                                state.DataSource));
+                    _connection.Value.Close();
+                }
                 _openedInternally = false;
             }
         }

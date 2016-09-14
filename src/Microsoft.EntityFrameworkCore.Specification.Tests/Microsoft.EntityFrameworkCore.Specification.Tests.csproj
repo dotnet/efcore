@@ -186,6 +186,7 @@
     <Compile Include="TestUtilities\KeyComparer.cs" />
     <Compile Include="TestUtilities\NavigationComparer.cs" />
     <Compile Include="TestUtilities\PropertyComparer.cs" />
+    <Compile Include="TestUtilities\TestInMemoryTransactionManager.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTestFramework.cs" />

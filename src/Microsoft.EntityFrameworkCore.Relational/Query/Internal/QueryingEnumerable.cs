@@ -67,6 +67,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (_buffer == null)
                 {
+                    var executionStrategy = _queryingEnumerable._relationalQueryContext.ExecutionStrategyFactory.Create();
+                    return executionStrategy.Execute(BufferlessMoveNext, executionStrategy.RetriesOnFailure);
+                }
+
+                if (_buffer.Count > 0)
+                {
+                    _current = _buffer.Dequeue();
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            private bool BufferlessMoveNext(bool buffer)
+            {
+                try
+                {
                     if (_dataReader == null)
                     {
                         _queryingEnumerable._relationalQueryContext.Connection.Open();
@@ -96,17 +114,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             ? _valueBufferFactory.Create(_dbDataReader)
                             : default(ValueBuffer);
 
+                    if (buffer)
+                    {
+                        BufferAll();
+                    }
+
                     return hasNext;
                 }
-
-                if (_buffer.Count > 0)
+                catch (Exception)
                 {
-                    _current = _buffer.Dequeue();
+                    _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
+                    _dataReader = null;
+                    _dbDataReader = null;
 
-                    return true;
+                    throw;
                 }
-
-                return false;
             }
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
@@ -128,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     _queryingEnumerable._relationalQueryContext.Connection?.Close();
                     _dataReader = null;
+                    _dbDataReader = null;
                 }
             }
 

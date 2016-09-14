@@ -90,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>()
+                .AddScoped<IExecutionStrategyFactory, ExecutionStrategyFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -129,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>()
+                .AddScoped<IExecutionStrategyFactory, ExecutionStrategyFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -142,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             if (async)
             {
-                await Assert.ThrowsAsync<SqlException>(async () => await creator.CreateAsync());
+                await Assert.ThrowsAsync<SqlException>(() => creator.CreateAsync());
             }
             else
             {
