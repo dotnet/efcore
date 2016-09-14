@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public UpdatesInMemoryFixture()
         {
             _serviceProvider = new ServiceCollection()
+                .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                             UpdatesModelInitializer.Seed(context);
                         }
                     },
-                () => { _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear(); });
+                _serviceProvider);
 
         public override UpdatesContext CreateContext(InMemoryTestStore testStore)
             => new UpdatesContext(_optionsBuilder.Options);

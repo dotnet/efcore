@@ -13,32 +13,33 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         public static readonly string DatabaseName = "GearsOfWarQueryTest";
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
 
         private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
 
         public GearsOfWarQuerySqliteFixture()
         {
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .UseSqlite(_connectionString)
+                .UseInternalServiceProvider(serviceProvider)
+                .Options;
         }
 
         public override SqliteTestStore CreateTestStore()
         {
             return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlite(_connectionString)
-                        .UseInternalServiceProvider(_serviceProvider);
-
-                    using (var context = new GearsOfWarContext(optionsBuilder.Options))
+                    using (var context = new GearsOfWarContext(_options))
                     {
                         context.Database.EnsureClean();
                         GearsOfWarModelInitializer.Seed(context);
-                        
+
                         TestSqlLoggerFactory.Reset();
                     }
                 });
@@ -46,11 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override GearsOfWarContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlite(testStore.Connection)
-                .UseInternalServiceProvider(_serviceProvider);
-
-            var context = new GearsOfWarContext(optionsBuilder.Options);
+            var context = new GearsOfWarContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

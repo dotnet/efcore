@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void It_creates_unique_query_cache_key()
         {
-            using (var testStore = SqlServerTestStore.CreateScratch())
+            using (var testStore = SqlServerTestStore.Create(nameof(CompiledQueryCacheKeyGeneratorTest)))
             {
                 object key1, key2;
                 Expression query;
@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 => optionsBuilder.UseSqlServer(
                     _connection, b =>
                         {
+                            b.ApplyConfiguration();
                             if (_rowNumberPaging)
                             {
                                 b.UseRowNumberForPaging();

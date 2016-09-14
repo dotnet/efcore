@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public abstract class FindInMemoryTest
-        : FindTestBase<FindInMemoryTest.FindInMemoryFixture>
+        : FindTestBase<InMemoryTestStore, FindInMemoryTest.FindInMemoryFixture>
     {
         protected FindInMemoryTest(FindInMemoryFixture fixture)
             : base(fixture)
@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public class FindInMemoryFixture : FindFixtureBase
         {
+            private readonly DbContextOptions _options;
             private readonly IServiceProvider _serviceProvider;
 
             public FindInMemoryFixture()
@@ -69,20 +70,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                using (var context = CreateContext())
-                {
-                    Seed(context);
-                }
+                _options = new DbContextOptionsBuilder()
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .Options;
             }
 
-            public override void CreateTestStore()
+            public override InMemoryTestStore CreateTestStore()
             {
+                return InMemoryTestStore.CreateScratch(() =>
+                    {
+                        using (var context = new FindContext(_options))
+                        {
+                            Seed(context);
+                        }
+                    },
+                    _serviceProvider);
             }
 
-            public override DbContext CreateContext()
-                => new FindContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase("FindTest")
-                    .UseInternalServiceProvider(_serviceProvider).Options);
+            public override DbContext CreateContext(InMemoryTestStore testStore)
+                => new FindContext(_options);
         }
     }
 }

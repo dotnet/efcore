@@ -11,17 +11,23 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
-    public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
+    public abstract class NotificationEntitiesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+        where TTestStore : TestStore
+        where TFixture : NotificationEntitiesTestBase<TTestStore, TFixture>.NotificationEntitiesFixtureBase, new()
     {
         protected NotificationEntitiesTestBase(TFixture fixture)
         {
             Fixture = fixture;
+            TestStore = Fixture.CreateTestStore();
         }
 
         protected virtual TFixture Fixture { get; }
 
+        protected TTestStore TestStore { get; }
+
         protected DbContext CreateContext() => Fixture.CreateContext();
+
+        public void Dispose() => TestStore.Dispose();
 
         [Fact] // Issue #4020
         public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()
@@ -117,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public abstract class NotificationEntitiesFixtureBase
         {
             public abstract DbContext CreateContext();
+            public abstract TTestStore CreateTestStore();
 
             public virtual void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -124,11 +131,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
             }
 
-            protected void EnsureCreated()
+            protected virtual void EnsureCreated()
             {
                 using (var context = CreateContext())
                 {
-                    EnsureClean(context);
+                    context.Database.EnsureCreated();
 
                     context.Add(new Blog
                     {
@@ -139,8 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.SaveChanges();
                 }
             }
-
-            protected abstract void EnsureClean(DbContext context);
         }
     }
 }

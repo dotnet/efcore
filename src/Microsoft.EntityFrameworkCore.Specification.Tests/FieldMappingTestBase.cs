@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -314,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Update_write_only_props_with_named_fields()
             => Update<BlogWriteOnlyExplicit>("Posts");
-        
+
         [Fact]
         public virtual void Include_collection_fields_only()
         {
@@ -448,40 +450,45 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected virtual void Update<TBlog>(string navigation)
             where TBlog : class, IBlogAccesor, new()
         {
-            using (var context = CreateContext())
-            {
-                var blogs = context.Set<TBlog>().ToList();
-
-                foreach (var blog in blogs)
-                {
-                    context.Entry(blog).Collection(navigation).Load();
-
-                    blog.AccessTitle += "Updated";
-
-                    foreach (var post in blog.AccessPosts)
+            DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
+                context =>
                     {
-                        post.AccessTitle += "Updated";
-                    }
-                }
+                        var blogs = context.Set<TBlog>().ToList();
 
-                AssertGraph(blogs, "Updated");
+                        foreach (var blog in blogs)
+                        {
+                            context.Entry(blog).Collection(navigation).Load();
 
-                context.SaveChanges();
+                            blog.AccessTitle += "Updated";
 
-                AssertGraph(blogs, "Updated");
-            }
+                            foreach (var post in blog.AccessPosts)
+                            {
+                                post.AccessTitle += "Updated";
+                            }
+                        }
 
-            using (var context = CreateContext())
-            {
-                var blogs = context.Set<TBlog>().ToList();
+                        AssertGraph(blogs, "Updated");
 
-                foreach (var blog in blogs)
-                {
-                    context.Entry(blog).Collection(navigation).Load();
-                }
+                        context.SaveChanges();
 
-                AssertGraph(blogs, "Updated");
-            }
+                        AssertGraph(blogs, "Updated");
+                    },
+                context =>
+                    {
+
+                        var blogs = context.Set<TBlog>().ToList();
+
+                        foreach (var blog in blogs)
+                        {
+                            context.Entry(blog).Collection(navigation).Load();
+                        }
+
+                        AssertGraph(blogs, "Updated");
+                    });
+        }
+
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        {
         }
 
         protected void AssertGraph(IEnumerable<IBlogAccesor> blogs, string updated = "")

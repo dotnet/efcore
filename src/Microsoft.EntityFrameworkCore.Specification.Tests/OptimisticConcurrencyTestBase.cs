@@ -5,7 +5,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -19,24 +21,31 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             string originalName;
             var newName = "New name";
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var sponsor = context.Sponsors.Single(s => s.Id == 1);
-                Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
-                originalName = sponsor.Name;
-                sponsor.Name = "New name";
-                context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
-                context.SaveChanges();
-            }
+                c.Database.CreateExecutionStrategy().Execute(context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
+                        {
+                            var sponsor = context.Sponsors.Single(s => s.Id == 1);
+                            Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                            originalName = sponsor.Name;
+                            sponsor.Name = "New name";
+                            context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
+                            context.SaveChanges();
 
-            using (var context = CreateF1Context())
-            {
-                var sponsor = context.Sponsors.Single(s => s.Id == 1);
-                Assert.Equal(1, context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
-                Assert.Equal(newName, sponsor.Name);
-                sponsor.Name = originalName;
-                context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
-                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                            using (var innerContext = CreateF1Context())
+                            {
+                                UseTransaction(innerContext.Database, transaction);
+                                sponsor = innerContext.Sponsors.Single(s => s.Id == 1);
+                                Assert.Equal(1, innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                                Assert.Equal(newName, sponsor.Name);
+                                sponsor.Name = originalName;
+                                innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
+                                Assert.Throws<DbUpdateConcurrencyException>(() => innerContext.SaveChanges());
+                            }
+                        }
+                    }, c);
             }
         }
 
@@ -117,26 +126,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Chassis.Name = "MP4-25c";
                         team.Principal = "Jerry Seinfeld";
-                    }, (c, ex) =>
+                    },
+                (c, ex) =>
+                    {
+                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+
+                        var entry = ex.Entries.Single();
+                        Assert.IsAssignableFrom<Chassis>(entry.Entity);
+                        entry.Reload();
+
+                        try
                         {
-                            Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                            var entry = ex.Entries.Single();
-                            Assert.IsAssignableFrom<Chassis>(entry.Entity);
-                            entry.Reload();
-
-                            try
-                            {
-                                c.SaveChanges();
-                                Assert.True(false, "Expected second exception due to conflict in principals.");
-                            }
-                            catch (DbUpdateConcurrencyException ex2)
-                            {
-                                var entry2 = ex2.Entries.Single();
-                                Assert.IsAssignableFrom<Team>(entry2.Entity);
-                                entry2.Reload();
-                            }
-                        },
+                            c.SaveChanges();
+                            Assert.True(false, "Expected second exception due to conflict in principals.");
+                        }
+                        catch (DbUpdateConcurrencyException ex2)
+                        {
+                            var entry2 = ex2.Entries.Single();
+                            Assert.IsAssignableFrom<Team>(entry2.Entity);
+                            entry2.Reload();
+                        }
+                    },
                 c =>
                     {
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
@@ -160,26 +170,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 2;
                         team.Principal = "Jerry Seinfeld";
-                    }, (c, ex) =>
+                    },
+                (c, ex) =>
+                    {
+                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+
+                        var entry = ex.Entries.Single();
+                        Assert.IsAssignableFrom<Driver>(entry.Entity);
+                        entry.Reload();
+
+                        try
                         {
-                            Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                            var entry = ex.Entries.Single();
-                            Assert.IsAssignableFrom<Driver>(entry.Entity);
-                            entry.Reload();
-
-                            try
-                            {
-                                c.SaveChanges();
-                                Assert.True(false, "Expected second exception due to conflict in principals.");
-                            }
-                            catch (DbUpdateConcurrencyException ex2)
-                            {
-                                var entry2 = ex2.Entries.Single();
-                                Assert.IsAssignableFrom<Team>(entry2.Entity);
-                                entry2.Reload();
-                            }
-                        },
+                            c.SaveChanges();
+                            Assert.True(false, "Expected second exception due to conflict in principals.");
+                        }
+                        catch (DbUpdateConcurrencyException ex2)
+                        {
+                            var entry2 = ex2.Entries.Single();
+                            Assert.IsAssignableFrom<Team>(entry2.Entity);
+                            entry2.Reload();
+                        }
+                    },
                 c =>
                     {
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
@@ -188,8 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        //TODO: Uncomment when Include is implemented
-        //[Fact]
+        [Fact]
         public virtual Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
@@ -429,25 +439,31 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_an__Added_entity_that_is_not_in_database_is_no_op(bool async)
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var entry = context.Drivers.Add(
-                    new Driver
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
                     {
-                        Name = "Larry David",
-                        TeamId = Team.Ferrari
-                    });
+                        using (context.Database.BeginTransaction())
+                        {
+                            var entry = context.Drivers.Add(
+                                new Driver
+                                {
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                });
 
-                if (async)
-                {
-                    await entry.ReloadAsync();
-                }
-                else
-                {
-                    entry.Reload();
-                }
+                            if (async)
+                            {
+                                await entry.ReloadAsync();
+                            }
+                            else
+                            {
+                                entry.Reload();
+                            }
 
-                Assert.Equal(EntityState.Added, entry.State);
+                            Assert.Equal(EntityState.Added, entry.State);
+                        }
+                    }, c);
             }
         }
 
@@ -477,28 +493,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private async Task TestReloadGone(EntityState state, bool async)
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var entry = context.Drivers.Add(
-                    new Driver
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
                     {
-                        Id = 676,
-                        Name = "Larry David",
-                        TeamId = Team.Ferrari
-                    });
+                        using (context.Database.BeginTransaction())
+                        {
+                            var entry = context.Drivers.Add(
+                                new Driver
+                                {
+                                    Id = 676,
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                });
 
-                entry.State = state;
+                            entry.State = state;
 
-                if (async)
-                {
-                    await entry.ReloadAsync();
-                }
-                else
-                {
-                    entry.Reload();
-                }
+                            if (async)
+                            {
+                                await entry.ReloadAsync();
+                            }
+                            else
+                            {
+                                entry.Reload();
+                            }
 
-                Assert.Equal(EntityState.Detached, entry.State);
+                            Assert.Equal(EntityState.Detached, entry.State);
+                        }
+                    }, c);
             }
         }
 
@@ -534,26 +556,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private async Task TestReloadPositive(EntityState state, bool async)
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                larry.Name = "Rory Gilmore";
-                var entry = context.Entry(larry);
-                entry.Property(e => e.Name).CurrentValue = "Emily Gilmore";
-                entry.State = state;
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                    {
+                        using (context.Database.BeginTransaction())
+                        {
+                            var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
+                            larry.Name = "Rory Gilmore";
+                            var entry = context.Entry(larry);
+                            entry.Property(e => e.Name).CurrentValue = "Emily Gilmore";
+                            entry.State = state;
 
-                if (async)
-                {
-                    await entry.ReloadAsync();
-                }
-                else
-                {
-                    entry.Reload();
-                }
+                            if (async)
+                            {
+                                await entry.ReloadAsync();
+                            }
+                            else
+                            {
+                                entry.Reload();
+                            }
 
-                Assert.Equal(EntityState.Unchanged, entry.State);
-                Assert.Equal("Jenson Button", larry.Name);
-                Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
+                            Assert.Equal(EntityState.Unchanged, entry.State);
+                            Assert.Equal("Jenson Button", larry.Name);
+                            Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
+                        }
+                    }, c);
             }
         }
 
@@ -618,38 +646,46 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         ///     again.  Finally, a new context is created and the validator is called so that the state of
         ///     the database at the end of the process can be validated.
         /// </summary>
-        private async Task ConcurrencyTestAsync(
+        protected virtual async Task ConcurrencyTestAsync(
             Action<F1Context> storeChange, Action<F1Context> clientChange,
             Action<F1Context, DbUpdateException> resolver, Action<F1Context> validator)
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                clientChange(context);
-
-                using (var innerContext = CreateF1Context())
-                {
-                    storeChange(innerContext);
-                    await innerContext.SaveChangesAsync();
-                }
-
-                var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
-
-                using (var resolverContext = CreateF1Context())
-                {
-                    // TODO: pass in 'context' when no tracking queries are available
-                    resolver(resolverContext, updateException);
-                }
-
-                using (var validationContext = CreateF1Context())
-                {
-                    if (validator != null)
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
                     {
-                        await context.SaveChangesAsync();
+                        using (var transaction = context.Database.BeginTransaction())
+                        {
+                            clientChange(context);
 
-                        validator(validationContext);
-                    }
-                }
+                            using (var innerContext = CreateF1Context())
+                            {
+                                UseTransaction(innerContext.Database, transaction);
+                                storeChange(innerContext);
+                                await innerContext.SaveChangesAsync();
+
+                                var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+                                resolver(context, updateException);
+
+                                using (var validationContext = CreateF1Context())
+                                {
+                                    UseTransaction(validationContext.Database, transaction);
+                                    if (validator != null)
+                                    {
+                                        await context.SaveChangesAsync();
+
+                                        validator(validationContext);
+                                    }
+                                }
+                            }
+                        }
+                    }, c);
             }
+        }
+
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        {
         }
 
         #endregion

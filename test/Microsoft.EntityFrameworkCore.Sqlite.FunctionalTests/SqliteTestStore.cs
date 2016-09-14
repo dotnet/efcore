@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         private SqliteConnection _connection;
-        private SqliteTransaction _transaction;
         private readonly string _name;
         private bool _deleteDatabase;
         public const int CommandTimeout = 30;
@@ -52,17 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override string ConnectionString => Connection.ConnectionString;
 
-        private SqliteTestStore CreateShared(Action initializeDatabase, bool useTransaction, bool sharedCache)
+        private SqliteTestStore CreateShared(Action initializeDatabase, bool openConnection, bool sharedCache)
         {
             CreateShared(typeof(SqliteTestStore).Name + _name, initializeDatabase);
 
             CreateConnection(sharedCache);
 
-            if (useTransaction)
+            if (openConnection)
             {
                 OpenConnection();
-
-                _transaction = _connection.BeginTransaction();
             }
 
             return this;
@@ -73,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             CreateConnection(sharedCache);
             OpenConnection();
 
-            return AsTransient();
+            _deleteDatabase = true;
+            return this;
         }
 
         private void CreateConnection(bool sharedCache = false)
@@ -92,12 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             command.ExecuteNonQuery();
         }
 
-        public SqliteTestStore AsTransient()
-        {
-            _deleteDatabase = true;
-            return this;
-        }
-
         public int ExecuteNonQuery(string sql, params object[] parameters)
         {
             using (var command = CreateCommand(sql, parameters))
@@ -109,11 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private DbCommand CreateCommand(string commandText, object[] parameters)
         {
             var command = _connection.CreateCommand();
-
-            if (_transaction != null)
-            {
-                command.Transaction = _transaction;
-            }
 
             command.CommandText = commandText;
             command.CommandTimeout = CommandTimeout;
@@ -127,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         public override DbConnection Connection => _connection;
-        public override DbTransaction Transaction => _transaction;
+        public override DbTransaction Transaction => null;
 
         public override void Dispose()
         {

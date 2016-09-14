@@ -27,18 +27,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             using (var context = _fixture.CreateContext())
             {
-                using (var transaction = context.Database.BeginTransaction())
-                {
-                    context.Add(new Product
+                context.Database.CreateExecutionStrategy().Execute(contextScoped =>
                     {
-                        Name = "Blue Cloud",
-                        ProductNumber = "xxxxxxxxxxx",
-                        Weight = 0.01m,
-                        SellStartDate = DateTime.Now
-                    });
-                    Assert.Equal(1, context.SaveChanges());
-                    transaction.Rollback();
-                }
+                        using (contextScoped.Database.BeginTransaction())
+                        {
+                            contextScoped.Add(new Product
+                            {
+                                Name = "Blue Cloud",
+                                ProductNumber = "xxxxxxxxxxx",
+                                Weight = 0.01m,
+                                SellStartDate = DateTime.Now
+                            });
+                            Assert.Equal(1, contextScoped.SaveChanges());
+                        }
+                    }, context);
             }
         }
 
@@ -47,18 +49,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             using (var context = _fixture.CreateContext())
             {
-                using (var transaction = context.Database.BeginTransaction())
-                {
-                    var product = new Product { ProductID = 999 };
-                    context.Products.Attach(product);
-                    Assert.Equal(0, context.SaveChanges());
+                context.Database.CreateExecutionStrategy().Execute(contextScoped =>
+                    {
+                        using (contextScoped.Database.BeginTransaction())
+                        {
+                            var product = new Product { ProductID = 999 };
+                            contextScoped.Products.Attach(product);
+                            Assert.Equal(0, contextScoped.SaveChanges());
 
-                    product.Color = "Blue";
+                            product.Color = "Blue";
 
-                    Assert.Equal(1, context.SaveChanges());
-
-                    transaction.Rollback();
-                }
+                            Assert.Equal(1, contextScoped.SaveChanges());
+                        }
+                    }, context);
             }
         }
 

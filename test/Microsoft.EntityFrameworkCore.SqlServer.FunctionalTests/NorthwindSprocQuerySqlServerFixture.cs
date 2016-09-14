@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider())
-                .UseSqlServer(_testStore.ConnectionString).Options;
+                .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration()).Options;
 
         public override NorthwindContext CreateContext(
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -15,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             : base(fixture)
         {
         }
+
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
 
         public class FieldMappingSqlServerFixture : FieldMappingFixtureBase
         {
@@ -35,12 +40,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
                             .UseInternalServiceProvider(_serviceProvider);
 
                         using (var context = new FieldMappingContext(optionsBuilder.Options))
                         {
-                            context.Database.EnsureClean();
+                            context.Database.EnsureCreated();
                             Seed(context);
                         }
                     });
@@ -49,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public override DbContext CreateContext(SqlServerTestStore testStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.Connection)
+                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
                 var context = new FieldMappingContext(optionsBuilder.Options);

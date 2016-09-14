@@ -6,10 +6,12 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
+    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerFixture>
     {
         private const string FileLineEnding = @"

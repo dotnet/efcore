@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
@@ -11,6 +12,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
@@ -24,43 +28,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
-        public static SqlServerTestStore GetOrCreateShared(string name, bool useTransaction, Action initializeDatabase)
-            => new SqlServerTestStore(name).CreateShared(initializeDatabase, useTransaction);
-
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
-            => GetOrCreateShared(name, true, initializeDatabase);
+            => new SqlServerTestStore(name).CreateShared(initializeDatabase);
 
-        /// <summary>
-        ///     A non-transactional, transient, isolated test database. Use this in the case
-        ///     where transactions are not appropriate.
-        /// </summary>
-        public static Task<SqlServerTestStore> CreateScratchAsync(bool createDatabase = true, bool useFileName = false)
-            => new SqlServerTestStore(GetScratchDbName(), useFileName).CreateTransientAsync(createDatabase);
+        public static SqlServerTestStore Create(string name)
+            => new SqlServerTestStore(name).CreateTransient(true, false);
 
         public static SqlServerTestStore CreateScratch(bool createDatabase = true, bool useFileName = false)
-            => new SqlServerTestStore(GetScratchDbName(), useFileName).CreateTransient(createDatabase);
+            => new SqlServerTestStore(GetScratchDbName(), useFileName).CreateTransient(createDatabase, true);
 
         private SqlConnection _connection;
-        private SqlTransaction _transaction;
-        private readonly string _name;
         private readonly string _fileName;
         private string _connectionString;
         private bool _deleteDatabase;
 
+        public string Name { get; }
         public override string ConnectionString => _connectionString;
 
         // Use async static factory method
         private SqlServerTestStore(string name, bool useFileName = false)
         {
-            _name = name;
+            Name = name;
 
             if (useFileName)
             {
-                #if NET451
+#if NET451
 
                 var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-                #else
+#else
 
                 var baseDirectory = AppContext.BaseDirectory;
 
@@ -83,269 +79,168 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             return name;
         }
 
-        private SqlServerTestStore CreateShared(Action initializeDatabase, bool useTransaction)
+        private SqlServerTestStore CreateShared(Action initializeDatabase)
         {
-            CreateShared(typeof(SqlServerTestStore).Name + _name, initializeDatabase);
-
-            _connectionString = CreateConnectionString(_name, _fileName);
+            _connectionString = CreateConnectionString(Name, _fileName);
             _connection = new SqlConnection(_connectionString);
 
-            if (useTransaction)
-            {
-                _connection.Open();
-
-                _transaction = _connection.BeginTransaction();
-            }
+            CreateShared(typeof(SqlServerTestStore).Name + Name,
+                () =>
+                    {
+                        CreateDatabase();
+                        initializeDatabase?.Invoke();
+                    });
 
             return this;
         }
 
-        public static void CreateDatabase(string name, string scriptPath = null, bool nonMasterScript = false, bool recreateIfAlreadyExists = false)
+        private void CreateDatabase()
         {
-            using (var master = new SqlConnection(CreateConnectionString("master", multipleActiveResultSets: false)))
+            using (var master = new SqlConnection(CreateConnectionString("master", false)))
             {
-                master.Open();
-
-                using (var command = master.CreateCommand())
+                var exists = DatabaseExists(Name);
+                if (exists)
                 {
-                    command.CommandTimeout = CommandTimeout;
-
-                    var exists = DatabaseExists(name);
-                    if (exists && (recreateIfAlreadyExists || !TablesExist(name)))
-                    {
-                        // if scriptPath is non-null assume that the script will handle dropping DB
-                        if (scriptPath == null
-                            || nonMasterScript)
-                        {
-                            command.CommandText = GetDeleteDatabaseSql(name);
-
-                            command.ExecuteNonQuery();
-                        }
-                    }
-
-                    if (!exists || recreateIfAlreadyExists)
-                    {
-                        if (scriptPath == null
-                            || nonMasterScript)
-                        {
-                            command.CommandText = $@"CREATE DATABASE [{name}]";
-
-                            command.ExecuteNonQuery();
-
-                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
-                            {
-                                WaitForExists(newConnection);
-                            }
-                        }
-
-                        if (scriptPath != null)
-                        {
-                            // HACK: Probe for script file as current dir
-                            // is different between k build and VS run.
-                            if (File.Exists(@"..\..\" + scriptPath))
-                            {
-                                //executing in VS - so path is relative to bin\<config> dir
-                                scriptPath = @"..\..\" + scriptPath;
-                            }
-                            else
-                            {
-                                scriptPath = Path.Combine(BaseDirectory, scriptPath);
-                            }
-
-                            if (nonMasterScript)
-                            {
-                                using (var newConnection = new SqlConnection(CreateConnectionString(name)))
-                                {
-                                    newConnection.Open();
-                                    using (var nonMasterCommand = newConnection.CreateCommand())
-                                    {
-                                        ExecuteScript(scriptPath, nonMasterCommand);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                ExecuteScript(scriptPath, command);
-                            }
-                        }
-                    }
+                    Clean(Name);
+                }
+                else
+                {
+                    ExecuteNonQuery(master, GetCreateDatabaseStatement(Name, _fileName));
+                    WaitForExists(_connection);
                 }
             }
         }
 
-        private static void ExecuteScript(string scriptPath, SqlCommand scriptCommand)
+        public static void ExecuteScript(string databaseName, string scriptPath)
         {
+            // HACK: Probe for script file as current dir
+            // is different between k build and VS run.
+            if (File.Exists(@"..\..\" + scriptPath))
+            {
+                //executing in VS - so path is relative to bin\<config> dir
+                scriptPath = @"..\..\" + scriptPath;
+            }
+            else
+            {
+                scriptPath = Path.Combine(BaseDirectory, scriptPath);
+            }
+
             var script = File.ReadAllText(scriptPath);
-            foreach (var batch in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+            using (var connection = new SqlConnection(CreateConnectionString(databaseName)))
             {
-                scriptCommand.CommandText = batch;
-
-                scriptCommand.ExecuteNonQuery();
-            }
-        }
-
-        private static async Task WaitForExistsAsync(SqlConnection connection)
-        {
-            var retryCount = 0;
-            while (true)
-            {
-                try
-                {
-                    await connection.OpenAsync();
-
-                    connection.Close();
-
-                    return;
-                }
-                catch (SqlException e)
-                {
-                    if (++retryCount >= 30
-                        || (e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120))
+                Execute(connection, command =>
                     {
-                        throw;
-                    }
-
-                    SqlConnection.ClearPool(connection);
-
-                    Thread.Sleep(100);
-                }
+                        foreach (var batch in
+                            new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
+                                .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+                        {
+                            command.CommandText = batch;
+                            command.ExecuteNonQuery();
+                        }
+                        return 0;
+                    }, "");
             }
         }
 
         private static void WaitForExists(SqlConnection connection)
-        {
-            var retryCount = 0;
-            while (true)
-            {
-                try
-                {
-                    connection.Open();
-
-                    connection.Close();
-
-                    return;
-                }
-                catch (SqlException e)
-                {
-                    if (++retryCount >= 30
-                        || (e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120))
+            => GetExecutionStrategy().Execute(
+                connectionScoped =>
                     {
-                        throw;
-                    }
+                        var retryCount = 0;
+                        while (true)
+                        {
+                            try
+                            {
+                                if (connectionScoped.State != ConnectionState.Closed)
+                                {
+                                    connectionScoped.Close();
+                                }
 
-                    SqlConnection.ClearPool(connection);
+                                SqlConnection.ClearPool(connectionScoped);
 
-                    Thread.Sleep(100);
-                }
-            }
-        }
+                                connectionScoped.Open();
+                                connectionScoped.Close();
+                                return;
+                            }
+                            catch (SqlException e)
+                            {
+                                if (++retryCount >= 30
+                                    || (e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120))
+                                {
+                                    throw;
+                                }
 
-        private async Task<SqlServerTestStore> CreateTransientAsync(bool createDatabase)
+                                Thread.Sleep(100);
+                            }
+                        }
+                    }, connection);
+
+        private SqlServerTestStore CreateTransient(bool createDatabase, bool deleteDatabase)
         {
-            _connectionString = CreateConnectionString(_name, _fileName);
+            _connectionString = CreateConnectionString(Name, _fileName);
             _connection = new SqlConnection(_connectionString);
 
             if (createDatabase)
             {
-                using (var master = new SqlConnection(CreateConnectionString("master")))
-                {
-                    await master.OpenAsync();
-                    using (var command = master.CreateCommand())
-                    {
-                        command.CommandTimeout = CommandTimeout;
-                        command.CommandText = $"{Environment.NewLine}CREATE DATABASE [{_name}]";
+                CreateDatabase();
 
-                        if (!string.IsNullOrEmpty(_fileName))
-                        {
-                            var logFileName = Path.ChangeExtension(_fileName, ".ldf");
-
-                            command.CommandText += $" ON (NAME = '{_name}', FILENAME = '{_fileName}')";
-                            command.CommandText += $" LOG ON (NAME = '{_name}_log', FILENAME = '{logFileName}')";
-                        }
-
-                        await command.ExecuteNonQueryAsync();
-
-                        await WaitForExistsAsync(_connection);
-                    }
-                }
-                await _connection.OpenAsync();
+                OpenConnection();
+            }
+            else if (DatabaseExists(Name))
+            {
+                DeleteDatabase(Name);
             }
 
-            _deleteDatabase = true;
+            _deleteDatabase = deleteDatabase;
             return this;
         }
 
-        private SqlServerTestStore CreateTransient(bool createDatabase)
+        private static void Clean(string name)
         {
-            _connectionString = CreateConnectionString(_name, _fileName);
-            _connection = new SqlConnection(_connectionString);
+            var options = new DbContextOptionsBuilder()
+                .UseSqlServer(CreateConnectionString(name), b => b.ApplyConfiguration())
+                .UseInternalServiceProvider(
+                    new ServiceCollection()
+                        .AddEntityFrameworkSqlServer()
+                        .BuildServiceProvider())
+                .Options;
 
-            if (createDatabase)
+            using (var context = new DbContext(options))
             {
-                using (var master = new SqlConnection(CreateConnectionString("master")))
-                {
-                    master.Open();
-                    using (var command = master.CreateCommand())
-                    {
-                        command.CommandTimeout = CommandTimeout;
-                        command.CommandText = $"{Environment.NewLine}CREATE DATABASE [{_name}]";
-
-                        if (!string.IsNullOrEmpty(_fileName))
-                        {
-                            var logFileName = Path.ChangeExtension(_fileName, ".ldf");
-
-                            command.CommandText += $" ON (NAME = '{_name}', FILENAME = '{_fileName}')";
-                            command.CommandText += $" LOG ON (NAME = '{_name}_log', FILENAME = '{logFileName}')";
-                        }
-
-                        command.ExecuteNonQuery();
-
-                        WaitForExists(_connection);
-                    }
-                }
-                _connection.Open();
+                context.Database.EnsureClean();
             }
+        }
 
-            _deleteDatabase = true;
-            return this;
+        private static string GetCreateDatabaseStatement(string name, string fileName)
+        {
+            var result = $"CREATE DATABASE [{name}]";
+
+            if (TestEnvironment.IsSqlAzure)
+            {
+                var elasticGroupName = TestEnvironment.ElasticPoolName;
+                result += Environment.NewLine +
+                          (string.IsNullOrEmpty(elasticGroupName)
+                              ? " ( Edition = 'basic' )"
+                              : $" ( SERVICE_OBJECTIVE = ELASTIC_POOL ( name = {elasticGroupName} ) )");
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    var logFileName = Path.ChangeExtension(fileName, ".ldf");
+                    result += Environment.NewLine +
+                              $" ON (NAME = '{name}', FILENAME = '{fileName}')" +
+                              $" LOG ON (NAME = '{name}_log', FILENAME = '{logFileName}')";
+                }
+            }
+            return result;
         }
 
         private static bool DatabaseExists(string name)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
-                master.Open();
-
-                using (var command = master.CreateCommand())
-                {
-                    command.CommandTimeout = CommandTimeout;
-                    command.CommandText = $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{name}'";
-
-                    return (int)command.ExecuteScalar() > 0;
-                }
-            }
-        }
-
-        private static bool TablesExist(string name)
-        {
-            using (var connection = new SqlConnection(CreateConnectionString(name)))
-            {
-                connection.Open();
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandTimeout = CommandTimeout;
-                    command.CommandText = @"SELECT COUNT(*) FROM information_schema.tables";
-
-                    var result = (int)command.ExecuteScalar() > 0;
-
-                    connection.Close();
-
-                    SqlConnection.ClearAllPools();
-
-                    return result;
-                }
+                return ExecuteScalar<int>(master, $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{name}'") > 0;
             }
         }
 
@@ -361,88 +256,175 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
-                master.Open();
+                ExecuteNonQuery(master, GetDeleteDatabaseSql(name));
 
-                using (var command = master.CreateCommand())
-                {
-                    command.CommandTimeout = CommandTimeout; // Query will take a few seconds if (and only if) there are active connections
-
-                    // SET SINGLE_USER will close any open connections that would prevent the drop
-                    command.CommandText = GetDeleteDatabaseSql(name);
-
-                    command.ExecuteNonQuery();
-                }
+                SqlConnection.ClearAllPools();
             }
         }
 
         private static string GetDeleteDatabaseSql(string name)
+            // SET SINGLE_USER will close any open connections that would prevent the drop
             => string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
                                           BEGIN
                                               ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
                                               DROP DATABASE [{0}];
                                           END", name);
 
+        public static IExecutionStrategy GetExecutionStrategy()
+            => TestEnvironment.IsSqlAzure ? new TestSqlAzureExecutionStrategy() : (IExecutionStrategy)NoopExecutionStrategy.Instance;
+
         public override DbConnection Connection => _connection;
 
-        public override DbTransaction Transaction => _transaction;
+        public override DbTransaction Transaction => null;
 
-        public async Task<T> ExecuteScalarAsync<T>(string sql, CancellationToken cancellationToken, params object[] parameters)
+        public override void OpenConnection()
         {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                return (T)await command.ExecuteScalarAsync(cancellationToken);
-            }
+            GetExecutionStrategy().Execute(connection => connection.Open(), _connection);
         }
+
+        public Task OpenConnectionAsync()
+        {
+            return GetExecutionStrategy().ExecuteAsync(connection => connection.OpenAsync(), _connection);
+        }
+
+        public T ExecuteScalar<T>(string sql, params object[] parameters)
+            => ExecuteScalar<T>(_connection, sql, parameters);
+
+        private static T ExecuteScalar<T>(SqlConnection connection, string sql, params object[] parameters)
+            => Execute(connection, command => (T)command.ExecuteScalar(), sql, false, parameters);
+
+        public Task<T> ExecuteScalarAsync<T>(string sql, params object[] parameters)
+            => ExecuteScalarAsync<T>(_connection, sql, parameters);
+
+        private static Task<T> ExecuteScalarAsync<T>(SqlConnection connection, string sql, object[] parameters = null)
+            => ExecuteAsync(connection, async command => (T)await command.ExecuteScalarAsync(), sql, false, parameters);
 
         public int ExecuteNonQuery(string sql, params object[] parameters)
-        {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                return command.ExecuteNonQuery();
-            }
-        }
+            => ExecuteNonQuery(_connection, sql, parameters);
+
+        private static int ExecuteNonQuery(SqlConnection connection, string sql, object[] parameters = null)
+            => Execute(connection, command => command.ExecuteNonQuery(), sql, false, parameters);
 
         public Task<int> ExecuteNonQueryAsync(string sql, params object[] parameters)
-        {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                return command.ExecuteNonQueryAsync();
-            }
-        }
+            => ExecuteNonQueryAsync(_connection, sql, parameters);
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
-        {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                using (var dataReader = await command.ExecuteReaderAsync())
+        private static Task<int> ExecuteNonQueryAsync(SqlConnection connection, string sql, object[] parameters = null)
+            => ExecuteAsync(connection, command => command.ExecuteNonQueryAsync(), sql, false, parameters);
+
+        public IEnumerable<T> Query<T>(string sql, params object[] parameters)
+            => Query<T>(_connection, sql, parameters);
+
+        private static IEnumerable<T> Query<T>(SqlConnection connection, string sql, object[] parameters = null)
+            => Execute(connection, command =>
                 {
-                    var results = Enumerable.Empty<T>();
-
-                    while (await dataReader.ReadAsync())
+                    using (var dataReader = command.ExecuteReader())
                     {
-                        results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                        var results = Enumerable.Empty<T>();
+                        while (dataReader.Read())
+                        {
+                            results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
+                        }
+                        return results;
                     }
+                }, sql, false, parameters);
 
-                    return results;
-                }
-            }
-        }
+        public Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
+            => QueryAsync<T>(_connection, sql, parameters);
 
-        private DbCommand CreateCommand(string commandText, object[] parameters)
+        private static Task<IEnumerable<T>> QueryAsync<T>(SqlConnection connection, string sql, object[] parameters = null)
+            => ExecuteAsync(connection, async command =>
+                {
+                    using (var dataReader = await command.ExecuteReaderAsync())
+                    {
+                        var results = Enumerable.Empty<T>();
+                        while (await dataReader.ReadAsync())
+                        {
+                            results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                        }
+                        return results;
+                    }
+                }, sql, false, parameters);
+
+        private static T Execute<T>(
+            SqlConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction = false, object[] parameters = null)
+            => GetExecutionStrategy().Execute(state =>
+                {
+                    if (state.connection.State != ConnectionState.Closed)
+                    {
+                        state.connection.Close();
+                    }
+                    state.connection.Open();
+                    try
+                    {
+                        using (var transaction = useTransaction ? state.connection.BeginTransaction() : null)
+                        {
+                            T result;
+                            using (var command = CreateCommand(state.connection, sql, parameters))
+                            {
+                                command.Transaction = transaction;
+                                result = execute(command);
+                            }
+                            transaction?.Commit();
+
+                            return result;
+                        }
+                    }
+                    finally
+                    {
+                        if (state.State == ConnectionState.Closed
+                            && state.connection.State != ConnectionState.Closed)
+                        {
+                            state.connection.Close();
+                        }
+                    }
+                }, new { connection, connection.State });
+
+        private static Task<T> ExecuteAsync<T>(
+            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, object[] parameters = null)
+            => GetExecutionStrategy().ExecuteAsync(async state =>
+                {
+                    if (state.connection.State != ConnectionState.Closed)
+                    {
+                        state.connection.Close();
+                    }
+                    await state.connection.OpenAsync();
+                    try
+                    {
+                        using (var transaction = useTransaction ? state.connection.BeginTransaction() : null)
+                        {
+                            T result;
+                            using (var command = CreateCommand(state.connection, sql, parameters))
+                            {
+                                result = await executeAsync(command);
+                            }
+                            transaction?.Commit();
+
+                            return result;
+                        }
+                    }
+                    finally
+                    {
+                        if (state.State == ConnectionState.Closed
+                            && state.connection.State != ConnectionState.Closed)
+                        {
+                            state.connection.Close();
+                        }
+                    }
+                }, new { connection, connection.State });
+
+        private static DbCommand CreateCommand(SqlConnection connection, string commandText, object[] parameters = null)
         {
-            var command = _connection.CreateCommand();
-
-            if (_transaction != null)
-            {
-                command.Transaction = _transaction;
-            }
+            var command = connection.CreateCommand();
 
             command.CommandText = commandText;
             command.CommandTimeout = CommandTimeout;
 
-            for (var i = 0; i < parameters.Length; i++)
+            if (parameters != null)
             {
-                command.Parameters.AddWithValue("p" + i, parameters[i]);
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    command.Parameters.AddWithValue("p" + i, parameters[i]);
+                }
             }
 
             return command;
@@ -450,13 +432,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public override void Dispose()
         {
-            _transaction?.Dispose();
-
             _connection.Dispose();
 
             if (_deleteDatabase)
             {
-                DeleteDatabase(_name);
+                DeleteDatabase(Name);
             }
         }
 

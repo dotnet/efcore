@@ -16,14 +16,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Property_entry_original_value_is_set()
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var engine = context.Engines.First();
-                var trackedEntry = context.ChangeTracker.Entries<Engine>().First();
-                trackedEntry.Property(e => e.Name).OriginalValue = "ChangedEngine";
+                c.Database.CreateExecutionStrategy().Execute(context =>
+                    {
+                        using (context.Database.BeginTransaction())
+                        {
+                            var engine = context.Engines.First();
+                            var trackedEntry = context.ChangeTracker.Entries<Engine>().First();
+                            trackedEntry.Property(e => e.Name).OriginalValue = "ChangedEngine";
 
-                Assert.Equal(RelationalStrings.UpdateConcurrencyException("1", "0"),
-                    Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges()).Message);
+                            Assert.Equal(RelationalStrings.UpdateConcurrencyException("1", "0"),
+                                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges()).Message);
+                        }
+                    }, c);
             }
         }
 

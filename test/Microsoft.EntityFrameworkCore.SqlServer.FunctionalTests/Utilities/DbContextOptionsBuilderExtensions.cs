@@ -10,17 +10,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         public static SqlServerDbContextOptionsBuilder ApplyConfiguration(this SqlServerDbContextOptionsBuilder optionsBuilder)
         {
             var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
-
             if (maxBatch.HasValue)
             {
                 optionsBuilder.MaxBatchSize(maxBatch.Value);
             }
 
             var offsetSupport = TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-
             if (!offsetSupport)
             {
                 optionsBuilder.UseRowNumberForPaging();
+            }
+
+            if (TestEnvironment.IsSqlAzure)
+            {
+                optionsBuilder.ExecutionStrategy(c => new TestSqlAzureExecutionStrategy(c));
             }
 
             return optionsBuilder;

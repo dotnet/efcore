@@ -23,17 +23,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            _testStore = SqlServerTestStore.CreateScratch();
+            _testStore = SqlServerTestStore.Create("InheritanceSqlServerTest");
 
             _options = new DbContextOptionsBuilder()
                 .EnableSensitiveDataLogging()
-                .UseSqlServer(_testStore.Connection)
+                .UseSqlServer(_testStore.Connection, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = CreateContext())
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
                 SeedData(context);
             }
         }

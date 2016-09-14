@@ -188,42 +188,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                    .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                     .BuildServiceProvider();
             }
 
             public override InMemoryTestStore CreateTestStore()
             {
-                var store = new InMemoryGraphUpdatesTestStore(_serviceProvider);
-
-                using (var context = CreateContext(store))
-                {
-                    Seed(context);
-                }
-
-                return store;
+                return InMemoryTestStore.CreateScratch(() =>
+                    {
+                        using (var context = CreateContext(null))
+                        {
+                            Seed(context);
+                        }
+                    },
+                    _serviceProvider);
             }
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new GraphUpdatesContext(new DbContextOptionsBuilder()
                     .UseInMemoryDatabase()
                     .UseInternalServiceProvider(_serviceProvider).Options);
-
-            public class InMemoryGraphUpdatesTestStore : InMemoryTestStore
-            {
-                private readonly IServiceProvider _serviceProvider;
-
-                public InMemoryGraphUpdatesTestStore(IServiceProvider serviceProvider)
-                {
-                    _serviceProvider = serviceProvider;
-                }
-
-                public override void Dispose()
-                {
-                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
-
-                    base.Dispose();
-                }
-            }
         }
     }
 }

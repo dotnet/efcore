@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static TConcrete AsConcreteMetadataType<TInterface, TConcrete>([NotNull] this TInterface @interface, [NotNull] string methodName)
+        public static TConcrete AsConcreteMetadataType<TInterface, TConcrete>([NotNull] TInterface @interface, [NotNull] string methodName)
             where TConcrete : class
         {
             var concrete = @interface as TConcrete;

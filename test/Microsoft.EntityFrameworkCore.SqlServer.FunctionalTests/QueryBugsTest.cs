@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Left_outer_join_bug_6091()
         {
-            using (var testStore = SqlServerTestStore.CreateScratch())
+            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest", null))
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE [dbo].[Customers](
@@ -101,7 +101,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInternalServiceProvider(_serviceProvider).UseSqlServer(_connectionString);
+                => optionsBuilder.UseInternalServiceProvider(_serviceProvider).UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Customer>().ToTable("Customers");
@@ -127,18 +127,18 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         [Fact]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
-            using (var testStore = SqlServerTestStore.CreateScratch())
+            using (var testStore = SqlServerTestStore.Create("QueryBugsTest"))
             {
                 using (var context = new DeadlockContext(testStore.ConnectionString))
                 {
-                    context.Database.EnsureClean();
+                    context.Database.EnsureCreated();
                     context.EnsureSeeded();
 
                     var count
                         = await context.Persons
-                              .Where(p => (p.AddressOne != null && p.AddressOne.Street.Contains("Low Street"))
-                                          || (p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street")))
-                                            .CountAsync();
+                            .Where(p => (p.AddressOne != null && p.AddressOne.Street.Contains("Low Street"))
+                                        || (p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street")))
+                            .CountAsync();
 
                     Assert.Equal(0, count);
                 }
@@ -155,7 +155,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(_connectionString);
+                => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             public DbSet<Person> Persons { get; set; }
             public DbSet<Address> Addresses { get; set; }
@@ -227,7 +227,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         [Fact]
         public void Query_when_null_key_in_database_should_throw()
         {
-            using (var testStore = SqlServerTestStore.CreateScratch())
+            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest", null))
             {
                 testStore.ExecuteNonQuery(
                     @"CREATE TABLE ZeroKey (Id int);
@@ -252,7 +252,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(_connectionString);
+                => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<ZeroKey>().ToTable("ZeroKey");
@@ -268,38 +268,40 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         [Fact]
         public async Task First_FirstOrDefault_ix_async_bug_603()
         {
-            using (var context = new MyContext603(_fixture.ServiceProvider))
+            using (CreateDatabase603())
             {
-                context.Database.EnsureClean();
+                using (var context = new MyContext603(_options))
+                {
+                    context.Products.Add(new Product { Name = "Product 1" });
+                    context.SaveChanges();
+                }
 
-                context.Products.Add(new Product { Name = "Product 1" });
-                context.SaveChanges();
+                using (var ctx = new MyContext603(_options))
+                {
+                    var product = await ctx.Products.FirstAsync();
+
+                    ctx.Products.Remove(product);
+
+                    await ctx.SaveChangesAsync();
+                }
             }
 
-            using (var ctx = new MyContext603(_fixture.ServiceProvider))
+            using (CreateDatabase603())
             {
-                var product = await ctx.Products.FirstAsync();
+                using (var context = new MyContext603(_options))
+                {
+                    context.Products.Add(new Product { Name = "Product 1" });
+                    context.SaveChanges();
+                }
 
-                ctx.Products.Remove(product);
+                using (var ctx = new MyContext603(_options))
+                {
+                    var product = await ctx.Products.FirstOrDefaultAsync();
 
-                await ctx.SaveChangesAsync();
-            }
+                    ctx.Products.Remove(product);
 
-            using (var context = new MyContext603(_fixture.ServiceProvider))
-            {
-                context.Database.EnsureClean();
-
-                context.Products.Add(new Product { Name = "Product 1" });
-                context.SaveChanges();
-            }
-
-            using (var ctx = new MyContext603(_fixture.ServiceProvider))
-            {
-                var product = await ctx.Products.FirstOrDefaultAsync();
-
-                ctx.Products.Remove(product);
-
-                await ctx.SaveChangesAsync();
+                    await ctx.SaveChangesAsync();
+                }
             }
         }
 
@@ -312,46 +314,36 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         private class MyContext603 : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public MyContext603(IServiceProvider serviceProvider)
+            public MyContext603(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"))
-                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Product>().ToTable("Product");
         }
 
+        private SqlServerTestStore CreateDatabase603()
+            => CreateTestStore(() => new MyContext603(_options), null);
+
         [Fact]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
-            CreateDatabase925();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext925(serviceProvider))
+            using (CreateDatabase925())
             {
-                var query = ctx.Customers.Include(c => c.Orders).OrderBy(c => c.FirstName).ThenBy(c => c.LastName);
-                var result = query.ToList();
+                using (var ctx = new MyContext925(_options))
+                {
+                    var query = ctx.Customers.Include(c => c.Orders).OrderBy(c => c.FirstName).ThenBy(c => c.LastName);
+                    var result = query.ToList();
 
-                Assert.Equal(2, result.Count);
-                Assert.Equal(2, result[0].Orders.Count);
-                Assert.Equal(3, result[1].Orders.Count);
+                    Assert.Equal(2, result.Count);
+                    Assert.Equal(2, result[0].Orders.Count);
+                    Assert.Equal(3, result[1].Orders.Count);
 
-                var expectedSql =
-                    @"SELECT [c].[FirstName], [c].[LastName]
+                    var expectedSql =
+                        @"SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
 ORDER BY [c].[FirstName], [c].[LastName]
 
@@ -363,64 +355,55 @@ WHERE EXISTS (
     WHERE ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName]))
 ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
 
-                Assert.Equal(expectedSql, Sql);
+                    Assert.Equal(expectedSql, Sql);
+                }
             }
         }
 
         [Fact]
         public void Include_on_entity_with_composite_key_Many_To_One_bugs_925_926()
         {
-            CreateDatabase925();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext925(serviceProvider))
+            using (CreateDatabase925())
             {
-                var query = ctx.Orders.Include(o => o.Customer);
-                var result = query.ToList();
+                using (var ctx = new MyContext925(_options))
+                {
+                    var query = ctx.Orders.Include(o => o.Customer);
+                    var result = query.ToList();
 
-                Assert.Equal(5, result.Count);
-                Assert.NotNull(result[0].Customer);
-                Assert.NotNull(result[1].Customer);
-                Assert.NotNull(result[2].Customer);
-                Assert.NotNull(result[3].Customer);
-                Assert.NotNull(result[4].Customer);
+                    Assert.Equal(5, result.Count);
+                    Assert.NotNull(result[0].Customer);
+                    Assert.NotNull(result[1].Customer);
+                    Assert.NotNull(result[2].Customer);
+                    Assert.NotNull(result[3].Customer);
+                    Assert.NotNull(result[4].Customer);
 
-                var expectedSql =
-                    @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
+                    var expectedSql =
+                        @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
 LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
 
-                Assert.Equal(expectedSql, Sql);
+                    Assert.Equal(expectedSql, Sql);
+                }
             }
         }
 
-        private void CreateDatabase925()
-        {
-            CreateTestStore(
-                "Repro925",
-                _fixture.ServiceProvider,
-                (sp, co) => new MyContext925(sp),
+        private SqlServerTestStore CreateDatabase925()
+            => CreateTestStore(() => new MyContext925(_options),
                 context =>
-                {
-                    var order11 = new Order { Name = "Order11" };
-                    var order12 = new Order { Name = "Order12" };
-                    var order21 = new Order { Name = "Order21" };
-                    var order22 = new Order { Name = "Order22" };
-                    var order23 = new Order { Name = "Order23" };
+                    {
+                        var order11 = new Order { Name = "Order11" };
+                        var order12 = new Order { Name = "Order12" };
+                        var order21 = new Order { Name = "Order21" };
+                        var order22 = new Order { Name = "Order22" };
+                        var order23 = new Order { Name = "Order23" };
 
-                    var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 } };
-                    var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 } };
+                        var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 } };
+                        var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 } };
 
-                    context.Customers.AddRange(customer1, customer2);
-                    context.Orders.AddRange(order11, order12, order21, order22, order23);
-                    context.SaveChanges();
-                });
-        }
+                        context.Customers.AddRange(customer1, customer2);
+                        context.Orders.AddRange(order11, order12, order21, order22, order23);
+                        context.SaveChanges();
+                    });
 
         public class Customer
         {
@@ -438,30 +421,22 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
 
         public class MyContext925 : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public MyContext925(IServiceProvider serviceProvider)
+            public MyContext925(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer> Customers { get; set; }
             public DbSet<Order> Orders { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .EnableSensitiveDataLogging()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"))
-                    .UseInternalServiceProvider(_serviceProvider);
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Customer>(m =>
-                {
-                    m.ToTable("Customer");
-                    m.HasKey(c => new { c.FirstName, c.LastName });
-                    m.HasMany(c => c.Orders).WithOne(o => o.Customer);
-                });
+                    {
+                        m.ToTable("Customer");
+                        m.HasKey(c => new { c.FirstName, c.LastName });
+                        m.HasMany(c => c.Orders).WithOne(o => o.Customer);
+                    });
 
                 modelBuilder.Entity<Order>().ToTable("Order");
             }
@@ -470,88 +445,88 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
         [Fact]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
-            CreateDatabase963();
-
-            using (var ctx = new MyContext963(_fixture.ServiceProvider))
+            using (CreateDatabase963())
             {
-                ctx.Targaryens.Include(t => t.Dragons).ToList();
+                using (var ctx = new MyContext963(_options))
+                {
+                    ctx.Targaryens.Include(t => t.Dragons).ToList();
+                }
             }
         }
 
         [Fact]
         public void Include_on_optional_navigation_Many_To_One_963()
         {
-            CreateDatabase963();
-
-            using (var ctx = new MyContext963(_fixture.ServiceProvider))
+            using (CreateDatabase963())
             {
-                ctx.Dragons.Include(d => d.Mother).ToList();
+                using (var ctx = new MyContext963(_options))
+                {
+                    ctx.Dragons.Include(d => d.Mother).ToList();
+                }
             }
         }
 
         [Fact]
         public void Include_on_optional_navigation_One_To_One_principal_963()
         {
-            CreateDatabase963();
-
-            using (var ctx = new MyContext963(_fixture.ServiceProvider))
+            using (CreateDatabase963())
             {
-                ctx.Targaryens.Include(t => t.Details).ToList();
+                using (var ctx = new MyContext963(_options))
+                {
+                    ctx.Targaryens.Include(t => t.Details).ToList();
+                }
             }
         }
 
         [Fact]
         public void Include_on_optional_navigation_One_To_One_dependent_963()
         {
-            CreateDatabase963();
-
-            using (var ctx = new MyContext963(_fixture.ServiceProvider))
+            using (CreateDatabase963())
             {
-                ctx.Details.Include(d => d.Targaryen).ToList();
+                using (var ctx = new MyContext963(_options))
+                {
+                    ctx.Details.Include(d => d.Targaryen).ToList();
+                }
             }
         }
 
         [Fact]
         public void Join_on_optional_navigation_One_To_Many_963()
         {
-            CreateDatabase963();
-
-            using (var ctx = new MyContext963(_fixture.ServiceProvider))
+            using (CreateDatabase963())
             {
-                (from t in ctx.Targaryens
-                 join d in ctx.Dragons on t.Id equals d.MotherId
-                 select d).ToList();
+                using (var ctx = new MyContext963(_options))
+                {
+                    (from t in ctx.Targaryens
+                     join d in ctx.Dragons on t.Id equals d.MotherId
+                     select d).ToList();
+                }
             }
         }
 
-        private void CreateDatabase963()
-        {
-            CreateTestStore(
-                "Repro963",
-                _fixture.ServiceProvider,
-                (sp, co) => new MyContext963(sp),
+        private SqlServerTestStore CreateDatabase963()
+            => CreateTestStore(() => new MyContext963(_options),
                 context =>
-                {
-                    var drogon = new Dragon { Name = "Drogon" };
-                    var rhaegal = new Dragon { Name = "Rhaegal" };
-                    var viserion = new Dragon { Name = "Viserion" };
-                    var balerion = new Dragon { Name = "Balerion" };
-
-                    var aerys = new Targaryen { Name = "Aerys II" };
-                    var details = new Details
                     {
-                        FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen, 
+                        var drogon = new Dragon { Name = "Drogon" };
+                        var rhaegal = new Dragon { Name = "Rhaegal" };
+                        var viserion = new Dragon { Name = "Viserion" };
+                        var balerion = new Dragon { Name = "Balerion" };
+
+                        var aerys = new Targaryen { Name = "Aerys II" };
+                        var details = new Details
+                        {
+                            FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen, 
 Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Grass Sea, Breaker of Chains, and Mother of Dragons"
-                    };
+                        };
 
-                    var daenerys = new Targaryen { Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion } };
-                    context.Targaryens.AddRange(daenerys, aerys);
-                    context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
-                    context.Details.Add(details);
+                        var daenerys = new Targaryen { Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion } };
+                        context.Targaryens.AddRange(daenerys, aerys);
+                        context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
+                        context.Details.Add(details);
 
-                    context.SaveChanges();
-                });
-        }
+                        context.SaveChanges();
+                    });
 
         public class Targaryen
         {
@@ -581,11 +556,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
         // TODO: replace with GearsOfWar context when it's refactored properly
         public class MyContext963 : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public MyContext963(IServiceProvider serviceProvider)
+            public MyContext963(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Targaryen> Targaryens { get; set; }
@@ -593,20 +566,15 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             public DbSet<Details> Details { get; set; }
             public DbSet<Dragon> Dragons { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"))
-                    .UseInternalServiceProvider(_serviceProvider);
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Targaryen>(m =>
-                {
-                    m.ToTable("Targaryen");
-                    m.HasKey(t => t.Id);
-                    m.HasMany(t => t.Dragons).WithOne(d => d.Mother).HasForeignKey(d => d.MotherId);
-                    m.HasOne(t => t.Details).WithOne(d => d.Targaryen).HasForeignKey<Details>(d => d.TargaryenId);
-                });
+                    {
+                        m.ToTable("Targaryen");
+                        m.HasKey(t => t.Id);
+                        m.HasMany(t => t.Dragons).WithOne(d => d.Mother).HasForeignKey(d => d.MotherId);
+                        m.HasOne(t => t.Details).WithOne(d => d.Targaryen).HasForeignKey<Details>(d => d.TargaryenId);
+                    });
 
                 modelBuilder.Entity<Dragon>().ToTable("Dragon");
             }
@@ -618,29 +586,24 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         public void Execute1742(CustomerDetails_1742 details)
         {
-            CreateDatabase925();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext925(serviceProvider))
+            using (CreateDatabase925())
             {
-                var firstName = details.FirstName;
+                using (var ctx = new MyContext925(_options))
+                {
+                    var firstName = details.FirstName;
 
-                ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
+                    ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
-                const string expectedSql
-                    = @"@__firstName_0: Foo (Size = 450)
+                    const string expectedSql
+                        = @"@__firstName_0: Foo (Size = 450)
 @__8__locals1_details_LastName_1: Bar (Size = 450)
 
 SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
 WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_details_LastName_1)";
 
-                Assert.Equal(expectedSql, Sql);
+                    Assert.Equal(expectedSql, Sql);
+                }
             }
         }
 
@@ -653,77 +616,65 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         [Fact]
         public void Customer_collections_materialize_properly_3758()
         {
-            CreateDatabase3758();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3758(serviceProvider))
+            using (CreateDatabase3758())
             {
-                var query1 = ctx.Customers.Select(c => c.Orders1);
-                var result1 = query1.ToList();
+                using (var ctx = new MyContext3758(_options))
+                {
+                    var query1 = ctx.Customers.Select(c => c.Orders1);
+                    var result1 = query1.ToList();
 
-                Assert.Equal(2, result1.Count);
-                Assert.IsType<HashSet<Order3758>>(result1[0]);
-                Assert.Equal(2, result1[0].Count);
-                Assert.Equal(2, result1[1].Count);
+                    Assert.Equal(2, result1.Count);
+                    Assert.IsType<HashSet<Order3758>>(result1[0]);
+                    Assert.Equal(2, result1[0].Count);
+                    Assert.Equal(2, result1[1].Count);
 
-                var query2 = ctx.Customers.Select(c => c.Orders2);
-                var result2 = query2.ToList();
+                    var query2 = ctx.Customers.Select(c => c.Orders2);
+                    var result2 = query2.ToList();
 
-                Assert.Equal(2, result2.Count);
-                Assert.IsType<MyGenericCollection3758<Order3758>>(result2[0]);
-                Assert.Equal(2, result2[0].Count);
-                Assert.Equal(2, result2[1].Count);
+                    Assert.Equal(2, result2.Count);
+                    Assert.IsType<MyGenericCollection3758<Order3758>>(result2[0]);
+                    Assert.Equal(2, result2[0].Count);
+                    Assert.Equal(2, result2[1].Count);
 
-                var query3 = ctx.Customers.Select(c => c.Orders3);
-                var result3 = query3.ToList();
+                    var query3 = ctx.Customers.Select(c => c.Orders3);
+                    var result3 = query3.ToList();
 
-                Assert.Equal(2, result3.Count);
-                Assert.IsType<MyNonGenericCollection3758>(result3[0]);
-                Assert.Equal(2, result3[0].Count);
-                Assert.Equal(2, result3[1].Count);
+                    Assert.Equal(2, result3.Count);
+                    Assert.IsType<MyNonGenericCollection3758>(result3[0]);
+                    Assert.Equal(2, result3[0].Count);
+                    Assert.Equal(2, result3[1].Count);
 
-                var query4 = ctx.Customers.Select(c => c.Orders4);
+                    var query4 = ctx.Customers.Select(c => c.Orders4);
 
-                Assert.Equal(
-                    CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).Name,
-                        typeof(MyInvalidCollection3758<Order3758>).ShortDisplayName()),
-                    Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
+                    Assert.Equal(
+                        CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).Name,
+                            typeof(MyInvalidCollection3758<Order3758>).ShortDisplayName()),
+                        Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
+                }
             }
         }
 
         public class MyContext3758 : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public MyContext3758(IServiceProvider serviceProvider)
+            public MyContext3758(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer3758> Customers { get; set; }
             public DbSet<Order3758> Orders { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3758"))
-                    .UseInternalServiceProvider(_serviceProvider);
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Customer3758>(b =>
-                {
-                    b.ToTable("Customer3758");
+                    {
+                        b.ToTable("Customer3758");
 
-                    b.HasMany(e => e.Orders1).WithOne();
-                    b.HasMany(e => e.Orders2).WithOne();
-                    b.HasMany(e => e.Orders3).WithOne();
-                    b.HasMany(e => e.Orders4).WithOne();
-                });
+                        b.HasMany(e => e.Orders1).WithOne();
+                        b.HasMany(e => e.Orders2).WithOne();
+                        b.HasMany(e => e.Orders3).WithOne();
+                        b.HasMany(e => e.Orders4).WithOne();
+                    });
 
                 modelBuilder.Entity<Order3758>().ToTable("Order3758");
             }
@@ -761,96 +712,86 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        private void CreateDatabase3758()
-        {
-            CreateTestStore(
-                "Repro3758",
-                _fixture.ServiceProvider,
-                (sp, co) => new MyContext3758(sp),
+        private SqlServerTestStore CreateDatabase3758()
+            => CreateTestStore(() => new MyContext3758(_options),
                 context =>
-                {
-                    var o111 = new Order3758 { Name = "O111" };
-                    var o112 = new Order3758 { Name = "O112" };
-                    var o121 = new Order3758 { Name = "O121" };
-                    var o122 = new Order3758 { Name = "O122" };
-                    var o131 = new Order3758 { Name = "O131" };
-                    var o132 = new Order3758 { Name = "O132" };
-                    var o141 = new Order3758 { Name = "O141" };
-
-                    var o211 = new Order3758 { Name = "O211" };
-                    var o212 = new Order3758 { Name = "O212" };
-                    var o221 = new Order3758 { Name = "O221" };
-                    var o222 = new Order3758 { Name = "O222" };
-                    var o231 = new Order3758 { Name = "O231" };
-                    var o232 = new Order3758 { Name = "O232" };
-                    var o241 = new Order3758 { Name = "O241" };
-
-                    var c1 = new Customer3758
                     {
-                        Name = "C1",
-                        Orders1 = new List<Order3758> { o111, o112 },
-                        Orders2 = new MyGenericCollection3758<Order3758>(),
-                        Orders3 = new MyNonGenericCollection3758(),
-                        Orders4 = new MyInvalidCollection3758<Order3758>(42)
-                    };
+                        var o111 = new Order3758 { Name = "O111" };
+                        var o112 = new Order3758 { Name = "O112" };
+                        var o121 = new Order3758 { Name = "O121" };
+                        var o122 = new Order3758 { Name = "O122" };
+                        var o131 = new Order3758 { Name = "O131" };
+                        var o132 = new Order3758 { Name = "O132" };
+                        var o141 = new Order3758 { Name = "O141" };
 
-                    c1.Orders2.AddRange(new[] { o121, o122 });
-                    c1.Orders3.AddRange(new[] { o131, o132 });
-                    c1.Orders4.Add(o141);
+                        var o211 = new Order3758 { Name = "O211" };
+                        var o212 = new Order3758 { Name = "O212" };
+                        var o221 = new Order3758 { Name = "O221" };
+                        var o222 = new Order3758 { Name = "O222" };
+                        var o231 = new Order3758 { Name = "O231" };
+                        var o232 = new Order3758 { Name = "O232" };
+                        var o241 = new Order3758 { Name = "O241" };
 
-                    var c2 = new Customer3758
-                    {
-                        Name = "C2",
-                        Orders1 = new List<Order3758> { o211, o212 },
-                        Orders2 = new MyGenericCollection3758<Order3758>(),
-                        Orders3 = new MyNonGenericCollection3758(),
-                        Orders4 = new MyInvalidCollection3758<Order3758>(42)
-                    };
+                        var c1 = new Customer3758
+                        {
+                            Name = "C1",
+                            Orders1 = new List<Order3758> { o111, o112 },
+                            Orders2 = new MyGenericCollection3758<Order3758>(),
+                            Orders3 = new MyNonGenericCollection3758(),
+                            Orders4 = new MyInvalidCollection3758<Order3758>(42)
+                        };
 
-                    c2.Orders2.AddRange(new[] { o221, o222 });
-                    c2.Orders3.AddRange(new[] { o231, o232 });
-                    c2.Orders4.Add(o241);
+                        c1.Orders2.AddRange(new[] { o121, o122 });
+                        c1.Orders3.AddRange(new[] { o131, o132 });
+                        c1.Orders4.Add(o141);
 
-                    context.Customers.AddRange(c1, c2);
-                    context.Orders.AddRange(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
+                        var c2 = new Customer3758
+                        {
+                            Name = "C2",
+                            Orders1 = new List<Order3758> { o211, o212 },
+                            Orders2 = new MyGenericCollection3758<Order3758>(),
+                            Orders3 = new MyNonGenericCollection3758(),
+                            Orders4 = new MyInvalidCollection3758<Order3758>(42)
+                        };
 
-                    context.SaveChanges();
-                });
-        }
+                        c2.Orders2.AddRange(new[] { o221, o222 });
+                        c2.Orders3.AddRange(new[] { o231, o232 });
+                        c2.Orders4.Add(o241);
+
+                        context.Customers.AddRange(c1, c2);
+                        context.Orders.AddRange(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
+
+                        context.SaveChanges();
+                    });
 
         [Fact]
         public void ThenInclude_with_interface_navigations_3409()
         {
-            CreateDatabase3409();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var context = new MyContext3409(serviceProvider))
+            using (CreateDatabase3409())
             {
-                var results = context.Parents
-                    .Include(p => p.ChildCollection)
-                    .ThenInclude(c => c.SelfReferenceCollection)
-                    .ToList();
+                using (var context = new MyContext3409(_options))
+                {
+                    var results = context.Parents
+                        .Include(p => p.ChildCollection)
+                        .ThenInclude(c => c.SelfReferenceCollection)
+                        .ToList();
 
-                Assert.Equal(1, results.Count);
-                Assert.Equal(1, results[0].ChildCollection.Count);
-                Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
-            }
+                    Assert.Equal(1, results.Count);
+                    Assert.Equal(1, results[0].ChildCollection.Count);
+                    Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
+                }
 
-            using (var context = new MyContext3409(serviceProvider))
-            {
-                var results = context.Children
-                    .Include(c => c.SelfReferenceBackNavigation)
-                    .ThenInclude(c => c.ParentBackNavigation)
-                    .ToList();
+                using (var context = new MyContext3409(_options))
+                {
+                    var results = context.Children
+                        .Include(c => c.SelfReferenceBackNavigation)
+                        .ThenInclude(c => c.ParentBackNavigation)
+                        .ToList();
 
-                Assert.Equal(3, results.Count);
-                Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
-                Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+                    Assert.Equal(3, results.Count);
+                    Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                    Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+                }
             }
         }
 
@@ -859,17 +800,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public DbSet<Parent3409> Parents { get; set; }
             public DbSet<Child3409> Children { get; set; }
 
-            private readonly IServiceProvider _serviceProvider;
-
-            public MyContext3409(IServiceProvider serviceProvider)
+            public MyContext3409(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3409"))
-                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -921,254 +855,204 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public IChild3409 SelfReferenceBackNavigation { get; set; }
         }
 
-        private void CreateDatabase3409()
-        {
-            CreateTestStore(
-                "Repro3409",
-                _fixture.ServiceProvider,
-                (sp, co) => new MyContext3409(sp),
+        private SqlServerTestStore CreateDatabase3409()
+            => CreateTestStore(() => new MyContext3409(_options),
                 context =>
-                {
-                    var parent1 = new Parent3409();
+                    {
+                        var parent1 = new Parent3409();
 
-                    var child1 = new Child3409();
-                    var child2 = new Child3409();
-                    var child3 = new Child3409();
+                        var child1 = new Child3409();
+                        var child2 = new Child3409();
+                        var child3 = new Child3409();
 
-                    parent1.ChildCollection = new List<IChild3409> { child1 };
-                    child1.SelfReferenceCollection = new List<IChild3409> { child2, child3 };
+                        parent1.ChildCollection = new List<IChild3409> { child1 };
+                        child1.SelfReferenceCollection = new List<IChild3409> { child2, child3 };
 
-                    context.Parents.AddRange(parent1);
-                    context.Children.AddRange(child1, child2, child3);
+                        context.Parents.AddRange(parent1);
+                        context.Children.AddRange(child1, child2, child3);
 
-                    context.SaveChanges();
-                });
-        }
+                        context.SaveChanges();
+                    });
 
         [Fact]
         public virtual void Repro3101_simple_coalesce1()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities.Include(e => e.Children)
-                            join eRoot in ctx.Entities
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select eRootJoined ?? eVersion;
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                                join eRoot in ctx.Entities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select eRootJoined ?? eVersion;
 
-                var result = query.ToList();
-                Assert.True(result.All(e => e.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.True(result.All(e => e.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_simple_coalesce2()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities
-                            join eRoot in ctx.Entities.Include(e => e.Children)
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select eRootJoined ?? eVersion;
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities
+                                join eRoot in ctx.Entities.Include(e => e.Children)
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select eRootJoined ?? eVersion;
 
-                var result = query.ToList();
-                Assert.Equal(2, result.Count(e => e.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.Equal(2, result.Count(e => e.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_simple_coalesce3()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities.Include(e => e.Children)
-                            join eRoot in ctx.Entities.Include(e => e.Children)
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select eRootJoined ?? eVersion;
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                                join eRoot in ctx.Entities.Include(e => e.Children)
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select eRootJoined ?? eVersion;
 
-                var result = query.ToList();
-                Assert.True(result.All(e => e.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.True(result.All(e => e.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_complex_coalesce1()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities.Include(e => e.Children)
-                            join eRoot in ctx.Entities
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select new { One = 1, Coalesce = eRootJoined ?? eVersion };
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                                join eRoot in ctx.Entities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select new { One = 1, Coalesce = eRootJoined ?? eVersion };
 
-                var result = query.ToList();
-                Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_complex_coalesce2()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities
-                            join eRoot in ctx.Entities.Include(e => e.Children)
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities
+                                join eRoot in ctx.Entities.Include(e => e.Children)
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
 
-                var result = query.ToList();
-                Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_nested_coalesce1()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities
-                            join eRoot in ctx.Entities.Include(e => e.Children)
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities
+                                join eRoot in ctx.Entities.Include(e => e.Children)
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
-                var result = query.ToList();
-                Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_nested_coalesce2()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities.Include(e => e.Children)
-                            join eRoot in ctx.Entities
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                                join eRoot in ctx.Entities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
-                var result = query.ToList();
-                Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_conditional()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities.Include(e => e.Children)
-                            join eRoot in ctx.Entities
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select eRootJoined != null ? eRootJoined : eVersion;
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                                join eRoot in ctx.Entities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select eRootJoined != null ? eRootJoined : eVersion;
 
-                var result = query.ToList();
-                Assert.True(result.All(e => e.Children.Count > 0));
+                    var result = query.ToList();
+                    Assert.True(result.All(e => e.Children.Count > 0));
+                }
             }
         }
 
         [Fact]
         public virtual void Repro3101_coalesce_tracking()
         {
-            CreateDatabase3101();
-
-            var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(loggingFactory)
-                .BuildServiceProvider();
-
-            using (var ctx = new MyContext3101(serviceProvider))
+            using (CreateDatabase3101())
             {
-                var query = from eVersion in ctx.Entities
-                            join eRoot in ctx.Entities
-                            on eVersion.RootEntityId equals (int?)eRoot.Id
-                            into RootEntities
-                            from eRootJoined in RootEntities.DefaultIfEmpty()
-                            select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
+                using (var ctx = new MyContext3101(_options))
+                {
+                    var query = from eVersion in ctx.Entities
+                                join eRoot in ctx.Entities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
+                                from eRootJoined in RootEntities.DefaultIfEmpty()
+                                select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
 
-                var result = query.ToList();
+                    var result = query.ToList();
 
-                var foo = ctx.ChangeTracker.Entries().ToList();
-                Assert.True(ctx.ChangeTracker.Entries().Count() > 0);
+                    var foo = ctx.ChangeTracker.Entries().ToList();
+                    Assert.True(ctx.ChangeTracker.Entries().Count() > 0);
+                }
             }
         }
 
@@ -1179,50 +1063,40 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 
-        private void CreateDatabase3101()
-        {
-            CreateTestStore(
-                "Repro3101",
-                _fixture.ServiceProvider,
-                (sp, co) => new MyContext3101(sp),
+        private SqlServerTestStore CreateDatabase3101()
+            => CreateTestStore(() => new MyContext3101(_options),
                 context =>
-                {
-                    var c11 = new Child3101 { Name = "c11" };
-                    var c12 = new Child3101 { Name = "c12" };
-                    var c13 = new Child3101 { Name = "c13" };
-                    var c21 = new Child3101 { Name = "c21" };
-                    var c22 = new Child3101 { Name = "c22" };
-                    var c31 = new Child3101 { Name = "c31" };
-                    var c32 = new Child3101 { Name = "c32" };
+                    {
+                        var c11 = new Child3101 { Name = "c11" };
+                        var c12 = new Child3101 { Name = "c12" };
+                        var c13 = new Child3101 { Name = "c13" };
+                        var c21 = new Child3101 { Name = "c21" };
+                        var c22 = new Child3101 { Name = "c22" };
+                        var c31 = new Child3101 { Name = "c31" };
+                        var c32 = new Child3101 { Name = "c32" };
 
-                    context.Children.AddRange(c11, c12, c13, c21, c22, c31, c32);
+                        context.Children.AddRange(c11, c12, c13, c21, c22, c31, c32);
 
-                    var e1 = new Entity3101 { Id = 1, Children = new[] { c11, c12, c13 } };
-                    var e2 = new Entity3101 { Id = 2, Children = new[] { c21, c22 } };
-                    var e3 = new Entity3101 { Id = 3, Children = new[] { c31, c32 } };
+                        var e1 = new Entity3101 { Id = 1, Children = new[] { c11, c12, c13 } };
+                        var e2 = new Entity3101 { Id = 2, Children = new[] { c21, c22 } };
+                        var e3 = new Entity3101 { Id = 3, Children = new[] { c31, c32 } };
 
-                    e2.RootEntity = e1;
+                        e2.RootEntity = e1;
 
-                    context.Entities.AddRange(e1, e2, e3);
-                    context.SaveChanges();
-                });
-        }
+                        context.Entities.AddRange(e1, e2, e3);
+                        context.SaveChanges();
+                    });
 
         public class MyContext3101 : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public MyContext3101(IServiceProvider serviceProvider)
+            public MyContext3101(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Entity3101> Entities { get; set; }
 
             public DbSet<Child3101> Children { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3101"));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -1255,111 +1129,112 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         [Fact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
-            CreateDatabase5456();
-
-            Parallel.For(0, 10, i =>
+            using (CreateDatabase5456())
             {
-                using (var ctx = new MyContext5456())
-                {
-                    var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
+                Parallel.For(0, 10, i =>
+                    {
+                        using (var ctx = new MyContext5456(_options))
+                        {
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
 
-                    Assert.Equal(198, result.Count);
-                }
-            });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
+            }
         }
 
         [Fact]
         public virtual void Repro5456_include_group_join_is_per_query_context_async()
         {
-            CreateDatabase5456();
-
-            Parallel.For(0, 10, async i =>
+            using (CreateDatabase5456())
             {
-                using (var ctx = new MyContext5456())
-                {
-                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+                Parallel.For(0, 10, async i =>
+                    {
+                        using (var ctx = new MyContext5456(_options))
+                        {
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
 
-                    Assert.Equal(198, result.Count);
-                }
-            });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
+            }
         }
 
         [Fact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
-            CreateDatabase5456();
-
-            Parallel.For(0, 10, i =>
+            using (CreateDatabase5456())
             {
-                using (var ctx = new MyContext5456())
-                {
-                    var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+                Parallel.For(0, 10, i =>
+                    {
+                        using (var ctx = new MyContext5456(_options))
+                        {
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
 
-                    Assert.Equal(198, result.Count);
-                }
-            });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
+            }
         }
 
         [Fact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
-            CreateDatabase5456();
-
-            Parallel.For(0, 10, async i =>
+            using (CreateDatabase5456())
             {
-                using (var ctx = new MyContext5456())
-                {
-                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+                Parallel.For(0, 10, async i =>
+                    {
+                        using (var ctx = new MyContext5456(_options))
+                        {
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
 
-                    Assert.Equal(198, result.Count);
-                }
-            });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
+            }
         }
 
         [Fact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
         {
-            CreateDatabase5456();
-
-            Parallel.For(0, 10, i =>
+            using (CreateDatabase5456())
             {
-                using (var ctx = new MyContext5456())
-                {
-                    var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+                Parallel.For(0, 10, i =>
+                    {
+                        using (var ctx = new MyContext5456(_options))
+                        {
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
 
-                    Assert.Equal(198, result.Count);
-                }
-            });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
+            }
         }
 
         [Fact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
-            CreateDatabase5456();
-
-            Parallel.For(0, 10, async i =>
+            using (CreateDatabase5456())
             {
-                using (var ctx = new MyContext5456())
-                {
-                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+                Parallel.For(0, 10, async i =>
+                    {
+                        using (var ctx = new MyContext5456(_options))
+                        {
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
 
-                    Assert.Equal(198, result.Count);
-                }
-            });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
+            }
         }
 
-        private void CreateDatabase5456()
-        {
-            CreateTestStore(
-                "Repro5456",
-                _fixture.ServiceProvider,
-                (sp, co) => new MyContext5456(),
+        private SqlServerTestStore CreateDatabase5456()
+            => CreateTestStore(() => new MyContext5456(_options),
                 context =>
-                {
-                    for (var i = 0; i < 100; i++)
                     {
-                        context.Add(
-                            new Blog5456
+                        for (var i = 0; i < 100; i++)
+                        {
+                            context.Add(new Blog5456
                             {
                                 Posts = new List<Post5456>
                                 {
@@ -1375,20 +1250,21 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                 },
                                 Author = new Author5456()
                             });
-                    }
-                    context.SaveChanges();
-                });
-        }
+                        }
+                        context.SaveChanges();
+                    });
 
         public class MyContext5456 : DbContext
         {
+            public MyContext5456(DbContextOptions options)
+                : base(options)
+            {
+            }
+
             public DbSet<Blog5456> Blogs { get; set; }
             public DbSet<Post5456> Posts { get; set; }
             public DbSet<Comment5456> Comments { get; set; }
             public DbSet<Author5456> Authors { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro5456"));
         }
 
         public class Blog5456
@@ -1417,27 +1293,29 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public Post5456 Blog { get; set; }
         }
 
-        private static void CreateTestStore<TContext>(
-            string databaseName,
-            IServiceProvider serviceProvider,
-            Func<IServiceProvider, DbContextOptions, TContext> contextCreator,
+        private DbContextOptions _options;
+
+        private SqlServerTestStore CreateTestStore<TContext>(
+            Func<TContext> contextCreator,
             Action<TContext> contextInitializer)
             where TContext : DbContext, IDisposable
         {
-            var connectionString = SqlServerTestStore.CreateConnectionString(databaseName);
-            SqlServerTestStore.GetOrCreateShared(databaseName, () =>
+            var testStore = SqlServerTestStore.Create("QueryBugsTest");
+
+            _options = new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
+                .UseInternalServiceProvider(_fixture.ServiceProvider)
+                .Options;
+
+            using (var context = contextCreator())
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(connectionString);
+                context.Database.EnsureCreated();
+                contextInitializer?.Invoke(context);
+            }
 
-                using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
-                {
-                    context.Database.EnsureClean();
-                    contextInitializer(context);
-
-                    TestSqlLoggerFactory.Reset();
-                }
-            });
+            TestSqlLoggerFactory.Reset();
+            return testStore;
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 }, 
+                    new List<int> { 1, 2, 77 },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -627,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected TTestStore TestDatabase { get; set; }
         protected TFixture Fixture { get; set; }
 
-        public void Dispose() => TestDatabase.Dispose();
+        public virtual void Dispose() => TestDatabase.Dispose();
 
         protected abstract bool SnapshotSupported { get; }
 

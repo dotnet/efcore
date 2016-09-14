@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected virtual string BuildCustomSql(DatabaseModel databaseModel) => null;
 
+        protected virtual string BuildCustomEndingSql(DatabaseModel databaseModel) => null;
+
         public virtual void Clean(DatabaseFacade facade)
         {
             var creator = facade.GetService<IRelationalDatabaseCreator>();
@@ -70,8 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     operations.Add(Drop(sequence));
                 }
 
-                var commands = sqlGenerator.Generate(operations);
-
                 connection.Open();
 
                 try
@@ -81,7 +81,18 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     {
                         sqlBuilder.Build(customSql).ExecuteNonQuery(connection);
                     }
-                    executor.ExecuteNonQuery(commands, connection);
+
+                    if (operations.Any())
+                    {
+                        var commands = sqlGenerator.Generate(operations);
+                        executor.ExecuteNonQuery(commands, connection);
+                    }
+
+                    customSql = BuildCustomEndingSql(databaseModel);
+                    if (!string.IsNullOrWhiteSpace(customSql))
+                    {
+                        sqlBuilder.Build(customSql).ExecuteNonQuery(connection);
+                    }
                 }
                 finally
                 {

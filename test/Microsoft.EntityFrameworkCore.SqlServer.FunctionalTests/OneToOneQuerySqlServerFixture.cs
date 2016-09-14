@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public OneToOneQuerySqlServerFixture()
         {
-            _testStore = SqlServerTestStore.CreateScratch();
+            _testStore = SqlServerTestStore.Create("OneToOneQueryTest");
 
             _options = new DbContextOptionsBuilder()
-                .UseSqlServer(_testStore.ConnectionString)
+                .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var context = new DbContext(_options))
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
 
                 AddTestData(context);
             }

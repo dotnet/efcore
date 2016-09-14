@@ -24,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         {
             get
             {
-                var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
-
                 var isMet = true;
                 if (Conditions.HasFlag(SqlServerCondition.SupportsSequences))
                 {
@@ -41,14 +39,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 }
                 if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
                 {
-                    isMet &= defaultConnection.DataSource.Contains("database.windows.net");
+                    isMet &= TestEnvironment.IsSqlAzure;
                 }
                 if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
                 {
-                    isMet &= !defaultConnection.DataSource.Contains("database.windows.net");
+                    isMet &= !TestEnvironment.IsSqlAzure;
                 }
                 if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
                 {
+                    var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
                     isMet &= defaultConnection.DataSource.Contains("(localdb)")
                         || defaultConnection.UserInstance;
                 }

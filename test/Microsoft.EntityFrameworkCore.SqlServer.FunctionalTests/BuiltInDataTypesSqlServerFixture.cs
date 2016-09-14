@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public BuiltInDataTypesSqlServerFixture()
         {
-            _testStore = SqlServerTestStore.CreateScratch();
+            _testStore = SqlServerTestStore.Create("BuiltInDataTypes");
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
@@ -28,14 +28,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
-                .UseSqlServer(_testStore.Connection)
+                .UseSqlServer(_testStore.Connection, b => b.ApplyConfiguration())
                 .EnableSensitiveDataLogging()
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new DbContext(_options))
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
             }
         }
 

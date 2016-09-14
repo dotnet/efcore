@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             return optionsBuilder.Options;
         }
 
-        protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
+        protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext, Action<MonsterContext> seed)
         {
             using (var context = createContext())
             {
-                EnsureClean(context);
-                context.SeedUsingFKs();
+                context.Database.EnsureCreated();
+                seed(context);
             }
         }
 
@@ -47,12 +47,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             builder.Entity<TMessage>().Property(e => e.MessageId).ValueGeneratedOnAdd();
             builder.Entity<TProductPhoto>().Property(e => e.PhotoId).ValueGeneratedOnAdd();
             builder.Entity<TProductReview>().Property(e => e.ReviewId).ValueGeneratedOnAdd();
-        }
-
-        protected override void EnsureClean(DbContext context)
-        {
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
         }
     }
 }

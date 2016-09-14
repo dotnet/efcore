@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -34,6 +35,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             using (var store = SqlServerNorthwindContext.GetSharedStore())
             {
+                Assert.Equal(ConnectionState.Closed, store.Connection.State);
+
                 var openCount = 0;
                 var closeCount = 0;
                 var disposeCount = 0;
@@ -98,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(_connection)
+                    .UseSqlServer(_connection, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -177,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                    .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                     .BuildServiceProvider();
             }
 

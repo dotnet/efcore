@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public abstract class FindSqliteTest
-        : FindTestBase<FindSqliteTest.FindSqliteFixture>
+        : FindTestBase<SqliteTestStore, FindSqliteTest.FindSqliteFixture>
     {
         protected FindSqliteTest(FindSqliteFixture fixture)
             : base(fixture)
@@ -60,29 +59,36 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public class FindSqliteFixture : FindFixtureBase
         {
-            private readonly IServiceProvider _serviceProvider;
+            private readonly DbContextOptions _options;
+            private readonly string DatabaseName = "FindTest";
 
             public FindSqliteFixture()
             {
-                _serviceProvider = new ServiceCollection()
+                var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlite()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
+
+                _options = new DbContextOptionsBuilder()
+                    .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
+                    .UseInternalServiceProvider(serviceProvider)
+                    .Options;
             }
 
-            public override void CreateTestStore()
+            public override SqliteTestStore CreateTestStore()
             {
-                using (var context = CreateContext())
-                {
-                    context.Database.EnsureClean();
-                    Seed(context);
-                }
+                return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
+                    {
+                        using (var context = new FindContext(_options))
+                        {
+                            context.Database.EnsureClean();
+                            Seed(context);
+                        }
+                    });
             }
 
-            public override DbContext CreateContext()
-                => new FindContext(new DbContextOptionsBuilder()
-                    .UseSqlite(SqliteTestStore.CreateConnectionString("FindTest"))
-                    .UseInternalServiceProvider(_serviceProvider).Options);
+            public override DbContext CreateContext(SqliteTestStore testStore)
+                => new FindContext(_options);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             _options = new DbContextOptionsBuilder()
                 .UseModel(CreateModel())
-                .UseSqlServer(_testDatabase.ConnectionString)
+                .UseSqlServer(_testDatabase.ConnectionString, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
         }

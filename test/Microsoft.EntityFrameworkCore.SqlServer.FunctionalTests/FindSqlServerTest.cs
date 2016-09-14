@@ -11,8 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public abstract class FindSqlServerTest
-        : FindTestBase<FindSqlServerTest.FindSqlServerFixture>
+    public abstract class FindSqlServerTest : FindTestBase<SqlServerTestStore, FindSqlServerTest.FindSqlServerFixture>
     {
         protected FindSqlServerTest(FindSqlServerFixture fixture)
             : base(fixture)
@@ -314,7 +313,11 @@ FROM [ShadowKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
-        public override void Dispose() => TestSqlLoggerFactory.Reset();
+        public override void Dispose()
+        {
+            base.Dispose();
+            TestSqlLoggerFactory.Reset();
+        }
 
         private const string FileLineEnding = @"
 ";
@@ -323,33 +326,40 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
         public class FindSqlServerFixture : FindFixtureBase
         {
-            private readonly IServiceProvider _serviceProvider;
+            private const string DatabaseName = "FindTest";
+            private readonly DbContextOptions _options;
 
             public FindSqlServerFixture()
             {
-                _serviceProvider = new ServiceCollection()
+                var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory, TestSqlLoggerFactory>()
                     .BuildServiceProvider();
-            }
 
-            public override void CreateTestStore()
-            {
-                using (var context = CreateContext())
-                {
-                    context.Database.EnsureClean();
-                    Seed(context);
-                    TestSqlLoggerFactory.Reset();
-                }
-            }
-
-            public override DbContext CreateContext()
-                => new FindContext(new DbContextOptionsBuilder()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("FindTest"))
-                    .UseInternalServiceProvider(_serviceProvider)
+                _options = new DbContextOptionsBuilder()
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
+                    .UseInternalServiceProvider(serviceProvider)
                     .EnableSensitiveDataLogging()
-                    .Options);
+                    .Options;
+            }
+
+            public override SqlServerTestStore CreateTestStore()
+            {
+                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+                    {
+                        using (var context = new FindContext(_options))
+                        {
+                            context.Database.EnsureCreated();
+                            Seed(context);
+
+                            TestSqlLoggerFactory.Reset();
+                        }
+                    });
+            }
+
+            public override DbContext CreateContext(SqlServerTestStore testStore)
+                => new FindContext(_options);
         }
     }
 }

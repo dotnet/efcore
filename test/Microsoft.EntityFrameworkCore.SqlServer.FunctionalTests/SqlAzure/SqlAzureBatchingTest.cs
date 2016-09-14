@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             _fixture = fixture;
         }
-        
+
         [ConditionalTheory]
         [InlineData(1)]
         [InlineData(10)]
@@ -29,22 +29,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             using (var context = _fixture.CreateContext(batchSize))
             {
-                using (context.Database.BeginTransaction())
-                {
-                    for (var i = 0; i < batchSize; i++)
+                context.Database.CreateExecutionStrategy().Execute(contextScoped =>
                     {
-                        var uuid = Guid.NewGuid().ToString();
-                        context.Products.Add(new Product
+                        using (contextScoped.Database.BeginTransaction())
                         {
-                            Name = uuid,
-                            ProductNumber = uuid.Substring(0, 25),
-                            Weight = 1000,
-                            SellStartDate = DateTime.Now
-                        });
-                    }
+                            for (var i = 0; i < batchSize; i++)
+                            {
+                                var uuid = Guid.NewGuid().ToString();
+                                contextScoped.Products.Add(new Product
+                                {
+                                    Name = uuid,
+                                    ProductNumber = uuid.Substring(0, 25),
+                                    Weight = 1000,
+                                    SellStartDate = DateTime.Now
+                                });
+                            }
 
-                    Assert.Equal(batchSize, context.SaveChanges());
-                }
+                            Assert.Equal(batchSize, contextScoped.SaveChanges());
+                        }
+                    }, context);
             }
         }
     }

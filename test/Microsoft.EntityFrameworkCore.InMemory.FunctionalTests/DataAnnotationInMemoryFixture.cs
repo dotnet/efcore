@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
@@ -20,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ThrowingModelValidator>()
+                .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                 .BuildServiceProvider();
         }
 

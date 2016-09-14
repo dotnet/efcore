@@ -3,7 +3,9 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -21,710 +23,640 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Identity_key_with_read_only_before_save_throws_if_explicit_values_set()
         {
-            using (var context = CreateContext())
-            {
-                context.Add(new Gumball { Id = 1 });
+            ExecuteWithStrategyInTransaction(context =>
+                {
+                    context.Add(new Gumball { Id = 1 });
 
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyBeforeSave("Id", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("Id", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
         public virtual void Identity_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new Gumball { Identity = "Masami" });
-                entry.Property(e => e.Identity).IsTemporary = true;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entry = context.Add(new Gumball { Identity = "Masami" });
+                        entry.Property(e => e.Identity).IsTemporary = true;
 
-                context.SaveChanges();
-                id = entry.Entity.Id;
+                        context.SaveChanges();
+                        id = entry.Entity.Id;
 
-                Assert.Equal("Banana Joe", entry.Entity.Identity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).Identity);
-            }
+                        Assert.Equal("Banana Joe", entry.Entity.Identity);
+                    },
+                context => { Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).Identity); });
         }
 
         [Fact]
         public virtual void Identity_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Banana Joe", entity.Identity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).Identity);
-            }
+                        Assert.Equal("Banana Joe", entity.Identity);
+                    },
+                context => { Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).Identity); });
         }
 
         [Fact]
         public virtual void Identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
-            using (var context = CreateContext())
-            {
-                context.Add(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
+            ExecuteWithStrategyInTransaction(context =>
+                {
+                    context.Add(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
 
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyBeforeSave("IdentityReadOnlyBeforeSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("IdentityReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
         public virtual void Identity_property_on_Added_entity_can_have_value_set_explicitly()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball { Identity = "Masami" }).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball { Identity = "Masami" }).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Masami", entity.Identity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Identity);
-            }
+                        Assert.Equal("Masami", entity.Identity);
+                    },
+                context => { Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Identity); });
         }
 
         [Fact]
         public virtual void Identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Anton", gumball.IdentityReadOnlyAfterSave);
 
-                Assert.Equal("Anton", gumball.IdentityReadOnlyAfterSave);
+                        gumball.IdentityReadOnlyAfterSave = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.IdentityReadOnlyAfterSave = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
-
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyAfterSave("IdentityReadOnlyAfterSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                        Assert.Equal(
+                            CoreStrings.PropertyReadOnlyAfterSave("IdentityReadOnlyAfterSave", "Gumball"),
+                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    });
         }
 
         [Fact]
         public virtual void Identity_property_on_Modified_entity_is_included_in_update_when_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Banana Joe", gumball.Identity);
 
-                Assert.Equal("Banana Joe", gumball.Identity);
+                        gumball.Identity = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.Identity = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Masami", gumball.Identity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Identity);
-            }
+                        Assert.Equal("Masami", gumball.Identity);
+                    },
+                context => { Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Identity); });
         }
 
         [Fact]
         public virtual void Identity_property_on_Modified_entity_is_not_included_in_update_when_not_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Banana Joe", gumball.Identity);
 
-                Assert.Equal("Banana Joe", gumball.Identity);
+                        gumball.Identity = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.Identity = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.Entry(gumball).Property(e => e.Identity).OriginalValue = "Masami";
+                        context.Entry(gumball).Property(e => e.Identity).IsModified = false;
 
-                context.Entry(gumball).Property(e => e.Identity).OriginalValue = "Masami";
-                context.Entry(gumball).Property(e => e.Identity).IsModified = false;
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Masami", gumball.Identity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).Identity);
-            }
+                        Assert.Equal("Masami", gumball.Identity);
+                    },
+                context => { Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).Identity); });
         }
 
         [Fact]
         public virtual void Always_identity_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
-                entry.Property(e => e.AlwaysIdentity).IsTemporary = true;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
+                        entry.Property(e => e.AlwaysIdentity).IsTemporary = true;
 
-                context.SaveChanges();
-                id = entry.Entity.Id;
+                        context.SaveChanges();
+                        id = entry.Entity.Id;
 
-                Assert.Equal("Banana Joe", entry.Entity.AlwaysIdentity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
-            }
+                        Assert.Equal("Banana Joe", entry.Entity.AlwaysIdentity);
+                    },
+                context => { Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity); });
         }
 
         [Fact]
         public virtual void Always_identity_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Banana Joe", entity.AlwaysIdentity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
-            }
+                        Assert.Equal("Banana Joe", entity.AlwaysIdentity);
+                    },
+                context => { Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity); });
         }
 
         [Fact]
         public virtual void Always_identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
-            using (var context = CreateContext())
-            {
-                context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
+            ExecuteWithStrategyInTransaction(context =>
+                {
+                    context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
 
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
         public virtual void Always_identity_property_on_Added_entity_gets_store_value_even_when_set_explicitly()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball { AlwaysIdentity = "Masami" }).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball { AlwaysIdentity = "Masami" }).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Banana Joe", entity.AlwaysIdentity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
-            }
+                        Assert.Equal("Banana Joe", entity.AlwaysIdentity);
+                    },
+                context => { Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity); });
         }
 
         [Fact]
         public virtual void Always_identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Anton", gumball.AlwaysIdentityReadOnlyAfterSave);
 
-                Assert.Equal("Anton", gumball.AlwaysIdentityReadOnlyAfterSave);
+                        gumball.AlwaysIdentityReadOnlyAfterSave = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.AlwaysIdentityReadOnlyAfterSave = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
-
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyAfterSave("AlwaysIdentityReadOnlyAfterSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                        Assert.Equal(
+                            CoreStrings.PropertyReadOnlyAfterSave("AlwaysIdentityReadOnlyAfterSave", "Gumball"),
+                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    });
         }
 
         [Fact]
         public virtual void Always_identity_property_on_Modified_entity_is_not_included_in_update_when_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
 
-                Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
+                        gumball.AlwaysIdentity = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.AlwaysIdentity = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Masami", gumball.AlwaysIdentity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
-            }
+                        Assert.Equal("Masami", gumball.AlwaysIdentity);
+                    },
+                context => { Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity); });
         }
 
         [Fact]
         public virtual void Always_identity_property_on_Modified_entity_is_not_included_in_the_update_when_not_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
 
-                Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
+                        gumball.AlwaysIdentity = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.AlwaysIdentity = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.Entry(gumball).Property(e => e.AlwaysIdentity).OriginalValue = "Masami";
+                        context.Entry(gumball).Property(e => e.AlwaysIdentity).IsModified = false;
 
-                context.Entry(gumball).Property(e => e.AlwaysIdentity).OriginalValue = "Masami";
-                context.Entry(gumball).Property(e => e.AlwaysIdentity).IsModified = false;
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Masami", gumball.AlwaysIdentity);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
-            }
+                        Assert.Equal("Masami", gumball.AlwaysIdentity);
+                    }, context => { Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity); });
         }
 
         [Fact]
         public virtual void Computed_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new Gumball { Computed = "Masami" });
-                entry.Property(e => e.Computed).IsTemporary = true;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entry = context.Add(new Gumball { Computed = "Masami" });
+                        entry.Property(e => e.Computed).IsTemporary = true;
 
-                context.SaveChanges();
-                id = entry.Entity.Id;
+                        context.SaveChanges();
+                        id = entry.Entity.Id;
 
-                Assert.Equal("Alan", entry.Entity.Computed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).Computed);
-            }
+                        Assert.Equal("Alan", entry.Entity.Computed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).Computed); });
         }
 
         [Fact]
         public virtual void Computed_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Alan", entity.Computed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).Computed);
-            }
+                        Assert.Equal("Alan", entity.Computed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).Computed); });
         }
 
         [Fact]
         public virtual void Computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
-            using (var context = CreateContext())
-            {
-                context.Add(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
+            ExecuteWithStrategyInTransaction(context =>
+                {
+                    context.Add(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
 
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyBeforeSave("ComputedReadOnlyBeforeSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("ComputedReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
         public virtual void Computed_property_on_Added_entity_can_have_value_set_explicitly()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball { Computed = "Masami" }).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball { Computed = "Masami" }).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Masami", entity.Computed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Computed);
-            }
+                        Assert.Equal("Masami", entity.Computed);
+                    },
+                context => { Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Computed); });
         }
 
         [Fact]
         public virtual void Computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Tina Rex", gumball.ComputedReadOnlyAfterSave);
 
-                Assert.Equal("Tina Rex", gumball.ComputedReadOnlyAfterSave);
+                        gumball.ComputedReadOnlyAfterSave = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.ComputedReadOnlyAfterSave = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
-
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyAfterSave("ComputedReadOnlyAfterSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                        Assert.Equal(
+                            CoreStrings.PropertyReadOnlyAfterSave("ComputedReadOnlyAfterSave", "Gumball"),
+                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    });
         }
 
         [Fact]
         public virtual void Computed_property_on_Modified_entity_is_included_in_update_when_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Alan", gumball.Computed);
 
-                Assert.Equal("Alan", gumball.Computed);
+                        gumball.Computed = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.Computed = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Masami", gumball.Computed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Computed);
-            }
+                        Assert.Equal("Masami", gumball.Computed);
+                    },
+                context => { Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).Computed); });
         }
 
         [Fact]
         public virtual void Computed_property_on_Modified_entity_is_read_from_store_when_not_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Alan", gumball.Computed);
 
-                Assert.Equal("Alan", gumball.Computed);
+                        gumball.Computed = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.Computed = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.Entry(gumball).Property(e => e.Computed).OriginalValue = "Masami";
+                        context.Entry(gumball).Property(e => e.Computed).IsModified = false;
 
-                context.Entry(gumball).Property(e => e.Computed).OriginalValue = "Masami";
-                context.Entry(gumball).Property(e => e.Computed).IsModified = false;
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Alan", gumball.Computed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).Computed);
-            }
+                        Assert.Equal("Alan", gumball.Computed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).Computed); });
         }
 
         [Fact]
         public virtual void Always_computed_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
-                entry.Property(e => e.AlwaysComputed).IsTemporary = true;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
+                        entry.Property(e => e.AlwaysComputed).IsTemporary = true;
 
-                context.SaveChanges();
-                id = entry.Entity.Id;
+                        context.SaveChanges();
+                        id = entry.Entity.Id;
 
-                Assert.Equal("Alan", entry.Entity.AlwaysComputed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
-            }
+                        Assert.Equal("Alan", entry.Entity.AlwaysComputed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed); });
         }
 
         [Fact]
         public virtual void Always_computed_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Alan", entity.AlwaysComputed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
-            }
+                        Assert.Equal("Alan", entity.AlwaysComputed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed); });
         }
 
         [Fact]
         public virtual void Always_computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
-            using (var context = CreateContext())
-            {
-                context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
+            ExecuteWithStrategyInTransaction(context =>
+                {
+                    context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
 
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
         public virtual void Always_computed_property_on_Added_entity_cannot_have_value_set_explicitly()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball { AlwaysComputed = "Masami" }).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball { AlwaysComputed = "Masami" }).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
+                        context.SaveChanges();
+                        id = entity.Id;
 
-                Assert.Equal("Alan", entity.AlwaysComputed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
-            }
+                        Assert.Equal("Alan", entity.AlwaysComputed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed); });
         }
 
         [Fact]
         public virtual void Always_computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Tina Rex", gumball.AlwaysComputedReadOnlyAfterSave);
 
-                Assert.Equal("Tina Rex", gumball.AlwaysComputedReadOnlyAfterSave);
+                        gumball.AlwaysComputedReadOnlyAfterSave = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.AlwaysComputedReadOnlyAfterSave = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
-
-                Assert.Equal(
-                    CoreStrings.PropertyReadOnlyAfterSave("AlwaysComputedReadOnlyAfterSave", "Gumball"),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+                        Assert.Equal(
+                            CoreStrings.PropertyReadOnlyAfterSave("AlwaysComputedReadOnlyAfterSave", "Gumball"),
+                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    });
         }
 
         [Fact]
         public virtual void Always_computed_property_on_Modified_entity_is_not_included_in_update_even_when_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Alan", gumball.AlwaysComputed);
 
-                Assert.Equal("Alan", gumball.AlwaysComputed);
+                        gumball.AlwaysComputed = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.AlwaysComputed = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Alan", gumball.AlwaysComputed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
-            }
+                        Assert.Equal("Alan", gumball.AlwaysComputed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed); });
         }
 
         [Fact]
         public virtual void Always_computed_property_on_Modified_entity_is_read_from_store_when_not_modified()
         {
-            int id;
+            var id = 0;
 
-            using (var context = CreateContext())
-            {
-                var entity = context.Add(new Gumball()).Entity;
+            ExecuteWithStrategyInTransaction(context =>
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                context.SaveChanges();
-                id = entity.Id;
-            }
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
+                context =>
+                    {
+                        var gumball = context.Gumballs.Single(e => e.Id == id);
 
-            using (var context = CreateContext())
-            {
-                var gumball = context.Gumballs.Single(e => e.Id == id);
+                        Assert.Equal("Alan", gumball.AlwaysComputed);
 
-                Assert.Equal("Alan", gumball.AlwaysComputed);
+                        gumball.AlwaysComputed = "Masami";
+                        gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                gumball.AlwaysComputed = "Masami";
-                gumball.NotStoreGenerated = "Larry Needlemeye";
+                        context.Entry(gumball).Property(e => e.AlwaysComputed).OriginalValue = "Masami";
+                        context.Entry(gumball).Property(e => e.AlwaysComputed).IsModified = false;
 
-                context.Entry(gumball).Property(e => e.AlwaysComputed).OriginalValue = "Masami";
-                context.Entry(gumball).Property(e => e.AlwaysComputed).IsModified = false;
+                        context.SaveChanges();
 
-                context.SaveChanges();
-
-                Assert.Equal("Alan", gumball.AlwaysComputed);
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
-            }
+                        Assert.Equal("Alan", gumball.AlwaysComputed);
+                    },
+                context => { Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed); });
         }
 
         protected class Darwin
@@ -764,6 +696,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             public DbSet<Gumball> Gumballs { get; set; }
             public DbSet<Darwin> Darwins { get; set; }
+        }
+
+        protected virtual void ExecuteWithStrategyInTransaction(
+            Action<StoreGeneratedContext> testOperation,
+            Action<StoreGeneratedContext> nestedTestOperation1 = null,
+            Action<StoreGeneratedContext> nestedTestOperation2 = null)
+            => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
+                testOperation, nestedTestOperation1, nestedTestOperation2);
+
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        {
         }
 
         protected StoreGeneratedContext CreateContext()

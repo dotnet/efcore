@@ -126,10 +126,10 @@
     <Compile Include="SqlAzure\SqlAzureFundamentalsTest.cs" />
     <Compile Include="SqlExecutorSqlServerTest.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
-    <Compile Include="SqlServerDatabaseCleaner.cs" />
+    <Compile Include="Utilities\SqlServerDatabaseCleaner.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
-    <Compile Include="SqlServerDatabaseFacadeExtensions.cs" />
+    <Compile Include="Utilities\SqlServerDatabaseFacadeExtensions.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="SqlServerMigrationsTest.cs" />
@@ -149,6 +149,7 @@
     <Compile Include="Utilities\SqlServerConfiguredConditionAttribute.cs" />
     <Compile Include="Utilities\SqlServerTestStore.cs" />
     <Compile Include="Utilities\TestEnvironment.cs" />
+    <Compile Include="Utilities\TestSqlAzureExecutionStrategy.cs" />
     <Compile Include="Utilities\TestSqlServerModelSource.cs" />
     <Compile Include="WarningsSqlServerFixture.cs" />
     <Compile Include="WarningsSqlServerTest.cs" />

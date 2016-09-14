@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class NotificationEntitiesSqlServerTest
-        : NotificationEntitiesTestBase<NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture>
+        : NotificationEntitiesTestBase<SqlServerTestStore, NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture>
     {
         public NotificationEntitiesSqlServerTest(NotificationEntitiesSqlServerFixture fixture)
             : base(fixture)
@@ -17,26 +17,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public class NotificationEntitiesSqlServerFixture : NotificationEntitiesFixtureBase
         {
+            public const string DatabaseName = "NotificationEntities";
+
             private readonly DbContextOptions _options;
 
             public NotificationEntitiesSqlServerFixture()
             {
                 _options = new DbContextOptionsBuilder()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("NotificationEntities"))
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(new ServiceCollection()
                         .AddEntityFrameworkSqlServer()
                         .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                         .BuildServiceProvider())
                     .Options;
-
-                EnsureCreated();
             }
 
             public override DbContext CreateContext()
                 => new DbContext(_options);
 
-            protected override void EnsureClean(DbContext context)
-                => context.Database.EnsureClean();
+            public override SqlServerTestStore CreateTestStore()
+                => SqlServerTestStore.GetOrCreateShared(DatabaseName, EnsureCreated);
         }
     }
 }

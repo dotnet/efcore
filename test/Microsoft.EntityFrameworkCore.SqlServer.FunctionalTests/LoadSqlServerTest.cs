@@ -12,7 +12,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class LoadSqlServerTest
-        : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
+        : LoadTestBase<SqlServerTestStore, LoadSqlServerTest.LoadSqlServerFixture>
     {
         public LoadSqlServerTest(LoadSqlServerFixture fixture)
             : base(fixture)
@@ -1535,7 +1535,11 @@ WHERE 0 = 1",
             }
         }
 
-        public override void Dispose() => TestSqlLoggerFactory.Reset();
+        public override void Dispose()
+        {
+            base.Dispose();
+            TestSqlLoggerFactory.Reset();
+        }
 
         public override void ClearLog() => TestSqlLoggerFactory.Reset();
 
@@ -1548,33 +1552,39 @@ WHERE 0 = 1",
 
         public class LoadSqlServerFixture : LoadFixtureBase
         {
-            private readonly IServiceProvider _serviceProvider;
+            private const string DatabaseName = "LoadTest";
+            private readonly DbContextOptions _options;
 
             public LoadSqlServerFixture()
             {
-                _serviceProvider = new ServiceCollection()
+                var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory, TestSqlLoggerFactory>()
                     .BuildServiceProvider();
-            }
 
-            public override void CreateTestStore()
-            {
-                using (var context = CreateContext())
-                {
-                    context.Database.EnsureClean();
-                    Seed(context);
-                    TestSqlLoggerFactory.Reset();
-                }
-            }
-
-            public override DbContext CreateContext()
-                => new LoadContext(new DbContextOptionsBuilder()
+                _options = new DbContextOptionsBuilder()
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
+                    .UseInternalServiceProvider(serviceProvider)
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("LoadTest"))
-                    .UseInternalServiceProvider(_serviceProvider)
-                    .Options);
+                    .Options;
+            }
+
+            public override SqlServerTestStore CreateTestStore()
+            {
+                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+                    {
+                        using (var context = new LoadContext(_options))
+                        {
+                            context.Database.EnsureCreated();
+                            Seed(context);
+                            TestSqlLoggerFactory.Reset();
+                        }
+                    });
+            }
+
+            public override DbContext CreateContext(SqlServerTestStore testStore)
+                => new LoadContext(_options);
         }
     }
 }

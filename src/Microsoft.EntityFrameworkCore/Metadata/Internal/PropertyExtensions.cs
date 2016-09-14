@@ -270,6 +270,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static Property AsProperty([NotNull] this IProperty property, [NotNull] [CallerMemberName] string methodName = "")
-            => property.AsConcreteMetadataType<IProperty, Property>(methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IProperty, Property>(property, methodName);
     }
 }

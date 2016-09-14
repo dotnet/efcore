@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +9,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class LoadInMemoryTest
-        : LoadTestBase<LoadInMemoryTest.LoadInMemoryFixture>
+        : LoadTestBase<InMemoryTestStore, LoadInMemoryTest.LoadInMemoryFixture>
     {
         public LoadInMemoryTest(LoadInMemoryFixture fixture)
             : base(fixture)
@@ -35,30 +34,35 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public class LoadInMemoryFixture : LoadFixtureBase
         {
-            private readonly IServiceProvider _serviceProvider;
+            public const string DatabaseName = "LoadTest";
+            private readonly DbContextOptions _options;
 
             public LoadInMemoryFixture()
             {
-                _serviceProvider = new ServiceCollection()
+                var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                using (var context = CreateContext())
-                {
-                    Seed(context);
-                }
+                _options = new DbContextOptionsBuilder()
+                    .UseInMemoryDatabase(DatabaseName)
+                    .UseInternalServiceProvider(serviceProvider)
+                    .Options;
             }
 
-            public override void CreateTestStore()
+            public override InMemoryTestStore CreateTestStore()
             {
+                return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
+                    {
+                        using (var context = new LoadContext(_options))
+                        {
+                            Seed(context);
+                        }
+                    });
             }
 
-            public override DbContext CreateContext()
-                => new LoadContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase("LoadTest")
-                    .UseInternalServiceProvider(_serviceProvider)
-                    .Options);
+            public override DbContext CreateContext(InMemoryTestStore testStore)
+                => new LoadContext(_options);
         }
     }
 }

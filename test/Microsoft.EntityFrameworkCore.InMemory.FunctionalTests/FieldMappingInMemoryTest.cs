@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             {
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
+                    .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_false_when_database_doesnt_exist_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_true_when_database_exists_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
@@ -80,20 +80,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task HasTables_throws_when_database_doesnt_exist_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
-                var creator = GetDatabaseCreator(testDatabase);
+                await ((TestDatabaseCreator)GetDatabaseCreator(testDatabase)).ExecutionStrategyFactory.Create()
+                    .ExecuteAsync(async creator =>
+                        {
+                            var errorNumber = async
+                                ? (await Assert.ThrowsAsync<SqlException>(() => creator.HasTablesAsyncBase())).Number
+                                : Assert.Throws<SqlException>(() => creator.HasTablesBase()).Number;
 
-                var errorNumber = async
-                    ? (await Assert.ThrowsAsync<SqlException>(() => ((TestDatabaseCreator)creator).HasTablesAsyncBase())).Number
-                    : Assert.Throws<SqlException>(() => ((TestDatabaseCreator)creator).HasTablesBase()).Number;
-
-                if (errorNumber != 233) // skip if no-process transient failure
-                {
-                    Assert.Equal(
-                        4060, // Login failed error number
-                        errorNumber);
-                }
+                            if (errorNumber != 233) // skip if no-process transient failure
+                            {
+                                Assert.Equal(
+                                    4060, // Login failed error number
+                                    errorNumber);
+                            }
+                        }, (TestDatabaseCreator)GetDatabaseCreator(testDatabase));
             }
         }
 
@@ -111,11 +113,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task HasTables_returns_false_when_database_exists_but_has_no_tables_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
-                Assert.False(async ? await ((TestDatabaseCreator)creator).HasTablesAsyncBase() : ((TestDatabaseCreator)creator).HasTablesBase());
+                Assert.False(async
+                    ? await ((TestDatabaseCreator)creator).HasTablesAsyncBase()
+                    : ((TestDatabaseCreator)creator).HasTablesBase());
             }
         }
 
@@ -133,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task HasTables_returns_true_when_database_exists_and_has_any_tables_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
                 await testDatabase.ExecuteNonQueryAsync("CREATE TABLE SomeTable (Id uniqueidentifier)");
 
@@ -157,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Delete_will_delete_database_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
                 testDatabase.Connection.Close();
 
@@ -192,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Delete_throws_when_database_doesnt_exist_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
@@ -221,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task CreateTables_creates_schema_in_existing_database_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
@@ -229,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 var optionsBuilder = new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
-                    .UseSqlServer(testDatabase.ConnectionString);
+                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration());
 
                 using (var context = new BloggingContext(optionsBuilder.Options))
                 {
@@ -275,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task CreateTables_throws_if_database_does_not_exist_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
@@ -307,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Create_creates_physical_database_but_not_tables_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
@@ -335,8 +339,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     string.Concat(
                         "SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name='",
                         testDatabase.Connection.Database,
-                        "'"),
-                    CancellationToken.None));
+                        "'")));
             }
         }
 
@@ -354,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Create_throws_if_database_already_exists_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
                 var creator = GetDatabaseCreator(testDatabase);
 

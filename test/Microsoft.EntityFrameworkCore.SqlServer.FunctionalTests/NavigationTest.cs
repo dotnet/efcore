@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             };
 
             _options = new DbContextOptionsBuilder()
-                .UseSqlServer(connStrBuilder.ConnectionString)
+                .UseSqlServer(connStrBuilder.ConnectionString, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
         }

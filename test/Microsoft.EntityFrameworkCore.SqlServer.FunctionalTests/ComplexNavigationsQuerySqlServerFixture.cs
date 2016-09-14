@@ -34,12 +34,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString)
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider);
 
                     using (var context = new ComplexNavigationsContext(optionsBuilder.Options))
                     {
-                        context.Database.EnsureClean();
+                        context.Database.EnsureCreated();
                         ComplexNavigationsModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();

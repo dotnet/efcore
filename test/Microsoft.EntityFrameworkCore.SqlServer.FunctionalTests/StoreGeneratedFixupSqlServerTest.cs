@@ -20,20 +20,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Temp_values_are_replaced_on_save()
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new TestTemp());
+            ExecuteWithStrategyInTransaction(context =>
+                {
+                    var entry = context.Add(new TestTemp());
 
-                Assert.True(entry.Property(e => e.Id).IsTemporary);
-                Assert.False(entry.Property(e => e.NotId).IsTemporary);
+                    Assert.True(entry.Property(e => e.Id).IsTemporary);
+                    Assert.False(entry.Property(e => e.NotId).IsTemporary);
 
-                var tempValue = entry.Property(e => e.Id).CurrentValue;
+                    var tempValue = entry.Property(e => e.Id).CurrentValue;
 
-                context.SaveChanges();
+                    context.SaveChanges();
 
-                Assert.False(entry.Property(e => e.Id).IsTemporary);
-                Assert.NotEqual(tempValue, entry.Property(e => e.Id).CurrentValue);
-            }
+                    Assert.False(entry.Property(e => e.Id).IsTemporary);
+                    Assert.NotEqual(tempValue, entry.Property(e => e.Id).CurrentValue);
+                });
         }
 
         protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)
@@ -77,12 +77,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
                             .UseInternalServiceProvider(_serviceProvider);
 
                         using (var context = new StoreGeneratedFixupContext(optionsBuilder.Options))
                         {
-                            context.Database.EnsureClean();
+                            context.Database.EnsureCreated();
                             Seed(context);
                         }
                     });
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public override DbContext CreateContext(SqlServerTestStore testStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.Connection)
+                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
                 var context = new StoreGeneratedFixupContext(optionsBuilder.Options);

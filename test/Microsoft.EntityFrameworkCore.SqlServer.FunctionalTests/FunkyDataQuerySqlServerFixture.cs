@@ -30,19 +30,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(_connectionString)
-                    .UseInternalServiceProvider(_serviceProvider);
-
-                using (var context = new FunkyDataContext(optionsBuilder.Options))
                 {
-                    context.Database.EnsureClean();
-                    FunkyDataModelInitializer.Seed(context);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    TestSqlLoggerFactory.Reset();
-                }
-            });
+                    using (var context = new FunkyDataContext(optionsBuilder.Options))
+                    {
+                        context.Database.EnsureCreated();
+                        FunkyDataModelInitializer.Seed(context);
+
+                        TestSqlLoggerFactory.Reset();
+                    }
+                });
         }
 
         public override FunkyDataContext CreateContext(SqlServerTestStore testStore)
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             optionsBuilder
                 .EnableSensitiveDataLogging()
                 .UseInternalServiceProvider(_serviceProvider)
-                .UseSqlServer(testStore.Connection);
+                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration());
 
             var context = new FunkyDataContext(optionsBuilder.Options);
 

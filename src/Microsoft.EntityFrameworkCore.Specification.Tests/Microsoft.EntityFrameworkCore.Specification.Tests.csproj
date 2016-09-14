@@ -180,6 +180,7 @@
     <Compile Include="TestModels\UpdatesModel\UpdatesModelInitializer.cs" />
     <Compile Include="TestStore.cs" />
     <Compile Include="TestUtilities\AnnotationComparer.cs" />
+    <Compile Include="TestUtilities\DbContextHelpers.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
     <Compile Include="TestUtilities\ForeignKeyStrictComparer.cs" />
     <Compile Include="TestUtilities\IndexComparer.cs" />

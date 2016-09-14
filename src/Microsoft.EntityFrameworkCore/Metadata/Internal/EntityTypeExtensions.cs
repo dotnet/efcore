@@ -467,6 +467,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull] [CallerMemberName] string methodName = "")
-            => entityType.AsConcreteMetadataType<IEntityType, EntityType>(methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IEntityType, EntityType>(entityType, methodName);
     }
 }

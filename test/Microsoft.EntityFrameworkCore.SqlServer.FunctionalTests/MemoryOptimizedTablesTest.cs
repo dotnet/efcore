@@ -16,30 +16,39 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [ConditionalFact]
         public void Can_create_memoryOptimized_table()
         {
-            var bigUn = new BigUn();
-            var fastUns = new[] { new FastUn { Name = "First 'un", BigUn = bigUn }, new FastUn { Name = "Second 'un", BigUn = bigUn } };
-            using (var context = new MemoryOptimizedContext())
+            using (var testStore = SqlServerTestStore.Create("MemoryOptimizedTablesTest"))
             {
-                context.Database.EnsureClean();
+                var options = new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
+                    .Options;
+                var bigUn = new BigUn();
+                var fastUns = new[] { new FastUn { Name = "First 'un", BigUn = bigUn }, new FastUn { Name = "Second 'un", BigUn = bigUn } };
+                using (var context = new MemoryOptimizedContext(options))
+                {
+                    context.Database.EnsureCreated();
 
-                context.AddRange(fastUns);
+                    context.AddRange(fastUns);
 
-                context.SaveChanges();
-            }
+                    context.SaveChanges();
+                }
 
-            using (var context = new MemoryOptimizedContext())
-            {
-                Assert.Equal(fastUns.Select(f => f.Name), context.FastUns.OrderBy(f => f.Name).Select(f => f.Name).ToList());
+                using (var context = new MemoryOptimizedContext(options))
+                {
+                    Assert.Equal(fastUns.Select(f => f.Name), context.FastUns.OrderBy(f => f.Name).Select(f => f.Name).ToList());
 
-                context.Database.EnsureDeleted();
+                    context.Database.EnsureDeleted();
+                }
             }
         }
 
         private class MemoryOptimizedContext : DbContext
         {
+            public MemoryOptimizedContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
             public DbSet<FastUn> FastUns { get; set; }
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("MemoryOptimizedTest"));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

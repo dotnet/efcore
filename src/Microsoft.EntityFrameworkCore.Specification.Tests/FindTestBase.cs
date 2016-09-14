@@ -9,15 +9,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
-    public abstract class FindTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
-        where TFixture : FindTestBase<TFixture>.FindFixtureBase, new()
+    public abstract class FindTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+        where TTestStore : TestStore
+        where TFixture : FindTestBase<TTestStore, TFixture>.FindFixtureBase
     {
-        protected FindTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-            fixture.Initialize();
-        }
-
         protected abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues) where TEntity : class;
 
         protected abstract Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues) where TEntity : class;
@@ -677,34 +672,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public DbSet<ShadowKey> ShadowKeys { get; set; }
         }
 
-        protected FindContext CreateContext() => (FindContext)Fixture.CreateContext();
+        protected FindTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+
+            TestStore = Fixture.CreateTestStore();
+        }
+
+        protected FindContext CreateContext() => (FindContext)Fixture.CreateContext(TestStore);
 
         protected TFixture Fixture { get; }
+        protected TTestStore TestStore { get; }
 
-        public virtual void Dispose()
-        {
-        }
+        public virtual void Dispose() => TestStore.Dispose();
 
         public abstract class FindFixtureBase
         {
-            private static readonly object _lock = new object();
-            private static bool _initialized;
+            public abstract TTestStore CreateTestStore();
 
-            public virtual void Initialize()
-            {
-                lock (_lock)
-                {
-                    if (!_initialized)
-                    {
-                        CreateTestStore();
-                        _initialized = true;
-                    }
-                }
-            }
-
-            public abstract void CreateTestStore();
-
-            public abstract DbContext CreateContext();
+            public abstract DbContext CreateContext(TTestStore testStore);
 
             protected virtual void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -714,18 +700,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             protected virtual void Seed(DbContext context)
             {
-                context.AddRange(
+                var findContext = (FindContext)context;
+                findContext.AddRange(
                     new IntKey { Id = 77, Foo = "Smokey" },
                     new StringKey { Id = "Cat", Foo = "Alice" },
                     new CompositeKey { Id1 = 77, Id2 = "Dog", Foo = "Olive" },
                     new BaseType { Id = 77, Foo = "Baxter" },
                     new DerivedType { Id = 78, Foo = "Strawberry", Boo = "Cheesecake" });
 
-                var entry = context.Entry(new ShadowKey { Foo = "Clippy" });
+                var entry = findContext.Entry(new ShadowKey { Foo = "Clippy" });
                 entry.Property("Id").CurrentValue = 77;
                 entry.State = EntityState.Added;
 
-                context.SaveChanges();
+                findContext.SaveChanges();
             }
         }
     }

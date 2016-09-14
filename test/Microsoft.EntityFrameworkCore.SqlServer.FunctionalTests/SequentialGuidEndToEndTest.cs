@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class SequentialGuidEndToEndTest
+    public class SequentialGuidEndToEndTest : IDisposable
     {
         [Fact]
         public async Task Can_use_sequential_GUID_end_to_end_async()
@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new BronieContext(serviceProvider, "GooieBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
 
                 for (var i = 0; i < 50; i++)
                 {
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "GooieBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasuses = await context.Pegasuses.OrderBy(e => e.Id).ToListAsync();
 
@@ -52,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             var guids = new List<Guid>();
 
-            using (var context = new BronieContext(serviceProvider, "GooieExplicitBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
 
                 for (var i = 0; i < 50; i++)
                 {
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "GooieExplicitBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasuses = await context.Pegasuses.OrderBy(e => e.Index).ToListAsync();
 
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
@@ -101,5 +101,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public string Name { get; set; }
             public int Index { get; set; }
         }
+
+        public SequentialGuidEndToEndTest()
+        {
+            TestStore = SqlServerTestStore.Create("SequentialGuidEndToEndTest");
+        }
+
+        protected SqlServerTestStore TestStore { get; }
+
+        public virtual void Dispose() => TestStore.Dispose();
     }
 }

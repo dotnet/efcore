@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     _testStore.ConnectionString,
                     b =>
                         {
+                            b.ApplyConfiguration();
                             ConfigureOptions(b);
                             b.ApplyConfiguration();
                         }).Options;

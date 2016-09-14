@@ -4,21 +4,6 @@
 SET NOCOUNT ON
 GO
 
-USE master
-GO
-if exists (select * from sysdatabases where name='SqlServerReverseEngineerTestE2E')
-    DROP DATABASE SqlServerReverseEngineerTestE2E
-GO
-
-DECLARE @device_directory NVARCHAR(520)
-SELECT @device_directory = SUBSTRING(filename, 1, CHARINDEX(N'master.mdf', LOWER(filename)) - 1)
-FROM master.dbo.sysaltfiles WHERE dbid = 1 AND fileid = 1
-
-EXECUTE (N'CREATE DATABASE SqlServerReverseEngineerTestE2E
-  ON PRIMARY (NAME = N''SqlServerReverseEngineerTestE2E'', FILENAME = N''' + @device_directory + N'SqlServerReverseEngineerTestE2E.mdf'')
-  LOG ON (NAME = N''SqlServerReverseEngineerTestE2E_log'',  FILENAME = N''' + @device_directory + N'SqlServerReverseEngineerTestE2E_log.ldf'')')
-GO
-
 SET QUOTED_IDENTIFIER ON
 GO
 
@@ -29,9 +14,6 @@ SET DATEFORMAT mdy
 GO
 
 SET ANSI_NULLS ON
-GO
-
-USE "SqlServerReverseEngineerTestE2E"
 GO
 
 if exists (select * from sysobjects where id = object_id('dbo.AllDataTypes') and sysstat & 0xf = 3)

@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             int secondId;
             using (var context = CreateContext())
             {
+                context.Database.EnsureCreated();
                 var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
                 SetPartitionId(first, context);
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -17,21 +18,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : MigrationsFixtureBase, new()
     {
-        private readonly TFixture _fixture;
+        protected TFixture Fixture { get; }
 
         protected MigrationsTestBase(TFixture fixture)
         {
-            _fixture = fixture;
+            Fixture = fixture;
         }
 
         protected string Sql { get; private set; }
 
         protected string ActiveProvider { get; private set; }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_apply_all_migrations()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
 
@@ -49,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public void Can_apply_one_migration()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
 
@@ -63,10 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_revert_all_migrations()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
                 db.Database.Migrate();
@@ -79,10 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_revert_one_migrations()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
                 db.Database.Migrate();
@@ -97,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_apply_all_migrations_async()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 await db.Database.EnsureDeletedAsync();
 
@@ -118,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_no_migration_script()
         {
-            using (var db = _fixture.CreateEmptyContext())
+            using (var db = Fixture.CreateEmptyContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -129,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_migration_from_initial_database_to_initial()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -140,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_up_scripts()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -151,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_one_up_script()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -162,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_up_script_using_names()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -173,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_idempotent_up_scripts()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -184,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_down_scripts()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -198,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_one_down_script()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -212,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_down_script_using_names()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -226,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_generate_idempotent_down_scripts()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
@@ -241,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void Can_get_active_provider()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
                 MigrationsFixtureBase.ActiveProvider = null;
@@ -259,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual async Task Can_execute_operations()
         {
-            using (var db = _fixture.CreateContext())
+            using (var db = Fixture.CreateContext())
             {
                 await db.Database.EnsureDeletedAsync();
                 await db.Database.EnsureCreatedAsync();

@@ -12,17 +12,18 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
+    public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>, IDisposable
     {
-        private const string DatabaseName = "NotKettleChips";
-
         private readonly CommandConfigurationTestFixture _fixture;
+        private readonly SqlServerTestStore _testStore;
 
         public CommandConfigurationTest(CommandConfigurationTestFixture fixture)
         {
             _fixture = fixture;
-            _fixture.CreateDatabase();
+            _testStore = _fixture.CreateDatabase();
         }
+
+        public virtual void Dispose() => _testStore.Dispose();
 
         public class CommandConfigurationTestFixture
         {
@@ -30,22 +31,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            public virtual void CreateDatabase()
-            {
-                SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        using (var context = new ChipsContext(ServiceProvider))
-                        {
-                            context.Database.EnsureClean();
-                        }
-                    });
-            }
+            public virtual SqlServerTestStore CreateDatabase() => SqlServerTestStore.GetOrCreateShared("CommandConfiguration", null);
         }
 
         [Fact]
         public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
         {
-            using (var context = new ConfiguredChipsContext(_fixture.ServiceProvider))
+            using (var context = new ConfiguredChipsContext(_fixture.ServiceProvider, _testStore.Name))
             {
                 Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-5));
             }
@@ -65,9 +57,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
-            using (var context = new ConfiguredChipsContext(serviceProvider))
+            using (var context = new ConfiguredChipsContext(serviceProvider, _testStore.Name))
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
 
                 for (var i = 0; i < count; i++)
                 {
@@ -79,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Equal(expected, CountSqlLinesContaining("SELECT NEXT VALUE FOR"));
         }
 
-        public int CountSqlLinesContaining(string searchTerm) 
+        public int CountSqlLinesContaining(string searchTerm)
             => CountLinesContaining(Sql, searchTerm);
 
         public int CountLinesContaining(string source, string searchTerm)
@@ -97,16 +89,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             private readonly IServiceProvider _serviceProvider;
 
-            public ChipsContext(IServiceProvider serviceProvider)
+            public ChipsContext(IServiceProvider serviceProvider, string databaseName)
             {
                 _serviceProvider = serviceProvider;
+                DatabaseName = databaseName;
             }
 
             public DbSet<KettleChips> Chips { get; set; }
+            protected string DatabaseName { get; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -127,14 +121,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class ConfiguredChipsContext : ChipsContext
         {
-            public ConfiguredChipsContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
+            public ConfiguredChipsContext(IServiceProvider serviceProvider, string databaseName)
+                : base(serviceProvider, databaseName)
             {
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => base.OnConfiguring(
-                    optionsBuilder.UseSqlServer("Database=" + DatabaseName, b => b.CommandTimeout(77)));
+                    optionsBuilder.UseSqlServer("Database=" + DatabaseName, b =>
+                        {
+                            b.ApplyConfiguration();
+                            b.CommandTimeout(77);
+                        }));
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

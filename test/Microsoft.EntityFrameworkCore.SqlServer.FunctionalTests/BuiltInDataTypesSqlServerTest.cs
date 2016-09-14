@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 // ReSharper disable UnusedParameter.Local
@@ -13,6 +15,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
+    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerFixture>
     {
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
@@ -31,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var results 
+                var results
                     = context.Set<MappedNullableDataTypes>()
                         .Where(e => e.Time == new TimeSpan(0, 1, 2))
                         .Select(e => e.Int)
@@ -1689,19 +1692,19 @@ WHERE [e].[Time] = @__timeSpan_0",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
             const string query
-                = @"SELECT 
-                        TABLE_NAME, 
-                        COLUMN_NAME, 
-                        DATA_TYPE, 
+                = @"SELECT
+                        TABLE_NAME,
+                        COLUMN_NAME,
+                        DATA_TYPE,
                         IS_NULLABLE,
-                        CHARACTER_MAXIMUM_LENGTH, 
-                        NUMERIC_PRECISION, 
-                        NUMERIC_SCALE, 
-                        DATETIME_PRECISION 
+                        CHARACTER_MAXIMUM_LENGTH,
+                        NUMERIC_PRECISION,
+                        NUMERIC_SCALE,
+                        DATETIME_PRECISION
                     FROM INFORMATION_SCHEMA.COLUMNS";
 
             var columns = new List<ColumnInfo>();

@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public void Sequences()
         {
-            using (var scratch = SqlServerTestStore.CreateScratch())
+            using (var scratch = SqlServerTestStore.Create("SqlServerE2E"))
             {
                 scratch.ExecuteNonQuery(@"
 CREATE SEQUENCE CountByTwo
@@ -258,7 +258,7 @@ CREATE SEQUENCE NumericSequence
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void PrimaryKeyWithSequence()
         {
-            using (var scratch = SqlServerTestStore.CreateScratch())
+            using (var scratch = SqlServerTestStore.Create("SqlServerE2E"))
             {
                 scratch.ExecuteNonQuery(@"
 CREATE SEQUENCE PrimaryKeyWithSequenceSequence

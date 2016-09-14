@@ -88,6 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static Navigation AsNavigation([NotNull] this INavigation navigation, [NotNull] [CallerMemberName] string methodName = "")
-            => navigation.AsConcreteMetadataType<INavigation, Navigation>(methodName);
+            => MetadataExtensions.AsConcreteMetadataType<INavigation, Navigation>(navigation, methodName);
     }
 }

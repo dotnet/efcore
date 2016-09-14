@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
@@ -24,5 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public override Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values() => Task.FromResult(true);
         public override Task Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception() => Task.FromResult(true);
         public override Task Change_in_independent_association_results_in_independent_association_exception() => Task.FromResult(true);
+
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
     }
 }

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_false_when_database_doesnt_exist_test(bool async, bool file)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_true_when_database_exists_test(bool async, bool file)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task EnsureDeleted_will_delete_database_test(bool async, bool open, bool file)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true, useFileName: file))
             {
                 if (!open)
                 {
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task EnsuredDeleted_noop_when_database_doesnt_exist_test(bool async, bool file)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -265,13 +265,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task EnsureCreated_can_create_schema_in_existing_database_test(bool async, bool file)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(useFileName: file))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(useFileName: file))
             {
                 await RunDatabaseCreationTest(testDatabase, async);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public async Task EnsureCreated_can_create_physical_database_and_schema()
         {
             await EnsureCreated_can_create_physical_database_and_schema_test(async: false, file: false);
@@ -284,7 +285,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             await EnsureCreated_can_create_physical_database_and_schema_test(async: false, file: true);
         }
 
-        [Fact]
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public async Task EnsureCreatedAsync_can_create_physical_database_and_schema()
         {
             await EnsureCreated_can_create_physical_database_and_schema_test(async: true, file: false);
@@ -297,12 +299,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             await EnsureCreated_can_create_physical_database_and_schema_test(async: true, file: true);
         }
 
-        private static async Task EnsureCreated_can_create_physical_database_and_schema_test(bool async, bool file)
+        private static Task EnsureCreated_can_create_physical_database_and_schema_test(bool async, bool file)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false, useFileName: file))
-            {
-                await RunDatabaseCreationTest(testDatabase, async);
-            }
+            return SqlServerTestStore.GetExecutionStrategy().ExecuteAsync(async state =>
+                {
+                    using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: state.file))
+                    {
+                        await RunDatabaseCreationTest(testDatabase, state.async);
+                    }
+                }, new {async, file});
         }
 
         private static async Task RunDatabaseCreationTest(SqlServerTestStore testStore, bool async)
@@ -388,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(bool async, bool file)
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -422,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(_testStore.ConnectionString)
+                    .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(CreateServiceProvider());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -83,6 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static Key AsKey([NotNull] this IKey key, [NotNull] [CallerMemberName] string methodName = "")
-            => key.AsConcreteMetadataType<IKey, Key>(methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IKey, Key>(key, methodName);
     }
 }

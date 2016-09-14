@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 using (var context = CreateContext())
                 {
-                    EnsureClean(context);
+                    context.Database.EnsureCreated();
 
                     context.Add(new WithStringKey { Id = "Stereo" });
                     context.Add(new WithStringKey { Id = "Fire" });
@@ -315,8 +315,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     context.SaveChanges();
                 }
             }
-
-            protected abstract void EnsureClean(DbContext context);
         }
     }
 }

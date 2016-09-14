@@ -35,12 +35,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
                             .UseInternalServiceProvider(_serviceProvider);
 
                         using (var context = new AdvancedPatternsMasterContext(optionsBuilder.Options))
                         {
-                            context.Database.EnsureClean();
+                            context.Database.EnsureCreated();
                             Seed(context);
                         }
                     });
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public override DbContext CreateContext(SqlServerTestStore testStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.Connection)
+                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
                 var context = new AdvancedPatternsMasterContext(optionsBuilder.Options);

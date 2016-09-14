@@ -33,12 +33,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public override DbContext CreateContext()
                 => new DbContext(_options);
-
-            protected override void EnsureClean(DbContext context)
-            {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-            }
         }
     }
 }

@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class CompositeKeyEndToEndTest
+    public class CompositeKeyEndToEndTest : IDisposable
     {
         [Fact]
         public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
@@ -22,15 +22,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             var ticks = DateTime.UtcNow.Ticks;
 
-            using (var context = new BronieContext(serviceProvider, "CompositePegasuses"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
 
                 context.Add(new Pegasus { Id1 = ticks, Id2 = ticks + 1, Name = "Rainbow Dash" });
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositePegasuses"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasus = context.Pegasuses.Single(e => e.Id1 == ticks && e.Id2 == ticks + 1);
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositePegasuses"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasus = context.Pegasuses.Single(e => e.Id1 == ticks && e.Id2 == ticks + 1);
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositePegasuses"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 Assert.Equal(0, context.Pegasuses.Count(e => e.Id1 == ticks && e.Id2 == ticks + 1));
             }
@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var id2 = DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture);
             Guid id3;
 
-            using (var context = new BronieContext(serviceProvider, "CompositeUnicorns"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureClean();
+                context.Database.EnsureCreated();
 
                 var added = context.Add(new Unicorn { Id2 = id2, Name = "Rarity" }).Entity;
 
@@ -84,12 +84,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 id3 = added.Id3;
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositeUnicorns"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 Assert.Equal(1, context.Unicorns.Count(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3));
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositeUnicorns"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var unicorn = context.Unicorns.Single(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3);
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositeUnicorns"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var unicorn = context.Unicorns.Single(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3);
 
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositeUnicorns"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 Assert.Equal(0, context.Unicorns.Count(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3));
             }
@@ -124,9 +124,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             var ids = new int[3];
 
-            using (var context = new BronieContext(serviceProvider, "CompositeEarthPonies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureClean();
+                await context.Database.EnsureCreatedAsync();
 
                 var pony1 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 1" }).Entity;
                 var pony2 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 2" }).Entity;
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 ids[2] = pony3.Id1;
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositeEarthPonies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var ponies = context.EarthPonies.ToList();
                 Assert.Equal(ponies.Count, ponies.Count(e => e.Name == "Apple Jack 1") * 3);
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositeEarthPonies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var ponies = context.EarthPonies.ToArray();
                 Assert.Equal(ponies.Length, ponies.Count(e => e.Name == "Apple Jack 1") * 3);
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, "CompositeEarthPonies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 Assert.Equal(0, context.EarthPonies.Count());
             }
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -239,5 +239,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public int Id2 { get; set; }
             public string Name { get; set; }
         }
+
+        public CompositeKeyEndToEndTest()
+        {
+            TestStore = SqlServerTestStore.Create("CompositeKeyEndToEndTest");
+        }
+
+        protected SqlServerTestStore TestStore { get; }
+
+        public virtual void Dispose() => TestStore.Dispose();
     }
 }

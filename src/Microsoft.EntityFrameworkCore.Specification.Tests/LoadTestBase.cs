@@ -11,15 +11,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
-    public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
-        where TFixture : LoadTestBase<TFixture>.LoadFixtureBase, new()
+    public abstract class LoadTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+        where TTestStore : TestStore
+        where TFixture : LoadTestBase<TTestStore, TFixture>.LoadFixtureBase
     {
-        protected LoadTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-            fixture.Initialize();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -3398,13 +3393,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public DbSet<ChildCompositeKey> ChildrenCompositeKeys { get; set; }
         }
 
-        protected LoadContext CreateContext() => (LoadContext)Fixture.CreateContext();
+        protected LoadTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+
+            TestStore = Fixture.CreateTestStore();
+        }
+
+        protected LoadContext CreateContext() => (LoadContext)Fixture.CreateContext(TestStore);
 
         protected TFixture Fixture { get; }
+        protected TTestStore TestStore { get; }
 
-        public virtual void Dispose()
-        {
-        }
+        public virtual void Dispose() => TestStore.Dispose();
 
         public virtual void ClearLog()
         {
@@ -3416,24 +3417,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public abstract class LoadFixtureBase
         {
-            private static readonly object _lock = new object();
-            private static bool _initialized;
+            public abstract TTestStore CreateTestStore();
 
-            public virtual void Initialize()
-            {
-                lock (_lock)
-                {
-                    if (!_initialized)
-                    {
-                        CreateTestStore();
-                        _initialized = true;
-                    }
-                }
-            }
-
-            public abstract void CreateTestStore();
-
-            public abstract DbContext CreateContext();
+            public abstract DbContext CreateContext(TTestStore testStore);
 
             protected virtual void OnModelCreating(ModelBuilder modelBuilder)
             {
