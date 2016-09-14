@@ -476,14 +476,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual int AddToProjection([NotNull] Expression expression, bool resetProjectStar)
         {
             Check.NotNull(expression, nameof(expression));
+            
+            if (expression.NodeType == ExpressionType.Convert)
+            {
+                var unaryExpression = (UnaryExpression)expression;
+
+                if (unaryExpression.Type.UnwrapNullableType()
+                    == unaryExpression.Operand.Type)
+                {
+                    expression = unaryExpression.Operand;
+                }
+            }
 
             var columnExpression = expression as ColumnExpression;
-            var aliasExpression = expression as AliasExpression;
 
             if (columnExpression != null)
             {
                 return AddToProjection(columnExpression);
             }
+            
+            var aliasExpression = expression as AliasExpression;
 
             if (aliasExpression != null)
             {

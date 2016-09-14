@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -219,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     _querySources[querySourceReferenceExpression.ReferencedQuerySource]--;
                 }
 
-                foreach (var sourceExpression in _queryModel.ResultOperators.Select(SetResultOperationSourceExpression).Where(e => e != null))
+                foreach (var sourceExpression 
+                    in _queryModel.ResultOperators.Select(SetResultOperationSourceExpression).Where(e => e != null))
                 {
                     if (sourceExpression.Equals(expression))
                     {
@@ -258,13 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             var unionOperator = resultOperator as UnionResultOperator;
-            // ReSharper disable once UseNullPropagation
-            if (unionOperator != null)
-            {
-                return unionOperator.Source2;
-            }
-
-            return null;
+            
+            return unionOperator?.Source2;
         }
     }
 }

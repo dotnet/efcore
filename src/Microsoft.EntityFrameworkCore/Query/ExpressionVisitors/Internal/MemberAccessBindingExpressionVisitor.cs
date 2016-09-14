@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -132,6 +133,33 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             expression.QueryModel.TransformExpressions(Visit);
 
             return expression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitExtension(Expression node)
+        {
+            var nullConditionalExpression = node as NullConditionalExpression;
+
+            if (nullConditionalExpression != null)
+            {
+                var newCaller = Visit(nullConditionalExpression.Caller);
+
+                if (newCaller != nullConditionalExpression.Caller
+                    && newCaller.Type == typeof(ValueBuffer))
+                {
+                    var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
+
+                    if (newAccessOperation != nullConditionalExpression.AccessOperation)
+                    {
+                        return newAccessOperation;
+                    }
+                }
+            }
+
+            return base.VisitExtension(node);
         }
 
         /// <summary>

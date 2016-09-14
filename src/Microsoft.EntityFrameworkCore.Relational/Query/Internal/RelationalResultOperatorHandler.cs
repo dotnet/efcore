@@ -680,10 +680,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleSum(HandlerContext handlerContext)
         {
-            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection
+                && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 var sumExpression
-                    = new SumExpression(handlerContext.SelectExpression.Projection.Single());
+                    = new SumExpression(handlerContext.SelectExpression.Projection.First());
 
                 handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
 
@@ -699,12 +700,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var takeResultOperator = (TakeResultOperator)handlerContext.ResultOperator;
 
-            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+            var sqlTranslatingExpressionVisitor 
+                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
             var limit = sqlTranslatingExpressionVisitor.Visit(takeResultOperator.Count);
+
             if (limit != null)
             {
-                handlerContext.SelectExpression.Limit = takeResultOperator.Count;
+                handlerContext.SelectExpression.Limit = limit;
 
                 return handlerContext.EvalOnServer;
             }

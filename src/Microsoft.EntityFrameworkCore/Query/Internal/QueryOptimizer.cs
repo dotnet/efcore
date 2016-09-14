@@ -69,6 +69,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
+            TryFlattenJoin(joinClause, queryModel);
+
+            base.VisitJoinClause(joinClause, queryModel, index);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
+        {
+            TryFlattenJoin(joinClause, queryModel);
+
+            base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
+        }
+
+        private void TryFlattenJoin(JoinClause joinClause, QueryModel queryModel)
+        {
             var subQueryExpression = joinClause.InnerSequence as SubQueryExpression;
 
             if (subQueryExpression != null)
@@ -90,8 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
             }
-
-            base.VisitJoinClause(joinClause, queryModel, index);
         }
 
         /// <summary>
@@ -114,30 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (querySourceReferenceExpression != null
                 && querySourceReferenceExpression.ReferencedQuerySource == groupJoinClause)
             {
-                var referenceCount = 0;
-
-                Func<Expression, Expression> groupReferenceFinder = null;
-
-                groupReferenceFinder 
-                    = e =>
-                    {
-                        var qsre = e as QuerySourceReferenceExpression;
-
-                        if (qsre?.ReferencedQuerySource == groupJoinClause)
-                        {
-                            referenceCount++;
-                        }
-
-                        var sq = e as SubQueryExpression;
-
-                        sq?.QueryModel.TransformExpressions(groupReferenceFinder);
-
-                        return e;
-                    };
-
-                queryModel.TransformExpressions(groupReferenceFinder);
-
-                if (referenceCount == 1)
+                if (queryModel.CountQuerySourceReferences(groupJoinClause) == 1)
                 {
                     // GroupJoin/SelectMany can be rewritten to regular Join.
 

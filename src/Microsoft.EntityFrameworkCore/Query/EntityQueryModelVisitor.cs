@@ -806,11 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = Expression.Parameter(
                     innerSequenceExpression.Type.GetSequenceType(), joinClause.ItemName);
 
-            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(joinClause))
-            {
-                _queryCompilationContext.QuerySourceMapping
-                    .AddMapping(joinClause, innerItemParameter);
-            }
+            AddOrUpdateMapping(joinClause, innerItemParameter);
 
             var innerKeySelectorExpression
                 = ReplaceClauseReferences(joinClause.InnerKeySelector, joinClause);
@@ -880,16 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     innerSequenceExpression.Type.GetSequenceType(),
                     groupJoinClause.JoinClause.ItemName);
 
-            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(groupJoinClause.JoinClause))
-            {
-                _queryCompilationContext.QuerySourceMapping
-                    .AddMapping(groupJoinClause.JoinClause, innerItemParameter);
-            }
-            else
-            {
-                _queryCompilationContext.QuerySourceMapping
-                    .ReplaceMapping(groupJoinClause.JoinClause, innerItemParameter);
-            }
+            AddOrUpdateMapping(groupJoinClause.JoinClause, innerItemParameter);
 
             var innerKeySelectorExpression
                 = ReplaceClauseReferences(groupJoinClause.JoinClause.InnerKeySelector, groupJoinClause);
@@ -1112,7 +1099,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = AccessOuterTransparentField(transparentIdentifierType, CurrentParameter);
 
             RescopeTransparentAccess(queryModel.MainFromClause, outerAccessExpression);
-
+            
             for (var i = 0; i < index; i++)
             {
                 var querySource = queryModel.BodyClauses[i] as IQuerySource;
@@ -1120,6 +1107,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (querySource != null)
                 {
                     RescopeTransparentAccess(querySource, outerAccessExpression);
+
+                    var groupJoinClause = querySource as GroupJoinClause;
+
+                    if (groupJoinClause != null
+                        && QueryCompilationContext.QuerySourceMapping
+                            .ContainsMapping(groupJoinClause.JoinClause))
+                    {
+                        RescopeTransparentAccess(groupJoinClause.JoinClause, outerAccessExpression);
+                    }
                 }
             }
 
@@ -1145,9 +1141,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return targetExpression;
             }
 
-            return Expression.MakeMemberAccess(
-                ShiftMemberAccess(targetExpression, memberExpression.Expression),
-                memberExpression.Member);
+            try
+            {
+                return Expression.MakeMemberAccess(
+                    ShiftMemberAccess(targetExpression, memberExpression.Expression),
+                    memberExpression.Member);
+            }
+            catch (ArgumentException)
+            {
+                // Member is not defined on the new target expression.
+                // This is due to stale QuerySourceMappings, which we can't
+                // remove due to there not being an API on QuerySourceMapping.
+            }
+
+            return currentExpression;
         }
 
         #endregion
@@ -1210,14 +1217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(expression, nameof(expression));
 
-            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(querySource))
-            {
-                _queryCompilationContext.QuerySourceMapping.AddMapping(querySource, expression);
-            }
-            else
-            {
-                _queryCompilationContext.QuerySourceMapping.ReplaceMapping(querySource, expression);
-            }
+            QueryCompilationContext.AddOrUpdateMapping(querySource, expression);
         }
 
         #region Binding
@@ -1422,9 +1422,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             querySourceReferenceExpression = null;
 
             while (memberExpression?.Expression != null
-                   || (IsPropertyMethod(methodCallExpression?.Method) && methodCallExpression?.Arguments?[0] != null))
+                   || (IsPropertyMethod(methodCallExpression?.Method) 
+                    && methodCallExpression?.Arguments[0] != null))
             {
-                var propertyName = memberExpression?.Member.Name ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
+                var propertyName = memberExpression?.Member.Name 
+                    ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
+
                 expression = memberExpression?.Expression ?? methodCallExpression.Arguments[0];
 
                 // in case of inheritance there might be convert to derived type here, so we want to check it first

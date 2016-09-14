@@ -3243,6 +3243,21 @@ ORDER BY [c].[City]",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [o].[OrderID] IS NOT NULL AND (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL)
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Join_GroupJoin_DefaultIfEmpty_Where()
+        {
+            base.Join_GroupJoin_DefaultIfEmpty_Where();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+LEFT JOIN [Orders] AS [o2] ON [c].[CustomerID] = [o2].[CustomerID]
+WHERE [o2].[OrderID] IS NOT NULL AND (([o2].[CustomerID] = N'ALFKI') AND [o2].[CustomerID] IS NOT NULL)
 ORDER BY [c].[CustomerID]",
                 Sql);
         }
@@ -5177,7 +5192,7 @@ WHERE ([o].[CustomerID] = N'QUICK') AND ([o].[OrderDate] > '1998-01-01T00:00:00.
             base.OfType_Select();
 
             Assert.Equal(
-                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+                @"SELECT TOP(1) [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
@@ -5192,7 +5207,7 @@ ORDER BY [t].[OrderID], [t].[CustomerID]",
             base.OfType_Select_OfType_Select();
 
             Assert.Equal(
-                @"SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+                @"SELECT TOP(1) [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM (
     SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (

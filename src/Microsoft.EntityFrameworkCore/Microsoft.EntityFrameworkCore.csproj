@@ -268,6 +268,7 @@
     <Compile Include="Metadata\ITypeBase.cs" />
     <Compile Include="Metadata\PropertyAccessMode.cs" />
     <Compile Include="Query\Expressions\Internal\NullConditionalExpression.cs" />
+    <Compile Include="Query\Internal\QueryModelExtensions.cs" />
     <Compile Include="Query\ResultOperators\Internal\StringIncludeExpressionNode.cs" />
     <Compile Include="Storage\DatabaseProvider.cs" />
     <Compile Include="WarningBehavior.cs" />

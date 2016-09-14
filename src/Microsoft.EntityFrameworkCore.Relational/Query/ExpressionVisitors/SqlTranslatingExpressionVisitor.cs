@@ -212,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var leftExpression = Visit(expression.Left);
                     var rightExpression = Visit(expression.Right);
 
-                    return leftExpression != null && rightExpression != null
+                    return leftExpression != null 
+                            && rightExpression != null
                         ? Expression.MakeBinary(
                             expression.NodeType,
                             leftExpression,
@@ -252,6 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var ifTrue = Visit(expression.IfTrue);
             var ifFalse = Visit(expression.IfFalse);
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (test != null
                 && ifTrue != null
                 && ifFalse != null)
@@ -991,9 +993,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var nullConditionalExpression
                 = expression as NullConditionalExpression;
 
-            return nullConditionalExpression != null 
-                ? Visit(nullConditionalExpression.AccessOperation) 
-                : base.VisitExtension(expression);
+            if (nullConditionalExpression != null)
+            {
+                var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
+
+                if (newAccessOperation != null
+                    && newAccessOperation.Type != nullConditionalExpression.Type)
+                {
+                    newAccessOperation
+                        = Expression.Convert(newAccessOperation, nullConditionalExpression.Type);
+                }
+
+                return newAccessOperation;
+            }
+
+            return base.VisitExtension(expression);
         }
 
         /// <summary>
@@ -1006,6 +1020,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
+
+            if (!_inProjection)
+            {
+                var joinClause
+                    = expression.ReferencedQuerySource as JoinClause;
+
+                if (joinClause != null)
+                {
+                    var entityType
+                        = _queryModelVisitor.QueryCompilationContext.Model
+                            .FindEntityType(joinClause.ItemType);
+
+                    if (entityType != null)
+                    {
+                        return Visit(
+                            EntityQueryModelVisitor.CreatePropertyExpression(
+                                expression, entityType.FindPrimaryKey().Properties[0]));
+                    }
+
+                    return null;
+                }
+            }
 
             var selector
                 = ((expression.ReferencedQuerySource as FromClauseBase)

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryCompilationContext(
@@ -112,6 +112,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The query source mapping.
         /// </value>
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
+
+        /// <summary>
+        ///     Adds or updates the expression mapped to a query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="expression"> The expression mapped to the query source. </param>
+        public virtual void AddOrUpdateMapping(
+            [NotNull] IQuerySource querySource, [NotNull] Expression expression)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(expression, nameof(expression));
+
+            if (!QuerySourceMapping.ContainsMapping(querySource))
+            {
+                QuerySourceMapping.AddMapping(querySource, expression);
+            }
+            else
+            {
+                QuerySourceMapping.ReplaceMapping(querySource, expression);
+            }
+        }
 
         /// <summary>
         ///     Gets the query annotations./
@@ -259,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The new query model visitor.
         /// </returns>
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor(
-            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
+                [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
 
         /// <summary>
