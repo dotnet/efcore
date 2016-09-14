@@ -85,6 +85,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<SqlServerHistoryRepository>()
                 .AddScoped<SqlServerQueryModelVisitorFactory>()
                 .AddScoped<SqlServerCompiledQueryCacheKeyGenerator>()
+                .AddScoped<SqlServerExecutionStrategyFactory>()
                 .AddQuery());
 
             return services;

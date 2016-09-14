@@ -131,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
             public IResultOperatorHandler ResultOperatorHandler => null;
             public IEntityQueryableExpressionVisitorFactory EntityQueryableExpressionVisitorFactory => null;
             public IProjectionExpressionVisitorFactory ProjectionExpressionVisitorFactory => null;
+            public IExecutionStrategyFactory ExecutionStrategyFactory => null;
         }
     }
 }

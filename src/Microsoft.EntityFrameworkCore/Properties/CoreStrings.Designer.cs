@@ -1464,6 +1464,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("InheritedPropertyCannotBeIgnored", "property", "entityType", "baseEntityType"), property, entityType, baseEntityType);
         }
 
+        /// <summary>
+        /// Maximum number of retries ({retryLimit}) exceeded while executing database operations with '{strategy}'. See inner exception for the most recent failure.
+        /// </summary>
+        public static string RetryLimitExceeded([CanBeNull] object retryLimit, [CanBeNull] object strategy)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RetryLimitExceeded", "retryLimit", "strategy"), retryLimit, strategy);
+        }
+
+        /// <summary>
+        /// The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy to execute the all the operations in the transaction as a retriable unit.
+        /// </summary>
+        public static string ExecutionStrategyExistingTransaction([CanBeNull] object strategy)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ExecutionStrategyExistingTransaction", "strategy"), strategy);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
