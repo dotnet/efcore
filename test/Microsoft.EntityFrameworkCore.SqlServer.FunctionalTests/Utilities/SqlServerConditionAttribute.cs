@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 }
                 if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
                 {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? true;
+                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
                 }
                 if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
                 {
@@ -43,6 +43,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
                 {
                     isMet &= !TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                }
+                if (Conditions.HasFlag(SqlServerCondition.IsSqlLocalDb))
+                {
+                    isMet &= TestEnvironment.DefaultConnection.IndexOf("(localdb)", StringComparison.OrdinalIgnoreCase) != -1;
                 }
                 return isMet;
             }
@@ -64,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         SupportsOffset = 1 << 1,
         IsSqlAzure = 1 << 2,
         IsNotSqlAzure = 1 << 3,
-        SupportsMemoryOptimized = 1 << 4
+        SupportsMemoryOptimized = 1 << 4,
+        IsSqlLocalDb = 1 << 5
     }
 }

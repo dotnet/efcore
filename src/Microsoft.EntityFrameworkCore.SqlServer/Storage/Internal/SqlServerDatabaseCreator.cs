@@ -97,7 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 .Build("IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0");
 
         private IReadOnlyList<MigrationCommand> CreateCreateOperations()
-            => _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = _connection.DbConnection.Database } });
+        {
+            var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
+            return _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } }); 
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -170,7 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         // Login failed is thrown when database does not exist (See Issue #776)
-        private static bool IsDoesNotExist(SqlException exception) => exception.Number == 4060;
+        // Unable to attach database file is thrown when file does not exist (See Issue #2810)
+        // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
+        private static bool IsDoesNotExist(SqlException exception) => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
 
         // See Issue #985
         private bool RetryOnExistsFailure(SqlException exception, ref int retryCount)
@@ -189,7 +194,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             // And (Number 4060):
             //   System.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The
             //   login failed.
-            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060)
+            // And (Number 1832)
+            //   System.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
+            // And (Number 5120)
+            //   System.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
+            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120)
                 && ++retryCount < 30)
             {
                 ClearPool();
