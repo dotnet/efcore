@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static PropertyIndexes GetPropertyIndexes([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().PropertyIndexes;
+            => (propertyBase as IProperty)?.AsProperty()?.PropertyIndexes
+               ?? ((INavigation)propertyBase).AsNavigation().PropertyIndexes;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -113,8 +114,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return callingPropertyIndexes;
         }
 
-        private static void TrySetIndexes(IPropertyBase propertyBase, PropertyIndexes indexes)
-            => propertyBase.AsPropertyBase().PropertyIndexes = indexes;
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void TrySetIndexes([NotNull] this IPropertyBase propertyBase, [CanBeNull] PropertyIndexes indexes)
+        {
+            var property = propertyBase as IProperty;
+            if (property != null)
+            {
+                property.AsProperty().PropertyIndexes = indexes;
+            }
+            else
+            {
+                ((INavigation)propertyBase).AsNavigation().PropertyIndexes = indexes;
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -136,20 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IClrPropertySetter GetSetter([NotNull] this IPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().Setter;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static PropertyInfo GetPropertyInfo([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().PropertyInfo;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static FieldInfo GetFieldInfo([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().FieldInfo;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -184,8 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             memberInfo = null;
             errorMessage = null;
 
-            var propertyInfo = propertyBase.GetPropertyInfo();
-            var fieldInfo = propertyBase.GetFieldInfo();
+            var propertyInfo = propertyBase.PropertyInfo;
+            var fieldInfo = propertyBase.FieldInfo;
             var isCollectionNav = (propertyBase as INavigation)?.IsCollection() == true;
 
             var mode = propertyBase.GetPropertyAccessMode();
@@ -213,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         if (mode == PropertyAccessMode.FieldDuringConstruction
                             && !isCollectionNav)
                         {
-                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringEntityType.DisplayName());
+                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
                             return false;
                         }
                     }
@@ -223,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         if (!isCollectionNav)
                         {
                             errorMessage = CoreStrings.NoBackingField(
-                                propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName(), nameof(PropertyAccessMode));
+                                propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
                             return false;
                         }
                         return true;
@@ -249,14 +250,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         if (!isCollectionNav)
                         {
-                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringEntityType.DisplayName());
+                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
                             return false;
                         }
                     }
 
                     if (!isCollectionNav)
                     {
-                        errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName());
+                        errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
                         return false;
                     }
 
@@ -276,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return true;
                 }
 
-                errorMessage = CoreStrings.NoFieldOrGetter(propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName());
+                errorMessage = CoreStrings.NoFieldOrGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
                 return false;
             }
 
@@ -288,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         || !isCollectionNav)
                     {
                         errorMessage = CoreStrings.NoBackingField(
-                            propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName(), nameof(PropertyAccessMode));
+                            propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
                         return false;
                     }
                     return true;
@@ -299,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (!isCollectionNav)
                     {
-                        errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringEntityType.DisplayName());
+                        errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
                         return false;
                     }
                     return true;
@@ -311,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (propertyInfo == null)
             {
-                errorMessage = CoreStrings.NoProperty(fieldInfo.Name, propertyBase.DeclaringEntityType.DisplayName(), nameof(PropertyAccessMode));
+                errorMessage = CoreStrings.NoProperty(fieldInfo.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
                 return false;
             }
 
@@ -321,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (setterProperty == null
                     && !isCollectionNav)
                 {
-                    errorMessage = CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName(), nameof(PropertyAccessMode));
+                    errorMessage = CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
                     return false;
                 }
 
@@ -332,20 +333,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var getterProperty = propertyInfo.FindGetterProperty();
             if (getterProperty == null)
             {
-                errorMessage = CoreStrings.NoGetter(propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName(), nameof(PropertyAccessMode));
+                errorMessage = CoreStrings.NoGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
                 return false;
             }
 
             memberInfo = getterProperty;
             return true;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static Type GetClrType([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().ClrType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

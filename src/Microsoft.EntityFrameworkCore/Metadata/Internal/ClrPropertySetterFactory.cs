@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityParameter,
                 valueParameter).Compile();
 
-            var propertyType = propertyBase?.GetClrType() ?? propertyInfo?.PropertyType;
+            var propertyType = propertyBase?.ClrType ?? propertyInfo?.PropertyType;
 
             return propertyType.IsNullableType()
                    && propertyType.UnwrapNullableType().GetTypeInfo().IsEnum

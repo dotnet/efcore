@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var ignoredConfigurationSource = Metadata.FindIgnoredEntityTypeConfigurationSource(name);
+            var ignoredConfigurationSource = Metadata.FindIgnoredTypeConfigurationSource(name);
             return ignoredConfigurationSource.HasValue
                    && ignoredConfigurationSource.Value.Overrides(configurationSource);
         }
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool Ignore([NotNull] string name, [CanBeNull] Type type, ConfigurationSource configurationSource)
         {
-            var ignoredConfigurationSource = Metadata.FindIgnoredEntityTypeConfigurationSource(name);
+            var ignoredConfigurationSource = Metadata.FindIgnoredTypeConfigurationSource(name);
             if (ignoredConfigurationSource.HasValue)
             {
                 if (configurationSource.Overrides(ignoredConfigurationSource)

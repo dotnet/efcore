@@ -611,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                new TestModelValidator().Validate(propertyBase.DeclaringEntityType.Model);
+                new TestModelValidator().Validate(propertyBase.DeclaringType.Model);
                 Assert.Null(failMessage);
             }
             catch (InvalidOperationException ex)
@@ -687,20 +687,20 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public virtual void Properties_can_have_field_cleared(PropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
         {
             Assert.Null(propertyBase.GetField());
-            Assert.Null(propertyBase.GetFieldInfo());
+            Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.MemberInfo);
 
             propertyBase.SetField(fieldName, ConfigurationSource.Explicit);
 
             Assert.Equal(fieldName, propertyBase.GetField());
-            var fieldInfo = propertyBase.GetFieldInfo();
+            var fieldInfo = propertyBase.FieldInfo;
             Assert.Equal(fieldName, fieldInfo.Name);
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.MemberInfo);
 
             propertyBase.SetField(null, ConfigurationSource.Explicit);
 
             Assert.Null(propertyBase.GetField());
-            Assert.Null(propertyBase.GetFieldInfo());
+            Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.MemberInfo);
 
             propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Explicit);
@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             propertyBase.SetFieldInfo(null, ConfigurationSource.Explicit);
 
             Assert.Null(propertyBase.GetField());
-            Assert.Null(propertyBase.GetFieldInfo());
+            Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.MemberInfo);
         }
 

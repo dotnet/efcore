@@ -1,44 +1,20 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents an entity in an <see cref="IModel" />.
+    ///     Represents an entity type in an <see cref="IModel" />.
     /// </summary>
-    public interface IEntityType : IAnnotatable
+    public interface IEntityType : ITypeBase
     {
-        /// <summary>
-        ///     Gets the model this entity belongs to.
-        /// </summary>
-        IModel Model { get; }
-
-        /// <summary>
-        ///     Gets the name of the entity.
-        /// </summary>
-        string Name { get; }
-
         /// <summary>
         ///     Gets the base type of the entity. Returns null if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         IEntityType BaseType { get; }
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the CLR class that is used to represent instances of this entity. Returns null if the entity does not have a
-        ///         corresponding CLR class (known as a shadow entity).
-        ///     </para>
-        ///     <para>
-        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
-        ///         Therefore, shadow entities will only exist in migration model snapshots, etc.
-        ///     </para>
-        /// </summary>
-        Type ClrType { get; }
 
         /// <summary>
         ///     <para>

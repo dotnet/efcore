@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IProperty" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableProperty : IProperty, IMutableAnnotatable
+    public interface IMutableProperty : IProperty, IMutablePropertyBase
     {
         /// <summary>
         ///     Gets the type that this property belongs to.

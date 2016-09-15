@@ -178,6 +178,7 @@
     <Compile Include="Extensions\ObservableCollectionExtensions.cs" />
     <Compile Include="Extensions\PropertyBaseExtensions.cs" />
     <Compile Include="Extensions\PropertyExtensions.cs" />
+    <Compile Include="Extensions\TypeBaseExtensions.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
     <Compile Include="Infrastructure\Annotatable.cs" />
     <Compile Include="Infrastructure\AnnotatableExtensions.cs" />
@@ -255,8 +256,13 @@
     <Compile Include="Metadata\Conventions\Internal\IIndexRemovedConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IIndexUniquenessConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPropertyFieldChangedConvention.cs" />
+    <Compile Include="Metadata\IMutablePropertyBase.cs" />
+    <Compile Include="Metadata\IMutableTypeBase.cs" />
     <Compile Include="Metadata\Internal\AnnotatableExtensions.cs" />
     <Compile Include="Metadata\Internal\DebugView.cs" />
+    <Compile Include="Metadata\Internal\TypeBase.cs" />
+    <Compile Include="Metadata\Internal\TypeBaseExtensions.cs" />
+    <Compile Include="Metadata\ITypeBase.cs" />
     <Compile Include="Metadata\PropertyAccessMode.cs" />
     <Compile Include="Query\Expressions\Internal\NullConditionalExpression.cs" />
     <Compile Include="Query\ResultOperators\Internal\StringIncludeExpressionNode.cs" />

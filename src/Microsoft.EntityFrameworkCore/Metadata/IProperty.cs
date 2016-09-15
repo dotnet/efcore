@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -13,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IProperty : IPropertyBase
     {
         /// <summary>
-        ///     Gets the type of value that this property holds.
+        ///     Gets the entity type that this property belongs to.
         /// </summary>
-        Type ClrType { get; }
+        IEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets a value indicating whether this property can contain null.
