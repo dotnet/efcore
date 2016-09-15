@@ -470,11 +470,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             => CreateConnectionString(name, null, multipleActiveResultSets);
 
         private static string CreateConnectionString(string name, string fileName, bool multipleActiveResultSets)
-            => new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
+        {
+            var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
                 MultipleActiveResultSets = multipleActiveResultSets,
-                AttachDBFilename = fileName ?? "",
-                InitialCatalog = name,
-            }.ConnectionString;
+                InitialCatalog = name
+            };
+            if (fileName != null)
+            {
+                builder.AttachDBFilename = fileName;
+            }
+
+            return builder.ToString();
+        }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit.Sdk;
@@ -23,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         {
             get
             {
+                var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
+
                 var isMet = true;
                 if (Conditions.HasFlag(SqlServerCondition.SupportsSequences))
                 {
@@ -38,15 +41,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 }
                 if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
                 {
-                    isMet &= TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                    isMet &= defaultConnection.DataSource.Contains("database.windows.net");
                 }
                 if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
                 {
-                    isMet &= !TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                    isMet &= !defaultConnection.DataSource.Contains("database.windows.net");
                 }
-                if (Conditions.HasFlag(SqlServerCondition.IsSqlLocalDb))
+                if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
                 {
-                    isMet &= TestEnvironment.DefaultConnection.IndexOf("(localdb)", StringComparison.OrdinalIgnoreCase) != -1;
+                    isMet &= defaultConnection.DataSource.Contains("(localdb)")
+                        || defaultConnection.UserInstance;
                 }
                 return isMet;
             }
@@ -69,6 +73,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         IsSqlAzure = 1 << 2,
         IsNotSqlAzure = 1 << 3,
         SupportsMemoryOptimized = 1 << 4,
-        IsSqlLocalDb = 1 << 5
+        SupportsAttach = 1 << 5
     }
 }

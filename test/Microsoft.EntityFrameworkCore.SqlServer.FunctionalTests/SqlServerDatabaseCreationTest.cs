@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task Exists_returns_false_when_database_with_filename_doesnt_exist()
         {
             await Exists_returns_false_when_database_doesnt_exist_test(async: false, file: true);
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task ExistsAsync_returns_false_when_database_with_filename_doesnt_exist()
         {
             await Exists_returns_false_when_database_doesnt_exist_test(async: true, file: true);
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task Exists_returns_true_when_database_with_filename_exists()
         {
             await Exists_returns_true_when_database_exists_test(async: false, file: true);
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task ExistsAsync_returns_true_when_database_with_filename_exists()
         {
             await Exists_returns_true_when_database_exists_test(async: true, file: true);
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureDeleted_will_delete_database_with_filename()
         {
             await EnsureDeleted_will_delete_database_test(async: false, open: false, file: true);
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureDeletedAsync_will_delete_database_with_filename()
         {
             await EnsureDeleted_will_delete_database_test(async: true, open: false, file: true);
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureDeleted_will_delete_database_with_filename_with_opened_connections()
         {
             await EnsureDeleted_will_delete_database_test(async: false, open: true, file: true);
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureDeletedAsync_will_delete_database_with_filename_with_opened_connections()
         {
             await EnsureDeleted_will_delete_database_test(async: true, open: true, file: true);
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsuredDeleted_noop_when_database_with_filename_doesnt_exist()
         {
             await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: false, file: true);
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsuredDeletedAsync_noop_when_database_with_filename_doesnt_exist()
         {
             await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: true, file: true);
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureCreated_can_create_schema_in_existing_database_with_filename()
         {
             await EnsureCreated_can_create_schema_in_existing_database_test(async: false, file: true);
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureCreatedAsync_can_create_schema_in_existing_database_with_filename()
         {
             await EnsureCreated_can_create_schema_in_existing_database_test(async: true, file: true);
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureCreated_can_create_physical_database_with_filename_and_schema()
         {
             await EnsureCreated_can_create_physical_database_and_schema_test(async: false, file: true);
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsureCreatedAsync_can_create_physical_database_with_filename_and_schema()
         {
             await EnsureCreated_can_create_physical_database_and_schema_test(async: true, file: true);
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsuredCreated_is_noop_when_database_with_filename_exists_and_has_schema()
         {
             await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: false, file: true);
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsSqlLocalDb)]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsuredCreatedAsync_is_noop_when_database_with_filename_exists_and_has_schema()
         {
             await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: true, file: true);
