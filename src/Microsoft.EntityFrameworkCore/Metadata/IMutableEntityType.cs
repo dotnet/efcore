@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IEntityType" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableEntityType : IEntityType, IMutableAnnotatable
+    public interface IMutableEntityType : IEntityType, IMutableTypeBase
     {
         /// <summary>
         ///     Gets the model this entity belongs to.

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
             => (PropertyAccessors)_genericCreate
-                .MakeGenericMethod(propertyBase.GetClrType())
+                .MakeGenericMethod(propertyBase.ClrType)
                 .Invoke(null, new object[] { propertyBase });
 
         private static readonly MethodInfo _genericCreate
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(
             IPropertyBase propertyBase, bool useStoreGeneratedValues)
         {
-            var entityClrType = propertyBase.DeclaringEntityType.ClrType;
+            var entityClrType = propertyBase.DeclaringType.ClrType;
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
 
             var shadowIndex = (propertyBase as IProperty)?.GetShadowIndex() ?? -1;

@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (property != null)
             {
-                var entityType = property.DeclaringEntityType.DisplayName();
+                var entityType = property.DeclaringType.DisplayName();
                 var propertyName = property.Name;
 
                 message

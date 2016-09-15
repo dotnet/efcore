@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     && value == null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.DatabaseGeneratedNull(propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName()));
+                        CoreStrings.DatabaseGeneratedNull(propertyBase.Name, propertyBase.DeclaringType.DisplayName()));
                 }
 
                 _values[index] = value ?? _nullSentinel;
