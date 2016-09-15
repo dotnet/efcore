@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 
 // ReSharper disable SwitchStatementMissingSomeCases
 // ReSharper disable ForCanBeConvertedToForeach
@@ -116,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var parameterExpression = (ParameterExpression)obj;
 
                         hashCode += hashCode * 397;
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                         if (parameterExpression.Name != null)
                         {
                             hashCode ^= parameterExpression.Name.GetHashCode();
@@ -249,7 +251,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         hashCode += (hashCode * 397) ^ obj.Type.GetHashCode();
                         break;
                     }
+                    case ExpressionType.Extension:
+                    {
+                        var nullConditionalExpression = obj as NullConditionalExpression;
 
+                        if (nullConditionalExpression == null)
+                        {
+                            goto default;
+                        }
+
+                        hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalExpression.AccessOperation);
+
+                        break;
+                    }
                     default:
                         throw new NotImplementedException();
                 }

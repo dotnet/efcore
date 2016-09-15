@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -90,6 +91,49 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     // ReSharper disable once PossibleUnintendedReferenceComparison
                 where c == new Customer { CustomerID = "ANATR" }
                 select c.CustomerID);
+        }
+        
+        [ConditionalFact]
+        public virtual void Null_conditional_simple()
+        {
+            var c = Expression.Parameter(typeof(Customer));
+            
+            var predicate
+                = Expression.Lambda<Func<Customer, bool>>( 
+                    Expression.Equal(
+                        new NullConditionalExpression(c, c, Expression.Property(c, "CustomerID")),
+                        Expression.Constant("ALFKI")),
+                        c);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(predicate),
+                entryCount: 1);
+        }
+        
+        [ConditionalFact]
+        public virtual void Null_conditional_deep()
+        {
+            var c = Expression.Parameter(typeof(Customer));
+
+            var nullConditionalExpression 
+                = new NullConditionalExpression(c, c, Expression.Property(c, "CustomerID"));
+
+            nullConditionalExpression 
+                = new NullConditionalExpression(
+                    nullConditionalExpression,
+                    nullConditionalExpression, 
+                    Expression.Property(nullConditionalExpression, "Length"));
+
+            var predicate
+                = Expression.Lambda<Func<Customer, bool>>( 
+                    Expression.Equal(
+                        nullConditionalExpression,
+                        Expression.Constant(5, typeof(int?))),
+                        c);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(predicate),
+                entryCount: 91);
         }
 
         [ConditionalFact]

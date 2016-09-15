@@ -1347,7 +1347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindPropertyExpressionCore(memberExpression, querySource,
                 (ps, qs) =>
                     {
-                        var property = ps.Single() as IProperty;
+                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
 
                         return property != null
                                    ? memberBinder(property, qs)
@@ -1376,7 +1376,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindPropertyExpressionCore(methodCallExpression, querySource,
                 (ps, qs) =>
                     {
-                        var property = ps.Single() as IProperty;
+                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
 
                         return property != null
                                    ? methodCallBinder(property, qs)
@@ -1387,7 +1387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private TResult BindPropertyExpressionCore<TResult>(
             Expression propertyExpression,
             IQuerySource querySource,
-            Func<IEnumerable<IPropertyBase>, IQuerySource, TResult> propertyBinder)
+            Func<IReadOnlyList<IPropertyBase>, IQuerySource, TResult> propertyBinder)
         {
             QuerySourceReferenceExpression querySourceReferenceExpression;
 
@@ -1413,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return default(TResult);
         }
 
-        private IList<IPropertyBase> IterateCompositePropertyExpression(
+        private IReadOnlyList<IPropertyBase> IterateCompositePropertyExpression(
             Expression expression, out QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             var properties = new List<IPropertyBase>();
