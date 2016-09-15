@@ -322,12 +322,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get or add the property to. </param>
         /// <param name="name"> The name of the property. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
-        /// <param name="shadow"> Whether the property is in shadow-state. </param>
         /// <returns> The existing or newly created property. </returns>
         /// <remarks> The returned property might not have the specified type and shadowness. </remarks>
         public static IMutableProperty GetOrAddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType, bool shadow)
-            => entityType.FindProperty(name) ?? entityType.AddProperty(name, propertyType, shadow);
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] Type propertyType)
+            => entityType.FindProperty(name) ?? entityType.AddProperty(name, propertyType);
 
         /// <summary>
         ///     Gets the property with the given name, or creates a new one if one is not already defined.

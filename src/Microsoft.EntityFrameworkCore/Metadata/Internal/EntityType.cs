@@ -1041,7 +1041,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Debug.Assert((pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
                 "EntityType mismatch");
 
-            Navigation navigation = null;
             var navigationProperty = propertyIdentity.Property;
             if (ClrType != null)
             {
@@ -1052,12 +1051,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     pointsToPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType,
                     !pointsToPrincipal && !foreignKey.IsUnique,
                     shouldThrow: true);
-                navigation = new Navigation(navigationProperty, foreignKey);
             }
-            else
-            {
-                navigation = new Navigation(name, foreignKey);
-            }
+            var navigation = new Navigation(name, propertyIdentity.Property, null, foreignKey);
 
             _navigations.Add(name, navigation);
 
@@ -1338,8 +1333,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Property AddProperty(
             [NotNull] string name,
             [CanBeNull] Type propertyType = null,
-            bool? shadow = null,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
         {
@@ -1347,63 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             ValidateCanAddProperty(name);
 
-            FieldInfo fieldInfo = null;
-            
-            if (shadow != true)
-            {
-                var clrProperty = ClrType?.GetPropertiesInHierarchy(name).FirstOrDefault();
-                if (clrProperty != null)
-                {
-                    if (propertyType != null
-                        && propertyType != clrProperty.PropertyType)
-                    {
-                        throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(
-                            name,
-                            this.DisplayName(),
-                            clrProperty.PropertyType.ShortDisplayName(),
-                            propertyType.ShortDisplayName()));
-                    }
-
-                    return AddProperty(clrProperty, configurationSource, runConventions);
-                }
-
-                fieldInfo = ClrType?.GetTypesInHierarchy()
-                    .SelectMany(e => e.GetRuntimeFields()
-                        .Where(f => f.Name == name
-                                    && (propertyType == null
-                                        || f.FieldType.GetTypeInfo().IsAssignableFrom(propertyType.GetTypeInfo()))))
-                    .FirstOrDefault();
-
-                if (fieldInfo != null
-                    && propertyType == null)
-                {
-                    propertyType = fieldInfo.FieldType;
-                }
-
-                if (shadow == false)
-                {
-                    if (ClrType == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(name, this.DisplayName()));
-                    }
-
-                    throw new InvalidOperationException(CoreStrings.NoClrProperty(name, this.DisplayName()));
-                }
-            }
-
-            if (propertyType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
-            }
-
-            var property = new Property(name, propertyType, this, configurationSource);
-
-            if (fieldInfo != null)
-            {
-                property.SetFieldInfo(fieldInfo, ConfigurationSource.Convention, runConventions: false);
-            }
-
-            return AddProperty(property, runConventions);
+            return AddProperty(name, propertyType, ClrType?.GetMembersInHierarchy(name).FirstOrDefault(), configurationSource, runConventions);
         }
 
         /// <summary>
@@ -1411,28 +1348,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Property AddProperty(
-            [NotNull] PropertyInfo propertyInfo,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
+            [NotNull] MemberInfo memberInfo,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
         {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            Check.NotNull(memberInfo, nameof(memberInfo));
 
-            ValidateCanAddProperty(propertyInfo.Name);
+            ValidateCanAddProperty(memberInfo.Name);
 
             if (ClrType == null)
             {
-                throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(propertyInfo.Name, this.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
             }
 
-            if (propertyInfo.DeclaringType == null
-                || !propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+            if (memberInfo.DeclaringType == null
+                || !memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
             {
                 throw new ArgumentException(CoreStrings.PropertyWrongEntityClrType(
-                    propertyInfo.Name, this.DisplayName(), propertyInfo.DeclaringType?.ShortDisplayName()));
+                    memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
             }
 
-            return AddProperty(new Property(propertyInfo, this, configurationSource), runConventions);
+            return AddProperty(memberInfo.Name, memberInfo.GetMemberType(), memberInfo, configurationSource, runConventions);
         }
 
         private void ValidateCanAddProperty(string name)
@@ -1452,8 +1388,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private Property AddProperty(Property property, bool runConventions)
+        private Property AddProperty(
+            string name,
+            Type propertyType,
+            MemberInfo memberInfo,
+            ConfigurationSource configurationSource,
+            bool runConventions)
         {
+            Check.NotNull(name, nameof(name));
+
+            if (propertyType == null)
+            {
+                if (memberInfo == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
+                }
+
+                propertyType = memberInfo.GetMemberType();
+            }
+            else
+            {
+                if (memberInfo != null
+                     && propertyType != memberInfo.GetMemberType())
+                {
+                    throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(
+                        name,
+                        this.DisplayName(),
+                        memberInfo.GetMemberType().ShortDisplayName(),
+                        propertyType.ShortDisplayName()));
+                }
+            }
+
+            var property = new Property(name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, configurationSource);
+
             _properties.Add(property.Name, property);
 
             PropertyMetadataChanged();
@@ -1477,8 +1444,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property GetOrAddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadow)
-            => FindProperty(name) ?? AddProperty(name, propertyType, shadow);
+        public virtual Property GetOrAddProperty([NotNull] string name, [CanBeNull] Type propertyType)
+            => FindProperty(name) ?? AddProperty(name, propertyType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -1726,7 +1693,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableIndex IMutableEntityType.RemoveIndex(IReadOnlyList<IProperty> properties)
             => RemoveIndex(properties);
 
-        IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, bool shadow) => AddProperty(name, propertyType, shadow);
+        IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType) => AddProperty(name, propertyType);
         IProperty IEntityType.FindProperty(string name) => FindProperty(name);
         IMutableProperty IMutableEntityType.FindProperty(string name) => FindProperty(name);
         IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();

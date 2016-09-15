@@ -30,12 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected PropertyBase(
             [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo)
+            [CanBeNull] PropertyInfo propertyInfo,
+            [CanBeNull] FieldInfo fieldInfo)
         {
             Check.NotEmpty(name, nameof(name));
 
             Name = name;
             PropertyInfo = propertyInfo;
+            _fieldInfo = fieldInfo;
         }
 
         /// <summary>

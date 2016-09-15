@@ -433,15 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.
-        /// </summary>
-        public static string NoClrProperty([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrProperty", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
-        /// The property '{property}' cannot be added to entity type '{entityType}' because the property is not in shadow state and the type of the corresponding CLR property '{clrType}' does not match the specified type '{propertyType}'.
+        /// The property '{property}' cannot be added to type '{entityType}' because the type of the corresponding CLR property or field '{clrType}' does not match the specified type '{propertyType}'.
         /// </summary>
         public static string PropertyWrongClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrType, [CanBeNull] object propertyType)
         {
@@ -449,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.
+        /// The property '{property}' cannot exist on type '{entityType}' because the type is marked as shadow state while the property is not. Shadow state types can only contain shadow state properties.
         /// </summary>
         public static string ClrPropertyOnShadowEntity([CanBeNull] object property, [CanBeNull] object entityType)
         {
@@ -1297,7 +1289,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property or field. To add a shadow state property the property type needs to be specified.
+        /// The property '{property}' cannot be added to the type '{entityType}' because there was no property type specified and there is no corresponding CLR property or field. To add a shadow state property the property type must be specified.
         /// </summary>
         public static string NoPropertyType([CanBeNull] object property, [CanBeNull] object entityType)
         {

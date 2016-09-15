@@ -1611,7 +1611,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(fk1, orderType.FindForeignKey(customerFkProperty, customerKey1, customerType));
             Assert.Same(fk1, orderType.GetForeignKeys().Single());
 
-            var altKeyProperty = customerType.AddProperty(nameof(Customer.AlternateId), typeof(int), shadow: false);
+            var altKeyProperty = customerType.AddProperty(nameof(Customer.AlternateId), typeof(int));
             var customerKey2 = customerType.AddKey(altKeyProperty);
             var fk2 = orderType.AddForeignKey(customerFkProperty, customerKey2, customerType);
 
@@ -1700,11 +1700,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var model = new Model();
             var baseType = model.AddEntityType(typeof(BaseType));
             var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
-            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int), shadow: true);
+            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int));
             var key = baseType.GetOrAddKey(new[] { idProperty, idProperty2 });
             IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
             entityType.BaseType = baseType;
-            var fkProperty = entityType.AddProperty("fk", typeof(int), shadow: true);
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
 
             Assert.Equal(
                 CoreStrings.ForeignKeyPropertyInKey(Customer.IdProperty.Name, typeof(Customer).Name),
@@ -1767,7 +1767,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var model = new Model();
 
             var principalType = model.AddEntityType(typeof(PrincipalEntity));
-            var property1 = principalType.AddProperty("PeeKay", typeof(int), shadow: false);
+            var property1 = principalType.AddProperty("PeeKay", typeof(int));
             principalType.GetOrSetPrimaryKey(property1);
 
             var dependentType = model.AddEntityType(typeof(DependentEntity));
@@ -2304,7 +2304,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
             Assert.Null(entityType.RemoveProperty("Id"));
 
-            var property1 = entityType.AddProperty("Id", typeof(int), shadow: false);
+            var property1 = entityType.AddProperty("Id", typeof(int));
 
             Assert.False(property1.IsShadowProperty);
             Assert.Equal("Id", property1.Name);
@@ -2312,7 +2312,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(((IProperty)property1).IsConcurrencyToken);
             Assert.Same(entityType, property1.DeclaringEntityType);
 
-            var property2 = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property2 = entityType.AddProperty("Name", typeof(string));
 
             Assert.NotNull(property1.Builder);
             Assert.NotNull(property2.Builder);
@@ -2336,7 +2336,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
 
-            var idProperty = entityType.AddProperty("Id", typeof(int), shadow: false);
+            var idProperty = entityType.AddProperty("Id", typeof(int));
 
             Assert.False(idProperty.IsShadowProperty);
             Assert.Equal("Id", idProperty.Name);
@@ -2368,17 +2368,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(CoreStrings.ClrPropertyOnShadowEntity(nameof(Customer.Name), "Customer"),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty(nameof(Customer.Name), typeof(int), shadow: false)).Message);
-        }
-
-        [Fact]
-        public void AddProperty_throws_if_no_clr_property()
-        {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-
-            Assert.Equal(CoreStrings.NoClrProperty("Random", nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty("Random", null, shadow: false)).Message);
+                    entityType.AddProperty(Customer.NameProperty)).Message);
         }
 
         [Fact]
@@ -2399,7 +2389,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(CoreStrings.PropertyWrongClrType(
                 nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty(nameof(Customer.Name), typeof(int), shadow: false)).Message);
+                    entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
         }
 
         [Fact]
@@ -2559,11 +2549,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.AddProperty(Customer.IdProperty);
-            entityType.AddProperty("Mane", typeof(int), shadow: true);
+            entityType.AddProperty("Mane_", typeof(int));
 
             Assert.False(entityType.FindProperty("Name").IsShadowProperty);
             Assert.False(entityType.FindProperty("Id").IsShadowProperty);
-            Assert.True(entityType.FindProperty("Mane").IsShadowProperty);
+            Assert.True(entityType.FindProperty("Mane_").IsShadowProperty);
         }
 
         [Fact]
@@ -2625,15 +2615,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
 
             entityType.GetOrAddProperty(Customer.NameProperty);
-            entityType.AddProperty("Id", typeof(int), shadow: true);
-            entityType.AddProperty("Mane", typeof(int), shadow: true);
+            entityType.AddProperty("Id_", typeof(int));
+            entityType.AddProperty("Mane_", typeof(int));
 
-            Assert.Equal(0, entityType.FindProperty("Id").GetIndex());
-            Assert.Equal(1, entityType.FindProperty("Mane").GetIndex());
+            Assert.Equal(0, entityType.FindProperty("Id_").GetIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane_").GetIndex());
             Assert.Equal(2, entityType.FindProperty("Name").GetIndex());
 
-            Assert.Equal(0, entityType.FindProperty("Id").GetShadowIndex());
-            Assert.Equal(1, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(0, entityType.FindProperty("Id_").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane_").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
 
             Assert.Equal(2, entityType.ShadowPropertyCount());
@@ -2681,10 +2671,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
 
-            var gameProperty = entityType.AddProperty("Game", typeof(int), shadow: true);
+            var gameProperty = entityType.AddProperty("Game", typeof(int));
             gameProperty.IsConcurrencyToken = true;
 
-            var maneProperty = entityType.AddProperty("Mane", typeof(int), shadow: true);
+            var maneProperty = entityType.AddProperty("Mane", typeof(int));
             maneProperty.IsConcurrencyToken = true;
 
             Assert.Equal(0, entityType.FindProperty("Id").GetIndex());

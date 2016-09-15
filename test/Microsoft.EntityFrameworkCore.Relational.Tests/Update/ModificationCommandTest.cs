@@ -386,12 +386,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var model = new Model();
             var entityType = model.AddEntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Id", typeof(int), shadow: false);
+            var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var nonKey = entityType.AddProperty("Name", typeof(string));
             nonKey.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey.Relational().ColumnName = "Col2";
