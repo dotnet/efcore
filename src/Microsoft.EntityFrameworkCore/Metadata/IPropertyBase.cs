@@ -8,13 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Base type for navigation and scalar properties.
     /// </summary>
-    public interface IPropertyBase : IAnnotatable
+    public interface IPropertyBase : IAccessibleProperty
     {
-        /// <summary>
-        ///     Gets the name of the property.
-        /// </summary>
-        string Name { get; }
-
         /// <summary>
         ///     Gets the type that this property belongs to.
         /// </summary>

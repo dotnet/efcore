@@ -4,18 +4,13 @@
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a scalar property of an entity.
+    ///     TODO: ComplexType docs
     /// </summary>
-    public interface IProperty : IStructuralProperty, IPropertyBase
+    public interface IMutableAccessibleProperty : IAccessibleProperty, IMutableAnnotatable
     {
         /// <summary>
         ///     TODO: ComplexType docs
         /// </summary>
-        new IEntityType DeclaringType { get; }
-
-        /// <summary>
-        ///     TODO: ComplexType docs
-        /// </summary>
-        new string Name { get; }
+        new IMutableStructuralType DeclaringType { get; }
     }
 }

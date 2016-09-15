@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -14,172 +13,146 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public abstract class PropertyBase : ConventionalAnnotatable, IPropertyBase
+    public class ComplexPropertyUsage : StructuralProperty, IMutableComplexPropertyUsage
     {
-        private FieldInfo _fieldInfo;
-        private ConfigurationSource? _fieldInfoConfigurationSource;
-
         // Warning: Never access these fields directly as access needs to be thread-safe
-        private IClrPropertyGetter _getter;
-        private IClrPropertySetter _setter;
-        private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected PropertyBase(
-            [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo)
+        public ComplexPropertyUsage(
+            [NotNull] ComplexPropertyDefinition definition,
+            [NotNull] ComplexTypeUsage complexTypeUsage,
+            ConfigurationSource configurationSource)
+            : base(definition.Name, definition.ClrType, configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
+            DefiningProperty = definition;
+            ComplexTypeUsage = complexTypeUsage;
 
-            Name = name;
-            PropertyInfo = propertyInfo;
+            // TODO: Builders
+            //Initialize(declaringEntityType);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Name { get; }
+        public virtual ComplexPropertyDefinition DefiningProperty { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public abstract EntityType DeclaringEntityType { get; }
+        public virtual ComplexTypeUsage ComplexTypeUsage { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual PropertyInfo PropertyInfo { get; }
+        public virtual EntityType DeclaringEntityType => ComplexTypeUsage.DeclaringEntityType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual FieldInfo FieldInfo
+        public new virtual ComplexType DeclaringType => DefiningProperty.DeclaringType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override void OnPropertyNullableChanged()
         {
-            get { return _fieldInfo; }
-            [param: CanBeNull] set { SetFieldInfo(value, ConfigurationSource.Explicit); }
         }
 
+        // TODO: => DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder);
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public override void SetIsNullable(bool nullable, ConfigurationSource configurationSource)
         {
-            if (fieldName == null)
+            if (nullable
+                && Keys != null)
             {
-                SetFieldInfo(null, configurationSource);
-                return;
+                throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
             }
 
-            var typesInHierarchy = DeclaringEntityType.ClrType.GetTypesInHierarchy().ToList();
-
-            foreach (var type in typesInHierarchy)
-            {
-                var fields = type.GetRuntimeFields().ToDictionary(f => f.Name);
-                FieldInfo fieldInfo;
-                if (fields.TryGetValue(fieldName, out fieldInfo))
-                {
-                    SetFieldInfo(fieldInfo, configurationSource);
-                    return;
-                }
-            }
-
-            throw new InvalidOperationException(
-                CoreStrings.MissingBackingField(fieldName, Name, DeclaringEntityType.DisplayName()));
+            base.SetIsNullable(nullable, configurationSource);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetFieldInfo(
-            [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override void SetIsReadOnlyAfterSave(bool readOnlyAfterSave, ConfigurationSource configurationSource)
         {
-            if (fieldInfo != null
-                && !fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(this.GetClrType().GetTypeInfo()))
+            if (!readOnlyAfterSave
+                && Keys != null)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.BadBackingFieldType(
-                        fieldInfo.Name,
-                        fieldInfo.FieldType.ShortDisplayName(),
-                        DeclaringEntityType.DisplayName(),
-                        Name,
-                        this.GetClrType().ShortDisplayName()));
+                throw new InvalidOperationException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName()));
             }
 
-            UpdateFieldInfoConfigurationSource(configurationSource);
-
-            if (!ReferenceEquals(FieldInfo, fieldInfo))
-            {
-                var oldFieldInfo = FieldInfo;
-                _fieldInfo = fieldInfo;
-
-                DeclaringEntityType.PropertyMetadataChanged();
-
-                if (runConventions)
-                {
-                    OnFieldInfoSet(oldFieldInfo);
-                }
-            }
+            base.SetIsReadOnlyAfterSave(readOnlyAfterSave, configurationSource);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void OnFieldInfoSet([CanBeNull] FieldInfo oldFieldInfo)
-        {
-        }
+        protected override bool DefaultIsReadOnlyAfterSave
+            => ((ValueGenerated == ValueGenerated.OnAddOrUpdate)
+                && !IsStoreGeneratedAlways)
+               || Keys != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? GetFieldInfoConfigurationSource() => _fieldInfoConfigurationSource;
-
-        private void UpdateFieldInfoConfigurationSource(ConfigurationSource configurationSource)
-            => _fieldInfoConfigurationSource = configurationSource.Max(_fieldInfoConfigurationSource);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual MemberInfo MemberInfo => (MemberInfo)PropertyInfo ?? FieldInfo;
+        protected override bool DefaultRequiresValueGenerator => false;
+        // TODO:
+            //=> this.IsKey()
+            //   && !this.IsForeignKey()
+            //   && ValueGenerated == ValueGenerated.OnAdd;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public abstract Type ClrType { get; }
+        public virtual IEnumerable<ForeignKey> GetContainingForeignKeys()
+            => ((IProperty)this).GetContainingForeignKeys().Cast<ForeignKey>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertyGetter Getter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
+        public virtual IEnumerable<Key> GetContainingKeys()
+            => ((IProperty)this).GetContainingKeys().Cast<Key>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertySetter Setter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
+        public virtual IEnumerable<Index> GetContainingIndexes()
+            => ((IProperty)this).GetContainingIndexes().Cast<Index>();
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual PropertyAccessors Accessors
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
+        IMutableComplexType IMutableComplexPropertyUsage.DeclaringType => DeclaringType;
+        IComplexType IComplexPropertyUsage.DeclaringType => DeclaringType;
+
+        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
+
+        IMutableComplexPropertyDefinition IMutableComplexPropertyUsage.DefiningProperty => DefiningProperty;
+        IComplexPropertyDefinition IComplexPropertyUsage.DefiningProperty => DefiningProperty;
+
+        IMutableComplexTypeUsage IMutableComplexPropertyUsage.ComplexTypeUsage => ComplexTypeUsage;
+        IComplexTypeUsage IComplexPropertyUsage.ComplexTypeUsage => ComplexTypeUsage;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -209,6 +182,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IKey PrimaryKey { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<IKey> Keys { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
+
+        // TODO: public override string ToString() => this.ToDebugString();
+
+        // TODO: public virtual DebugView<Property> DebugView => new DebugView<Property>(this, m => m.ToDebugString(false));
     }
 }

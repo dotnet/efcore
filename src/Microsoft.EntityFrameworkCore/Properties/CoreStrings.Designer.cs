@@ -641,11 +641,35 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.
+        /// The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
         /// </summary>
         public static string DuplicateEntityType([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateEntityType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
+        /// </summary>
+        public static string DuplicateComplexType([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateComplexType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The type '{type}' cannot be added to the model as an entity type because a complex type with the same name already exists.
+        /// </summary>
+        public static string ComplexTypeAlreadyExists([CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ComplexTypeAlreadyExists", "type"), type);
+        }
+
+        /// <summary>
+        /// The type '{type}' cannot be added to the model as a complex type because an entity type with the same name already exists.
+        /// </summary>
+        public static string EntityTypeAlreadyExists([CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeAlreadyExists", "type"), type);
         }
 
         /// <summary>

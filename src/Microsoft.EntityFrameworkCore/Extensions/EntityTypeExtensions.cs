@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type for which to get the access mode. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         public static PropertyAccessMode? GetPropertyAccessMode(
-            [NotNull] this IEntityType entityType)
+            [NotNull] this IStructuralType entityType)
             => (PropertyAccessMode?)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.PropertyAccessModeAnnotation]
                ?? entityType.Model.GetPropertyAccessMode();
     }

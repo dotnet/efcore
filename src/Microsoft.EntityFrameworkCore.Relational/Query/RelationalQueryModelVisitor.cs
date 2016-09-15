@@ -1429,7 +1429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var querySourceReference = new QuerySourceReferenceExpression(querySource);
             var propertyExpression = isMemberExpression
-                ? Expression.Property(querySourceReference, property.GetPropertyInfo())
+                ? Expression.Property(querySourceReference, property.PropertyInfo)
                 : CreatePropertyExpression(querySourceReference, property);
 
             if (propertyExpression.Type.GetTypeInfo().IsValueType)

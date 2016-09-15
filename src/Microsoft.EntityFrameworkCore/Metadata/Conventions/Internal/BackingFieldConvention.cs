@@ -41,16 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void Apply([NotNull] PropertyBase propertyBase)
+        protected virtual void Apply([NotNull] AccessibleProperty property)
         {
-            if (ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
+            if (ConfigurationSource.Convention.Overrides(property.GetFieldInfoConfigurationSource()))
             {
-                foreach (var type in propertyBase.DeclaringEntityType.ClrType.GetTypesInHierarchy().ToList())
+                foreach (var type in property.DeclaringType.ClrType.GetTypesInHierarchy().ToList())
                 {
-                    var fieldInfo = TryMatchFieldName(type, propertyBase.ClrType, propertyBase.Name);
+                    var fieldInfo = TryMatchFieldName(type, property.ClrType, property.Name);
                     if (fieldInfo != null)
                     {
-                        propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Convention, runConventions: false);
+                        property.SetFieldInfo(fieldInfo, ConfigurationSource.Convention, runConventions: false);
                         return;
                     }
                 }

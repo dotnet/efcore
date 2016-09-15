@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property for which to set the access mode. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
         public static void SetPropertyAccessMode(
-            [NotNull] this IMutableProperty property, PropertyAccessMode? propertyAccessMode)
+            [NotNull] this IMutableAccessibleProperty property, PropertyAccessMode? propertyAccessMode)
         {
             Check.NotNull(property, nameof(property));
 
@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property for which the backing field should be set. </param>
         /// <param name="fieldName"> The name of the field to use. </param>
-        public static void SetField([NotNull] this IMutableProperty property, [CanBeNull] string fieldName)
-            => Check.NotNull(property, nameof(property)).AsPropertyBase()
+        public static void SetField([NotNull] this IMutableAccessibleProperty property, [CanBeNull] string fieldName)
+            => Check.NotNull(property, nameof(property)).AsAccessibleProperty()
                 .SetField(fieldName, ConfigurationSource.Explicit);
     }
 }

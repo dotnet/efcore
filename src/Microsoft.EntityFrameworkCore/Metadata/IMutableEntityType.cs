@@ -16,13 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IEntityType" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableEntityType : IEntityType, IMutableAnnotatable
+    public interface IMutableEntityType : IEntityType, IMutableStructuralType
     {
-        /// <summary>
-        ///     Gets the model this entity belongs to.
-        /// </summary>
-        new IMutableModel Model { get; }
-
         /// <summary>
         ///     Gets or sets the base type of the entity. Returns null if this is not a derived type in an inheritance hierarchy.
         /// </summary>
@@ -164,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="propertyType"> The type of value the property will hold. </param>
         /// <param name="shadow"> Whether the property is in shadow-state. </param>
         /// <returns> The newly created property. </returns>
-        IMutableProperty AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadow);
+        new IMutableProperty AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadow);
 
         /// <summary>
         ///     <para>
@@ -198,6 +193,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed. </returns>
-        IMutableProperty RemoveProperty([NotNull] string name);
+        new IMutableProperty RemoveProperty([NotNull] string name);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        new IMutableComplexTypeUsage FindComplexTypeUsage([NotNull] string name);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        new IEnumerable<IMutableComplexTypeUsage> GetComplexTypeUsages();
     }
 }
