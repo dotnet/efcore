@@ -53,6 +53,9 @@
     <Compile Include="..\Shared\PropertyInfoExtensions.cs">
       <Link>PropertyInfoExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MemberInfoExtensions.cs">
+      <Link>MemberInfoExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>SharedTypeExtensions.cs</Link>
     </Compile>

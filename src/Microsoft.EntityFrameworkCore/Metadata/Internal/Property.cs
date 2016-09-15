@@ -38,37 +38,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public Property(
             [NotNull] string name,
             [NotNull] Type clrType,
+            [CanBeNull] PropertyInfo propertyInfo,
+            [CanBeNull] FieldInfo fieldInfo,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource)
-            : base(name, null)
+            : base(name, propertyInfo, fieldInfo)
         {
             Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             DeclaringEntityType = declaringEntityType;
             ClrType = clrType;
-            Initialize(declaringEntityType, configurationSource);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public Property(
-            [NotNull] PropertyInfo propertyInfo,
-            [NotNull] EntityType declaringEntityType,
-            ConfigurationSource configurationSource)
-            : base(Check.NotNull(propertyInfo, nameof(propertyInfo)).Name, propertyInfo)
-        {
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-
-            DeclaringEntityType = declaringEntityType;
-            ClrType = propertyInfo.PropertyType;
-            Initialize(declaringEntityType, configurationSource);
-        }
-
-        private void Initialize(EntityType declaringEntityType, ConfigurationSource configurationSource)
-        {
             _configurationSource = configurationSource;
 
             Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);

@@ -289,13 +289,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
-            => Property(clrProperty.Name, clrProperty.PropertyType, clrProperty: clrProperty, configurationSource: configurationSource);
+        public virtual InternalPropertyBuilder Property([NotNull] MemberInfo clrProperty, ConfigurationSource configurationSource)
+            => Property(clrProperty.Name, clrProperty.GetMemberType(), clrProperty: clrProperty, configurationSource: configurationSource);
 
         private InternalPropertyBuilder Property(
             [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
-            [CanBeNull] PropertyInfo clrProperty,
+            [CanBeNull] MemberInfo clrProperty,
             [CanBeNull] ConfigurationSource? configurationSource)
         {
             if (IsIgnored(propertyName, configurationSource))
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Property existingProperty,
             [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
-            [CanBeNull] PropertyInfo clrProperty,
+            [CanBeNull] MemberInfo clrProperty,
             [CanBeNull] ConfigurationSource? configurationSource)
         {
             var property = existingProperty;
@@ -1765,7 +1765,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var property = Metadata.FindProperty(propertyName);
                 if (property == null)
                 {
-                    var clrProperty = Metadata.ClrType?.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
+                    var clrProperty = Metadata.ClrType?.GetMembersInHierarchy(propertyName).FirstOrDefault();
                     var type = typesList?[i];
                     InternalPropertyBuilder propertyBuilder;
                     if (clrProperty != null)
@@ -1802,7 +1802,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<Property> GetOrCreateProperties([CanBeNull] IEnumerable<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+        public virtual IReadOnlyList<Property> GetOrCreateProperties([CanBeNull] IEnumerable<MemberInfo> clrProperties, ConfigurationSource configurationSource)
         {
             if (clrProperties == null)
             {

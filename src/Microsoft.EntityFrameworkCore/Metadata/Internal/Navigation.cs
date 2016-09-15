@@ -24,20 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public Navigation([NotNull] PropertyInfo navigationProperty, [NotNull] ForeignKey foreignKey)
-            : base(Check.NotNull(navigationProperty, nameof(navigationProperty)).Name, navigationProperty)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            ForeignKey = foreignKey;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public Navigation([NotNull] string navigationName, [NotNull] ForeignKey foreignKey)
-            : base(navigationName, null)
+        public Navigation(
+            [NotNull] string name,
+            [CanBeNull] PropertyInfo propertyInfo,
+            [CanBeNull] FieldInfo fieldInfo,
+            [NotNull] ForeignKey foreignKey)
+            : base(name, propertyInfo, fieldInfo)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 

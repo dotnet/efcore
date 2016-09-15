@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
             var model = builder.Model;
             var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random), shadow: false);
+            entityType.AddProperty("Random", typeof(Random));
 
             foreach (var property in entityType.GetProperties())
             {

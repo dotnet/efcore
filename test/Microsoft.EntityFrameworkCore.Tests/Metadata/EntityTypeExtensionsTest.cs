@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
         public void Can_get_all_properties_and_navigations()
         {
             var entityType = new Model().AddEntityType(nameof(SelfRef));
-            var pk = entityType.GetOrSetPrimaryKey(entityType.AddProperty(nameof(SelfRef.Id), typeof(int), shadow: true));
-            var fkProp = entityType.AddProperty(nameof(SelfRef.SelfRefId), typeof(int?), shadow: true);
+            var pk = entityType.GetOrSetPrimaryKey(entityType.AddProperty(nameof(SelfRef.Id), typeof(int)));
+            var fkProp = entityType.AddProperty(nameof(SelfRef.SelfRefId), typeof(int?));
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, pk, entityType);
             fk.IsUnique = true;
