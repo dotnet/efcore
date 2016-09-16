@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             var keyProperties = new Property[propertyCount];
             for (var i = 0; i < propertyCount; i++)
             {
-                var property = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i), typeof(int?), shadow: false);
+                var property = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i), typeof(int?));
                 keyProperties[i] = property;
                 keyProperties[i].RequiresValueGenerator = true;
                 keyProperties[i].IsNullable = false;
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
 
         public void SetPrimaryKey(EntityType entityType)
         {
-            var property = entityType.AddProperty("Id", typeof(int), shadow: false);
+            var property = entityType.AddProperty("Id", typeof(int));
             entityType.SetPrimaryKey(property);
         }
 

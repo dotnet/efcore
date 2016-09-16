@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Null(entityType.Relational().DiscriminatorProperty);
 
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
 
             entityType.Relational().DiscriminatorProperty = property;
 
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             var entityType = modelBuilder
                 .Entity<Customer>()
                 .Metadata;
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
 
             var derivedType = modelBuilder
                 .Entity<SpecialCustomer>()
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Entity<SpecialCustomer>()
                 .Metadata;
 
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
 
             Assert.Equal(RelationalStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
                 Assert.Throws<InvalidOperationException>(() => otherType.Relational().DiscriminatorProperty = property).Message);
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
             entityType.Relational().DiscriminatorProperty = property;
 
             Assert.Null(entityType.Relational().DiscriminatorValue);
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            var property = entityType.AddProperty("D", typeof(int), true);
+            var property = entityType.AddProperty("D", typeof(int));
             entityType.Relational().DiscriminatorProperty = property;
 
             Assert.Equal(RelationalStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),

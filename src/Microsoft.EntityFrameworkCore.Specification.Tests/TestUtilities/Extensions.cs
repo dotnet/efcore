@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             foreach (var property in sourceEntityType.GetDeclaredProperties())
             {
-                var clonedProperty = targetEntityType.AddProperty(property.Name, property.ClrType, property.IsShadowProperty);
+                var clonedProperty = targetEntityType.AddProperty(property.Name, property.ClrType);
                 clonedProperty.IsNullable = property.IsNullable;
                 clonedProperty.IsConcurrencyToken = property.IsConcurrencyToken;
                 clonedProperty.RequiresValueGenerator = property.RequiresValueGenerator;

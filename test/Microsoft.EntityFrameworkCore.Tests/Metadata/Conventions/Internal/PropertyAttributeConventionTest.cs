@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<F>();
-            entityTypeBuilder.Property<int>(nameof(F.IgnoredProperty));
+            entityTypeBuilder.Property<string>(nameof(F.IgnoredProperty));
 
             // Because brining the property in by the fluent API overrides the annotation it has no effect
             Assert.True(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
 
-            var property = entityA.AddProperty("P0", typeof(int?), shadow: false);
+            var property = entityA.AddProperty("P0", typeof(int?));
             property.IsNullable = false;
             entityA.AddKey(new[] { property });
             property.Relational().DefaultValue = 1;
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             base.SetBaseType(entityType, baseEntityType);
 
-            var discriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string), true);
+            var discriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string));
             baseEntityType.Relational().DiscriminatorProperty = discriminatorProperty;
             baseEntityType.Relational().DiscriminatorValue = baseEntityType.Name;
             entityType.Relational().DiscriminatorValue = entityType.Name;

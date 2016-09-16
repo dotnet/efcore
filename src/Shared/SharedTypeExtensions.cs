@@ -185,6 +185,36 @@ namespace System
             while (type != null);
         }
 
+        public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type, string name)
+        {
+            // Do the whole hierarchy for properties first since looking for fields is slower.
+            var currentType = type;
+            do
+            {
+                var typeInfo = currentType.GetTypeInfo();
+                var propertyInfo = typeInfo.GetDeclaredProperty(name);
+                if (propertyInfo != null
+                    && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
+                {
+                    yield return propertyInfo;
+                }
+                currentType = typeInfo.BaseType;
+            }
+            while (currentType != null);
+
+            currentType = type;
+            do
+            {
+                var fieldInfo = currentType.GetRuntimeFields().FirstOrDefault(f => f.Name == name && !f.IsStatic);
+                if (fieldInfo != null)
+                {
+                    yield return fieldInfo;
+                }
+                currentType = currentType.GetTypeInfo().BaseType;
+            }
+            while (currentType != null);
+        }
+
         private static readonly Dictionary<Type, object> _commonTypeDictionary = new Dictionary<Type, object>
         {
             { typeof(int), default(int) },

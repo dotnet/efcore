@@ -20,10 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             => FieldMatchTest<TheDarkSideOfTheMoon>("IsThereAnybodyOutThere", "IsThereAnybodyOutThere");
 
         [Fact]
-        public void Property_name_matching_field_is_not_used_if_type_is_not_compatible()
-            => FieldMatchTest<TheDarkSideOfTheMoon>("EmptySpaces", "emptySpaces");
-
-        [Fact]
         public void Camel_case_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("Breathe", "breathe");
 
@@ -72,10 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         [Fact]
         public void Property_name_matching_field_is_used_as_first_preference_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("IsThereAnybodyOutThere", "IsThereAnybodyOutThere");
-
-        [Fact]
-        public void Property_name_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("EmptySpaces", "emptySpaces");
 
         [Fact]
         public void Camel_case_matching_field_is_used_as_next_preference_for_field_only()
@@ -200,19 +192,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             public int ComfortablyNumb { get; set; }
 
-            private int? IsThereAnybodyOutThere;
-            private int? isThereAnybodyOutThere;
-            private int? _isThereAnybodyOutThere;
-            private int? _IsThereAnybodyOutThere;
-            private int? m_isThereAnybodyOutThere;
-            private int? m_IsThereAnybodyOutThere;
-
-            private string EmptySpaces;
-            private int? emptySpaces;
-            private int? _emptySpaces;
-            private int? _EmptySpaces;
-            private int? m_emptySpaces;
-            private int? m_EmptySpaces;
+            private int IsThereAnybodyOutThere;
+            private int isThereAnybodyOutThere;
+            private int _isThereAnybodyOutThere;
+            private int _IsThereAnybodyOutThere;
+            private int m_isThereAnybodyOutThere;
+            private int m_IsThereAnybodyOutThere;
 
             private int? breathe;
             private int? _breathe;
@@ -315,19 +300,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 #pragma warning disable 169
             private string m_SpeakToMe;
 
-            private int? IsThereAnybodyOutThere;
-            private int? isThereAnybodyOutThere;
-            private int? _isThereAnybodyOutThere;
-            private int? _IsThereAnybodyOutThere;
-            private int? m_isThereAnybodyOutThere;
-            private int? m_IsThereAnybodyOutThere;
-
-            private string EmptySpaces;
-            private int? emptySpaces;
-            private int? _emptySpaces;
-            private int? _EmptySpaces;
-            private int? m_emptySpaces;
-            private int? m_EmptySpaces;
+            private int IsThereAnybodyOutThere;
+            private int isThereAnybodyOutThere;
+            private int _isThereAnybodyOutThere;
+            private int _IsThereAnybodyOutThere;
+            private int m_isThereAnybodyOutThere;
+            private int m_IsThereAnybodyOutThere;
 
             private int? breathe;
             private int? _breathe;

@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
 
             var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random), shadow: false);
+            entityType.AddProperty("Random", typeof(Random));
 
             foreach (var property in entityType.GetProperties())
             {
