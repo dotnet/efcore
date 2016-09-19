@@ -2649,8 +2649,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetIndex());
             Assert.Equal(2, entityType.FindProperty("Name").GetIndex());
             Assert.Equal(3, entityType.FindProperty("Token").GetIndex());
-            Assert.Equal(4, entityType.FindNavigation("CollectionNav").GetIndex());
-            Assert.Equal(5, entityType.FindNavigation("ReferenceNav").GetIndex());
+            Assert.Equal(0, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(1, entityType.FindNavigation("ReferenceNav").GetIndex());
 
             Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
@@ -2693,8 +2693,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(3, entityType.FindProperty("Mane").GetIndex());
             Assert.Equal(4, entityType.FindProperty("Name").GetIndex());
             Assert.Equal(5, entityType.FindProperty("Token").GetIndex());
-            Assert.Equal(6, entityType.FindNavigation("CollectionNav").GetIndex());
-            Assert.Equal(7, entityType.FindNavigation("ReferenceNav").GetIndex());
+            Assert.Equal(0, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(1, entityType.FindNavigation("ReferenceNav").GetIndex());
 
             Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
@@ -2742,8 +2742,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(3, entityType.FindProperty("Mane").GetIndex());
             Assert.Equal(4, entityType.FindProperty("Name").GetIndex());
             Assert.Equal(5, entityType.FindProperty("Token").GetIndex());
-            Assert.Equal(6, entityType.FindNavigation("CollectionNav").GetIndex());
-            Assert.Equal(7, entityType.FindNavigation("ReferenceNav").GetIndex());
+            Assert.Equal(0, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(1, entityType.FindNavigation("ReferenceNav").GetIndex());
 
             Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
@@ -2781,6 +2781,201 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(5, entityType.OriginalValueCount());
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
+        }
+
+        [Fact]
+        public void Indexes_for_derived_types_are_calculated_correctly()
+        {
+            using (var context = new Levels())
+            {
+                var type = context.Model.FindEntityType(typeof(Level1));
+
+                Assert.Equal(0, type.FindProperty("Id").GetIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetIndex());
+                Assert.Equal(0, type.FindNavigation("Level1Collection").GetIndex());
+                Assert.Equal(1, type.FindNavigation("Level1Reference").GetIndex());
+
+                Assert.Equal(-1, type.FindProperty("Id").GetShadowIndex());
+                Assert.Equal(0, type.FindProperty("Level1ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetShadowIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetOriginalValueIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetOriginalValueIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetRelationshipIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetRelationshipIndex());
+                Assert.Equal(2, type.FindNavigation("Level1Collection").GetRelationshipIndex());
+                Assert.Equal(3, type.FindNavigation("Level1Reference").GetRelationshipIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetStoreGeneratedIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Reference").GetStoreGeneratedIndex());
+
+                Assert.Equal(3, type.PropertyCount());
+                Assert.Equal(2, type.NavigationCount());
+                Assert.Equal(1, type.ShadowPropertyCount());
+                Assert.Equal(3, type.OriginalValueCount());
+                Assert.Equal(4, type.RelationshipPropertyCount());
+                Assert.Equal(2, type.StoreGeneratedCount());
+
+                type = context.Model.FindEntityType(typeof(Level2));
+
+                Assert.Equal(0, type.FindProperty("Id").GetIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetIndex());
+                Assert.Equal(0, type.FindNavigation("Level1Collection").GetIndex());
+                Assert.Equal(1, type.FindNavigation("Level1Reference").GetIndex());
+                Assert.Equal(2, type.FindNavigation("Level2Collection").GetIndex());
+                Assert.Equal(3, type.FindNavigation("Level2Reference").GetIndex());
+
+                Assert.Equal(-1, type.FindProperty("Id").GetShadowIndex());
+                Assert.Equal(0, type.FindProperty("Level1ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetShadowIndex());
+                Assert.Equal(1, type.FindProperty("Level2ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetShadowIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetOriginalValueIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetOriginalValueIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetOriginalValueIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetRelationshipIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetRelationshipIndex());
+                Assert.Equal(2, type.FindNavigation("Level1Collection").GetRelationshipIndex());
+                Assert.Equal(3, type.FindNavigation("Level1Reference").GetRelationshipIndex());
+                Assert.Equal(4, type.FindProperty("Level2ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetRelationshipIndex());
+                Assert.Equal(5, type.FindNavigation("Level2Collection").GetRelationshipIndex());
+                Assert.Equal(6, type.FindNavigation("Level2Reference").GetRelationshipIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetStoreGeneratedIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetStoreGeneratedIndex());
+                Assert.Equal(2, type.FindProperty("Level2ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Reference").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Reference").GetStoreGeneratedIndex());
+
+                Assert.Equal(5, type.PropertyCount());
+                Assert.Equal(4, type.NavigationCount());
+                Assert.Equal(2, type.ShadowPropertyCount());
+                Assert.Equal(5, type.OriginalValueCount());
+                Assert.Equal(7, type.RelationshipPropertyCount());
+                Assert.Equal(3, type.StoreGeneratedCount());
+
+                type = context.Model.FindEntityType(typeof(Level3));
+
+                Assert.Equal(0, type.FindProperty("Id").GetIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetIndex());
+                Assert.Equal(5, type.FindProperty("Level3ReferenceId").GetIndex());
+                Assert.Equal(6, type.FindProperty("Prop3").GetIndex());
+                Assert.Equal(0, type.FindNavigation("Level1Collection").GetIndex());
+                Assert.Equal(1, type.FindNavigation("Level1Reference").GetIndex());
+                Assert.Equal(2, type.FindNavigation("Level2Collection").GetIndex());
+                Assert.Equal(3, type.FindNavigation("Level2Reference").GetIndex());
+                Assert.Equal(4, type.FindNavigation("Level3Collection").GetIndex());
+                Assert.Equal(5, type.FindNavigation("Level3Reference").GetIndex());
+
+                Assert.Equal(-1, type.FindProperty("Id").GetShadowIndex());
+                Assert.Equal(0, type.FindProperty("Level1ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetShadowIndex());
+                Assert.Equal(1, type.FindProperty("Level2ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetShadowIndex());
+                Assert.Equal(2, type.FindProperty("Level3ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop3").GetShadowIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetOriginalValueIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetOriginalValueIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetOriginalValueIndex());
+                Assert.Equal(5, type.FindProperty("Level3ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(6, type.FindProperty("Prop3").GetOriginalValueIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetRelationshipIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetRelationshipIndex());
+                Assert.Equal(2, type.FindNavigation("Level1Collection").GetRelationshipIndex());
+                Assert.Equal(3, type.FindNavigation("Level1Reference").GetRelationshipIndex());
+                Assert.Equal(4, type.FindProperty("Level2ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetRelationshipIndex());
+                Assert.Equal(5, type.FindNavigation("Level2Collection").GetRelationshipIndex());
+                Assert.Equal(6, type.FindNavigation("Level2Reference").GetRelationshipIndex());
+                Assert.Equal(7, type.FindProperty("Level3ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop3").GetRelationshipIndex());
+                Assert.Equal(8, type.FindNavigation("Level3Collection").GetRelationshipIndex());
+                Assert.Equal(9, type.FindNavigation("Level3Reference").GetRelationshipIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetStoreGeneratedIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetStoreGeneratedIndex());
+                Assert.Equal(2, type.FindProperty("Level2ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetStoreGeneratedIndex());
+                Assert.Equal(3, type.FindProperty("Level3ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop3").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Reference").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Reference").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level3Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level3Reference").GetStoreGeneratedIndex());
+
+                Assert.Equal(7, type.PropertyCount());
+                Assert.Equal(6, type.NavigationCount());
+                Assert.Equal(3, type.ShadowPropertyCount());
+                Assert.Equal(7, type.OriginalValueCount());
+                Assert.Equal(10, type.RelationshipPropertyCount());
+                Assert.Equal(4, type.StoreGeneratedCount());
+            }
+        }
+
+        private class Levels : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseInMemoryDatabase();
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Level1>().HasOne(e => e.Level1Reference).WithMany(e => e.Level1Collection);
+                modelBuilder.Entity<Level2>().HasOne(e => e.Level2Reference).WithMany(e => e.Level2Collection);
+                modelBuilder.Entity<Level3>().HasOne(e => e.Level3Reference).WithMany(e => e.Level3Collection);
+            }
+        }
+
+        private class Level1
+        {
+            public int Id { get; set; }
+            public int Prop1 { get; set; }
+            public Level1 Level1Reference { get; set; }
+            public ICollection<Level1> Level1Collection { get; set; }
+        }
+
+        private class Level2 : Level1
+        {
+            public int Prop2 { get; set; }
+            public Level2 Level2Reference { get; set; }
+            public ICollection<Level2> Level2Collection { get; set; }
+        }
+
+        private class Level3 : Level2
+        {
+            public int Prop3 { get; set; }
+            public Level3 Level3Reference { get; set; }
+            public ICollection<Level3> Level3Collection { get; set; }
         }
 
         [Fact]

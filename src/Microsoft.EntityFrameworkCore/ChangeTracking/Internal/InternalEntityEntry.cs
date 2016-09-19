@@ -1031,7 +1031,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.ReferenceMustBeLoaded(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
             }
 
-            _stateData.FlagProperty(GetNavigationStateDataIndex(navigation), PropertyFlag.IsLoaded, isFlagged: loaded);
+            _stateData.FlagProperty(navigation.GetIndex(), PropertyFlag.IsLoaded, isFlagged: loaded);
         }
 
         /// <summary>
@@ -1042,9 +1042,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => (!navigation.IsCollection()
                 && EntityState != EntityState.Detached
                 && this[navigation] != null)
-               || _stateData.IsPropertyFlagged(GetNavigationStateDataIndex(navigation), PropertyFlag.IsLoaded);
-
-        private int GetNavigationStateDataIndex(INavigation navigation)
-            => navigation.GetIndex() - EntityType.PropertyCount();
+               || _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
     }
 }

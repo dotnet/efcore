@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static PropertyIndexes CalculateIndexes([NotNull] this IEntityType entityType, [NotNull] IPropertyBase propertyBase)
         {
             var index = 0;
+            var navigationIndex = 0;
             var shadowIndex = 0;
             var originalValueIndex = 0;
             var relationshipIndex = 0;
@@ -59,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (baseCounts != null)
             {
                 index = baseCounts.PropertyCount;
+                navigationIndex = baseCounts.NavigationCount;
                 shadowIndex = baseCounts.ShadowCount;
                 originalValueIndex = baseCounts.OriginalValueCount;
                 relationshipIndex = baseCounts.RelationshipCount;
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var navigation in entityType.GetDeclaredNavigations())
             {
                 var indexes = new PropertyIndexes(
-                    index: index++,
+                    index: navigationIndex++,
                     originalValueIndex: -1,
                     shadowIndex: -1,
                     relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
