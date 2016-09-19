@@ -404,6 +404,128 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public void Can_track_an_entity_with_more_than_10_properties()
+        {
+            using (var context = new GameDbContext())
+            {
+                context.Database.EnsureClean();
+
+                context.Characters.Add(new PlayerCharacter(new Level { Game = new Game() }));
+
+                context.SaveChanges();
+            }
+
+            using (var context = new GameDbContext())
+            {
+                var character = context.Characters
+                    .Include(c => c.Level.Game)
+                    .First();
+
+                Assert.NotNull(character.Game);
+                Assert.NotNull(character.Level);
+                Assert.NotNull(character.Level.Game);
+            }
+        }
+
+        public class Level
+        {
+            public virtual int Id { get; set; }
+            public virtual int GameId { get; set; }
+            public virtual Game Game { get; set; }
+        }
+
+        public class Game
+        {
+            public virtual int Id { get; set; }
+            public virtual ICollection<Actor> Actors { get; set; } = new HashSet<Actor>();
+            public virtual ICollection<Level> Levels { get; set; } = new HashSet<Level>();
+        }
+
+        public abstract class Actor
+        {
+            protected Actor()
+            {
+            }
+
+            protected Actor(Level level)
+            {
+                Level = level;
+                Game = level.Game;
+            }
+
+            public virtual int Id { get; private set; }
+            public virtual Level Level { get; set; }
+            public virtual int GameId { get; private set; }
+            public virtual Game Game { get; set; }
+        }
+
+        public class PlayerCharacter : Actor
+        {
+            public PlayerCharacter()
+            {
+            }
+
+            public PlayerCharacter(Level level)
+                : base(level)
+            {
+            }
+
+            public virtual string Name { get; set; }
+
+            public virtual int Strength { get; set; }
+            public virtual int Dexterity { get; set; }
+            public virtual int Speed { get; set; }
+            public virtual int Constitution { get; set; }
+            public virtual int Intelligence { get; set; }
+            public virtual int Willpower { get; set; }
+
+            public virtual int MaxHP { get; set; }
+            public virtual int HP { get; set; }
+
+            public virtual int MaxMP { get; set; }
+            public virtual int MP { get; set; }
+        }
+
+        public class GameDbContext : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("GameDbContext"));
+
+            public DbSet<Game> Games { get; set; }
+            public DbSet<Level> Levels { get; set; }
+            public DbSet<PlayerCharacter> Characters { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+
+                modelBuilder.Entity<Actor>(eb =>
+                {
+                    eb.HasKey(a => new { a.GameId, a.Id });
+                    eb.HasOne(a => a.Level)
+                        .WithMany()
+                        .HasForeignKey(nameof(Actor.GameId), "LevelId")
+                        .IsRequired();
+                });
+
+                modelBuilder.Entity<PlayerCharacter>();
+
+                modelBuilder.Entity<Game>(eb =>
+                {
+                    eb.Property(g => g.Id)
+                        .ValueGeneratedOnAdd();
+                    eb.HasMany(g => g.Levels)
+                        .WithOne(l => l.Game)
+                        .HasForeignKey(l => l.GameId);
+                    eb.HasMany(g => g.Actors)
+                        .WithOne(a => a.Game)
+                        .HasForeignKey(a => a.GameId)
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+            }
+        }
+
+        [Fact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
             using (SqlServerNorthwindContext.GetSharedStore())
