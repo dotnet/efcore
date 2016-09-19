@@ -3,7 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -94,6 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TBuilder UseRelationalNulls()
             => SetOption(e => e.UseRelationalNulls = true);
+
+        /// <summary>
+        ///     Configures the context to use the provided <see cref="IExecutionStrategy" />.
+        /// </summary>
+        /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
+        public virtual TBuilder ExecutionStrategy(
+            [NotNull] Func<ExecutionStrategyContext, IExecutionStrategy> getExecutionStrategy)
+            => SetOption(e => e.ExecutionStrategyFactory = Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy)));
 
         /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

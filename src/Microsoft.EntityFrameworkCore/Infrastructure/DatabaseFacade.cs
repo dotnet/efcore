@@ -135,6 +135,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => TransactionManager.RollbackTransaction();
 
         /// <summary>
+        /// Executes the operation using the configured <see cref="IExecutionStrategy"/> inside a transaction
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public virtual TResult ExecuteWithStrategyInTransaction<TResult>(Func<DbContext, TResult> operation)
+        {
+            using (var transaction = BeginTransaction())
+            {
+                var result = operation(_context);
+                transaction.Commit();
+
+                return result;
+            }
+        }
+
+        /// <summary>
         ///     <para>
         ///         Gets the current <see cref="IDbContextTransaction" /> being used by the context, or null
         ///         if no transaction is in use.

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
@@ -153,5 +154,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IEntityQueryModelVisitorFactory" /> for the database provider.
         /// </summary>
         public abstract IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="IExecutionStrategyFactory" /> for the database provider.
+        /// </summary>
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory => GetService<ExecutionStrategyFactory>();
     }
 }

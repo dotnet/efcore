@@ -316,6 +316,7 @@
     <Compile Include="Storage\Internal\RelationalCommand.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilder.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilderFactory.cs" />
+    <Compile Include="Storage\Internal\RelationalExecutionStrategyFactory.cs" />
     <Compile Include="Storage\Internal\RelationalLoggerExtensions.cs" />
     <Compile Include="Storage\Internal\RelationalParameterBuilder.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />

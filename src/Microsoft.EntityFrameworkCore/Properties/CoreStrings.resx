@@ -654,4 +654,10 @@
   <data name="InheritedPropertyCannotBeIgnored" xml:space="preserve">
     <value>The property '{property}' cannot be ignored on entity type '{entityType}', because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use NotMappedAttribute or Ignore method on the base type.</value>
   </data>
+  <data name="RetryLimitExceeded" xml:space="preserve">
+    <value>Maximum number of retries ({retryLimit}) exceeded while executing database operations with '{strategy}'. See inner exception for the most recent failure.</value>
+  </data>
+  <data name="ExecutionStrategyExistingTransaction" xml:space="preserve">
+    <value>The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy to execute the all the operations in the transaction as a retriable unit.</value>
+  </data>
 </root>

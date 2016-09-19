@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -188,5 +188,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IQuerySqlGeneratorFactory" /> for the database provider.
         /// </summary>
         public abstract IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override IExecutionStrategyFactory ExecutionStrategyFactory => GetService<RelationalExecutionStrategyFactory>();
     }
 }

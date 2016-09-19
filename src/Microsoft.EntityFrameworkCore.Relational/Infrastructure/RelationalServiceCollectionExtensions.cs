@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -73,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .AddScoped<CommandBatchPreparer>()
                     .AddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()
                     .AddScoped<MigrationsSqlGenerator>()
+                    .AddScoped<RelationalExecutionStrategyFactory>()
                     .AddScoped(p => GetProviderServices(p).ParameterNameGeneratorFactory)
                     .AddScoped(p => GetProviderServices(p).SqlGenerationHelper)
                     .AddScoped(p => GetProviderServices(p).CompositeMethodCallTranslator)
