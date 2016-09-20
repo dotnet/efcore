@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected TypeBase([NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
             : this(model, configurationSource)
         {
-            Check.ValidEntityType(clrType, nameof(clrType));
             Check.NotNull(model, nameof(model));
 
             _typeOrName = clrType;

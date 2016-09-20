@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,7 +23,42 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity class to find the type for. </param>
         /// <returns> The entity type, or null if none if found. </returns>
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
-            => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
+            => model.AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
+
+        /// <summary>
+        ///     Gets the complex type definition that maps the given type. Returns null if no complex type definition with the given name is found.
+        /// </summary>
+        /// <param name="model"> The model to find the complex type definition in. </param>
+        /// <param name="type"> The CLR type to find the complex type definition for. </param>
+        /// <returns> The complex type definition, or null if none if found. </returns>
+        public static IComplexTypeDefinition FindComplexTypeDefinition([NotNull] this IModel model, [NotNull] Type type)
+            => model.AsModel().FindComplexTypeDefinition(type);
+
+        /// <summary>
+        ///     Gets the entity type or complex type definition with the given name. Returns null if no type with the given name is found.
+        /// </summary>
+        /// <param name="model"> The model to find the type in. </param>
+        /// <param name="name"> The the name to look up. </param>
+        /// <returns> The type, or null if none if found. </returns>
+        public static ITypeBase FindMappedType([NotNull] this IModel model, [NotNull] string name)
+            => model.AsModel().FindMappedType(name);
+
+        /// <summary>
+        ///     Gets the entity type or complex type definition that maps the given type. Returns null if no type with the given name is found.
+        /// </summary>
+        /// <param name="model"> The model to find the type in. </param>
+        /// <param name="type"> The CLR type to find the type definition for. </param>
+        /// <returns> The type, or null if none if found. </returns>
+        public static ITypeBase FindMappedType([NotNull] this IModel model, [NotNull] Type type)
+            => model.AsModel().FindMappedType(type);
+
+        /// <summary>
+        /// Gets the entity types and complex type definitions contained in the model.
+        /// </summary>
+        /// <param name="model"> The model to get types from. </param>
+        /// <returns> All mapped types in the model. </returns>
+        public static IEnumerable<ITypeBase> GetMappedTypes([NotNull] this IModel model)
+            => model.AsModel().GetMappedTypes();
 
         /// <summary>
         ///     Gets the default change tracking strategy being used for entities in the model. This strategy indicates how the
@@ -32,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The change tracking strategy. </returns>
         public static ChangeTrackingStrategy GetChangeTrackingStrategy(
             [NotNull] this IModel model)
-            => Check.NotNull(model, nameof(model)).AsModel().ChangeTrackingStrategy;
+            => model.AsModel().ChangeTrackingStrategy;
 
         /// <summary>
         ///     <para>

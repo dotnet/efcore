@@ -75,6 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static Model AsModel([NotNull] this IModel model, [CallerMemberName] [NotNull] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IModel, Model>(model, methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IModel, Model>(Check.NotNull(model, nameof(model)), methodName);
     }
 }

@@ -271,7 +271,10 @@
     <value>The EF.Property&lt;T&gt; method may only be used within LINQ queries.</value>
   </data>
   <data name="DuplicateProperty" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+    <value>The property '{property}' cannot be added to the type '{entityType}' because a property with the same name already exists on type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="DuplicateComplexReference" xml:space="preserve">
+    <value>The complex type reference '{property}' cannot be added to the type '{entityType}' because a complex type reference with the same name already exists on type '{duplicateEntityType}'.</value>
   </data>
   <data name="PropertyWrongClrType" xml:space="preserve">
     <value>The property '{property}' cannot be added to type '{entityType}' because the type of the corresponding CLR property or field '{clrType}' does not match the specified type '{propertyType}'.</value>
@@ -350,6 +353,18 @@
   </data>
   <data name="DuplicateEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>
+  </data>
+  <data name="DuplicateComplexType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
+  </data>
+  <data name="ComplexTypeAlreadyExists" xml:space="preserve">
+    <value>The type '{type}' cannot be added to the model as an entity type because a complex type with the same name already exists.</value>
+  </data>
+  <data name="EntityTypeAlreadyExists" xml:space="preserve">
+    <value>The type '{type}' cannot be added to the model as a complex type because an entity type with the same name already exists.</value>
+  </data>
+  <data name="ComplexTypeStructIsRequired" xml:space="preserve">
+    <value>The reference '{reference}' to complex type '{complexType}' on type '{type}' cannot be marked as optional since '{complexType}' is a value type and therefore the reference to it cannot be set to null.</value>
   </data>
   <data name="DuplicateAnnotation" xml:space="preserve">
     <value>The annotation '{annotation}' cannot be added because an annotation with the same name already exists.</value>
@@ -511,10 +526,16 @@
     <value>Invalid relationship has been specified using InverseProperty and ForeignKey. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.</value>
   </data>
   <data name="ConflictingNavigation" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+    <value>The property '{property}' cannot be added to the type '{entityType}' because a navigation property with the same name already exists on type '{duplicateEntityType}'.</value>
   </data>
   <data name="ConflictingProperty" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+    <value>The navigation property '{navigation}' cannot be added to the type '{entityType}' because a property with the same name already exists on type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="ConflictingComplexReference" xml:space="preserve">
+    <value>The property '{property}' cannot be added to the type '{entityType}' because a complex type reference with the same name already exists on type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="ConflictingPropertyToReference" xml:space="preserve">
+    <value>The complex type reference '{navigation}' cannot be added to the type '{entityType}' because a property with the same name already exists on type '{duplicateEntityType}'.</value>
   </data>
   <data name="EntityTypeNotInRelationshipStrict" xml:space="preserve">
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.</value>

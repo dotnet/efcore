@@ -26,5 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or null if none are found. </returns>
         IEntityType FindEntityType([NotNull] string name);
+
+        /// <summary>
+        ///     Gets all complex type definitions defined in the model.
+        /// </summary>
+        /// <returns> All complex type definitions defined in the model. </returns>
+        IEnumerable<IComplexTypeDefinition> GetComplexTypeDefinitions();
+
+        /// <summary>
+        ///     Gets the complex type definition with the given name. Returns null if no complex type definitionwith the given name is found.
+        /// </summary>
+        /// <param name="name"> The name of the complex type definition to find. </param>
+        /// <returns> The complex type definition, or null if none are found. </returns>
+        IComplexTypeDefinition FindComplexTypeDefinition([NotNull] string name);
     }
 }
