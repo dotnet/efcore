@@ -425,11 +425,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.
+        /// The property '{property}' cannot be added to the type '{entityType}' because a property with the same name already exists on type '{duplicateEntityType}'.
         /// </summary>
         public static string DuplicateProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateProperty", "property", "entityType", "duplicateEntityType"), property, entityType, duplicateEntityType);
+        }
+
+        /// <summary>
+        /// The complex type reference '{property}' cannot be added to the type '{entityType}' because a complex type reference with the same name already exists on type '{duplicateEntityType}'.
+        /// </summary>
+        public static string DuplicateComplexReference([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateComplexReference", "property", "entityType", "duplicateEntityType"), property, entityType, duplicateEntityType);
         }
 
         /// <summary>
@@ -638,6 +646,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string DuplicateEntityType([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateEntityType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
+        /// </summary>
+        public static string DuplicateComplexType([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateComplexType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The type '{type}' cannot be added to the model as an entity type because a complex type with the same name already exists.
+        /// </summary>
+        public static string ComplexTypeAlreadyExists([CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ComplexTypeAlreadyExists", "type"), type);
+        }
+
+        /// <summary>
+        /// The type '{type}' cannot be added to the model as a complex type because an entity type with the same name already exists.
+        /// </summary>
+        public static string EntityTypeAlreadyExists([CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeAlreadyExists", "type"), type);
+        }
+
+        /// <summary>
+        /// The reference '{reference}' to complex type '{complexType}' on type '{type}' cannot be marked as optional since '{complexType}' is a value type and therefore the reference to it cannot be set to null.
+        /// </summary>
+        public static string ComplexTypeStructIsRequired([CanBeNull] object reference, [CanBeNull] object complexType, [CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ComplexTypeStructIsRequired", "reference", "complexType", "type"), reference, complexType, type);
         }
 
         /// <summary>
@@ -1065,7 +1105,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.
+        /// The property '{property}' cannot be added to the type '{entityType}' because a navigation property with the same name already exists on type '{duplicateEntityType}'.
         /// </summary>
         public static string ConflictingNavigation([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
@@ -1073,11 +1113,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.
+        /// The navigation property '{navigation}' cannot be added to the type '{entityType}' because a property with the same name already exists on type '{duplicateEntityType}'.
         /// </summary>
         public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingProperty", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be added to the type '{entityType}' because a complex type reference with the same name already exists on type '{duplicateEntityType}'.
+        /// </summary>
+        public static string ConflictingComplexReference([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingComplexReference", "property", "entityType", "duplicateEntityType"), property, entityType, duplicateEntityType);
+        }
+
+        /// <summary>
+        /// The complex type reference '{navigation}' cannot be added to the type '{entityType}' because a property with the same name already exists on type '{duplicateEntityType}'.
+        /// </summary>
+        public static string ConflictingPropertyToReference([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingPropertyToReference", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
         }
 
         /// <summary>
