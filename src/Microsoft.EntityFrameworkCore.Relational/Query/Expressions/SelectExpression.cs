@@ -326,12 +326,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                         if (aliasExpression != null)
                         {
-                            var expression = UpdateColumnExpression(aliasExpression.Expression, subquery);
+                            if (aliasExpression.Alias != null)
+                            {
+                                _orderBy.Add(
+                                    new Ordering(
+                                        new ColumnExpression(aliasExpression.Alias, aliasExpression.Type, subquery),
+                                        ordering.OrderingDirection));
+                            }
+                            else
+                            {
+                                var expression = UpdateColumnExpression(aliasExpression.Expression, subquery);
 
-                            _orderBy.Add(
-                                new Ordering(
-                                    new AliasExpression(aliasExpression.Alias, expression),
-                                    ordering.OrderingDirection));
+                                _orderBy.Add(
+                                    new Ordering(
+                                        new AliasExpression(expression), ordering.OrderingDirection));
+                            }
                         }
                     }
                 }
@@ -884,13 +893,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                 foreach (var aliasExpression in subquery._projection.Cast<AliasExpression>())
                 {
-                    var expression = UpdateColumnExpression(aliasExpression.Expression, subquery);
+                    if (aliasExpression.Alias != null)
+                    {
+                        _projection.Add(
+                            new ColumnExpression(
+                                aliasExpression.Alias,
+                                aliasExpression.Type,
+                                subquery));
+                    }
+                    else
+                    {
+                        var expression = UpdateColumnExpression(aliasExpression.Expression, subquery);
 
-                    _projection.Add(
-                        new AliasExpression(aliasExpression.Alias, expression)
-                        {
-                            SourceMember = aliasExpression.SourceMember
-                        });
+                        _projection.Add(
+                            new AliasExpression(expression)
+                            {
+                                SourceMember = aliasExpression.SourceMember
+                            });
+                    }
                 }
 
                 IsProjectStar = false;

@@ -973,7 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return null;
                 }
 
-                return newLeft != stringCompare.Left 
+                return newLeft != stringCompare.Left
                     || newRight != stringCompare.Right
                         ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
                         : expression;
@@ -1043,12 +1043,37 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            var selector
-                = ((expression.ReferencedQuerySource as FromClauseBase)
-                    ?.FromExpression as SubQueryExpression)
-                    ?.QueryModel.SelectClause.Selector;
+            var type = expression.ReferencedQuerySource.ItemType.UnwrapNullableType().UnwrapEnumType();
 
-            return selector != null ? Visit(selector) : null;
+            if (_relationalTypeMapper.FindMapping(type) != null)
+            {
+                var selectExpression = _queryModelVisitor.TryGetQuery(expression.ReferencedQuerySource);
+
+                if (selectExpression != null)
+                {
+                    var subquery = selectExpression.Tables.FirstOrDefault() as SelectExpression;
+
+                    var innerProjectionExpression = subquery?.Projection.FirstOrDefault() as AliasExpression;
+                    if (innerProjectionExpression != null)
+                    {
+                        if (innerProjectionExpression.Alias != null)
+                        {
+                            return new ColumnExpression(
+                                innerProjectionExpression.Alias,
+                                innerProjectionExpression.Type,
+                                subquery);
+                        }
+
+                        var newExpression = selectExpression.UpdateColumnExpression(innerProjectionExpression.Expression, subquery);
+                        return new AliasExpression(newExpression)
+                        {
+                            SourceMember = innerProjectionExpression.SourceMember
+                        };
+                    }
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

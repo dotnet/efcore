@@ -205,7 +205,7 @@ FROM (
 
 SELECT [t0].*
 FROM (
-    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [Coalesce]) AS [__RowNumber__]
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[Coalesce]) AS [__RowNumber__]
     FROM (
         SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Coalesce]
         FROM [Customers] AS [c]

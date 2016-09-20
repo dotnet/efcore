@@ -5760,7 +5760,7 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [Coalesce]
 ) AS [t]
-ORDER BY [Coalesce]
+ORDER BY [t].[Coalesce]
 OFFSET @__p_1 ROWS",
                 Sql);
         }
@@ -6143,6 +6143,23 @@ FROM [Orders] AS [o]
 SELECT TOP(2) [c0].[City]
 FROM [Customers] AS [c0]
 WHERE [c0].[CustomerID] = @_outer_CustomerID",
+                Sql);
+        }
+
+        public override void Select_expression_references_are_updated_correctly_with_subquery()
+        {
+            base.Select_expression_references_are_updated_correctly_with_subquery();
+
+            Assert.Equal(
+                @"@__nextYear_0: 2017
+
+SELECT [t].[c0]
+FROM (
+    SELECT DISTINCT DATEPART(year, [o0].[OrderDate]) AS [c0]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderDate] IS NOT NULL
+) AS [t]
+WHERE [t].[c0] < @__nextYear_0",
                 Sql);
         }
 

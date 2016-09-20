@@ -404,32 +404,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleDistinct(HandlerContext handlerContext)
         {
-            var selectExpression = handlerContext.SelectExpression;
-
-            selectExpression.IsDistinct = true;
-
-            if (selectExpression.OrderBy.Any(o =>
-                {
-                    var orderByColumnExpression = o.Expression.TryGetColumnExpression();
-
-                    if (orderByColumnExpression == null)
-                    {
-                        return true;
-                    }
-
-                    return !selectExpression.Projection.Any(e =>
-                        {
-                            var projectionColumnExpression = e.TryGetColumnExpression();
-
-                            return projectionColumnExpression != null
-                                   && projectionColumnExpression.Equals(orderByColumnExpression);
-                        });
-                }))
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
             {
-                handlerContext.SelectExpression.ClearOrderBy();
+                var selectExpression = handlerContext.SelectExpression;
+
+                selectExpression.IsDistinct = true;
+
+                if (selectExpression.OrderBy.Any(o =>
+                    {
+                        var orderByColumnExpression = o.Expression.TryGetColumnExpression();
+
+                        if (orderByColumnExpression == null)
+                        {
+                            return true;
+                        }
+
+                        return !selectExpression.Projection.Any(e =>
+                            {
+                                var projectionColumnExpression = e.TryGetColumnExpression();
+
+                                return projectionColumnExpression != null
+                                       && projectionColumnExpression.Equals(orderByColumnExpression);
+                            });
+                    }))
+                {
+                    handlerContext.SelectExpression.ClearOrderBy();
+                }
+
+                return handlerContext.EvalOnServer;
             }
 
-            return handlerContext.EvalOnServer;
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleFirst(HandlerContext handlerContext)

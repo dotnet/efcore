@@ -6270,14 +6270,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Subquery_member_pushdown_does_not_change_original_subquery_model()
         {
             AssertQuery<Order, Customer>((os, cs) =>
-                 os.Select(o => new
-                 {
-                     OrderId = o.OrderID,
-                     City = cs.SingleOrDefault(c => c.CustomerID == o.CustomerID).City
-                 })
-                 .OrderBy(o => o.City)
-                 .Skip(0)
-                 .Take(10));
+                os.Select(o => new
+                {
+                    OrderId = o.OrderID,
+                    City = cs.SingleOrDefault(c => c.CustomerID == o.CustomerID).City
+                })
+                .OrderBy(o => o.City)
+                .Skip(0)
+                .Take(10));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_references_are_updated_correctly_with_subquery()
+        {
+            var nextYear = DateTime.UtcNow.AddYears(1).Year;
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(o => o.OrderDate.Value.Year)
+                    .Distinct()
+                    .Where(x => x < nextYear));
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
