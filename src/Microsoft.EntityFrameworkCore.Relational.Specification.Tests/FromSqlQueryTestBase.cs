@@ -453,17 +453,36 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
         [Fact]
         public virtual void Include_does_not_close_user_opened_connection_for_empty_result()
         {
-            using (var ctx = CreateContext())
+            using (var context = CreateContext())
             {
-                ctx.Database.OpenConnection();
+                context.Database.OpenConnection();
 
-                var query = ctx.Customers
+                var query = context.Customers
                         .Include(v => v.Orders)
                         .Where(v => v.CustomerID == "MAMRFC")
                         .ToList();
 
                 Assert.Empty(query);
-                Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);
+                Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
+            }
+        }
+
+        [Fact]
+        public virtual void Include_closed_connection_opened_by_it_when_buffering()
+        {
+            using (var context = CreateContext())
+            {
+                var connection = context.Database.GetDbConnection();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
+                var query = context.Customers
+                        .Include(v => v.Orders)
+                        .Where(v => v.CustomerID == "ALFKI")
+                        .ToList();
+
+                Assert.NotEmpty(query);
+                Assert.Equal(ConnectionState.Closed, connection.State);
             }
         }
 

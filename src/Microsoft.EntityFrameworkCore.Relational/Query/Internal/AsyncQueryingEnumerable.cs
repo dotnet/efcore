@@ -139,6 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
+                    _queryingEnumerable._relationalQueryContext.Connection?.Close();
                     _dataReader = null;
                     _dbDataReader = null;
                 }
