@@ -36,9 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var boundMethod = propertyBase != null
                 ? _genericCreate.MakeGenericMethod(
-                    propertyBase.DeclaringEntityType.ClrType,
-                    propertyBase.GetClrType(),
-                    propertyBase.GetClrType().UnwrapNullableType())
+                    propertyBase.DeclaringType.ClrType,
+                    propertyBase.ClrType,
+                    propertyBase.ClrType.UnwrapNullableType())
                 : _genericCreate.MakeGenericMethod(
                     propertyInfo.DeclaringType,
                     propertyInfo.PropertyType,

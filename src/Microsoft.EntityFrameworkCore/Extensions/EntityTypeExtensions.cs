@@ -251,22 +251,5 @@ namespace Microsoft.EntityFrameworkCore
         public static ChangeTrackingStrategy GetChangeTrackingStrategy(
             [NotNull] this IEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy;
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for properties of this entity type.
-        ///         Null indicates that the default property access mode is being used.
-        ///     </para>
-        ///     <para>
-        ///         Note that individual properties can override this access mode. The value returned here will
-        ///         be used for any property for which no override has been specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type for which to get the access mode. </param>
-        /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
-        public static PropertyAccessMode? GetPropertyAccessMode(
-            [NotNull] this IEntityType entityType)
-            => (PropertyAccessMode?)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.PropertyAccessModeAnnotation]
-               ?? entityType.Model.GetPropertyAccessMode();
     }
 }
