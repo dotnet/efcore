@@ -59,5 +59,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> All entity types defined in the model. </returns>
         new IEnumerable<IMutableEntityType> GetEntityTypes();
+
+        /// <summary>
+        ///     <para>
+        ///         Adds a shadow state complex type definition to the model.
+        ///     </para>
+        ///     <para>
+        ///         Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
+        ///         Therefore, shadow types will only exist in migration model snapshots, etc.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the complex type definition to be added. </param>
+        /// <returns> The new complex type definition. </returns>
+        IMutableComplexTypeDefinition AddComplexTypeDefinition([NotNull] string name);
+
+        /// <summary>
+        ///     Adds a complex type definition to the model.
+        /// </summary>
+        /// <param name="clrType"> The CLR class that is used to represent instances of this complex type definition. </param>
+        /// <returns> The new complex type definition. </returns>
+        IMutableComplexTypeDefinition AddComplexTypeDefinition([CanBeNull] Type clrType);
+
+        /// <summary>
+        ///     Gets the complex type definition with the given name. Returns null if no complex type definition with the given name is found.
+        /// </summary>
+        /// <param name="name"> The name of the complex type definition to find. </param>
+        /// <returns> The complex type definition, or null if none are found. </returns>
+        new IMutableComplexTypeDefinition FindComplexTypeDefinition([NotNull] string name);
+
+        /// <summary>
+        ///     Removes an complex type definition from the model.
+        /// </summary>
+        /// <param name="name"> The name of the complex type definition to be removed. </param>
+        /// <returns> The complex type definition that was removed. </returns>
+        IMutableComplexTypeDefinition RemoveComplexTypeDefinition([NotNull] string name);
+
+        /// <summary>
+        ///     Gets all complex type definitions defined in the model.
+        /// </summary>
+        /// <returns> All complex type definitions defined in the model. </returns>
+        new IEnumerable<IMutableComplexTypeDefinition> GetComplexTypeDefinitions();
     }
 }

@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Model : ConventionalAnnotatable, IMutableModel
     {
-        private readonly SortedDictionary<string, EntityType> _entityTypes
-            = new SortedDictionary<string, EntityType>();
+        private readonly SortedDictionary<string, TypeBase> _mappedTypes
+            = new SortedDictionary<string, TypeBase>();
 
-        private readonly IDictionary<Type, EntityType> _clrTypeMap
-            = new Dictionary<Type, EntityType>();
+        private readonly IDictionary<Type, TypeBase> _clrTypeMap
+            = new Dictionary<Type, TypeBase>();
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
             = new Dictionary<string, ConfigurationSource>();
@@ -71,7 +71,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<EntityType> GetEntityTypes() => _entityTypes.Values;
+        public virtual IEnumerable<EntityType> GetEntityTypes()
+            => _mappedTypes.Values.OfType<EntityType>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<ComplexTypeDefinition> GetComplexTypeDefinitions()
+            => _mappedTypes.Values.OfType<ComplexTypeDefinition>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<TypeBase> GetMappedTypes() => _mappedTypes.Values;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -85,9 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            var entityType = new EntityType(name, this, configurationSource);
-
-            return AddEntityType(entityType, runConventions);
+            return AddEntityType(new EntityType(name, this, configurationSource), runConventions);
         }
 
         /// <summary>
@@ -105,23 +117,81 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new EntityType(type, this, configurationSource);
 
             _clrTypeMap[type] = entityType;
+
             return AddEntityType(entityType, runConventions);
         }
 
         private EntityType AddEntityType(EntityType entityType, bool runConventions)
         {
-            var previousLength = _entityTypes.Count;
-            _entityTypes[entityType.Name] = entityType;
-            if (previousLength == _entityTypes.Count)
+            AddType(entityType);
+
+            return runConventions ? ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata : entityType;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeDefinition AddComplexTypeDefinition(
+            [NotNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return AddComplexTypeDefinition(new ComplexTypeDefinition(name, this, configurationSource), runConventions);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeDefinition AddComplexTypeDefinition(
+            [NotNull] Type type,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+        {
+            Check.NotNull(type, nameof(type));
+
+            var complexType = new ComplexTypeDefinition(type, this, configurationSource);
+
+            _clrTypeMap[type] = complexType;
+
+            return AddComplexTypeDefinition(complexType, runConventions);
+        }
+
+        private ComplexTypeDefinition AddComplexTypeDefinition(ComplexTypeDefinition complexType, bool runConventions)
+        {
+            AddType(complexType);
+
+            // TOSO: Builders
+            //return runConventions ? ConventionDispatcher.OnEntityTypeAdded(complexType.Builder)?.Metadata : complexType;
+            return complexType;
+        }
+
+        private void AddType(TypeBase type)
+        {
+            var existing = FindMappedType(type.Name);
+            if (existing != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
+                if (existing is EntityType)
+                {
+                    if (type is EntityType)
+                    {
+                        throw new InvalidOperationException(CoreStrings.DuplicateEntityType(type.DisplayName()));
+                    }
+                    throw new InvalidOperationException(CoreStrings.EntityTypeAlreadyExists(type.DisplayName()));
+                }
+                if (type is ComplexTypeDefinition)
+                {
+                    throw new InvalidOperationException(CoreStrings.DuplicateComplexType(type.DisplayName()));
+                }
+                throw new InvalidOperationException(CoreStrings.ComplexTypeAlreadyExists(type.DisplayName()));
             }
 
-            if (runConventions)
-            {
-                return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
-            }
-            return entityType;
+            _mappedTypes[type.Name] = type;
         }
 
         /// <summary>
@@ -142,11 +212,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual ComplexTypeDefinition GetOrAddComplexTypeDefinition([NotNull] Type type)
+            => FindComplexTypeDefinition(type) ?? AddComplexTypeDefinition(type);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeDefinition GetOrAddComplexTypeDefinition([NotNull] string name)
+            => FindComplexTypeDefinition(name) ?? AddComplexTypeDefinition(name);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType FindEntityType([NotNull] Type type)
+            => FindMappedType(type) as EntityType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType FindEntityType([NotNull] string name)
+            => FindMappedType(name) as EntityType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeDefinition FindComplexTypeDefinition([NotNull] Type type)
+            => FindMappedType(type) as ComplexTypeDefinition;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeDefinition FindComplexTypeDefinition([NotNull] string name)
+            => FindMappedType(name) as ComplexTypeDefinition;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual TypeBase FindMappedType([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            EntityType entityType;
+            TypeBase entityType;
             return _clrTypeMap.TryGetValue(type, out entityType)
                 ? entityType
                 : FindEntityType(type.DisplayName());
@@ -156,12 +268,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType FindEntityType([NotNull] string name)
+        public virtual TypeBase FindMappedType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            EntityType entityType;
-            return _entityTypes.TryGetValue(name, out entityType)
+            TypeBase entityType;
+            return _mappedTypes.TryGetValue(name, out entityType)
                 ? entityType
                 : null;
         }
@@ -171,58 +283,87 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] Type type)
-        {
-            var entityType = FindEntityType(type);
-            return entityType == null
-                ? null
-                : RemoveEntityType(entityType);
-        }
+            => (EntityType)RemoveMappedType(FindEntityType(type));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] string name)
-        {
-            var entityType = FindEntityType(name);
-            return entityType == null
-                ? null
-                : RemoveEntityType(entityType);
-        }
+            => (EntityType)RemoveMappedType(FindEntityType(name));
 
-        private EntityType RemoveEntityType([NotNull] EntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeDefinition RemoveComplexTypeDefinition([NotNull] Type type)
+            => (ComplexTypeDefinition)RemoveMappedType(FindComplexTypeDefinition(type));
 
-            var referencingForeignKey = entityType.GetDeclaredReferencingForeignKeys().FirstOrDefault();
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeDefinition RemoveComplexTypeDefinition([NotNull] string name)
+            => (ComplexTypeDefinition)RemoveMappedType(FindComplexTypeDefinition(name));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual TypeBase RemoveMappedType([NotNull] Type type)
+            => RemoveMappedType(FindMappedType(type));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual TypeBase RemoveMappedType([NotNull] string name)
+            => RemoveMappedType(FindMappedType(name));
+
+        private TypeBase RemoveMappedType(TypeBase type)
+        {
+            if (type == null)
+            {
+                return null;
+            }
+
+            // TODO: FKs that use Complex Type
+            var entityType = type as EntityType;
+
+            var referencingForeignKey = entityType?.GetDeclaredReferencingForeignKeys().FirstOrDefault();
             if (referencingForeignKey != null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.EntityTypeInUseByForeignKey(
-                        entityType.DisplayName(),
+                        type.DisplayName(),
                         Property.Format(referencingForeignKey.Properties),
                         referencingForeignKey.DeclaringEntityType.DisplayName()));
             }
 
-            var derivedEntityType = entityType.GetDirectlyDerivedTypes().FirstOrDefault();
+            var derivedEntityType = entityType?.GetDirectlyDerivedTypes().FirstOrDefault();
             if (derivedEntityType != null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.EntityTypeInUseByDerived(
-                        entityType.DisplayName(),
+                        type.DisplayName(),
                         derivedEntityType.DisplayName()));
             }
 
-            if (entityType.ClrType != null)
+            if (type.ClrType != null)
             {
-                _clrTypeMap.Remove(entityType.ClrType);
+                _clrTypeMap.Remove(type.ClrType);
             }
 
-            var removed = _entityTypes.Remove(entityType.Name);
+            var removed = _mappedTypes.Remove(type.Name);
             Debug.Assert(removed);
-            entityType.Builder = null;
 
-            return entityType;
+            if (entityType != null)
+            {
+                // TODO: Builders
+                entityType.Builder = null;
+            }
+
+            return type;
         }
 
         /// <summary>
@@ -322,6 +463,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
         IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
         IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
+
+        IComplexTypeDefinition IModel.FindComplexTypeDefinition(string name) => FindComplexTypeDefinition(name);
+        IEnumerable<IComplexTypeDefinition> IModel.GetComplexTypeDefinitions() => GetComplexTypeDefinitions();
+
+        IMutableComplexTypeDefinition IMutableModel.AddComplexTypeDefinition(string name) => AddComplexTypeDefinition(name);
+        IMutableComplexTypeDefinition IMutableModel.AddComplexTypeDefinition(Type type) => AddComplexTypeDefinition(type);
+        IEnumerable<IMutableComplexTypeDefinition> IMutableModel.GetComplexTypeDefinitions() => GetComplexTypeDefinitions();
+        IMutableComplexTypeDefinition IMutableModel.FindComplexTypeDefinition(string name) => FindComplexTypeDefinition(name);
+        IMutableComplexTypeDefinition IMutableModel.RemoveComplexTypeDefinition(string name) => RemoveComplexTypeDefinition(name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
