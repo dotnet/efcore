@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private ParameterNameGenerator _parameterNameGenerator;
         private RelationalTypeMapping _typeMapping;
 
-        private static readonly Dictionary<ExpressionType, string> _binaryOperatorMap = new Dictionary<ExpressionType, string>
+        private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
             { ExpressionType.Equal, " = " },
             { ExpressionType.NotEqual, " <> " },
@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             { ExpressionType.LessThanOrEqual, " <= " },
             { ExpressionType.AndAlso, " AND " },
             { ExpressionType.OrElse, " OR " },
+            { ExpressionType.Add, " + " },
             { ExpressionType.Subtract, " - " },
             { ExpressionType.Multiply, " * " },
             { ExpressionType.Divide, " / " },
@@ -702,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Visit(stringCompareExpression.Left);
 
-            _relationalCommandBuilder.Append(GenerateBinaryOperator(stringCompareExpression.Operator));
+            _relationalCommandBuilder.Append(GenerateOperator(stringCompareExpression));
 
             Visit(stringCompareExpression.Right);
 
@@ -1157,26 +1158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _relationalCommandBuilder.Append(")");
                 }
 
-                string op;
-                if (!TryGenerateBinaryOperator(expression.NodeType, out op))
-                {
-                    switch (expression.NodeType)
-                    {
-                        case ExpressionType.Add:
-                        {
-                            op = expression.Type == typeof(string)
-                                ? " " + ConcatOperator + " "
-                                : " + ";
-                            break;
-                        }
-                        default:
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
-                    }
-                }
-
-                _relationalCommandBuilder.Append(op);
+                _relationalCommandBuilder.Append(GenerateOperator(expression));
 
                 needParens = expression.Right is BinaryExpression;
 
@@ -1522,7 +1504,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     true if it succeeds, false if it fails.
         /// </returns>
         protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result)
-            => _binaryOperatorMap.TryGetValue(op, out result);
+            => _operatorMap.TryGetValue(op, out result);
 
         /// <summary>
         ///     Generates SQL for a given binary operation type.
@@ -1531,7 +1513,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     The binary operator.
         /// </returns>
-        protected virtual string GenerateBinaryOperator(ExpressionType op) => _binaryOperatorMap[op];
+        protected virtual string GenerateBinaryOperator(ExpressionType op) => _operatorMap[op];
+
+        /// <summary>
+        ///     Generates an SQL operator for a given expression.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <returns>
+        ///     The operator.
+        /// </returns>
+        protected virtual string GenerateOperator([NotNull] Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Add:
+                    return expression.Type == typeof(string) ? " " + ConcatOperator + " " : " + ";
+                case ExpressionType.Extension:
+                {
+                    var asStringCompareExpression = expression as StringCompareExpression;
+                    if (asStringCompareExpression != null)
+                    {
+                        return GenerateBinaryOperator(asStringCompareExpression.Operator);
+                    }
+                    goto default;
+                }
+                default:
+                {
+                    string op;
+                    if (expression is BinaryExpression)
+                    {
+                        if (!TryGenerateBinaryOperator(expression.NodeType, out op))
+                        {
+                            throw new ArgumentOutOfRangeException();
+                        }
+                        return op;
+                    }
+                    if (!_operatorMap.TryGetValue(expression.NodeType, out op))
+                    {
+                        throw new ArgumentOutOfRangeException();
+                    }
+                    return op;
+                }
+            }
+        }
 
         /// <summary>
         ///     Creates unhandled item exception.
