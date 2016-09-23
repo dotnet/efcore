@@ -126,8 +126,10 @@
     <Compile Include="Metadata\Internal\ClrPropertySetterFactoryTest.cs" />
     <Compile Include="Metadata\Internal\CollectionTypeFactoryTest.cs" />
     <Compile Include="Metadata\Internal\ComplexPropertyDefinitionTest.cs" />
+    <Compile Include="Metadata\Internal\ComplexPropertyTest.cs" />
     <Compile Include="Metadata\Internal\ComplexTypeDefinitionTest.cs" />
     <Compile Include="Metadata\Internal\ComplexTypeReferenceDefinitionTest.cs" />
+    <Compile Include="Metadata\Internal\ComplexTypeUsageTest.cs" />
     <Compile Include="Metadata\Internal\ConfigurationSourceExtensionsTest.cs" />
     <Compile Include="Metadata\Internal\EntityMaterializerSourceTest.cs" />
     <Compile Include="Metadata\Internal\EntityTypeTest.cs" />

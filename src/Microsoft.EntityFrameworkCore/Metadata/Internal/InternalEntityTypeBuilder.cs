@@ -1786,12 +1786,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         return null;
                     }
-                    property = propertyBuilder.Metadata;
+                    // TODO: ComplexType builders
+                    property = propertyBuilder.Metadata as EntityProperty;
                 }
                 else
                 {
                     property.DeclaringEntityType.UpdateConfigurationSource(configurationSource);
-                    property = property.DeclaringEntityType.Builder.Property(property.Name, configurationSource).Metadata;
+                    // TODO: ComplexType builders
+                    property = property.DeclaringEntityType.Builder.Property(property.Name, configurationSource).Metadata as EntityProperty;
                 }
                 list.Add(property);
             }

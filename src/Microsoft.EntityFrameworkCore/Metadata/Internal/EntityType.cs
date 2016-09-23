@@ -30,7 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Index> _indexes
             = new SortedDictionary<IReadOnlyList<IProperty>, Index>(PropertyListComparer.Instance);
 
-        private readonly SortedDictionary<string, Property> _properties;
+        private readonly SortedDictionary<string, EntityProperty> _properties;
+
+        private readonly SortedDictionary<string, ComplexTypeUsage> _complexTypeUsages
+            = new SortedDictionary<string, ComplexTypeUsage>(StringComparer.Ordinal);
 
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
@@ -57,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public EntityType([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
             : base(name, model, configurationSource)
         {
-            _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
+            _properties = new SortedDictionary<string, EntityProperty>(new PropertyComparer(this));
             Builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
 
@@ -70,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.ValidEntityType(clrType, nameof(clrType));
 
-            _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
+            _properties = new SortedDictionary<string, EntityProperty>(new PropertyComparer(this));
             Builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
 
@@ -305,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var oldPrimaryKey = _primaryKey;
             if (oldPrimaryKey != null)
             {
-                foreach (var property in _primaryKey.Properties)
+                foreach (var property in oldPrimaryKey.Properties.OfType<EntityProperty>())
                 {
                     _properties.Remove(property.Name);
                     property.PrimaryKey = null;
@@ -313,18 +316,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 _primaryKey = null;
 
-                foreach (var property in oldPrimaryKey.Properties)
+                foreach (var property in oldPrimaryKey.Properties.OfType<EntityProperty>())
                 {
                     _properties.Add(property.Name, property);
                 }
             }
 
-            if ((properties != null)
-                && (properties.Count != 0))
+            if (properties != null
+                && properties.Count != 0)
             {
                 var key = GetOrAddKey(properties);
 
-                foreach (var property in key.Properties)
+                foreach (var property in key.Properties.OfType<EntityProperty>())
                 {
                     _properties.Remove(property.Name);
                     property.PrimaryKey = key;
@@ -332,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 _primaryKey = key;
 
-                foreach (var property in key.Properties)
+                foreach (var property in key.Properties.OfType<EntityProperty>())
                 {
                     _properties.Add(property.Name, property);
                 }
@@ -437,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in properties)
             {
-                if (FindProperty(property.Name) != property)
+                if (!property.DeclaringEntityType.IsAssignableFrom(this))
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
@@ -630,16 +633,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in properties)
             {
-                var actualProperty = FindProperty(property.Name);
-                if (actualProperty == null
-                    || !actualProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType))
+                if (!property.DeclaringEntityType.IsAssignableFrom(this))
                 {
                     throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
 
-                if (actualProperty.GetContainingKeys().Any(k => k.DeclaringEntityType != this))
+                if (property.GetContainingKeys().Any(k => k.DeclaringEntityType != this))
                 {
-                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertyInKey(actualProperty.Name, this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertyInKey(property.Name, this.DisplayName()));
                 }
             }
 
@@ -1169,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in properties)
             {
-                if (FindProperty(property.Name) != property)
+                if (!property.DeclaringEntityType.IsAssignableFrom(this))
                 {
                     throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
@@ -1330,7 +1331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property AddProperty(
+        public virtual EntityProperty AddProperty(
             [NotNull] string name,
             [CanBeNull] Type propertyType = null,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
@@ -1345,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property AddProperty(
+        public virtual EntityProperty AddProperty(
             [NotNull] MemberInfo memberInfo,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
@@ -1367,7 +1368,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddProperty(memberInfo.Name, memberInfo.GetMemberType(), memberInfo, configurationSource, runConventions);
         }
 
-        private Property AddProperty(
+        private EntityProperty AddProperty(
             string name,
             Type propertyType,
             MemberInfo memberInfo,
@@ -1410,7 +1411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            var property = new Property(name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, configurationSource);
+            var property = new EntityProperty(name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, configurationSource);
 
             _properties.Add(property.Name, property);
 
@@ -1418,7 +1419,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (runConventions)
             {
-                property = Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
+                property = (EntityProperty)Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
             }
 
             return property;
@@ -1428,39 +1429,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
+        public virtual EntityProperty GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
             => FindProperty(propertyInfo) ?? AddProperty(propertyInfo);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property GetOrAddProperty([NotNull] string name, [CanBeNull] Type propertyType)
+        public virtual EntityProperty GetOrAddProperty([NotNull] string name, [CanBeNull] Type propertyType)
             => FindProperty(name) ?? AddProperty(name, propertyType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property FindProperty([NotNull] PropertyInfo propertyInfo)
+        public virtual EntityProperty FindProperty([NotNull] PropertyInfo propertyInfo)
             => FindProperty(propertyInfo.Name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property FindProperty([NotNull] string name)
+        public virtual EntityProperty FindProperty([NotNull] string name)
             => FindDeclaredProperty(Check.NotEmpty(name, nameof(name))) ?? _baseType?.FindProperty(name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property FindDeclaredProperty([NotNull] string propertyName)
+        public virtual EntityProperty FindDeclaredProperty([NotNull] string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            Property property;
+            EntityProperty property;
             return _properties.TryGetValue(propertyName, out property)
                 ? property
                 : null;
@@ -1470,13 +1471,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;
+        public virtual IEnumerable<EntityProperty> GetDeclaredProperties() => _properties.Values;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<Property> FindDerivedProperties([NotNull] string propertyName)
+        public virtual IEnumerable<EntityProperty> FindDerivedProperties([NotNull] string propertyName)
         {
             Check.NotNull(propertyName, nameof(propertyName));
 
@@ -1487,14 +1488,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<Property> FindPropertiesInHierarchy([NotNull] string propertyName)
+        public virtual IEnumerable<EntityProperty> FindPropertiesInHierarchy([NotNull] string propertyName)
             => ToEnumerable(FindProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property RemoveProperty([NotNull] string name)
+        public virtual EntityProperty RemoveProperty([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -1504,7 +1505,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : RemoveProperty(property);
         }
 
-        private Property RemoveProperty(Property property)
+        private EntityProperty RemoveProperty(EntityProperty property)
         {
             CheckPropertyNotInUse(property);
 
@@ -1540,7 +1541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<Property> GetProperties()
+        public virtual IEnumerable<EntityProperty> GetProperties()
             => _baseType?.GetProperties().Concat(_properties.Values) ?? _properties.Values;
 
         /// <summary>
@@ -1627,7 +1628,155 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #endregion
 
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public virtual ComplexTypeUsage FindComplexTypeUsage([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            ComplexTypeUsage property;
+            return _complexTypeUsages.TryGetValue(name, out property)
+                ? property
+                : null;
+        }
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public virtual IEnumerable<ComplexTypeUsage> GetComplexTypeUsages() => _complexTypeUsages.Values;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeUsage AddComplexTypeUsage(
+            [NotNull] string name,
+            [NotNull] ComplexTypeDefinition referencedType,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+        {
+            Check.NotNull(name, nameof(name));
+            Check.NotNull(referencedType, nameof(referencedType));
+
+            return AddComplexTypeUsage(
+                name, ClrType?.GetMembersInHierarchy(name).FirstOrDefault(), referencedType, configurationSource, runConventions);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeUsage AddComplexTypeUsage(
+            [NotNull] MemberInfo memberInfo,
+            [NotNull] ComplexTypeDefinition referencedType,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+        {
+            Check.NotNull(memberInfo, nameof(memberInfo));
+            Check.NotNull(referencedType, nameof(referencedType));
+
+            if (ClrType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
+            }
+
+            if (memberInfo.DeclaringType == null
+                || !memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+            {
+                throw new ArgumentException(CoreStrings.PropertyWrongEntityClrType(
+                    memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
+            }
+
+            return AddComplexTypeUsage(memberInfo.Name, memberInfo, referencedType, configurationSource, runConventions);
+        }
+
+        private ComplexTypeUsage AddComplexTypeUsage(
+            string name,
+            MemberInfo memberInfo,
+            ComplexTypeDefinition referencedType,
+            ConfigurationSource configurationSource,
+            bool runConventions)
+        {
+            Check.NotNull(name, nameof(name));
+
+            var duplicateReference = FindComplexTypeUsage(name);
+            if (duplicateReference != null)
+            {
+                throw new InvalidOperationException(CoreStrings.DuplicateComplexReference(name, this.DisplayName(),
+                    duplicateReference.DeclaringType.DisplayName()));
+            }
+
+            var duplicateProperty = FindProperty(name);
+            if (duplicateProperty != null)
+            {
+                throw new InvalidOperationException(CoreStrings.ConflictingPropertyToReference(
+                    name, this.DisplayName(), duplicateProperty.DeclaringType.DisplayName()));
+            }
+
+            if (memberInfo != null
+                && !memberInfo.GetMemberType().GetTypeInfo().IsAssignableFrom(referencedType.ClrType.GetTypeInfo()))
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(
+                    name,
+                    this.DisplayName(),
+                    memberInfo.GetMemberType().ShortDisplayName(),
+                    referencedType.ClrType.ShortDisplayName()));
+            }
+
+            var usage = new ComplexTypeUsage(
+                name, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, referencedType, configurationSource);
+
+            _complexTypeUsages.Add(usage.Name, usage);
+
+            PropertyMetadataChanged();
+
+            if (runConventions)
+            {
+                // TODO: ComplexType builders
+                //property = Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
+            }
+
+            return usage;
+        }
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public virtual ComplexTypeUsage RemoveComplexTypeUsage([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var usage = FindComplexTypeUsage(name);
+            return usage == null
+                ? null
+                : RemoveComplexTypeUsage(usage);
+        }
+
+        private ComplexTypeUsage RemoveComplexTypeUsage(ComplexTypeUsage usage)
+        {
+            // TODO: ComplexType Check if property usage is in use in any entity.
+
+            _complexTypeUsages.Remove(usage.Name);
+
+            // TODO: ComplexType builders
+            //usage.Builder = null;
+
+            PropertyMetadataChanged();
+
+            return usage;
+        }
+
         #region Explicit interface implementations
+
+        IComplexTypeUsage IEntityType.FindComplexTypeUsage(string name) => FindComplexTypeUsage(name);
+        IMutableComplexTypeUsage IMutableEntityType.FindComplexTypeUsage(string name) => FindComplexTypeUsage(name);
+
+        IEnumerable<IComplexTypeUsage> IEntityType.GetComplexTypeUsages() => GetComplexTypeUsages();
+        IEnumerable<IMutableComplexTypeUsage> IMutableEntityType.GetComplexTypeUsages() => GetComplexTypeUsages();
+
+        IMutableComplexTypeUsage IMutableEntityType.AddComplexTypeUsage(string name, IMutableComplexTypeDefinition complexTypeDefinition) => AddComplexTypeUsage(name, (ComplexTypeDefinition)complexTypeDefinition);
+        IMutableComplexTypeUsage IMutableEntityType.RemoveComplexTypeUsage(string name) => RemoveComplexTypeUsage(name);
 
         IModel ITypeBase.Model => Model;
         IMutableModel IMutableTypeBase.Model => Model;

@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             internalEntryMock.Verify(m => m.SetCurrentValue(property, It.IsAny<object>()), Times.Once);
         }
 
-        private static Mock<InternalEntityEntry> CreateInternalEntryMock(Property property)
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock(EntityProperty property)
         {
             var entityTypeMock = new Mock<EntityType>("Entity", new Model(), ConfigurationSource.Explicit);
             entityTypeMock.Setup(e => e.GetProperties()).Returns(new[] { property });

@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -39,5 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     property is not known.
         /// </summary>
         FieldInfo FieldInfo { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether this is a shadow property. A shadow property is one that does not have a
+        ///     corresponding property in the entity class. The current value for the property is stored in
+        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+        /// </summary>
+        bool IsShadowProperty { get; }
     }
 }

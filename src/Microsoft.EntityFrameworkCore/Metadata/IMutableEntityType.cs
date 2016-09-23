@@ -198,5 +198,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed. </returns>
         IMutableProperty RemoveProperty([NotNull] string name);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        new IMutableComplexTypeUsage FindComplexTypeUsage([NotNull] string name);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        new IEnumerable<IMutableComplexTypeUsage> GetComplexTypeUsages();
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        IMutableComplexTypeUsage AddComplexTypeUsage([NotNull] string name, [NotNull] IMutableComplexTypeDefinition complexTypeDefinition);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        IMutableComplexTypeUsage RemoveComplexTypeUsage([NotNull] string name);
     }
 }

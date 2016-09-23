@@ -62,24 +62,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override object ReadPropertyValue(IPropertyBase propertyBase)
-        {
-            var property = propertyBase as IProperty;
-            Debug.Assert((property != null) && property.IsShadowProperty);
-
-            return _propertyValues[property.GetShadowIndex()];
-        }
+        protected override object ReadPropertyValue(IPropertyBase propertyBase) 
+            => _propertyValues[propertyBase.GetShadowIndex()];
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
-        {
-            var property = propertyBase as IProperty;
-            Debug.Assert((property != null) && property.IsShadowProperty);
-
-            _propertyValues[property.GetShadowIndex()] = value;
-        }
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object value) 
+            => _propertyValues[propertyBase.GetShadowIndex()] = value;
     }
 }

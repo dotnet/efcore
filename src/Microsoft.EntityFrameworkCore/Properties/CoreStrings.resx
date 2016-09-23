@@ -537,6 +537,12 @@
   <data name="ConflictingPropertyToReference" xml:space="preserve">
     <value>The complex type reference '{navigation}' cannot be added to the type '{entityType}' because a property with the same name already exists on type '{duplicateEntityType}'.</value>
   </data>
+  <data name="ComplexPropertyWrongType" xml:space="preserve">
+    <value>The property definition for '{property}' cannot be added to the type '{targetType}' because it is declared on type '{declaringType}'.</value>
+  </data>
+  <data name="ComplexReferenceWrongType" xml:space="preserve">
+    <value>The reference '{reference}' to complex type '{complexType}' cannot be added to the type '{targetType}' because it is declared on type '{declaringType}'.</value>
+  </data>
   <data name="EntityTypeNotInRelationshipStrict" xml:space="preserve">
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.</value>
   </data>

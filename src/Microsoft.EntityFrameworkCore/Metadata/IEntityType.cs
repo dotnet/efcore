@@ -102,5 +102,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The properties defined on this entity. </returns>
         IEnumerable<IProperty> GetProperties();
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        IComplexTypeUsage FindComplexTypeUsage([NotNull] string name);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        IEnumerable<IComplexTypeUsage> GetComplexTypeUsages();
     }
 }

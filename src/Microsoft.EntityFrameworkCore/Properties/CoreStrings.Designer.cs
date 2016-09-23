@@ -1137,6 +1137,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The property definition for '{property}' cannot be added to the type '{targetType}' because it is declared on type '{declaringType}'.
+        /// </summary>
+        public static string ComplexPropertyWrongType([CanBeNull] object property, [CanBeNull] object targetType, [CanBeNull] object declaringType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ComplexPropertyWrongType", "property", "targetType", "declaringType"), property, targetType, declaringType);
+        }
+
+        /// <summary>
+        /// The reference '{reference}' to complex type '{complexType}' cannot be added to the type '{targetType}' because it is declared on type '{declaringType}'.
+        /// </summary>
+        public static string ComplexReferenceWrongType([CanBeNull] object reference, [CanBeNull] object complexType, [CanBeNull] object targetType, [CanBeNull] object declaringType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ComplexReferenceWrongType", "reference", "complexType", "targetType", "declaringType"), reference, complexType, targetType, declaringType);
+        }
+
+        /// <summary>
         /// The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.
         /// </summary>
         public static string EntityTypeNotInRelationshipStrict([CanBeNull] object entityType, [CanBeNull] object dependentType, [CanBeNull] object principalType)

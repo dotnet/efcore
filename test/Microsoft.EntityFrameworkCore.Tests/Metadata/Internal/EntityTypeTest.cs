@@ -1059,19 +1059,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_an_index_throws_if_properties_were_removed()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
-            entityType.RemoveProperty(idProperty.Name);
-
-            Assert.Equal(
-                CoreStrings.IndexPropertiesWrongEntity("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { idProperty })).Message);
-        }
-
-        [Fact]
         public void Adding_an_index_throws_when_parent_type_has_index_on_same_properties()
         {
             var model = new Model();
@@ -1363,19 +1350,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(
                 CoreStrings.DuplicateKey("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).Name, typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, nameProperty })).Message);
-        }
-
-        [Fact]
-        public void Adding_a_key_throws_if_properties_were_removed()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
-            entityType.RemoveProperty(idProperty.Name);
-
-            Assert.Equal(
-                CoreStrings.KeyPropertiesWrongEntity("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty })).Message);
         }
 
         [Fact]
@@ -1677,21 +1651,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(
                 CoreStrings.ForeignKeyPropertiesWrongEntity("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType1.AddForeignKey(new[] { fkProperty }, entityType2.GetOrAddKey(idProperty), entityType2)).Message);
-        }
-
-        [Fact]
-        public void Adding_a_foreign_key_throws_if_properties_were_removed()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
-            var key = entityType.GetOrAddKey(idProperty);
-            var fkProperty = entityType.AddProperty("fk", typeof(int));
-            entityType.RemoveProperty(fkProperty.Name);
-
-            Assert.Equal(
-                CoreStrings.ForeignKeyPropertiesWrongEntity("{'fk'}", typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty }, key, entityType)).Message);
         }
 
         [Fact]

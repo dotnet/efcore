@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 foreach (var ignoredMember in entityType.GetIgnoredMembers())
                 {
+                    // TODO: ComplexType usages
                     var property = entityType.FindProperty(ignoredMember);
                     if (property != null)
                     {
