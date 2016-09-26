@@ -194,6 +194,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Include_collection_take_no_order_by()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                        = context.Set<Customer>()
+                            .Take(10)
+                            .Include(c => c.Orders)
+                            .ToList();
+
+                Assert.Equal(10, customers.Count);
+                Assert.True(customers.All(c => c.Orders != null));
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_skip_take_no_order_by()
         {
             using (var context = CreateContext())

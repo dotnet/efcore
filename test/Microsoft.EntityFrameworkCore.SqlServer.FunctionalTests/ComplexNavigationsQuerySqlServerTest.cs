@@ -1027,18 +1027,22 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
 SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
 FROM [Level2] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [t0].*
+    FROM (
+        SELECT [e].[Id]
+        FROM [Level1] AS [e]
+        LEFT JOIN (
+            SELECT [e1].[Id], [e1].[Level1_Optional_Id], [e1].[Level1_Required_Id], [e1].[Name], [e1].[OneToMany_Optional_InverseId], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_PK_InverseId], [e1].[OneToOne_Optional_SelfId]
+            FROM [Level2] AS [e1]
+        ) AS [t] ON [e].[Id] = [t].[Level1_Optional_Id]
+        WHERE ([e].[Name] <> N'L1 03') OR [e].[Name] IS NULL
+        ORDER BY [e].[Id]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    ) AS [t0]
+) AS [e2] ON [l].[OneToMany_Optional_InverseId] = [e2].[Id]
 LEFT JOIN [Level3] AS [l0] ON [l0].[Level2_Optional_Id] = [l].[Id]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Level1] AS [e]
-    LEFT JOIN (
-        SELECT [e1].[Id], [e1].[Level1_Optional_Id], [e1].[Level1_Required_Id], [e1].[Name], [e1].[OneToMany_Optional_InverseId], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_PK_InverseId], [e1].[OneToOne_Optional_SelfId]
-        FROM [Level2] AS [e1]
-    ) AS [t] ON [e].[Id] = [t].[Level1_Optional_Id]
-    WHERE (([e].[Name] <> N'L1 03') OR [e].[Name] IS NULL) AND (([l].[OneToMany_Optional_InverseId] = [e].[Id]) AND [l].[OneToMany_Optional_InverseId] IS NOT NULL)
-    ORDER BY @@ROWCOUNT
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
-ORDER BY [l].[OneToMany_Optional_InverseId]",
+ORDER BY [e2].[Id]",
                     Sql);
             }
         }
