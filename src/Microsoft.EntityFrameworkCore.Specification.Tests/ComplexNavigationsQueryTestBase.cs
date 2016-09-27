@@ -3474,5 +3474,76 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual void Required_navigation_take_required_navigation()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelThree.Include(l3 => l3.OneToOne_Required_FK_Inverse).ThenInclude(l2 => l2.OneToOne_Required_FK_Inverse)
+                    .ToList()
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse)
+                    .OrderBy(l2 => l2.Id)
+                    .Take(10)
+                    .Select(l2 => l2.OneToOne_Required_FK_Inverse.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelThree
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse)
+                    .OrderBy(l3 => l3.Id)
+                    .Take(10)
+                    .Select(l2 => l2.OneToOne_Required_FK_Inverse.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        // issue #6618
+        ////[ConditionalFact]
+        public virtual void Optional_navigation_take_optional_navigation()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne.Include(l1 => l1.OneToOne_Optional_FK).ThenInclude(l2 => l2.OneToOne_Optional_FK)
+                    .ToList()
+                    .Select(l1 => l1.OneToOne_Optional_FK)
+                    .OrderBy(l2 => l2?.Id)
+                    .Take(10)
+                    .Select(l2 => l2?.OneToOne_Optional_FK?.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Select(l1 => l1.OneToOne_Optional_FK)
+                    .OrderBy(l2 => l2.Id)
+                    .Take(10)
+                    .Select(l2 => l2.OneToOne_Optional_FK.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
     }
 }

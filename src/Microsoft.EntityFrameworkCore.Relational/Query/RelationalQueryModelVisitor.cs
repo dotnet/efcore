@@ -667,8 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!RequiresClientSelectMany
                 && previousSelectExpression != null
-                && (!groupJoin 
-                    || CanFlattenGroupJoin()))
+                && CanFlattenJoin())
             {
                 var selectExpression = TryGetQuery(joinClause);
 
@@ -819,14 +818,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             return previousMapping;
         }
 
-        private bool CanFlattenGroupJoin()
+        private bool CanFlattenJoin()
         {
-            var groupJoinExpression = Expression as MethodCallExpression;
+            var joinExpression = Expression as MethodCallExpression;
 
-            return groupJoinExpression != null 
-                && groupJoinExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin) 
-                && IsShapedQueryExpression(groupJoinExpression.Arguments[0] as MethodCallExpression, innerShapedQuery: false) 
-                && IsShapedQueryExpression(groupJoinExpression.Arguments[1] as MethodCallExpression, innerShapedQuery: true);
+            return joinExpression != null
+                && (joinExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Join)
+                    || joinExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin))
+                && IsShapedQueryExpression(joinExpression.Arguments[0] as MethodCallExpression, innerShapedQuery: false)
+                && IsShapedQueryExpression(joinExpression.Arguments[1] as MethodCallExpression, innerShapedQuery: true);
         }
 
         private class OuterJoinOrderingExtractor : ExpressionVisitor
