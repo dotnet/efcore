@@ -1640,7 +1640,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         var right = Visit(expression.Right);
                         _isSearchCondition = parentIsSearchCondition;
 
-                        return Expression.MakeBinary(expression.NodeType, left, right);
+                        expression = Expression.MakeBinary(expression.NodeType, left, right);
                     }
 
                     if (IsSearchCondition(expression))
@@ -1685,9 +1685,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _isSearchCondition = false;
                 }
 
+                if (expression.NodeType == ExpressionType.Not)
+                {
+                    _isSearchCondition = true;
+                }
+
                 var operand = Visit(expression.Operand);
 
-                if (expression.NodeType == ExpressionType.Convert)
+                if (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.Not)
                 {
                     _isSearchCondition = parentIsSearchCondition;
                 }
@@ -1748,6 +1754,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     return expression is AliasExpression || expression is ColumnExpression || expression is SelectExpression
                         ? Expression.Equal(newExpression, Expression.Constant(true, typeof(bool)))
                         : newExpression;
+                }
+
+                if (IsSearchCondition(expression))
+                {
+                    var newExpression = base.VisitExtension(expression);
+
+                    return Expression.Condition(
+                        newExpression,
+                        Expression.Constant(true),
+                        Expression.Constant(false));
                 }
 
                 return base.VisitExtension(expression);

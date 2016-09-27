@@ -97,13 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override void VisitProjection(IReadOnlyList<Expression> projections)
-        {
-            var comparisonTransformer = new ProjectionComparisonTransformingVisitor();
-            var transformedProjections = projections.Select(comparisonTransformer.Visit).ToList();
-
-            base.VisitProjection(transformedProjections);
-        }
+        protected override void VisitProjection(IReadOnlyList<Expression> projections) => base.VisitProjection(projections);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -148,86 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                 return sqlFunctionExpression;
             }
             return base.VisitSqlFunction(sqlFunctionExpression);
-        }
-
-        private class ProjectionComparisonTransformingVisitor : RelinqExpressionVisitor
-        {
-            private bool _insideConditionalTest;
-
-            protected override Expression VisitUnary(UnaryExpression node)
-            {
-                if (!_insideConditionalTest
-                    && node.NodeType == ExpressionType.Not
-                    && node.Operand is AliasExpression)
-                {
-                    return Expression.Condition(
-                        node,
-                        Expression.Constant(true, typeof(bool)),
-                        Expression.Constant(false, typeof(bool)));
-                }
-
-                if (!_insideConditionalTest
-                    && node.NodeType == ExpressionType.Not
-                    && node.Operand is IsNullExpression)
-                {
-                    return Expression.Condition(
-                        node.Operand,
-                        Expression.Constant(false, typeof(bool)),
-                        Expression.Constant(true, typeof(bool)));
-                }
-
-                if (!_insideConditionalTest
-                    && node.Operand is IsNullExpression)
-                {
-                    return Expression.Condition(
-                        node,
-                        Expression.Constant(true, typeof(bool)),
-                        Expression.Constant(false, typeof(bool)));
-                }
-
-                return base.VisitUnary(node);
-            }
-
-            protected override Expression VisitBinary(BinaryExpression node)
-            {
-                if (!_insideConditionalTest
-                    && (node.IsComparisonOperation()
-                        || node.IsLogicalOperation()))
-                {
-                    return Expression.Condition(
-                        node,
-                        Expression.Constant(true, typeof(bool)),
-                        Expression.Constant(false, typeof(bool)));
-                }
-
-                return base.VisitBinary(node);
-            }
-
-            protected override Expression VisitConditional(ConditionalExpression node)
-            {
-                _insideConditionalTest = true;
-                var test = Visit(node.Test);
-                _insideConditionalTest = false;
-                if (test is AliasExpression)
-                {
-                    return Expression.Condition(
-                        Expression.Equal(test, Expression.Constant(true, typeof(bool))),
-                        Visit(node.IfTrue),
-                        Visit(node.IfFalse));
-                }
-
-                var condition = test as ConditionalExpression;
-                if (condition != null)
-                {
-                    return Expression.Condition(
-                        condition.Test,
-                        Visit(node.IfTrue),
-                        Visit(node.IfFalse));
-                }
-                return Expression.Condition(test,
-                    Visit(node.IfTrue),
-                    Visit(node.IfFalse));
-            }
         }
     }
 }

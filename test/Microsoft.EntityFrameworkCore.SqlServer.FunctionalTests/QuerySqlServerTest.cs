@@ -5157,6 +5157,19 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void IsNullOrEmpty_negated_in_projection()
+        {
+            base.IsNullOrEmpty_negated_in_projection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN [c].[Region] IS NOT NULL AND NOT (([c].[Region] = N'') AND [c].[Region] IS NOT NULL)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void IsNullOrWhiteSpace_in_predicate()
         {
             base.IsNullOrWhiteSpace_in_predicate();
