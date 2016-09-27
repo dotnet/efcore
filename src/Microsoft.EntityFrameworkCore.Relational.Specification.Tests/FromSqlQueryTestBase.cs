@@ -626,12 +626,30 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
 
                 var result1 = query.ToList();
 
-                Assert.Equal(1 , result1.Count);
+                Assert.Equal(1, result1.Count);
 
                 // This should not throw exception.
                 var result2 = query.ToList();
 
                 Assert.Equal(1, result2.Count);
+            }
+        }
+
+        public virtual void Include_closed_connection_opened_by_it_when_buffering()
+        {
+            using (var context = CreateContext())
+            {
+                var connection = context.Database.GetDbConnection();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
+                var query = context.Customers
+                        .Include(v => v.Orders)
+                        .Where(v => v.CustomerID == "ALFKI")
+                        .ToList();
+
+                Assert.NotEmpty(query);
+                Assert.Equal(ConnectionState.Closed, connection.State);
             }
         }
 

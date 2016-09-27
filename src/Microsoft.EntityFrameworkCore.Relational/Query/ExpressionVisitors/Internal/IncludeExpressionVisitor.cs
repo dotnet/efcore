@@ -307,8 +307,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             : selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
                     var canGenerateExists
-                        = (selectExpression.Predicate != null
-                          || selectExpression.Offset == null)
+                        = selectExpression.Offset == null
+                          && selectExpression.Limit == null
                           && !IsOrderingOnNonPrincipalKeyProperties(
                               selectExpression.OrderBy,
                               navigation.ForeignKey.PrincipalKey.Properties);

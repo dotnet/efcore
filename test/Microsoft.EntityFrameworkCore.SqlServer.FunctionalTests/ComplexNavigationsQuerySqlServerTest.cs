@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class ComplexNavigationsQuerySqlServerTest 
+    public class ComplexNavigationsQuerySqlServerTest
         : ComplexNavigationsQueryTestBase<SqlServerTestStore, ComplexNavigationsQuerySqlServerFixture>
     {
         public ComplexNavigationsQuerySqlServerTest(
@@ -343,7 +343,7 @@ WHERE [e2].[Id] > 5", Sql);
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId], [e1.OneToOne_Required_FK].[Id], [e1.OneToOne_Required_FK].[Date], [e1.OneToOne_Required_FK].[Level1_Optional_Id], [e1.OneToOne_Required_FK].[Level1_Required_Id], [e1.OneToOne_Required_FK].[Name], [e1.OneToOne_Required_FK].[OneToMany_Optional_InverseId], [e1.OneToOne_Required_FK].[OneToMany_Optional_Self_InverseId], [e1.OneToOne_Required_FK].[OneToMany_Required_InverseId], [e1.OneToOne_Required_FK].[OneToMany_Required_Self_InverseId], [e1.OneToOne_Required_FK].[OneToOne_Optional_PK_InverseId], [e1.OneToOne_Required_FK].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [e1]
 LEFT JOIN [Level2] AS [e1.OneToOne_Required_FK] ON [e1].[Id] = [e1.OneToOne_Required_FK].[Level1_Required_Id]
-ORDER BY [e1].[Id]", 
+ORDER BY [e1].[Id]",
                 Sql);
         }
 
@@ -571,7 +571,7 @@ INNER JOIN [Level1] AS [e2] ON [e1].[Id] = (
             base.Join_navigation_translated_to_subquery_nested();
 
             // Separate asserts to account for ordering differences on .NETCore
-            
+
             Assert.Contains(
                 @"SELECT [e1].[Id]
 FROM [Level1] AS [e1]",
@@ -851,14 +851,14 @@ ORDER BY [e].[Id]",
 
             Assert.Contains(
                 @"SELECT [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[Id], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[Level2_Optional_Id], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[Level2_Required_Id], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[Name], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[OneToOne_Optional_SelfId]
-FROM [Level3] AS [l1.OneToOne_Optional_FK.OneToOne_Optional_FK]", 
+FROM [Level3] AS [l1.OneToOne_Optional_FK.OneToOne_Optional_FK]",
                 Sql);
 
             Assert.Contains(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Optional_FK].[Id], [l1.OneToOne_Optional_FK].[Date], [l1.OneToOne_Optional_FK].[Level1_Optional_Id], [l1.OneToOne_Optional_FK].[Level1_Required_Id], [l1.OneToOne_Optional_FK].[Name], [l1.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [l1]
 LEFT JOIN [Level2] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Optional_FK].[Level1_Optional_Id]
-ORDER BY [l1].[Id]", 
+ORDER BY [l1].[Id]",
                 Sql);
         }
 
@@ -1280,15 +1280,19 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
 SELECT [l].[Id], [l].[Date], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
 FROM [Level2] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT [e].[Id]
+        FROM [Level1] AS [e]
+        LEFT JOIN [Level2] AS [l2] ON [e].[Id] = [l2].[Level1_Optional_Id]
+        WHERE ([e].[Name] <> N'L1 03') OR [e].[Name] IS NULL
+        ORDER BY [e].[Id]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    ) AS [t]
+) AS [e0] ON [l].[OneToMany_Optional_InverseId] = [e0].[Id]
 LEFT JOIN [Level3] AS [l0] ON [l0].[Level2_Optional_Id] = [l].[Id]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Level1] AS [e]
-    LEFT JOIN [Level2] AS [l2] ON [e].[Id] = [l2].[Level1_Optional_Id]
-    WHERE (([e].[Name] <> N'L1 03') OR [e].[Name] IS NULL) AND (([l].[OneToMany_Optional_InverseId] = [e].[Id]) AND [l].[OneToMany_Optional_InverseId] IS NOT NULL)
-    ORDER BY @@ROWCOUNT
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
-ORDER BY [l].[OneToMany_Optional_InverseId]",
+ORDER BY [e0].[Id]",
                     Sql);
             }
         }
@@ -1318,9 +1322,9 @@ FROM [Level2] AS [l2]",
         public override void Query_source_materialization_bug_4547()
         {
             base.Query_source_materialization_bug_4547();
-            
+
             // Separate asserts to account for ordering differences on .NETCore
-            
+
             Assert.Contains(
                 @"SELECT [e1].[Id]
 FROM [Level1] AS [e1]",
