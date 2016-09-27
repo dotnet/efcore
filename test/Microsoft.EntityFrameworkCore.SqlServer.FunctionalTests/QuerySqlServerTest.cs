@@ -1256,7 +1256,7 @@ FROM (
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void Select_Distinct_Count()
         {
             base.Select_Distinct_Count();
