@@ -8,12 +8,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -368,14 +370,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private static IServiceProvider CreateContextServices(SqlServerTestStore testStore)
             => ((IInfrastructure<IServiceProvider>)new BloggingContext(
                 new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.ConnectionString)
+                    .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(new ServiceCollection()
                         .AddEntityFrameworkSqlServer()
+                        .AddScoped<SqlServerExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
                         .AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>().BuildServiceProvider()).Options))
                 .Instance;
 
         private static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
             => CreateContextServices(testStore).GetRequiredService<IRelationalDatabaseCreator>();
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory
+        {
+            public TestSqlServerExecutionStrategyFactory(IDbContextOptions options, ICurrentDbContext currentDbContext, ILogger<IExecutionStrategy> logger)
+                : base(options, currentDbContext, logger)
+            {
+            }
+
+            protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyContext context) => NoopExecutionStrategy.Instance;
+        }
 
         private class BloggingContext : DbContext
         {
