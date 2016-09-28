@@ -21,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "NETStandard.Library": "1.6.1-*",
     "SQLite": "3.12.2",
     "StyleCop.Analyzers": {
       "version": "1.0.0",
@@ -35,15 +36,7 @@
     },
     "netstandard1.3": {
       "dependencies": {
-        "System.AppContext": "4.1.0-*",
-        "System.Data.Common": "4.1.0-*",
-        "System.Diagnostics.Debug": "4.0.11-*",
-        "System.Linq": "4.1.0-*",
-        "System.Reflection.Extensions": "4.0.1-*",
-        "System.Resources.ResourceManager": "4.0.1-*",
-        "System.Runtime.Extensions": "4.1.0-*",
-        "System.Runtime.InteropServices": "4.1.0-*",
-        "System.Text.Encoding": "4.0.11-*"
+        "System.Data.Common": "4.3.0-*"
       }
     }
   }
