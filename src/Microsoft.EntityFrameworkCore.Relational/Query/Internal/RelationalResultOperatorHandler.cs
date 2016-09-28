@@ -436,7 +436,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             handlerContext.SelectExpression.Limit = Expression.Constant(1);
 
-            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+            var requiresClientResultOperator = !((FirstResultOperator)handlerContext.ResultOperator).ReturnDefaultWhenEmpty
+                && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null;
+
+            return handlerContext.EvalOnClient(requiresClientResultOperator);
         }
 
         private static Expression HandleGroup(HandlerContext handlerContext)

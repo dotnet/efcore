@@ -2044,6 +2044,38 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void FirstOrDefault_inside_subquery_gets_server_evaluated()
+        {
+            base.FirstOrDefault_inside_subquery_gets_server_evaluated();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] = N'ALFKI') AND ((
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] = N'ALFKI') AND ([c].[CustomerID] = [o].[CustomerID])
+) = N'ALFKI')",
+                Sql);
+        }
+
+        public override void First_inside_subquery_gets_client_evaluated()
+        {
+            base.First_inside_subquery_gets_client_evaluated();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o0].[CustomerID]
+FROM [Orders] AS [o0]
+WHERE ([o0].[CustomerID] = N'ALFKI') AND (@_outer_CustomerID = [o0].[CustomerID])",
+                Sql);
+        }
+
         public override void Last()
         {
             base.Last();

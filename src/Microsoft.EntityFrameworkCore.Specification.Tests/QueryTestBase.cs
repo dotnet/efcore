@@ -4277,6 +4277,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void FirstOrDefault_inside_subquery_gets_server_evaluated()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").FirstOrDefault().CustomerID == "ALFKI"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void First_inside_subquery_gets_client_evaluated()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").First().CustomerID == "ALFKI"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Last()
         {
             AssertQuery<Customer>(
