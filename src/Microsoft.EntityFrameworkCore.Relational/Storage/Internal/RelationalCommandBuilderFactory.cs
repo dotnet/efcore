@@ -40,10 +40,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IRelationalCommandBuilder Create()
+        public virtual IRelationalCommandBuilder Create() => CreateCore(_logger, _diagnosticSource, _typeMapper);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IRelationalCommandBuilder CreateCore(
+                [NotNull] ISensitiveDataLogger sensitiveDataLogger,
+                [NotNull] DiagnosticSource diagnosticSource,
+                [NotNull] IRelationalTypeMapper relationalTypeMapper)
             => new RelationalCommandBuilder(
-                _logger,
-                _diagnosticSource,
-                _typeMapper);
+                sensitiveDataLogger,
+                diagnosticSource,
+                relationalTypeMapper);
     }
 }
