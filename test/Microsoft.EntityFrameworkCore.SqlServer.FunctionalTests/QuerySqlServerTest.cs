@@ -349,9 +349,9 @@ ORDER BY [e].[EmployeeID]",
                 Sql);
         }
 
-        public override void Where_shadow_subquery_first()
+        public override void Where_shadow_subquery_FirstOrDefault()
         {
-            base.Where_shadow_subquery_first();
+            base.Where_shadow_subquery_FirstOrDefault();
 
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
