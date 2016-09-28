@@ -3156,6 +3156,39 @@ ORDER BY [o].[OrderID]",
                 Sql);
         }
 
+        public override void GroupBy_with_orderby()
+        {
+            base.GroupBy_with_orderby();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupBy_with_orderby_and_anonymous_projection()
+        {
+            base.GroupBy_with_orderby_and_anonymous_projection();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupBy_with_orderby_take_skip_distinct()
+        {
+            base.GroupBy_with_orderby_take_skip_distinct();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
         public override void SelectMany_cartesian_product_with_ordering()
         {
             base.SelectMany_cartesian_product_with_ordering();
