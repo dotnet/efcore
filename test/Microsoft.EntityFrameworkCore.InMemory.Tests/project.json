@@ -4,10 +4,10 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tests": {
+    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": {
       "target": "project"
     },
-    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": {
+    "Microsoft.EntityFrameworkCore.Tests": {
       "target": "project"
     }
   },
@@ -16,7 +16,7 @@
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.1.0-*",
           "type": "platform"
         }
       }

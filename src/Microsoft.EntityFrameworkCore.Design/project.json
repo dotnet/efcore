@@ -25,17 +25,15 @@
     }
   },
   "dependencies": {
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.1.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.0-*",
-    "Microsoft.AspNetCore.Hosting.Abstractions": "1.1.0-*"
+    "NETStandard.Library": "1.6.1-*"
   },
   "frameworks": {
     "net451": {},
     "netstandard1.3": {
       "dependencies": {
-        "System.AppContext": "4.1.0-*",
-        "System.Collections.NonGeneric": "4.0.1-*",
-        "System.IO": "4.1.0-*",
-        "System.IO.FileSystem": "4.0.1-*"
+        "System.Collections.NonGeneric": "4.3.0-*"
       }
     }
   }
