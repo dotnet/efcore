@@ -548,11 +548,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return;
             }
 
-            var groupResultOperator 
-                = queryModel.ResultOperators.OfType<GroupResultOperator>().LastOrDefault();
+            var outputExpression = queryModel.SelectClause.Selector;
 
-            var outputExpression
-                = groupResultOperator?.ElementSelector ?? queryModel.SelectClause.Selector;
+            var resultItemType = _expression.Type.GetSequenceType();
+            var isGrouping = resultItemType.IsGrouping();
+
+            if (isGrouping)
+            {
+                var groupResultOperator
+                    = queryModel.ResultOperators.OfType<GroupResultOperator>().LastOrDefault();
+
+                if (groupResultOperator != null)
+                {
+                    outputExpression = groupResultOperator.ElementSelector;
+                }
+                else
+                {
+                    var subqueryExpression = ((queryModel.SelectClause.Selector as QuerySourceReferenceExpression)
+                        ?.ReferencedQuerySource as MainFromClause)?.FromExpression as SubQueryExpression;
+
+                    var nestedGroupResultOperator
+                        = subqueryExpression?.QueryModel?.ResultOperators?.OfType<GroupResultOperator>()?.LastOrDefault();
+
+                    if (nestedGroupResultOperator != null)
+                    {
+                        outputExpression = nestedGroupResultOperator.ElementSelector;
+                    }
+                }
+            }
 
             var entityTrackingInfos
                 = _entityResultFindingExpressionVisitorFactory.Create(QueryCompilationContext)
@@ -560,15 +583,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (entityTrackingInfos.Any())
             {
-                var resultItemType = _expression.Type.GetSequenceType();
-                var resultItemTypeInfo = resultItemType.GetTypeInfo();
-
                 MethodInfo trackingMethod;
 
-                if (resultItemTypeInfo.IsGenericType
-                    && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                        || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
- 
+                if (isGrouping)
+
                 {
                     trackingMethod
                         = LinqOperatorProvider.TrackGroupedEntities

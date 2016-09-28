@@ -3509,6 +3509,69 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupBy_with_orderby()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_orderby_and_anonymous_projection()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Select(g => new { Foo = "Foo", Group = g }),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                        for (int i = 0; i < l2oResults.Count; i++)
+                        {
+                            dynamic l2oResult = l2oResults[i];
+                            dynamic efResult = efResults[i];
+
+                            Assert.Equal(l2oResult.Foo, l2oResult.Foo);
+                            IGrouping<string, Order> l2oGrouping = l2oResult.Group;
+                            IGrouping<string, Order> efGrouping = efResult.Group;
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_orderby_take_skip_distinct()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct(),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 31);
+        }
+
+        [ConditionalFact]
         public virtual void Select_All()
         {
             using (var context = CreateContext())
