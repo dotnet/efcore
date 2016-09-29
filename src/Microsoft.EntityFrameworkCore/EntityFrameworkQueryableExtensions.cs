@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -2135,6 +2135,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var list = new List<TSource>();
 
+            if (!source.IsAsyncEnumerable()) return source.ToList();
+
             using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
             {
                 while (await asyncEnumerator.MoveNext(cancellationToken))
@@ -2535,13 +2537,16 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            var asyncEnumerable = source.AsAsyncEnumerable();
-
-            using (var enumerator = asyncEnumerable.GetEnumerator())
+            if (source.IsAsyncEnumerable())
             {
-                while (await enumerator.MoveNext(cancellationToken))
+                using (var enumerator = source.AsAsyncEnumerable().GetEnumerator())
                 {
+                    while (await enumerator.MoveNext(cancellationToken)) { }
                 }
+            }
+            else
+            {
+                Load(source);
             }
         }
 
@@ -2575,7 +2580,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="Dictionary{TKey, TSource}" /> that contains selected keys and values.
         /// </returns>
-        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+        public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -2583,7 +2588,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, cancellationToken);
+            if (source.IsAsyncEnumerable())
+            {
+                return await source.AsAsyncEnumerable().ToDictionary(keySelector, cancellationToken);
+            }
+
+            return source.ToDictionary(keySelector);
         }
 
         /// <summary>
@@ -2615,7 +2625,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="Dictionary{TKey, TSource}" /> that contains selected keys and values.
         /// </returns>
-        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+        public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] IEqualityComparer<TKey> comparer,
@@ -2625,7 +2635,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(comparer, nameof(comparer));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, comparer, cancellationToken);
+            if (source.IsAsyncEnumerable())
+            {
+                return await source.AsAsyncEnumerable().ToDictionary(keySelector, comparer, cancellationToken);
+            }
+
+            return source.ToDictionary(keySelector, comparer);
         }
 
         /// <summary>
@@ -2659,7 +2674,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains a <see cref="Dictionary{TKey, TElement}" /> that contains values of type
         ///     <typeparamref name="TElement" /> selected from the input sequence.
         /// </returns>
-        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+        public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
@@ -2669,7 +2684,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(elementSelector, nameof(elementSelector));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, cancellationToken);
+            if (source.IsAsyncEnumerable())
+            {
+                return await source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, cancellationToken);
+            }
+
+            return source.ToDictionary(keySelector, elementSelector);
         }
 
         /// <summary>
@@ -2706,7 +2726,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains a <see cref="Dictionary{TKey, TElement}" /> that contains values of type
         ///     <typeparamref name="TElement" /> selected from the input sequence.
         /// </returns>
-        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+        public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
@@ -2718,7 +2738,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(elementSelector, nameof(elementSelector));
             Check.NotNull(comparer, nameof(comparer));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, comparer, cancellationToken);
+            if (source.IsAsyncEnumerable())
+            {
+                return await source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, comparer, cancellationToken);
+            }
+
+            return source.ToDictionary(keySelector, elementSelector, comparer);
         }
 
         #endregion
@@ -2751,11 +2776,72 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(action, nameof(action));
 
-            using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
+            if (source.IsAsyncEnumerable())
             {
-                while (await asyncEnumerator.MoveNext(cancellationToken))
+                using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
                 {
-                    action(asyncEnumerator.Current);
+                    while (await asyncEnumerator.MoveNext(cancellationToken))
+                    {
+                        action(asyncEnumerator.Current);
+                    }
+                }
+            }
+            else
+            {
+                using (var enumerator = source.GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        action(enumerator.Current);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Asynchronously enumerates the query results and performs the specified asynchronous action on each element.
+        /// </summary>
+        /// <remarks>
+        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     that any asynchronous operations have completed before calling another method on this context.
+        /// </remarks>
+        /// <typeparam name="T">
+        ///     The type of the elements of <paramref name="source" />.
+        /// </typeparam>
+        /// <param name="source">
+        ///     An <see cref="IQueryable{T}" /> to enumerate.
+        /// </param>
+        /// <param name="action"> The asynchronous action to perform on each element. </param>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+        /// </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public static async Task ForEachAsync<T>(
+            [NotNull] this IQueryable<T> source,
+            [NotNull] Func<T, Task> action,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(action, nameof(action));
+
+            if (source.IsAsyncEnumerable())
+            {
+                using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
+                {
+                    while (await asyncEnumerator.MoveNext(cancellationToken))
+                    {
+                        await action(asyncEnumerator.Current);
+                    }
+                }
+            }
+            else
+            {
+                using (var enumerator = source.GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        await action(enumerator.Current);
+                    }
                 }
             }
         }
@@ -2769,21 +2855,23 @@ namespace Microsoft.EntityFrameworkCore
             IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var provider = source.Provider as IAsyncQueryProvider;
+            var asyncQueryProvider = source.Provider as IAsyncQueryProvider;
 
-            if (provider != null)
+            if (operatorMethodInfo.IsGenericMethod)
             {
-                if (operatorMethodInfo.IsGenericMethod)
-                {
-                    operatorMethodInfo = operatorMethodInfo.MakeGenericMethod(typeof(TSource));
-                }
+                operatorMethodInfo = operatorMethodInfo.MakeGenericMethod(typeof(TSource));
+            }
 
-                return provider.ExecuteAsync<TResult>(
+            if (asyncQueryProvider != null)
+            {
+                return asyncQueryProvider.ExecuteAsync<TResult>(
                     Expression.Call(null, operatorMethodInfo, source.Expression),
                     cancellationToken);
             }
 
-            throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+            return Task.FromResult(source.Provider.Execute<TResult>(
+                    Expression.Call(null, operatorMethodInfo, source.Expression)));
+
         }
 
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
@@ -2800,16 +2888,17 @@ namespace Microsoft.EntityFrameworkCore
             Expression expression,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var provider = source.Provider as IAsyncQueryProvider;
+            var asyncQueryProvider = source.Provider as IAsyncQueryProvider;
 
-            if (provider != null)
+            operatorMethodInfo
+                = operatorMethodInfo.GetGenericArguments().Length == 2
+                ? operatorMethodInfo.MakeGenericMethod(typeof(TSource), typeof(TResult))
+                : operatorMethodInfo.MakeGenericMethod(typeof(TSource));
+
+            if (asyncQueryProvider != null)
             {
-                operatorMethodInfo
-                    = operatorMethodInfo.GetGenericArguments().Length == 2
-                        ? operatorMethodInfo.MakeGenericMethod(typeof(TSource), typeof(TResult))
-                        : operatorMethodInfo.MakeGenericMethod(typeof(TSource));
 
-                return provider.ExecuteAsync<TResult>(
+                return asyncQueryProvider.ExecuteAsync<TResult>(
                     Expression.Call(
                         null,
                         operatorMethodInfo,
@@ -2817,7 +2906,13 @@ namespace Microsoft.EntityFrameworkCore
                     cancellationToken);
             }
 
-            throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+            return
+                Task.FromResult(source.Provider.Execute<TResult>(
+                    Expression.Call(
+                        null,
+                        operatorMethodInfo,
+                        new[] { source.Expression, expression })
+                    ));
         }
 
         private static MethodInfo GetMethod<TResult>(
