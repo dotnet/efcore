@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             SqlServerTestStore.GetOrCreateShared(
                 "adventureworks",
-                () => SqlServerTestStore.ExecuteScript("adventureworks", "SqlAzure/adventureworks.sql"));
+                () => SqlServerTestStore.ExecuteScript("adventureworks", "SqlAzure/adventureworks.sql"),
+                cleanDatabase: false);
 
             Services = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()

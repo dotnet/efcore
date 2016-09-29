@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels
         public static SqlServerTestStore GetSharedStore()
             => SqlServerTestStore.GetOrCreateShared(
                 DatabaseName,
-                () => SqlServerTestStore.ExecuteScript(DatabaseName, @"Northwind.sql"));
+                () => SqlServerTestStore.ExecuteScript(DatabaseName, @"Northwind.sql"),
+                cleanDatabase: false);
     }
 }
