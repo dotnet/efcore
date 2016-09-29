@@ -1025,12 +1025,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Where_shadow_subquery_first()
+        public virtual void Where_shadow_subquery_FirstOrDefault()
         {
             AssertQuery<Employee>(es =>
                 from e in es
                 where EF.Property<string>(e, "Title")
-                      == EF.Property<string>(es.OrderBy(e2 => EF.Property<string>(e2, "Title")).First(), "Title")
+                      == EF.Property<string>(es.OrderBy(e2 => EF.Property<string>(e2, "Title")).FirstOrDefault(), "Title")
                 select e,
                 entryCount: 1);
         }
@@ -2289,7 +2289,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Employee>(
                 es =>
                     from e1 in es
-                    where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
+                    where e1.FirstName == es.OrderBy(e => e.EmployeeID).FirstOrDefault().FirstName
                     select e1,
                 entryCount: 1);
         }
@@ -3237,7 +3237,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     o => cs.OrderBy(
                         c => cs.Any(
                             c2 => c2.CustomerID == "ALFKI"))
-                        .First().City != "Nowhere"));
+                        .FirstOrDefault().City != "Nowhere"));
         }
 
         [ConditionalFact]
@@ -4274,6 +4274,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(
                 // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefault());
+        }
+
+        [ConditionalFact]
+        public virtual void FirstOrDefault_inside_subquery_gets_server_evaluated()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").FirstOrDefault().CustomerID == "ALFKI"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void First_inside_subquery_gets_client_evaluated()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").First().CustomerID == "ALFKI"),
+                entryCount: 1);
         }
 
         [ConditionalFact]
