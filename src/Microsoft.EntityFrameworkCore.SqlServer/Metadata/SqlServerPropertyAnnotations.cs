@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class SqlServerPropertyAnnotations : RelationalPropertyAnnotations, ISqlServerPropertyAnnotations
     {
         public SqlServerPropertyAnnotations([NotNull] IProperty property)
-            : base(property, SqlServerFullAnnotationNames.Instance)
+            : base(property, CreateComplexDefinitionAnnotations(property), SqlServerFullAnnotationNames.Instance)
         {
         }
 
@@ -21,9 +21,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
         }
 
+        private static SqlServerComplexPropertyDefinitionAnnotations CreateComplexDefinitionAnnotations(IProperty property)
+        {
+            var complexProperty = property as IComplexProperty;
+            return complexProperty != null
+                ? new SqlServerComplexPropertyDefinitionAnnotations(complexProperty.Definition)
+                : null;
+        }
+
+        protected new virtual SqlServerComplexPropertyDefinitionAnnotations DefinitionAnnotations
+            => (SqlServerComplexPropertyDefinitionAnnotations)base.DefinitionAnnotations;
+
         public virtual string HiLoSequenceName
         {
-            get { return (string)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.HiLoSequenceName, null); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.HiLoSequenceName, null)
+                       ?? DefinitionAnnotations?.HiLoSequenceNameDefault;
+            }
             [param: CanBeNull] set { SetHiLoSequenceName(value); }
         }
 
@@ -35,7 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string HiLoSequenceSchema
         {
-            get { return (string)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.HiLoSequenceSchema, null); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.HiLoSequenceSchema, null)
+                       ?? DefinitionAnnotations?.HiLoSequenceSchemaDefault;
+            }
             [param: CanBeNull] set { SetHiLoSequenceSchema(value); }
         }
 
@@ -66,7 +85,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
-            get { return GetSqlServerValueGenerationStrategy(fallbackToModel: true); }
+            get
+            {
+                return GetSqlServerValueGenerationStrategy(fallbackToModel: true)
+                       ?? DefinitionAnnotations?.ValueGenerationStrategyDefault;
+            }
             [param: CanBeNull] set { SetValueGenerationStrategy(value); }
         }
 

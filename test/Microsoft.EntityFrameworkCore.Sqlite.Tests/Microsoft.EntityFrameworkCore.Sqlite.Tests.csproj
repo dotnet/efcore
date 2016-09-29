@@ -39,6 +39,7 @@
     <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\Conventions\SqliteConventionSetBuilderTests.cs" />
     <Compile Include="Metadata\Internal\SqliteInternalMetadataBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqliteComplexPropertyTest.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqliteHistoryRepositoryTest.cs" />
     <Compile Include="Migrations\SqliteMigrationAnnotationProviderTest.cs" />

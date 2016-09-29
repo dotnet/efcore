@@ -70,6 +70,8 @@
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
+    <Compile Include="Metadata\IRelationalComplexPropertyDefinitionAnnotations.cs" />
+    <Compile Include="Metadata\RelationalComplexPropertyDefinitionAnnotations.cs" />
     <Compile Include="Migrations\IMigrationCommandExecutor.cs" />
     <Compile Include="Migrations\Internal\MigrationCommandExecutor.cs" />
     <Compile Include="Migrations\MigrationCommandListBuilder.cs" />

@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            return (Func<IProperty, IEntityType, ValueGenerator>)property[CoreAnnotationNames.ValueGeneratorFactoryAnnotation];
+            return (Func<IProperty, IEntityType, ValueGenerator>)property[CoreAnnotationNames.ValueGeneratorFactoryAnnotation]
+                ?? (property as IComplexProperty)?.Definition.GetValueGeneratorFactoryDefault();
         }
 
         /// <summary>
@@ -40,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            return (int?)property[CoreAnnotationNames.MaxLengthAnnotation];
+            return (int?)property[CoreAnnotationNames.MaxLengthAnnotation]
+                ?? (property as IComplexProperty)?.Definition.GetMaxLengthDefault();
         }
 
         /// <summary>
@@ -52,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            return (bool?)property[CoreAnnotationNames.UnicodeAnnotation];
+            return (bool?)property[CoreAnnotationNames.UnicodeAnnotation]
+                ?? (property as IComplexProperty)?.Definition.IsUnicodeDefault();
         }
 
         /// <summary>

@@ -44,6 +44,7 @@
     <Compile Include="Metadata\Conventions\SqlServerInMemoryTablesConventionTest.cs" />
     <Compile Include="Metadata\Conventions\SqlServerValueGenerationStrategyConventionTest.cs" />
     <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqlServerComplexPropertyTest.cs" />
     <Compile Include="Metadata\SqlServerInternalMetadataBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepositoryTest.cs" />

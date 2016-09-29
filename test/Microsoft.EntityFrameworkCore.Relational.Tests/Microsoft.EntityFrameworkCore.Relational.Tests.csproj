@@ -43,6 +43,7 @@
     <Compile Include="Metadata\Conventions\Internal\RelationalPropertyMappingValidationConventionTest.cs" />
     <Compile Include="Metadata\InternalRelationalMetadataBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\RelationalBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\RelationalComplexPropertyTest.cs" />
     <Compile Include="Metadata\RelationalEntityTypeAttributeConventionTest.cs" />
     <Compile Include="Metadata\RelationalMetadataExtensionsTest.cs" />
     <Compile Include="Metadata\RelationalPropertyAttributeConventionTest.cs" />

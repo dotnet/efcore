@@ -163,6 +163,7 @@
     <Compile Include="EntityFrameworkQueryableExtensions.cs" />
     <Compile Include="EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="EntityState.cs" />
+    <Compile Include="Extensions\ComplexPropertyDefinitionExtensions.cs" />
     <Compile Include="Extensions\ComplexTypeUsageExtensions.cs" />
     <Compile Include="Extensions\EntityTypeExtensions.cs" />
     <Compile Include="Extensions\ExecutionStrategyExtensions.cs" />

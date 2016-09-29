@@ -35,6 +35,18 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetValueGeneratorFactory(
             [NotNull] this IMutableProperty property,
             [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
+            => SetValueGeneratorFactoryAnnotation(property, valueGeneratorFactory);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public static void SetValueGeneratorFactoryDefault(
+            [NotNull] this IMutableComplexPropertyDefinition property,
+            [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
+            => SetValueGeneratorFactoryAnnotation(property, valueGeneratorFactory);
+
+        private static void SetValueGeneratorFactoryAnnotation(
+            IMutableAnnotatable property, Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(valueGeneratorFactory, nameof(valueGeneratorFactory));
@@ -49,6 +61,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set the maximum length of. </param>
         /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
         public static void SetMaxLength([NotNull] this IMutableProperty property, int? maxLength)
+            => SetMaxLengthAnnotation(property, maxLength);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public static void SetMaxLengthDefault([NotNull] this IMutableComplexPropertyDefinition property, int? maxLength)
+            => SetMaxLengthAnnotation(property, maxLength);
+
+        private static void SetMaxLengthAnnotation(IMutableAnnotatable property, int? maxLength)
         {
             Check.NotNull(property, nameof(property));
 
@@ -67,6 +88,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set the value for. </param>
         /// <param name="unicode"> True if the property accepts unicode characters, false if it does not, null to clear the setting. </param>
         public static void IsUnicode([NotNull] this IMutableProperty property, bool? unicode)
+            => IsUnicodeAnnotation(property, unicode);
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public static void IsUnicodeDefault([NotNull] this IMutableComplexPropertyDefinition property, bool? unicode)
+            => IsUnicodeAnnotation(property, unicode);
+
+        private static void IsUnicodeAnnotation(IMutableAnnotatable property, bool? unicode)
         {
             Check.NotNull(property, nameof(property));
 

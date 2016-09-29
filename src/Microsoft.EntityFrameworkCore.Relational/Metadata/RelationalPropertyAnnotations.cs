@@ -15,21 +15,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
 
-        public RelationalPropertyAnnotations([NotNull] IProperty property,
+        public RelationalPropertyAnnotations(
+            [NotNull] IProperty property,
             [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : this(new RelationalAnnotations(property), providerFullAnnotationNames)
+            : this(property, CreateComplexDefinitionAnnotations(property, providerFullAnnotationNames), providerFullAnnotationNames)
         {
         }
 
-        protected RelationalPropertyAnnotations([NotNull] RelationalAnnotations annotations,
+        public RelationalPropertyAnnotations(
+            [NotNull] IProperty property,
+            [CanBeNull] RelationalComplexPropertyDefinitionAnnotations propertyDefinitionAnnotations,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : this(new RelationalAnnotations(property), providerFullAnnotationNames)
+        {
+            DefinitionAnnotations = propertyDefinitionAnnotations;
+        }
+
+        protected RelationalPropertyAnnotations(
+            [NotNull] RelationalAnnotations annotations,
             [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
         {
             Annotations = annotations;
             ProviderFullAnnotationNames = providerFullAnnotationNames;
+            // TODO: ComplexType builders
+        }
+
+        private static RelationalComplexPropertyDefinitionAnnotations CreateComplexDefinitionAnnotations(
+            IProperty property,
+            RelationalFullAnnotationNames providerFullAnnotationNames)
+        {
+            var complexProperty = property as IComplexProperty;
+            return complexProperty != null
+                ? new RelationalComplexPropertyDefinitionAnnotations(complexProperty.Definition, providerFullAnnotationNames)
+                : null;
         }
 
         protected virtual RelationalAnnotations Annotations { get; }
+
+        protected virtual RelationalComplexPropertyDefinitionAnnotations DefinitionAnnotations { get; }
+
         protected virtual IProperty Property => (IProperty)Annotations.Metadata;
+
         protected virtual bool ShouldThrowOnConflict => true;
 
         public virtual string ColumnName
@@ -37,8 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get
             {
                 return (string)Annotations.GetAnnotation(
-                           RelationalFullAnnotationNames.Instance.ColumnName,
-                           ProviderFullAnnotationNames?.ColumnName)
+                    RelationalFullAnnotationNames.Instance.ColumnName,
+                    ProviderFullAnnotationNames?.ColumnName)
+                       ?? DefinitionAnnotations?.ColumnNameDefault
                        ?? Property.Name;
             }
             [param: CanBeNull] set { SetColumnName(value); }
@@ -56,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 return (string)Annotations.GetAnnotation(
                     RelationalFullAnnotationNames.Instance.ColumnType,
-                    ProviderFullAnnotationNames?.ColumnType);
+                    ProviderFullAnnotationNames?.ColumnType)
+                       ?? DefinitionAnnotations?.ColumnTypeDefault;
             }
             [param: CanBeNull] set { SetColumnType(value); }
         }
@@ -86,9 +114,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 return (string)Annotations.GetAnnotation(
                     fallback ? RelationalFullAnnotationNames.Instance.DefaultValueSql : null,
-                    ProviderFullAnnotationNames?.DefaultValueSql);
+                    ProviderFullAnnotationNames?.DefaultValueSql)
+                       ?? (fallback ? DefinitionAnnotations?.DefaultValueSqlDefault : null);
             }
-            return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.DefaultValueSql, null);
+            return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.DefaultValueSql, null)
+                   ?? DefinitionAnnotations?.DefaultValueSqlDefault;
         }
 
         protected virtual bool SetDefaultValueSql([CanBeNull] string value)
@@ -168,9 +198,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 return (string)Annotations.GetAnnotation(
                     fallback ? RelationalFullAnnotationNames.Instance.ComputedColumnSql : null,
-                    ProviderFullAnnotationNames?.ComputedColumnSql);
+                    ProviderFullAnnotationNames?.ComputedColumnSql)
+                       ?? (fallback ? DefinitionAnnotations?.ComputedColumnSqlDefault : null);
             }
-            return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.ComputedColumnSql, null);
+            return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.ComputedColumnSql, null)
+                   ?? DefinitionAnnotations?.ComputedColumnSqlDefault;
         }
 
         protected virtual bool SetComputedColumnSql([CanBeNull] string value)
@@ -250,9 +282,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 return Annotations.GetAnnotation(
                     fallback ? RelationalFullAnnotationNames.Instance.DefaultValue : null,
-                    ProviderFullAnnotationNames?.DefaultValue);
+                    ProviderFullAnnotationNames?.DefaultValue)
+                       ?? (fallback ? DefinitionAnnotations?.DefaultValueDefault : null);
             }
-            return Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.DefaultValue, null);
+            return Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.DefaultValue, null)
+                   ?? DefinitionAnnotations?.DefaultValueDefault;
         }
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)

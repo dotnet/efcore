@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyAccessMode? GetPropertyAccessMode(
                 [NotNull] this IPropertyBase propertyBase)
             => (PropertyAccessMode?)Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
+               ?? (propertyBase as IComplexProperty)?.Definition.GetPropertyAccessMode()
                ?? propertyBase.DeclaringType.GetPropertyAccessMode();
     }
 }

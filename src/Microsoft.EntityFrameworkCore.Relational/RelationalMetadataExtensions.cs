@@ -14,6 +14,22 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalMetadataExtensions
     {
         /// <summary>
+        ///     Gets the relational database specific metadata for a complex property definition.
+        /// </summary>
+        /// <param name="propertyDefinition"> The complex property definition to get metadata for. </param>
+        /// <returns> The relational database specific metadata for the complex property definition. </returns>
+        public static RelationalComplexPropertyDefinitionAnnotations Relational([NotNull] this IMutableComplexPropertyDefinition propertyDefinition)
+            => (RelationalComplexPropertyDefinitionAnnotations)Relational((IComplexPropertyDefinition)propertyDefinition);
+
+        /// <summary>
+        ///     Gets the relational database specific metadata for a complex property definition.
+        /// </summary>
+        /// <param name="propertyDefinition"> The complex property definition to get metadata for. </param>
+        /// <returns> The relational database specific metadata for the complex property definition. </returns>
+        public static IRelationalComplexPropertyDefinitionAnnotations Relational([NotNull] this IComplexPropertyDefinition propertyDefinition)
+            => new RelationalComplexPropertyDefinitionAnnotations(Check.NotNull(propertyDefinition, nameof(propertyDefinition)), null);
+
+        /// <summary>
         ///     Gets the relational database specific metadata for a property.
         /// </summary>
         /// <param name="property"> The property to get metadata for. </param>

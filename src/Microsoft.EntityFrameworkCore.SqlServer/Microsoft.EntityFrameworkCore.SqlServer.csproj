@@ -84,12 +84,14 @@
     <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerModelBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerPropertyBuilderAnnotations.cs" />
+    <Compile Include="Metadata\ISqlServerComplexPropertyDefinitionAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerIndexAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerKeyAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerModelAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerPropertyAnnotations.cs" />
     <Compile Include="Metadata\SqlServerAnnotationProvider.cs" />
+    <Compile Include="Metadata\SqlServerComplexPropertyDefinitionAnnotations.cs" />
     <Compile Include="Metadata\SqlServerEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\SqlServerIndexAnnotations.cs" />
     <Compile Include="Metadata\SqlServerKeyAnnotations.cs" />

@@ -15,6 +15,22 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqlServerMetadataExtensions
     {
         /// <summary>
+        ///     Gets the SQL Server specific metadata for a complex property definition.
+        /// </summary>
+        /// <param name="propertyDefinition"> The complex property definition to get metadata for. </param>
+        /// <returns> The SQL Server specific metadata for the complex property definition. </returns>
+        public static SqlServerComplexPropertyDefinitionAnnotations SqlServer([NotNull] this IMutableComplexPropertyDefinition propertyDefinition)
+            => (SqlServerComplexPropertyDefinitionAnnotations)SqlServer((IComplexPropertyDefinition)propertyDefinition);
+
+        /// <summary>
+        ///     Gets the SQL Server specific metadata for a complex property definition.
+        /// </summary>
+        /// <param name="propertyDefinition"> The complex property definition to get metadata for. </param>
+        /// <returns> The SQL Server specific metadata for the complex property definition. </returns>
+        public static ISqlServerComplexPropertyDefinitionAnnotations SqlServer([NotNull] this IComplexPropertyDefinition propertyDefinition)
+            => new SqlServerComplexPropertyDefinitionAnnotations(Check.NotNull(propertyDefinition, nameof(propertyDefinition)));
+
+        /// <summary>
         ///     Gets the SQL Server specific metadata for a property.
         /// </summary>
         /// <param name="property"> The property to get metadata for. </param>

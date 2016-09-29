@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(facet21, complexUsage.FindComplexTypeUsage("Nested").FindProperty("IntProp").IsReadOnlyAfterSave);
             Assert.Equal(facet22, complexUsage.FindComplexTypeUsage("Nested").FindProperty("StringProp").IsReadOnlyAfterSave);
         }
-        
+
         [Fact]
         public void Complex_property_read_only_before_save_facet_makes_use_of_definition()
         {
@@ -274,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(facet21, complexUsage.FindComplexTypeUsage("Nested").FindProperty("IntProp").IsReadOnlyBeforeSave);
             Assert.Equal(facet22, complexUsage.FindComplexTypeUsage("Nested").FindProperty("StringProp").IsReadOnlyBeforeSave);
         }
-        
+
         [Fact]
         public void Complex_property_requires_value_generator_facet_makes_use_of_definition()
         {
@@ -290,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var keyProperty2 = complexUsage.FindComplexTypeUsage("Nested").FindProperty("IntProp");
             keyProperty2.ValueGenerated = ValueGenerated.OnAdd;
 
-            complexUsage.DeclaringEntityType.SetPrimaryKey(new [] { keyProperty1, keyProperty2 });
+            complexUsage.DeclaringEntityType.SetPrimaryKey(new[] { keyProperty1, keyProperty2 });
 
             AssertRequiresValueGenerator(complexUsage, false, false, true, false);
 
@@ -442,6 +443,172 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(facet12, complexUsage.FindProperty("StringProp").ValueGenerated);
             Assert.Equal(facet21, complexUsage.FindComplexTypeUsage("Nested").FindProperty("IntProp").ValueGenerated);
             Assert.Equal(facet22, complexUsage.FindComplexTypeUsage("Nested").FindProperty("StringProp").ValueGenerated);
+        }
+
+        [Fact]
+        public void Can_set_max_length_for_complex_property()
+        {
+            ComplexPropertyDefinition propDef11, propDef12, propDef21, propDef22;
+
+            var complexUsage = BuildUsage(out propDef11, out propDef12, out propDef21, out propDef22);
+
+            var property = complexUsage.FindProperty("StringProp");
+            var nestedProperty = complexUsage.FindComplexTypeUsage("Nested").FindProperty("StringProp");
+
+            Assert.Null(property.GetMaxLength());
+            Assert.Null(nestedProperty.GetMaxLength());
+            Assert.Null(propDef12.GetMaxLengthDefault());
+            Assert.Null(propDef22.GetMaxLengthDefault());
+
+            propDef12.SetMaxLengthDefault(77);
+            propDef22.SetAnnotation(CoreAnnotationNames.MaxLengthAnnotation, 88, ConfigurationSource.DataAnnotation);
+
+            Assert.Equal(77, propDef12.GetMaxLengthDefault());
+            Assert.Equal(88, propDef22.GetMaxLengthDefault());
+
+            Assert.Equal(ConfigurationSource.Explicit, propDef12.FindAnnotation(CoreAnnotationNames.MaxLengthAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.DataAnnotation, propDef22.FindAnnotation(CoreAnnotationNames.MaxLengthAnnotation).GetConfigurationSource());
+
+            Assert.Equal(77, property.GetMaxLength());
+            Assert.Equal(88, nestedProperty.GetMaxLength());
+
+            Assert.Null(property.FindAnnotation(CoreAnnotationNames.MaxLengthAnnotation));
+            Assert.Null(nestedProperty.FindAnnotation(CoreAnnotationNames.MaxLengthAnnotation));
+
+            property.SetMaxLength(100);
+            nestedProperty.SetAnnotation(CoreAnnotationNames.MaxLengthAnnotation, 200, ConfigurationSource.Convention);
+
+            Assert.Equal(100, property.GetMaxLength());
+            Assert.Equal(200, nestedProperty.GetMaxLength());
+
+            Assert.Equal(ConfigurationSource.Explicit, property.FindAnnotation(CoreAnnotationNames.MaxLengthAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.Convention, nestedProperty.FindAnnotation(CoreAnnotationNames.MaxLengthAnnotation).GetConfigurationSource());
+        }
+
+        [Fact]
+        public void Can_set_unicode_for_complex_property()
+        {
+            ComplexPropertyDefinition propDef11, propDef12, propDef21, propDef22;
+
+            var complexUsage = BuildUsage(out propDef11, out propDef12, out propDef21, out propDef22);
+
+            var property = complexUsage.FindProperty("StringProp");
+            var nestedProperty = complexUsage.FindComplexTypeUsage("Nested").FindProperty("StringProp");
+
+            Assert.Null(property.IsUnicode());
+            Assert.Null(nestedProperty.IsUnicode());
+            Assert.Null(propDef12.IsUnicodeDefault());
+            Assert.Null(propDef22.IsUnicodeDefault());
+
+            propDef12.IsUnicodeDefault(true);
+            propDef22.SetAnnotation(CoreAnnotationNames.UnicodeAnnotation, false, ConfigurationSource.DataAnnotation);
+
+            Assert.Equal(true, propDef12.IsUnicodeDefault());
+            Assert.Equal(false, propDef22.IsUnicodeDefault());
+
+            Assert.Equal(ConfigurationSource.Explicit, propDef12.FindAnnotation(CoreAnnotationNames.UnicodeAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.DataAnnotation, propDef22.FindAnnotation(CoreAnnotationNames.UnicodeAnnotation).GetConfigurationSource());
+
+            Assert.Equal(true, property.IsUnicode());
+            Assert.Equal(false, nestedProperty.IsUnicode());
+
+            Assert.Null(property.FindAnnotation(CoreAnnotationNames.UnicodeAnnotation));
+            Assert.Null(nestedProperty.FindAnnotation(CoreAnnotationNames.UnicodeAnnotation));
+
+            property.IsUnicode(false);
+            nestedProperty.SetAnnotation(CoreAnnotationNames.UnicodeAnnotation, true, ConfigurationSource.Convention);
+
+            Assert.Equal(false, property.IsUnicode());
+            Assert.Equal(true, nestedProperty.IsUnicode());
+
+            Assert.Equal(ConfigurationSource.Explicit, property.FindAnnotation(CoreAnnotationNames.UnicodeAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.Convention, nestedProperty.FindAnnotation(CoreAnnotationNames.UnicodeAnnotation).GetConfigurationSource());
+        }
+
+        [Fact]
+        public void Can_set_value_generation_factory_for_complex_property()
+        {
+            ComplexPropertyDefinition propDef11, propDef12, propDef21, propDef22;
+
+            var complexUsage = BuildUsage(out propDef11, out propDef12, out propDef21, out propDef22);
+
+            var property = complexUsage.FindProperty("StringProp");
+            var nestedProperty = complexUsage.FindComplexTypeUsage("Nested").FindProperty("StringProp");
+
+            Assert.Null(property.GetValueGeneratorFactory());
+            Assert.Null(nestedProperty.GetValueGeneratorFactory());
+            Assert.Null(propDef12.GetValueGeneratorFactoryDefault());
+            Assert.Null(propDef22.GetValueGeneratorFactoryDefault());
+
+            Func<IProperty, IEntityType, ValueGenerator> factory1 = (p, e) => null;
+            Func<IProperty, IEntityType, ValueGenerator> factory2 = (p, e) => null;
+
+            propDef12.SetValueGeneratorFactoryDefault(factory1);
+            propDef22.SetAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation, factory2, ConfigurationSource.DataAnnotation);
+
+            Assert.Same(factory1, propDef12.GetValueGeneratorFactoryDefault());
+            Assert.Same(factory2, propDef22.GetValueGeneratorFactoryDefault());
+
+            Assert.Equal(ConfigurationSource.Explicit, propDef12.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.DataAnnotation, propDef22.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation).GetConfigurationSource());
+
+            Assert.Same(factory1, property.GetValueGeneratorFactory());
+            Assert.Same(factory2, nestedProperty.GetValueGeneratorFactory());
+
+            Assert.Null(property.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation));
+            Assert.Null(nestedProperty.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation));
+
+            Func<IProperty, IEntityType, ValueGenerator> factory3 = (p, e) => null;
+            Func<IProperty, IEntityType, ValueGenerator> factory4 = (p, e) => null;
+
+            property.SetValueGeneratorFactory(factory3);
+            nestedProperty.SetAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation, factory4, ConfigurationSource.Convention);
+
+            Assert.Same(factory3, property.GetValueGeneratorFactory());
+            Assert.Same(factory4, nestedProperty.GetValueGeneratorFactory());
+
+            Assert.Equal(ConfigurationSource.Explicit, property.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.Convention, nestedProperty.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation).GetConfigurationSource());
+        }
+
+        [Fact]
+        public void Can_set_property_access_mode_for_complex_property()
+        {
+            ComplexPropertyDefinition propDef11, propDef12, propDef21, propDef22;
+
+            var complexUsage = BuildUsage(out propDef11, out propDef12, out propDef21, out propDef22);
+
+            var property = complexUsage.FindProperty("StringProp");
+            var nestedProperty = complexUsage.FindComplexTypeUsage("Nested").FindProperty("StringProp");
+
+            Assert.Null(property.GetPropertyAccessMode());
+            Assert.Null(nestedProperty.GetPropertyAccessMode());
+            Assert.Null(propDef12.GetPropertyAccessMode());
+            Assert.Null(propDef22.GetPropertyAccessMode());
+
+            propDef12.SetPropertyAccessMode(PropertyAccessMode.Field);
+            propDef22.SetAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation, PropertyAccessMode.Property, ConfigurationSource.DataAnnotation);
+
+            Assert.Equal(PropertyAccessMode.Field, propDef12.GetPropertyAccessMode());
+            Assert.Equal(PropertyAccessMode.Property, propDef22.GetPropertyAccessMode());
+
+            Assert.Equal(ConfigurationSource.Explicit, propDef12.FindAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.DataAnnotation, propDef22.FindAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation).GetConfigurationSource());
+
+            Assert.Equal(PropertyAccessMode.Field, property.GetPropertyAccessMode());
+            Assert.Equal(PropertyAccessMode.Property, nestedProperty.GetPropertyAccessMode());
+
+            Assert.Null(property.FindAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation));
+            Assert.Null(nestedProperty.FindAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation));
+
+            property.SetPropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+            nestedProperty.SetAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation, PropertyAccessMode.Field, ConfigurationSource.Convention);
+
+            Assert.Equal(PropertyAccessMode.FieldDuringConstruction, property.GetPropertyAccessMode());
+            Assert.Equal(PropertyAccessMode.Field, nestedProperty.GetPropertyAccessMode());
+
+            Assert.Equal(ConfigurationSource.Explicit, property.FindAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation).GetConfigurationSource());
+            Assert.Equal(ConfigurationSource.Convention, nestedProperty.FindAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation).GetConfigurationSource());
         }
 
         private static ComplexTypeUsage BuildUsage(

@@ -15,6 +15,22 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqliteMetadataExtensions
     {
         /// <summary>
+        ///     Gets the SQLite specific metadata for a complex property definition.
+        /// </summary>
+        /// <param name="propertyDefinition"> The complex property definition to get metadata for. </param>
+        /// <returns> The SQLite specific metadata for the complex property definition. </returns>
+        public static RelationalComplexPropertyDefinitionAnnotations Sqlite([NotNull] this IMutableComplexPropertyDefinition propertyDefinition)
+            => (RelationalComplexPropertyDefinitionAnnotations)Sqlite((IComplexPropertyDefinition)propertyDefinition);
+
+        /// <summary>
+        ///     Gets the SQLite specific metadata for a complex property definition.
+        /// </summary>
+        /// <param name="propertyDefinition"> The complex property definition to get metadata for. </param>
+        /// <returns> The SQLite specific metadata for the complex property definition. </returns>
+        public static IRelationalComplexPropertyDefinitionAnnotations Sqlite([NotNull] this IComplexPropertyDefinition propertyDefinition)
+            => new RelationalComplexPropertyDefinitionAnnotations(Check.NotNull(propertyDefinition, nameof(propertyDefinition)), SqliteFullAnnotationNames.Instance);
+
+        /// <summary>
         ///     Gets the SQLite specific metadata for an entity.
         /// </summary>
         /// <param name="entityType"> The entity to get metadata for. </param>
