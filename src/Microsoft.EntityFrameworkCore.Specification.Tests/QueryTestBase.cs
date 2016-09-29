@@ -1025,12 +1025,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Where_shadow_subquery_first()
+        public virtual void Where_shadow_subquery_FirstOrDefault()
         {
             AssertQuery<Employee>(es =>
                 from e in es
                 where EF.Property<string>(e, "Title")
-                      == EF.Property<string>(es.OrderBy(e2 => EF.Property<string>(e2, "Title")).First(), "Title")
+                      == EF.Property<string>(es.OrderBy(e2 => EF.Property<string>(e2, "Title")).FirstOrDefault(), "Title")
                 select e,
                 entryCount: 1);
         }
@@ -2289,7 +2289,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Employee>(
                 es =>
                     from e1 in es
-                    where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
+                    where e1.FirstName == es.OrderBy(e => e.EmployeeID).FirstOrDefault().FirstName
                     select e1,
                 entryCount: 1);
         }
@@ -3237,7 +3237,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     o => cs.OrderBy(
                         c => cs.Any(
                             c2 => c2.CustomerID == "ALFKI"))
-                        .First().City != "Nowhere"));
+                        .FirstOrDefault().City != "Nowhere"));
         }
 
         [ConditionalFact]
@@ -3758,6 +3758,69 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupBy_with_orderby()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_orderby_and_anonymous_projection()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Select(g => new { Foo = "Foo", Group = g }),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                        for (int i = 0; i < l2oResults.Count; i++)
+                        {
+                            dynamic l2oResult = l2oResults[i];
+                            dynamic efResult = efResults[i];
+
+                            Assert.Equal(l2oResult.Foo, l2oResult.Foo);
+                            IGrouping<string, Order> l2oGrouping = l2oResult.Group;
+                            IGrouping<string, Order> efGrouping = efResult.Group;
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_orderby_take_skip_distinct()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct(),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 31);
+        }
+
+        [ConditionalFact]
         public virtual void Select_All()
         {
             using (var context = CreateContext())
@@ -4211,6 +4274,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(
                 // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefault());
+        }
+
+        [ConditionalFact]
+        public virtual void FirstOrDefault_inside_subquery_gets_server_evaluated()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").FirstOrDefault().CustomerID == "ALFKI"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void First_inside_subquery_gets_client_evaluated()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").First().CustomerID == "ALFKI"),
+                entryCount: 1);
         }
 
         [ConditionalFact]
@@ -5329,6 +5410,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = context.Set<Customer>()
                     .Select(c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
+                    .ToList();
+
+                Assert.Equal(91, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void IsNullOrEmpty_negated_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Select(c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
                     .ToList();
 
                 Assert.Equal(91, query.Count);

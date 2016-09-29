@@ -349,9 +349,9 @@ ORDER BY [e].[EmployeeID]",
                 Sql);
         }
 
-        public override void Where_shadow_subquery_first()
+        public override void Where_shadow_subquery_FirstOrDefault()
         {
-            base.Where_shadow_subquery_first();
+            base.Where_shadow_subquery_FirstOrDefault();
 
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -2044,6 +2044,38 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void FirstOrDefault_inside_subquery_gets_server_evaluated()
+        {
+            base.FirstOrDefault_inside_subquery_gets_server_evaluated();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] = N'ALFKI') AND ((
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] = N'ALFKI') AND ([c].[CustomerID] = [o].[CustomerID])
+) = N'ALFKI')",
+                Sql);
+        }
+
+        public override void First_inside_subquery_gets_client_evaluated()
+        {
+            base.First_inside_subquery_gets_client_evaluated();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o0].[CustomerID]
+FROM [Orders] AS [o0]
+WHERE ([o0].[CustomerID] = N'ALFKI') AND (@_outer_CustomerID = [o0].[CustomerID])",
+                Sql);
+        }
+
         public override void Last()
         {
             base.Last();
@@ -3153,6 +3185,39 @@ ORDER BY [o].[CustomerID]",
                 @"SELECT [o].[OrderID], [o].[CustomerID]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]",
+                Sql);
+        }
+
+        public override void GroupBy_with_orderby()
+        {
+            base.GroupBy_with_orderby();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupBy_with_orderby_and_anonymous_projection()
+        {
+            base.GroupBy_with_orderby_and_anonymous_projection();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupBy_with_orderby_take_skip_distinct()
+        {
+            base.GroupBy_with_orderby_take_skip_distinct();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -5530,6 +5595,19 @@ WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], CASE
     WHEN [c].[Region] IS NULL OR ([c].[Region] = N'')
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void IsNullOrEmpty_negated_in_projection()
+        {
+            base.IsNullOrEmpty_negated_in_projection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN [c].[Region] IS NOT NULL AND (([c].[Region] <> N'') OR [c].[Region] IS NULL)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 FROM [Customers] AS [c]",

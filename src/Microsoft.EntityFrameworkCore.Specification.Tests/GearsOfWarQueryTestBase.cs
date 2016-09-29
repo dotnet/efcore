@@ -768,13 +768,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var gears = context.Gears
-                    .Where(g => g.Rank.HasFlag(context.Gears.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).First().Rank))
+                    .Where(g => g.Rank.HasFlag(context.Gears.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).FirstOrDefault().Rank))
                     .ToList();
 
                 Assert.Equal(2, gears.Count);
 
                 gears = context.Gears
-                    .Where(g => MilitaryRank.Corporal.HasFlag(context.Gears.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).First().Rank))
+                    .Where(g => MilitaryRank.Corporal.HasFlag(context.Gears.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).FirstOrDefault().Rank))
                     .ToList();
 
                 Assert.Equal(5, gears.Count);
@@ -1224,7 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var query = context.Gears.Where(g => g.Weapons.First().IsAutomatic).ToList();
+                var query = context.Gears.Where(g => g.Weapons.FirstOrDefault().IsAutomatic).ToList();
 
                 Assert.Equal(2, query.Count);
             }
@@ -2020,6 +2020,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
-        public virtual void Dispose() => TestStore.Dispose();
+        public void Dispose() => TestStore.Dispose();
     }
 }
