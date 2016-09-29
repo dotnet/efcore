@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
+            Debug.Assert(!propertyBase.IsShadowProperty);
 
             return propertyBase.GetGetter().GetClrValue(Entity);
         }
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
         {
-            Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
+            Debug.Assert(!propertyBase.IsShadowProperty);
 
             propertyBase.GetSetter().SetClrValue(Entity, value);
         }

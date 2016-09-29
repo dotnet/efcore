@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -57,13 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     values when new entities are added to the context.
         /// </summary>
         bool RequiresValueGenerator { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether this is a shadow property. A shadow property is one that does not have a
-        ///     corresponding property in the entity class. The current value for the property is stored in
-        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-        /// </summary>
-        bool IsShadowProperty { get; }
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as a concurrency token. When a property is configured

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class InternalMixedEntityEntry : InternalEntityEntry
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly ISnapshot _shadowValues;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InternalMixedEntityEntry(
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InternalMixedEntityEntry(
@@ -49,47 +49,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override object Entity { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override T ReadShadowValue<T>(int shadowIndex)
             => _shadowValues.GetValue<T>(shadowIndex);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
-        {
-            var property = propertyBase as IProperty;
-
-            return (property == null) || !property.IsShadowProperty
+            => !propertyBase.IsShadowProperty
                 ? base.ReadPropertyValue(propertyBase)
-                : _shadowValues[property.GetShadowIndex()];
-        }
+                : _shadowValues[propertyBase.GetShadowIndex()];
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
         {
-            var property = propertyBase as IProperty;
-
-            if ((property == null)
-                || !property.IsShadowProperty)
+            if (!propertyBase.IsShadowProperty)
             {
                 base.WritePropertyValue(propertyBase, value);
             }
             else
             {
-                _shadowValues[property.GetShadowIndex()] = value;
+                _shadowValues[propertyBase.GetShadowIndex()] = value;
             }
         }
     }

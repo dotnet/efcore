@@ -107,7 +107,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var propertyBase = propertyBases[i];
 
                 var navigation = propertyBase as INavigation;
-                var property = propertyBase as IProperty;
 
                 arguments[i] =
                     navigation != null
@@ -118,9 +117,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             Expression.MakeMemberAccess(
                                 entityVariable,
                                 propertyBase.GetMemberInfo(forConstruction: false, forSet: false)))
-                        : property != null
-                          && property.IsShadowProperty
-                            ? CreateReadShadowValueExpression(parameter, property)
+                        : propertyBase.IsShadowProperty
+                            ? CreateReadShadowValueExpression(parameter, propertyBase)
                             : Expression.MakeMemberAccess(
                                 entityVariable,
                                 propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
@@ -153,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
-            [CanBeNull] ParameterExpression parameter, [NotNull] IProperty property)
+            [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
