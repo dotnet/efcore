@@ -6,9 +6,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -16,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ExpressionPrinter : ExpressionVisitor, IExpressionPrinter
+    public class ExpressionPrinter : ExpressionVisitorBase, IExpressionPrinter
     {
         private IndentedStringBuilder _stringBuilder;
         private List<IConstantPrinter> _constantPrinters;
@@ -47,6 +51,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public ExpressionPrinter()
+            : this(new List<IConstantPrinter>())
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected ExpressionPrinter(List<IConstantPrinter> constantPrinters)
+        {
+            _stringBuilder = new IndentedStringBuilder();
+            _parametersInScope = new Dictionary<ParameterExpression, string>();
+            _constantPrinters = new List<IConstantPrinter>(constantPrinters);
+            _constantPrinters.AddRange(
+                new List<IConstantPrinter>
+                {
+                    new EntityQueryableConstantPrinter(),
+                    new CollectionConstantPrinter(),
+                    new MetadataPropertyPrinter(),
+                    new DefaultConstantPrinter(),
+                });
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IndentedStringBuilder StringBuilder => _stringBuilder;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected static Action<IndentedStringBuilder, string> Append
         {
             get { return (sb, s) => sb.Append(s); }
@@ -62,14 +100,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Print(Expression expression)
         {
-            _stringBuilder = new IndentedStringBuilder();
-            _parametersInScope = new Dictionary<ParameterExpression, string>();
-            _constantPrinters = GetConstantPrinters();
+            _stringBuilder.Clear();
+            _parametersInScope.Clear();
 
             Visit(expression);
 
@@ -80,18 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return result;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual List<IConstantPrinter> GetConstantPrinters()
-            => new List<IConstantPrinter>
-            {
-                new CollectionConstantPrinter(),
-                new MetadataPropertyPrinter(),
-                new DefaultConstantPrinter()
-            };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -188,6 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case ExpressionType.Try:
                     VisitTry((TryExpression)node);
+                    break;
+
+                case ExpressionType.Extension:
+                    VisitExtension(node);
                     break;
 
                 default:
@@ -444,7 +473,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return node;
             }
 
-            _stringBuilder.Append(node.Method.ReturnType.ShortDisplayName() + " ");
+            if (!EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+            {
+                _stringBuilder.Append(node.Method.ReturnType.ShortDisplayName() + " ");
+            }
 
             if (node.Object != null)
             {
@@ -454,12 +486,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _stringBuilder.Append(node.Method.Name + "(");
 
-            var appendAction = simpleMethods.Contains(node.Method.Name) ? Append : AppendLine;
+            var appendAction = simpleMethods.Contains(node.Method.Name) || EntityQueryModelVisitor.IsPropertyMethod(node.Method) 
+                ? Append 
+                : AppendLine;
+
             if (node.Arguments.Count > 0)
             {
                 appendAction(_stringBuilder, "");
 
-                var showArgumentNames = !simpleMethods.Contains(node.Method.Name);
+                var showArgumentNames = !simpleMethods.Contains(node.Method.Name) && !EntityQueryModelVisitor.IsPropertyMethod(node.Method);
                 var argumentNames = showArgumentNames ? node.Method.GetParameters().Select(p => p.Name).ToList() : new List<string>();
 
                 _stringBuilder.IncrementIndent();
@@ -616,6 +651,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override Expression VisitExtension(Expression node)
+        {
+            var qsre = node as QuerySourceReferenceExpression;
+            if (qsre != null)
+            {
+                StringBuilder.Append(qsre.ReferencedQuerySource.ItemName);
+
+                return node;
+            }
+
+            var nullConditional = node as NullConditionalExpression;
+            if (nullConditional != null)
+            {
+                StringBuilder.Append(nullConditional.ToString());
+
+                return node;
+            }
+
+            UnhandledExpressionType(node);
+
+            return node;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual string PostProcess([NotNull] string queryPlan)
         {
             var processedPlan = queryPlan
@@ -640,6 +702,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             bool TryPrintConstant([CanBeNull] object value, [NotNull] IndentedStringBuilder stringBuilder);
+        }
+
+        private class EntityQueryableConstantPrinter : IConstantPrinter
+        {
+            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            {
+                if (value != null && value.GetType().GetTypeInfo().IsGenericType
+                    && value.GetType().GetTypeInfo().GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+                {
+                    stringBuilder.Append($"DbSet<{value.GetType().GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         private class CollectionConstantPrinter : IConstantPrinter
@@ -697,6 +774,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     stringValue = value.ToString() != value.GetType().ToString()
                         ? value.ToString()
                         : value.GetType().Name;
+
+                    if (value is string)
+                    {
+                        stringValue = $@"""{stringValue}""";  
+                    }
                 }
 
                 stringBuilder.Append(stringValue);

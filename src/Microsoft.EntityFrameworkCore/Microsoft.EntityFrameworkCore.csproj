@@ -487,6 +487,7 @@
     <Compile Include="Query\Internal\IQueryAnnotationExtractor.cs" />
     <Compile Include="Query\Internal\IQueryBuffer.cs" />
     <Compile Include="Query\Internal\IQueryCompiler.cs" />
+    <Compile Include="Query\Internal\IQueryModelPrinter.cs" />
     <Compile Include="Query\Internal\IQueryOptimizer.cs" />
     <Compile Include="Query\Internal\IRelatedEntitiesLoader.cs" />
     <Compile Include="Query\Internal\IWeakReferenceIdentityMap.cs" />
@@ -497,6 +498,7 @@
     <Compile Include="Query\Internal\QueryBuffer.cs" />
     <Compile Include="Query\Internal\QueryCompilationContextFactory.cs" />
     <Compile Include="Query\Internal\QueryCompiler.cs" />
+    <Compile Include="Query\Internal\QueryModelPrinter.cs" />
     <Compile Include="Query\Internal\QueryOptimizer.cs" />
     <Compile Include="Query\Internal\TaskResultAsyncEnumerable.cs" />
     <Compile Include="Query\Internal\WeakReferenceIdentityMap.cs" />

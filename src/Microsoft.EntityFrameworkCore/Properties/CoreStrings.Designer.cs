@@ -681,19 +681,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Compiling query model: '{queryModel}'
+        /// Compiling query model: {newline}'{queryModel}'
         /// </summary>
-        public static string LogCompilingQueryModel([CanBeNull] object queryModel)
+        public static string LogCompilingQueryModel([CanBeNull] string newline, [CanBeNull] object queryModel)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "queryModel"), queryModel);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "newline", "queryModel"), newline, queryModel);
         }
 
         /// <summary>
-        /// Optimized query model: '{queryModel}'
+        /// Optimized query model: {newline}'{queryModel}'
         /// </summary>
-        public static string LogOptimizedQueryModel([CanBeNull] object queryModel)
+        public static string LogOptimizedQueryModel([CanBeNull] string newline, [CanBeNull] object queryModel)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogOptimizedQueryModel", "queryModel"), queryModel);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogOptimizedQueryModel", "newline", "queryModel"), newline, queryModel);
         }
 
         /// <summary>

@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryCompilationContext.Logger
                     .LogDebug(
                         CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.LogCompilingQueryModel(queryModel));
+                        () => CoreStrings.LogCompilingQueryModel(Environment.NewLine, queryModel.Print()));
 
                 _blockTaskExpressions = false;
 
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryCompilationContext.Logger
                     .LogDebug(
                         CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.LogCompilingQueryModel(queryModel));
+                        () => CoreStrings.LogCompilingQueryModel(Environment.NewLine, queryModel.Print()));
 
                 _blockTaskExpressions = false;
 
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContext.Logger
                 .LogDebug(
                     CoreEventId.OptimizedQueryModel,
-                    () => CoreStrings.LogOptimizedQueryModel(queryModel));
+                    () => CoreStrings.LogOptimizedQueryModel(Environment.NewLine, queryModel.Print()));
         }
 
         /// <summary>

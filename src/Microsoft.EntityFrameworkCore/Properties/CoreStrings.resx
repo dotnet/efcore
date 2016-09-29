@@ -367,10 +367,10 @@
     <value>The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.</value>
   </data>
   <data name="LogCompilingQueryModel" xml:space="preserve">
-    <value>Compiling query model: '{queryModel}'</value>
+    <value>Compiling query model: {newline}'{queryModel}'</value>
   </data>
   <data name="LogOptimizedQueryModel" xml:space="preserve">
-    <value>Optimized query model: '{queryModel}'</value>
+    <value>Optimized query model: {newline}'{queryModel}'</value>
   </data>
   <data name="LogIncludingNavigation" xml:space="preserve">
     <value>Including navigation: '{navigation}'</value>
