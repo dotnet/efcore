@@ -1704,7 +1704,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         || expression.NodeType == ExpressionType.And)
                     {
                         var parentIsSearchCondition = _isSearchCondition;
-
                         _isSearchCondition = expression.IsLogicalOperation();
 
                         newLeft = Visit(expression.Left);

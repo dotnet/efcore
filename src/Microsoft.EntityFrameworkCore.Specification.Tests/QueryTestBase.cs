@@ -3773,7 +3773,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                             Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
                         }
-                    }, 
+                    },
                 entryCount: 830);
         }
 
@@ -5410,6 +5410,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = context.Set<Customer>()
                     .Select(c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
+                    .ToList();
+
+                Assert.Equal(91, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void IsNullOrEmpty_negated_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Select(c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
                     .ToList();
 
                 Assert.Equal(91, query.Count);
