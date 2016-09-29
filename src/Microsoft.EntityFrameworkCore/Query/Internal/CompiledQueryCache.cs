@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public const string CompiledQueryParameterPrefix = "__";
 
-        private static readonly ConcurrentDictionary<object, object> _querySyncObjects 
+        private static readonly ConcurrentDictionary<object, object> _querySyncObjects
             = new ConcurrentDictionary<object, object>();
 
         private readonly IMemoryCache _memoryCache;
@@ -41,9 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<QueryContext, TResult> GetOrAddQuery<TResult>(
-            object cacheKey, Func<Func<QueryContext, TResult>> compiler)
+                object cacheKey, Func<Func<QueryContext, TResult>> compiler)
+            => GetOrAddQueryCore(cacheKey, compiler);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> GetOrAddAsyncQuery<TResult>(
+                object cacheKey, Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
+            => GetOrAddQueryCore(cacheKey, compiler);
+
+        private Func<QueryContext, TFunc> GetOrAddQueryCore<TFunc>(
+            object cacheKey, Func<Func<QueryContext, TFunc>> compiler)
         {
-            Func<QueryContext, TResult> compiledQuery;
+            Func<QueryContext, TFunc> compiledQuery;
 
             retry:
             if (!_memoryCache.TryGetValue(cacheKey, out compiledQuery))
@@ -59,25 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 object _;
                 _querySyncObjects.TryRemove(cacheKey, out _);
-            }
-
-            return compiledQuery;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> GetOrAddAsyncQuery<TResult>(
-            object cacheKey, Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
-        {
-            Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery;
-
-            if (!_memoryCache.TryGetValue(cacheKey, out compiledQuery))
-            {
-                compiledQuery = compiler();
-
-                _memoryCache.Set(cacheKey, compiledQuery);
             }
 
             return compiledQuery;
