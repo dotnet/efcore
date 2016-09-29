@@ -180,6 +180,7 @@
     <Compile Include="Extensions\MutableKeyExtensions.cs" />
     <Compile Include="Extensions\MutableModelExtensions.cs" />
     <Compile Include="Extensions\MutableNavigationExtensions.cs" />
+    <Compile Include="Extensions\MutablePropertyBaseExtensions.cs" />
     <Compile Include="Extensions\MutablePropertyExtensions.cs" />
     <Compile Include="Extensions\NavigationExtensions.cs" />
     <Compile Include="Extensions\ObservableCollectionExtensions.cs" />

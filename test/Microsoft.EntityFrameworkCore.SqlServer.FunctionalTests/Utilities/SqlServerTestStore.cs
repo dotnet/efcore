@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
-        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
-            => new SqlServerTestStore(name).CreateShared(initializeDatabase);
+        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase, bool cleanDatabase = true)
+            => new SqlServerTestStore(name, cleanDatabase: cleanDatabase).CreateShared(initializeDatabase);
 
         public static SqlServerTestStore Create(string name)
             => new SqlServerTestStore(name).CreateTransient(true, false);
@@ -40,13 +40,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private SqlConnection _connection;
         private readonly string _fileName;
         private string _connectionString;
+        private bool _cleanDatabase;
         private bool _deleteDatabase;
 
         public string Name { get; }
         public override string ConnectionString => _connectionString;
 
-        // Use async static factory method
-        private SqlServerTestStore(string name, bool useFileName = false)
+        private SqlServerTestStore(string name, bool useFileName = false, bool cleanDatabase = true)
         {
             Name = name;
 
@@ -64,6 +64,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
                 _fileName = Path.Combine(baseDirectory, name + ".mdf");
             }
+
+            _cleanDatabase = cleanDatabase;
         }
 
         private static string GetScratchDbName()
@@ -87,20 +89,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             CreateShared(typeof(SqlServerTestStore).Name + Name,
                 () =>
                     {
-                        CreateDatabase();
-                        initializeDatabase?.Invoke();
+                        if (CreateDatabase())
+                        {
+                            initializeDatabase?.Invoke();
+                        }
                     });
 
             return this;
         }
 
-        private void CreateDatabase()
+        private bool CreateDatabase()
         {
             using (var master = new SqlConnection(CreateConnectionString("master", false)))
             {
-                var exists = DatabaseExists(Name);
-                if (exists)
+                if (DatabaseExists(Name))
                 {
+                    if (!_cleanDatabase)
+                    {
+                        return false;
+                    }
+
                     Clean(Name);
                 }
                 else
@@ -109,6 +117,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                     WaitForExists(_connection);
                 }
             }
+
+            return true;
         }
 
         public static void ExecuteScript(string databaseName, string scriptPath)
