@@ -115,13 +115,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<ValueBuffer> _Query(
-                QueryContext queryContext,
-                ShaperCommandContext shaperCommandContext,
+            QueryContext queryContext,
+            ShaperCommandContext shaperCommandContext,
                 int? queryIndex)
             => new QueryingEnumerable(
-                (RelationalQueryContext)queryContext,
-                shaperCommandContext,
-                queryIndex);
+            (RelationalQueryContext)queryContext,
+            shaperCommandContext,
+            queryIndex);
 
         /// <summary>
         ///     Gets the get result method.
@@ -492,10 +492,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
-                QueryContext queryContext,
-                ShaperCommandContext shaperCommandContext,
-                int queryIndex,
-                Func<ValueBuffer, object> materializer)
+            QueryContext queryContext,
+            ShaperCommandContext shaperCommandContext,
+            int queryIndex,
+            Func<ValueBuffer, object> materializer) 
             => new CollectionRelatedEntitiesLoader(queryContext, shaperCommandContext, queryIndex, materializer);
 
         private class CollectionRelatedEntitiesLoader : IRelatedEntitiesLoader
@@ -518,12 +518,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
-            {
-                return
-                    _includeCollectionIterator
-                        .GetRelatedValues(keyComparer)
-                        .Select(vr => new EntityLoadInfo(vr, _materializer));
-            }
+                => _includeCollectionIterator
+                    .GetRelatedValues(keyComparer)
+                    .Select(vr => new EntityLoadInfo(vr, _materializer));
 
             public void Dispose() => _includeCollectionIterator?.Dispose();
         }
@@ -541,9 +538,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<TElement> _InjectParameters<TElement>(
-                QueryContext queryContext,
-                IEnumerable<TElement> source,
-                string[] parameterNames,
+            QueryContext queryContext,
+            IEnumerable<TElement> source,
+            string[] parameterNames,
                 object[] parameterValues)
             => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
 

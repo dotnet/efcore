@@ -107,13 +107,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     , 
     entityAccessor: default(System.Func`2[Specification.Tests.TestModels.Northwind.Customer,System.Object]), 
     navigationPath: INavigation[] { Customer.Orders, }, 
-    relatedEntitiesLoaderFactories: List<Func<QueryContext, IRelatedEntitiesLoader>> 
-    { 
-        System.Func`2[QueryContext,Internal.IRelatedEntitiesLoader], 
-    }
+    relatedEntitiesLoaderFactories: new Func<QueryContext, IRelatedEntitiesLoader>[]{ (QueryContext ) => IRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
+            queryContext: , 
+            shaperCommandContext: SelectExpression: 
+                SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                FROM [Orders] AS [o]
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM [Customers] AS [c]
+                    WHERE [o].[CustomerID] = [c].[CustomerID])
+                ORDER BY [o].[CustomerID]
+            , 
+            queryIndex: 1, 
+            materializer: (ValueBuffer valueBuffer) => 
+            {
+                var3 = new Order()
+                var3.<OrderID>k__BackingField = try { (int) object valueBuffer.get_Item(0) } catch (Exception) { ... } 
+                var3.<CustomerID>k__BackingField = try { (string) object valueBuffer.get_Item(1) } catch (Exception) { ... } 
+                var3.<EmployeeID>k__BackingField = try { (Nullable<int>) object valueBuffer.get_Item(2) } catch (Exception) { ... } 
+                var3.<OrderDate>k__BackingField = try { (Nullable<DateTime>) object valueBuffer.get_Item(3) } catch (Exception) { ... } 
+                return instance
+            }
+        )
+         }
     , 
     querySourceRequiresTracking: True
-)",
+)
+Opening connection to database 'Northwind' on server '(localdb)\MSSQLLocalDB'.
+Closing connection to database 'Northwind' on server '(localdb)\MSSQLLocalDB'.",
                     TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
