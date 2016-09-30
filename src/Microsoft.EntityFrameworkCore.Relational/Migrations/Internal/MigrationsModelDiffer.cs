@@ -296,25 +296,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [CanBeNull] IModel source,
-            [CanBeNull] IModel target,
-            [NotNull] DiffContext diffContext)
-        => (source != null) && (target != null)
-            ? DiffAnnotations(source, target)
-                .Concat(Diff(GetSchemas(source), GetSchemas(target)))
-                .Concat(Diff(source.GetRootEntityTypes(), target.GetRootEntityTypes(), diffContext))
-                .Concat(
-                    Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
-                .Concat(
-                    Diff(
-                        source.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
-                        target.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
-                        diffContext))
-            : target != null
-                ? Add(target, diffContext)
-                : source != null
-                    ? Remove(source, diffContext)
-                    : Enumerable.Empty<MigrationOperation>();
+                [CanBeNull] IModel source,
+                [CanBeNull] IModel target,
+                [NotNull] DiffContext diffContext)
+            => (source != null) && (target != null)
+                ? DiffAnnotations(source, target)
+                    .Concat(Diff(GetSchemas(source), GetSchemas(target)))
+                    .Concat(Diff(source.GetRootEntityTypes(), target.GetRootEntityTypes(), diffContext))
+                    .Concat(
+                        Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
+                    .Concat(
+                        Diff(
+                            source.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
+                            target.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
+                            diffContext))
+                : target != null
+                    ? Add(target, diffContext)
+                    : source != null
+                        ? Remove(source, diffContext)
+                        : Enumerable.Empty<MigrationOperation>();
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
             IModel source,
@@ -421,28 +421,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IEntityType> source,
-            [NotNull] IEnumerable<IEntityType> target,
-            [NotNull] DiffContext diffContext
-        ) => DiffCollection(
-            source,
-            target,
-            (s, t) => Diff(s, t, diffContext),
-            t => Add(t, diffContext),
-            s => Remove(s, diffContext),
-            (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
-            (s, t) => string.Equals(
-                          Annotations.For(s).Schema,
-                          Annotations.For(t).Schema,
-                          StringComparison.OrdinalIgnoreCase)
-                      && string.Equals(
-                          Annotations.For(s).TableName,
-                          Annotations.For(t).TableName,
-                          StringComparison.OrdinalIgnoreCase),
-            (s, t) => string.Equals(
-                Annotations.For(s).TableName,
-                Annotations.For(t).TableName,
-                StringComparison.OrdinalIgnoreCase));
+                [NotNull] IEnumerable<IEntityType> source,
+                [NotNull] IEnumerable<IEntityType> target,
+                [NotNull] DiffContext diffContext)
+            => DiffCollection(
+                source,
+                target,
+                (s, t) => Diff(s, t, diffContext),
+                t => Add(t, diffContext),
+                s => Remove(s, diffContext),
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
+                (s, t) => string.Equals(
+                              Annotations.For(s).Schema,
+                              Annotations.For(t).Schema,
+                              StringComparison.OrdinalIgnoreCase)
+                          && string.Equals(
+                              Annotations.For(s).TableName,
+                              Annotations.For(t).TableName,
+                              StringComparison.OrdinalIgnoreCase),
+                (s, t) => string.Equals(
+                    Annotations.For(s).TableName,
+                    Annotations.For(t).TableName,
+                    StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -576,25 +576,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IProperty> source,
-            [NotNull] IEnumerable<IProperty> target,
-            [NotNull] DiffContext diffContext
-        ) => DiffCollection(
-            source,
-            target,
-            (s, t) =>
-                {
-                    diffContext.AddMapping(s, t);
+                [NotNull] IEnumerable<IProperty> source,
+                [NotNull] IEnumerable<IProperty> target,
+                [NotNull] DiffContext diffContext)
+            => DiffCollection(
+                source,
+                target,
+                (s, t) =>
+                    {
+                        diffContext.AddMapping(s, t);
 
-                    return Diff(s, t);
-                },
-            t => Add(t, diffContext),
-            Remove,
-            (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
-            (s, t) => string.Equals(
-                Annotations.For(s).ColumnName,
-                Annotations.For(t).ColumnName,
-                StringComparison.OrdinalIgnoreCase));
+                        return Diff(s, t);
+                    },
+                t => Add(t, diffContext),
+                Remove,
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
+                (s, t) => string.Equals(
+                    Annotations.For(s).ColumnName,
+                    Annotations.For(t).ColumnName,
+                    StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -737,29 +737,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IKey> source,
-            [NotNull] IEnumerable<IKey> target,
-            [NotNull] DiffContext diffContext
-        ) => DiffCollection(
-            source, target,
-            (s, t) => Diff(s, t, diffContext),
-            t => Add(t, diffContext),
-            s => Remove(s, diffContext),
-            (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
-                      && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                      && (s.IsPrimaryKey() == t.IsPrimaryKey()));
+                [NotNull] IEnumerable<IKey> source,
+                [NotNull] IEnumerable<IKey> target,
+                [NotNull] DiffContext diffContext)
+            => DiffCollection(
+                source, target,
+                (s, t) => Diff(s, t, diffContext),
+                t => Add(t, diffContext),
+                s => Remove(s, diffContext),
+                (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
+                          && (s.IsPrimaryKey() == t.IsPrimaryKey()));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IKey source,
-            [NotNull] IKey target,
-            [NotNull] DiffContext diffContext
-        ) => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
-            ? Remove(source, diffContext).Concat(Add(target, diffContext))
-            : Enumerable.Empty<MigrationOperation>();
+                [NotNull] IKey source,
+                [NotNull] IKey target,
+                [NotNull] DiffContext diffContext)
+            => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
+                ? Remove(source, diffContext).Concat(Add(target, diffContext))
+                : Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -842,30 +842,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IForeignKey> source,
-            [NotNull] IEnumerable<IForeignKey> target,
-            [NotNull] DiffContext diffContext
-        ) => DiffCollection(
-            source,
-            target,
-            (s, t) => Diff(s, t, diffContext),
-            t => Add(t, diffContext),
-            s => Remove(s, diffContext),
-            (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
-                      && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                      && (diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType())
-                      && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
-                      && (s.DeleteBehavior == t.DeleteBehavior));
+                [NotNull] IEnumerable<IForeignKey> source,
+                [NotNull] IEnumerable<IForeignKey> target,
+                [NotNull] DiffContext diffContext)
+            => DiffCollection(
+                source,
+                target,
+                (s, t) => Diff(s, t, diffContext),
+                t => Add(t, diffContext),
+                s => Remove(s, diffContext),
+                (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
+                          && (diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType())
+                          && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
+                          && (s.DeleteBehavior == t.DeleteBehavior));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext
-        ) => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
-            ? Remove(source, diffContext).Concat(Add(target, diffContext))
-            : Enumerable.Empty<MigrationOperation>();
+                [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
+            => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
+                ? Remove(source, diffContext).Concat(Add(target, diffContext))
+                : Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -938,25 +938,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IIndex> source,
-            [NotNull] IEnumerable<IIndex> target,
-            [NotNull] DiffContext diffContext
-        ) => DiffCollection(
-            source, target,
-            (s, t) => Diff(s, t, diffContext),
-            t => Add(t, diffContext),
-            Remove,
-            (s, t) => string.Equals(
-                          Annotations.For(s).Name,
-                          Annotations.For(t).Name,
-                          StringComparison.OrdinalIgnoreCase)
-                      && s.IsUnique == t.IsUnique
-                      && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
-                      && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
-            // ReSharper disable once ImplicitlyCapturedClosure
-            (s, t) => s.IsUnique == t.IsUnique
-                      && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
-                      && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
+                [NotNull] IEnumerable<IIndex> source,
+                [NotNull] IEnumerable<IIndex> target,
+                [NotNull] DiffContext diffContext)
+            => DiffCollection(
+                source, target,
+                (s, t) => Diff(s, t, diffContext),
+                t => Add(t, diffContext),
+                Remove,
+                (s, t) => string.Equals(
+                              Annotations.For(s).Name,
+                              Annotations.For(t).Name,
+                              StringComparison.OrdinalIgnoreCase)
+                          && s.IsUnique == t.IsUnique
+                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
+                // ReSharper disable once ImplicitlyCapturedClosure
+                (s, t) => s.IsUnique == t.IsUnique
+                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1035,16 +1035,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<ISequence> source,
-            [NotNull] IEnumerable<ISequence> target
-        ) => DiffCollection(
-            source, target,
-            Diff, Add, Remove,
-            (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
-                      && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                      && (s.ClrType == t.ClrType),
-            (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                      && (s.ClrType == t.ClrType));
+                [NotNull] IEnumerable<ISequence> source,
+                [NotNull] IEnumerable<ISequence> target)
+            => DiffCollection(
+                source, target,
+                Diff, Add, Remove,
+                (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
+                          && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                          && (s.ClrType == t.ClrType),
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                          && (s.ClrType == t.ClrType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasColumnName<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string name
-        ) => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
+                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+                [CanBeNull] string name)
+            => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="typeName"> The name of the data type of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasColumnType<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string typeName
-        ) => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
+                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+                [CanBeNull] string typeName)
+            => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
 
         /// <summary>
         ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -104,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The SQL expression for the default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string sql
-        ) => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
+                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+                [CanBeNull] string sql)
+            => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
@@ -135,9 +135,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string sql
-        ) => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
+                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+                [CanBeNull] string sql)
+            => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
         ///     Configures the default value for the column that the property maps to when targeting a relational database.
@@ -165,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] object value
-        ) => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
+                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+                [CanBeNull] object value)
+            => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
     }
 }

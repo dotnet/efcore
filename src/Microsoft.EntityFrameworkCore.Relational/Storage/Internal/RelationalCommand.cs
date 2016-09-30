@@ -70,96 +70,96 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int ExecuteNonQuery(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true
-        ) => (int)Execute(
-            Check.NotNull(connection, nameof(connection)),
-            nameof(ExecuteNonQuery),
-            parameterValues,
-            openConnection: manageConnection,
-            closeConnection: manageConnection);
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true)
+            => (int)Execute(
+                Check.NotNull(connection, nameof(connection)),
+                nameof(ExecuteNonQuery),
+                parameterValues,
+                openConnection: manageConnection,
+                closeConnection: manageConnection);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<int> ExecuteNonQueryAsync(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true,
-            CancellationToken cancellationToken = default(CancellationToken)
-        ) => ExecuteAsync(
-            Check.NotNull(connection, nameof(connection)),
-            nameof(ExecuteNonQuery),
-            parameterValues,
-            openConnection: manageConnection,
-            closeConnection: manageConnection,
-            cancellationToken: cancellationToken).Cast<object, int>();
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true,
+                CancellationToken cancellationToken = default(CancellationToken))
+            => ExecuteAsync(
+                Check.NotNull(connection, nameof(connection)),
+                nameof(ExecuteNonQuery),
+                parameterValues,
+                openConnection: manageConnection,
+                closeConnection: manageConnection,
+                cancellationToken: cancellationToken).Cast<object, int>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object ExecuteScalar(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true
-        ) => Execute(
-            Check.NotNull(connection, nameof(connection)),
-            nameof(ExecuteScalar),
-            parameterValues,
-            openConnection: manageConnection,
-            closeConnection: manageConnection);
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true)
+            => Execute(
+                Check.NotNull(connection, nameof(connection)),
+                nameof(ExecuteScalar),
+                parameterValues,
+                openConnection: manageConnection,
+                closeConnection: manageConnection);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<object> ExecuteScalarAsync(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true,
-            CancellationToken cancellationToken = default(CancellationToken)
-        ) => ExecuteAsync(
-            Check.NotNull(connection, nameof(connection)),
-            nameof(ExecuteScalar),
-            parameterValues,
-            openConnection: manageConnection,
-            closeConnection: manageConnection,
-            cancellationToken: cancellationToken);
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true,
+                CancellationToken cancellationToken = default(CancellationToken))
+            => ExecuteAsync(
+                Check.NotNull(connection, nameof(connection)),
+                nameof(ExecuteScalar),
+                parameterValues,
+                openConnection: manageConnection,
+                closeConnection: manageConnection,
+                cancellationToken: cancellationToken);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual RelationalDataReader ExecuteReader(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true
-        ) => (RelationalDataReader)Execute(
-            Check.NotNull(connection, nameof(connection)),
-            nameof(ExecuteReader),
-            parameterValues,
-            openConnection: manageConnection,
-            closeConnection: false);
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true)
+            => (RelationalDataReader)Execute(
+                Check.NotNull(connection, nameof(connection)),
+                nameof(ExecuteReader),
+                parameterValues,
+                openConnection: manageConnection,
+                closeConnection: false);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<RelationalDataReader> ExecuteReaderAsync(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true,
-            CancellationToken cancellationToken = default(CancellationToken)
-        ) => ExecuteAsync(
-            Check.NotNull(connection, nameof(connection)),
-            nameof(ExecuteReader),
-            parameterValues,
-            openConnection: manageConnection,
-            closeConnection: false,
-            cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true,
+                CancellationToken cancellationToken = default(CancellationToken))
+            => ExecuteAsync(
+                Check.NotNull(connection, nameof(connection)),
+                nameof(ExecuteReader),
+                parameterValues,
+                openConnection: manageConnection,
+                closeConnection: false,
+                cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

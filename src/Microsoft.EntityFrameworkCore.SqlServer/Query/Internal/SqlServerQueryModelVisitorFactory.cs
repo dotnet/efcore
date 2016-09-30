@@ -73,31 +73,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override EntityQueryModelVisitor Create(
-            QueryCompilationContext queryCompilationContext,
-            EntityQueryModelVisitor parentEntityQueryModelVisitor
-        ) => new SqlServerQueryModelVisitor(
-            QueryOptimizer,
-            NavigationRewritingExpressionVisitorFactory,
-            SubQueryMemberPushDownExpressionVisitor,
-            QuerySourceTracingExpressionVisitorFactory,
-            EntityResultFindingExpressionVisitorFactory,
-            TaskBlockingExpressionVisitor,
-            MemberAccessBindingExpressionVisitorFactory,
-            OrderingExpressionVisitorFactory,
-            ProjectionExpressionVisitorFactory,
-            EntityQueryableExpressionVisitorFactory,
-            QueryAnnotationExtractor,
-            ResultOperatorHandler,
-            EntityMaterializerSource,
-            ExpressionPrinter,
-            RelationalAnnotationProvider,
-            IncludeExpressionVisitorFactory,
-            SqlTranslatingExpressionVisitorFactory,
-            CompositePredicateExpressionVisitorFactory,
-            ConditionalRemovingExpressionVisitorFactory,
-            QueryFlattenerFactory,
-            ContextOptions,
-            (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
-            (SqlServerQueryModelVisitor)parentEntityQueryModelVisitor);
+                QueryCompilationContext queryCompilationContext,
+                EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            => new SqlServerQueryModelVisitor(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter,
+                RelationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                ContextOptions,
+                (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
+                (SqlServerQueryModelVisitor)parentEntityQueryModelVisitor);
     }
 }

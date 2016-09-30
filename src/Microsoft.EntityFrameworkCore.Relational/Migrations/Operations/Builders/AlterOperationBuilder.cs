@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         }
 
         public new virtual AlterOperationBuilder<TOperation> Annotation(
-            [NotNull] string name,
-            [NotNull] object value
-        ) => (AlterOperationBuilder<TOperation>)base.Annotation(name, value);
+                [NotNull] string name,
+                [NotNull] object value)
+            => (AlterOperationBuilder<TOperation>)base.Annotation(name, value);
 
         public virtual AlterOperationBuilder<TOperation> OldAnnotation(
             [NotNull] string name,

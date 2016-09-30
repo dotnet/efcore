@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction
-        ) => modelBuilder.HasSequence(name, null, builderAction);
+                [NotNull] this ModelBuilder modelBuilder,
+                [NotNull] string name,
+                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            => modelBuilder.HasSequence(name, null, builderAction);
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
@@ -107,11 +107,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Type clrType,
-            [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction
-        ) => modelBuilder.HasSequence(clrType, name, null, builderAction);
+                [NotNull] this ModelBuilder modelBuilder,
+                [NotNull] Type clrType,
+                [NotNull] string name,
+                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            => modelBuilder.HasSequence(clrType, name, null, builderAction);
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
@@ -172,10 +172,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence<T>(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction
-        ) => modelBuilder.HasSequence<T>(name, null, builderAction);
+                [NotNull] this ModelBuilder modelBuilder,
+                [NotNull] string name,
+                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            => modelBuilder.HasSequence<T>(name, null, builderAction);
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.

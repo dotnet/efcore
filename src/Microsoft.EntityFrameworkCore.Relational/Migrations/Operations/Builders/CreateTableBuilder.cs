@@ -27,21 +27,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         }
 
         public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> column,
-            [NotNull] string principalTable,
-            [NotNull] string principalColumn,
-            [CanBeNull] string principalSchema = null,
-            ReferentialAction onUpdate = ReferentialAction.NoAction,
-            ReferentialAction onDelete = ReferentialAction.NoAction
-        ) => ForeignKey(
-            name,
-            column,
-            principalTable,
-            new[] { principalColumn },
-            principalSchema,
-            onUpdate,
-            onDelete);
+                [NotNull] string name,
+                [NotNull] Expression<Func<TColumns, object>> column,
+                [NotNull] string principalTable,
+                [NotNull] string principalColumn,
+                [CanBeNull] string principalSchema = null,
+                ReferentialAction onUpdate = ReferentialAction.NoAction,
+                ReferentialAction onDelete = ReferentialAction.NoAction)
+            => ForeignKey(
+                name,
+                column,
+                principalTable,
+                new[] { principalColumn },
+                principalSchema,
+                onUpdate,
+                onDelete);
 
         public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
             [NotNull] string name,

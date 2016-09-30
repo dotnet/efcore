@@ -210,15 +210,15 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         private string ScriptMigrationImpl(
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
-            bool idempotent,
-            [CanBeNull] string contextType
-        ) => _migrationsOperations.Value.ScriptMigration(
-            fromMigration,
-            toMigration,
-            idempotent,
-            contextType);
+                [CanBeNull] string fromMigration,
+                [CanBeNull] string toMigration,
+                bool idempotent,
+                [CanBeNull] string contextType)
+            => _migrationsOperations.Value.ScriptMigration(
+                fromMigration,
+                toMigration,
+                idempotent,
+                contextType);
 
         public class RemoveMigration : OperationBase
         {
