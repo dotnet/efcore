@@ -1986,7 +1986,6 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
                 Sql);
         }
 
-        // TODO: See issue#6145 - Incorrect query generated
         public override void Left_join_predicate_value_equals_condition()
         {
             base.Left_join_predicate_value_equals_condition();
@@ -1996,7 +1995,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
 FROM [Gear] AS [g]
 LEFT JOIN [Weapon] AS [w] ON [w].[SynergyWithId] IS NOT NULL
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY 1",
+ORDER BY (SELECT 1)",
                 Sql);
         }
 

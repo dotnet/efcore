@@ -382,6 +382,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             Visit(aliasExpression.Expression);
                         }
                     }
+                    else if (orderingExpression is ConstantExpression
+                        || orderingExpression is ParameterExpression)
+                    {
+                        _relationalCommandBuilder.Append("(SELECT 1)");
+                    }
                     else
                     {
                         Visit(ApplyOptimizations(orderingExpression, searchCondition: false));

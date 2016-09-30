@@ -1296,7 +1296,7 @@ OFFSET @__p_0 ROWS",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY @@ROWCOUNT
+ORDER BY (SELECT 1)
 OFFSET @__p_0 ROWS",
                 Sql);
         }
@@ -3603,7 +3603,7 @@ ORDER BY [c].[CustomerID]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY 1",
+ORDER BY (SELECT 1)",
                 Sql);
         }
 
@@ -3614,7 +3614,18 @@ ORDER BY 1",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY 3",
+ORDER BY (SELECT 1)",
+                Sql);
+        }
+
+        public override void OrderBy_parameter()
+        {
+            base.OrderBy_parameter();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY (SELECT 1)",
                 Sql);
         }
 

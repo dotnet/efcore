@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             if (selectExpression.Offset != null
                 && !selectExpression.OrderBy.Any())
             {
-                Sql.AppendLine().Append("ORDER BY @@ROWCOUNT");
+                Sql.AppendLine().Append("ORDER BY (SELECT 1)");
             }
 
             base.GenerateLimitOffset(selectExpression);
