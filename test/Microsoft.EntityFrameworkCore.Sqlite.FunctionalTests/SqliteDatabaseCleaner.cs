@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
-            => new SqliteDatabaseModelFactory(loggerFactory);
+            => new SqliteDatabaseModelFactory(loggerFactory.CreateLogger<SqliteDatabaseModelFactory>());
 
         protected override bool AcceptForeignKey(ForeignKeyModel foreignKey) => false;
 

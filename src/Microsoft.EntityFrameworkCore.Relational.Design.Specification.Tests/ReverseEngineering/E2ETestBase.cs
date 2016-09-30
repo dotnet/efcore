@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
     public abstract class E2ETestBase
     {
         private readonly ITestOutputHelper _output;
-        protected InMemoryCommandLogger _logger;
+        protected InMemoryOperationReporter _reporter;
         protected InMemoryFileService InMemoryFiles;
         protected readonly ReverseEngineeringGenerator Generator;
         protected readonly IScaffoldingModelFactory ScaffoldingModelFactory;
@@ -33,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
                         .AddLogging())
                 .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService()).BuildServiceProvider();
 
-            _logger = new InMemoryCommandLogger("E2ETest", _output);
-            serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
+            _reporter = new InMemoryOperationReporter(_output);
+            serviceProvider.GetService<ILoggerFactory>().AddProvider(new LoggerProvider(name => new OperationLogger(name, _reporter)));
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
@@ -74,9 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
 
         protected virtual void AssertLog(LoggerMessages expected)
         {
-            AssertLoggerMessages(expected.Warn, _logger.Messages.Warn, "WARNING");
-            AssertLoggerMessages(expected.Error, _logger.Messages.Error, "ERROR");
-            AssertLoggerMessages(expected.Info, _logger.Messages.Info, "INFO");
+            AssertLoggerMessages(expected.Warn, _reporter.Messages.Warn, "WARNING");
+            AssertLoggerMessages(expected.Info, _reporter.Messages.Info, "INFO");
         }
 
         protected virtual void AssertLoggerMessages(

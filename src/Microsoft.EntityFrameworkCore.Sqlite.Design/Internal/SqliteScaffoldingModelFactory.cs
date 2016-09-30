@@ -3,6 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqliteScaffoldingModelFactory(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ILogger<SqliteScaffoldingModelFactory> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService)
-            : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService)
+            : base(logger, typeMapper, databaseModelFactory, candidateNamingService)
         {
         }
 
@@ -38,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (tableSelectionSet != null
                 && tableSelectionSet.Schemas.Any())
             {
-                Logger.LogWarning(SqliteDesignStrings.UsingSchemaSelectionsWarning);
+                Logger.ReportWarning(
+                    SqliteDesignEventId.UsingSchemaSelectionsWarning,
+                    () => SqliteDesignStrings.UsingSchemaSelectionsWarning);
 
                 // we've logged a general warning above that sqlite ignores all
                 // schema selections so mark all of them as matched so that we don't

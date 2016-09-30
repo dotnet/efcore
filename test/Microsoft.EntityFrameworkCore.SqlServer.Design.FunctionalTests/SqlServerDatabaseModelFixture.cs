@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
         {
             TestStore.ExecuteNonQuery(createSql);
 
-            return new SqlServerDatabaseModelFactory(new TestLoggerFactory(logger))
+            return new SqlServerDatabaseModelFactory(new TestLoggerFactory(logger).CreateLogger<SqlServerDatabaseModelFactory>())
                 .Create(TestStore.ConnectionString, selection ?? TableSelectionSet.All);
         }
 

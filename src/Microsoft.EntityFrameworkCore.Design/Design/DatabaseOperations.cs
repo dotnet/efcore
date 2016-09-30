@@ -7,42 +7,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
     public class DatabaseOperations
     {
-        private readonly ILoggerProvider _loggerProvider;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
 
         public DatabaseOperations(
-            [NotNull] ILoggerProvider loggerProvider,
+            [NotNull] IOperationReporter reporter,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string contentRootPath,
             [NotNull] string rootNamespace)
         {
-            Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotEmpty(contentRootPath, nameof(contentRootPath));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
-            _loggerProvider = loggerProvider;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
 
-            var logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
-            var startup = new StartupInvoker(logger, startupAssembly, environment, contentRootPath);
+            var startup = new StartupInvoker(reporter, startupAssembly, environment, contentRootPath);
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
@@ -63,9 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(tables, nameof(tables));
 
             var services = _servicesBuilder.Build(provider);
-
-            var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-            loggerFactory.AddProvider(_loggerProvider);
 
             var generator = services.GetRequiredService<ReverseEngineeringGenerator>();
             var tableSelectionSet = new TableSelectionSet(tables, schemas);

@@ -65,6 +65,31 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     An ambient transaction is present, which is not fully supported by Entity Framework Core.
         /// </summary>
-        AmbientTransactionWarning
+        AmbientTransactionWarning,
+
+        /// <summary>
+        ///     A migration is being applied to the database.
+        /// </summary>
+        ApplyingMigration,
+
+        /// <summary>
+        ///     The revert script is being generated for a migration.
+        /// </summary>
+        GeneratingMigrationDownScript,
+
+        /// <summary>
+        ///     The apply script is being generated for a migration.
+        /// </summary>
+        GeneratingMigrationUpScript,
+
+        /// <summary>
+        ///     Migrations are being applied on the database.
+        /// </summary>
+        MigrateUsingConnection,
+
+        /// <summary>
+        ///     A migration is being reverted.
+        /// </summary>
+        RevertingMigration
     }
 }

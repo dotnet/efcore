@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     public class SqlServerDatabaseCleaner : RelationalDatabaseCleaner
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
-            => new SqlServerDatabaseModelFactory(loggerFactory);
+            => new SqlServerDatabaseModelFactory(loggerFactory.CreateLogger<SqlServerDatabaseModelFactory>());
 
         protected override bool AcceptIndex(IndexModel index)
             => false;

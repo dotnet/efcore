@@ -24,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly LazyRef<MigrationsOperations> _migrationsOperations;
         private readonly string _projectDir;
 
-        public OperationExecutor([NotNull] object logHandler, [NotNull] IDictionary args)
+        public OperationExecutor([NotNull] object reportHandler, [NotNull] IDictionary args)
         {
-            Check.NotNull(logHandler, nameof(logHandler));
+            Check.NotNull(reportHandler, nameof(reportHandler));
             Check.NotNull(args, nameof(args));
 
-            var unwrappedLogHandler = ForwardingProxy.Unwrap<IOperationLogHandler>(logHandler);
-            var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
+            var unwrappedReportHandler = ForwardingProxy.Unwrap<IOperationReportHandler>(reportHandler);
+            var reporter = new OperationReporter(unwrappedReportHandler);
 
             var targetName = (string)args["targetName"];
             var startupTargetName = (string)args["startupTargetName"];
@@ -58,14 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Design
                     });
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
-                    loggerProvider,
+                    reporter,
                     assembly.Value,
                     startupAssembly.Value,
                     environment,
                     contentRootPath));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
-                    loggerProvider,
+                    reporter,
                     startupAssembly.Value,
                     environment,
                     _projectDir,
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
-                    loggerProvider,
+                    reporter,
                     assembly.Value,
                     startupAssembly.Value,
                     environment,

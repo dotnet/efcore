@@ -784,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
         public FakeScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory)
-            : base(loggerFactory,
+            : base(loggerFactory.CreateLogger<FakeScaffoldingModelFactory>(),
                 new TestTypeMapper(),
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService())

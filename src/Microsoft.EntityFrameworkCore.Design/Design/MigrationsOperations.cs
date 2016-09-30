@@ -15,13 +15,12 @@ using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
     public class MigrationsOperations
     {
-        private readonly LazyRef<ILogger> _logger;
+        private readonly IOperationReporter _reporter;
         private readonly Assembly _assembly;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly DbContextOperations _contextOperations;
 
         public MigrationsOperations(
-            [NotNull] ILoggerProvider loggerProvider,
+            [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
@@ -37,28 +36,25 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] string contentRootPath,
             [NotNull] string rootNamespace)
         {
-            Check.NotNull(loggerProvider, nameof(loggerProvider));
+            Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotEmpty(contentRootPath, nameof(contentRootPath));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
-            var loggerFactory = new LoggerFactory();
-            loggerFactory.AddProvider(loggerProvider);
-
-            _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
+            _reporter = reporter;
             _assembly = assembly;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _contextOperations = new DbContextOperations(
-                loggerProvider,
+                reporter,
                 assembly,
                 startupAssembly,
                 environment,
                 contentRootPath);
 
-            var startup = new StartupInvoker(_logger, startupAssembly, environment, contentRootPath);
+            var startup = new StartupInvoker(reporter, startupAssembly, environment, contentRootPath);
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
@@ -150,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 migrator.Migrate(targetMigration);
             }
 
-            _logger.Value.LogInformation(DesignStrings.Done);
+            _reporter.WriteInformation(DesignStrings.Done);
         }
 
         public virtual MigrationFiles RemoveMigration(
@@ -165,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                 var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force);
 
-                _logger.Value.LogInformation(DesignStrings.Done);
+                _reporter.WriteInformation(DesignStrings.Done);
 
                 return files;
             }

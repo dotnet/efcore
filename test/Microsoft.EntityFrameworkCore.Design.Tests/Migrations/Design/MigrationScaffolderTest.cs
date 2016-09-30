@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 idGenerator,
                 new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),
                 new MockHistoryRepository(),
-                new LoggerFactory(),
+                new LoggerFactory().CreateLogger<MigrationsScaffolder>(),
                 new MockProviderServices());
         }
 

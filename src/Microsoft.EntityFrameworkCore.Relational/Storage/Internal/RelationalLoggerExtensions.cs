@@ -131,6 +131,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
         }
 
+        public static void ReportInformation(
+            [NotNull] this ILogger logger,
+            RelationalEventId eventId,
+            [NotNull] Func<string> formatter)
+            => logger.LogReported<object>(LogLevel.Information, (int)eventId, null, null, (_, __) => formatter());
+
+        public static void ReportDebug(
+            [NotNull] this ILogger logger,
+            RelationalEventId eventId,
+            [NotNull] Func<string> formatter)
+            => logger.LogReported<object>(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
+
         private static readonly double TimestampToMilliseconds = (double)TimeSpan.TicksPerSecond / (Stopwatch.Frequency * TimeSpan.TicksPerMillisecond);
 
         private static long DeriveTimespan(long startTimestamp, long currentTimestamp)

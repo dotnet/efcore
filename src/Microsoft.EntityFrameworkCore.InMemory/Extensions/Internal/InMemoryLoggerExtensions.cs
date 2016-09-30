@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Internal
 {
-    internal static class CoreLoggerExtensions
+    internal static class InMemoryLoggerExtensions
     {
         public static void LogInformation<TState>(
             this ILogger logger, InMemoryEventId eventId, TState state, Func<TState, string> formatter)

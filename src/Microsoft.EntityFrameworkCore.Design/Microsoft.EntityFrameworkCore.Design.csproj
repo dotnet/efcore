@@ -50,9 +50,6 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\PropertyInfoExtensions.cs">
       <Link>PropertyInfoExtensions.cs</Link>
     </Compile>
@@ -62,24 +59,28 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\Tools.Shared\OperationHandlers.cs">
-      <Link>Design\OperationHandlers.cs</Link>
-    </Compile>
     <Compile Include="Design\DatabaseOperations.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
-    <Compile Include="Design\Internal\CommandLogger.cs" />
-    <Compile Include="Design\Internal\CommandLoggerAdapter.cs" />
     <Compile Include="Design\Internal\DesignTimeServicesBuilder.cs" />
     <Compile Include="Design\Internal\ForwardingProxy.cs" />
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
     <Compile Include="Design\Internal\HostingEnvironment.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
+    <Compile Include="Design\Internal\OperationLogger.cs" />
+    <Compile Include="Design\Internal\OperationReporter.cs" />
+    <Compile Include="Design\OperationReportHandler.cs" />
+    <Compile Include="Design\OperationResultHandler.cs" />
     <Compile Include="Design\Internal\StartupInvoker.cs" />
     <Compile Include="Design\ContextInfo.cs" />
+    <Compile Include="Design\IOperationReporter.cs" />
+    <Compile Include="Design\IOperationReportHandler.cs" />
+    <Compile Include="Design\IOperationResultHandler.cs" />
     <Compile Include="Design\MigrationInfo.cs" />
     <Compile Include="Design\MigrationsOperations.cs" />
     <Compile Include="Design\OperationException.cs" />
     <Compile Include="Design\OperationExecutor.cs" />
+    <Compile Include="Infrastructure\DesignEventId.cs" />
+    <Compile Include="Internal\DesignLoggerExtensions.cs" />
     <Compile Include="Migrations\Design\CSharpHelper.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationOperationGenerator.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationsGenerator.cs" />

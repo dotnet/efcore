@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -29,27 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ReverseEngineeringGenerator(
-            [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
             [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(codeWriter, nameof(codeWriter));
 
-            Logger = loggerFactory.CreateCommandsLogger();
             _factory = scaffoldingModelFactory;
             _configurationFactory = configurationFactory;
             CodeWriter = codeWriter;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ILogger Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

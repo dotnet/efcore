@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Design.TestUtilities;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
 
         private StartupInvoker CreateStartupInvoker(Assembly assembly, string environment)
             => new StartupInvoker(
-                new LazyRef<ILogger>(() => new LoggerFactory().CreateLogger("Test")),
+                new TestOperationReporter(),
                 assembly,
                 environment,
                 "Irrelevant");
@@ -164,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
         {
             var assembly = MockAssembly.Create(typeof(StartupInjected));
             var startup = new StartupInvoker(
-                new LazyRef<ILogger>(() => new LoggerFactory().CreateLogger("Test")),
+                new TestOperationReporter(),
                 assembly,
                 "Injected",
                 @"C:\The\Right\Path");
@@ -225,10 +224,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
         [Fact]
         public void Invoke_warns_on_error()
         {
-            var log = new List<Tuple<LogLevel, string>>();
+            var reporter = new TestOperationReporter();
 
             var startup = new StartupInvoker(
-                new LazyRef<ILogger>(() => new ListLoggerFactory(log).CreateLogger("Test")),
+                reporter,
                 MockAssembly.Create(typeof(BadStartup)),
                 /*environment:*/ null,
                 "Irrelevant");
@@ -237,11 +236,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
 
             Assert.NotNull(services);
             Assert.Equal(
-                DesignStrings.InvokeStartupMethodFailed(
+                "warn: " + DesignStrings.InvokeStartupMethodFailed(
                     "ConfigureServices",
                     nameof(BadStartup),
                     "Something went wrong."),
-                log[0].Item2);
+                reporter.Messages[0]);
         }
 
         private class BadStartup : IStartup

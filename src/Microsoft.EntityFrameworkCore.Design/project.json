@@ -18,10 +18,7 @@
     ],
     "xmlDoc": true,
     "compile": {
-      "include": [
-        "../Shared/*.cs",
-        "../Tools.Shared/OperationHandlers.cs"
-      ]
+      "include": "../Shared/*.cs"
     }
   },
   "dependencies": {

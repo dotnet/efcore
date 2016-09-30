@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design
         public void Ctor_validates_arguments()
         {
             var ex = Assert.Throws<ArgumentNullException>(() => new OperationExecutor(null, null));
-            Assert.Equal(ex.ParamName, "logHandler");
+            Assert.Equal(ex.ParamName, "reportHandler");
 
-            ex = Assert.Throws<ArgumentNullException>(() => new OperationExecutor(Mock.Of<IOperationLogHandler>(), null));
+            ex = Assert.Throws<ArgumentNullException>(() => new OperationExecutor(Mock.Of<IOperationReportHandler>(), null));
             Assert.Equal(ex.ParamName, "args");
         }
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -36,11 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerScaffoldingModelFactory(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ILogger<SqlServerScaffoldingModelFactory> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService)
-            : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService)
+            : base(logger, typeMapper, databaseModelFactory, candidateNamingService)
         {
         }
 
@@ -123,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return keyBuilder;
             }
 
-            // TODO 
+            // TODO
             var property = builder.Metadata.FindProperty(GetPropertyName(pkColumns[0]));
             var propertyType = property?.ClrType?.UnwrapNullableType();
 
@@ -158,8 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 if (typeof(byte) == propertyBuilder.Metadata.ClrType)
                 {
-                    Logger.LogWarning(
-                        SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(
+                    Logger.ReportWarning(
+                        SqlServerDesignEventId.DataTypeDoesNotAllowSqlServerIdentityStrategy,
+                        () => SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(
                             column.DisplayName, column.DataType));
                 }
                 else
@@ -259,8 +261,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    Logger.LogWarning(
-                        SqlServerDesignStrings.CannotInterpretDefaultValue(
+                    Logger.ReportWarning(
+                        SqlServerDesignEventId.CannotInterpretDefaultValue,
+                        () => SqlServerDesignStrings.CannotInterpretDefaultValue(
                             column.DisplayName,
                             column.DefaultValue,
                             propertyBuilder.Metadata.Name,
@@ -287,8 +290,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    Logger.LogWarning(
-                        SqlServerDesignStrings.CannotInterpretComputedValue(
+                    Logger.ReportWarning(
+                        SqlServerDesignEventId.CannotInterpretComputedValue,
+                        () => SqlServerDesignStrings.CannotInterpretComputedValue(
                             column.DisplayName,
                             column.ComputedValue,
                             propertyBuilder.Metadata.Name,

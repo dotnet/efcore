@@ -19,33 +19,32 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public class DbContextOperations
     {
-        private readonly ILoggerProvider _loggerProvider;
+        private readonly IOperationReporter _reporter;
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
         private readonly string _environment;
-        private readonly LazyRef<ILogger> _logger;
         private readonly string _contentRootPath;
         private readonly IServiceProvider _runtimeServices;
 
-        public DbContextOperations([NotNull] ILoggerProvider loggerProvider,
+        public DbContextOperations(
+            [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string contentRootPath)
         {
-            Check.NotNull(loggerProvider, nameof(loggerProvider));
+            Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotEmpty(contentRootPath, nameof(contentRootPath));
 
-            _loggerProvider = loggerProvider;
+            _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
             _environment = environment;
             _contentRootPath = contentRootPath;
-            _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
-            var startup = new StartupInvoker(_logger, startupAssembly, environment, contentRootPath);
+            var startup = new StartupInvoker(reporter, startupAssembly, environment, contentRootPath);
             _runtimeServices = startup.ConfigureServices();
         }
 
@@ -54,14 +53,14 @@ namespace Microsoft.EntityFrameworkCore.Design
             using (var context = CreateContext(contextType))
             {
                 var connection = context.Database.GetDbConnection();
-                _logger.Value.LogInformation(DesignStrings.LogDroppingDatabase(connection.Database));
+                _reporter.WriteInformation(DesignStrings.LogDroppingDatabase(connection.Database));
                 if (context.Database.EnsureDeleted())
                 {
-                    _logger.Value.LogInformation(DesignStrings.LogDatabaseDropped(connection.Database));
+                    _reporter.WriteInformation(DesignStrings.LogDatabaseDropped(connection.Database));
                 }
                 else
                 {
-                    _logger.Value.LogInformation(DesignStrings.LogNotExistDatabase(connection.Database));
+                    _reporter.WriteInformation(DesignStrings.LogNotExistDatabase(connection.Database));
                 }
             }
         }
@@ -72,10 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         private DbContext CreateContext(Func<DbContext> factory)
         {
             var context = factory();
-            _logger.Value.LogDebug(DesignStrings.LogUseContext(context.GetType().ShortDisplayName()));
+            _reporter.WriteVerbose(DesignStrings.LogUseContext(context.GetType().ShortDisplayName()));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
-            loggerFactory.AddProvider(_loggerProvider);
+            loggerFactory.AddProvider(new LoggerProvider(name => new OperationLogger(name, _reporter)));
 
             return context;
         }
@@ -88,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         private IDictionary<Type, Func<DbContext>> FindContextTypes()
         {
-            _logger.Value.LogDebug(DesignStrings.LogFindingContexts);
+            _reporter.WriteVerbose(DesignStrings.LogFindingContexts);
 
             var contexts = new Dictionary<Type, Func<DbContext>>();
 

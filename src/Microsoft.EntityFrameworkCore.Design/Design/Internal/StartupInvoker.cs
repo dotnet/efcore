@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -23,23 +22,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _environment;
         private readonly string _contentRootPath;
         private readonly string _startupAssemblyName;
-        private readonly LazyRef<ILogger> _logger;
+        private readonly IOperationReporter _reporter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public StartupInvoker(
-            [NotNull] LazyRef<ILogger> logger,
+            [NotNull] IOperationReporter reporter,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string contentRootPath)
         {
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotEmpty(contentRootPath, nameof(contentRootPath));
 
-            _logger = logger;
+            _reporter = reporter;
 
             _environment = !string.IsNullOrEmpty(environment)
                 ? environment
@@ -138,9 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ex = ex.InnerException;
                 }
 
-                _logger.Value.LogWarning(
+                _reporter.WriteWarning(
                     DesignStrings.InvokeStartupMethodFailed(method.Name, type.ShortDisplayName(), ex.Message));
-                _logger.Value.LogDebug(ex.ToString());
+                _reporter.WriteVerbose(ex.ToString());
 
                 return null;
             }

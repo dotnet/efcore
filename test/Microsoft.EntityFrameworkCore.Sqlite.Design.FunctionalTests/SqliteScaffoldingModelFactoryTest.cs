@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Trace: " +
+            Assert.Contains("Debug: " +
                             SqliteDesignStrings.PrincipalTableNotFound(0, "Children", "Parent"),
                 _logger.FullLog);
         }
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Trace: " +
+            Assert.Contains("Debug: " +
                             SqliteDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent"),
                 _logger.FullLog);
         }

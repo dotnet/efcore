@@ -83,12 +83,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="TestUtilities\TestOperationReporter.cs" />
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
     <Compile Include="Design\Internal\StartupInvokerTest.cs" />
     <Compile Include="Design\OperationExecutorTest.cs" />
-    <Compile Include="Design\OperationLogHandlerTest.cs" />
+    <Compile Include="Design\OperationReportHandlerTest.cs" />
     <Compile Include="Design\OperationResultHandlerTest.cs" />
     <Compile Include="Migrations\Design\CSharpHelperTest.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationOperationGeneratorTest.cs" />

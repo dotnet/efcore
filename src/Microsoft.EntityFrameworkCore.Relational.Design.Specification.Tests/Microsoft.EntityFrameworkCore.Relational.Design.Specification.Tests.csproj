@@ -37,7 +37,7 @@
     <Compile Include="DesignTimeProviderServicesTest.cs" />
     <Compile Include="ReverseEngineering\E2ETestBase.cs" />
     <Compile Include="ReverseEngineering\FileSet.cs" />
-    <Compile Include="ReverseEngineering\InMemoryCommandLogger.cs" />
+    <Compile Include="ReverseEngineering\InMemoryOperationReporter.cs" />
     <Compile Include="ReverseEngineering\InMemoryFileService.cs" />
     <Compile Include="TestUtilities\BuildFileResult.cs" />
     <Compile Include="TestUtilities\BuildReference.cs" />
