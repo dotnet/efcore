@@ -53,32 +53,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.True(0 == mCC.Compare(modificationCommandAdded, modificationCommandAdded));
             Assert.True(0 == mCC.Compare(null, null));
             Assert.True(0 == mCC.Compare(
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
+                            new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
+                            new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
 
             Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
             Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider()), null));
 
             Assert.True(0 > mCC.Compare(
-                new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
+                            new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
+                            new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
             Assert.True(0 < mCC.Compare(
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
-                new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
+                            new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
+                            new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
 
             Assert.True(0 > mCC.Compare(
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
-                new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
+                            new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
+                            new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
             Assert.True(0 < mCC.Compare(
-                new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
+                            new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
+                            new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
 
             Assert.True(0 > mCC.Compare(
-                new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
-                new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
+                            new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
+                            new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
             Assert.True(0 < mCC.Compare(
-                new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
-                new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
+                            new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider()),
+                            new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider())));
 
             Assert.True(0 > mCC.Compare(modificationCommandModified, modificationCommandAdded));
             Assert.True(0 < mCC.Compare(modificationCommandAdded, modificationCommandModified));

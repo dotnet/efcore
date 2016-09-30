@@ -105,32 +105,32 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected virtual DropSequenceOperation Drop(SequenceModel sequence)
             => new DropSequenceOperation
-        {
-            Name = sequence.Name,
-            Schema = sequence.SchemaName
-        };
+            {
+                Name = sequence.Name,
+                Schema = sequence.SchemaName
+            };
 
         protected virtual DropTableOperation Drop(TableModel table)
             => new DropTableOperation
-        {
-            Name = table.Name,
-            Schema = table.SchemaName
-        };
+            {
+                Name = table.Name,
+                Schema = table.SchemaName
+            };
 
         protected virtual DropForeignKeyOperation Drop(ForeignKeyModel foreignKey)
             => new DropForeignKeyOperation
-        {
-            Name = foreignKey.Name,
-            Table = foreignKey.Table.Name,
-            Schema = foreignKey.Table.SchemaName,
-        };
+            {
+                Name = foreignKey.Name,
+                Table = foreignKey.Table.Name,
+                Schema = foreignKey.Table.SchemaName
+            };
 
         protected virtual DropIndexOperation Drop(IndexModel index)
             => new DropIndexOperation
-        {
-            Name = index.Name,
-            Table = index.Table.Name,
-            Schema = index.Table.SchemaName,
-        };
+            {
+                Name = index.Name,
+                Table = index.Table.Name,
+                Schema = index.Table.SchemaName
+            };
     }
 }

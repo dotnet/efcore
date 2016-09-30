@@ -68,5 +68,4 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
     }
 }
-
 #endif

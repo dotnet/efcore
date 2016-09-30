@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     Extension methods for <see cref="IAnnotatable"/>.
+    ///     Extension methods for <see cref="IAnnotatable" />.
     /// </summary>
     public static class AnnotatableExtensions
     {

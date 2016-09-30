@@ -398,7 +398,6 @@ ORDER BY [c0].[ContactTitle], [c0].[CustomerID]",
 
             if (SupportsOffset)
             {
-
                 Assert.Equal(
                     @"@__p_0: 10
 

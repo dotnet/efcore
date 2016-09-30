@@ -10,7 +10,6 @@ using System.Resources;
 
 #endif
 
-
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: AssemblyCompany("Microsoft Corporation.")]

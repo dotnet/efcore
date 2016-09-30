@@ -16,7 +16,7 @@ using Remotion.Linq.Clauses.Expressions;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class EntityTrackingInfo
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ISet<IForeignKey> _handledForeignKeys;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityTrackingInfo(
@@ -76,25 +76,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsEnumerableTarget { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual QuerySourceReferenceExpression QuerySourceReferenceExpression { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IQuerySource QuerySource => QuerySourceReferenceExpression.ReferencedQuerySource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void StartTracking(
@@ -107,13 +107,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public struct IncludedEntity
         {
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public IncludedEntity(
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public object Entity { get; }
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private ISet<IForeignKey> HandledForeignKeys { get; }
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public void StartTracking([NotNull] IStateManager stateManager, ValueBuffer valueBuffer)
@@ -151,11 +151,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<IncludedEntity> GetIncludedEntities(
-            [NotNull] IStateManager stateManager, 
+            [NotNull] IStateManager stateManager,
             [NotNull] object entity)
         {
             Check.NotNull(entity, nameof(entity));
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         in referencedEntities.Where(referencedEntity => referencedEntity != null))
                     {
                         yield return new IncludedEntity(
-                            referencedEntity, 
+                            referencedEntity,
                             _includedEntityTrackingInfos[navigation],
                             _handledForeignKeys);
 
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (referencedEntity != null)
                     {
                         yield return new IncludedEntity(
-                            referencedEntity, 
+                            referencedEntity,
                             _includedEntityTrackingInfos[navigation],
                             _handledForeignKeys);
 

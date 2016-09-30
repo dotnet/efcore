@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="ReferenceCollectionBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="ReferenceCollectionBuilder" />.
     /// </summary>
     public static class RelationalReferenceCollectionBuilderExtensions
     {
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
             where TRelatedEntity : class
-            => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)HasConstraintName(
-                (ReferenceCollectionBuilder)referenceCollectionBuilder, name);
+        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)HasConstraintName(
+            (ReferenceCollectionBuilder)referenceCollectionBuilder, name);
     }
 }

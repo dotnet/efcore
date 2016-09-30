@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Creates instances of <see cref="EntityQueryModelVisitor"/>.
+    ///         Creates instances of <see cref="EntityQueryModelVisitor" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class EntityQueryModelVisitorFactory : IEntityQueryModelVisitorFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected EntityQueryModelVisitorFactory(
@@ -73,77 +73,77 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Gets the <see cref="IQueryOptimizer"/> to be used when processing a query.
+        ///     Gets the <see cref="IQueryOptimizer" /> to be used when processing a query.
         /// </summary>
         protected virtual IQueryOptimizer QueryOptimizer { get; }
 
         /// <summary>
-        ///     Gets the <see cref="INavigationRewritingExpressionVisitorFactory"/> to be used when processing a query.
+        ///     Gets the <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         protected virtual INavigationRewritingExpressionVisitorFactory NavigationRewritingExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the <see cref="ISubQueryMemberPushDownExpressionVisitor"/> to be used when processing a query.
+        ///     Gets the <see cref="ISubQueryMemberPushDownExpressionVisitor" /> to be used when processing a query.
         /// </summary>
         protected virtual ISubQueryMemberPushDownExpressionVisitor SubQueryMemberPushDownExpressionVisitor { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IQuerySourceTracingExpressionVisitorFactory"/> to be used when processing a query.
+        ///     Gets the <see cref="IQuerySourceTracingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         protected virtual IQuerySourceTracingExpressionVisitorFactory QuerySourceTracingExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IEntityResultFindingExpressionVisitorFactory"/> to be used when processing a query.
+        ///     Gets the <see cref="IEntityResultFindingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         protected virtual IEntityResultFindingExpressionVisitorFactory EntityResultFindingExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the <see cref="ITaskBlockingExpressionVisitor"/> to be used when processing a query.
+        ///     Gets the <see cref="ITaskBlockingExpressionVisitor" /> to be used when processing a query.
         /// </summary>
         protected virtual ITaskBlockingExpressionVisitor TaskBlockingExpressionVisitor { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IMemberAccessBindingExpressionVisitorFactory"/> to be used when processing a query.
+        ///     Gets the <see cref="IMemberAccessBindingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         protected virtual IMemberAccessBindingExpressionVisitorFactory MemberAccessBindingExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IOrderingExpressionVisitorFactory"/> to be used when processing a query.
+        ///     Gets the <see cref="IOrderingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         protected virtual IOrderingExpressionVisitorFactory OrderingExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IProjectionExpressionVisitorFactory"/> to be used when processing a query.
+        ///     Gets the <see cref="IProjectionExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         protected virtual IProjectionExpressionVisitorFactory ProjectionExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IEntityQueryableExpressionVisitorFactory"/> to be used when processing a query.
+        ///     Gets the <see cref="IEntityQueryableExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         protected virtual IEntityQueryableExpressionVisitorFactory EntityQueryableExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IExpressionPrinter"/> to be used when processing a query.
+        ///     Gets the <see cref="IExpressionPrinter" /> to be used when processing a query.
         /// </summary>
         protected virtual IExpressionPrinter ExpressionPrinter { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IEntityMaterializerSource"/> to be used when processing a query.
+        ///     Gets the <see cref="IEntityMaterializerSource" /> to be used when processing a query.
         /// </summary>
         protected virtual IEntityMaterializerSource EntityMaterializerSource { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IResultOperatorHandler"/> to be used when processing a query.
+        ///     Gets the <see cref="IResultOperatorHandler" /> to be used when processing a query.
         /// </summary>
         protected virtual IResultOperatorHandler ResultOperatorHandler { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IQueryAnnotationExtractor"/> to be used when processing a query.
+        ///     Gets the <see cref="IQueryAnnotationExtractor" /> to be used when processing a query.
         /// </summary>
         protected virtual IQueryAnnotationExtractor QueryAnnotationExtractor { get; }
 
         /// <summary>
-        ///     Creates a new <see cref="EntityQueryModelVisitor"/>.
+        ///     Creates a new <see cref="EntityQueryModelVisitor" />.
         /// </summary>
         /// <param name="queryCompilationContext">
         ///     Compilation context for the query.

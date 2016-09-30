@@ -29,12 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
                 return
                     patternConstantExpression != null
-                    ? (string)patternConstantExpression.Value == string.Empty
-                        ? (Expression)Expression.Constant(true)
-                        : charIndexExpression
-                    : Expression.OrElse(
-                        charIndexExpression,
-                        Expression.Equal(patternExpression, Expression.Constant(string.Empty)));
+                        ? (string)patternConstantExpression.Value == string.Empty
+                            ? (Expression)Expression.Constant(true)
+                            : charIndexExpression
+                        : Expression.OrElse(
+                            charIndexExpression,
+                            Expression.Equal(patternExpression, Expression.Constant(string.Empty)));
             }
 
             return null;

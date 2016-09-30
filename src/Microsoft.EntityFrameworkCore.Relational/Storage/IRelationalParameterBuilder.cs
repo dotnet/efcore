@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using System.Data.Common;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Builds a collection of <see cref="IRelationalParameter"/>.
+    ///         Builds a collection of <see cref="IRelationalParameter" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Adds a parameter.
         /// </summary>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Adds a parameter.
         /// </summary>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Adds a parameter.
         /// </summary>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -81,11 +81,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IProperty property);
 
         /// <summary>
-        ///     Adds a parameter that is ultimately represented as multiple <see cref="DbParameter"/>s in the
+        ///     Adds a parameter that is ultimately represented as multiple <see cref="DbParameter" />s in the
         ///     final command.
         /// </summary>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Adds a parameter.
         /// </summary>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>

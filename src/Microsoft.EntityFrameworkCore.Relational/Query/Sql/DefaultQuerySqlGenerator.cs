@@ -15,8 +15,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
-// ReSharper disable SwitchStatementMissingSomeCases
 
+// ReSharper disable SwitchStatementMissingSomeCases
 namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     /// <summary>
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         private void VisitJoin(
-            IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
+                IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
             => VisitJoin(expressions, e => Visit(e), joinAction);
 
         private void VisitJoin<T>(
@@ -1717,9 +1717,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         newRight = Visit(expression.Right);
                     }
 
-                    var newExpression 
+                    var newExpression
                         = expression.Update(newLeft, expression.Conversion, newRight);
-                    
+
                     if (IsSearchCondition(newExpression))
                     {
                         return Expression.Condition(
@@ -1790,7 +1790,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         && expression.Operand.IsSimpleExpression())
                     {
                         return Expression.Equal(
-                            expression.Operand, 
+                            expression.Operand,
                             Expression.Constant(false, typeof(bool)));
                     }
 

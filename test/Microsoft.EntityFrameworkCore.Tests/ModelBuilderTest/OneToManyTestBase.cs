@@ -1706,16 +1706,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var principalType = model.FindEntityType(typeof(Nob));
 
                 Assert.Equal(CoreStrings.ConflictingRelationshipNavigation(
-                    principalType.DisplayName(),
-                    nameof(Nob.Hobs),
-                    dependentType.DisplayName(),
-                    nameof(Hob.Nob),
-                    dependentType.DisplayName(),
-                    nameof(Hob.Nob),
-                    principalType.DisplayName(),
-                    nameof(Nob.Hob)),
+                        principalType.DisplayName(),
+                        nameof(Nob.Hobs),
+                        dependentType.DisplayName(),
+                        nameof(Hob.Nob),
+                        dependentType.DisplayName(),
+                        nameof(Hob.Nob),
+                        principalType.DisplayName(),
+                        nameof(Nob.Hob)),
                     Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)).Message);
+                            modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)).Message);
             }
 
             [Fact]
@@ -2316,7 +2316,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 public bool? IsFollowSet { get; set; }
 
                 public virtual ICollection<ModifierGroupHeader> ModifierGroupHeader1 { get; set; }
-                    = new HashSet<ModifierGroupHeader>();
+                = new HashSet<ModifierGroupHeader>();
 
                 public virtual ModifierGroupHeader ModifierGroupHeader2 { get; set; }
             }

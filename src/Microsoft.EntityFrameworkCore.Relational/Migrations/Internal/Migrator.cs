@@ -231,7 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             bool idempotent = false)
         {
             IEnumerable<string> appliedMigrations;
-            if (string.IsNullOrEmpty(fromMigration) || fromMigration == Migration.InitialDatabase)
+            if (string.IsNullOrEmpty(fromMigration)
+                || fromMigration == Migration.InitialDatabase)
             {
                 appliedMigrations = Enumerable.Empty<string>();
             }

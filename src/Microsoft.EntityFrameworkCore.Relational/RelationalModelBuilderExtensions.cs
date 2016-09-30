@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="ModelBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="ModelBuilder" />.
     /// </summary>
     public static class RelationalModelBuilderExtensions
     {
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore
         public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.HasSequence(name, null, builderAction);
+            [NotNull] Action<RelationalSequenceBuilder> builderAction
+        ) => modelBuilder.HasSequence(name, null, builderAction);
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
@@ -110,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.HasSequence(clrType, name, null, builderAction);
+            [NotNull] Action<RelationalSequenceBuilder> builderAction
+        ) => modelBuilder.HasSequence(clrType, name, null, builderAction);
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
@@ -174,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore
         public static ModelBuilder HasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.HasSequence<T>(name, null, builderAction);
+            [NotNull] Action<RelationalSequenceBuilder> builderAction
+        ) => modelBuilder.HasSequence<T>(name, null, builderAction);
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.

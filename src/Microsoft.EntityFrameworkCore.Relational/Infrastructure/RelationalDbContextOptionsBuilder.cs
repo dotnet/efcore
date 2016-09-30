@@ -5,16 +5,15 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Allows relational database specific configuration to be performed on <see cref="DbContextOptions"/>.
+    ///         Allows relational database specific configuration to be performed on <see cref="DbContextOptions" />.
     ///     </para>
     ///     <para>
-    ///         Instances of this class are typically returned from methods that configure the context to use a 
+    ///         Instances of this class are typically returned from methods that configure the context to use a
     ///         particular relational database provider.
     ///     </para>
     /// </summary>
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         where TExtension : RelationalOptionsExtension
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The core options builder. </param>
         protected RelationalDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Configures the maximum number of statements that will be included in commands sent to the database
-        ///     during <see cref="DbContext.SaveChanges()"/>.
+        ///     during <see cref="DbContext.SaveChanges()" />.
         /// </summary>
         /// <param name="maxBatchSize"> The maximum number of statements. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -102,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual TBuilder ExecutionStrategy(
-            [NotNull] Func<ExecutionStrategyContext, IExecutionStrategy> getExecutionStrategy)
+                [NotNull] Func<ExecutionStrategyContext, IExecutionStrategy> getExecutionStrategy)
             => SetOption(e => e.ExecutionStrategyFactory = Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy)));
 
         /// <summary>

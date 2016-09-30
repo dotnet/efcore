@@ -54,12 +54,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 modelBuilder
                     .Entity<FastUn>(eb =>
-                    {
-                        eb.ForSqlServerIsMemoryOptimized();
-                        eb.HasIndex(e => e.Name).IsUnique();
-                        eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired(true).OnDelete(DeleteBehavior.Restrict);
-                    });
-
+                        {
+                            eb.ForSqlServerIsMemoryOptimized();
+                            eb.HasIndex(e => e.Name).IsUnique();
+                            eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired(true).OnDelete(DeleteBehavior.Restrict);
+                        });
 
                 modelBuilder.Entity<BigUn>().ForSqlServerIsMemoryOptimized();
             }

@@ -217,6 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Equal(EntityState.Unchanged, context.Entry(chunky2).State);
             }
         }
+
         private class Chunky
         {
             public int Monkey { get; set; }

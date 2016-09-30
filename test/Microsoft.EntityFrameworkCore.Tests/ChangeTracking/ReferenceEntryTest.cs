@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             {
                 var half = new Half();
                 var chunky = new Chunky { Baked = half };
-                half.Monkey =chunky;
+                half.Monkey = chunky;
                 context.AttachRange(chunky, half);
 
                 var reference = context.Entry(chunky).Reference(e => e.Baked);

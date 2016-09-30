@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from a call to
-    ///         <see cref="SqlServerDbContextOptionsExtensions.UseSqlServer(DbContextOptionsBuilder, string, System.Action{SqlServerDbContextOptionsBuilder})" />
+    ///         <see
+    ///             cref="SqlServerDbContextOptionsExtensions.UseSqlServer(DbContextOptionsBuilder, string, System.Action{SqlServerDbContextOptionsBuilder})" />
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
@@ -62,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
-            int maxRetryCount,
-            TimeSpan maxRetryDelay,
-            [NotNull] ICollection<int> errorNumbersToAdd)
+                int maxRetryCount,
+                TimeSpan maxRetryDelay,
+                [NotNull] ICollection<int> errorNumbersToAdd)
             => ExecutionStrategy(c => new SqlAzureExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
     }
 }

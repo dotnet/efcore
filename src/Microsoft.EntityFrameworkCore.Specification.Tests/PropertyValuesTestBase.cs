@@ -1140,7 +1140,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-
         [Fact]
         public virtual void Current_values_can_be_set_from_dictionary()
         {
@@ -1636,7 +1635,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var building =
                     (Building)
-                        context.Entry(context.Buildings.Single(b => b.Name == "Building One")).CurrentValues.ToObject();
+                    context.Entry(context.Buildings.Single(b => b.Name == "Building One")).CurrentValues.ToObject();
                 building.BuildingId = new Guid();
 
                 context.Buildings.Attach(building);
@@ -1663,9 +1662,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var employee = (CurrentEmployee)context.Entry(
-                    context.Employees
-                        .OfType<CurrentEmployee>()
-                        .Single(b => b.FirstName == "Rowan"))
+                        context.Employees
+                            .OfType<CurrentEmployee>()
+                            .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = -77;
@@ -1695,9 +1694,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var employee = (CurrentEmployee)context.Entry(
-                    context.Employees
-                        .OfType<CurrentEmployee>()
-                        .Single(b => b.FirstName == "Rowan"))
+                        context.Employees
+                            .OfType<CurrentEmployee>()
+                            .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = -77;
@@ -1732,9 +1731,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .EmployeeId;
 
                 var employee = (CurrentEmployee)context.Entry(
-                    context.Employees
-                        .OfType<CurrentEmployee>()
-                        .Single(b => b.FirstName == "Rowan"))
+                        context.Employees
+                            .OfType<CurrentEmployee>()
+                            .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = pastEmployeeId;
@@ -1769,9 +1768,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .EmployeeId;
 
                 var employee = (CurrentEmployee)context.Entry(
-                    context.Employees
-                        .OfType<CurrentEmployee>()
-                        .Single(b => b.FirstName == "Rowan"))
+                        context.Employees
+                            .OfType<CurrentEmployee>()
+                            .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = pastEmployeeId;

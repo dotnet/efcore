@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         context.Database.AutoTransactionsEnabled = autoTransaction;
 
                         var ex = Assert.Throws<InvalidOperationException>(() =>
-                            context.Database.UseTransaction(transaction));
+                                context.Database.UseTransaction(transaction));
                         Assert.Equal(RelationalStrings.TransactionAssociatedWithDifferentConnection, ex.Message);
                     }
                 }
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         using (context.Database.BeginTransaction())
                         {
                             var ex = Assert.Throws<InvalidOperationException>(() =>
-                                context.Database.UseTransaction(transaction));
+                                    context.Database.UseTransaction(transaction));
                             Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
                         }
                     }

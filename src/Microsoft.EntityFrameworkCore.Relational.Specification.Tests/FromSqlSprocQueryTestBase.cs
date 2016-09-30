@@ -3,13 +3,12 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.NorthwindSproc;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
@@ -170,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             .FromSql("SelectStoredProcedure")
                             .Include(p => p.OrderDetails)
                             .ToArray()
-                        ).Message);
+                    ).Message);
             }
         }
 

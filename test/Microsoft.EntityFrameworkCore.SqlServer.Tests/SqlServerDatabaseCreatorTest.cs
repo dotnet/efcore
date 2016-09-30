@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,7 +20,6 @@ using Xunit;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable MemberCanBePrivate.Local
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerDatabaseCreatorTest
@@ -261,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
 #else
-    // CoreCLR internal constructor has an additional parameter
+// CoreCLR internal constructor has an additional parameter
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
 #endif

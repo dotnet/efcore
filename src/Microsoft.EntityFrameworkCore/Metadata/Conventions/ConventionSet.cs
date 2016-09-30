@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Conventions to run when an annotation is set or removed on an entity type.
         /// </summary>
         public virtual IList<IEntityTypeAnnotationSetConvention> EntityTypeAnnotationSetConventions { get; }
-            = new List<IEntityTypeAnnotationSetConvention>();
+        = new List<IEntityTypeAnnotationSetConvention>();
 
         /// <summary>
         ///     Conventions to run when a foreign key is added.

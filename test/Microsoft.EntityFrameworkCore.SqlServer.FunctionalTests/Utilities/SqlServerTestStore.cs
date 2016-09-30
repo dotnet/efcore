@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private SqlConnection _connection;
         private readonly string _fileName;
         private string _connectionString;
-        private bool _cleanDatabase;
+        private readonly bool _cleanDatabase;
         private bool _deleteDatabase;
 
         public string Name { get; }
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 }, sql, false, parameters);
 
         private static T Execute<T>(
-            SqlConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction = false, object[] parameters = null)
+                SqlConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction = false, object[] parameters = null)
             => GetExecutionStrategy().Execute(state =>
                 {
                     if (state.connection.State != ConnectionState.Closed)
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 }, new { connection, connection.State });
 
         private static Task<T> ExecuteAsync<T>(
-            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, object[] parameters = null)
+                SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, object[] parameters = null)
             => GetExecutionStrategy().ExecuteAsync(async state =>
                 {
                     if (state.connection.State != ConnectionState.Closed)

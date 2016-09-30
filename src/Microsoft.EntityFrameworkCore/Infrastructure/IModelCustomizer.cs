@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///        Performs additional configuration of the model in addition to what is discovered by convention.
+    ///         Performs additional configuration of the model in addition to what is discovered by convention.
     ///     </para>
     ///     <para>
     ///         This interface is typically used by database providers (and other extensions). It is generally
@@ -18,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         /// <summary>
         ///     <para>
-        ///         Builds the model for a given context. 
+        ///         Builds the model for a given context.
         ///     </para>
         ///     <para>
-        ///         If any instance data from <paramref name="dbContext"/> is
-        ///         used when building the model, then the implementation of <see cref="IModelCacheKeyFactory.Create(DbContext)"/>
+        ///         If any instance data from <paramref name="dbContext" /> is
+        ///         used when building the model, then the implementation of <see cref="IModelCacheKeyFactory.Create(DbContext)" />
         ///         also needs to be updated to ensure the model is cached correctly.
         ///     </para>
         /// </summary>

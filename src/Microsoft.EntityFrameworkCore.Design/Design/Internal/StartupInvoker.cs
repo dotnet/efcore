@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = ConfigureHostServices(new ServiceCollection());
 
             return Invoke(
-                _startupType,
-                new[] { "Configure" + _environment + "Services", "ConfigureServices" },
-                services) as IServiceProvider
+                       _startupType,
+                       new[] { "Configure" + _environment + "Services", "ConfigureServices" },
+                       services) as IServiceProvider
                    ?? services.BuildServiceProvider();
         }
 

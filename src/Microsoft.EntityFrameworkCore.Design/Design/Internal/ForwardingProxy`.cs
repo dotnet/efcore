@@ -55,5 +55,4 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public new virtual T GetTransparentProxy() => (T)base.GetTransparentProxy();
     }
 }
-
 #endif

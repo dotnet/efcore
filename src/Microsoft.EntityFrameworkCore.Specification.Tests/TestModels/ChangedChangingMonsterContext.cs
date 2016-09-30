@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public event PropertyChangedEventHandler PropertyChanged;
             public event PropertyChangingEventHandler PropertyChanging;
 
-            private void NotifyChanged(string propertyName) 
+            private void NotifyChanged(string propertyName)
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            private void NotifyChanging(string propertyName) 
+            private void NotifyChanging(string propertyName)
                 => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
 
             protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")

@@ -31,5 +31,4 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 }
-
 #endif

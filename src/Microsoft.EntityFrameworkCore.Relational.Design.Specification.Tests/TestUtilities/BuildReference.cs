@@ -10,7 +10,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities
 {
     public class BuildReference

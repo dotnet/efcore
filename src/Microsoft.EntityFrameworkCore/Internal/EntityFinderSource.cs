@@ -29,17 +29,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 type,
                 t
                     =>
-                    {
-                        if (context.Model.FindEntityType(t) == null)
                         {
-                            throw new InvalidOperationException(CoreStrings.InvalidSetType(t.ShortDisplayName()));
-                        }
+                            if (context.Model.FindEntityType(t) == null)
+                            {
+                                throw new InvalidOperationException(CoreStrings.InvalidSetType(t.ShortDisplayName()));
+                            }
 
-                        return (Func<DbContext, IEntityFinder>)_genericCreate.MakeGenericMethod(t).Invoke(null, null);
-                    })(context);
+                            return (Func<DbContext, IEntityFinder>)_genericCreate.MakeGenericMethod(t).Invoke(null, null);
+                        })(context);
 
         [UsedImplicitly]
         private static Func<DbContext, IEntityFinder> CreateConstructor<TEntity>() where TEntity : class
-            => c => new EntityFinder<TEntity>(c);
+        => c => new EntityFinder<TEntity>(c);
     }
 }

@@ -54,5 +54,4 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design
         }
     }
 }
-
 #endif

@@ -207,10 +207,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         private class CustomGuidValueGenerator : ValueGenerator<Guid>
         {
             public static Guid[] SpecialGuids { get; } =
-                {
-                    Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
-                    Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()
-                };
+            {
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()
+            };
 
             private int _counter = -1;
 

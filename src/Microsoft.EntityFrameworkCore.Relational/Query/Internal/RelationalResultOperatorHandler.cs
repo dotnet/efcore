@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             handlerContext.QueryModelVisitor.Expression
                 = new DefaultIfEmptyExpressionVisitor(
-                    handlerContext.QueryModelVisitor.QueryCompilationContext)
+                        handlerContext.QueryModelVisitor.QueryCompilationContext)
                     .Visit(handlerContext.QueryModelVisitor.Expression);
 
             return handlerContext.EvalOnClient(requiresClientResultOperator: false);
@@ -404,32 +404,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleDistinct(HandlerContext handlerContext)
         {
-            var selectExpression = handlerContext.SelectExpression;
-
-            selectExpression.IsDistinct = true;
-
-            if (selectExpression.OrderBy.Any(o =>
-                {
-                    var orderByColumnExpression = o.Expression.TryGetColumnExpression();
-
-                    if (orderByColumnExpression == null)
-                    {
-                        return true;
-                    }
-
-                    return !selectExpression.Projection.Any(e =>
-                        {
-                            var projectionColumnExpression = e.TryGetColumnExpression();
-
-                            return projectionColumnExpression != null
-                                   && projectionColumnExpression.Equals(orderByColumnExpression);
-                        });
-                }))
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
             {
-                handlerContext.SelectExpression.ClearOrderBy();
+                var selectExpression = handlerContext.SelectExpression;
+
+                selectExpression.IsDistinct = true;
+
+                if (selectExpression.OrderBy.Any(o =>
+                    {
+                        var orderByColumnExpression = o.Expression.TryGetColumnExpression();
+
+                        if (orderByColumnExpression == null)
+                        {
+                            return true;
+                        }
+
+                        return !selectExpression.Projection.Any(e =>
+                            {
+                                var projectionColumnExpression = e.TryGetColumnExpression();
+
+                                return projectionColumnExpression != null
+                                       && projectionColumnExpression.Equals(orderByColumnExpression);
+                            });
+                    }))
+                {
+                    handlerContext.SelectExpression.ClearOrderBy();
+                }
+
+                return handlerContext.EvalOnServer;
             }
 
-            return handlerContext.EvalOnServer;
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleFirst(HandlerContext handlerContext)
@@ -437,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             handlerContext.SelectExpression.Limit = Expression.Constant(1);
 
             var requiresClientResultOperator = !((FirstResultOperator)handlerContext.ResultOperator).ReturnDefaultWhenEmpty
-                && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null;
+                                               && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null;
 
             return handlerContext.EvalOnClient(requiresClientResultOperator);
         }
@@ -476,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return sqlExpression != null
                 ? Expression.Call(handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
-                    .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
+                        .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
                     oldGroupByCall.Arguments)
                 : oldGroupByCall;
         }
@@ -594,8 +599,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 handlerContext.SelectExpression.Predicate
                     = new DiscriminatorReplacingExpressionVisitor(
-                        discriminatorPredicate,
-                        handlerContext.QueryModel.MainFromClause)
+                            discriminatorPredicate,
+                            handlerContext.QueryModel.MainFromClause)
                         .Visit(handlerContext.SelectExpression.Predicate);
             }
 
@@ -621,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         private static IShaper<TDerived> CreateDowncastingShaper<TDerived>(EntityShaper shaper)
             where TDerived : class
-            => shaper.Cast<TDerived>();
+        => shaper.Cast<TDerived>();
 
         private class DiscriminatorReplacingExpressionVisitor : RelinqExpressionVisitor
         {
@@ -703,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var takeResultOperator = (TakeResultOperator)handlerContext.ResultOperator;
 
-            var sqlTranslatingExpressionVisitor 
+            var sqlTranslatingExpressionVisitor
                 = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
             var limit = sqlTranslatingExpressionVisitor.Visit(takeResultOperator.Count);
@@ -735,8 +740,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var querySource
                 = handlerContext.QueryModel.BodyClauses
-                    .OfType<IQuerySource>()
-                    .LastOrDefault()
+                      .OfType<IQuerySource>()
+                      .LastOrDefault()
                   ?? handlerContext.QueryModel.MainFromClause;
 
             var visitor

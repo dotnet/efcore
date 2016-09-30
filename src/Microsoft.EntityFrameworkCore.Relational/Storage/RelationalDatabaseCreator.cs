@@ -26,14 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
         /// </summary>
-        /// <param name="model"> The <see cref="IModel"/> for the context this creator is being used with. </param>
-        /// <param name="connection"> The <see cref="IRelationalConnection"/> to be used. </param>
-        /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer"/> to be used. </param>
-        /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator"/> to be used. </param>
-        /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor"/> to be used. </param>
-        /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory"/> to be used. </param>
+        /// <param name="model"> The <see cref="IModel" /> for the context this creator is being used with. </param>
+        /// <param name="connection"> The <see cref="IRelationalConnection" /> to be used. </param>
+        /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer" /> to be used. </param>
+        /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator" /> to be used. </param>
+        /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
+        /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory" /> to be used. </param>
         protected RelationalDatabaseCreator(
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
@@ -68,33 +68,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual IRelationalConnection Connection { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IMigrationCommandExecutor"/> to be used.
+        ///     Gets the <see cref="IMigrationCommandExecutor" /> to be used.
         /// </summary>
         protected virtual IMigrationCommandExecutor MigrationCommandExecutor { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IExecutionStrategyFactory"/> to be used.
+        ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
         /// </summary>
         protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
-        /// Determines whether the physical database exists. No attempt is made to determine if the database
-        /// contains the schema for the current model.
+        ///     Determines whether the physical database exists. No attempt is made to determine if the database
+        ///     contains the schema for the current model.
         /// </summary>
         /// <returns>
-        /// True if the database exists; otherwise false.
+        ///     True if the database exists; otherwise false.
         /// </returns>
         public abstract bool Exists();
 
         /// <summary>
-        ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if 
+        ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if
         ///     the database contains the schema for the current model.
         /// </summary>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns>
-        ///     A task that represents the asynchronous operation. The task result contains 
+        ///     A task that represents the asynchronous operation. The task result contains
         ///     true if the database exists; otherwise false.
         /// </returns>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        /// Deletes the physical database.
+        ///     Deletes the physical database.
         /// </summary>
         public abstract void Delete();
 
@@ -183,9 +183,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     tables belong to the current model or not.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains 
-        ///     a value indicating whether any tables are present in the database. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains
+        ///     a value indicating whether any tables are present in the database.
         /// </returns>
         protected virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {

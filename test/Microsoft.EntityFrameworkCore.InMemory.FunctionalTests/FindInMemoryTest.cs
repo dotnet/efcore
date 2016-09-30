@@ -79,12 +79,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public override InMemoryTestStore CreateTestStore()
             {
                 return InMemoryTestStore.CreateScratch(() =>
-                    {
-                        using (var context = new FindContext(_options))
                         {
-                            Seed(context);
-                        }
-                    },
+                            using (var context = new FindContext(_options))
+                            {
+                                Seed(context);
+                            }
+                        },
                     _serviceProvider);
             }
 

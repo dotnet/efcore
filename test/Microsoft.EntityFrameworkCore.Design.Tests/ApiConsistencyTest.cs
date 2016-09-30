@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests
     {
         // NOTE: These classes are compiled by the PowerShell module and must not reference external types.
         private static readonly IEnumerable<Type> _ignoredTypes = new[]
-               {
+        {
             typeof(IOperationLogHandler),
             typeof(IOperationResultHandler),
             typeof(OperationLogHandler),
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests
         };
 
         protected override IEnumerable<Type> GetAllTypes(IEnumerable<Type> types)
-        => base.GetAllTypes(types).Except(_ignoredTypes);
+            => base.GetAllTypes(types).Except(_ignoredTypes);
 
         protected override Assembly TargetAssembly => typeof(MigrationsOperations).GetTypeInfo().Assembly;
     }

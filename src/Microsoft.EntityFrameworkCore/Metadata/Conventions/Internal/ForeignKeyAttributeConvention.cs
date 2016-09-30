@@ -168,10 +168,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             if (foreignKey.PrincipalEntityType.Builder.Relationship(
-                foreignKey.DeclaringEntityType.Builder,
-                principalToDepedentNavigationName,
-                null,
-                ConfigurationSource.DataAnnotation) == null)
+                    foreignKey.DeclaringEntityType.Builder,
+                    principalToDepedentNavigationName,
+                    null,
+                    ConfigurationSource.DataAnnotation) == null)
             {
                 return null;
             }

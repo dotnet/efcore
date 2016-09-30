@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     patternExpression);
 
                 return new NotNullableExpression(
-                        patternConstantExpression != null
+                    patternConstantExpression != null
                         ? (string)patternConstantExpression.Value == string.Empty
                             ? (Expression)Expression.Constant(true)
                             : endsWithExpression

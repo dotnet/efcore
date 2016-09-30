@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Applies any pending migrations for the context to the database. Will create the database
         ///         if it does not already exist.
         ///     </para>
-        ///      <para>
+        ///     <para>
         ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations
         ///         to create the database and therefore the database that is created cannot be later updated using migrations.
         ///     </para>
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] this DatabaseFacade databaseFacade,
+                CancellationToken cancellationToken = default(CancellationToken))
             => (await Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IHistoryRepository>()
                 .GetAppliedMigrationsAsync(cancellationToken)).Select(hr => hr.MigrationId);
 
@@ -78,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] this DatabaseFacade databaseFacade,
+                CancellationToken cancellationToken = default(CancellationToken))
             => GetMigrations(databaseFacade).Except(await GetAppliedMigrationsAsync(databaseFacade, cancellationToken));
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Asynchronously applies any pending migrations for the context to the database. Will create the database
         ///         if it does not already exist.
         ///     </para>
-        ///      <para>
+        ///     <para>
         ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations
         ///         to create the database and therefore the database that is created cannot be later updated using migrations.
         ///     </para>
@@ -96,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous migration operation. </returns>
         public static Task MigrateAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] this DatabaseFacade databaseFacade,
+                CancellationToken cancellationToken = default(CancellationToken))
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>()
                 .MigrateAsync(cancellationToken: cancellationToken);
 
@@ -159,10 +159,10 @@ namespace Microsoft.EntityFrameworkCore
                 database => database.GetRelationalConnection().Open(), databaseFacade);
 
         public static Task OpenConnectionAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] this DatabaseFacade databaseFacade,
+                CancellationToken cancellationToken = default(CancellationToken))
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync((database, ct) =>
-                database.GetRelationalConnection().OpenAsync(cancellationToken), databaseFacade, cancellationToken);
+                    database.GetRelationalConnection().OpenAsync(cancellationToken), databaseFacade, cancellationToken);
 
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
             => GetRelationalConnection(databaseFacade).Close();
@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore
                 }, databaseFacade);
 
         public static Task<IDbContextTransaction> BeginTransactionAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            IsolationLevel isolationLevel,
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] this DatabaseFacade databaseFacade,
+                IsolationLevel isolationLevel,
+                CancellationToken cancellationToken = default(CancellationToken))
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync((database, ct) =>
                 {
                     var transactionManager = database.GetTransactionManager();

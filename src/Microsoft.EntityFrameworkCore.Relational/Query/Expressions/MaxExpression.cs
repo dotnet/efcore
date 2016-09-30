@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {

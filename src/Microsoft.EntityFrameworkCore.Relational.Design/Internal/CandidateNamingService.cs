@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var candidateStringBuilder = new StringBuilder();
             var previousLetterCharInWordIsLowerCase = false;
             var isFirstCharacterInWord = true;
-            foreach (char c in originalIdentifier)
+            foreach (var c in originalIdentifier)
             {
                 var isNotLetterOrDigit = !char.IsLetterOrDigit(c);
                 if (isNotLetterOrDigit

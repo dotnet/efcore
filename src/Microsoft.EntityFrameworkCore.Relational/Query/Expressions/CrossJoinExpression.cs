@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual TableExpressionBase TableExpression => _tableExpression;
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -47,13 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        /// Creates a <see cref="string"/> representation of the Expression.
+        ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="string"/> representation of the Expression.</returns>
+        /// <returns>A <see cref="string" /> representation of the Expression.</returns>
         public override string ToString() => "CROSS JOIN " + _tableExpression;
 
         /// <summary>
-        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)"/> method passing the reduced expression.
+        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the reduced expression.
         ///     Throws an exception if the node isn't reducible.
         /// </summary>
         /// <param name="visitor"> An instance of <see cref="ExpressionVisitor" />. </param>

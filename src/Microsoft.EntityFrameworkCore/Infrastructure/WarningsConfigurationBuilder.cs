@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="WarningsConfigurationBuilder"/> class.
+        ///         Initializes a new instance of the <see cref="WarningsConfigurationBuilder" /> class.
         ///     </para>
         ///     <para>
         ///         This class is used within the <see cref="DbContextOptionsBuilder.ConfigureWarnings(System.Action{WarningsConfigurationBuilder})" />
@@ -54,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Causes an exception to be thrown when the specified core warnings are generated. Database providers (and other extensions)
-        ///     may provide extension method overloads of this method to configure this behavior for warnings they generate.  
+        ///     may provide extension method overloads of this method to configure this behavior for warnings they generate.
         /// </summary>
         /// <param name="coreEventIds">
-        ///     The <see cref="CoreEventId"/>(s) for the warnings.
+        ///     The <see cref="CoreEventId" />(s) for the warnings.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Throw(
@@ -72,10 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Causes a warning to be logged when the specified core warnings are generated. Database providers (and other extensions)
-        ///     may provide extension method overloads of this method to configure this behavior for warnings they generate.  
+        ///     may provide extension method overloads of this method to configure this behavior for warnings they generate.
         /// </summary>
         /// <param name="coreEventIds">
-        ///     The <see cref="CoreEventId"/>(s) for the warnings.
+        ///     The <see cref="CoreEventId" />(s) for the warnings.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Log(
@@ -90,10 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Causes nothing to happen when the specified core warnings are generated. Database providers (and other extensions)
-        ///     may provide extension method overloads of this method to configure this behavior for warnings they generate.  
+        ///     may provide extension method overloads of this method to configure this behavior for warnings they generate.
         /// </summary>
         /// <param name="coreEventIds">
-        ///     The <see cref="CoreEventId"/>(s) for the warnings.
+        ///     The <see cref="CoreEventId" />(s) for the warnings.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Ignore(

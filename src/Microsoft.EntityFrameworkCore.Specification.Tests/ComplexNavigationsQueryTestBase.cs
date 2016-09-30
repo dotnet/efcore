@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
@@ -13,7 +11,6 @@ using Xunit;
 // ReSharper disable MergeConditionalExpression
 // ReSharper disable ReplaceWithSingleCallToSingle
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
@@ -39,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public void Dispose() => TestStore.Dispose();
 
-        [ConditionalFact] 
+        [ConditionalFact]
         public virtual void Entity_equality_empty()
         {
             using (var context = CreateContext())
@@ -51,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact] 
+        [ConditionalFact]
         public virtual void Key_equality_when_sentinel_ef_property()
         {
             using (var context = CreateContext())
@@ -181,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.LevelOne.Where(l => l.OneToOne_Required_FK == new Level2 { Id = 1 }
-                    || l.OneToOne_Required_FK == new Level2 { Id = 2 });
+                                                        || l.OneToOne_Required_FK == new Level2 { Id = 2 });
 
                 var result = query.ToList();
 
@@ -195,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.LevelTwo.Where(l => l.OneToOne_Required_FK_Inverse == new Level1 { Id = 1 }
-                    || l.OneToOne_Required_FK_Inverse == new Level1 { Id = 2 });
+                                                        || l.OneToOne_Required_FK_Inverse == new Level1 { Id = 2 });
 
                 var result = query.ToList();
 
@@ -2102,9 +2099,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 expected = (from l1 in context.LevelOne
-                    .Include(e => e.OneToOne_Optional_FK)
-                    .Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK)
-                    .ToList()
+                                .Include(e => e.OneToOne_Optional_FK)
+                                .Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK)
+                                .ToList()
                             where l1.OneToOne_Optional_FK?.Name != "L2 05" || l1.OneToOne_Required_FK.OneToOne_Optional_FK?.Name == "L3 05"
                             select l1?.Id).ToList();
             }
@@ -2134,9 +2131,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 expected = (from l3 in context.LevelThree
-                    .Include(e => e.OneToOne_Optional_FK_Inverse)
-                    .Include(e => e.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse)
-                    .ToList()
+                                .Include(e => e.OneToOne_Optional_FK_Inverse)
+                                .Include(e => e.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse)
+                                .ToList()
                             where l3.OneToOne_Optional_FK_Inverse?.Name != "L2 05" || l3.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse?.Name == "L1 05"
                             select l3?.Id).ToList();
             }
@@ -2173,10 +2170,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         e.OneToOne_Required_FK?.OneToOne_Required_FK?.Id == e.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id
                         && e.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id != 7)
                     .Select(e => new KeyValuePair<string, int?>
-                        (
+                    (
                         e.Name,
                         e.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id
-                        )).ToList();
+                    )).ToList();
             }
 
             ClearLog();
@@ -2184,8 +2181,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.LevelOne.Where(e =>
-                    e.OneToOne_Required_FK.OneToOne_Required_FK == e.OneToOne_Required_FK.OneToOne_Optional_FK
-                    && e.OneToOne_Required_FK.OneToOne_Optional_FK.Id != 7)
+                        e.OneToOne_Required_FK.OneToOne_Required_FK == e.OneToOne_Required_FK.OneToOne_Optional_FK
+                        && e.OneToOne_Required_FK.OneToOne_Optional_FK.Id != 7)
                     .Select(e => new
                     {
                         e.Name,
@@ -2219,10 +2216,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         e.OneToOne_Required_FK_Inverse?.OneToOne_Required_FK_Inverse?.Id == e.OneToOne_Required_FK_Inverse?.OneToOne_Optional_FK_Inverse?.Id
                         && e.OneToOne_Required_FK_Inverse?.OneToOne_Optional_FK_Inverse?.Id != 7)
                     .Select(e => new KeyValuePair<string, int?>
-                        (
+                    (
                         e.Name,
                         e.OneToOne_Required_FK_Inverse?.OneToOne_Optional_FK_Inverse?.Id
-                        )).ToList();
+                    )).ToList();
             }
 
             ClearLog();
@@ -2230,8 +2227,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.LevelThree.Where(e =>
-                    e.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse == e.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse
-                    && e.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse.Id != 7)
+                        e.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse == e.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse
+                        && e.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse.Id != 7)
                     .Select(e => new
                     {
                         e.Name,
@@ -2468,8 +2465,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 expected = (from l1 in context.LevelOne
-                    .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
-                    .ThenInclude(e => e.OneToOne_Required_FK).ToList()
+                                .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
+                                .ThenInclude(e => e.OneToOne_Required_FK).ToList()
                             where l1.OneToOne_Optional_FK?.Name != "L2 09"
                             select l1).ToList();
             }
@@ -2479,8 +2476,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from l1 in context.LevelOne
-                    .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
-                    .ThenInclude(e => e.OneToOne_Required_FK)
+                                .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
+                                .ThenInclude(e => e.OneToOne_Required_FK)
                             where l1.OneToOne_Optional_FK.Name != "L2 09"
                             select l1;
 
@@ -2515,13 +2512,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 expected = (from l1 in context.LevelOne
-                    .Include(e => e.OneToMany_Optional)
-                    .ThenInclude(e => e.OneToOne_Optional_FK)
-                    .ToList()
+                                .Include(e => e.OneToMany_Optional)
+                                .ThenInclude(e => e.OneToOne_Optional_FK)
+                                .ToList()
                             join l2 in context.LevelTwo
                                 .Include(e => e.OneToOne_Required_PK)
                                 .ToList()
-                                on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
+                            on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
                             where l1.Name != "L1 03" || l1.Name == null
                             select new KeyValuePair<Level1, IEnumerable<Level2>>(l1, grouping)).ToList();
             }
@@ -2531,10 +2528,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = (from l1 in context.LevelOne
-                    .Include(e => e.OneToMany_Optional)
-                    .ThenInclude(e => e.OneToOne_Optional_FK)
+                                 .Include(e => e.OneToMany_Optional)
+                                 .ThenInclude(e => e.OneToOne_Optional_FK)
                              join l2 in context.LevelTwo.Include(e => e.OneToOne_Required_PK)
-                                 on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
+                             on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
                              where l1.Name != "L1 03"
                              select new { l1, grouping }).Skip(1).Take(5);
 
@@ -2595,21 +2592,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = from e3 in context.LevelThree
                             join e1 in context.LevelOne
+                            on
+                            (int?)e3.Id
+                            equals
+                            (
+                                from subQuery2 in context.LevelTwo
+                                join subQuery3 in context.LevelThree
                                 on
-                                (int?)e3.Id
+                                subQuery2 != null ? (int?)subQuery2.Id : null
                                 equals
-                                (
-                                    from subQuery2 in context.LevelTwo
-                                    join subQuery3 in context.LevelThree
-                                        on
-                                        subQuery2 != null ? (int?)subQuery2.Id : null
-                                        equals
-                                        subQuery3.Level2_Optional_Id
-                                        into
-                                        grouping
-                                    from subQuery3 in grouping.DefaultIfEmpty()
-                                    select subQuery3 != null ? (int?)subQuery3.Id : null
-                                    ).FirstOrDefault()
+                                subQuery3.Level2_Optional_Id
+                                into
+                                grouping
+                                from subQuery3 in grouping.DefaultIfEmpty()
+                                select subQuery3 != null ? (int?)subQuery3.Id : null
+                            ).FirstOrDefault()
                             select e1.Id;
 
                 var result = query.ToList();
@@ -3248,13 +3245,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.LevelOne
-                   .GroupJoin(
+                    .GroupJoin(
                         context.LevelTwo.Where(l2 => l2.Name != "L2 01"),
                         l1 => l1.Id,
                         l2 => l2.Level1_Optional_Id,
                         (l1, l2s) => new { l1, l2s })
-                   .Where(r => r.l2s.Any())
-                   .Select(r => r.l1);
+                    .Where(r => r.l2s.Any())
+                    .Select(r => r.l1);
 
                 var result = query.ToList();
 

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class AsyncIncludeCollectionIterator : IDisposable
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private bool _moveNextPending = true;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public AsyncIncludeCollectionIterator(
@@ -32,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IAsyncEnumerable<ValueBuffer> GetRelatedValues(
-            [NotNull] IIncludeKeyComparer keyComparer)
+                [NotNull] IIncludeKeyComparer keyComparer)
             => new RelatedValuesEnumerable(this, keyComparer);
 
         private sealed class RelatedValuesEnumerable : IAsyncEnumerable<ValueBuffer>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Dispose() => _relatedValuesEnumerator.Dispose();

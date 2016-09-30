@@ -20,7 +20,6 @@ using Xunit.Abstractions;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
     public class SqlServerE2ETests : E2ETestBase, IClassFixture<SqlServerE2EFixture>
@@ -284,9 +283,11 @@ CREATE TABLE PrimaryKeyWithSequence (
                     Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
-                    Files = new List<string> {
+                    Files = new List<string>
+                    {
                         "PrimaryKeyWithSequenceContext.expected",
-                        "PrimaryKeyWithSequence.expected" }
+                        "PrimaryKeyWithSequence.expected"
+                    }
                 };
 
                 var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();

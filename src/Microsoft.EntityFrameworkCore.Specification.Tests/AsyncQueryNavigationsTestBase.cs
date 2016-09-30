@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int entryCount = 0,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem : class
-            => await AssertQuery(query, query, assertOrder, entryCount, asserter);
+        => await AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected async Task AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<object>> efQuery,

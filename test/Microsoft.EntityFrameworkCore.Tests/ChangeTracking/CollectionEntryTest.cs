@@ -173,7 +173,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             }
         }
 
-
         [Fact]
         public void Can_get_and_set_current_value_start_tracking()
         {

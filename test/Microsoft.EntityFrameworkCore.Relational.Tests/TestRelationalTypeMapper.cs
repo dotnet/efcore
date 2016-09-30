@@ -45,46 +45,46 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             };
 
         public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
-            = new ByteArrayRelationalTypeMapper(
-                2000,
-                _binary,
-                _unboundedBinary,
-                _binaryKey,
-                _rowversion, size => new RelationalTypeMapping(
-                    "just_binary(" + size + ")",
-                    typeof(byte[]),
-                    DbType.Binary,
-                    unicode: false,
-                    size: size,
-                    hasNonDefaultUnicode: false,
-                    hasNonDefaultSize: true));
+        = new ByteArrayRelationalTypeMapper(
+            2000,
+            _binary,
+            _unboundedBinary,
+            _binaryKey,
+            _rowversion, size => new RelationalTypeMapping(
+                "just_binary(" + size + ")",
+                typeof(byte[]),
+                DbType.Binary,
+                unicode: false,
+                size: size,
+                hasNonDefaultUnicode: false,
+                hasNonDefaultSize: true));
 
         public override IStringRelationalTypeMapper StringMapper { get; }
-            = new StringRelationalTypeMapper(
-                2000,
-                _string,
-                _unboundedString,
-                _ansiStringKey,
-                size => new RelationalTypeMapping(
-                    "just_string(" + size + ")",
-                    typeof(string),
-                    dbType: DbType.AnsiString,
-                    unicode: false,
-                    size: size,
-                    hasNonDefaultUnicode: true,
-                    hasNonDefaultSize: true),
-                2000,
-                _string,
-                _unboundedString,
-                _stringKey,
-                size => new RelationalTypeMapping(
-                    "just_string(" + size + ")",
-                    typeof(string),
-                    dbType: null,
-                    unicode: true,
-                    size: size,
-                    hasNonDefaultUnicode: false,
-                    hasNonDefaultSize: true));
+        = new StringRelationalTypeMapper(
+            2000,
+            _string,
+            _unboundedString,
+            _ansiStringKey,
+            size => new RelationalTypeMapping(
+                "just_string(" + size + ")",
+                typeof(string),
+                dbType: DbType.AnsiString,
+                unicode: false,
+                size: size,
+                hasNonDefaultUnicode: true,
+                hasNonDefaultSize: true),
+            2000,
+            _string,
+            _unboundedString,
+            _stringKey,
+            size => new RelationalTypeMapping(
+                "just_string(" + size + ")",
+                typeof(string),
+                dbType: null,
+                unicode: true,
+                size: size,
+                hasNonDefaultUnicode: false,
+                hasNonDefaultSize: true));
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;

@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
             _output = output;
 
             var serviceProvider = ConfigureDesignTimeServices(
-                new ServiceCollection()
-                    .AddScaffolding()
-                    .AddLogging())
+                    new ServiceCollection()
+                        .AddScaffolding()
+                        .AddLogging())
                 .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService()).BuildServiceProvider();
 
             _logger = new InMemoryCommandLogger("E2ETest", _output);

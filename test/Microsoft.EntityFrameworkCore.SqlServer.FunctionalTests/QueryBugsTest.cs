@@ -71,7 +71,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     var customers
                         = from customer in context.Customers
                           join postcode in context.Postcodes
-                              on customer.PostcodeID equals postcode.PostcodeID into custPCTmp
+                          on customer.PostcodeID equals postcode.PostcodeID into custPCTmp
                           from custPC in custPCTmp.DefaultIfEmpty()
                           select new
                           {
@@ -883,8 +883,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -903,8 +903,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -923,8 +923,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -943,8 +943,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { One = 1, Coalesce = eRootJoined ?? eVersion };
 
@@ -963,8 +963,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
 
@@ -983,8 +983,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
@@ -1003,8 +1003,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
@@ -1023,8 +1023,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined != null ? eRootJoined : eVersion;
 
@@ -1043,8 +1043,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
-                                    into RootEntities
+                                on eVersion.RootEntityId equals (int?)eRoot.Id
+                                into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
 

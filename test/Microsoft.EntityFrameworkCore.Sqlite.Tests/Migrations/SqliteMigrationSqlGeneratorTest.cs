@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
     FOREIGN KEY (""FlavorId"") REFERENCES ""Flavor"" (""Id"")
 );
 ",
-            Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
     ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
 );
 ",
-            Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Theory]

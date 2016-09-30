@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     An <see cref="ILogger{TCategoryName}"/> for which logging of sensitive data can be enabled or disabled.
+    ///     An <see cref="ILogger{TCategoryName}" /> for which logging of sensitive data can be enabled or disabled.
     /// </summary>
     /// <typeparam name="T"> The type who's name is used for the logger category name. </typeparam>
     public interface ISensitiveDataLogger<out T> : ILogger<T>, ISensitiveDataLogger

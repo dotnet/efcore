@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an 
-        ///     annotation with the specified name already exists. 
+        ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
+        ///     annotation with the specified name already exists.
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="annotation"> The annotation to be set. </param>
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation OnAnnotationSet(
-            [NotNull] string name, [CanBeNull] Annotation annotation, [CanBeNull] Annotation oldAnnotation)
+                [NotNull] string name, [CanBeNull] Annotation annotation, [CanBeNull] Annotation oldAnnotation)
             => annotation;
 
         /// <summary>

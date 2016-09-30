@@ -541,15 +541,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.CategoryId);
-                        Assert.Same(principal, dependent.Category);
-                        Assert.Contains(dependent, principal.Products);
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Same(principal, dependent.Category);
+                            Assert.Contains(dependent, principal.Products);
 
-                        Assert.Equal(principal.Id, newDependent.CategoryId);
-                        Assert.Same(principal, newDependent.Category);
-                        Assert.Contains(newDependent, principal.Products);
-                    });
+                            Assert.Equal(principal.Id, newDependent.CategoryId);
+                            Assert.Same(principal, newDependent.Category);
+                            Assert.Contains(newDependent, principal.Products);
+                        });
             }
         }
 
@@ -572,15 +572,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.CategoryId);
-                        Assert.Same(principal, dependent.Category);
-                        Assert.Contains(dependent, principal.Products);
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Same(principal, dependent.Category);
+                            Assert.Contains(dependent, principal.Products);
 
-                        Assert.Equal(principal.Id, newDependent.CategoryId);
-                        Assert.Same(principal, newDependent.Category);
-                        Assert.Contains(newDependent, principal.Products);
-                    });
+                            Assert.Equal(principal.Id, newDependent.CategoryId);
+                            Assert.Same(principal, newDependent.Category);
+                            Assert.Contains(newDependent, principal.Products);
+                        });
             }
         }
 
@@ -603,13 +603,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.CategoryId);
-                        Assert.Same(principal, dependent.Category);
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Same(principal, dependent.Category);
 
-                        Assert.Equal(principal.Id, newDependent.CategoryId);
-                        Assert.Same(principal, newDependent.Category);
-                    });
+                            Assert.Equal(principal.Id, newDependent.CategoryId);
+                            Assert.Same(principal, newDependent.Category);
+                        });
             }
         }
 
@@ -632,16 +632,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.CategoryId);
-                        Assert.Contains(dependent, principal.Products);
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Contains(dependent, principal.Products);
 
-                        Assert.Equal(principal.Id, newDependent.CategoryId);
-                        Assert.Contains(newDependent, principal.Products);
-                    });
+                            Assert.Equal(principal.Id, newDependent.CategoryId);
+                            Assert.Contains(newDependent, principal.Products);
+                        });
             }
         }
-
 
         [Theory]
         [InlineData(EntityState.Added)]
@@ -663,15 +662,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                        Assert.Same(principal, dependent.ParentWidget);
-                        Assert.Contains(dependent, principal.ChildWidgets);
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                            Assert.Contains(dependent, principal.ChildWidgets);
 
-                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                        Assert.Same(principal, newDependent.ParentWidget);
-                        Assert.Contains(newDependent, principal.ChildWidgets);
-                    });
+                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                            Assert.Same(principal, newDependent.ParentWidget);
+                            Assert.Contains(newDependent, principal.ChildWidgets);
+                        });
             }
         }
 
@@ -695,15 +694,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                        Assert.Same(principal, dependent.ParentWidget);
-                        Assert.Contains(dependent, principal.ChildWidgets);
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                            Assert.Contains(dependent, principal.ChildWidgets);
 
-                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                        Assert.Same(principal, newDependent.ParentWidget);
-                        Assert.Contains(newDependent, principal.ChildWidgets);
-                    });
+                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                            Assert.Same(principal, newDependent.ParentWidget);
+                            Assert.Contains(newDependent, principal.ChildWidgets);
+                        });
             }
         }
 
@@ -727,15 +726,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                        Assert.Same(principal, dependent.ParentWidget);
-                        Assert.Contains(dependent, principal.ChildWidgets);
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                            Assert.Contains(dependent, principal.ChildWidgets);
 
-                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                        Assert.Same(principal, newDependent.ParentWidget);
-                        Assert.Contains(newDependent, principal.ChildWidgets);
-                    });
+                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                            Assert.Same(principal, newDependent.ParentWidget);
+                            Assert.Contains(newDependent, principal.ChildWidgets);
+                        });
             }
         }
 
@@ -759,13 +758,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                        Assert.Contains(dependent, principal.ChildWidgets);
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Contains(dependent, principal.ChildWidgets);
 
-                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                        Assert.Contains(newDependent, principal.ChildWidgets);
-                    });
+                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                            Assert.Contains(newDependent, principal.ChildWidgets);
+                        });
             }
         }
 
@@ -789,13 +788,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                        Assert.Same(principal, dependent.ParentWidget);
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
 
-                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                        Assert.Same(principal, newDependent.ParentWidget);
-                    });
+                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                            Assert.Same(principal, newDependent.ParentWidget);
+                        });
             }
         }
 
@@ -819,13 +818,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                        Assert.Same(principal, dependent.ParentWidget);
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
 
-                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                        Assert.Same(principal, newDependent.ParentWidget);
-                    });
+                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                            Assert.Same(principal, newDependent.ParentWidget);
+                        });
             }
         }
 
@@ -849,13 +848,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                    {
-                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                        Assert.Contains(dependent, principal.ChildWidgets);
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Contains(dependent, principal.ChildWidgets);
 
-                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                        Assert.Contains(newDependent, principal.ChildWidgets);
-                    });
+                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                            Assert.Contains(newDependent, principal.ChildWidgets);
+                        });
             }
         }
 

@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="EntityTypeBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="EntityTypeBuilder" />.
     /// </summary>
     public static class RelationalEntityTypeBuilderExtensions
     {
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name);
+        => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name);
 
         /// <summary>
         ///     Configures the table that the entity maps to when targeting a relational database.
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             [CanBeNull] string schema)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
+        => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
 
         /// <summary>
         ///     Configures the discriminator column used to identify which entity type each row in a table represents
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator column. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="propertyExpression"> 
+        /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be used as the discriminator (
         ///     <c>blog => blog.Discriminator</c>).
         /// </param>

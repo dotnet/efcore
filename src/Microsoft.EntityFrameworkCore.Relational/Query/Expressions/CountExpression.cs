@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public override Type Type { get; }
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -53,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                       ? specificVisitor.VisitCount(this)
-                       : base.Accept(visitor);
+                ? specificVisitor.VisitCount(this)
+                : base.Accept(visitor);
         }
 
         /// <summary>

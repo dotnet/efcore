@@ -260,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<INavigation> FindDerivedNavigations(
-            [NotNull] this IEntityType entityType, [NotNull] string navigationName)
+                [NotNull] this IEntityType entityType, [NotNull] string navigationName)
             => entityType.GetDerivedTypes().SelectMany(et =>
-                et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
+                    et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -276,16 +276,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<IProperty> FindDerivedProperties(
-            [NotNull] this IEntityType entityType, [NotNull] string propertyName)
+                [NotNull] this IEntityType entityType, [NotNull] string propertyName)
             => entityType.GetDerivedTypes().SelectMany(et =>
-                et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
+                    et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
-            [NotNull] this IEntityType entityType)
+                [NotNull] this IEntityType entityType)
             => entityType.GetProperties().Concat<IPropertyBase>(entityType.GetNavigations());
 
         /// <summary>

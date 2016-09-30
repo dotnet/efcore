@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         where TFixture : FunkyDataQueryFixtureBase<TTestStore>, new()
     {
         protected FunkyDataContext CreateContext() => Fixture.CreateContext(TestStore);
+
         protected FunkyDataQueryTestBase(TFixture fixture)
         {
             Fixture = fixture;
@@ -115,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -139,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -241,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -265,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -367,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -391,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -411,11 +412,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => (r.ln == "" || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln))) ? true : false)
+                    .Where(r => r.ln == "" || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -435,11 +436,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => (r.ln != "" && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln)) ? true : false)
+                    .Where(r => r.ln != "" && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].fn == result[i].fn);
                     Assert.True(expected[i].ln == result[i].ln);
@@ -465,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().Select(r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].FirstName == result[i].FirstName);
                     Assert.True(expected[i].LastName == result[i].LastName);
@@ -494,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList().Select(r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected[i].FirstName == result[i].FirstName);
                     Assert.True(expected[i].LastName == result[i].LastName);

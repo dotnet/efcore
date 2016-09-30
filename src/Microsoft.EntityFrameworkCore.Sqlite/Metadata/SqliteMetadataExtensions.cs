@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore
         public static RelationalEntityTypeAnnotations Sqlite([NotNull] this IMutableEntityType entityType)
             => (RelationalEntityTypeAnnotations)Sqlite((IEntityType)entityType);
 
-
         /// <summary>
         ///     Gets the SQLite specific metadata for a foreign key.
         /// </summary>

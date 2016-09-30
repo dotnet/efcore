@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
     public class MigrationsModelDifferTestBase
     {
         protected void Execute(
-            Action<ModelBuilder> buildSourceAction,
-            Action<ModelBuilder> buildTargetAction,
-            Action<IReadOnlyList<MigrationOperation>> assertAction)
+                Action<ModelBuilder> buildSourceAction,
+                Action<ModelBuilder> buildTargetAction,
+                Action<IReadOnlyList<MigrationOperation>> assertAction)
             => Execute(m => { }, buildSourceAction, buildTargetAction, assertAction);
 
         protected void Execute(
@@ -65,17 +65,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
-                        { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
-                    };
+                {
+                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
+                    { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
+                };
 
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
-                    {
-                        { "varchar", new RelationalTypeMapping("varchar", typeof(string), dbType: null, unicode: false, size: null, hasNonDefaultUnicode: true) },
-                        { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
-                    };
+                {
+                    { "varchar", new RelationalTypeMapping("varchar", typeof(string), dbType: null, unicode: false, size: null, hasNonDefaultUnicode: true) },
+                    { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
+                };
 
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _simpleMappings;

@@ -17,10 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
 
-            modelBuilder.Entity<Chassis>(b =>
-                {
-                    b.HasKey(c => c.TeamId);
-                });
+            modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
 
             modelBuilder.Entity<Engine>(b =>
                 {

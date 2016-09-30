@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<BaseEntity3>();
 
             Assert.Equal(CoreStrings.InheritedPropertyCannotBeIgnored(
-                nameof(Unit3.VirtualBaseClassProperty), typeof(Unit3).ShortDisplayName(), typeof(BaseEntity3).ShortDisplayName()),
+                    nameof(Unit3.VirtualBaseClassProperty), typeof(Unit3).ShortDisplayName(), typeof(BaseEntity3).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => Validate(modelBuilder)).Message);
         }

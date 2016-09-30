@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task<ReverseEngineerFiles> WriteCodeAsync(
-            ModelConfiguration modelConfiguration, 
-            string outputPath, 
+            ModelConfiguration modelConfiguration,
+            string outputPath,
             string dbContextClassName,
             CancellationToken cancellationToken = default(CancellationToken))
         {

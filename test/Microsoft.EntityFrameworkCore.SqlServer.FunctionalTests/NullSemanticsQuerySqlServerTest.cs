@@ -783,7 +783,7 @@ WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo'
             base.Where_coalesce();
 
             Assert.Equal(
-    @"SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE COALESCE([e].[NullableBoolA], 1) = 1",
                 Sql);
@@ -999,7 +999,7 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
             base.Where_nullable_bool();
 
             Assert.Equal(
-    @"SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE [e].[NullableBoolA] = 1",
                 Sql);
@@ -1010,7 +1010,7 @@ WHERE [e].[NullableBoolA] = 1",
             base.Where_nullable_bool_equal_with_constant();
 
             Assert.Equal(
-    @"SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE [e].[NullableBoolA] = 1",
                 Sql);
@@ -1021,7 +1021,7 @@ WHERE [e].[NullableBoolA] = 1",
             base.Where_nullable_bool_with_null_check();
 
             Assert.Equal(
-    @"SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = 1)",
                 Sql);
@@ -1122,8 +1122,8 @@ WHERE 0 = 1
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]",
                 Sql);
-
         }
+
         public override void Where_comparison_null_semantics_optimization_works_with_complex_predicates()
         {
             base.Where_comparison_null_semantics_optimization_works_with_complex_predicates();
@@ -1165,7 +1165,6 @@ SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE 0 = 1",
                 Sql);
-
         }
 
         public override void From_sql_composed_with_relational_null_comparison()

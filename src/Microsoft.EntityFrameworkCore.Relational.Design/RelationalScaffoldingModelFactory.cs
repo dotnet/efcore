@@ -602,7 +602,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties
-        private Dictionary<IEntityType, List<string>> _entityTypeAndPropertyIdentifiers = new Dictionary<IEntityType, List<string>>();
+        private readonly Dictionary<IEntityType, List<string>> _entityTypeAndPropertyIdentifiers = new Dictionary<IEntityType, List<string>>();
+
         protected virtual List<string> ExistingIdentifiers([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

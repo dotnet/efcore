@@ -132,10 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         protected virtual ResultSetMapping AppendSelectAffectedCountCommand(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string name,
-            [CanBeNull] string schema,
-            int commandPosition)
+                [NotNull] StringBuilder commandStringBuilder,
+                [NotNull] string name,
+                [CanBeNull] string schema,
+                int commandPosition)
             => ResultSetMapping.NoResultSet;
 
         protected virtual ResultSetMapping AppendSelectAffectedCommand(

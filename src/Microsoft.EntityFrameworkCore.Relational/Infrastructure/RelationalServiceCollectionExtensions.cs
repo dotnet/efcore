@@ -28,7 +28,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="IServiceCollection"/>.
+    ///     Relational database specific extension methods for <see cref="IServiceCollection" />.
     /// </summary>
     public static class RelationalServiceCollectionExtensions
     {
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <para>
         ///         Adds the base services required by a relational database provider.
         ///     </para>
-        ///      <para>
+        ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
         ///         not used in application code.
         ///     </para>

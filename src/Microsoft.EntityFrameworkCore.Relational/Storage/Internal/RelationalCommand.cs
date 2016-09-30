@@ -15,13 +15,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class RelationalCommand : IRelationalCommand
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommand(
@@ -42,127 +42,127 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual ISensitiveDataLogger Logger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual DiagnosticSource DiagnosticSource { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string CommandText { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<IRelationalParameter> Parameters { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int ExecuteNonQuery(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true)
-            => (int)Execute(
-                Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteNonQuery),
-                parameterValues,
-                openConnection: manageConnection,
-                closeConnection: manageConnection);
+            bool manageConnection = true
+        ) => (int)Execute(
+            Check.NotNull(connection, nameof(connection)),
+            nameof(ExecuteNonQuery),
+            parameterValues,
+            openConnection: manageConnection,
+            closeConnection: manageConnection);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<int> ExecuteNonQueryAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true,
-            CancellationToken cancellationToken = default(CancellationToken))
-            => ExecuteAsync(
-                Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteNonQuery),
-                parameterValues,
-                openConnection: manageConnection,
-                closeConnection: manageConnection,
-                cancellationToken: cancellationToken).Cast<object, int>();
+            CancellationToken cancellationToken = default(CancellationToken)
+        ) => ExecuteAsync(
+            Check.NotNull(connection, nameof(connection)),
+            nameof(ExecuteNonQuery),
+            parameterValues,
+            openConnection: manageConnection,
+            closeConnection: manageConnection,
+            cancellationToken: cancellationToken).Cast<object, int>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object ExecuteScalar(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true)
-            => Execute(
-                Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteScalar),
-                parameterValues,
-                openConnection: manageConnection,
-                closeConnection: manageConnection);
+            bool manageConnection = true
+        ) => Execute(
+            Check.NotNull(connection, nameof(connection)),
+            nameof(ExecuteScalar),
+            parameterValues,
+            openConnection: manageConnection,
+            closeConnection: manageConnection);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<object> ExecuteScalarAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true,
-            CancellationToken cancellationToken = default(CancellationToken))
-            => ExecuteAsync(
-                Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteScalar),
-                parameterValues,
-                openConnection: manageConnection,
-                closeConnection: manageConnection,
-                cancellationToken: cancellationToken);
+            CancellationToken cancellationToken = default(CancellationToken)
+        ) => ExecuteAsync(
+            Check.NotNull(connection, nameof(connection)),
+            nameof(ExecuteScalar),
+            parameterValues,
+            openConnection: manageConnection,
+            closeConnection: manageConnection,
+            cancellationToken: cancellationToken);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual RelationalDataReader ExecuteReader(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true)
-            => (RelationalDataReader)Execute(
-                Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteReader),
-                parameterValues,
-                openConnection: manageConnection,
-                closeConnection: false);
+            bool manageConnection = true
+        ) => (RelationalDataReader)Execute(
+            Check.NotNull(connection, nameof(connection)),
+            nameof(ExecuteReader),
+            parameterValues,
+            openConnection: manageConnection,
+            closeConnection: false);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<RelationalDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true,
-            CancellationToken cancellationToken = default(CancellationToken))
-            => ExecuteAsync(
-                Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteReader),
-                parameterValues,
-                openConnection: manageConnection,
-                closeConnection: false,
-                cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
+            CancellationToken cancellationToken = default(CancellationToken)
+        ) => ExecuteAsync(
+            Check.NotNull(connection, nameof(connection)),
+            nameof(ExecuteReader),
+            parameterValues,
+            openConnection: manageConnection,
+            closeConnection: false,
+            cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual object Execute(
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual async Task<object> ExecuteAsync(

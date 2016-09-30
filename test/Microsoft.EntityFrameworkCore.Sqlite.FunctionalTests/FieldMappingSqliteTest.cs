@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 : base(fixture)
             {
             }
+
             protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
                 => facade.UseTransaction(transaction.GetDbTransaction());
 

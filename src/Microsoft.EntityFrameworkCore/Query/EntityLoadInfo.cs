@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly Func<ValueBuffer, object> _materializer;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityLoadInfo"/> struct.
+        ///     Initializes a new instance of the <see cref="EntityLoadInfo" /> struct.
         /// </summary>
         /// <param name="valueBuffer"> The row of data that represents this entity. </param>
         /// <param name="materializer"> The method to materialize the data into an entity instance. </param>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ValueBuffer ValueBuffer { get; }
 
         /// <summary>
-        ///      Materializes the data into an entity instance.
+        ///     Materializes the data into an entity instance.
         /// </summary>
         /// <returns> The entity instance. </returns>
         public object Materialize() => _materializer(ValueBuffer);

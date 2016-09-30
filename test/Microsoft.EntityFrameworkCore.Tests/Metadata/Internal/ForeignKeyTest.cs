@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                     Property.Format(foreignKey2.Properties),
                     Property.Format(foreignKey1.Properties)),
                 Assert.Throws<InvalidOperationException>(()
-                => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
+                    => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
         [Fact]

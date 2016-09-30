@@ -537,8 +537,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                     // If this property is the single integer primary key on the EntityType then
                     // KeyConvention assumes ValueGeneratedOnAdd() so there is no need to add it.
                     if (_keyConvention.FindValueGeneratedOnAddProperty(
-                        new List<Property> { (Property)propertyConfiguration.Property },
-                        (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null
+                            new List<Property> { (Property)propertyConfiguration.Property },
+                            (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null
                         && AnnotationProvider.For(propertyConfiguration.Property).DefaultValueSql == null)
                     {
                         propertyConfiguration.FluentApiConfigurations.Add(
@@ -719,8 +719,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                                 referencedType, principalNavProp.Name);
 
                         var dependentNavProp = foreignKey.DependentToPrincipal;
-                        if (foreignKey.PrincipalKey.IsPrimaryKey() &&
-                            dependentNavProp != null)
+                        if (foreignKey.PrincipalKey.IsPrimaryKey()
+                            && dependentNavProp != null)
                         {
                             navPropConfiguration.AttributeConfigurations.Add(
                                 _configurationFactory.CreateAttributeConfiguration(
@@ -745,7 +745,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                             foreignKey.PrincipalEntityType.Name, dependentNavProp.Name);
 
                     var principalNavProp = foreignKey.PrincipalToDependent;
-                    if (foreignKey.PrincipalKey.IsPrimaryKey() && principalNavProp != null)
+                    if (foreignKey.PrincipalKey.IsPrimaryKey()
+                        && principalNavProp != null)
                     {
                         dependentEndNavPropConfiguration.AttributeConfigurations.Add(
                             _configurationFactory.CreateAttributeConfiguration(
@@ -762,7 +763,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                         dependentEndNavPropConfiguration);
 
                     // set up the other navigation property for self-referencing foreign keys owned by this EntityType
-                    if (((ForeignKey)foreignKey).IsSelfReferencing() && principalNavProp != null)
+                    if (((ForeignKey)foreignKey).IsSelfReferencing()
+                        && principalNavProp != null)
                     {
                         var referencedType = foreignKey.IsUnique
                             ? foreignKey.DeclaringEntityType.Name
@@ -796,7 +798,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                     .GetForeignKeys().Where(fk => fk.PrincipalEntityType == entityConfiguration.EntityType))
                 {
                     var navigationProperty = foreignKey.PrincipalToDependent;
-                    if (!foreignKey.IsUnique && navigationProperty != null)
+                    if (!foreignKey.IsUnique
+                        && navigationProperty != null)
                     {
                         entityConfiguration.NavigationPropertyInitializerConfigurations.Add(
                             _configurationFactory.CreateNavigationPropertyInitializerConfiguration(
@@ -821,7 +824,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                 if (dependentEndNavigationProperty != null
                     && principalEndNavigationProperty != null)
                 {
-
                     var relationshipConfiguration = _configurationFactory
                         .CreateRelationshipConfiguration(
                             entityConfiguration,

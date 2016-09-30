@@ -2,15 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
 
 #if NETCOREAPP1_0
 using System.Threading;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>

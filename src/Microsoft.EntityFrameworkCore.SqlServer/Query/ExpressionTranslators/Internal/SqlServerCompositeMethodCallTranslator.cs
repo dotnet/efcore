@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqlServerStringToUpperTranslator(),
             new SqlServerStringTrimEndTranslator(),
             new SqlServerStringTrimStartTranslator(),
-            new SqlServerStringTrimTranslator(),
+            new SqlServerStringTrimTranslator()
         };
 
         // ReSharper disable once SuggestBaseTypeForParameter

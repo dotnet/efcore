@@ -29,19 +29,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public override SqliteTestStore CreateTestStore()
         {
             return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlite(_connectionString)
-                    .UseInternalServiceProvider(_serviceProvider);
-
-                using (var context = new FunkyDataContext(optionsBuilder.Options))
                 {
-                    context.Database.EnsureClean();
-                    FunkyDataModelInitializer.Seed(context);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlite(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    TestSqlLoggerFactory.Reset();
-                }
-            });
+                    using (var context = new FunkyDataContext(optionsBuilder.Options))
+                    {
+                        context.Database.EnsureClean();
+                        FunkyDataModelInitializer.Seed(context);
+
+                        TestSqlLoggerFactory.Reset();
+                    }
+                });
         }
 
         public override FunkyDataContext CreateContext(SqliteTestStore testStore)

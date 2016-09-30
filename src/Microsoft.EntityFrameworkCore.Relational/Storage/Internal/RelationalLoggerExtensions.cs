@@ -132,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         private static readonly double TimestampToMilliseconds = (double)TimeSpan.TicksPerSecond / (Stopwatch.Frequency * TimeSpan.TicksPerMillisecond);
+
         private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
             => (long)((currentTimestamp - startTimestamp) * TimestampToMilliseconds);
     }

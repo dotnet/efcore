@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class FromSqlNonComposedQuerySqlGenerator : DefaultQuerySqlGenerator
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         private readonly Expression _arguments;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public FromSqlNonComposedQuerySqlGenerator(
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression Visit(Expression expression)
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IRelationalValueBufferFactory CreateValueBufferFactory(
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                     {
                         var readerColumn
                             = readerColumns.SingleOrDefault(c =>
-                                string.Equals(columnName, c.Name, StringComparison.OrdinalIgnoreCase));
+                                    string.Equals(columnName, c.Name, StringComparison.OrdinalIgnoreCase));
 
                         if (readerColumn == null)
                         {

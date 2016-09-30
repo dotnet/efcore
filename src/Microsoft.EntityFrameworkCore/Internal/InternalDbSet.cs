@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override LocalView<TEntity> Local 
+        public override LocalView<TEntity> Local
             => _localView ?? (_localView = new LocalView<TEntity>(this));
 
         /// <summary>
@@ -86,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task<EntityEntry<TEntity>> AddAsync(
-            TEntity entity,
-            CancellationToken cancellationToken = default(CancellationToken))
+                TEntity entity,
+                CancellationToken cancellationToken = default(CancellationToken))
             => _context.AddAsync(entity, cancellationToken);
 
         /// <summary>
@@ -163,8 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task AddRangeAsync(
-            IEnumerable<TEntity> entities,
-            CancellationToken cancellationToken = default(CancellationToken))
+                IEnumerable<TEntity> entities,
+                CancellationToken cancellationToken = default(CancellationToken))
             => _context.AddRangeAsync(entities, cancellationToken);
 
         /// <summary>

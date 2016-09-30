@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> ConfigureWarnings(
-            [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
+                [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
             => (DbContextOptionsBuilder<TContext>)base.ConfigureWarnings(warningsConfigurationBuilderAction);
 
         /// <summary>
@@ -156,6 +156,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TImplementation"> The new implementation type for the service. </typeparam>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TImplementation>() where TImplementation : TService
-            => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TImplementation>();
+        => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TImplementation>();
     }
 }

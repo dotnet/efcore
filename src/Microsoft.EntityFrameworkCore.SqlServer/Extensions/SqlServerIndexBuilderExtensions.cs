@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="IndexBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="IndexBuilder" />.
     /// </summary>
     public static class SqlServerIndexBuilderExtensions
     {

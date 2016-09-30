@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Shaper shaper;
 
             if (QueryModelVisitor.QueryCompilationContext
-                .QuerySourceRequiresMaterialization(_querySource)
+                    .QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
             {
                 var materializer
@@ -345,18 +345,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Func<ValueBuffer, object> materializer,
             bool useQueryBuffer)
             where TEntity : class
-            => !useQueryBuffer
-                ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
-                    querySource,
-                    entityType,
-                    trackingQuery,
-                    key,
-                    materializer)
-                : new BufferedEntityShaper<TEntity>(
-                    querySource,
-                    entityType,
-                    trackingQuery,
-                    key,
-                    materializer);
+        => !useQueryBuffer
+            ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
+                querySource,
+                entityType,
+                trackingQuery,
+                key,
+                materializer)
+            : new BufferedEntityShaper<TEntity>(
+                querySource,
+                entityType,
+                trackingQuery,
+                key,
+                materializer);
     }
 }

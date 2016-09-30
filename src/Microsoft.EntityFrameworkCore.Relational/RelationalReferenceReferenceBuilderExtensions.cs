@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="ReferenceReferenceBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="ReferenceReferenceBuilder" />.
     /// </summary>
     public static class RelationalReferenceReferenceBuilderExtensions
     {
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
             where TRelatedEntity : class
-            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)HasConstraintName(
-                (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
+        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)HasConstraintName(
+            (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
     }
 }

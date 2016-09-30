@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     {
                         await RunDatabaseCreationTest(testDatabase, state.async);
                     }
-                }, new {async, file});
+                }, new { async, file });
         }
 
         private static async Task RunDatabaseCreationTest(SqlServerTestStore testStore, bool async)

@@ -16,7 +16,7 @@ namespace System.Collections.Generic
         public static IEnumerable<T> Distinct<T>(
             this IEnumerable<T> source, Func<T, T, bool> comparer)
             where T : class
-            => source.Distinct(new DynamicEqualityComparer<T>(comparer));
+        => source.Distinct(new DynamicEqualityComparer<T>(comparer));
 
         private sealed class DynamicEqualityComparer<T> : IEqualityComparer<T>
             where T : class

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         A parameter in an <see cref="IRelationalCommand"/>. Note that this interface just represents a
+    ///         A parameter in an <see cref="IRelationalCommand" />. Note that this interface just represents a
     ///         placeholder for a parameter and not the actual value. This is because the same command can be
     ///         reused multiple times with different parameter values.
     ///     </para>
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string InvariantName { get; }
 
         /// <summary>
-        ///     Adds the parameter as a <see cref="DbParameter"/> to a <see cref="DbCommand"/>.
+        ///     Adds the parameter as a <see cref="DbParameter" /> to a <see cref="DbCommand" />.
         /// </summary>
         /// <param name="command"> The command to add the parameter to. </param>
         /// <param name="value"> The value to be assigned to the parameter. </param>

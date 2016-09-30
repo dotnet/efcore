@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 => new NonGenericStringTestModelBuilder(ModelBuilder.Entity(typeof(TEntity), entityTypeBuilder =>
-                    buildAction(new NonGenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+                        buildAction(new NonGenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
 
             public override TestModelBuilder Ignore<TEntity>()
                 => new NonGenericStringTestModelBuilder(ModelBuilder.Ignore(typeof(TEntity)));
@@ -292,12 +292,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             public NonGenericStringTestReferenceReferenceBuilder HasForeignKey(
-                string dependentEntityTypeName, params string[] foreignKeyPropertyNames)
+                    string dependentEntityTypeName, params string[] foreignKeyPropertyNames)
                 => new NonGenericStringTestReferenceReferenceBuilder(
                     ReferenceReferenceBuilder.HasForeignKey(dependentEntityTypeName, foreignKeyPropertyNames));
 
             public NonGenericStringTestReferenceReferenceBuilder HasPrincipalKey(
-                string principalEntityTypeName, params string[] keyPropertyNames)
+                    string principalEntityTypeName, params string[] keyPropertyNames)
                 => new NonGenericStringTestReferenceReferenceBuilder
                     (ReferenceReferenceBuilder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames));
 

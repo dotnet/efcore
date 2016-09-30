@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class InterceptingLogger<T> : ILogger<T>
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly WarningsConfiguration _warningsConfiguration;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InterceptingLogger(
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Log<TState>(
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 if (warningBehavior == WarningBehavior.Log
                     && IsEnabled(logLevel))
                 {
-                    _logger.Log(logLevel, eventId, state, exception, 
+                    _logger.Log(logLevel, eventId, state, exception,
                         (s, _) => CoreStrings.WarningLogTemplate(
                             formatter(s, _), $"{state.GetType().Name}.{state}"));
                 }
@@ -78,14 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsEnabled(LogLevel logLevel)
             => _logger.IsEnabled(logLevel);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IDisposable BeginScope<TState>(TState state)

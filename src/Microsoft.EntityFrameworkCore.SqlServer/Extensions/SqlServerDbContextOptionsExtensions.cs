@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="DbContextOptionsBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="DbContextOptionsBuilder" />.
     /// </summary>
     public static class SqlServerDbContextOptionsExtensions
     {
@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string connectionString,
             [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
             where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)UseSqlServer(
-                (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)UseSqlServer(
+            (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
         /// <summary>
@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] DbConnection connection,
             [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
             where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)UseSqlServer(
-                (DbContextOptionsBuilder)optionsBuilder, connection, sqlServerOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)UseSqlServer(
+            (DbContextOptionsBuilder)optionsBuilder, connection, sqlServerOptionsAction);
 
         private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
         {

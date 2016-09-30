@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
 
             VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
-                nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "default_int_mapping", "just_string(2000)"),
+                    nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "default_int_mapping", "just_string(2000)"),
                 modelBuilder.Model);
         }
 
@@ -216,11 +216,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().HasOne<Animal>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyPrincipalTableMismatch(
-                "{'FriendId'}", nameof(Dog),
-                "{'FriendId'}", nameof(Cat),
-                nameof(Animal), "FK",
-                nameof(Animal),
-                nameof(Person)),
+                    "{'FriendId'}", nameof(Dog),
+                    "{'FriendId'}", nameof(Cat),
+                    nameof(Animal), "FK",
+                    nameof(Animal),
+                    nameof(Person)),
                 modelBuilder.Model);
         }
 
@@ -234,11 +234,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyColumnMismatch(
-                "{'FriendId'}", nameof(Dog),
-                "{'FriendId', 'Shadow'}", nameof(Cat),
-                nameof(Animal), "FK",
-                "{'FriendId'}",
-                "{'FriendId', 'Shadow'}"),
+                    "{'FriendId'}", nameof(Dog),
+                    "{'FriendId', 'Shadow'}", nameof(Cat),
+                    nameof(Animal), "FK",
+                    "{'FriendId'}",
+                    "{'FriendId', 'Shadow'}"),
                 modelBuilder.Model);
         }
 
@@ -251,11 +251,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Breed, d.Name }).HasPrincipalKey(p => new { p.FavoriteBreed, p.Name }).HasConstraintName("FK");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyColumnMismatch(
-                "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
-                nameof(Animal), "FK",
-                "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}",
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
+                    "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
+                    nameof(Animal), "FK",
+                    "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}",
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
                 modelBuilder.Model);
         }
 
@@ -269,11 +269,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyColumnMismatch(
-                "{'" + nameof(Dog.Name) + "', '" + nameof(Dog.Breed) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
-                nameof(Animal), "FK",
-                "{'" + nameof(Dog.Name) + "', 'DogBreed'}",
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
+                    "{'" + nameof(Dog.Name) + "', '" + nameof(Dog.Breed) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
+                    nameof(Animal), "FK",
+                    "{'" + nameof(Dog.Name) + "', 'DogBreed'}",
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
                 modelBuilder.Model);
         }
 
@@ -291,11 +291,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(RelationalStrings.DuplicateForeignKeyPrincipalColumnMismatch(
-                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
-                nameof(Animal), "FK",
-                "{'" + nameof(Person.FavoriteBreed) + "'}",
-                "{'" + nameof(Person.Name) + "'}"),
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                    nameof(Animal), "FK",
+                    "{'" + nameof(Person.FavoriteBreed) + "'}",
+                    "{'" + nameof(Person.Name) + "'}"),
                 modelBuilder.Model);
         }
 
@@ -308,9 +308,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().HasOne<Person>().WithOne().HasForeignKey<Dog>(d => d.Name).HasPrincipalKey<Person>(p => p.Name);
 
             VerifyError(RelationalStrings.DuplicateForeignKeyUniquenessMismatch(
-                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
-                nameof(Animal), "FK_Animal_Person_Name"),
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                    nameof(Animal), "FK_Animal_Person_Name"),
                 modelBuilder.Model);
         }
 
@@ -325,10 +325,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 .OnDelete(DeleteBehavior.SetNull);
 
             VerifyError(RelationalStrings.DuplicateForeignKeyDeleteBehaviorMismatch(
-                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
-                nameof(Animal), "FK_Animal_Person_Name",
-                DeleteBehavior.SetNull, DeleteBehavior.Cascade),
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                    nameof(Animal), "FK_Animal_Person_Name",
+                    DeleteBehavior.SetNull, DeleteBehavior.Cascade),
                 modelBuilder.Model);
         }
 
@@ -365,11 +365,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasName("IX");
 
             VerifyError(RelationalStrings.DuplicateIndexColumnMismatch(
-                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "', 'Shadow'}", nameof(Cat),
-                nameof(Animal), "IX",
-                "{'" + nameof(Dog.Name) + "'}",
-                "{'" + nameof(Cat.Name) + "', 'Shadow'}"),
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "', 'Shadow'}", nameof(Cat),
+                    nameof(Animal), "IX",
+                    "{'" + nameof(Dog.Name) + "'}",
+                    "{'" + nameof(Cat.Name) + "', 'Shadow'}"),
                 modelBuilder.Model);
         }
 
@@ -382,11 +382,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().HasIndex(d => new { d.Breed, d.Name }).HasName("IX");
 
             VerifyError(RelationalStrings.DuplicateIndexColumnMismatch(
-                "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
-                nameof(Animal), "IX",
-                "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}",
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
+                    "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
+                    nameof(Animal), "IX",
+                    "{'" + nameof(Dog.Breed) + "', '" + nameof(Dog.Name) + "'}",
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
                 modelBuilder.Model);
         }
 
@@ -400,11 +400,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(RelationalStrings.DuplicateIndexColumnMismatch(
-                "{'" + nameof(Dog.Name) + "', '" + nameof(Dog.Breed) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
-                nameof(Animal), "IX",
-                "{'" + nameof(Dog.Name) + "', 'DogBreed'}",
-                "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
+                    "{'" + nameof(Dog.Name) + "', '" + nameof(Dog.Breed) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}", nameof(Cat),
+                    nameof(Animal), "IX",
+                    "{'" + nameof(Dog.Name) + "', 'DogBreed'}",
+                    "{'" + nameof(Cat.Name) + "', '" + nameof(Cat.Breed) + "'}"),
                 modelBuilder.Model);
         }
 
@@ -417,9 +417,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false);
 
             VerifyError(RelationalStrings.DuplicateIndexUniquenessMismatch(
-                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
-                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
-                nameof(Animal), "IX_Animal_Name"),
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                    nameof(Animal), "IX_Animal_Name"),
                 modelBuilder.Model);
         }
 

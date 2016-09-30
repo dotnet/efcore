@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
-    class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
+    internal class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         [Fact]
         public void GroupBy_with_uninitialized_datetime_projection_3595()
@@ -24,9 +24,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 {
                     var q0 = from instance in context.Exams
                              join question in context.ExamQuestions
-                                on instance.Id equals question.ExamId
+                             on instance.Id equals question.ExamId
                              where instance.Id != 3
-                             group question by question.QuestionId into gQuestions
+                             group question by question.QuestionId
+                             into gQuestions
                              select new
                              {
                                  gQuestions.Key,
@@ -314,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             public Entity3101()
             {
-                this.Children = new Collection<Child3101>();
+                Children = new Collection<Child3101>();
             }
 
             public int Id { get; set; }
@@ -355,14 +356,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             using (CreateScratch<MyContext5456>(Seed5456))
             {
                 Parallel.For(0, 10, async i =>
-                {
-                    using (var ctx = new MyContext5456())
                     {
-                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+                        using (var ctx = new MyContext5456())
+                        {
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
 
-                        Assert.Equal(198, result.Count);
-                    }
-                });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
@@ -372,14 +373,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             using (CreateScratch<MyContext5456>(Seed5456))
             {
                 Parallel.For(0, 10, i =>
-                {
-                    using (var ctx = new MyContext5456())
                     {
-                        var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+                        using (var ctx = new MyContext5456())
+                        {
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
 
-                        Assert.Equal(198, result.Count);
-                    }
-                });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
@@ -389,14 +390,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             using (CreateScratch<MyContext5456>(Seed5456))
             {
                 Parallel.For(0, 10, async i =>
-                {
-                    using (var ctx = new MyContext5456())
                     {
-                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+                        using (var ctx = new MyContext5456())
+                        {
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
 
-                        Assert.Equal(198, result.Count);
-                    }
-                });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
@@ -406,14 +407,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             using (CreateScratch<MyContext5456>(Seed5456))
             {
                 Parallel.For(0, 10, i =>
-                {
-                    using (var ctx = new MyContext5456())
                     {
-                        var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+                        using (var ctx = new MyContext5456())
+                        {
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
 
-                        Assert.Equal(198, result.Count);
-                    }
-                });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
@@ -423,14 +424,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             using (CreateScratch<MyContext5456>(Seed5456))
             {
                 Parallel.For(0, 10, async i =>
-                {
-                    using (var ctx = new MyContext5456())
                     {
-                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+                        using (var ctx = new MyContext5456())
+                        {
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
 
-                        Assert.Equal(198, result.Count);
-                    }
-                });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
@@ -498,20 +499,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> Seed)
             where TContext : DbContext, new()
-            => InMemoryTestStore.CreateScratch(
-                () =>
+        => InMemoryTestStore.CreateScratch(
+            () =>
+                {
+                    using (var context = new TContext())
                     {
-                        using (var context = new TContext())
-                        {
-                            Seed(context);
-                        }
-                    },
-                () =>
+                        Seed(context);
+                    }
+                },
+            () =>
+                {
+                    using (var context = new Context3595())
                     {
-                        using (var context = new Context3595())
-                        {
-                            context.GetInfrastructure().GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
-                        }
-                    });
+                        context.GetInfrastructure().GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
+                    }
+                });
     }
 }

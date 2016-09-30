@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQLite specific extension methods for <see cref="DbContextOptionsBuilder"/>.
+    ///     SQLite specific extension methods for <see cref="DbContextOptionsBuilder" />.
     /// </summary>
     public static class SqliteDbContextOptionsBuilderExtensions
     {
@@ -84,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string connectionString,
             [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
             where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)UseSqlite(
-                (DbContextOptionsBuilder)optionsBuilder, connectionString, sqliteOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)UseSqlite(
+            (DbContextOptionsBuilder)optionsBuilder, connectionString, sqliteOptionsAction);
 
         /// <summary>
         ///     Configures the context to connect to a SQLite database.
@@ -104,8 +104,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] DbConnection connection,
             [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
             where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)UseSqlite(
-                (DbContextOptionsBuilder)optionsBuilder, connection, sqliteOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)UseSqlite(
+            (DbContextOptionsBuilder)optionsBuilder, connection, sqliteOptionsAction);
 
         private static SqliteOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder options)
         {

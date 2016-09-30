@@ -609,10 +609,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ForeignKey AddForeignKey(
-            [NotNull] Property property,
-            [NotNull] Key principalKey,
-            [NotNull] EntityType principalEntityType,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+                [NotNull] Property property,
+                [NotNull] Key principalKey,
+                [NotNull] EntityType principalEntityType,
+                ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => AddForeignKey(new[] { property }, principalKey, principalEntityType, configurationSource);
 
         /// <summary>
@@ -725,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] Property property, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
+                [NotNull] Property property, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
             => GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
 
         // Note: this will return an existing foreign key even if it doesn't have the same referenced key
@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
+                [NotNull] IReadOnlyList<Property> properties, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType)
                ?? AddForeignKey(properties, principalKey, principalEntityType);
 
@@ -763,9 +763,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ForeignKey FindForeignKey(
-            [NotNull] IProperty property,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+                [NotNull] IProperty property,
+                [NotNull] IKey principalKey,
+                [NotNull] IEntityType principalEntityType)
             => FindForeignKey(new[] { property }, principalKey, principalEntityType);
 
         /// <summary>
@@ -840,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
-            [NotNull] IReadOnlyList<IProperty> properties)
+                [NotNull] IReadOnlyList<IProperty> properties)
             => GetDerivedTypes().SelectMany(et => et.FindDeclaredForeignKeys(properties));
 
         /// <summary>
@@ -848,9 +848,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+                [NotNull] IReadOnlyList<IProperty> properties,
+                [NotNull] IKey principalKey,
+                [NotNull] IEntityType principalEntityType)
             => GetDerivedTypes().Select(et => et.FindDeclaredForeignKey(properties, principalKey, principalEntityType))
                 .Where(fk => fk != null);
 
@@ -859,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
-            [NotNull] IReadOnlyList<IProperty> properties)
+                [NotNull] IReadOnlyList<IProperty> properties)
             => FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
 
         /// <summary>
@@ -867,9 +867,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType)
+                [NotNull] IReadOnlyList<IProperty> properties,
+                [NotNull] IKey principalKey,
+                [NotNull] IEntityType principalEntityType)
             => ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
                 .Concat(FindDerivedForeignKeys(properties, principalKey, principalEntityType));
 
@@ -1155,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Index AddIndex([NotNull] Property property,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+                ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => AddIndex(new[] { property }, configurationSource);
 
         /// <summary>
@@ -1805,11 +1805,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableKey IMutableEntityType.RemoveKey(IReadOnlyList<IProperty> properties) => RemoveKey(properties);
 
         IMutableForeignKey IMutableEntityType.AddForeignKey(
-            IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
+                IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
             => AddForeignKey(properties.Cast<Property>().ToList(), (Key)principalKey, (EntityType)principalEntityType);
 
         IMutableForeignKey IMutableEntityType.FindForeignKey(
-            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+                IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
         IForeignKey IEntityType.FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
@@ -1819,7 +1819,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IMutableForeignKey> IMutableEntityType.GetForeignKeys() => GetForeignKeys();
 
         IMutableForeignKey IMutableEntityType.RemoveForeignKey(
-            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+                IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => RemoveForeignKey(properties, principalKey, principalEntityType);
 
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
@@ -1844,7 +1844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static IEnumerable<T> ToEnumerable<T>(T element)
             where T : class
-            => element == null ? Enumerable.Empty<T>() : new[] { element };
+        => element == null ? Enumerable.Empty<T>() : new[] { element };
 
         private class PropertyComparer : IComparer<string>
         {

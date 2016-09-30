@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
 
 #pragma warning disable 1998
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture>
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public async Task Single_Predicate_Cancellation()
         {
             await Assert.ThrowsAsync<TaskCanceledException>(async () =>
-                await Single_Predicate_Cancellation(Fixture.CancelQuery()));
+                    await Single_Predicate_Cancellation(Fixture.CancelQuery()));
         }
 
         public AsyncQuerySqliteTest(NorthwindQuerySqliteFixture fixture)

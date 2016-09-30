@@ -117,5 +117,4 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
     }
 }
-
 #endif

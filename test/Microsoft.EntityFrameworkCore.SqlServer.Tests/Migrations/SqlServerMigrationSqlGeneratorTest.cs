@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     DefaultValue = 0,
                     IsNullable = false,
                     [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
-                        SqlServerValueGenerationStrategy.IdentityColumn
+                    SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Name = "Id",
                     ClrType = typeof(int),
                     [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
-                        SqlServerValueGenerationStrategy.IdentityColumn
+                    SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -298,10 +298,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity("Person", x =>
-                    {
-                        x.Property<string>("FullName").ForSqlServerHasComputedColumnSql("[FirstName] + ' ' + [LastName]");
-                        x.HasIndex("FullName");
-                    }),
+                        {
+                            x.Property<string>("FullName").ForSqlServerHasComputedColumnSql("[FirstName] + ' ' + [LastName]");
+                            x.HasIndex("FullName");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -336,11 +336,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity("Person", x =>
-                    {
-                        x.ForSqlServerIsMemoryOptimized();
-                        x.Property<string>("Name");
-                        x.HasIndex("Name");
-                    }),
+                        {
+                            x.ForSqlServerIsMemoryOptimized();
+                            x.Property<string>("Name");
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     MaxLength = 30,
                     OldColumn = new ColumnOperation
                     {
-                        ClrType = typeof(string),
+                        ClrType = typeof(string)
                     },
                     [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
                 });
@@ -374,10 +374,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity("Person", x =>
-                    {
-                        x.Property<string>("Name");
-                        x.HasIndex("Name");
-                    }),
+                        {
+                            x.Property<string>("Name");
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -409,10 +409,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity("Person", x =>
-                    {
-                        x.Property<string>("Name").HasMaxLength(30);
-                        x.HasIndex("Name");
-                    }),
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -447,10 +447,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.0.0-rtm")
                     .Entity("Person", x =>
-                    {
-                        x.Property<string>("Name").HasMaxLength(30);
-                        x.HasIndex("Name");
-                    }),
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -479,11 +479,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity("Person", x =>
-                    {
-                        x.Property<string>("FirstName").IsRequired();
-                        x.Property<string>("LastName");
-                        x.HasIndex("FirstName", "LastName");
-                    }),
+                        {
+                            x.Property<string>("FirstName").IsRequired();
+                            x.Property<string>("LastName");
+                            x.HasIndex("FirstName", "LastName");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -784,10 +784,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder.Entity(
                     "People",
                     x =>
-                    {
-                        x.Property<string>("FirstName");
-                        x.Property<string>("LastName").IsRequired();
-                    }),
+                        {
+                            x.Property<string>("FirstName");
+                            x.Property<string>("LastName").IsRequired();
+                        }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",

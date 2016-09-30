@@ -257,7 +257,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual EntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
             => (EntityTypeBuilder<TEntity>)base.HasChangeTrackingStrategy(changeTrackingStrategy);
 
-
         /// <summary>
         ///     <para>
         ///         Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.

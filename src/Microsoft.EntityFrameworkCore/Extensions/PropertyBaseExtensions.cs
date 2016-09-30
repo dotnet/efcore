@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBase"> The property for which to get the access mode. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         public static PropertyAccessMode? GetPropertyAccessMode(
-            [NotNull] this IPropertyBase propertyBase)
+                [NotNull] this IPropertyBase propertyBase)
             => (PropertyAccessMode?)Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
                ?? propertyBase.DeclaringType.GetPropertyAccessMode();
     }

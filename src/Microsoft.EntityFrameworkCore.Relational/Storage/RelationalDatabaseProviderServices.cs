@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public abstract class RelationalDatabaseProviderServices : DatabaseProviderServices, IRelationalDatabaseProviderServices
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDatabaseProviderServices"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDatabaseProviderServices" /> class.
         /// </summary>
         /// <param name="services"> The service provider to resolve services from. </param>
         protected RelationalDatabaseProviderServices([NotNull] IServiceProvider services)

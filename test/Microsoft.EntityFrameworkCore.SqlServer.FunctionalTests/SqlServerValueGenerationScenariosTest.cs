@@ -582,7 +582,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
                     // SqlException : Cannot insert explicit value for identity column in table 
                     // 'Blog' when IDENTITY_INSERT is set to OFF.
                     context.Database.CreateExecutionStrategy().Execute(c =>
-                        Assert.Throws<DbUpdateException>(() => c.SaveChanges()), context);
+                            Assert.Throws<DbUpdateException>(() => c.SaveChanges()), context);
                 }
             }
         }

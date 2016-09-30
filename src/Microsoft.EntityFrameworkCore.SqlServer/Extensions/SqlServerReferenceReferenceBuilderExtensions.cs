@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="ReferenceReferenceBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="ReferenceReferenceBuilder" />.
     /// </summary>
     public static class SqlServerReferenceReferenceBuilderExtensions
     {
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
             where TRelatedEntity : class
-            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ForSqlServerHasConstraintName(
-                (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
+        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ForSqlServerHasConstraintName(
+            (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
     }
 }

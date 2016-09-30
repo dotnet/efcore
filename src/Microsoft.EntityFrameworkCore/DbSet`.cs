@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
-        ///         Gets an <see cref="LocalView{T}" /> that represents a local view of all Added, Unchanged,
+        ///         Gets an <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
         ///         and Modified entities in this set.
         ///     </para>
         ///     <para>

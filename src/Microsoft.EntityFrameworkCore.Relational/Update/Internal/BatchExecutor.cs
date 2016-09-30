@@ -13,13 +13,13 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class BatchExecutor : IBatchExecutor
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public BatchExecutor([NotNull] ICurrentDbContext currentContext, [NotNull] IExecutionStrategyFactory executionStrategyFactory)
@@ -29,24 +29,24 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ICurrentDbContext CurrentContext { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int Execute(
-            IEnumerable<ModificationCommandBatch> commandBatches,
-            IRelationalConnection connection)
+                IEnumerable<ModificationCommandBatch> commandBatches,
+                IRelationalConnection connection)
             => GetExecutionStrategy().Execute(Execute, Tuple.Create(commandBatches, connection));
 
         private int Execute(Tuple<IEnumerable<ModificationCommandBatch>, IRelationalConnection> parameters)
@@ -85,13 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<int> ExecuteAsync(
-            IEnumerable<ModificationCommandBatch> commandBatches,
-            IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
+                IEnumerable<ModificationCommandBatch> commandBatches,
+                IRelationalConnection connection,
+                CancellationToken cancellationToken = default(CancellationToken))
             => GetExecutionStrategy().ExecuteAsync(ExecuteAsync, Tuple.Create(commandBatches, connection), cancellationToken);
 
         private async Task<int> ExecuteAsync(

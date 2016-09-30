@@ -151,7 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotNull(propertyType, nameof(propertyType)),
                 ConfigurationSource.Explicit));
 
-
         /// <summary>
         ///     <para>
         ///         Returns an object that can be used to configure a property of the entity type.
@@ -340,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder HasOneBuilder(
-            [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
+                [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => HasOneBuilder(relatedEntityType, PropertyIdentity.Create(navigationName));
 
         /// <summary>
@@ -348,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder HasOneBuilder(
-            [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
+                [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
             => HasOneBuilder(relatedEntityType, PropertyIdentity.Create(navigationProperty));
 
         private InternalRelationshipBuilder HasOneBuilder(EntityType relatedEntityType, PropertyIdentity navigation)
@@ -373,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder HasManyBuilder(
-            [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
+                [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => relatedEntityType.Builder
                 .Relationship(Builder, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
@@ -385,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder HasManyBuilder(
-            [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
+                [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
             => relatedEntityType.Builder
                 .Relationship(Builder, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)

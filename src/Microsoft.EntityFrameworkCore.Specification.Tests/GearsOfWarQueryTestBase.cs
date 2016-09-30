@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable ReplaceWithSingleCallToSingle
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class GearsOfWarQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
@@ -711,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     {
                         BitwiseTrue = (b.Rank & MilitaryRank.Corporal) == MilitaryRank.Corporal,
                         BitwiseFalse = (b.Rank & MilitaryRank.Corporal) == MilitaryRank.Sergeant,
-                        BitwiseValue = b.Rank & MilitaryRank.Corporal,
+                        BitwiseValue = b.Rank & MilitaryRank.Corporal
                     }).First();
 
                 Assert.True(gear.BitwiseTrue);
@@ -821,7 +820,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Select(b => new
                     {
                         hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
-                        hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant),
+                        hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
                     }).First();
 
                 Assert.True(gear.hasFlagTrue);
@@ -1088,7 +1087,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Where(g => ((null != g.LeaderNickname ? (int?)(EF.Property<string>(g, "LeaderNickname").Length) : (int?)null) == 5) == (bool?)true)
+                    .Where(g => (null != g.LeaderNickname ? (int?)EF.Property<string>(g, "LeaderNickname").Length : (int?)null) == 5 == (bool?)true)
                     .ToList();
 
                 var result = query.ToList();
@@ -1327,8 +1326,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var gears
                     = (from ct in context.Set<CogTag>()
                        join g in context.Set<Gear>()
-                           on new { N = ct.GearNickName, S = ct.GearSquadId }
-                           equals new { N = g.Nickname, S = (int?)g.SquadId } into gs
+                       on new { N = ct.GearNickName, S = ct.GearSquadId }
+                       equals new { N = g.Nickname, S = (int?)g.SquadId } into gs
                        from g in gs
                        select g).ToList();
 
@@ -1376,7 +1375,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = (from t in context.Tags
                              join g in context.Gears.OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName }
-                                 equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
+                             equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
                              select g).Include(g => g.Tag);
 
                 var result = query.ToList();
@@ -1392,7 +1391,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = (from g in context.Gears.OfType<Officer>()
                              join t in context.Tags on new { id1 = (int?)g.SquadId, id2 = g.Nickname }
-                                 equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
+                             equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
                              select g).Include(g => g.Tag);
 
                 var result = query.ToList();
@@ -1772,7 +1771,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new int[] { t.Gear.SquadId });
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new[] { t.Gear.SquadId });
                 var result = query.ToList();
 
                 Assert.Equal(5, result.Count);

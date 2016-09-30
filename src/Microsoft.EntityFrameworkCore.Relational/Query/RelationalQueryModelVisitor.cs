@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     A map of query source to select expression.
         /// </value>
-        protected virtual Dictionary<IQuerySource, SelectExpression> QueriesBySource { get; }
-            = new Dictionary<IQuerySource, SelectExpression>();
+        protected virtual Dictionary<IQuerySource, SelectExpression> QueriesBySource { get; } =
+            new Dictionary<IQuerySource, SelectExpression>();
 
         private readonly Dictionary<IQuerySource, RelationalQueryModelVisitor> _subQueryModelVisitorsBySource
             = new Dictionary<IQuerySource, RelationalQueryModelVisitor>();
@@ -461,8 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectExpression.Tables.Count == 1)
             {
                 if (previousSelectExpression != null
-                      && !RequiresClientJoin
-                      && CanFlattenSelectMany())
+                    && !RequiresClientJoin
+                    && CanFlattenSelectMany())
                 {
                     if (!QueryCompilationContext.QuerySourceRequiresMaterialization(previousQuerySource))
                     {
@@ -514,11 +514,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var selectManyExpression = Expression as MethodCallExpression;
 
-            return selectManyExpression != null 
-                && selectManyExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.SelectMany) 
-                && IsShapedQueryExpression(selectManyExpression.Arguments[0] as MethodCallExpression, innerShapedQuery: false) 
-                && IsShapedQueryExpression((selectManyExpression.Arguments[1] as LambdaExpression)
-                    ?.Body as MethodCallExpression, innerShapedQuery: true);
+            return selectManyExpression != null
+                   && selectManyExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.SelectMany)
+                   && IsShapedQueryExpression(selectManyExpression.Arguments[0] as MethodCallExpression, innerShapedQuery: false)
+                   && IsShapedQueryExpression((selectManyExpression.Arguments[1] as LambdaExpression)
+                       ?.Body as MethodCallExpression, innerShapedQuery: true);
         }
 
         private bool IsShapedQueryExpression(MethodCallExpression shapedQueryExpression, bool innerShapedQuery)
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             if (innerShapedQuery && (shapedQueryExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
-                || shapedQueryExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg)))
+                                     || shapedQueryExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg)))
             {
                 shapedQueryExpression = shapedQueryExpression.Arguments.Single() as MethodCallExpression;
                 if (shapedQueryExpression == null)
@@ -823,10 +823,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             var joinExpression = Expression as MethodCallExpression;
 
             return joinExpression != null
-                && (joinExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Join)
-                    || joinExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin))
-                && IsShapedQueryExpression(joinExpression.Arguments[0] as MethodCallExpression, innerShapedQuery: false)
-                && IsShapedQueryExpression(joinExpression.Arguments[1] as MethodCallExpression, innerShapedQuery: true);
+                   && (joinExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Join)
+                       || joinExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin))
+                   && IsShapedQueryExpression(joinExpression.Arguments[0] as MethodCallExpression, innerShapedQuery: false)
+                   && IsShapedQueryExpression(joinExpression.Arguments[1] as MethodCallExpression, innerShapedQuery: true);
         }
 
         private class OuterJoinOrderingExtractor : ExpressionVisitor
@@ -933,10 +933,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var newExpression
                         = new QuerySourceUpdater(
-                            querySource,
-                            QueryCompilationContext,
-                            LinqOperatorProvider,
-                            subSelectExpression)
+                                querySource,
+                                QueryCompilationContext,
+                                LinqOperatorProvider,
+                                subSelectExpression)
                             .Visit(subQueryModelVisitor.Expression);
 
                     return newExpression;
@@ -1008,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     if (methodCallExpression.Method.MethodIsClosedFormOf(
-                        _linqOperatorProvider.Cast)
+                            _linqOperatorProvider.Cast)
                         && arguments[0].Type.GetSequenceType() == typeof(ValueBuffer))
                     {
                         return arguments[0];
@@ -1284,16 +1284,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(expression, nameof(expression));
 
             return BindMethodCallExpression(
-                methodCallExpression,
-                (property, querySource, selectExpression) =>
-                    {
-                        var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
+                       methodCallExpression,
+                       (property, querySource, selectExpression) =>
+                           {
+                               var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-                        Debug.Assert(projectionIndex > -1);
+                               Debug.Assert(projectionIndex > -1);
 
-                        return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
-                    },
-                bindSubQueries: true)
+                               return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
+                           },
+                       bindSubQueries: true)
                    ?? ParentQueryModelVisitor?
                        .BindMethodCallToValueBuffer(methodCallExpression, expression);
         }

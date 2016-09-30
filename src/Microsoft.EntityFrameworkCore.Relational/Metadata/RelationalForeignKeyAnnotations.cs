@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get
             {
                 return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.Name,
-                    ProviderFullAnnotationNames?.Name)
+                           RelationalFullAnnotationNames.Instance.Name,
+                           ProviderFullAnnotationNames?.Name)
                        ?? GetDefaultName();
             }
             [param: CanBeNull] set { SetName(value); }

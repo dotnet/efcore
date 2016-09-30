@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private readonly CoreOptionsExtension _coreOptionsExtension;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SensitiveDataLogger{T}"/> class.
+        ///     Initializes a new instance of the <see cref="SensitiveDataLogger{T}" /> class.
         /// </summary>
         /// <param name="logger">
         ///     The underlying logger to which logging information should be written.

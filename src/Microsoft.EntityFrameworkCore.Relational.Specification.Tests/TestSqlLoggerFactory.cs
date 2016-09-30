@@ -68,23 +68,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 #if NET451
             [NonSerialized]
 #endif
-                public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
+            public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
 
             public readonly List<string> _sqlStatements = new List<string>();
 #if NET451
             [NonSerialized]
 #endif
-                public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
+            public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
 
 #if NET451
             [NonSerialized]
 #endif
-                public ITestOutputHelper _testOutputHelper;
+            public ITestOutputHelper _testOutputHelper;
 
 #if NET451
             [NonSerialized]
 #endif
-                public CancellationTokenSource _cancellationTokenSource;
+            public CancellationTokenSource _cancellationTokenSource;
 
             // ReSharper restore InconsistentNaming
         }

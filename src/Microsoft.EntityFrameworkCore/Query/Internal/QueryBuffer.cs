@@ -150,11 +150,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Include(
-            QueryContext queryContext,
-            object entity,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool queryStateManager)
+                QueryContext queryContext,
+                object entity,
+                IReadOnlyList<INavigation> navigationPath,
+                IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+                bool queryStateManager)
             => Include(
                 queryContext,
                 entity,
@@ -211,12 +211,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task IncludeAsync(
-            QueryContext queryContext,
-            object entity,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool queryStateManager,
-            CancellationToken cancellationToken)
+                QueryContext queryContext,
+                object entity,
+                IReadOnlyList<INavigation> navigationPath,
+                IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
+                bool queryStateManager,
+                CancellationToken cancellationToken)
             => IncludeAsync(
                 queryContext,
                 entity,

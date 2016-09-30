@@ -567,10 +567,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 "    .Annotation(\"foo\", \"bar\")" + EOL +
                 "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
-                {
-                    Assert.Equal("bar", o["foo"]);
-                    Assert.Equal("foo", o.OldDatabase["bar"]);
-                });
+                    {
+                        Assert.Equal("bar", o["foo"]);
+                        Assert.Equal("foo", o.OldDatabase["bar"]);
+                    });
         }
 
         [Fact]
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                         IncrementBy = 4,
                         MinValue = 3,
                         MaxValue = 5,
-                        IsCyclic = true,
+                        IsCyclic = true
                     }
                 },
                 "mb.AlterSequence(" + EOL +
@@ -654,10 +654,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 "    name: \"Customer\"," + EOL +
                 "    schema: \"dbo\");",
                 o =>
-                {
-                    Assert.Equal("Customer", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                });
+                    {
+                        Assert.Equal("Customer", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                    });
         }
 
         [Fact]

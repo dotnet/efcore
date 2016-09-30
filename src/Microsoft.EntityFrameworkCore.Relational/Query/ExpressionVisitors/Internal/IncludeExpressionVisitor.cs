@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     .GetTypeInfo().GetDeclaredMethod(nameof(GroupJoinInclude.WithEntityAccessor));
 
                 var existingGroupJoinIncludeExpression = existingGroupJoinIncludeWithAccessor != null
-                    && existingGroupJoinIncludeWithAccessor.Method == withAccessorMethodInfo
+                                                         && existingGroupJoinIncludeWithAccessor.Method == withAccessorMethodInfo
                     ? existingGroupJoinIncludeWithAccessor.Object
                     : existingGroupJoinIncludeArgument;
 
@@ -173,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var groupJoinIncludeExpression = (Expression)Expression.Constant(groupJoinInclude);
                     var accessorLambda = shaper.GetAccessorExpression(_querySource) as LambdaExpression;
-                    if (accessorLambda != null && accessorLambda.Parameters.Single().Type.GetTypeInfo().IsValueType)
+                    if (accessorLambda != null
+                        && accessorLambda.Parameters.Single().Type.GetTypeInfo().IsValueType)
                     {
                         groupJoinIncludeExpression = Expression.Call(
                             groupJoinIncludeExpression,
@@ -253,11 +254,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 targetEntityType,
                                 selectExpression,
                                 (p, se) => se.AddToProjection(
-                                    new AliasExpression(
-                                        new ColumnExpression(
-                                            _relationalAnnotationProvider.For(p).ColumnName,
-                                            p,
-                                            joinedTableExpression))) - valueBufferOffset,
+                                               new AliasExpression(
+                                                   new ColumnExpression(
+                                                       _relationalAnnotationProvider.For(p).ColumnName,
+                                                       p,
+                                                       joinedTableExpression))) - valueBufferOffset,
                                 querySource: null);
 
                     if (selectExpression.Predicate != oldPredicate)
@@ -428,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 {
                                     qc,
                                     _shaperCommandContextFactory.Create(() =>
-                                        _querySqlGeneratorFactory.CreateDefault(targetSelectExpression)),
+                                            _querySqlGeneratorFactory.CreateDefault(targetSelectExpression)),
                                     queryIndex,
                                     materializer.Compile() // TODO: Used cached materializer?
                                 }));
@@ -615,10 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     return selectExpression.Tables.SelectMany(ExtractProjections);
                 }
-                else
-                {
-                    return selectExpression.Projection.ToList();
-                }
+                return selectExpression.Projection.ToList();
             }
 
             var joinExpression = tableExpression as JoinExpressionBase;

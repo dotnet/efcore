@@ -23,7 +23,6 @@ using Xunit;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
-
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 {
     public class ReaderModificationCommandBatchTest
@@ -316,8 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             batch.AddCommand(command);
 
             Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(connection))).Message);
+            (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                async () => await batch.ExecuteAsync(connection))).Message);
         }
 
         [Fact]
@@ -336,8 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             batch.AddCommand(command);
 
             Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(connection))).Message);
+            (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                async () => await batch.ExecuteAsync(connection))).Message);
         }
 
         [Fact]

@@ -39,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         public virtual bool CanSetAnnotation(
-            [NotNull] string relationalAnnotationName,
-            [CanBeNull] string providerAnnotationName,
-            [CanBeNull] object value)
+                [NotNull] string relationalAnnotationName,
+                [CanBeNull] string providerAnnotationName,
+                [CanBeNull] object value)
             => true;
     }
 }

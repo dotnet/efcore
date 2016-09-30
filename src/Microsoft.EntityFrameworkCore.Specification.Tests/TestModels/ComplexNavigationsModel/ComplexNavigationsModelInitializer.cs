@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l1s[7].OneToMany_Required_Self = new List<Level1> { l1s[8] };
             l1s[8].OneToMany_Required_Self = new List<Level1> { l1s[9] };
             l1s[9].OneToMany_Required_Self = new List<Level1>();
-            l1s[10].OneToMany_Required_Self = new List<Level1>() { l1s[10] };
+            l1s[10].OneToMany_Required_Self = new List<Level1> { l1s[10] };
             l1s[11].OneToMany_Required_Self = new List<Level1>();
             l1s[12].OneToMany_Required_Self = new List<Level1>();
 

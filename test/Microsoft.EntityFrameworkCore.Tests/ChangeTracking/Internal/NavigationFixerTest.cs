@@ -6,8 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -1230,7 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             return builder.Model;
         }
 
-        private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices) 
+        private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices)
             => contextServices.GetRequiredService<INavigationFixer>();
     }
 }

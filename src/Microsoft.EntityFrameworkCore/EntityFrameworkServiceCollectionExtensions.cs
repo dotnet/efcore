@@ -48,7 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
-        ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext"/>.
+        ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
@@ -60,8 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
             [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
-            => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
-
+        => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
 
         /// <summary>
         ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
@@ -88,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
             [NotNull] this IServiceCollection serviceCollection,
             ServiceLifetime contextLifetime)
             where TContext : DbContext
-            => AddDbContext<TContext>(serviceCollection, (Action<IServiceProvider, DbContextOptionsBuilder>)null, contextLifetime);
+        => AddDbContext<TContext>(serviceCollection, (Action<IServiceProvider, DbContextOptionsBuilder>)null, contextLifetime);
 
         /// <summary>
         ///     <para>
@@ -97,9 +96,11 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
         ///     </para>
         ///     <para>
-        ///         This overload has an <paramref name="optionsAction"/> that provides the applications <see cref="IServiceProvider"/>.
-        ///         This is useful if you want to setup Entity Framework to resolve its internal services from the primary application service provider.
-        ///         By default, we recommend using the other overload, which allows Entity Framework to create and maintain its own <see cref="IServiceProvider"/>
+        ///         This overload has an <paramref name="optionsAction" /> that provides the applications <see cref="IServiceProvider" />.
+        ///         This is useful if you want to setup Entity Framework to resolve its internal services from the primary application service
+        ///         provider.
+        ///         By default, we recommend using the other overload, which allows Entity Framework to create and maintain its own
+        ///         <see cref="IServiceProvider" />
         ///         for internal Entity Framework services.
         ///     </para>
         /// </summary>
@@ -132,7 +133,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
-        ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext"/>.
+        ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
@@ -163,7 +164,7 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContext : DbContext
         {
             var builder = new DbContextOptionsBuilder<TContext>(
-                new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()))
+                    new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()))
                 .UseMemoryCache(applicationServiceProvider.GetService<IMemoryCache>())
                 .UseLoggerFactory(applicationServiceProvider.GetService<ILoggerFactory>());
 

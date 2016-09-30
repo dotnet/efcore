@@ -27,13 +27,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
-                new DbContextOptionsBuilder()
-                    .EnableSensitiveDataLogging()
-                    .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
-                        .AddEntityFrameworkSqlServer()
-                        .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                        .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
-                        .BuildServiceProvider()))
+                    new DbContextOptionsBuilder()
+                        .EnableSensitiveDataLogging()
+                        .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
+                            .AddEntityFrameworkSqlServer()
+                            .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                            .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                            .BuildServiceProvider()))
                 .UseSqlServer(
                     _testStore.ConnectionString,
                     b =>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         public override NorthwindContext CreateContext(
-            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+                QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
             => new SqlServerNorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();

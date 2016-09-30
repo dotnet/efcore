@@ -1447,8 +1447,8 @@ namespace Microsoft.EntityFrameworkCore
                        && (mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>)))
                       || ((mi.GetParameters().Length == 2)
                           && (mi.GetParameters()[1]
-                              .ParameterType.GenericTypeArguments[0]
-                              .GenericTypeArguments[1] == typeof(TOperand))));
+                                  .ParameterType.GenericTypeArguments[0]
+                                  .GenericTypeArguments[1] == typeof(TOperand))));
         }
 
         private static readonly MethodInfo _averageDecimal = GetAverageMethod<decimal, decimal>();
@@ -2293,14 +2293,14 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IIncludableQueryable<TEntity, IEnumerable<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
-            => new IncludableQueryable<TEntity, TProperty>(
-                source.Provider is EntityQueryProvider
-                    ? source.Provider.CreateQuery<TEntity>(
-                        Expression.Call(
-                            null,
-                            ThenIncludeAfterCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
-                    : source);
+        => new IncludableQueryable<TEntity, TProperty>(
+            source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        null,
+                        ThenIncludeAfterCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                : source);
 
         /// <summary>
         ///     Specifies additional related data to be further included based on a related type that was just included.
@@ -2342,14 +2342,14 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
-            => new IncludableQueryable<TEntity, TProperty>(
-                source.Provider is EntityQueryProvider
-                    ? source.Provider.CreateQuery<TEntity>(
-                        Expression.Call(
-                            null,
-                            ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
-                    : source);
+        => new IncludableQueryable<TEntity, TProperty>(
+            source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        null,
+                        ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                : source);
 
         private class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
         {
@@ -2464,11 +2464,11 @@ namespace Microsoft.EntityFrameworkCore
         public static IQueryable<TEntity> AsNoTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
-            => source.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    AsNoTrackingMethodInfo
-                        .MakeGenericMethod(typeof(TEntity)), source.Expression));
+        => source.Provider.CreateQuery<TEntity>(
+            Expression.Call(
+                null,
+                AsNoTrackingMethodInfo
+                    .MakeGenericMethod(typeof(TEntity)), source.Expression));
 
         internal static readonly MethodInfo AsTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
@@ -2492,11 +2492,11 @@ namespace Microsoft.EntityFrameworkCore
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
-            => source.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    AsTrackingMethodInfo
-                        .MakeGenericMethod(typeof(TEntity)), source.Expression));
+        => source.Provider.CreateQuery<TEntity>(
+            Expression.Call(
+                null,
+                AsTrackingMethodInfo
+                    .MakeGenericMethod(typeof(TEntity)), source.Expression));
 
         #endregion
 
@@ -2787,10 +2787,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
-            MethodInfo operatorMethodInfo,
-            IQueryable<TSource> source,
-            LambdaExpression expression,
-            CancellationToken cancellationToken = default(CancellationToken))
+                MethodInfo operatorMethodInfo,
+                IQueryable<TSource> source,
+                LambdaExpression expression,
+                CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync<TSource, TResult>(
                 operatorMethodInfo, source, Expression.Quote(expression), cancellationToken);
 
@@ -2821,7 +2821,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MethodInfo GetMethod<TResult>(
-            string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
+                string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
             => GetMethod(
                 name,
                 parameterCount,
@@ -2829,7 +2829,7 @@ namespace Microsoft.EntityFrameworkCore
                       && ((predicate == null) || predicate(mi)));
 
         private static MethodInfo GetMethod(
-            string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
+                string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
             => typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
                 .Single(mi => (mi.GetParameters().Length == parameterCount + 1)
                               && ((predicate == null) || predicate(mi)));

@@ -18,7 +18,6 @@ using Xunit;
 // ReSharper disable UseCollectionCountProperty
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleUnintendedReferenceComparison
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class QueryNavigationsTestBase<TFixture> : IClassFixture<TFixture>
@@ -97,14 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         orderby od.OrderID, od.ProductID
                         select od).Take(1),
                 asserter: (l2oItems, efItems) =>
-                {
-                    var matchingPairs =
-                        from dynamic l2oItem in l2oItems
-                        join dynamic efItem in efItems on new { l2oItem.OrderID, l2oItem.ProductID } equals new { efItem.OrderID, efItem.ProductID }
-                        select new { l2oItem, efItem };
+                    {
+                        var matchingPairs =
+                            from dynamic l2oItem in l2oItems
+                            join dynamic efItem in efItems on new { l2oItem.OrderID, l2oItem.ProductID } equals new { efItem.OrderID, efItem.ProductID }
+                            select new { l2oItem, efItem };
 
-                    Assert.Equal(matchingPairs.Count(), l2oItems.Count);
-                },
+                        Assert.Equal(matchingPairs.Count(), l2oItems.Count);
+                    },
                 entryCount: 1);
         }
 
@@ -115,7 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 cs => cs.OrderBy(c => c.CustomerID).Take(2)
                     .Select(c => c.Orders.FirstOrDefault()));
         }
-
 
         [ConditionalFact]
         public virtual void Select_collection_FirstOrDefault_project_single_column1()
@@ -267,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       where o.Customer.City == "Seattle"
                       where o.Customer.Phone != "555 555 5555"
                       select new { A = o.Customer, B = o.Customer.City },
-                      entryCount: 1);
+                entryCount: 1);
         }
 
         [ConditionalFact]
@@ -335,15 +333,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       orderby c.CustomerID
                       select new { c.CustomerID, c.Orders },
                 asserter: (l2oItems, efItems) =>
-                {
-                    foreach (var pair in
-                        from dynamic l2oItem in l2oItems
-                        join dynamic efItem in efItems on l2oItem.CustomerID equals efItem.CustomerID
-                        select new { l2oItem, efItem })
                     {
-                        Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
-                    }
-                });
+                        foreach (var pair in
+                            from dynamic l2oItem in l2oItems
+                            join dynamic efItem in efItems on l2oItem.CustomerID equals efItem.CustomerID
+                            select new { l2oItem, efItem })
+                        {
+                            Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
+                        }
+                    });
         }
 
         [ConditionalFact]
@@ -354,15 +352,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       where o.CustomerID == "ALFKI"
                       select new { o.OrderID, o.Customer.Orders },
                 asserter: (l2oItems, efItems) =>
-                {
-                    foreach (var pair in
-                        from dynamic l2oItem in l2oItems
-                        join dynamic efItem in efItems on l2oItem.OrderID equals efItem.OrderID
-                        select new { l2oItem, efItem })
                     {
-                        Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
-                    }
-                });
+                        foreach (var pair in
+                            from dynamic l2oItem in l2oItems
+                            join dynamic efItem in efItems on l2oItem.OrderID equals efItem.OrderID
+                            select new { l2oItem, efItem })
+                        {
+                            Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
+                        }
+                    });
         }
 
         [ConditionalFact]
@@ -374,7 +372,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 cs => from c in cs
                       select new { Any = (c.Orders ?? new List<Order>()).Any() });
         }
-
 
         [ConditionalFact]
         public virtual void Collection_select_nav_prop_predicate()
@@ -391,7 +388,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 cs => from c in cs
                       where c.Orders.Any()
                       select c,
-
                 cs => from c in cs
                       where (c.Orders ?? new List<Order>()).Any()
                       select c,
@@ -534,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                           conditional = o.CustomerID == "ALFKI" ? "50" : "10",
                           scalar2 = (int?)o.OrderID,
                           all = o.OrderDetails.All(od => od.OrderID == 42),
-                          collection2 = o.OrderDetails.LongCount(),
+                          collection2 = o.OrderDetails.LongCount()
                       });
         }
 
@@ -598,9 +594,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       select new { c.Orders.Where(e => orderIds.Contains(e.OrderID)).FirstOrDefault().Customer },
                 cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
                       orderby c.CustomerID
-                      select new { Customer = c.Orders != null && c.Orders.Where(e => orderIds.Contains(e.OrderID)).Any() 
-                        ? c.Orders.Where(e => orderIds.Contains(e.OrderID)).First().Customer 
-                        : null });
+                      select new
+                      {
+                          Customer = c.Orders != null && c.Orders.Where(e => orderIds.Contains(e.OrderID)).Any()
+                              ? c.Orders.Where(e => orderIds.Contains(e.OrderID)).First().Customer
+                              : null
+                      });
         }
 
         [ConditionalFact]
@@ -627,13 +626,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Select(c => EF.Property<string>(
                         EF.Property<Customer>(
                             os.FirstOrDefault(oo => oo.CustomerID == "ALFKI"),
-                            "Customer"), 
+                            "Customer"),
                         "City")),
                 (cs, os) => cs.Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null 
+                    .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null
                         ? os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City
                         : null)
-                );
+            );
         }
 
         [ConditionalFact]
@@ -642,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer, Order, string>(
                 // ReSharper disable once StringStartsWithIsCultureSpecific
                 (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
-                    .Select(c => os.OrderBy(o => o.CustomerID).FirstOrDefault(o =>o.CustomerID == "ALFKI").Customer.City));
+                    .Select(c => os.OrderBy(o => o.CustomerID).FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City));
         }
 
         [ConditionalFact]
@@ -673,20 +672,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        where new[] { "Novigrad", "Seattle" }.Contains(od.Order.Customer.City)
                        select od,
                 asserter: (l2oItems, efItems) =>
-                {
-                    var l2oIds = l2oItems.Select(i => new { i.OrderID, i.ProductID });
-                    var efIds = efItems.Select(i => new { i.OrderID, i.ProductID });
-
-                    foreach (var efId in efIds)
                     {
-                        Assert.True(l2oIds.Contains(efId));
-                    }
+                        var l2oIds = l2oItems.Select(i => new { i.OrderID, i.ProductID });
+                        var efIds = efItems.Select(i => new { i.OrderID, i.ProductID });
 
-                    foreach (var l2oId in l2oIds)
-                    {
-                        Assert.True(efIds.Contains(l2oId));
-                    }
-                },
+                        foreach (var efId in efIds)
+                        {
+                            Assert.True(l2oIds.Contains(efId));
+                        }
+
+                        foreach (var l2oId in l2oIds)
+                        {
+                            Assert.True(efIds.Contains(l2oId));
+                        }
+                    },
                 entryCount: 40);
         }
 
@@ -699,20 +698,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                              where new[] { "USA", "Redania" }.Contains(o.Customer.Country)
                              select od,
                 asserter: (l2oItems, efItems) =>
-                {
-                    var l2oIds = l2oItems.Select(i => new { i.OrderID, i.ProductID });
-                    var efIds = efItems.Select(i => new { i.OrderID, i.ProductID });
-
-                    foreach (var efId in efIds)
                     {
-                        Assert.True(l2oIds.Contains(efId));
-                    }
+                        var l2oIds = l2oItems.Select(i => new { i.OrderID, i.ProductID });
+                        var efIds = efItems.Select(i => new { i.OrderID, i.ProductID });
 
-                    foreach (var l2oId in l2oIds)
-                    {
-                        Assert.True(efIds.Contains(l2oId));
-                    }
-                },
+                        foreach (var efId in efIds)
+                        {
+                            Assert.True(l2oIds.Contains(efId));
+                        }
+
+                        foreach (var l2oId in l2oIds)
+                        {
+                            Assert.True(efIds.Contains(l2oId));
+                        }
+                    },
                 entryCount: 352);
         }
 
@@ -758,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from o in context.Orders
-                                // ReSharper disable once UseMethodAny.0
+                            // ReSharper disable once UseMethodAny.0
                             where (from od in context.OrderDetails
                                    where o.Customer.Country == od.Order.Customer.Country
                                    select od).Count() > 0
@@ -775,20 +774,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Order, IGrouping<string, Order>>(
                 os => from o in os
-                      group o by o.Customer.City into og
+                      group o by o.Customer.City
+                      into og
                       select og,
-            asserter: (l2oItems, efItems) =>
-            {
-                foreach (var pair in
-                    from l2oItem in l2oItems
-                    join efItem in efItems on l2oItem.Key equals efItem.Key
-                    select new { l2oItem, efItem })
-                {
-                    Assert.Equal(
-                        pair.l2oItem.Select(i => i.OrderID).OrderBy(i => i),
-                        pair.efItem.Select(i => i.OrderID).OrderBy(i => i));
-                }
-            });
+                asserter: (l2oItems, efItems) =>
+                    {
+                        foreach (var pair in
+                            from l2oItem in l2oItems
+                            join efItem in efItems on l2oItem.Key equals efItem.Key
+                            select new { l2oItem, efItem })
+                        {
+                            Assert.Equal(
+                                pair.l2oItem.Select(i => i.OrderID).OrderBy(i => i),
+                                pair.efItem.Select(i => i.OrderID).OrderBy(i => i));
+                        }
+                    });
         }
 
         [ConditionalFact]
@@ -796,8 +796,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<OrderDetail, IGrouping<short, OrderDetail>>(
                 ods => from od in ods
-                      where od.Order.CustomerID == "ALFKI"
-                      group od by od.Quantity,
+                       where od.Order.CustomerID == "ALFKI"
+                       group od by od.Quantity,
                 asserter: (l2oItems, efItems) =>
                     {
                         foreach (var pair in
@@ -818,22 +818,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<OrderDetail, IGrouping<string, OrderDetail>>(
                 ods => from od in ods
                        let customer = od.Order.CustomerID
-                       group od by customer into odg
+                       group od by customer
+                       into odg
                        select odg,
                 asserter: (l2oItems, efItems) =>
-                {
-                    foreach (var pair in
-                        from l2oItem in l2oItems
-                        join efItem in efItems on l2oItem.Key equals efItem.Key
-                        select new { l2oItem, efItem })
                     {
-                        Assert.Equal(
-                            pair.l2oItem.Select(i => i.OrderID).OrderBy(i => i),
-                            pair.efItem.Select(i => i.OrderID).OrderBy(i => i));
-                    }
-                });
+                        foreach (var pair in
+                            from l2oItem in l2oItems
+                            join efItem in efItems on l2oItem.Key equals efItem.Key
+                            select new { l2oItem, efItem })
+                        {
+                            Assert.Equal(
+                                pair.l2oItem.Select(i => i.OrderID).OrderBy(i => i),
+                                pair.efItem.Select(i => i.OrderID).OrderBy(i => i));
+                        }
+                    });
         }
-
 
         // issue #6061
         ////[ConditionalFact]
@@ -872,13 +872,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Order>(
                 os => (from o in os
-                      orderby o.OrderID
-                      select new
-                      {
-                          o.OrderID,
-                          OrderDetail = o.OrderDetails.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID).Select(od => od.OrderID).FirstOrDefault(),
-                          o.Customer.City
-                      }).Take(3));
+                       orderby o.OrderID
+                       select new
+                       {
+                           o.OrderID,
+                           OrderDetail = o.OrderDetails.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID).Select(od => od.OrderID).FirstOrDefault(),
+                           o.Customer.City
+                       }).Take(3));
         }
 
         ////[ConditionalFact]
@@ -888,15 +888,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 (cs, os, ods) => (from c in cs
                                   join subquery in
                                   (
-                                    from od in ods
-                                    join o in os on od.OrderID equals 10260
-                                    join c2 in cs on o.CustomerID equals c2.CustomerID
-                                    select c2
+                                      from od in ods
+                                      join o in os on od.OrderID equals 10260
+                                      join c2 in cs on o.CustomerID equals c2.CustomerID
+                                      select c2
                                   )
-                                    on c.CustomerID equals subquery.CustomerID
-                                    into result
+                                  on c.CustomerID equals subquery.CustomerID
+                                  into result
                                   from subquery in result.DefaultIfEmpty()
-                                  select c), 
+                                  select c),
                 entryCount: 91);
         }
 
@@ -918,8 +918,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             bool assertOrder = false,
             int entryCount = 0,
             Action<IList<object>, IList<object>> asserter = null)
-            where TItem : class 
-            => AssertQuery(query, query, assertOrder, entryCount, asserter);
+            where TItem : class
+        => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> query,
@@ -927,8 +927,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int entryCount = 0,
             Action<IList<TResult>, IList<TResult>> asserter = null)
             where TItem1 : class
-            where TItem2 : class 
-            => AssertQuery(query, query, assertOrder, entryCount, asserter);
+            where TItem2 : class
+        => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> query,
@@ -938,15 +938,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => AssertQuery(query, query, assertOrder, entryCount, asserter);
+        => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem, TResult>(
             Func<IQueryable<TItem>, IQueryable<TResult>> query,
             bool assertOrder = false,
             int entryCount = 0,
             Action<IList<TResult>, IList<TResult>> asserter = null)
-            where TItem : class 
-            => AssertQuery(query, query, assertOrder, entryCount, asserter);
+            where TItem : class
+        => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<object>> efQuery,

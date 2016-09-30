@@ -40,35 +40,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual IQuerySource QuerySource { get; }
 
         /// <summary>
-        /// Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
+        ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
         /// </summary>
-        /// <returns>The <see cref="ExpressionType"/> that represents this expression.</returns>
+        /// <returns>The <see cref="ExpressionType" /> that represents this expression.</returns>
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         /// <summary>
-        /// Gets the static type of the expression that this <see cref="Expression" /> represents. (Inherited from <see cref="Expression"/>.)
+        ///     Gets the static type of the expression that this <see cref="Expression" /> represents. (Inherited from <see cref="Expression" />.)
         /// </summary>
-        /// <returns>The <see cref="Type"/> that represents the static type of the expression.</returns>
+        /// <returns>The <see cref="Type" /> that represents the static type of the expression.</returns>
         public override Type Type => _predicate.Type;
 
         /// <summary>
-        /// Indicates that the node can be reduced to a simpler node. If this 
-        /// returns true, Reduce() can be called to produce the reduced form.
+        ///     Indicates that the node can be reduced to a simpler node. If this
+        ///     returns true, Reduce() can be called to produce the reduced form.
         /// </summary>
         public override bool CanReduce => true;
 
         /// <summary>
-        /// Reduces this node to a simpler expression. If CanReduce returns
-        /// true, this should return a valid expression. This method is
-        /// allowed to return another node which itself must be reduced.
+        ///     Reduces this node to a simpler expression. If CanReduce returns
+        ///     true, this should return a valid expression. This method is
+        ///     allowed to return another node which itself must be reduced.
         /// </summary>
         /// <returns>The reduced expression.</returns>
         public override Expression Reduce() => _predicate;
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of the Expression.
+        ///     Creates a <see cref="String" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="String"/> representation of the Expression.</returns>
+        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
         public override string ToString() => _predicate.ToString();
 
         /// <summary>

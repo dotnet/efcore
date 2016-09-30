@@ -100,7 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var readValue = entry.IsStoreGenerated(property);
                     var writeValue = !readValue && (adding || entry.IsModified(property));
 
-                    if (adding && !readValue && entry.HasTemporaryValue(property))
+                    if (adding
+                        && !readValue
+                        && entry.HasTemporaryValue(property))
                     {
                         throw new InvalidOperationException(CoreStrings.TempValue(property.Name, entityType.DisplayName()));
                     }

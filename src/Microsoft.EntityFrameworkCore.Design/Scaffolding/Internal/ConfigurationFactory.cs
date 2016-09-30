@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual ModelConfiguration CreateModelConfiguration(
             [NotNull] IModel model,
-            [NotNull] CustomConfiguration customConfiguration)
-            => new ModelConfiguration(this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ScaffoldingUtilities);
+            [NotNull] CustomConfiguration customConfiguration
+        ) => new ModelConfiguration(this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ScaffoldingUtilities);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -66,9 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual CustomConfiguration CreateCustomConfiguration(
             [NotNull] string connectionString, [CanBeNull] string contextClassName,
-            [NotNull] string @namespace, bool useFluentApiOnly)
-            => new CustomConfiguration(connectionString,
-                contextClassName, @namespace, useFluentApiOnly);
+            [NotNull] string @namespace, bool useFluentApiOnly
+        ) => new CustomConfiguration(connectionString, contextClassName, @namespace, useFluentApiOnly);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

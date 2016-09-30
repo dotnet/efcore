@@ -459,7 +459,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
                 Assert.Equal(4, dbConnection.OpenCount);
                 Assert.Equal(2, dbConnection.CloseCount);
-
             }
         }
 

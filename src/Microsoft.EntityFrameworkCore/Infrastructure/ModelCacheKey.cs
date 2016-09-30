@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class ModelCacheKey
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ModelCacheKey"/> class.
+        ///     Initializes a new instance of the <see cref="ModelCacheKey" /> class.
         /// </summary>
         /// <param name="context">
         ///     The context instance that this key is for.
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The object to compare this key to.
         /// </param>
         /// <returns>
-        ///     True if the object is a <see cref="ModelCacheKey"/> and is for the same context type, otherwise false.
+        ///     True if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise false.
         /// </returns>
         public override bool Equals(object obj)
         {

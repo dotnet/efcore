@@ -13,7 +13,6 @@ using Xunit;
 
 // ReSharper disable ConvertPropertyToExpressionBody
 // ReSharper disable ConvertToAutoProperty
-
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class EntityMaterializerSourceTest
@@ -128,8 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
         public virtual Func<ValueBuffer, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType) => Expression.Lambda<Func<ValueBuffer, object>>(
-            source.CreateMaterializeExpression(entityType, _readerParameter),
-            _readerParameter)
+                source.CreateMaterializeExpression(entityType, _readerParameter),
+                _readerParameter)
             .Compile();
 
         private class SomeEntity

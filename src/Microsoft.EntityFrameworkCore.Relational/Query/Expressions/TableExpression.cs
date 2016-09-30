@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual string Schema { get; }
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        /// Creates a <see cref="string"/> representation of the Expression.
+        ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="string"/> representation of the Expression.</returns>
+        /// <returns>A <see cref="string" /> representation of the Expression.</returns>
         public override string ToString() => Table + " " + Alias;
     }
 }

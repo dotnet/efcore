@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(CoreStrings.NullableKey(typeof(object).DisplayName(), stringProperty.Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
+                        stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
         }
 
         [Fact]

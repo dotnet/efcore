@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var customers
                     = (from c in context.Set<Customer>().AsNoTracking()
                        join o in context.Set<Order>().AsTracking()
-                           on c.CustomerID equals o.CustomerID
+                       on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
                         .ToList();
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var customers
                     = (from c in context.Set<Customer>().AsTracking()
                        join o in context.Set<Order>().AsNoTracking()
-                           on c.CustomerID equals o.CustomerID
+                       on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
                         .ToList();
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var customers
                     = (from c in context.Set<Customer>().AsTracking()
                        join o in context.Set<Order>()
-                           on c.CustomerID equals o.CustomerID
+                       on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
                         .AsNoTracking()

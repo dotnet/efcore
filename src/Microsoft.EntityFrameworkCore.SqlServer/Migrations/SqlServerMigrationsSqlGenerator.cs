@@ -55,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-            AddColumnOperation operation,
-            IModel model,
-            MigrationCommandListBuilder builder)
+                AddColumnOperation operation,
+                IModel model,
+                MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected override void Generate(
@@ -167,25 +167,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
 
                 var type = operation.ColumnType
-                    ?? GetColumnType(
-                        operation.Schema,
-                        operation.Table,
-                        operation.Name,
-                        operation.ClrType,
-                        operation.IsUnicode,
-                        operation.MaxLength,
-                        operation.IsRowVersion,
-                        model);
+                           ?? GetColumnType(
+                               operation.Schema,
+                               operation.Table,
+                               operation.Name,
+                               operation.ClrType,
+                               operation.IsUnicode,
+                               operation.MaxLength,
+                               operation.IsRowVersion,
+                               model);
                 var oldType = operation.OldColumn.ColumnType
-                    ?? GetColumnType(
-                        operation.Schema,
-                        operation.Table,
-                        operation.Name,
-                        operation.OldColumn.ClrType,
-                        operation.OldColumn.IsUnicode,
-                        operation.OldColumn.MaxLength,
-                        operation.OldColumn.IsRowVersion,
-                        model);
+                              ?? GetColumnType(
+                                  operation.Schema,
+                                  operation.Table,
+                                  operation.Name,
+                                  operation.OldColumn.ClrType,
+                                  operation.OldColumn.IsUnicode,
+                                  operation.OldColumn.MaxLength,
+                                  operation.OldColumn.IsRowVersion,
+                                  model);
                 narrowed = type != oldType || (!operation.IsNullable && operation.OldColumn.IsNullable);
             }
 
@@ -371,9 +371,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-            CreateIndexOperation operation,
-            IModel model,
-            MigrationCommandListBuilder builder)
+                CreateIndexOperation operation,
+                IModel model,
+                MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected override void Generate(
@@ -388,12 +388,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var nullableColumns = operation.Columns
                 .Where(
                     c =>
-                    {
-                        var property = FindProperty(model, operation.Schema, operation.Table, c);
+                        {
+                            var property = FindProperty(model, operation.Schema, operation.Table, c);
 
-                        return property == null // Couldn't bind column to property
-                            || property.IsColumnNullable();
-                    })
+                            return property == null // Couldn't bind column to property
+                                   || property.IsColumnNullable();
+                        })
                 .ToList();
 
             var memoryOptimized = IsMemoryOptimized(operation);
@@ -681,9 +681,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-            DropIndexOperation operation,
-            IModel model,
-            MigrationCommandListBuilder builder)
+                DropIndexOperation operation,
+                IModel model,
+                MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
@@ -722,9 +722,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-            DropColumnOperation operation,
-            IModel model,
-            MigrationCommandListBuilder builder)
+                DropColumnOperation operation,
+                IModel model,
+                MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected override void Generate(
@@ -1035,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Name = Annotations.For(index).Name,
                     Schema = Annotations.For(index.DeclaringEntityType).Schema,
                     Table = Annotations.For(index.DeclaringEntityType).TableName,
-                    Columns = index.Properties.Select(p => Annotations.For(p).ColumnName).ToArray(),
+                    Columns = index.Properties.Select(p => Annotations.For(p).ColumnName).ToArray()
                 };
                 operation.AddAnnotations(_migrationsAnnotations.For(index));
 

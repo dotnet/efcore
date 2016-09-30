@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private readonly InternalEntityEntry _internalEntityEntry;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityEntryGraphNode(
@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="reachedVia"> The navigation property that is being traversed to reach the new node. </param>
         /// <returns> The newly created node. </returns>
         public virtual EntityEntryGraphNode CreateNode(
-            [NotNull] EntityEntryGraphNode currentNode,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] INavigation reachedVia)
+                [NotNull] EntityEntryGraphNode currentNode,
+                [NotNull] InternalEntityEntry internalEntityEntry,
+                [NotNull] INavigation reachedVia)
             => new EntityEntryGraphNode(
                 Check.NotNull(internalEntityEntry, nameof(internalEntityEntry)),
                 Check.NotNull(reachedVia, nameof(reachedVia)))

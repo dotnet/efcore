@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQLite specific extension methods for <see cref="IndexBuilder"/>.
+    ///     SQLite specific extension methods for <see cref="IndexBuilder" />.
     /// </summary>
     public static class SqliteIndexBuilderExtensions
     {

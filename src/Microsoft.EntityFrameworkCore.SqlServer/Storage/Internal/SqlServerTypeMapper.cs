@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class SqlServerTypeMapper : RelationalTypeMapper
     {
-        private readonly SqlServerMaxLengthMapping _nvarcharmax 
+        private readonly SqlServerMaxLengthMapping _nvarcharmax
             = new SqlServerMaxLengthMapping("nvarchar(max)", typeof(string), dbType: null, unicode: true, size: null);
 
-        private readonly SqlServerMaxLengthMapping _nvarchar450 
+        private readonly SqlServerMaxLengthMapping _nvarchar450
             = new SqlServerMaxLengthMapping("nvarchar(450)", typeof(string), dbType: null, unicode: true, size: 450);
 
         private readonly SqlServerMaxLengthMapping _varcharmax
@@ -52,22 +52,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly RelationalTypeMapping _bit
             = new RelationalTypeMapping("bit", typeof(bool));
 
-        private readonly SqlServerMaxLengthMapping _nchar 
+        private readonly SqlServerMaxLengthMapping _nchar
             = new SqlServerMaxLengthMapping("nchar", typeof(string), dbType: DbType.StringFixedLength, unicode: true, size: null);
 
-        private readonly SqlServerMaxLengthMapping _nvarchar 
+        private readonly SqlServerMaxLengthMapping _nvarchar
             = new SqlServerMaxLengthMapping("nvarchar", typeof(string), dbType: null, unicode: true, size: null);
 
-        private readonly SqlServerMaxLengthMapping _char 
+        private readonly SqlServerMaxLengthMapping _char
             = new SqlServerMaxLengthMapping("char", typeof(string), dbType: DbType.AnsiStringFixedLength, unicode: false, size: null, hasNonDefaultUnicode: true);
 
-        private readonly SqlServerMaxLengthMapping _varchar 
+        private readonly SqlServerMaxLengthMapping _varchar
             = new SqlServerMaxLengthMapping("varchar", typeof(string), dbType: DbType.AnsiString, unicode: false, size: null, hasNonDefaultUnicode: true);
 
-        private readonly SqlServerMaxLengthMapping _varbinary 
+        private readonly SqlServerMaxLengthMapping _varbinary
             = new SqlServerMaxLengthMapping("varbinary", typeof(byte[]), dbType: DbType.Binary);
 
-        private readonly SqlServerMaxLengthMapping _binary 
+        private readonly SqlServerMaxLengthMapping _binary
             = new SqlServerMaxLengthMapping("binary", typeof(byte[]), dbType: DbType.Binary);
 
         private readonly RelationalTypeMapping _date
@@ -76,19 +76,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly RelationalTypeMapping _datetime
             = new RelationalTypeMapping("datetime", typeof(DateTime), dbType: DbType.DateTime);
 
-        private readonly RelationalTypeMapping _datetime2 
+        private readonly RelationalTypeMapping _datetime2
             = new RelationalTypeMapping("datetime2", typeof(DateTime), dbType: DbType.DateTime2);
 
-        private readonly RelationalTypeMapping _double 
+        private readonly RelationalTypeMapping _double
             = new RelationalTypeMapping("float", typeof(double));
 
         private readonly RelationalTypeMapping _datetimeoffset
             = new RelationalTypeMapping("datetimeoffset", typeof(DateTimeOffset));
 
-        private readonly RelationalTypeMapping _real 
+        private readonly RelationalTypeMapping _real
             = new RelationalTypeMapping("real", typeof(float));
 
-        private readonly RelationalTypeMapping _uniqueidentifier 
+        private readonly RelationalTypeMapping _uniqueidentifier
             = new RelationalTypeMapping("uniqueidentifier", typeof(Guid));
 
         private readonly RelationalTypeMapping _decimal

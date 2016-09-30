@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
             modelBuilder.Entity<Animal>().Property(b => b.Id).ForSqliteHasColumnName("Name");
 
             VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
-                nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
+                    nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
                 modelBuilder.Model);
         }
 

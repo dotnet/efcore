@@ -136,17 +136,17 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 contexts.Add(
                     context,
-                    FindContextFactory(context) ?? (Func<DbContext>)(() =>
-                    {
-                        try
+                    FindContextFactory(context) ?? (() =>
                         {
-                            return (DbContext)Activator.CreateInstance(context);
-                        }
-                        catch (MissingMethodException ex)
-                        {
-                            throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
-                        }
-                    }));
+                            try
+                            {
+                                return (DbContext)Activator.CreateInstance(context);
+                            }
+                            catch (MissingMethodException ex)
+                            {
+                                throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
+                            }
+                        }));
             }
 
             return contexts;
@@ -257,8 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 #endif
                 ContentRootPath = _contentRootPath,
                 EnvironmentName = !string.IsNullOrEmpty(_environment)
-                        ? _environment
-                        : "Development"
+                    ? _environment
+                    : "Development"
             };
     }
 }

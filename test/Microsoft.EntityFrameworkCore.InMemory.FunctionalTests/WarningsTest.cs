@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                         $"{nameof(InMemoryEventId)}.{nameof(InMemoryEventId.TransactionIgnoredWarning)}",
                         InMemoryStrings.TransactionsNotSupported),
                     Assert.Throws<InvalidOperationException>(
-                    () => context.Database.BeginTransaction()).Message);
+                        () => context.Database.BeginTransaction()).Message);
             }
         }
 

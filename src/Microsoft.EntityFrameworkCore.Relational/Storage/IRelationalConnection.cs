@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string ConnectionString { get; }
 
         /// <summary>
-        ///     Gets the underlying <see cref="System.Data.Common.DbConnection"/> used to connect to the database.
+        ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
         /// </summary>
         DbConnection DbConnection { get; }
 

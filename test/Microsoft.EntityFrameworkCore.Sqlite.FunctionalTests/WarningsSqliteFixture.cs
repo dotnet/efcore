@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     public class WarningsSqliteFixture : NorthwindQuerySqliteFixture
     {
         protected override DbContextOptionsBuilder ConfigureOptions(
-            DbContextOptionsBuilder dbContextOptionsBuilder)
+                DbContextOptionsBuilder dbContextOptionsBuilder)
             => dbContextOptionsBuilder.ConfigureWarnings(c =>
-                c.Throw(RelationalEventId.QueryClientEvaluationWarning));
+                    c.Throw(RelationalEventId.QueryClientEvaluationWarning));
     }
 }

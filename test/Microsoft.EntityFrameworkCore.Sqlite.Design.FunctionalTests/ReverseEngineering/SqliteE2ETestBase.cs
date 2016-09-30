@@ -18,7 +18,6 @@ using Xunit.Abstractions;
 #if NETCOREAPP1_0
 using System.Reflection;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
     public abstract class SqliteE2ETestBase : E2ETestBase

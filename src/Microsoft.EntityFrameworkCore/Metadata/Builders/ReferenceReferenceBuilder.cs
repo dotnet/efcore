@@ -162,8 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder HasForeignKey(
-            [NotNull] Type dependentEntityType,
-            [NotNull] params string[] foreignKeyPropertyNames)
+                [NotNull] Type dependentEntityType,
+                [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasForeignKey<TDependentEntity>(
             [NotNull] params string[] foreignKeyPropertyNames)
             where TDependentEntity : class
-            => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
+        => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
 
         /// <summary>
         ///     <para>
@@ -230,8 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder HasForeignKey(
-            [NotNull] string dependentEntityTypeName,
-            [NotNull] params string[] foreignKeyPropertyNames)
+                [NotNull] string dependentEntityTypeName,
+                [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
@@ -298,8 +298,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder HasPrincipalKey(
-            [NotNull] Type principalEntityType,
-            [NotNull] params string[] keyPropertyNames)
+                [NotNull] Type principalEntityType,
+                [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasPrincipalKey<TPrincipalEntity>(
             [NotNull] params string[] keyPropertyNames)
             where TPrincipalEntity : class
-            => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
+        => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -339,8 +339,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder HasPrincipalKey(
-            [NotNull] string principalEntityTypeName,
-            [NotNull] params string[] keyPropertyNames)
+                [NotNull] string principalEntityTypeName,
+                [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
@@ -355,9 +355,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
-            [CanBeNull] EntityType principalEntityType,
-            [NotNull] string principalEntityTypeName,
-            [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
+                [CanBeNull] EntityType principalEntityType,
+                [NotNull] string principalEntityTypeName,
+                [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
             => HasPrincipalKeyBuilder(principalEntityType, principalEntityTypeName,
                 b => b.HasPrincipalKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
 
@@ -366,9 +366,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] string principalEntityTypeName,
-            [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+                [NotNull] EntityType principalEntityType,
+                [NotNull] string principalEntityTypeName,
+                [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
             => HasPrincipalKeyBuilder(principalEntityType, principalEntityTypeName,
                 b => b.HasPrincipalKey(foreignKeyProperties, ConfigurationSource.Explicit));
 

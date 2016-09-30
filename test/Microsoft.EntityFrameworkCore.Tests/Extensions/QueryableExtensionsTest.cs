@@ -220,12 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(new CancellationToken()));
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(e => true));
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(e => true, new CancellationToken()));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e =>
-                {
-                }));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e =>
-                {
-                }, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => { }));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => { }, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().LoadAsync());
             await SourceNonAsyncEnumerableTest<int>(() => Source().LoadAsync(new CancellationToken()));
             await SourceNonAsyncQueryableTest(() => Source().LongCountAsync());

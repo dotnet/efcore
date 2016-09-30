@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public new static ScaffoldingFullAnnotationNames Instance { get; }
-            = new ScaffoldingFullAnnotationNames(ScaffoldingAnnotationNames.Prefix);
+        = new ScaffoldingFullAnnotationNames(ScaffoldingAnnotationNames.Prefix);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

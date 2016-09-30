@@ -1551,16 +1551,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var principalType = model.FindEntityType(typeof(Nob));
 
                 Assert.Equal(CoreStrings.ConflictingRelationshipNavigation(
-                    principalType.DisplayName(),
-                    nameof(Nob.Hobs),
-                    dependentType.DisplayName(),
-                    nameof(Hob.Nob),
-                    principalType.DisplayName(),
-                    nameof(Nob.Hob),
-                    dependentType.DisplayName(),
-                    nameof(Hob.Nob)),
+                        principalType.DisplayName(),
+                        nameof(Nob.Hobs),
+                        dependentType.DisplayName(),
+                        nameof(Hob.Nob),
+                        principalType.DisplayName(),
+                        nameof(Nob.Hob),
+                        dependentType.DisplayName(),
+                        nameof(Hob.Nob)),
                     Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)).Message);
+                            modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)).Message);
             }
 
             [Fact]

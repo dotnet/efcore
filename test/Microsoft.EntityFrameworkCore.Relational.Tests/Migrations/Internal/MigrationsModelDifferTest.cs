@@ -508,10 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                             x.Property<string>("Name")
                                 .HasValueGenerator<CustomValueGenerator>();
                         }),
-                operations =>
-                    {
-                        Assert.Equal(0, operations.Count);
-                    });
+                operations => { Assert.Equal(0, operations.Count); });
         }
 
         [Fact]
@@ -521,22 +518,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 source => source.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<string>("Name")
-                            .HasValueGenerator<CustomValueGenerator>();
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name")
+                                .HasValueGenerator<CustomValueGenerator>();
+                        }),
                 target => target.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<string>("Name");
-                    }),
-                operations =>
-                {
-                    Assert.Equal(0, operations.Count);
-                });
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name");
+                        }),
+                operations => { Assert.Equal(0, operations.Count); });
         }
 
         private class CustomValueGenerator : ValueGenerator<string>
@@ -679,28 +673,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 source => source.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<string>("Name");
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name");
+                        }),
                 target => target.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<string>("Name")
-                            .IsUnicode(false);
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name")
+                                .IsUnicode(false);
+                        }),
                 operations =>
-                {
-                    Assert.Equal(1, operations.Count);
+                    {
+                        Assert.Equal(1, operations.Count);
 
-                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
-                    Assert.Equal("Toad", operation.Table);
-                    Assert.Equal("Name", operation.Name);
-                    Assert.False(operation.IsUnicode);
-                    Assert.True(operation.IsDestructiveChange);
-                });
+                        var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                        Assert.Equal("Toad", operation.Table);
+                        Assert.Equal("Name", operation.Name);
+                        Assert.False(operation.IsUnicode);
+                        Assert.True(operation.IsDestructiveChange);
+                    });
         }
 
         [Fact]
@@ -3787,76 +3781,70 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         {
             Execute(
                 common =>
-                {
-                    common.Entity(
-                        "Person",
-                        x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        });
-                    IMutableEntityType animal = null;
-                    common.Entity(
-                        "Animal",
-                        x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                            var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
+                    {
+                        common.Entity(
+                            "Person",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.HasKey("Id");
+                                });
+                        IMutableEntityType animal = null;
+                        common.Entity(
+                            "Animal",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.HasKey("Id");
+                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
 
-                            animal = x.Metadata;
-                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                            animal.Relational().DiscriminatorValue = "Animal";
-                        });
-                    common.Entity(
-                        "GameAnimal",
-                        x =>
-                        {
-                            x.Metadata.BaseType = animal;
-                            x.Property<int>("HunterId");
-                            x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
-                        });
-                    common.Entity(
-                        "EndangeredAnimal",
-                        x =>
-                        {
-                            x.Metadata.BaseType = animal;
-                            x.Property<int>("HunterId");
-                            x.Metadata.Relational().DiscriminatorValue = "EndangeredAnimal";
-                        });
-                },
+                                    animal = x.Metadata;
+                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                                    animal.Relational().DiscriminatorValue = "Animal";
+                                });
+                        common.Entity(
+                            "GameAnimal",
+                            x =>
+                                {
+                                    x.Metadata.BaseType = animal;
+                                    x.Property<int>("HunterId");
+                                    x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
+                                });
+                        common.Entity(
+                            "EndangeredAnimal",
+                            x =>
+                                {
+                                    x.Metadata.BaseType = animal;
+                                    x.Property<int>("HunterId");
+                                    x.Metadata.Relational().DiscriminatorValue = "EndangeredAnimal";
+                                });
+                    },
                 source => { },
                 target =>
-                {
-                    target.Entity(
-                        "GameAnimal",
-                        x =>
-                        {
-                            x.HasOne("Person").WithMany().HasForeignKey("HunterId");
-                        });
-                    target.Entity(
-                        "EndangeredAnimal",
-                        x =>
-                        {
-                            x.HasOne("Person").WithMany().HasForeignKey("HunterId");
-                        });
-                },
+                    {
+                        target.Entity(
+                            "GameAnimal",
+                            x => { x.HasOne("Person").WithMany().HasForeignKey("HunterId"); });
+                        target.Entity(
+                            "EndangeredAnimal",
+                            x => { x.HasOne("Person").WithMany().HasForeignKey("HunterId"); });
+                    },
                 operations =>
-                {
-                    Assert.Equal(2, operations.Count);
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                    var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
-                    Assert.Equal("Animal", createIndexOperation.Table);
-                    Assert.Equal("IX_Animal_HunterId", createIndexOperation.Name);
-                    Assert.Equal(new[] { "HunterId" }, createIndexOperation.Columns);
+                        var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
+                        Assert.Equal("Animal", createIndexOperation.Table);
+                        Assert.Equal("IX_Animal_HunterId", createIndexOperation.Name);
+                        Assert.Equal(new[] { "HunterId" }, createIndexOperation.Columns);
 
-                    var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
-                    Assert.Equal("Animal", addFkOperation.Table);
-                    Assert.Equal("FK_Animal_Person_HunterId", addFkOperation.Name);
-                    Assert.Equal(new[] { "HunterId" }, addFkOperation.Columns);
-                    Assert.Equal("Person", addFkOperation.PrincipalTable);
-                    Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
-                });
+                        var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                        Assert.Equal("Animal", addFkOperation.Table);
+                        Assert.Equal("FK_Animal_Person_HunterId", addFkOperation.Name);
+                        Assert.Equal(new[] { "HunterId" }, addFkOperation.Columns);
+                        Assert.Equal("Person", addFkOperation.PrincipalTable);
+                        Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
+                    });
         }
 
         [Fact]
@@ -4056,33 +4044,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.ToTable("Table", "old");
-                            x.Property<int>("Id");
-                        }),
+                            {
+                                x.ToTable("Table", "old");
+                                x.Property<int>("Id");
+                            }),
                 target => target
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.ToTable("RenamedTable", "new");
-                            x.Property<int>("Id");
-                            x.HasKey("Id").HasName("PK_Table");
-                            x.Property<string>("Value");
-                        }),
+                            {
+                                x.ToTable("RenamedTable", "new");
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_Table");
+                                x.Property<string>("Value");
+                            }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                    Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                    var addColumnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
-                    Assert.Equal("new", addColumnOperation.Schema);
-                    Assert.Equal("RenamedTable", addColumnOperation.Table);
-                    Assert.Equal("Value", addColumnOperation.Name);
-                });
+                        var addColumnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
+                        Assert.Equal("new", addColumnOperation.Schema);
+                        Assert.Equal("RenamedTable", addColumnOperation.Table);
+                        Assert.Equal("Value", addColumnOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4094,38 +4082,38 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.ToTable("Table", "old");
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId");
-                        }),
+                            {
+                                x.ToTable("Table", "old");
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasIndex("ForeignId");
+                            }),
                 target => target
                     .Entity("ReferencedTable", x => x.Property<int>("Id"))
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.ToTable("RenamedTable", "new");
-                            x.Property<int>("Id");
-                            x.HasKey("Id").HasName("PK_Table");
-                            x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
-                            x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                        }),
+                            {
+                                x.ToTable("RenamedTable", "new");
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_Table");
+                                x.Property<int>("ForeignId");
+                                x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                                x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
+                            }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                    Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                    var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[2]);
-                    Assert.Equal("new", addForeignKeyOperation.Schema);
-                    Assert.Equal("RenamedTable", addForeignKeyOperation.Table);
-                    Assert.Equal("FK_RenamedTable_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
-                });
+                        var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[2]);
+                        Assert.Equal("new", addForeignKeyOperation.Schema);
+                        Assert.Equal("RenamedTable", addForeignKeyOperation.Table);
+                        Assert.Equal("FK_RenamedTable_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4137,33 +4125,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasIndex("ForeignId");
+                            }),
                 target => target
                     .Entity("ReferencedTable", x => x.Property<int>("Id"))
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id").HasName("PK_Table");
-                            x.Property<int>("ForeignId").HasColumnName("RenamedForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
-                            x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_Table");
+                                x.Property<int>("ForeignId").HasColumnName("RenamedForeignId");
+                                x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                                x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
+                            }),
                 operations =>
-                {
-                    Assert.Equal(2, operations.Count);
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<RenameColumnOperation>(operations[0]);
 
-                    var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
-                    Assert.Equal("FK_Table_ReferencedTable_RenamedForeignId", addForeignKeyOperation.Name);
-                    Assert.Equal(new[] { "RenamedForeignId" }, addForeignKeyOperation.Columns);
-                });
+                        var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                        Assert.Equal("FK_Table_ReferencedTable_RenamedForeignId", addForeignKeyOperation.Name);
+                        Assert.Equal(new[] { "RenamedForeignId" }, addForeignKeyOperation.Columns);
+                    });
         }
 
         [Fact]
@@ -4174,48 +4162,48 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     .Entity(
                         "ReferencedTable",
                         x =>
-                        {
-                            x.ToTable("ReferencedTable", "old");
-                            x.Property<int>("Id");
-                        })
+                            {
+                                x.ToTable("ReferencedTable", "old");
+                                x.Property<int>("Id");
+                            })
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasIndex("ForeignId");
+                            }),
                 target => target
                     .Entity(
                         "ReferencedTable",
                         x =>
-                        {
-                            x.ToTable("RenamedReferencedTable", "new");
-                            x.Property<int>("Id");
-                            x.HasKey("Id").HasName("PK_ReferencedTable");
-                        })
+                            {
+                                x.ToTable("RenamedReferencedTable", "new");
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_ReferencedTable");
+                            })
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
+                            }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                    Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                    var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[2]);
-                    Assert.Equal("new", addForeignKeyOperation.PrincipalSchema);
-                    Assert.Equal("RenamedReferencedTable", addForeignKeyOperation.PrincipalTable);
-                    Assert.Equal("FK_Table_RenamedReferencedTable_ForeignId", addForeignKeyOperation.Name);
-                });
+                        var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[2]);
+                        Assert.Equal("new", addForeignKeyOperation.PrincipalSchema);
+                        Assert.Equal("RenamedReferencedTable", addForeignKeyOperation.PrincipalTable);
+                        Assert.Equal("FK_Table_RenamedReferencedTable_ForeignId", addForeignKeyOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4227,31 +4215,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasIndex("ForeignId");
+                            }),
                 target => target
                     .Entity("ReferencedTable", x => x.Property<int>("Id").HasColumnName("ReferencedTableId"))
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
+                            }),
                 operations =>
-                {
-                    Assert.Equal(2, operations.Count);
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<RenameColumnOperation>(operations[0]);
 
-                    var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
-                    Assert.Equal(new[] { "ReferencedTableId" }, addForeignKeyOperation.PrincipalColumns);
-                    Assert.Equal("FK_Table_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
-                });
+                        var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                        Assert.Equal(new[] { "ReferencedTableId" }, addForeignKeyOperation.PrincipalColumns);
+                        Assert.Equal("FK_Table_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4261,45 +4249,45 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 source => source.Entity(
                     "ReferencedTable",
                     x =>
-                    {
-                        x.ToTable("ReferencedTable", "old");
-                        x.Property<int>("Id");
-                    }),
+                        {
+                            x.ToTable("ReferencedTable", "old");
+                            x.Property<int>("Id");
+                        }),
                 target => target
                     .Entity(
                         "ReferencedTable",
                         x =>
-                        {
-                            x.ToTable("RenamedReferencedTable", "new");
-                            x.Property<int>("Id");
-                            x.HasKey("Id").HasName("PK_ReferencedTable");
-                        })
+                            {
+                                x.ToTable("RenamedReferencedTable", "new");
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_ReferencedTable");
+                            })
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
+                            }),
                 operations =>
-                {
-                    Assert.Equal(4, operations.Count);
+                    {
+                        Assert.Equal(4, operations.Count);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                    Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[2]);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                        var createTableOperation = Assert.IsType<CreateTableOperation>(operations[2]);
+                        Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
-                    var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
-                    Assert.Equal("new", addForeignKeyOperation.PrincipalSchema);
-                    Assert.Equal("RenamedReferencedTable", addForeignKeyOperation.PrincipalTable);
-                    Assert.Equal("FK_Table_RenamedReferencedTable_ForeignId", addForeignKeyOperation.Name);
+                        var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
+                        Assert.Equal("new", addForeignKeyOperation.PrincipalSchema);
+                        Assert.Equal("RenamedReferencedTable", addForeignKeyOperation.PrincipalTable);
+                        Assert.Equal("FK_Table_RenamedReferencedTable_ForeignId", addForeignKeyOperation.Name);
 
-                    Assert.IsType<CreateIndexOperation>(operations[3]);
-                });
+                        Assert.IsType<CreateIndexOperation>(operations[3]);
+                    });
         }
 
         [Fact]
@@ -4313,26 +4301,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     .Entity(
                         "Table",
                         x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Property<int>("ForeignId");
-                            x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                        }),
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
+                            }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<RenameColumnOperation>(operations[0]);
 
-                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                        var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
+                        Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
-                    var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
-                    Assert.Equal(new[] { "ReferencedTableId" }, addForeignKeyOperation.PrincipalColumns);
-                    Assert.Equal("FK_Table_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
+                        var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
+                        Assert.Equal(new[] { "ReferencedTableId" }, addForeignKeyOperation.PrincipalColumns);
+                        Assert.Equal("FK_Table_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
 
-                    Assert.IsType<CreateIndexOperation>(operations[2]);
-                });
+                        Assert.IsType<CreateIndexOperation>(operations[2]);
+                    });
         }
 
         [Fact]
@@ -4342,23 +4330,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 source => source.Entity("Table").ToTable("Table", "old").Property<int>("Id"),
                 target => target.Entity("Table").ToTable("RenamedTable", "new").Property<int>("Id"),
                 operations =>
-                {
-                    Assert.Equal(4, operations.Count);
+                    {
+                        Assert.Equal(4, operations.Count);
 
-                    var dropPrimaryKeyOperation = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
-                    Assert.Equal("old", dropPrimaryKeyOperation.Schema);
-                    Assert.Equal("Table", dropPrimaryKeyOperation.Table);
-                    Assert.Equal("PK_Table", dropPrimaryKeyOperation.Name);
+                        var dropPrimaryKeyOperation = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+                        Assert.Equal("old", dropPrimaryKeyOperation.Schema);
+                        Assert.Equal("Table", dropPrimaryKeyOperation.Table);
+                        Assert.Equal("PK_Table", dropPrimaryKeyOperation.Name);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[1]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[1]);
 
-                    Assert.IsType<RenameTableOperation>(operations[2]);
+                        Assert.IsType<RenameTableOperation>(operations[2]);
 
-                    var addPrimaryKeyOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[3]);
-                    Assert.Equal("new", addPrimaryKeyOperation.Schema);
-                    Assert.Equal("RenamedTable", addPrimaryKeyOperation.Table);
-                    Assert.Equal("PK_RenamedTable", addPrimaryKeyOperation.Name);
-                });
+                        var addPrimaryKeyOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[3]);
+                        Assert.Equal("new", addPrimaryKeyOperation.Schema);
+                        Assert.Equal("RenamedTable", addPrimaryKeyOperation.Table);
+                        Assert.Equal("PK_RenamedTable", addPrimaryKeyOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4369,22 +4357,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 target => target.Entity(
                     "Table",
                     x =>
-                    {
-                        x.Property<int>("Id").HasColumnName("RenamedId");
-                        x.HasKey("Id").HasName("PK_Table_Renamed");
-                    }),
+                        {
+                            x.Property<int>("Id").HasColumnName("RenamedId");
+                            x.HasKey("Id").HasName("PK_Table_Renamed");
+                        }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+                        Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
 
-                    Assert.IsType<RenameColumnOperation>(operations[1]);
+                        Assert.IsType<RenameColumnOperation>(operations[1]);
 
-                    var addPrimaryKeyOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
-                    Assert.Equal(new[] { "RenamedId" }, addPrimaryKeyOperation.Columns);
-                    Assert.Equal("PK_Table_Renamed", addPrimaryKeyOperation.Name);
-                });
+                        var addPrimaryKeyOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
+                        Assert.Equal(new[] { "RenamedId" }, addPrimaryKeyOperation.Columns);
+                        Assert.Equal("PK_Table_Renamed", addPrimaryKeyOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4394,34 +4382,34 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 source => source.Entity(
                     "Table",
                     x =>
-                    {
-                        x.ToTable("Table", "old");
-                        x.Property<int>("Id");
-                        x.Property<int>("AlternateId");
-                    }),
+                        {
+                            x.ToTable("Table", "old");
+                            x.Property<int>("Id");
+                            x.Property<int>("AlternateId");
+                        }),
                 target => target.Entity(
                     "Table",
                     x =>
-                    {
-                        x.ToTable("RenamedTable", "new");
-                        x.Property<int>("Id");
-                        x.HasKey("Id").HasName("PK_Table");
-                        x.Property<int>("AlternateId");
-                        x.HasAlternateKey("AlternateId");
-                    }),
+                        {
+                            x.ToTable("RenamedTable", "new");
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_Table");
+                            x.Property<int>("AlternateId");
+                            x.HasAlternateKey("AlternateId");
+                        }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                    Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                    var addUniqueConstraintOperation = Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
-                    Assert.Equal("new", addUniqueConstraintOperation.Schema);
-                    Assert.Equal("RenamedTable", addUniqueConstraintOperation.Table);
-                    Assert.Equal("AK_RenamedTable_AlternateId", addUniqueConstraintOperation.Name);
-                });
+                        var addUniqueConstraintOperation = Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
+                        Assert.Equal("new", addUniqueConstraintOperation.Schema);
+                        Assert.Equal("RenamedTable", addUniqueConstraintOperation.Table);
+                        Assert.Equal("AK_RenamedTable_AlternateId", addUniqueConstraintOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4431,28 +4419,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 source => source.Entity(
                     "Table",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<int>("AlternateId");
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("AlternateId");
+                        }),
                 target => target.Entity(
                     "Table",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<int>("AlternateId").HasColumnName("RenamedAlternateId");
-                        x.HasAlternateKey("AlternateId");
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("AlternateId").HasColumnName("RenamedAlternateId");
+                            x.HasAlternateKey("AlternateId");
+                        }),
                 operations =>
-                {
-                    Assert.Equal(2, operations.Count);
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<RenameColumnOperation>(operations[0]);
 
-                    var addUniqueConstraintOperation = Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
-                    Assert.Equal(new[] { "RenamedAlternateId" }, addUniqueConstraintOperation.Columns);
-                    Assert.Equal("AK_Table_RenamedAlternateId", addUniqueConstraintOperation.Name);
-                });
+                        var addUniqueConstraintOperation = Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
+                        Assert.Equal(new[] { "RenamedAlternateId" }, addUniqueConstraintOperation.Columns);
+                        Assert.Equal("AK_Table_RenamedAlternateId", addUniqueConstraintOperation.Name);
+                    });
         }
 
         [Fact]
@@ -4462,478 +4450,475 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 source => source.Entity(
                     "Table",
                     x =>
-                    {
-                        x.ToTable("Table", "old");
-                        x.Property<int>("Id");
-                        x.Property<string>("Value");
-                    }),
+                        {
+                            x.ToTable("Table", "old");
+                            x.Property<int>("Id");
+                            x.Property<string>("Value");
+                        }),
                 target => target.Entity(
                     "Table",
                     x =>
-                    {
-                        x.ToTable("RenamedTable", "new");
-                        x.Property<int>("Id");
-                        x.HasKey("Id").HasName("PK_Table");
-                        x.Property<string>("Value").IsRequired();
-                    }),
+                        {
+                            x.ToTable("RenamedTable", "new");
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_Table");
+                            x.Property<string>("Value").IsRequired();
+                        }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                    Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                    var alterColumnOperation = Assert.IsType<AlterColumnOperation>(operations[2]);
-                    Assert.Equal("new", alterColumnOperation.Schema);
-                    Assert.Equal("RenamedTable", alterColumnOperation.Table);
-                    Assert.Equal("Value", alterColumnOperation.Name);
-                });
+                        var alterColumnOperation = Assert.IsType<AlterColumnOperation>(operations[2]);
+                        Assert.Equal("new", alterColumnOperation.Schema);
+                        Assert.Equal("RenamedTable", alterColumnOperation.Table);
+                        Assert.Equal("Value", alterColumnOperation.Name);
+                    });
         }
 
         [Fact]
         public void Alter_renamed_column()
         {
             Execute(
-                  source => source.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.Property<int>("Id");
-                          x.Property<string>("Value");
-                      }),
-                  target => target.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.Property<int>("Id");
-                          x.Property<string>("Value").HasColumnName("RenamedValue").IsRequired();
-                      }),
-                  operations =>
-                  {
-                      Assert.Equal(2, operations.Count);
+                source => source.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Value");
+                        }),
+                target => target.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Value").HasColumnName("RenamedValue").IsRequired();
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                      Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<RenameColumnOperation>(operations[0]);
 
-                      var alterColumnOperation = Assert.IsType<AlterColumnOperation>(operations[1]);
-                      Assert.Equal("Table", alterColumnOperation.Table);
-                      Assert.Equal("RenamedValue", alterColumnOperation.Name);
-                  });
+                        var alterColumnOperation = Assert.IsType<AlterColumnOperation>(operations[1]);
+                        Assert.Equal("Table", alterColumnOperation.Table);
+                        Assert.Equal("RenamedValue", alterColumnOperation.Name);
+                    });
         }
 
         [Fact]
         public void Alter_renamed_sequence()
         {
             Execute(
-                  source => source.HasSequence("Sequence", "old"),
-                  target => target.HasSequence("Sequence", "new").IncrementsBy(2),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source.HasSequence("Sequence", "old"),
+                target => target.HasSequence("Sequence", "new").IncrementsBy(2),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                      Assert.IsType<RenameSequenceOperation>(operations[1]);
+                        Assert.IsType<RenameSequenceOperation>(operations[1]);
 
-                      var alterSequenceOperation = Assert.IsType<AlterSequenceOperation>(operations[2]);
-                      Assert.Equal("new", alterSequenceOperation.Schema);
-                      Assert.Equal("Sequence", alterSequenceOperation.Name);
-                  });
+                        var alterSequenceOperation = Assert.IsType<AlterSequenceOperation>(operations[2]);
+                        Assert.Equal("new", alterSequenceOperation.Schema);
+                        Assert.Equal("Sequence", alterSequenceOperation.Name);
+                    });
         }
 
         [Fact]
         public void Create_index_on_renamed_table()
         {
             Execute(
-                  source => source.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("Table", "old");
-                          x.Property<int>("Id");
-                          x.Property<int>("Value");
-                      }),
-                  target => target.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("RenamedTable", "new");
-                          x.Property<int>("Id");
-                          x.HasKey("Id").HasName("PK_Table");
-                          x.Property<int>("Value");
-                          x.HasIndex("Value");
-                      }),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("Table", "old");
+                            x.Property<int>("Id");
+                            x.Property<int>("Value");
+                        }),
+                target => target.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("RenamedTable", "new");
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_Table");
+                            x.Property<int>("Value");
+                            x.HasIndex("Value");
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                      Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                      var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[2]);
-                      Assert.Equal("new", createIndexOperation.Schema);
-                      Assert.Equal("RenamedTable", createIndexOperation.Table);
-                      Assert.Equal("IX_RenamedTable_Value", createIndexOperation.Name);
-                  });
+                        var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[2]);
+                        Assert.Equal("new", createIndexOperation.Schema);
+                        Assert.Equal("RenamedTable", createIndexOperation.Table);
+                        Assert.Equal("IX_RenamedTable_Value", createIndexOperation.Name);
+                    });
         }
 
         [Fact]
         public void Create_index_on_renamed_column()
         {
             Execute(
-                  source => source.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.Property<int>("Id");
-                          x.Property<int>("Value");
-                      }),
-                  target => target.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.Property<int>("Id");
-                          x.Property<int>("Value").HasColumnName("RenamedValue");
-                          x.HasIndex("Value");
-                      }),
-                  operations =>
-                  {
-                      Assert.Equal(2, operations.Count);
+                source => source.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("Value");
+                        }),
+                target => target.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("Value").HasColumnName("RenamedValue");
+                            x.HasIndex("Value");
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                      Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<RenameColumnOperation>(operations[0]);
 
-                      var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[1]);
-                      Assert.Equal(new[] { "RenamedValue" }, createIndexOperation.Columns);
-                      Assert.Equal("IX_Table_RenamedValue", createIndexOperation.Name);
-                  });
+                        var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[1]);
+                        Assert.Equal(new[] { "RenamedValue" }, createIndexOperation.Columns);
+                        Assert.Equal("IX_Table_RenamedValue", createIndexOperation.Name);
+                    });
         }
 
         [Fact]
         public void Drop_column_on_renamed_table()
         {
             Execute(
-                  source => source
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.ToTable("Table", "old");
-                              x.Property<int>("Id");
-                              x.Property<string>("Value");
-                          }),
-                  target => target
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.ToTable("RenamedTable", "new");
-                              x.Property<int>("Id");
-                              x.HasKey("Id").HasName("PK_Table");
-                          }),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.ToTable("Table", "old");
+                                x.Property<int>("Id");
+                                x.Property<string>("Value");
+                            }),
+                target => target
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.ToTable("RenamedTable", "new");
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_Table");
+                            }),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      var dropColumnOperation = Assert.IsType<DropColumnOperation>(operations[0]);
-                      Assert.Equal("old", dropColumnOperation.Schema);
-                      Assert.Equal("Table", dropColumnOperation.Table);
-                      Assert.Equal("Value", dropColumnOperation.Name);
+                        var dropColumnOperation = Assert.IsType<DropColumnOperation>(operations[0]);
+                        Assert.Equal("old", dropColumnOperation.Schema);
+                        Assert.Equal("Table", dropColumnOperation.Table);
+                        Assert.Equal("Value", dropColumnOperation.Name);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[1]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[1]);
 
-                      Assert.IsType<RenameTableOperation>(operations[2]);
-                  });
+                        Assert.IsType<RenameTableOperation>(operations[2]);
+                    });
         }
 
         [Fact]
         public void Drop_foreign_key_on_renamed_table()
         {
             Execute(
-                  source => source
-                      .Entity("ReferencedTable", x => x.Property<int>("Id"))
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.ToTable("Table", "old");
-                              x.Property<int>("Id");
-                              x.Property<int>("ForeignId");
-                              x.HasIndex("ForeignId");
-                              x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                          }),
-                  target => target
-                      .Entity("ReferencedTable", x => x.Property<int>("Id"))
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.ToTable("RenamedTable", "new");
-                              x.Property<int>("Id");
-                              x.HasKey("Id").HasName("PK_Table");
-                              x.Property<int>("ForeignId");
-                              x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
-                          }),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source
+                    .Entity("ReferencedTable", x => x.Property<int>("Id"))
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.ToTable("Table", "old");
+                                x.Property<int>("Id");
+                                x.Property<int>("ForeignId");
+                                x.HasIndex("ForeignId");
+                                x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
+                            }),
+                target => target
+                    .Entity("ReferencedTable", x => x.Property<int>("Id"))
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.ToTable("RenamedTable", "new");
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_Table");
+                                x.Property<int>("ForeignId");
+                                x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                            }),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      var dropForeignKeyOperation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
-                      Assert.Equal("old", dropForeignKeyOperation.Schema);
-                      Assert.Equal("Table", dropForeignKeyOperation.Table);
-                      Assert.Equal("FK_Table_ReferencedTable_ForeignId", dropForeignKeyOperation.Name);
+                        var dropForeignKeyOperation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
+                        Assert.Equal("old", dropForeignKeyOperation.Schema);
+                        Assert.Equal("Table", dropForeignKeyOperation.Table);
+                        Assert.Equal("FK_Table_ReferencedTable_ForeignId", dropForeignKeyOperation.Name);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[1]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[1]);
 
-                      Assert.IsType<RenameTableOperation>(operations[2]);
-                  });
+                        Assert.IsType<RenameTableOperation>(operations[2]);
+                    });
         }
 
         [Fact]
         public void Drop_alternate_key_on_renamed_table()
         {
             Execute(
-                  source => source.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("Table", "old");
-                          x.Property<int>("Id");
-                          x.Property<int>("AlternateId");
-                          x.HasAlternateKey("AlternateId");
-                      }),
-                  target => target.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("RenamedTable", "new");
-                          x.Property<int>("Id");
-                          x.HasKey("Id").HasName("PK_Table");
-                          x.Property<int>("AlternateId");
-                      }),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("Table", "old");
+                            x.Property<int>("Id");
+                            x.Property<int>("AlternateId");
+                            x.HasAlternateKey("AlternateId");
+                        }),
+                target => target.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("RenamedTable", "new");
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_Table");
+                            x.Property<int>("AlternateId");
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      var dropUniqueConstraintOperation = Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
-                      Assert.Equal("old", dropUniqueConstraintOperation.Schema);
-                      Assert.Equal("Table", dropUniqueConstraintOperation.Table);
-                      Assert.Equal("AK_Table_AlternateId", dropUniqueConstraintOperation.Name);
+                        var dropUniqueConstraintOperation = Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+                        Assert.Equal("old", dropUniqueConstraintOperation.Schema);
+                        Assert.Equal("Table", dropUniqueConstraintOperation.Table);
+                        Assert.Equal("AK_Table_AlternateId", dropUniqueConstraintOperation.Name);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[1]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[1]);
 
-                      Assert.IsType<RenameTableOperation>(operations[2]);
-                  });
+                        Assert.IsType<RenameTableOperation>(operations[2]);
+                    });
         }
 
         [Fact]
         public void Drop_index_on_renamed_table()
         {
             Execute(
-                  source => source.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("Table", "old");
-                          x.Property<int>("Id");
-                          x.Property<int>("Value");
-                          x.HasIndex("Value");
-                      }),
-                  target => target.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("RenamedTable", "new");
-                          x.Property<int>("Id");
-                          x.HasKey("Id").HasName("PK_Table");
-                          x.Property<int>("Value");
-                      }),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("Table", "old");
+                            x.Property<int>("Id");
+                            x.Property<int>("Value");
+                            x.HasIndex("Value");
+                        }),
+                target => target.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("RenamedTable", "new");
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_Table");
+                            x.Property<int>("Value");
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      var dropIndexOperation = Assert.IsType<DropIndexOperation>(operations[0]);
-                      Assert.Equal("old", dropIndexOperation.Schema);
-                      Assert.Equal("Table", dropIndexOperation.Table);
-                      Assert.Equal("IX_Table_Value", dropIndexOperation.Name);
+                        var dropIndexOperation = Assert.IsType<DropIndexOperation>(operations[0]);
+                        Assert.Equal("old", dropIndexOperation.Schema);
+                        Assert.Equal("Table", dropIndexOperation.Table);
+                        Assert.Equal("IX_Table_Value", dropIndexOperation.Name);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[1]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[1]);
 
-                      Assert.IsType<RenameTableOperation>(operations[2]);
-                  });
+                        Assert.IsType<RenameTableOperation>(operations[2]);
+                    });
         }
 
         [Fact]
         public void Restart_renamed_sequence()
         {
             Execute(
-                  source => source.HasSequence("Sequence", "old"),
-                  target => target.HasSequence("Sequence", "new").StartsAt(2),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source.HasSequence("Sequence", "old"),
+                target => target.HasSequence("Sequence", "new").StartsAt(2),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                      Assert.IsType<RenameSequenceOperation>(operations[1]);
+                        Assert.IsType<RenameSequenceOperation>(operations[1]);
 
-                      var alterSequenceOperation = Assert.IsType<RestartSequenceOperation>(operations[2]);
-                      Assert.Equal("new", alterSequenceOperation.Schema);
-                      Assert.Equal("Sequence", alterSequenceOperation.Name);
-                  });
+                        var alterSequenceOperation = Assert.IsType<RestartSequenceOperation>(operations[2]);
+                        Assert.Equal("new", alterSequenceOperation.Schema);
+                        Assert.Equal("Sequence", alterSequenceOperation.Name);
+                    });
         }
 
         [Fact]
         public void Rename_column_on_renamed_table()
         {
             Execute(
-                  source => source
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.ToTable("Table", "old");
-                              x.Property<int>("Id");
-                              x.Property<string>("Value");
-                          }),
-                  target => target
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.ToTable("RenamedTable", "new");
-                              x.Property<int>("Id");
-                              x.HasKey("Id").HasName("PK_Table");
-                              x.Property<string>("Value").HasColumnName("RenamedValue");
-                          }),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.ToTable("Table", "old");
+                                x.Property<int>("Id");
+                                x.Property<string>("Value");
+                            }),
+                target => target
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.ToTable("RenamedTable", "new");
+                                x.Property<int>("Id");
+                                x.HasKey("Id").HasName("PK_Table");
+                                x.Property<string>("Value").HasColumnName("RenamedValue");
+                            }),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                      Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                      var renameColumnOperation = Assert.IsType<RenameColumnOperation>(operations[2]);
-                      Assert.Equal("new", renameColumnOperation.Schema);
-                      Assert.Equal("RenamedTable", renameColumnOperation.Table);
-                      Assert.Equal("RenamedValue", renameColumnOperation.NewName);
-                  });
+                        var renameColumnOperation = Assert.IsType<RenameColumnOperation>(operations[2]);
+                        Assert.Equal("new", renameColumnOperation.Schema);
+                        Assert.Equal("RenamedTable", renameColumnOperation.Table);
+                        Assert.Equal("RenamedValue", renameColumnOperation.NewName);
+                    });
         }
 
         [Fact]
         public void Rename_index_on_renamed_table()
         {
             Execute(
-                  source => source.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("Table", "old");
-                          x.Property<int>("Id");
-                          x.Property<int>("Value");
-                          x.HasIndex("Value");
-                      }),
-                  target => target.Entity(
-                      "Table",
-                      x =>
-                      {
-                          x.ToTable("RenamedTable", "new");
-                          x.Property<int>("Id");
-                          x.HasKey("Id").HasName("PK_Table");
-                          x.Property<int>("Value");
-                          x.HasIndex("Value");
-                      }),
-                  operations =>
-                  {
-                      Assert.Equal(3, operations.Count);
+                source => source.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("Table", "old");
+                            x.Property<int>("Id");
+                            x.Property<int>("Value");
+                            x.HasIndex("Value");
+                        }),
+                target => target.Entity(
+                    "Table",
+                    x =>
+                        {
+                            x.ToTable("RenamedTable", "new");
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_Table");
+                            x.Property<int>("Value");
+                            x.HasIndex("Value");
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                      Assert.IsType<EnsureSchemaOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                      Assert.IsType<RenameTableOperation>(operations[1]);
+                        Assert.IsType<RenameTableOperation>(operations[1]);
 
-                      var renameIndexOperation = Assert.IsType<RenameIndexOperation>(operations[2]);
-                      Assert.Equal("new", renameIndexOperation.Schema);
-                      Assert.Equal("RenamedTable", renameIndexOperation.Table);
-                      Assert.Equal("IX_RenamedTable_Value", renameIndexOperation.NewName);
-                  });
+                        var renameIndexOperation = Assert.IsType<RenameIndexOperation>(operations[2]);
+                        Assert.Equal("new", renameIndexOperation.Schema);
+                        Assert.Equal("RenamedTable", renameIndexOperation.Table);
+                        Assert.Equal("IX_RenamedTable_Value", renameIndexOperation.NewName);
+                    });
         }
 
         [Fact]
         public void Add_alternate_key_on_added_column()
         {
             Execute(
-                  source => source
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.Property<int>("Id");
-                          }),
-                  target => target
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.Property<int>("Id");
-                              x.Property<int>("AlternateId");
-                              x.HasAlternateKey("AlternateId");
-                          }),
-                  operations =>
-                  {
-                      Assert.Equal(2, operations.Count);
+                source => source
+                    .Entity(
+                        "Table",
+                        x => { x.Property<int>("Id"); }),
+                target => target
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("AlternateId");
+                                x.HasAlternateKey("AlternateId");
+                            }),
+                operations =>
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                      Assert.IsType<AddColumnOperation>(operations[0]);
-                      Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
-                  });
+                        Assert.IsType<AddColumnOperation>(operations[0]);
+                        Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
+                    });
         }
 
         [Fact]
         public void Add_foreign_key_referencing_added_alternate_key()
         {
             Execute(
-                  source => source
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.Property<int>("Id");
-                              x.Property<int>("AlternateId");
-                          })
-                      .Entity(
-                          "ReferencingTable",
-                          x =>
-                          {
-                              x.Property<int>("Id");
-                              x.Property<int>("ReferencedAlternateId");
-                              x.HasIndex("ReferencedAlternateId");
-                          }),
-                  target => target
-                      .Entity(
-                          "Table",
-                          x =>
-                          {
-                              x.Property<int>("Id");
-                              x.Property<int>("AlternateId");
-                              x.HasAlternateKey("AlternateId");
-                          })
-                      .Entity(
-                          "ReferencingTable",
-                          x =>
-                          {
-                              x.Property<int>("Id");
-                              x.Property<int>("ReferencedAlternateId");
-                              x.HasOne("Table").WithMany()
-                                  .HasForeignKey("ReferencedAlternateId")
-                                  .HasPrincipalKey("AlternateId");
-                          }),
-                  operations =>
-                  {
-                      Assert.Equal(2, operations.Count);
+                source => source
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("AlternateId");
+                            })
+                    .Entity(
+                        "ReferencingTable",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ReferencedAlternateId");
+                                x.HasIndex("ReferencedAlternateId");
+                            }),
+                target => target
+                    .Entity(
+                        "Table",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("AlternateId");
+                                x.HasAlternateKey("AlternateId");
+                            })
+                    .Entity(
+                        "ReferencingTable",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<int>("ReferencedAlternateId");
+                                x.HasOne("Table").WithMany()
+                                    .HasForeignKey("ReferencedAlternateId")
+                                    .HasPrincipalKey("AlternateId");
+                            }),
+                operations =>
+                    {
+                        Assert.Equal(2, operations.Count);
 
-                      Assert.IsType<AddUniqueConstraintOperation>(operations[0]);
-                      Assert.IsType<AddForeignKeyOperation>(operations[1]);
-                  });
+                        Assert.IsType<AddUniqueConstraintOperation>(operations[0]);
+                        Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                    });
         }
     }
 }

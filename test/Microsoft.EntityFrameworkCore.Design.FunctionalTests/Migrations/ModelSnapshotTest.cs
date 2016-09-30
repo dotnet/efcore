@@ -271,7 +271,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                             t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+AnotherDerivedEntity", t.Name),
                             t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
                             t => Assert.Equal("Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
-                            );
+                        );
                     });
         }
 
@@ -365,7 +365,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                             o.GetEntityTypes().First().GetProperties(),
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                            );
+                        );
                     });
         }
 
@@ -397,7 +397,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                             o.GetEntityTypes().First().FindPrimaryKey().Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                            );
+                        );
                     });
         }
 
@@ -431,7 +431,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                             o.GetEntityTypes().First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                            );
+                        );
                     });
         }
 
@@ -740,7 +740,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
     });
 ",
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"]); }
-                );
+            );
         }
 
         [Fact]
@@ -748,10 +748,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
         {
             Test(
                 builder =>
-                {
-                    builder.Entity<EntityWithOneProperty>().Property<int>("Id").HasValueGenerator<CustomValueGenerator>();
-                    builder.Ignore<EntityWithTwoProperties>();
-                },
+                    {
+                        builder.Entity<EntityWithOneProperty>().Property<int>("Id").HasValueGenerator<CustomValueGenerator>();
+                        builder.Ignore<EntityWithTwoProperties>();
+                    },
                 @"
 builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
@@ -764,7 +764,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
     });
 ",
                 o => { Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactoryAnnotation]); }
-                );
+            );
         }
 
         [Fact]

@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     given navigation property.
         /// </returns>
         public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(
-            [NotNull] Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression) 
+            [NotNull] Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
             where TProperty : class
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>([NotNull] string navigationPropertyName) 
+        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>([NotNull] string navigationPropertyName)
             where TProperty : class
         {
             Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>([NotNull] string navigationPropertyName) 
+        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>([NotNull] string navigationPropertyName)
             where TProperty : class
         {
             Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));

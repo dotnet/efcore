@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The generated value. </returns>
         public new virtual Task<TValue> NextAsync(
-            [NotNull] EntityEntry entry,
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] EntityEntry entry,
+                CancellationToken cancellationToken = default(CancellationToken))
             => Task.FromResult(Next(entry));
 
         /// <summary>
@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
         protected override Task<object> NextValueAsync(
-            EntityEntry entry,
-            CancellationToken cancellationToken = default(CancellationToken))
+                EntityEntry entry,
+                CancellationToken cancellationToken = default(CancellationToken))
             => Task.FromResult((object)Next(entry));
     }
 }

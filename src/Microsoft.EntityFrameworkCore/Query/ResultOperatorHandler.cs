@@ -128,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static Expression HandleConcat(
-            EntityQueryModelVisitor entityQueryModelVisitor,
-            ConcatResultOperator concatResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor,
+                ConcatResultOperator concatResultOperator)
             => HandleSetOperation(
                 entityQueryModelVisitor,
                 concatResultOperator.Source2,
@@ -192,19 +192,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleExcept(
-            EntityQueryModelVisitor entityQueryModelVisitor,
-            ExceptResultOperator exceptResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor,
+                ExceptResultOperator exceptResultOperator)
             => HandleSetOperation(
                 entityQueryModelVisitor,
                 exceptResultOperator.Source2,
                 entityQueryModelVisitor.LinqOperatorProvider.Except);
 
         private static Expression HandleFirst(
-            EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
             => CallWithPossibleCancellationToken(
                 (choiceResultOperator.ReturnDefaultWhenEmpty
-                    ? entityQueryModelVisitor.LinqOperatorProvider.FirstOrDefault
-                    : entityQueryModelVisitor.LinqOperatorProvider.First)
+                        ? entityQueryModelVisitor.LinqOperatorProvider.FirstOrDefault
+                        : entityQueryModelVisitor.LinqOperatorProvider.First)
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
@@ -246,19 +246,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static Expression HandleIntersect(
-            EntityQueryModelVisitor entityQueryModelVisitor,
-            IntersectResultOperator intersectResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor,
+                IntersectResultOperator intersectResultOperator)
             => HandleSetOperation(
                 entityQueryModelVisitor,
                 intersectResultOperator.Source2,
                 entityQueryModelVisitor.LinqOperatorProvider.Intersect);
 
         private static Expression HandleLast(
-            EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
             => CallWithPossibleCancellationToken(
                 (choiceResultOperator.ReturnDefaultWhenEmpty
-                    ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
-                    : entityQueryModelVisitor.LinqOperatorProvider.Last)
+                        ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
+                        : entityQueryModelVisitor.LinqOperatorProvider.Last)
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
@@ -275,24 +275,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             => HandleAggregate(entityQueryModelVisitor, "Max");
 
         private static Expression HandleOfType(
-            EntityQueryModelVisitor entityQueryModelVisitor,
-            OfTypeResultOperator ofTypeResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor,
+                OfTypeResultOperator ofTypeResultOperator)
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.OfType
                     .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleSingle(
-            EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
             => CallWithPossibleCancellationToken(
                 (choiceResultOperator.ReturnDefaultWhenEmpty
-                    ? entityQueryModelVisitor.LinqOperatorProvider.SingleOrDefault
-                    : entityQueryModelVisitor.LinqOperatorProvider.Single)
+                        ? entityQueryModelVisitor.LinqOperatorProvider.SingleOrDefault
+                        : entityQueryModelVisitor.LinqOperatorProvider.Single)
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleSkip(
-            EntityQueryModelVisitor entityQueryModelVisitor, SkipResultOperator skipResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor, SkipResultOperator skipResultOperator)
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Skip
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => HandleAggregate(entityQueryModelVisitor, "Sum");
 
         private static Expression HandleTake(
-            EntityQueryModelVisitor entityQueryModelVisitor, TakeResultOperator takeResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor, TakeResultOperator takeResultOperator)
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Take
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
@@ -313,8 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Visit(takeResultOperator.Count));
 
         private static Expression HandleUnion(
-            EntityQueryModelVisitor entityQueryModelVisitor,
-            UnionResultOperator unionResultOperator)
+                EntityQueryModelVisitor entityQueryModelVisitor,
+                UnionResultOperator unionResultOperator)
             => HandleSetOperation(
                 entityQueryModelVisitor,
                 unionResultOperator.Source2,

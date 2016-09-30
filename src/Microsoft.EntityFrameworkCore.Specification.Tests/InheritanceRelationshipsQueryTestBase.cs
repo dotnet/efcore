@@ -3,8 +3,8 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.InheritanceRelationships;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.InheritanceRelationships;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests

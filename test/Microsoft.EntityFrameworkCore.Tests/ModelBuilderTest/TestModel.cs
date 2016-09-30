@@ -7,10 +7,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -474,6 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             [Key]
             public int MyPrimaryKey { get; set; }
+
             public int AnotherKey { get; set; }
 
             public int ForeignKeyProperty { get; set; }
@@ -482,7 +481,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public PrincipalTypeWithKeyAnnotation Navigation { get; set; }
         }
 
-        protected class DerivedTypeWithKeyAnnotation : BaseTypeWithKeyAnnotation { }
+        protected class DerivedTypeWithKeyAnnotation : BaseTypeWithKeyAnnotation
+        {
+        }
 
         protected class PrincipalTypeWithKeyAnnotation
         {

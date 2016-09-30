@@ -85,8 +85,8 @@ namespace System
 
         private static bool IsGrouping(TypeInfo type)
             => type.IsGenericType
-                    && (type.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                        || type.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>));
+               && (type.GetGenericTypeDefinition() == typeof(IGrouping<,>)
+                   || type.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>));
 
         public static Type UnwrapEnumType(this Type type)
         {

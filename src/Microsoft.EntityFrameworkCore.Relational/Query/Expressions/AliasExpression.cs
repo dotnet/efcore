@@ -120,17 +120,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual MemberInfo SourceMember { get; [param: CanBeNull] set; }
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
-            
+
             return specificVisitor != null
-                       ? specificVisitor.VisitAlias(this)
-                       : base.Accept(visitor);
+                ? specificVisitor.VisitAlias(this)
+                : base.Accept(visitor);
         }
 
         /// <summary>
@@ -151,14 +151,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newInnerExpression = visitor.Visit(_expression);
 
             return newInnerExpression != _expression
-                       ? new AliasExpression(Alias, newInnerExpression)
-                       : this;
+                ? new AliasExpression(Alias, newInnerExpression)
+                : this;
         }
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of the Expression.
+        ///     Creates a <see cref="String" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="String"/> representation of the Expression.</returns>
+        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
         public override string ToString()
             => Alias != null ? "(" + _expression + ") AS " + Alias : _expression.ToString();
 

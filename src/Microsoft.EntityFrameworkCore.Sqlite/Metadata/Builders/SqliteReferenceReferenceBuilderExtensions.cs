@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQLite specific extension methods for <see cref="ReferenceReferenceBuilder"/>.
+    ///     SQLite specific extension methods for <see cref="ReferenceReferenceBuilder" />.
     /// </summary>
     public static class SqliteReferenceReferenceBuilderExtensions
     {
@@ -44,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
             where TReferencedEntity : class
-            => (ReferenceReferenceBuilder<TEntity, TReferencedEntity>)((ReferenceReferenceBuilder)builder).ForSqliteHasConstraintName(name);
+        => (ReferenceReferenceBuilder<TEntity, TReferencedEntity>)((ReferenceReferenceBuilder)builder).ForSqliteHasConstraintName(name);
     }
 }

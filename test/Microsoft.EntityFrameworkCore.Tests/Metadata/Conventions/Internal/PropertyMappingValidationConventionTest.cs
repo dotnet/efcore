@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             entityTypeBuilder.Property("Property", typeof(NavigationAsProperty), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.PropertyNotMapped(
-                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
-                "Property",
-                typeof(NavigationAsProperty).ShortDisplayName()),
+                    typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                    "Property",
+                    typeof(NavigationAsProperty).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 
@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(InterfaceNavigationEntity), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.InterfacePropertyNotAdded(
-                typeof(InterfaceNavigationEntity).ShortDisplayName(),
-                "Navigation",
-                typeof(IList<INavigationEntity>).ShortDisplayName()),
+                    typeof(InterfaceNavigationEntity).ShortDisplayName(),
+                    "Navigation",
+                    typeof(IList<INavigationEntity>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 
