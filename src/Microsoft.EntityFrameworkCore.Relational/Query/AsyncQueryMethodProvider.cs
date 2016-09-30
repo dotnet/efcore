@@ -34,15 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _ShapedQuery<T>(
-            QueryContext queryContext,
-            ShaperCommandContext shaperCommandContext,
-            IShaper<T> shaper
-        ) => AsyncLinqOperatorProvider
-            ._Select(new AsyncQueryingEnumerable(
-                    (RelationalQueryContext)queryContext,
-                    shaperCommandContext,
-                    queryIndex: null),
-                vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
+                QueryContext queryContext,
+                ShaperCommandContext shaperCommandContext,
+                IShaper<T> shaper)
+            => AsyncLinqOperatorProvider
+                ._Select(new AsyncQueryingEnumerable(
+                        (RelationalQueryContext)queryContext,
+                        shaperCommandContext,
+                        queryIndex: null),
+                    vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
 
         /// <summary>
         ///     The default if empty shaped query method.
@@ -55,17 +55,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
-            QueryContext queryContext,
-            ShaperCommandContext shaperCommandContext,
-            IShaper<T> shaper
-        ) => AsyncLinqOperatorProvider
-            ._Select(
-                new DefaultIfEmptyAsyncEnumerable(
-                    new AsyncQueryingEnumerable(
-                        (RelationalQueryContext)queryContext,
-                        shaperCommandContext,
-                        queryIndex: null)),
-                vb => shaper.Shape(queryContext, vb));
+                QueryContext queryContext,
+                ShaperCommandContext shaperCommandContext,
+                IShaper<T> shaper)
+            => AsyncLinqOperatorProvider
+                ._Select(
+                    new DefaultIfEmptyAsyncEnumerable(
+                        new AsyncQueryingEnumerable(
+                            (RelationalQueryContext)queryContext,
+                            shaperCommandContext,
+                            queryIndex: null)),
+                    vb => shaper.Shape(queryContext, vb));
 
         private sealed class DefaultIfEmptyAsyncEnumerable : IAsyncEnumerable<ValueBuffer>
         {
@@ -136,13 +136,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<ValueBuffer> _Query(
-            QueryContext queryContext,
-            ShaperCommandContext shaperCommandContext,
-            int? queryIndex
-        ) => new AsyncQueryingEnumerable(
-            (RelationalQueryContext)queryContext,
-            shaperCommandContext,
-            queryIndex);
+                QueryContext queryContext,
+                ShaperCommandContext shaperCommandContext,
+                int? queryIndex)
+            => new AsyncQueryingEnumerable(
+                (RelationalQueryContext)queryContext,
+                shaperCommandContext,
+                queryIndex);
 
         /// <summary>
         ///     The get result method.
@@ -183,10 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
-            IAsyncEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector,
-            Func<TSource, TElement> elementSelector
-        ) => new GroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, TKey> keySelector,
+                Func<TSource, TElement> elementSelector)
+            => new GroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
 
         private sealed class GroupByAsyncEnumerable<TSource, TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
         {
@@ -323,23 +323,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
-            RelationalQueryContext queryContext,
-            IAsyncEnumerable<ValueBuffer> source,
-            IShaper<TOuter> outerShaper,
-            IShaper<TInner> innerShaper,
-            Func<TInner, TKey> innerKeySelector,
-            Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector,
-            AsyncGroupJoinInclude outerGroupJoinInclude,
-            AsyncGroupJoinInclude innerGroupJoinInclude
-        ) => new GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult>(
-            queryContext,
-            source,
-            outerShaper,
-            innerShaper,
-            innerKeySelector,
-            resultSelector,
-            outerGroupJoinInclude,
-            innerGroupJoinInclude);
+                RelationalQueryContext queryContext,
+                IAsyncEnumerable<ValueBuffer> source,
+                IShaper<TOuter> outerShaper,
+                IShaper<TInner> innerShaper,
+                Func<TInner, TKey> innerKeySelector,
+                Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector,
+                AsyncGroupJoinInclude outerGroupJoinInclude,
+                AsyncGroupJoinInclude innerGroupJoinInclude)
+            => new GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult>(
+                queryContext,
+                source,
+                outerShaper,
+                innerShaper,
+                innerKeySelector,
+                resultSelector,
+                outerGroupJoinInclude,
+                innerGroupJoinInclude);
 
         private sealed class GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> : IAsyncEnumerable<TResult>
         {
@@ -682,10 +682,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static IAsyncRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
-            int valueBufferOffset,
-            int queryIndex,
-            Func<ValueBuffer, object> materializer
-        ) => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
+                int valueBufferOffset,
+                int queryIndex,
+                Func<ValueBuffer, object> materializer)
+            => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
 
         private sealed class ReferenceRelatedEntitiesLoader : IAsyncRelatedEntitiesLoader
         {
@@ -825,11 +825,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TElement> _InjectParameters<TElement>(
-            QueryContext queryContext,
-            IAsyncEnumerable<TElement> source,
-            string[] parameterNames,
-            object[] parameterValues
-        ) => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
+                QueryContext queryContext,
+                IAsyncEnumerable<TElement> source,
+                string[] parameterNames,
+                object[] parameterValues)
+            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
 
         private sealed class ParameterInjector<TElement> : IAsyncEnumerable<TElement>
         {

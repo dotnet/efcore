@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set as the primary key if one is not already defined. </param>
         /// <returns> The existing or newly created key. </returns>
         public static IMutableKey GetOrSetPrimaryKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property
-        ) => entityType.GetOrSetPrimaryKey(new[] { property });
+                [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            => entityType.GetOrSetPrimaryKey(new[] { property });
 
         /// <summary>
         ///     Gets the existing primary key of an entity, or sets it if one is not defined.
@@ -110,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property that is used as the alternate key. </param>
         /// <returns> The existing or newly created alternate key. </returns>
         public static IMutableKey GetOrAddKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property
-        ) => entityType.GetOrAddKey(new[] { property });
+                [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            => entityType.GetOrAddKey(new[] { property });
 
         /// <summary>
         ///     Gets the existing alternate key defined on a set of properties, or creates a new one if one is not
@@ -136,8 +136,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IMutableForeignKey> FindForeignKeys(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IProperty property
-        ) => entityType.FindForeignKeys(new[] { property });
+                [NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
+            => entityType.FindForeignKeys(new[] { property });
 
         /// <summary>
         ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -147,8 +147,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IMutableForeignKey> FindForeignKeys(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties
-        ) => ((IEntityType)entityType).FindForeignKeys(properties).Cast<IMutableForeignKey>();
+                [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
+            => ((IEntityType)entityType).FindForeignKeys(properties).Cast<IMutableForeignKey>();
 
         /// <summary>
         ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns null
@@ -219,11 +219,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The existing or newly created foreign key. </returns>
         public static IMutableForeignKey GetOrAddForeignKey(
-            [NotNull] this IMutableEntityType entityType,
-            [NotNull] IMutableProperty property,
-            [NotNull] IMutableKey principalKey,
-            [NotNull] IMutableEntityType principalEntityType
-        ) => entityType.GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
+                [NotNull] this IMutableEntityType entityType,
+                [NotNull] IMutableProperty property,
+                [NotNull] IMutableKey principalKey,
+                [NotNull] IMutableEntityType principalEntityType)
+            => entityType.GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
 
         /// <summary>
         ///     Gets an existing relationship, or creates a new one if one is not already defined.
@@ -325,8 +325,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The existing or newly created property. </returns>
         /// <remarks> The returned property might not have the specified type and shadowness. </remarks>
         public static IMutableProperty GetOrAddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] Type propertyType
-        ) => entityType.FindProperty(name) ?? entityType.AddProperty(name, propertyType);
+                [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] Type propertyType)
+            => entityType.FindProperty(name) ?? entityType.AddProperty(name, propertyType);
 
         /// <summary>
         ///     Gets the property with the given name, or creates a new one if one is not already defined.
@@ -372,8 +372,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to be indexed. </param>
         /// <returns> The existing or newly created index. </returns>
         public static IMutableIndex GetOrAddIndex(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property
-        ) => entityType.GetOrAddIndex(new[] { property });
+                [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            => entityType.GetOrAddIndex(new[] { property });
 
         /// <summary>
         ///     Gets the index defined on the given property or creates a new one if one is not already defined.

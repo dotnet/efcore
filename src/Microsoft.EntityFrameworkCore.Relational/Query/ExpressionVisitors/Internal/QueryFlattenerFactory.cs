@@ -17,14 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual QueryFlattener Create(
-            IQuerySource querySource,
-            RelationalQueryCompilationContext relationalQueryCompilationContext,
-            MethodInfo operatorToFlatten,
-            int readerOffset
-        ) => new QueryFlattener(
-            querySource,
-            relationalQueryCompilationContext,
-            operatorToFlatten,
-            readerOffset);
+                IQuerySource querySource,
+                RelationalQueryCompilationContext relationalQueryCompilationContext,
+                MethodInfo operatorToFlatten,
+                int readerOffset)
+            => new QueryFlattener(
+                querySource,
+                relationalQueryCompilationContext,
+                operatorToFlatten,
+                readerOffset);
     }
 }
