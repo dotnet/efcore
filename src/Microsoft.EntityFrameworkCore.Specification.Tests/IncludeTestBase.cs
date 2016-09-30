@@ -2864,8 +2864,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             .Take(10)
                             .ToList();
 
-                Assert.True(customers.All(c => c.Orders.Count > 0));
-
                 foreach (var customer in customers)
                 {
                     CheckIsLoaded(
@@ -2898,7 +2896,45 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             .Skip(80)
                             .ToList();
 
-                Assert.True(customers.All(c => c.Orders.Count > 0));
+                foreach (var customer in customers)
+                {
+                    CheckIsLoaded(
+                        context,
+                        customer,
+                        ordersLoaded: true,
+                        orderDetailsLoaded: false,
+                        productLoaded: false);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_with_conditional_order_by(bool useString)
+        {
+            int customersWithPrefix;
+            using (var context = CreateContext())
+            {
+                customersWithPrefix = context.Customers.Count(c => c.CustomerID.StartsWith("S"));
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var customers
+                    = useString
+                        ? context.Customers
+                            .OrderBy(c => c.CustomerID.StartsWith("S") ? 1 : 2)
+                            .Include(c => c.Orders)
+                            .ToList()
+                        : context.Customers
+                            .OrderBy(c => c.CustomerID.StartsWith("S") ? 1 : 2)
+                            .Include("Orders")
+                            .ToList();
+
+                Assert.True(customers.Take(customersWithPrefix).All(c => c.CustomerID.StartsWith("S")));
 
                 foreach (var customer in customers)
                 {
@@ -3046,6 +3082,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.False(context.Entry(orderDetail.Product).Collection(e => e.OrderDetails).IsLoaded);
             }
+        }
+
+        protected virtual void ClearLog()
+        {
         }
     }
 }

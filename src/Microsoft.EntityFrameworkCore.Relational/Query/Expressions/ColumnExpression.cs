@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         private bool Equals([NotNull] ColumnExpression other)
-            => ((_property == null && other._property == null)
+            => ((_property == null && other._property == null && Name == other.Name)
                 || (_property != null && _property.Equals(other._property)))
                && Type == other.Type
                && _tableExpression.Equals(other._tableExpression);

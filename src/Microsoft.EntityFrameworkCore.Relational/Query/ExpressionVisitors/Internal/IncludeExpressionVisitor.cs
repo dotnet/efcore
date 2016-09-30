@@ -520,9 +520,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                var index = orderingExpression is SelectExpression
-                    ? innerJoinSelectExpression.AddAliasToProjection(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, orderingExpression)
-                    : innerJoinSelectExpression.AddToProjection(orderingExpression);
+                var index = orderingExpression is ColumnExpression || orderingExpression.IsAliasWithColumnExpression()
+                    ? innerJoinSelectExpression.AddToProjection(orderingExpression)
+                    : innerJoinSelectExpression.AddAliasToProjection(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, orderingExpression);
 
                 var expression = innerJoinSelectExpression.Projection[index];
 
@@ -531,8 +531,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     innerJoinSelectExpression.AddToOrderBy(new Ordering(expression.TryGetColumnExpression() ?? expression, ordering.OrderingDirection));
                 }
 
-                var newExpression
-                    = targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);
+                var projectedAliasExpression = expression as AliasExpression;
+                var newExpression = projectedAliasExpression?.Alias != null
+                    ? new ColumnExpression(projectedAliasExpression.Alias, projectedAliasExpression.Type, innerJoinExpression)
+                    : targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);
 
                 targetSelectExpression.AddToOrderBy(new Ordering(newExpression, ordering.OrderingDirection));
             }

@@ -1340,8 +1340,35 @@ ORDER BY [o1].[c0_0] DESC, [o1].[CustomerID], [o1].[OrderID]",
                 Sql);
         }
 
+        public override void Include_collection_with_conditional_order_by(bool useString)
+        {
+            base.Include_collection_with_conditional_order_by(useString);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY CASE
+    WHEN [c].[CustomerID] LIKE N'S' + N'%' AND (CHARINDEX(N'S', [c].[CustomerID]) = 1)
+    THEN 1 ELSE 2
+END, [c].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT CASE
+        WHEN [c].[CustomerID] LIKE N'S' + N'%' AND (CHARINDEX(N'S', [c].[CustomerID]) = 1)
+        THEN 1 ELSE 2
+    END AS [c0_0], [c].[CustomerID]
+    FROM [Customers] AS [c]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[c0_0], [c0].[CustomerID]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
+
+        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
