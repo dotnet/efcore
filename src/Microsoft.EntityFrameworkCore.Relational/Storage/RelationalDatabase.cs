@@ -27,12 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly IRelationalConnection _connection;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDatabase"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDatabase" /> class.
         /// </summary>
-        /// <param name="queryCompilationContextFactory"> The <see cref="IQueryCompilationContextFactory"/> to be used. </param>
-        /// <param name="batchPreparer"> The <see cref="ICommandBatchPreparer"/> to be used. </param>
-        /// <param name="batchExecutor"> The <see cref="IBatchExecutor"/> to be used. </param>
-        /// <param name="connection"> The <see cref="IRelationalConnection"/> to be used. </param>
+        /// <param name="queryCompilationContextFactory"> The <see cref="IQueryCompilationContextFactory" /> to be used. </param>
+        /// <param name="batchPreparer"> The <see cref="ICommandBatchPreparer" /> to be used. </param>
+        /// <param name="batchExecutor"> The <see cref="IBatchExecutor" /> to be used. </param>
+        /// <param name="connection"> The <see cref="IRelationalConnection" /> to be used. </param>
         public RelationalDatabase(
             [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
             [NotNull] ICommandBatchPreparer batchPreparer,
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
         public override int SaveChanges(
-            IReadOnlyList<IUpdateEntry> entries)
+                IReadOnlyList<IUpdateEntry> entries)
             => _batchExecutor.Execute(
                 _batchPreparer.BatchCommands(
                     Check.NotNull(entries, nameof(entries))),
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     number of entries persisted to the database.
         /// </returns>
         public override Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries,
-            CancellationToken cancellationToken = default(CancellationToken))
+                IReadOnlyList<IUpdateEntry> entries,
+                CancellationToken cancellationToken = default(CancellationToken))
             => _batchExecutor.ExecuteAsync(
                 _batchPreparer.BatchCommands(
                     Check.NotNull(entries, nameof(entries))),

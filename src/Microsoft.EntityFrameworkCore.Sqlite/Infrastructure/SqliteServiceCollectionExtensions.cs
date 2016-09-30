@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
-using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -22,7 +21,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    ///     SQLite specific extension methods for <see cref="IServiceCollection"/>.
+    ///     SQLite specific extension methods for <see cref="IServiceCollection" />.
     /// </summary>
     public static class SqliteServiceCollectionExtensions
     {
@@ -41,17 +40,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             var connectionString = "connection string to database";
-        ///
-        ///             services
-        ///                 .AddEntityFrameworkSqlite()
-        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                     options.UseSqlite(connectionString)
-        ///                            .UseInternalServiceProvider(serviceProvider));
-        ///         }
-        ///     </code>
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
+        /// 
+        ///              services
+        ///                  .AddEntityFrameworkSqlite()
+        ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                      options.UseSqlite(connectionString)
+        ///                             .UseInternalServiceProvider(serviceProvider));
+        ///          }
+        ///      </code>
         /// </example>
         /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>

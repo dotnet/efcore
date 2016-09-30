@@ -29,19 +29,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual string CommandText => _relationalCommand.CommandText;
 
         public virtual int ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true)
+                [NotNull] IRelationalConnection connection,
+                [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true)
             => _relationalCommand.ExecuteNonQuery(
                 Check.NotNull(connection, nameof(connection)),
                 parameterValues,
                 manageConnection);
 
         public virtual async Task<int> ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
-            bool manageConnection = true,
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] IRelationalConnection connection,
+                [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
+                bool manageConnection = true,
+                CancellationToken cancellationToken = default(CancellationToken))
             => await _relationalCommand.ExecuteNonQueryAsync(
                 Check.NotNull(connection, nameof(connection)),
                 parameterValues,

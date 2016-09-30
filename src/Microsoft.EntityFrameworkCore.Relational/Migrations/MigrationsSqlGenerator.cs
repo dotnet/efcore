@@ -108,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] AddColumnOperation operation,
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] AddForeignKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] AddForeignKeyOperation operation,
@@ -166,8 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] AddPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] AddPrimaryKeyOperation operation,
@@ -268,8 +268,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] CreateIndexOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] CreateIndexOperation operation,
@@ -346,8 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] CreateTableOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] CreateTableOperation operation,
@@ -409,8 +409,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] DropColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] DropColumnOperation operation,
@@ -437,8 +437,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] DropForeignKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] DropForeignKeyOperation operation,
@@ -473,8 +473,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] DropPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] DropPrimaryKeyOperation operation,
@@ -533,8 +533,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(
             [NotNull] DropTableOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => Generate(operation, model, builder, terminate: true);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
             [NotNull] DropTableOperation operation,
@@ -626,30 +626,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void SequenceOptions(
             [NotNull] AlterSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder) =>
-                SequenceOptions(
-                    operation.Schema,
-                    operation.Name,
-                    operation.IncrementBy,
-                    operation.MinValue,
-                    operation.MaxValue,
-                    operation.IsCyclic,
-                    model,
-                    builder);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => SequenceOptions(
+            operation.Schema,
+            operation.Name,
+            operation.IncrementBy,
+            operation.MinValue,
+            operation.MaxValue,
+            operation.IsCyclic,
+            model,
+            builder);
 
         protected virtual void SequenceOptions(
             [NotNull] CreateSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder) =>
-                SequenceOptions(
-                    operation.Schema,
-                    operation.Name,
-                    operation.IncrementBy,
-                    operation.MinValue,
-                    operation.MaxValue,
-                    operation.IsCyclic,
-                    model,
-                    builder);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => SequenceOptions(
+            operation.Schema,
+            operation.Name,
+            operation.IncrementBy,
+            operation.MinValue,
+            operation.MaxValue,
+            operation.IsCyclic,
+            model,
+            builder);
 
         protected virtual void SequenceOptions(
             [CanBeNull] string schema,
@@ -698,23 +698,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void ColumnDefinition(
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder) =>
-                ColumnDefinition(
-                    operation.Schema,
-                    operation.Table,
-                    operation.Name,
-                    operation.ClrType,
-                    operation.ColumnType,
-                    operation.IsUnicode,
-                    operation.MaxLength,
-                    operation.IsRowVersion,
-                    operation.IsNullable,
-                    operation.DefaultValue,
-                    operation.DefaultValueSql,
-                    operation.ComputedColumnSql,
-                    operation,
-                    model,
-                    builder);
+            [NotNull] MigrationCommandListBuilder builder
+        ) => ColumnDefinition(
+            operation.Schema,
+            operation.Table,
+            operation.Name,
+            operation.ClrType,
+            operation.ColumnType,
+            operation.IsUnicode,
+            operation.MaxLength,
+            operation.IsRowVersion,
+            operation.IsNullable,
+            operation.DefaultValue,
+            operation.DefaultValueSql,
+            operation.ComputedColumnSql,
+            operation,
+            model,
+            builder);
 
         protected virtual void ColumnDefinition(
             [CanBeNull] string schema,
@@ -781,11 +781,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             return (clrType == typeof(string)
-                ? TypeMapper.StringMapper?.FindMapping(unicode ?? true, keyOrIndex, maxLength)?.StoreType
-                : clrType == typeof(byte[])
-                    ? TypeMapper.ByteArrayMapper?.FindMapping(rowVersion, keyOrIndex, maxLength)?.StoreType
-                    : null)
-                ?? TypeMapper.GetMapping(clrType).StoreType;
+                       ? TypeMapper.StringMapper?.FindMapping(unicode ?? true, keyOrIndex, maxLength)?.StoreType
+                       : clrType == typeof(byte[])
+                           ? TypeMapper.ByteArrayMapper?.FindMapping(rowVersion, keyOrIndex, maxLength)?.StoreType
+                           : null)
+                   ?? TypeMapper.GetMapping(clrType).StoreType;
         }
 
         protected virtual void DefaultValue(
@@ -943,19 +943,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual IEnumerable<IEntityType> FindEntityTypes(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
-            [NotNull] string tableName)
-            => model?.GetEntityTypes().Where(
-                t => (Annotations.For(t).TableName == tableName) && (Annotations.For(t).Schema == schema));
+            [NotNull] string tableName
+        ) => model?.GetEntityTypes().Where(
+            t => (Annotations.For(t).TableName == tableName) && (Annotations.For(t).Schema == schema));
 
         protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
             [NotNull] string tableName,
-            [NotNull] string columnName)
+            [NotNull] string columnName
             // Any property that maps to the column will work because model validator has
             // checked that all properties result in the same column definition.
-            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .FirstOrDefault(p => Annotations.For(p).ColumnName == columnName);
+        ) => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
+            .FirstOrDefault(p => Annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,
@@ -971,18 +971,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected virtual bool IsOldColumnSupported([CanBeNull] IModel model)
         {
-            if (model == null)
-            {
-                return false;
-            }
-
-            var versionString = model[CoreAnnotationNames.ProductVersionAnnotation] as string;
+            var versionString = model?[CoreAnnotationNames.ProductVersionAnnotation] as string;
             if (versionString == null)
             {
                 return false;
             }
 
-            var prereleaseIndex = versionString.IndexOf("-");
+            var prereleaseIndex = versionString.IndexOf("-", StringComparison.Ordinal);
             if (prereleaseIndex != -1)
             {
                 versionString = versionString.Substring(0, prereleaseIndex);

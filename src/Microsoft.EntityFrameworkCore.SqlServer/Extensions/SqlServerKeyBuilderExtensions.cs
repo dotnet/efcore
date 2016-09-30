@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="KeyBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="KeyBuilder" />.
     /// </summary>
     public static class SqlServerKeyBuilderExtensions
     {

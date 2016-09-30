@@ -695,12 +695,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var model = modelBuilder.Model;
 
                 modelBuilder.Entity<Quarks>(b =>
-                {
-                    b.HasKey(e => e.Id);
-                    b.Property(e => e.Up).IsRowVersion();
-                    b.Property(e => e.Down).ValueGeneratedNever();
-                    b.Property<int>("Charm").IsRowVersion();
-                });
+                    {
+                        b.HasKey(e => e.Id);
+                        b.Property(e => e.Up).IsRowVersion();
+                        b.Property(e => e.Down).ValueGeneratedNever();
+                        b.Property<int>("Charm").IsRowVersion();
+                    });
 
                 var entityType = model.FindEntityType(typeof(Quarks));
 

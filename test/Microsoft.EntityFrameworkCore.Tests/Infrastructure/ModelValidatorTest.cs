@@ -87,10 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
                 ConfigurationSource.Convention);
 
             VerifyError(CoreStrings.ReferencedShadowKey(
-                typeof(SampleEntity).Name,
-                typeof(ReferencedEntity).Name,
-                "{'Foo' : string}",
-                "{'Id' : int}"),
+                    typeof(SampleEntity).Name,
+                    typeof(ReferencedEntity).Name,
+                    "{'Foo' : string}",
+                    "{'Id' : int}"),
                 modelBuilder.Metadata);
         }
 
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             model.ChangeTrackingStrategy = changeTrackingStrategy;
 
             VerifyError(
-                CoreStrings.ChangeTrackingInterfaceMissing("NonNotifyingEntity", changeTrackingStrategy, "INotifyPropertyChanged"), 
+                CoreStrings.ChangeTrackingInterfaceMissing("NonNotifyingEntity", changeTrackingStrategy, "INotifyPropertyChanged"),
                 model);
         }
 

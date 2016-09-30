@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 new SqlServerStringLengthTranslator(),
                 new SqlServerDateTimeNowTranslator(),
                 new SqlServerDateTimeDateComponentTranslator(),
-                new SqlServerDateTimeDatePartComponentTranslator(),
+                new SqlServerDateTimeDatePartComponentTranslator()
             };
 
             AddTranslators(sqlServerTranslators);

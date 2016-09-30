@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
-            [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
+                [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
             => GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
 
         /// <summary>

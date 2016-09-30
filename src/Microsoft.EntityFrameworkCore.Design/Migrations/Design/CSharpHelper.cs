@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(name, nameof(name));
 
             var @namespace = new StringBuilder();
-            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split(new [] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
+            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
             {
                 var identifier = Identifier(piece);
                 if (!string.IsNullOrEmpty(identifier))
@@ -302,17 +302,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
 
-        public virtual string Literal(DateTime value) 
+        public virtual string Literal(DateTime value)
             => string.Format(
-                CultureInfo.InvariantCulture, 
-                "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})", 
-                value.Year, 
-                value.Month, 
-                value.Day, 
-                value.Hour, 
-                value.Minute, 
-                value.Second, 
-                value.Millisecond, 
+                CultureInfo.InvariantCulture,
+                "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
+                value.Year,
+                value.Month,
+                value.Day,
+                value.Hour,
+                value.Minute,
+                value.Second,
+                value.Millisecond,
                 value.Kind);
 
         public virtual string Literal(DateTimeOffset value) =>
@@ -328,14 +328,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal(sbyte value) => "(sbyte)" + value;
         public virtual string Literal(short value) => "(short)" + value;
 
-        public virtual string Literal(TimeSpan value) 
+        public virtual string Literal(TimeSpan value)
             => string.Format(
                 CultureInfo.InvariantCulture,
-                "new TimeSpan({0}, {1}, {2}, {3}, {4})", 
-                value.Days, 
-                value.Hours, 
-                value.Minutes, 
-                value.Seconds, 
+                "new TimeSpan({0}, {1}, {2}, {3}, {4})",
+                value.Days,
+                value.Hours,
+                value.Minutes,
+                value.Seconds,
                 value.Milliseconds);
 
         public virtual string Literal(uint value) => value + "u";

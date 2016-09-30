@@ -55,20 +55,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         public static Sequence GetOrAddSequence(
-            [NotNull] IMutableModel model,
-            [NotNull] string annotationPrefix,
-            [NotNull] string name,
-            [CanBeNull] string schema = null)
+                [NotNull] IMutableModel model,
+                [NotNull] string annotationPrefix,
+                [NotNull] string name,
+                [CanBeNull] string schema = null)
             => FindSequence(model, annotationPrefix, name, schema) ?? new Sequence(model, annotationPrefix, name, schema);
 
         private static string BuildAnnotationName(string annotationPrefix, string name, string schema)
             => annotationPrefix + schema + "." + name;
 
         public static Sequence FindSequence(
-            [NotNull] IMutableModel model,
-            [NotNull] string annotationPrefix,
-            [NotNull] string name,
-            [CanBeNull] string schema = null)
+                [NotNull] IMutableModel model,
+                [NotNull] string annotationPrefix,
+                [NotNull] string name,
+                [CanBeNull] string schema = null)
             => (Sequence)FindSequence((IModel)model, annotationPrefix, name, schema);
 
         public static ISequence FindSequence(

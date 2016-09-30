@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TImplementation"> The new implementation type for the service. </typeparam>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder ReplaceService<TService, TImplementation>() where TImplementation : TService
-            => SetOption(e => e.ReplaceService(typeof(TService), typeof(TImplementation)));
+        => SetOption(e => e.ReplaceService(typeof(TService), typeof(TImplementation)));
 
         /// <summary>
         ///     <para>

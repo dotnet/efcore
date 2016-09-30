@@ -293,18 +293,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             Assert.NotNull(discriminatorBuilder.HasValue("Splot", 1));
             Assert.NotNull(discriminatorBuilder.HasValue("Splow", 2));
             Assert.NotNull(discriminatorBuilder.HasValue("Splod", 3));
-            
+
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
                 .HasDiscriminator("Splowed", typeof(string));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Null(typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
                 .Metadata.Relational().DiscriminatorValue);
-            Assert.Null( typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+            Assert.Null(typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
                 .Metadata.Relational().DiscriminatorValue);
             Assert.NotNull(discriminatorBuilder.HasValue("Splot", "4"));
             Assert.NotNull(discriminatorBuilder.HasValue("Splow", "5"));
             Assert.NotNull(discriminatorBuilder.HasValue("Splod", "6"));
-            
+
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
                 .HasDiscriminator("Splotted", typeof(string));
             Assert.Equal("4", typeBuilder.Metadata.Relational().DiscriminatorValue);

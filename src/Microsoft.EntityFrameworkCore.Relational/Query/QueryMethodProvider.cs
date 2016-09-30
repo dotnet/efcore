@@ -117,11 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static IEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
-            int? queryIndex)
-            => new QueryingEnumerable(
-                (RelationalQueryContext)queryContext,
-                shaperCommandContext,
-                queryIndex);
+            int? queryIndex
+        ) => new QueryingEnumerable(
+            (RelationalQueryContext)queryContext,
+            shaperCommandContext,
+            queryIndex);
 
         /// <summary>
         ///     Gets the get result method.
@@ -442,8 +442,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static IRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
             int valueBufferOffset,
             int queryIndex,
-            Func<ValueBuffer, object> materializer)
-            => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
+            Func<ValueBuffer, object> materializer
+        ) => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
 
         private class ReferenceRelatedEntitiesLoader : IRelatedEntitiesLoader
         {
@@ -495,8 +495,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             int queryIndex,
-            Func<ValueBuffer, object> materializer)
-            => new CollectionRelatedEntitiesLoader(queryContext, shaperCommandContext, queryIndex, materializer);
+            Func<ValueBuffer, object> materializer
+        ) => new CollectionRelatedEntitiesLoader(queryContext, shaperCommandContext, queryIndex, materializer);
 
         private class CollectionRelatedEntitiesLoader : IRelatedEntitiesLoader
         {
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
@@ -544,8 +544,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             IEnumerable<TElement> source,
             string[] parameterNames,
-            object[] parameterValues)
-            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
+            object[] parameterValues
+        ) => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
 
         private sealed class ParameterInjector<TElement> : IEnumerable<TElement>
         {

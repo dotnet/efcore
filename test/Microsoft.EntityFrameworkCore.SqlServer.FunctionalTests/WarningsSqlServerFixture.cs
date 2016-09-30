@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class WarningsSqlServerFixture : NorthwindQuerySqlServerFixture
     {
         protected override DbContextOptionsBuilder ConfigureOptions(
-            DbContextOptionsBuilder dbContextOptionsBuilder)
+                DbContextOptionsBuilder dbContextOptionsBuilder)
             => dbContextOptionsBuilder.ConfigureWarnings(c =>
-                c.Throw(RelationalEventId.QueryClientEvaluationWarning));
+                    c.Throw(RelationalEventId.QueryClientEvaluationWarning));
     }
 }

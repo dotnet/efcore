@@ -85,5 +85,4 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
     }
 }
-
 #endif

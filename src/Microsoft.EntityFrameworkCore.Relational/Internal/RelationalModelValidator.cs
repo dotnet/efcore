@@ -87,8 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         protected virtual void EnsureNoDefaultValuesOnKeys([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes().SelectMany(
-                t => t.GetDeclaredKeys().SelectMany(
-                    k => k.Properties))
+                    t => t.GetDeclaredKeys().SelectMany(
+                        k => k.Properties))
                 .Where(p => RelationalExtensions.For(p).DefaultValue != null))
             {
                 ShowWarning(RelationalStrings.KeyHasDefaultValue(property.Name, property.DeclaringEntityType.DisplayName()));
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => (string.IsNullOrEmpty(schema) ? "" : schema + ".") + name;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual

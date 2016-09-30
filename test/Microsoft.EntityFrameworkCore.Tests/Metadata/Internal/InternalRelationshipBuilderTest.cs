@@ -520,26 +520,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
 
             relationshipBuilder = relationshipBuilder.HasPrincipalKey(
-                orderEntityBuilder.Metadata.GetKeys().Single().Properties,
-                ConfigurationSource.Convention)
+                    orderEntityBuilder.Metadata.GetKeys().Single().Properties,
+                    ConfigurationSource.Convention)
                 .HasForeignKey(new[] { Customer.IdProperty }, ConfigurationSource.DataAnnotation);
 
             Assert.Null(relationshipBuilder.DependentEntityType(relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(CoreStrings.EntityTypesNotInRelationship(
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => relationshipBuilder.DependentEntityType(relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.Explicit)).Message);
 
             Assert.Null(relationshipBuilder.PrincipalEntityType(relationshipBuilder.Metadata.DeclaringEntityType, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(CoreStrings.EntityTypesNotInRelationship(
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => relationshipBuilder.PrincipalEntityType(relationshipBuilder.Metadata.DeclaringEntityType, ConfigurationSource.Explicit)).Message);
 
             Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);

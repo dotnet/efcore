@@ -72,5 +72,4 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         IList IListSource.GetList() => _bindingList ?? (_bindingList = ToBindingList());
     }
 }
-
 #endif

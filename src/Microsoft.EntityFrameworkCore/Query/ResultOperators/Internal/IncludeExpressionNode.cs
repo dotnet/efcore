@@ -13,13 +13,13 @@ using Remotion.Linq.Parsing.Structure.IntermediateModel;
 namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class IncludeExpressionNode : ResultOperatorExpressionNodeBase
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         private readonly LambdaExpression _navigationPropertyPathLambda;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IncludeExpressionNode(
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
@@ -67,13 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression Resolve(
-            ParameterExpression inputParameter,
-            Expression expressionToBeResolved,
-            ClauseGenerationContext clauseGenerationContext)
+                ParameterExpression inputParameter,
+                Expression expressionToBeResolved,
+                ClauseGenerationContext clauseGenerationContext)
             => Source.Resolve(
                 inputParameter,
                 expressionToBeResolved,

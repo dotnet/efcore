@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             // Don't change entity state if it is Added or Deleted
-            if (isModified 
+            if (isModified
                 && currentState == EntityState.Unchanged)
             {
                 if (changeState)

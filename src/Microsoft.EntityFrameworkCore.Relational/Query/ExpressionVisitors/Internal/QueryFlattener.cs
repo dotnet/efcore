@@ -14,7 +14,7 @@ using Remotion.Linq.Clauses;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class QueryFlattener
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly int _readerOffset;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryFlattener(
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression Flatten([NotNull] MethodCallExpression methodCallExpression)
@@ -158,10 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         [UsedImplicitly]
         private static CompositeShaper<TOuter, TInner, TResult> CreateCompositeShaper<TOuter, TInner, TResult>(
-            IQuerySource querySource,
-            IShaper<TOuter> outerShaper,
-            IShaper<TInner> innerShaper,
-            Func<TOuter, TInner, TResult> materializer)
+                IQuerySource querySource,
+                IShaper<TOuter> outerShaper,
+                IShaper<TInner> innerShaper,
+                Func<TOuter, TInner, TResult> materializer)
             => new CompositeShaper<TOuter, TInner, TResult>(
                 querySource, outerShaper, innerShaper, materializer);
 

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="EntityTypeBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="EntityTypeBuilder" />.
     /// </summary>
     public static class SqlServerEntityTypeBuilderExtensions
     {
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ForSqlServerToTable((EntityTypeBuilder)entityTypeBuilder, name);
+        => (EntityTypeBuilder<TEntity>)ForSqlServerToTable((EntityTypeBuilder)entityTypeBuilder, name);
 
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server.
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             [CanBeNull] string schema)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ForSqlServerToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
+        => (EntityTypeBuilder<TEntity>)ForSqlServerToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
 
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
@@ -108,6 +108,6 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder<TEntity> ForSqlServerIsMemoryOptimized<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder, bool memoryOptimized = true)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ForSqlServerIsMemoryOptimized((EntityTypeBuilder)entityTypeBuilder, memoryOptimized);
+        => (EntityTypeBuilder<TEntity>)ForSqlServerIsMemoryOptimized((EntityTypeBuilder)entityTypeBuilder, memoryOptimized);
     }
 }

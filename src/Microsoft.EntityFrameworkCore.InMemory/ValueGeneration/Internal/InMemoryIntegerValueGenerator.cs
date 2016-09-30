@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override TValue Next(EntityEntry entry) 
+        public override TValue Next(EntityEntry entry)
             => (TValue)Convert.ChangeType(Interlocked.Increment(ref _current), typeof(TValue), CultureInfo.InvariantCulture);
 
         /// <summary>

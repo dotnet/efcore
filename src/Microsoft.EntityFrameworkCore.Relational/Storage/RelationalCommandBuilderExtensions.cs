@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     Extension methods for the <see cref="IRelationalCommandBuilder"/> class.
+    ///     Extension methods for the <see cref="IRelationalCommandBuilder" /> class.
     /// </summary>
     public static class RelationalCommandBuilderExtensions
     {
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -221,12 +221,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Adds a parameter that is ultimately represented as multiple <see cref="DbParameter"/>s in the
+        ///     Adds a parameter that is ultimately represented as multiple <see cref="DbParameter" />s in the
         ///     final command.
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
         /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter"/> just represents a
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>

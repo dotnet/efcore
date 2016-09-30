@@ -35,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 });
 
             modelBuilder.Entity<UnicodeDataTypes>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.StringAnsi).IsUnicode(false);
-                b.Property(e => e.StringAnsi3).HasMaxLength(3).IsUnicode(false);
-                b.Property(e => e.StringAnsi9000).IsUnicode(false).HasMaxLength(9000);
-                b.Property(e => e.StringUnicode).IsUnicode();
-            });
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.StringAnsi).IsUnicode(false);
+                    b.Property(e => e.StringAnsi3).HasMaxLength(3).IsUnicode(false);
+                    b.Property(e => e.StringAnsi9000).IsUnicode(false).HasMaxLength(9000);
+                    b.Property(e => e.StringUnicode).IsUnicode();
+                });
         }
 
         protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder) where TEntity : class

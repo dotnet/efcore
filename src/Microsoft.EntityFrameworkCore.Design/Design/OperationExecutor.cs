@@ -4,13 +4,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using System.IO;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -129,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotEmpty(name, nameof(name));
 
             // In package manager console, relative outputDir is relative to project directory
-            if (!string.IsNullOrWhiteSpace(outputDir) && !Path.IsPathRooted(outputDir))
+            if (!string.IsNullOrWhiteSpace(outputDir)
+                && !Path.IsPathRooted(outputDir))
             {
                 outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
             }
@@ -150,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class GetContextInfo : OperationBase
         {
             public GetContextInfo([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
-                :base(resultHandler)
+                : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
@@ -212,12 +213,12 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string fromMigration,
             [CanBeNull] string toMigration,
             bool idempotent,
-            [CanBeNull] string contextType)
-            => _migrationsOperations.Value.ScriptMigration(
-                fromMigration,
-                toMigration,
-                idempotent,
-                contextType);
+            [CanBeNull] string contextType
+        ) => _migrationsOperations.Value.ScriptMigration(
+            fromMigration,
+            toMigration,
+            idempotent,
+            contextType);
 
         public class RemoveMigration : OperationBase
         {
@@ -433,11 +434,11 @@ namespace Microsoft.EntityFrameworkCore.Design
     }
 
 #if NET451
-    partial class OperationExecutor : MarshalByRefObject
+    public partial class OperationExecutor : MarshalByRefObject
     {
-        partial class OperationBase : MarshalByRefObject
-        { }
+        public partial class OperationBase : MarshalByRefObject
+        {
+        }
     }
 #endif
 }
-

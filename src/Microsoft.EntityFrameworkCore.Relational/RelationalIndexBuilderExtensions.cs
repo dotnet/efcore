@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="IndexBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="IndexBuilder" />.
     /// </summary>
     public static class RelationalIndexBuilderExtensions
     {

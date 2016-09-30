@@ -12,7 +12,6 @@ using Xunit;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable StringStartsWithIsCultureSpecific
-
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract class ApiConsistencyTestBase
@@ -142,14 +141,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             };
 
             var parameters = (
-                from type in GetAllTypes(TargetAssembly.GetExportedTypes())
-                where !type.Namespace.Contains("Internal")
-                from method in type.GetTypeInfo().DeclaredMethods
-                where !method.IsPrivate
-                from parameter in method.GetParameters()
-                where (parameter.ParameterType.UnwrapNullableType() == typeof(bool))
-                      && prefixes.Any(parameter.Name.StartsWith)
-                select $"{type.FullName}.{method.Name}[{parameter.Name}]")
+                    from type in GetAllTypes(TargetAssembly.GetExportedTypes())
+                    where !type.Namespace.Contains("Internal")
+                    from method in type.GetTypeInfo().DeclaredMethods
+                    where !method.IsPrivate
+                    from parameter in method.GetParameters()
+                    where (parameter.ParameterType.UnwrapNullableType() == typeof(bool))
+                          && prefixes.Any(parameter.Name.StartsWith)
+                    select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 
             Assert.False(

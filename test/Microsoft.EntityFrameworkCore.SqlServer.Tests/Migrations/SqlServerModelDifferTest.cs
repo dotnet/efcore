@@ -138,29 +138,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 source => source.Entity(
                     "Person",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
-                        x.ForSqlServerIsMemoryOptimized();
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").ForSqlServerIsClustered(false);
+                            x.ForSqlServerIsMemoryOptimized();
+                        }),
                 target => target.Entity(
                     "Person",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").ForSqlServerIsClustered(false);
+                        }),
                 operations =>
-                {
-                    var alterDatabaseOperation = operations.OfType<AlterDatabaseOperation>().Single();
-                    Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
-                    Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+                    {
+                        var alterDatabaseOperation = operations.OfType<AlterDatabaseOperation>().Single();
+                        Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
+                        Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
 
-                    var alterTableOperation = operations.OfType<AlterTableOperation>().Single();
-                    Assert.Equal("Person", alterTableOperation.Name);
-                    Assert.Null(IsMemoryOptimized(alterTableOperation));
-                    Assert.True(IsMemoryOptimized(alterTableOperation.OldTable));
-                });
+                        var alterTableOperation = operations.OfType<AlterTableOperation>().Single();
+                        Assert.Equal("Person", alterTableOperation.Name);
+                        Assert.Null(IsMemoryOptimized(alterTableOperation));
+                        Assert.True(IsMemoryOptimized(alterTableOperation.OldTable));
+                    });
         }
 
         [Fact]
@@ -782,29 +782,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 source => source.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<byte[]>("Version");
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<byte[]>("Version");
+                        }),
                 target => target.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<byte[]>("Version")
-                            .ValueGeneratedOnAddOrUpdate()
-                            .IsConcurrencyToken();
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<byte[]>("Version")
+                                .ValueGeneratedOnAddOrUpdate()
+                                .IsConcurrencyToken();
+                        }),
                 operations =>
-                {
-                    Assert.Equal(1, operations.Count);
+                    {
+                        Assert.Equal(1, operations.Count);
 
-                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
-                    Assert.Equal("Toad", operation.Table);
-                    Assert.Equal("Version", operation.Name);
-                    Assert.True(operation.IsRowVersion);
-                    Assert.True(operation.IsDestructiveChange);
-                });
+                        var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                        Assert.Equal("Toad", operation.Table);
+                        Assert.Equal("Version", operation.Name);
+                        Assert.True(operation.IsRowVersion);
+                        Assert.True(operation.IsDestructiveChange);
+                    });
         }
 
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string CommandText { get; }
 
         /// <summary>
-        ///     Gets the parameters for the command. 
+        ///     Gets the parameters for the command.
         /// </summary>
         IReadOnlyList<IRelationalParameter> Parameters { get; }
 
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="parameterValues"> The values for the parameters. </param>
         /// <param name="manageConnection"> A value indicating whether to open and close the connection as needed. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains the number of rows affected. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
         /// </returns>
         Task<int> ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="parameterValues"> The values for the parameters. </param>
         /// <param name="manageConnection"> A value indicating whether to open and close the connection as needed. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains the result of the command. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
         Task<object> ExecuteScalarAsync(
             [NotNull] IRelationalConnection connection,
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        ///     Executes the command with a <see cref="RelationalDataReader"/> result.
+        ///     Executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
@@ -98,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool manageConnection = true);
 
         /// <summary>
-        ///     Asynchronously executes the command with a <see cref="RelationalDataReader"/> result.
+        ///     Asynchronously executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
         /// <param name="manageConnection"> A value indicating whether to open and close the connection as needed. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains the result of the command. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
         Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,

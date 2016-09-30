@@ -3,7 +3,6 @@
 
 #if NET451
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -257,5 +256,4 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
     }
 }
-
 #endif

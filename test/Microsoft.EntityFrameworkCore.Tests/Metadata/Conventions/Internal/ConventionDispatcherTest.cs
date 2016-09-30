@@ -180,46 +180,46 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Annotation oldAnnotation = null;
             var convention = new Mock<IEntityTypeAnnotationSetConvention>();
             convention.Setup(c => c.Apply(
-                It.IsAny<InternalEntityTypeBuilder>(),
-                It.IsAny<string>(),
-                It.IsAny<Annotation>(),
-                It.IsAny<Annotation>()))
+                    It.IsAny<InternalEntityTypeBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
                 .Returns<InternalEntityTypeBuilder, string, Annotation, Annotation>((b, n, a, o) =>
-                {
-                    Assert.NotNull(b);
-                    Assert.Equal("foo", n);
-                    entityTypeBuilder = b;
-                    annotationSet = a;
-                    oldAnnotation = o;
-                    return a;
-                });
+                    {
+                        Assert.NotNull(b);
+                        Assert.Equal("foo", n);
+                        entityTypeBuilder = b;
+                        annotationSet = a;
+                        oldAnnotation = o;
+                        return a;
+                    });
             conventions.EntityTypeAnnotationSetConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IEntityTypeAnnotationSetConvention>();
             nullConvention.Setup(c => c.Apply(
-                It.IsAny<InternalEntityTypeBuilder>(),
-                It.IsAny<string>(),
-                It.IsAny<Annotation>(),
-                It.IsAny<Annotation>()))
+                    It.IsAny<InternalEntityTypeBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
                 .Returns<InternalEntityTypeBuilder, string, Annotation, Annotation>((b, n, a, o) =>
-                {
-                    Assert.Same(entityTypeBuilder, b);
-                    Assert.Equal("foo", n);
-                    return a == null ? new Annotation(n, n) : null;
-                });
+                    {
+                        Assert.Same(entityTypeBuilder, b);
+                        Assert.Equal("foo", n);
+                        return a == null ? new Annotation(n, n) : null;
+                    });
             conventions.EntityTypeAnnotationSetConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IEntityTypeAnnotationSetConvention>();
             extraConvention.Setup(c => c.Apply(
-                It.IsAny<InternalEntityTypeBuilder>(),
-                It.IsAny<string>(),
-                It.IsAny<Annotation>(),
-                It.IsAny<Annotation>()))
+                    It.IsAny<InternalEntityTypeBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
                 .Returns<InternalEntityTypeBuilder, string, Annotation, Annotation>((b, n, a, o) =>
-                {
-                    Assert.False(true);
-                    return null;
-                });
+                    {
+                        Assert.False(true);
+                        return null;
+                    });
             conventions.EntityTypeAnnotationSetConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(conventions))
@@ -410,31 +410,31 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var convention = new Mock<IPropertyFieldChangedConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>(), It.IsAny<FieldInfo>()))
                 .Returns<InternalPropertyBuilder, FieldInfo>((b, f) =>
-            {
-                Assert.NotNull(b);
-                Assert.Equal("OrderId", b.Metadata.Name);
-                Assert.Null(f);
-                expectedPropertyBuilder = b;
-                return true;
-            });
+                    {
+                        Assert.NotNull(b);
+                        Assert.Equal("OrderId", b.Metadata.Name);
+                        Assert.Null(f);
+                        expectedPropertyBuilder = b;
+                        return true;
+                    });
             conventions.PropertyFieldChangedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IPropertyFieldChangedConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>(), It.IsAny<FieldInfo>()))
                 .Returns<InternalPropertyBuilder, FieldInfo>((b, f) =>
-            {
-                Assert.Same(expectedPropertyBuilder, b);
-                return false;
-            });
+                    {
+                        Assert.Same(expectedPropertyBuilder, b);
+                        return false;
+                    });
             conventions.PropertyFieldChangedConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IPropertyFieldChangedConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>(), It.IsAny<FieldInfo>()))
                 .Returns<InternalPropertyBuilder, FieldInfo>((b, f) =>
-            {
-                Assert.False(true);
-                return false;
-            });
+                    {
+                        Assert.False(true);
+                        return false;
+                    });
             conventions.PropertyFieldChangedConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(conventions));
@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             InternalEntityTypeBuilder principalEntityBuilderFromConvention = null;
             var convention = new Mock<INavigationRemovedConvention>();
             convention.Setup(c => c.Apply(
-                It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>(), It.IsAny<PropertyInfo>()))
+                    It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>(), It.IsAny<PropertyInfo>()))
                 .Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n, PropertyInfo p) =>
                     {
                         dependentEntityTypeBuilderFromConvention = s;
@@ -902,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var extraConvention = new Mock<INavigationRemovedConvention>();
             extraConvention.Setup(c => c.Apply(
-                It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>(), It.IsAny<PropertyInfo>()))
+                    It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>(), It.IsAny<PropertyInfo>()))
                 .Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n, PropertyInfo p) =>
                     {
                         Assert.False(true);
@@ -940,27 +940,27 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             InternalRelationshipBuilder relationshipBuilder = null;
             var convention = new Mock<IForeignKeyUniquenessConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
-            {
-                Assert.NotNull(b);
-                relationshipBuilder = b;
-                return true;
-            });
+                {
+                    Assert.NotNull(b);
+                    relationshipBuilder = b;
+                    return true;
+                });
             conventions.ForeignKeyUniquenessConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IForeignKeyUniquenessConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
-            {
-                Assert.Same(relationshipBuilder, b);
-                return false;
-            });
+                {
+                    Assert.Same(relationshipBuilder, b);
+                    return false;
+                });
             conventions.ForeignKeyUniquenessConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IForeignKeyUniquenessConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
-            {
-                Assert.False(true);
-                return false;
-            });
+                {
+                    Assert.False(true);
+                    return false;
+                });
             conventions.ForeignKeyUniquenessConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(conventions));
@@ -975,10 +975,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             }
             else
             {
-                 dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention)
+                dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention)
                     .IsUnique(true, ConfigurationSource.Convention);
             }
-            
+
             Assert.NotNull(relationshipBuilder);
         }
 
@@ -1228,7 +1228,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             public static readonly PropertyInfo OrderIdProperty = typeof(Order).GetProperty(nameof(OrderId));
             public static readonly PropertyInfo OrderDetailsProperty = typeof(Order).GetProperty(nameof(OrderDetails));
 
-            public int IntField = 1;
+            public readonly int IntField = 1;
 
             public int OrderId { get; set; }
 

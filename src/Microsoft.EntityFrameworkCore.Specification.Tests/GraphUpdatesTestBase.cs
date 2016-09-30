@@ -6452,10 +6452,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             => (GraphUpdatesContext)Fixture.CreateContext(TestStore);
 
         protected virtual void ExecuteWithStrategyInTransaction(
-            Action<GraphUpdatesContext> testOperation,
-            Action<GraphUpdatesContext> nestedTestOperation1 = null,
-            Action<GraphUpdatesContext> nestedTestOperation2 = null,
-            Action<GraphUpdatesContext> nestedTestOperation3 = null)
+                Action<GraphUpdatesContext> testOperation,
+                Action<GraphUpdatesContext> nestedTestOperation1 = null,
+                Action<GraphUpdatesContext> nestedTestOperation2 = null,
+                Action<GraphUpdatesContext> nestedTestOperation3 = null)
             => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 

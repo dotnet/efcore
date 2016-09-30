@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
             }
             else if (mapping.ClrType == typeof(string)
-                && TypeMapper.StringMapper != null)
+                     && TypeMapper.StringMapper != null)
             {
                 var stringMapping = TypeMapper.StringMapper.FindMapping(mapping.IsUnicode, keyOrIndex, mapping.Size);
 

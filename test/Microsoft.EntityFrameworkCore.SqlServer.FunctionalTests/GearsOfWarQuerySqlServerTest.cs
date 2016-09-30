@@ -1034,7 +1034,6 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (RIGHT([g].[LeaderNicknam
                 Sql);
         }
 
-
         public override void Null_propagation_optimization3()
         {
             base.Null_propagation_optimization3();
@@ -1110,7 +1109,6 @@ CROSS JOIN [Gear] AS [g2]
 WHERE ([g1].[Discriminator] = N'Officer') OR ([g1].[Discriminator] = N'Gear')",
                 Sql);
         }
-
 
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
@@ -1243,7 +1241,7 @@ FROM [CogTag] AS [ct2]",
             Assert.Equal(@"SELECT TOP(1) [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
 FROM [Weapon] AS [w]
 LEFT JOIN [Weapon] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
-ORDER BY [w].[SynergyWithId]", 
+ORDER BY [w].[SynergyWithId]",
                 Sql);
         }
 
@@ -1350,7 +1348,7 @@ WHERE [c].[Location] = 'Unknown'",
             base.Non_unicode_string_literal_is_used_for_non_unicode_column_right();
 
             Assert.Equal(
-    @"SELECT [c].[Name], [c].[Location]
+                @"SELECT [c].[Name], [c].[Location]
 FROM [City] AS [c]
 WHERE 'Unknown' = [c].[Location]",
                 Sql);
@@ -1385,7 +1383,7 @@ WHERE [c].[Location] IN ('Unknown', 'Jacinto''s location', 'Ephyra''s location')
             base.Non_unicode_string_literals_is_used_for_non_unicode_column_with_subquery();
 
             Assert.Equal(
-    @"SELECT [c].[Name], [c].[Location]
+                @"SELECT [c].[Name], [c].[Location]
 FROM [City] AS [c]
 WHERE ([c].[Location] = 'Unknown') AND ((
     SELECT COUNT(*)
@@ -1988,7 +1986,6 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
                 Sql);
         }
 
-
         // TODO: See issue#6145 - Incorrect query generated
         public override void Left_join_predicate_value_equals_condition()
         {
@@ -2021,7 +2018,7 @@ ORDER BY [g].[HasSoulPatch]",
             base.Left_join_predicate_condition_equals_condition();
 
             Assert.Equal(
-               @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Gear] AS [g]
 LEFT JOIN [Weapon] AS [w] ON CASE
     WHEN [g].[FullName] IS NULL
@@ -2035,7 +2032,7 @@ ORDER BY CASE
     WHEN [g].[FullName] IS NULL
     THEN CAST(0 AS BIT) ELSE CAST(1 AS BIT)
 END",
-               Sql);
+                Sql);
         }
 
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();

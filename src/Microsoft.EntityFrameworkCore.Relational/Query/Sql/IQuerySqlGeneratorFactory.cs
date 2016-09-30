@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Query.Expressions;
 namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     /// <summary>
-    ///     A factory for instances of <see cref="IQuerySqlGenerator"/>.
+    ///     A factory for instances of <see cref="IQuerySqlGenerator" />.
     /// </summary>
     public interface IQuerySqlGeneratorFactory
     {

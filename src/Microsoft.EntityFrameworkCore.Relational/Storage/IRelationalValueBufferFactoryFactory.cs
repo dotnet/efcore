@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Creates instances of the <see cref="IRelationalValueBufferFactory"/> type. <see cref="IRelationalValueBufferFactory"/>
+    ///         Creates instances of the <see cref="IRelationalValueBufferFactory" /> type. <see cref="IRelationalValueBufferFactory" />
     ///         instances are tied to a specific result shape. This factory is responsible for creating the
-    ///         <see cref="IRelationalValueBufferFactory"/> for a given result shape.
+    ///         <see cref="IRelationalValueBufferFactory" /> for a given result shape.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IRelationalValueBufferFactoryFactory
     {
         /// <summary>
-        ///     Creates a new <see cref="IRelationalValueBufferFactory"/>.
+        ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
         /// </summary>
         /// <param name="valueTypes">
         ///     The types of values to be returned from the value buffer.
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     value buffer).
         /// </param>
         /// <returns>
-        ///     The newly created <see cref="IRelationalValueBufferFactoryFactory"/>.
+        ///     The newly created <see cref="IRelationalValueBufferFactoryFactory" />.
         /// </returns>
         IRelationalValueBufferFactory Create(
             [NotNull] IReadOnlyList<Type> valueTypes, [CanBeNull] IReadOnlyList<int> indexMap);

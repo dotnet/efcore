@@ -86,10 +86,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b =>
-                                {
-                                    b.ApplyConfiguration();
-                                })
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => { b.ApplyConfiguration(); })
                             .UseInternalServiceProvider(_serviceProvider);
 
                         using (var context = new StoreGeneratedContext(optionsBuilder.Options))

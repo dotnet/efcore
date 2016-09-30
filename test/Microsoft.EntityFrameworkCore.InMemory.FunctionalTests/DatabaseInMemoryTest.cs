@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Artist>().HasKey(a => a.ArtistId);
 
             public class Artist : ArtistBase<string>

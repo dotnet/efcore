@@ -26,14 +26,14 @@ using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class QueryCompiler : IQueryCompiler
     {
         private static MethodInfo CompileQueryMethod { get; }
-            = typeof(IDatabase).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
+        = typeof(IDatabase).GetTypeInfo()
+            .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
         private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter
             = new EvaluatableExpressionFilter();
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private INodeTypeProvider _nodeTypeProvider;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryCompiler(
@@ -78,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IDatabase Database => _database;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual TResult Execute<TResult>(Expression query)
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression query)
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Expression ExtractParameters([NotNull] Expression query, [NotNull] QueryContext queryContext)
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             var resultItemType
                                 = (queryModel.GetOutputDataInfo()
-                                    as StreamedSequenceInfo)?.ResultItemType
+                                      as StreamedSequenceInfo)?.ResultItemType
                                   ?? typeof(TResult);
 
                             if (resultItemType == typeof(TResult))
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] Expression query)

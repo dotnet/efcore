@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return Expression.Lambda<Func<ISnapshot>>(
-                CreateConstructorExpression(entityType, null))
+                    CreateConstructorExpression(entityType, null))
                 .Compile();
         }
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
-            [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
+                [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),

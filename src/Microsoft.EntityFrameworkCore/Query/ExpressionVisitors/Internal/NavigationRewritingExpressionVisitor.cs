@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression node)
@@ -400,16 +400,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _queryModelVisitor.BindNavigationPathPropertyExpression(
                     node,
                     (ps, qs) =>
-                    {
-                        return RewriteNavigationProperties(
-                            ps.ToList(),
-                            qs,
-                            node.Expression,
-                            node.Member.Name,
-                            node.Type,
-                            e => Expression.MakeMemberAccess(e, node.Member),
-                            e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
-                    });
+                        {
+                            return RewriteNavigationProperties(
+                                ps.ToList(),
+                                qs,
+                                node.Expression,
+                                node.Member.Name,
+                                node.Type,
+                                e => Expression.MakeMemberAccess(e, node.Member),
+                                e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
+                        });
 
             if (result != null)
             {
@@ -483,16 +483,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     node,
                     (ps, qs) =>
-                    {
-                        return RewriteNavigationProperties(
-                            ps.ToList(),
-                            qs,
-                            node.Arguments[0],
-                            (string)((ConstantExpression)node.Arguments[1]).Value,
-                            node.Type,
-                            e => Expression.Call(node.Method, e, node.Arguments[1]),
-                            e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
-                    });
+                        {
+                            return RewriteNavigationProperties(
+                                ps.ToList(),
+                                qs,
+                                node.Arguments[0],
+                                (string)((ConstantExpression)node.Arguments[1]).Value,
+                                node.Type,
+                                e => Expression.Call(node.Method, e, node.Arguments[1]),
+                                e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                        });
 
                 if (result != null)
                 {
@@ -509,8 +509,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var newObject = Visit(node.Object);
             var newArguments = node.Arguments.Select(Visit);
 
-            if (newObject != node.Object 
-                && newObject.Type.IsNullableType() 
+            if (newObject != node.Object
+                && newObject.Type.IsNullableType()
                 && newObject is NullConditionalExpression)
             {
                 var newMethodCallExpression = node.Update(node.Object, newArguments);
@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var declaringMethodCallExpression = declaringExpression as MethodCallExpression;
                     var parentDeclaringExpression = declaringMethodCallExpression != null
-                        && EntityQueryModelVisitor.IsPropertyMethod(declaringMethodCallExpression.Method)
+                                                    && EntityQueryModelVisitor.IsPropertyMethod(declaringMethodCallExpression.Method)
                         ? declaringMethodCallExpression.Arguments[0]
                         : (declaringExpression as MemberExpression)?.Expression;
 
@@ -669,8 +669,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery(bool navigationExpansionSubquery)
             => new NavigationRewritingExpressionVisitor(
-                _queryModelVisitor, 
-                _entityQueryProvider, 
+                _queryModelVisitor,
+                _entityQueryProvider,
                 navigationExpansionSubquery);
 
         private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
@@ -706,13 +706,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var navigationJoins = _navigationJoins;
 
             var optionalNavigationInChain = _insideInnerKeySelector
-                && _innerKeySelectorRequiresNullRefProtection;
+                                            && _innerKeySelectorRequiresNullRefProtection;
 
             foreach (var navigation in navigations)
             {
                 var addNullCheckToOuterKeySelector = optionalNavigationInChain;
 
-                if (!navigation.ForeignKey.IsRequired || !navigation.IsDependentToPrincipal())
+                if (!navigation.ForeignKey.IsRequired
+                    || !navigation.IsDependentToPrincipal())
                 {
                     optionalNavigationInChain = true;
                 }
@@ -823,8 +824,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return querySourceReferenceExpression;
             }
 
-            return optionalNavigationInChain 
-                ? conditionalAccessPropertyCreator(querySourceReferenceExpression) 
+            return optionalNavigationInChain
+                ? conditionalAccessPropertyCreator(querySourceReferenceExpression)
                 : propertyCreator(querySourceReferenceExpression);
         }
 
@@ -865,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var querySourceMapping = new QuerySourceMapping();
             querySourceMapping.AddMapping(additionalFromClauseBeingProcessed, querySourceReferenceExpression);
 
-            _queryModel.TransformExpressions(e => 
+            _queryModel.TransformExpressions(e =>
                 ReferenceReplacingExpressionVisitor
                     .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
@@ -1005,9 +1006,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var newType = expression.Type;
 
             var needsTypeCompensation = (originalType != newType)
-                && !originalType.IsNullableType()
-                && newType.IsNullableType()
-                && (originalType == newType.UnwrapNullableType());
+                                        && !originalType.IsNullableType()
+                                        && newType.IsNullableType()
+                                        && (originalType == newType.UnwrapNullableType());
 
             return needsTypeCompensation
                 ? Expression.Convert(expression, originalType)

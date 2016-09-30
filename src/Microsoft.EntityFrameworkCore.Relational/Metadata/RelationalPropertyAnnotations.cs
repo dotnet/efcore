@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get
             {
                 return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.ColumnName,
-                    ProviderFullAnnotationNames?.ColumnName)
+                           RelationalFullAnnotationNames.Instance.ColumnName,
+                           ProviderFullAnnotationNames?.ColumnName)
                        ?? Property.Name;
             }
             [param: CanBeNull] set { SetColumnName(value); }

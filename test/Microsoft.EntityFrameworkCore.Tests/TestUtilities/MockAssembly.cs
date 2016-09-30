@@ -9,7 +9,6 @@ using System.Reflection;
 #if !NET451
 using Moq;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 {
     public partial class MockAssembly
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
     }
 
 #if NET451
-    partial class MockAssembly : Assembly
+    public partial class MockAssembly : Assembly
     {
         public MockAssembly(IEnumerable<TypeInfo> definedTypes)
         {
@@ -44,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
         }
 
         public override IEnumerable<TypeInfo> DefinedTypes { get; }
+
         public override AssemblyName GetName()
             => new AssemblyName(nameof(MockAssembly));
     }

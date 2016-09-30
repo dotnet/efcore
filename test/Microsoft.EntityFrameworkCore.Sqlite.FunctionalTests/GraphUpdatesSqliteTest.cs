@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             }
         }
 
-        public class ChangedNotificationsTest 
+        public class ChangedNotificationsTest
             : GraphUpdatesSqliteTestBase<ChangedNotificationsTest.ChangedNotificationsFixture>
         {
             public ChangedNotificationsTest(ChangedNotificationsFixture fixture)
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             }
         }
 
-        public class ChangedChangingNotificationsTest 
+        public class ChangedChangingNotificationsTest
             : GraphUpdatesSqliteTestBase<ChangedChangingNotificationsTest.ChangedChangingNotificationsFixture>
         {
             public ChangedChangingNotificationsTest(ChangedChangingNotificationsFixture fixture)

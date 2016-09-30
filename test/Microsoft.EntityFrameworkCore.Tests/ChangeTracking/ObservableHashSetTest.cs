@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             Assert.Equal(1, collectionChanged);
             Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
         }
-        
+
 #if NET451
 
         [Fact]

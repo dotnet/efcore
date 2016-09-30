@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             modelBuilder.Entity<Animal>().Property(b => b.Id).ForSqlServerHasColumnName("Name");
 
             VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
-                nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "int", "nvarchar(max)"),
+                    nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "int", "nvarchar(max)"),
                 modelBuilder.Model);
         }
 

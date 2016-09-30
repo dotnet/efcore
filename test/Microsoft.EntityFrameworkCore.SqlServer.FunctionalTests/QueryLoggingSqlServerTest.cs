@@ -3,15 +3,14 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 #if NETCOREAPP1_0
 using System.Threading;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture>

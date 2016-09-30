@@ -40,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public Task<TResult> ExecuteAsync<TState, TResult>(
-            Func<TState, CancellationToken, Task<TResult>> operation,
-            TState state,
-            CancellationToken cancellationToken)
+                Func<TState, CancellationToken, Task<TResult>> operation,
+                TState state,
+                CancellationToken cancellationToken)
             => operation(state, cancellationToken);
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private bool _disposed;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDataReader"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDataReader" /> class.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="command"> The command that was executed. </param>

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] CSharpUtilities cSharpUtilities)
         {
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
-            
+
             CSharpUtilities = cSharpUtilities;
         }
 

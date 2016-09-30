@@ -15,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Creates instances of the <see cref="IRelationalValueBufferFactory"/> type. <see cref="IRelationalValueBufferFactory"/>
+    ///         Creates instances of the <see cref="IRelationalValueBufferFactory" /> type. <see cref="IRelationalValueBufferFactory" />
     ///         instances are tied to a specific result shape. This factory is responsible for creating the
-    ///         <see cref="IRelationalValueBufferFactory"/> for a given result shape.
+    ///         <see cref="IRelationalValueBufferFactory" /> for a given result shape.
     ///     </para>
     ///     <para>
     ///         This factory results in value buffers that use they strongly typed APIs to read back individual values from the
-    ///         underlying <see cref="DbDataReader"/>.
+    ///         underlying <see cref="DbDataReader" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = new ConcurrentDictionary<CacheKey, Func<DbDataReader, object[]>>();
 
         /// <summary>
-        ///     Creates a new <see cref="IRelationalValueBufferFactory"/>.
+        ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
         /// </summary>
         /// <param name="valueTypes">
         ///     The types of values to be returned from the value buffer.
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     value buffer).
         /// </param>
         /// <returns>
-        ///     The newly created <see cref="IRelationalValueBufferFactoryFactory"/>.
+        ///     The newly created <see cref="IRelationalValueBufferFactoryFactory" />.
         /// </returns>
         public virtual IRelationalValueBufferFactory Create(
             IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
@@ -134,15 +134,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
 
             return Expression.Lambda<Func<DbDataReader, object[]>>(
-                Expression.NewArrayInit(
-                    typeof(object),
-                    cacheKey.ValueTypes
-                        .Select((type, i) =>
-                            CreateGetValueExpression(
-                                dataReaderParameter,
-                                type,
-                                Expression.Constant(cacheKey.IndexMap?[i] ?? i)))),
-                dataReaderParameter)
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        cacheKey.ValueTypes
+                            .Select((type, i) =>
+                                CreateGetValueExpression(
+                                    dataReaderParameter,
+                                    type,
+                                    Expression.Constant(cacheKey.IndexMap?[i] ?? i)))),
+                    dataReaderParameter)
                 .Compile();
         }
 

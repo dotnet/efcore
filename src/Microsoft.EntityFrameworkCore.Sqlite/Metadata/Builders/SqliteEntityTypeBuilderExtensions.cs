@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQLite specific extension methods for <see cref="EntityTypeBuilder"/>.
+    ///     SQLite specific extension methods for <see cref="EntityTypeBuilder" />.
     /// </summary>
     public static class SqliteEntityTypeBuilderExtensions
     {
@@ -40,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder<TEntity> builder,
             [CanBeNull] string name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)builder).ForSqliteToTable(name);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)builder).ForSqliteToTable(name);
     }
 }

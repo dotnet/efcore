@@ -11,12 +11,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     A factory for <see cref="QueryContext"/> instances.
+    ///     A factory for <see cref="QueryContext" /> instances.
     /// </summary>
     public abstract class QueryContextFactory : IQueryContextFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected QueryContextFactory(
@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             StateManager = new LazyRef<IStateManager>(() => currentContext.Context.GetService<IStateManager>());
             ConcurrencyDetector = concurrencyDetector;
-            ChangeDetector = new LazyRef<IChangeDetector>(() => currentContext.Context.GetService<IChangeDetector>()); ;
+            ChangeDetector = new LazyRef<IChangeDetector>(() => currentContext.Context.GetService<IChangeDetector>());
+            ;
         }
-
 
         /// <summary>
         ///     Creates a query buffer.

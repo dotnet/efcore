@@ -300,10 +300,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         }
 
         private IRelationalCommand CreateRelationalCommand(
-            ISensitiveDataLogger logger = null,
-            DiagnosticSource diagnosticSource = null,
-            string commandText = "Command Text",
-            IReadOnlyList<IRelationalParameter> parameters = null)
+                ISensitiveDataLogger logger = null,
+                DiagnosticSource diagnosticSource = null,
+                string commandText = "Command Text",
+                IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
                 logger ?? new FakeSensitiveDataLogger<RelationalCommand>(),
                 diagnosticSource ?? new DiagnosticListener("Fake"),

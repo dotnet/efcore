@@ -108,7 +108,7 @@ FROM [Level1] AS [l]
 LEFT JOIN [Level2] AS [l.OneToOne_Required_FK] ON [l].[Id] = [l.OneToOne_Required_FK].[Level1_Required_Id]
 WHERE [l.OneToOne_Required_FK].[Id] = 7
 ORDER BY [l].[Id]",
-            Sql);
+                Sql);
         }
 
         public override void Key_equality_using_property_method_and_member_expression2()
@@ -134,7 +134,6 @@ FROM [Level2] AS [l]
 WHERE [l].[Level1_Required_Id] = 7",
                 Sql);
         }
-
 
         public override void Key_equality_navigation_converted_to_FK()
         {
@@ -170,7 +169,6 @@ FROM [Level2] AS [l]
 WHERE ([l].[Level1_Required_Id] = 1) OR ([l].[Level1_Required_Id] = 2)",
                 Sql);
         }
-
 
         public override void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {
@@ -1875,7 +1873,7 @@ ORDER BY [l10].[Id]",
                 Sql);
 
             Assert.Contains(
-            @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [l1]",
                 Sql);
         }
@@ -1934,7 +1932,6 @@ FROM (
     ORDER BY [l30].[Level2_Required_Id]
 ) AS [t]",
                 Sql);
-
         }
 
         public override void Optional_navigation_take_optional_navigation()

@@ -44,23 +44,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override QueryCompilationContext Create(bool async)
             => async
-                   ? new SqlServerQueryCompilationContext(
-                       Model,
-                       (ISensitiveDataLogger)Logger,
-                       EntityQueryModelVisitorFactory,
-                       RequiresMaterializationExpressionVisitorFactory,
-                       new AsyncLinqOperatorProvider(),
-                       new AsyncQueryMethodProvider(),
-                       ContextType,
-                       TrackQueryResults)
-                   : new SqlServerQueryCompilationContext(
-                       Model,
-                       (ISensitiveDataLogger)Logger,
-                       EntityQueryModelVisitorFactory,
-                       RequiresMaterializationExpressionVisitorFactory,
-                       new LinqOperatorProvider(),
-                       new QueryMethodProvider(),
-                       ContextType,
-                       TrackQueryResults);
+                ? new SqlServerQueryCompilationContext(
+                    Model,
+                    (ISensitiveDataLogger)Logger,
+                    EntityQueryModelVisitorFactory,
+                    RequiresMaterializationExpressionVisitorFactory,
+                    new AsyncLinqOperatorProvider(),
+                    new AsyncQueryMethodProvider(),
+                    ContextType,
+                    TrackQueryResults)
+                : new SqlServerQueryCompilationContext(
+                    Model,
+                    (ISensitiveDataLogger)Logger,
+                    EntityQueryModelVisitorFactory,
+                    RequiresMaterializationExpressionVisitorFactory,
+                    new LinqOperatorProvider(),
+                    new QueryMethodProvider(),
+                    ContextType,
+                    TrackQueryResults);
     }
 }

@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual ISequence FindSequence(string name, string schema = null)
             => (ProviderFullAnnotationNames == null
-                ? null
-                : Sequence.FindSequence(Model, ProviderFullAnnotationNames.SequencePrefix, name, schema))
+                   ? null
+                   : Sequence.FindSequence(Model, ProviderFullAnnotationNames.SequencePrefix, name, schema))
                ?? Sequence.FindSequence(Model, RelationalFullAnnotationNames.Instance.SequencePrefix, name, schema);
 
         public virtual Sequence GetOrAddSequence([NotNull] string name, [CanBeNull] string schema = null)

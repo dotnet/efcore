@@ -475,7 +475,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     },
                 context =>
                     {
-
                         var blogs = context.Set<TBlog>().ToList();
 
                         foreach (var blog in blogs)
@@ -539,6 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string Title { get; set; }
             public IEnumerable<PostAuto> Posts { get; set; }
 
@@ -565,6 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string Title { get; set; }
 
             public int BlogId { get; set; }
@@ -1163,6 +1164,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             private int _id;
+
             private string _title;
 
             public IEnumerable<PostFields> Posts { get; set; }
@@ -1191,6 +1193,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             private int _id;
+
             private string _title;
             private int _blogId;
 
@@ -1241,16 +1244,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected static TBlog CreateBlogAndPosts<TBlog, TPost>()
             where TBlog : IBlogAccesor, new()
             where TPost : IPostAccesor, new()
-            => new TBlog
+        => new TBlog
+        {
+            AccessId = 10,
+            AccessTitle = "Blog10",
+            AccessPosts = (IEnumerable<IPostAccesor>)new List<TPost>
             {
-                AccessId = 10,
-                AccessTitle = "Blog10",
-                AccessPosts = (IEnumerable<IPostAccesor>)new List<TPost>
-                {
-                    new TPost { AccessId = 10, AccessTitle = "Post10" },
-                    new TPost { AccessId = 11, AccessTitle = "Post11" }
-                }
-            };
+                new TPost { AccessId = 10, AccessTitle = "Post10" },
+                new TPost { AccessId = 11, AccessTitle = "Post11" }
+            }
+        };
 
         protected static IList<TPost> CreatePostsAndBlog<TBlog, TPost>()
             where TBlog : IBlogAccesor, new()
@@ -1388,20 +1391,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
                     modelBuilder.Entity<PostFields>(b =>
-                    {
-                        b.Property("_id");
-                        b.HasKey("_id");
-                        b.Property("_title");
-                        b.Property("_blogId");
-                    });
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.Property("_blogId");
+                        });
 
                     modelBuilder.Entity<BlogFields>(b =>
-                    {
-                        b.Property("_id");
-                        b.HasKey("_id");
-                        b.Property("_title");
-                        b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
-                    });
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
+                        });
                 }
             }
 

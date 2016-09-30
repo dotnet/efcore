@@ -372,12 +372,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static IServiceProvider CreateContextServices(SqlServerTestStore testStore)
             => ((IInfrastructure<IServiceProvider>)new BloggingContext(
-                new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFrameworkSqlServer()
-                        .AddScoped<SqlServerExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
-                        .AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>().BuildServiceProvider()).Options))
+                    new DbContextOptionsBuilder()
+                        .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
+                        .UseInternalServiceProvider(new ServiceCollection()
+                            .AddEntityFrameworkSqlServer()
+                            .AddScoped<SqlServerExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
+                            .AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>().BuildServiceProvider()).Options))
                 .Instance;
 
         private static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)

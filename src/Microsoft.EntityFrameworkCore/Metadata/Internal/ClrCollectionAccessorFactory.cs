@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -80,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
             var getterDelegate = Expression.Lambda<Func<TEntity, TCollection>>(
-                        Expression.MakeMemberAccess(
-                            entityParameter,
-                            memberInfo),
-                        entityParameter).Compile();
+                Expression.MakeMemberAccess(
+                    entityParameter,
+                    memberInfo),
+                entityParameter).Compile();
 
             Action<TEntity, TCollection> setterDelegate = null;
             Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetDelegate = null;
@@ -139,6 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static TCollection CreateCollection<TCollection, TConcreteCollection>()
             where TCollection : class
             where TConcreteCollection : TCollection, new()
-            => new TConcreteCollection();
+        => new TConcreteCollection();
     }
 }

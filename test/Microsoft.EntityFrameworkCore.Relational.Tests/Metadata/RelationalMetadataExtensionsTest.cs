@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -241,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Name), firstConfiguration),
                 Assert.Throws<InvalidOperationException>(() =>
-                ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "second")).Message);
+                        ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "second")).Message);
         }
 
         protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)
@@ -429,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Equal(RelationalStrings.NoDiscriminatorForValue("Customer", "Customer"),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.Relational().DiscriminatorValue = "V").Message);
+                        entityType.Relational().DiscriminatorValue = "V").Message);
         }
 
         [Fact]
@@ -446,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Equal(RelationalStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.Relational().DiscriminatorValue = "V").Message);
+                        entityType.Relational().DiscriminatorValue = "V").Message);
 
             entityType.Relational().DiscriminatorValue = null;
         }

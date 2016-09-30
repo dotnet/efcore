@@ -31,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         private IRelationalDatabaseCreator GetDatabaseCreator(string connectionString)
             => new DbContext(new DbContextOptionsBuilder()
-                .UseSqlite(connectionString)
-                .UseInternalServiceProvider(new ServiceCollection()
-                    .AddEntityFrameworkSqlite()
-                    .BuildServiceProvider())
-                .Options)
+                    .UseSqlite(connectionString)
+                    .UseInternalServiceProvider(new ServiceCollection()
+                        .AddEntityFrameworkSqlite()
+                        .BuildServiceProvider())
+                    .Options)
                 .GetService<IRelationalDatabaseCreator>();
     }
 }

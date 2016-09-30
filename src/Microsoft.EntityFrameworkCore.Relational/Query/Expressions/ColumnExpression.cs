@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public override Type Type { get; }
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -101,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                       ? specificVisitor.VisitColumn(this)
-                       : base.Accept(visitor);
+                ? specificVisitor.VisitColumn(this)
+                : base.Accept(visitor);
         }
 
         /// <summary>
@@ -165,9 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of the Expression.
+        ///     Creates a <see cref="String" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="String"/> representation of the Expression.</returns>
+        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
         public override string ToString() => _tableExpression.Alias + "." + Name;
     }
 }

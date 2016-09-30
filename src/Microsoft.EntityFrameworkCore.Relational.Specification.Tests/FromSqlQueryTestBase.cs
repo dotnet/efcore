@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         () => context.Set<Customer>()
                             .FromSql(@"SELECT ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
                             .ToArray()
-                        ).Message);
+                    ).Message);
             }
         }
 
@@ -223,10 +223,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var actual
                     = (from c in context.Set<Customer>()
                        where
-                           c.CustomerID == "ALFKI"
-                           && context.Orders.FromSql(@"SELECT * FROM ""Orders""")
-                               .Select(o => o.CustomerID)
-                               .Contains(c.CustomerID)
+                       c.CustomerID == "ALFKI"
+                       && context.Orders.FromSql(@"SELECT * FROM ""Orders""")
+                           .Select(o => o.CustomerID)
+                           .Contains(c.CustomerID)
                        select c)
                         .ToArray();
 
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                        city)
+                           city)
                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                            startDate,
                            endDate)
@@ -644,9 +644,9 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 Assert.Equal(ConnectionState.Closed, connection.State);
 
                 var query = context.Customers
-                        .Include(v => v.Orders)
-                        .Where(v => v.CustomerID == "ALFKI")
-                        .ToList();
+                    .Include(v => v.Orders)
+                    .Where(v => v.CustomerID == "ALFKI")
+                    .ToList();
 
                 Assert.NotEmpty(query);
                 Assert.Equal(ConnectionState.Closed, connection.State);

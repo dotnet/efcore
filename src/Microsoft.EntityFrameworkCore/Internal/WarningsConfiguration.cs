@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class WarningsConfiguration
@@ -17,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new Dictionary<object, WarningBehavior>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual WarningBehavior DefaultBehavior { get; set; } = WarningBehavior.Log;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddExplicit(
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual WarningBehavior GetBehavior([NotNull] object eventId)
@@ -47,12 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             WarningBehavior warningBehavior;
             return _explicitBehaviors.TryGetValue(eventId, out warningBehavior)
-                       ? warningBehavior
-                       : DefaultBehavior;
+                ? warningBehavior
+                : DefaultBehavior;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void TryAddExplicit([NotNull] object eventId, WarningBehavior warningBehavior)

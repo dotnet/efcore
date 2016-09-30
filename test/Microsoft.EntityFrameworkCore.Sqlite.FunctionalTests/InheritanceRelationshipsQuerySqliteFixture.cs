@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                         {
                             context.Database.EnsureClean();
                             InheritanceRelationshipsModelInitializer.Seed(context);
-                            
+
                             TestSqlLoggerFactory.Reset();
                         }
                     });

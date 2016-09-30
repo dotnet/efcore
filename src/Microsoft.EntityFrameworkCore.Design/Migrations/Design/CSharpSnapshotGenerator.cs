@@ -600,7 +600,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-
         protected virtual void GenerateAnnotations(
             [NotNull] IReadOnlyList<IAnnotation> annotations, [NotNull] IndentedStringBuilder stringBuilder)
         {

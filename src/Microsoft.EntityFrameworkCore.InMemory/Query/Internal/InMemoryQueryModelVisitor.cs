@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .GetTables(_targetType)
                     .SelectMany(t =>
                         t.Rows.Select(vs => new EntityLoadInfo(
-                            new ValueBuffer(vs), vb => _materializer(t.EntityType, vb)))
+                                new ValueBuffer(vs), vb => _materializer(t.EntityType, vb)))
                             .Where(eli => keyComparer.ShouldInclude(eli.ValueBuffer)));
             }
 

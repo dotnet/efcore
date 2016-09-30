@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="PropertyBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="PropertyBuilder" />.
     /// </summary>
     public static class RelationalPropertyBuilderExtensions
     {
@@ -42,12 +42,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasColumnName<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string name)
-            => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
+            [CanBeNull] string name
+        ) => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
-        ///     This should be the complete type name, including precision, scale, length, etc. 
+        ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
-        ///     This should be the complete type name, including precision, scale, length, etc. 
+        ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -74,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasColumnType<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string typeName)
-            => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
+            [CanBeNull] string typeName
+        ) => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
 
         /// <summary>
         ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -105,8 +105,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string sql)
-            => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
+            [CanBeNull] string sql
+        ) => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
@@ -136,8 +136,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string sql)
-            => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
+            [CanBeNull] string sql
+        ) => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
         ///     Configures the default value for the column that the property maps to when targeting a relational database.
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] object value)
-            => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
+            [CanBeNull] object value
+        ) => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
     }
 }

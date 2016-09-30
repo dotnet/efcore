@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
 
         public string Path { get; }
 
-        public void Dispose() 
+        public void Dispose()
             => Directory.Delete(Path, recursive: true);
     }
 }

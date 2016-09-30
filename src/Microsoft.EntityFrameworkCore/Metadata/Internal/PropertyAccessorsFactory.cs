@@ -12,13 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class PropertyAccessorsFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
@@ -63,12 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     entityClrType);
 
                 currentValueExpression = Expression.MakeMemberAccess(
-                    convertedExpression, 
+                    convertedExpression,
                     propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
-            if (useStoreGeneratedValues 
+            if (useStoreGeneratedValues
                 && storeGeneratedIndex >= 0)
             {
                 currentValueExpression = Expression.Call(
@@ -79,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                currentValueExpression,
-                entryParameter)
+                    currentValueExpression,
+                    entryParameter)
                 .Compile();
         }
 
@@ -90,18 +90,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var originalValuesIndex = property.GetOriginalValueIndex();
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                originalValuesIndex >= 0
-                    ? (Expression)Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(property),
-                        Expression.Constant(originalValuesIndex))
-                    : Expression.Block(
-                        Expression.Throw(Expression.Constant(
-                            new InvalidOperationException(
-                                CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
-                        Expression.Constant(default(TProperty), typeof(TProperty))),
-                entryParameter)
+                    originalValuesIndex >= 0
+                        ? (Expression)Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(property),
+                            Expression.Constant(originalValuesIndex))
+                        : Expression.Block(
+                            Expression.Throw(Expression.Constant(
+                                new InvalidOperationException(
+                                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
+                            Expression.Constant(default(TProperty), typeof(TProperty))),
+                    entryParameter)
                 .Compile();
         }
 
@@ -111,17 +111,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var relationshipIndex = (propertyBase as IProperty)?.GetRelationshipIndex() ?? -1;
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                relationshipIndex >= 0
-                    ? Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.ReadRelationshipSnapshotValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(propertyBase),
-                        Expression.Constant(relationshipIndex))
-                    : Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(propertyBase)),
-                entryParameter)
+                    relationshipIndex >= 0
+                        ? Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.ReadRelationshipSnapshotValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(propertyBase),
+                            Expression.Constant(relationshipIndex))
+                        : Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(propertyBase)),
+                    entryParameter)
                 .Compile();
         }
 
@@ -130,11 +130,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
             return Expression.Lambda<Func<ValueBuffer, object>>(
-                Expression.Call(
-                    valueBufferParameter,
-                    ValueBuffer.GetValueMethod,
-                    Expression.Constant(property.GetIndex())),
-                valueBufferParameter)
+                    Expression.Call(
+                        valueBufferParameter,
+                        ValueBuffer.GetValueMethod,
+                        Expression.Constant(property.GetIndex())),
+                    valueBufferParameter)
                 .Compile();
         }
     }

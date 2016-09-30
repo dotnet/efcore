@@ -634,12 +634,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var id = 0;
 
             ExecuteWithStrategyInTransaction(context =>
-                {
-                    var entity = context.Add(new Gumball()).Entity;
+                    {
+                        var entity = context.Add(new Gumball()).Entity;
 
-                    context.SaveChanges();
-                    id = entity.Id;
-                },
+                        context.SaveChanges();
+                        id = entity.Id;
+                    },
                 context =>
                     {
                         var gumball = context.Gumballs.Single(e => e.Id == id);
@@ -699,9 +699,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         protected virtual void ExecuteWithStrategyInTransaction(
-            Action<StoreGeneratedContext> testOperation,
-            Action<StoreGeneratedContext> nestedTestOperation1 = null,
-            Action<StoreGeneratedContext> nestedTestOperation2 = null)
+                Action<StoreGeneratedContext> testOperation,
+                Action<StoreGeneratedContext> nestedTestOperation1 = null,
+                Action<StoreGeneratedContext> nestedTestOperation2 = null)
             => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1, nestedTestOperation2);
 

@@ -65,15 +65,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<NavigationPropertyConfiguration> NavigationPropertyConfigurations { get; }
-            = new List<NavigationPropertyConfiguration>();
+        public virtual List<NavigationPropertyConfiguration> NavigationPropertyConfigurations { get; } =
+            new List<NavigationPropertyConfiguration>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<NavigationPropertyInitializerConfiguration>
-            NavigationPropertyInitializerConfigurations { get; } = new List<NavigationPropertyInitializerConfiguration>();
+        public virtual List<NavigationPropertyInitializerConfiguration> NavigationPropertyInitializerConfigurations { get; } =
+            new List<NavigationPropertyInitializerConfiguration>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -119,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         public virtual List<IFluentApiConfiguration> GetFluentApiConfigurations(bool useFluentApiOnly)
         {
             return (useFluentApiOnly
-                ? FluentApiConfigurations
-                : FluentApiConfigurations.Where(flc => !flc.HasAttributeEquivalent))
+                    ? FluentApiConfigurations
+                    : FluentApiConfigurations.Where(flc => !flc.HasAttributeEquivalent))
                 .ToList();
         }
 

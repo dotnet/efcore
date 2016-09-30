@@ -3,18 +3,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -421,8 +422,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackEntitiesTest(
-            Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
-            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+                Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
+                Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesTest(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
@@ -497,8 +498,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackMultipleEntitiesTest(
-            Action<DbContext, object[]> categoryAdder,
-            Action<DbContext, object[]> productAdder, EntityState expectedState)
+                Action<DbContext, object[]> categoryAdder,
+                Action<DbContext, object[]> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTest(
                 (c, e) =>
                     {
@@ -574,8 +575,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackEntitiesDefaultValueTest(
-            Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
-            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+                Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
+                Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesDefaultValueTest(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
@@ -639,19 +640,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackMultipleEntitiesDefaultValuesTest(
-            Action<DbContext, object[]> categoryAdder,
-            Action<DbContext, object[]> productAdder, EntityState expectedState)
+                Action<DbContext, object[]> categoryAdder,
+                Action<DbContext, object[]> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesDefaultValuesTest(
                 (c, e) =>
-                {
-                    categoryAdder(c, e);
-                    return Task.FromResult(0);
-                },
+                    {
+                        categoryAdder(c, e);
+                        return Task.FromResult(0);
+                    },
                 (c, e) =>
-                {
-                    productAdder(c, e);
-                    return Task.FromResult(0);
-                },
+                    {
+                        productAdder(c, e);
+                        return Task.FromResult(0);
+                    },
                 expectedState);
 
         // Issue #3890
@@ -754,8 +755,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackEntitiesTestNonGeneric(
-            Func<DbContext, object, EntityEntry> categoryAdder,
-            Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
+                Func<DbContext, object, EntityEntry> categoryAdder,
+                Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
             => TrackEntitiesTestNonGeneric(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
@@ -818,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public async Task  Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable_graph()
+        public async Task Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable_graph()
         {
             await TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Unchanged);
         }
@@ -830,8 +831,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackMultipleEntitiesTestEnumerable(
-            Action<DbContext, IEnumerable<object>> categoryAdder,
-            Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
+                Action<DbContext, IEnumerable<object>> categoryAdder,
+                Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTestEnumerable(
                 (c, e) =>
                     {
@@ -844,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                         return Task.FromResult(0);
                     },
                 expectedState);
-        
+
         private static async Task TrackMultipleEntitiesTestEnumerable(
             Func<DbContext, IEnumerable<object>, Task> categoryAdder,
             Func<DbContext, IEnumerable<object>, Task> productAdder, EntityState expectedState)
@@ -907,8 +908,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackEntitiesDefaultValuesTestNonGeneric(
-            Func<DbContext, object, EntityEntry> categoryAdder,
-            Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
+                Func<DbContext, object, EntityEntry> categoryAdder,
+                Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
             => TrackEntitiesDefaultValuesTestNonGeneric(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
@@ -972,19 +973,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackMultipleEntitiesDefaultValueTestEnumerable(
-            Action<DbContext, IEnumerable<object>> categoryAdder,
-            Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
+                Action<DbContext, IEnumerable<object>> categoryAdder,
+                Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesDefaultValueTestEnumerable(
                 (c, e) =>
-                {
-                    categoryAdder(c, e);
-                    return Task.FromResult(0);
-                },
+                    {
+                        categoryAdder(c, e);
+                        return Task.FromResult(0);
+                    },
                 (c, e) =>
-                {
-                    productAdder(c, e);
-                    return Task.FromResult(0);
-                },
+                    {
+                        productAdder(c, e);
+                        return Task.FromResult(0);
+                    },
                 expectedState);
 
         // Issue #3890
@@ -1144,14 +1145,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private Task ChangeStateWithMethod(
-            Action<DbContext, object> action,
-            EntityState initialState,
-            EntityState expectedState)
+                Action<DbContext, object> action,
+                EntityState initialState,
+                EntityState expectedState)
             => ChangeStateWithMethod((c, e) =>
-                {
-                    action(c, e);
-                    return Task.FromResult(0);
-                },
+                    {
+                        action(c, e);
+                        return Task.FromResult(0);
+                    },
                 initialState,
                 expectedState);
 
@@ -1949,7 +1950,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
-            { CallBase = true }.Object);
+                { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
@@ -1993,7 +1994,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
-            { CallBase = true }.Object);
+                { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
@@ -2041,7 +2042,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
-            { CallBase = true }.Object);
+                { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
@@ -4664,7 +4665,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .UseInMemoryDatabase();
         }
 
-
         [Fact]
         public void Throws_replacing_services_in_options_when_UseInternalServiceProvider()
         {
@@ -4921,9 +4921,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             Assert.Equal(3, services.GetServices<DbContextOptions>().Count());
             Assert.Equal(2, services.GetServices<DbContextOptions>()
-                            .Select(o => o.ContextType)
-                            .Distinct()
-                            .Count());
+                .Select(o => o.ContextType)
+                .Distinct()
+                .Count());
         }
 
         [Fact]
@@ -5310,11 +5310,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var expectedProperties = new List<string> { "ChangeTracker", "Database", "Model" };
 
             Assert.True(expectedProperties.SequenceEqual(
-                typeof(DbContext)
-                    .GetProperties()
-                    .Select(p => p.Name)
-                    .OrderBy(s => s)
-                    .ToList()),
+                    typeof(DbContext)
+                        .GetProperties()
+                        .Select(p => p.Name)
+                        .OrderBy(s => s)
+                        .ToList()),
                 userMessage: "Unexpected properties on DbContext. " +
                              "Update test to ensure all getters throw ObjectDisposedException after dispose.");
 
@@ -5441,8 +5441,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class TestAssembly
         {
-            [System.ComponentModel.DataAnnotations.Key]
+            [Key]
             public string Name { get; set; }
+
             public ICollection<TestClass> Classes { get; } = new List<TestClass>();
         }
 
@@ -5472,21 +5473,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 modelBuilder.Entity<TestClass>(
                     x =>
-                    {
-                        x.Property<string>("AssemblyName");
-                        x.HasKey("AssemblyName", nameof(TestClass.Name));
-                        x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
-                            .HasForeignKey("AssemblyName");
-                    });
+                        {
+                            x.Property<string>("AssemblyName");
+                            x.HasKey("AssemblyName", nameof(TestClass.Name));
+                            x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
+                                .HasForeignKey("AssemblyName");
+                        });
 
                 modelBuilder.Entity<Test>(
                     x =>
-                    {
-                        x.Property<string>("AssemblyName");
-                        x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
-                        x.HasOne(t => t.Class).WithMany(c => c.Tests)
-                            .HasForeignKey("AssemblyName", "ClassName");
-                    });
+                        {
+                            x.Property<string>("AssemblyName");
+                            x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
+                            x.HasOne(t => t.Class).WithMany(c => c.Tests)
+                                .HasForeignKey("AssemblyName", "ClassName");
+                        });
             }
         }
     }

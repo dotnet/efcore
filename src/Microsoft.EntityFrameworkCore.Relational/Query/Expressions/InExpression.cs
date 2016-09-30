@@ -72,19 +72,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual SelectExpression SubQuery { get; }
 
         /// <summary>
-        /// Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
+        ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
         /// </summary>
-        /// <returns>The <see cref="ExpressionType"/> that represents this expression.</returns>
+        /// <returns>The <see cref="ExpressionType" /> that represents this expression.</returns>
         public override ExpressionType NodeType => ExpressionType.Extension;
-        
+
         /// <summary>
-        /// Gets the static type of the expression that this <see cref="Expression" /> represents. (Inherited from <see cref="Expression"/>.)
+        ///     Gets the static type of the expression that this <see cref="Expression" /> represents. (Inherited from <see cref="Expression" />.)
         /// </summary>
-        /// <returns>The <see cref="Type"/> that represents the static type of the expression.</returns>
+        /// <returns>The <see cref="Type" /> that represents the static type of the expression.</returns>
         public override Type Type => typeof(bool);
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -113,9 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of the Expression.
+        ///     Creates a <see cref="String" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="String"/> representation of the Expression.</returns>
+        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
         public override string ToString()
             => Operand.Expression + " IN (" + string.Join(", ", Values) + ")";
     }

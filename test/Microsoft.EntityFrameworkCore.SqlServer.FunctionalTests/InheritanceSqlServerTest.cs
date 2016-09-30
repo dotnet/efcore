@@ -260,7 +260,7 @@ WHERE [a].[Discriminator] = N'Kiwi'",
 FROM [Plant] AS [p]
 WHERE [p].[Genus] = 0",
                 Sql
-                );
+            );
         }
 
         public override void Can_include_prey()

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
                     isMet &= defaultConnection.DataSource.Contains("(localdb)")
-                        || defaultConnection.UserInstance;
+                             || defaultConnection.UserInstance;
                 }
                 return isMet;
             }

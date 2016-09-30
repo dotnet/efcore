@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
+
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable PossibleInvalidOperationException
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(
                     @"SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
-WHERE [e].[Time] = '00:01:02'", 
+WHERE [e].[Time] = '00:01:02'",
                     Sql);
             }
         }
@@ -56,7 +56,7 @@ WHERE [e].[Time] = '00:01:02'",
             {
                 var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results 
+                var results
                     = context.Set<MappedNullableDataTypes>()
                         .Where(e => e.Time == timeSpan)
                         .Select(e => e.Int)
@@ -68,7 +68,7 @@ WHERE [e].[Time] = '00:01:02'",
 
 SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
-WHERE [e].[Time] = @__timeSpan_0", 
+WHERE [e].[Time] = @__timeSpan_0",
                     Sql);
             }
         }
@@ -361,9 +361,9 @@ WHERE [e].[Time] = @__timeSpan_0",
 
         private static string DumpParameters()
             => string.Join(
-                FileLineEnding, 
+                FileLineEnding,
                 TestSqlLoggerFactory.CommandLogData.Single().Parameters
-                .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
+                    .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {

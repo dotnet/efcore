@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         PossibleUnintendedUseOfEqualsWarning,
 
         /// <summary>
-        ///     Linq translation of 'Contains', 'EndsWith' and 'StartsWith' functions may produce incorrect results 
+        ///     Linq translation of 'Contains', 'EndsWith' and 'StartsWith' functions may produce incorrect results
         ///     when searched value contains wildcard characters.
         /// </summary>
         PossibleIncorrectResultsUsingLikeOperator,

@@ -20,15 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
             => (memberExpression.Expression != null)
-            && (memberExpression.Expression.Type == typeof(DateTime))
-            && (memberExpression.Member.Name == nameof(DateTime.Date))
-            ? new SqlFunctionExpression("CONVERT", 
-                memberExpression.Type, 
-                new[]
-                {
-                   Expression.Constant(DbType.Date),
-                   memberExpression.Expression
-                })
-            : null;
+               && (memberExpression.Expression.Type == typeof(DateTime))
+               && (memberExpression.Member.Name == nameof(DateTime.Date))
+                ? new SqlFunctionExpression("CONVERT",
+                    memberExpression.Type,
+                    new[]
+                    {
+                        Expression.Constant(DbType.Date),
+                        memberExpression.Expression
+                    })
+                : null;
     }
 }

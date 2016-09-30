@@ -7,11 +7,11 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
@@ -1127,10 +1127,10 @@ Logged Command",
         }
 
         private IRelationalCommand CreateRelationalCommand(
-            ISensitiveDataLogger logger = null,
-            DiagnosticSource diagnosticSource = null,
-            string commandText = "Command Text",
-            IReadOnlyList<IRelationalParameter> parameters = null)
+                ISensitiveDataLogger logger = null,
+                DiagnosticSource diagnosticSource = null,
+                string commandText = "Command Text",
+                IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
                 logger ?? new FakeSensitiveDataLogger<RelationalCommand>(),
                 diagnosticSource ?? new DiagnosticListener("Fake"),

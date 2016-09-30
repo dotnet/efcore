@@ -256,8 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(querySource, nameof(querySource));
 
             return _tables.FirstOrDefault(te
-                => te.QuerySource == querySource
-                   || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
+                       => te.QuerySource == querySource
+                          || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
                    ?? _tables.Last();
         }
 
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         /// <summary>
         ///     Creates a subquery based on this SelectExpression and makes that table the single entry in
-        ///     <see cref="Tables"/>. Clears all other top-level aspects of this SelectExpression.
+        ///     <see cref="Tables" />. Clears all other top-level aspects of this SelectExpression.
         /// </summary>
         /// <returns>
         ///     A SelectExpression.
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="property"> The corresponding EF property. </param>
         /// <param name="querySource"> The originating query source. </param>
         /// <returns>
-        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        ///     The corresponding index of the added expression in <see cref="Projection" />.
         /// </returns>
         public virtual int AddToProjection(
             [NotNull] string column,
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="expression"> The expression. </param>
         /// <returns>
-        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        ///     The corresponding index of the added expression in <see cref="Projection" />.
         /// </returns>
         public virtual int AddToProjection([NotNull] Expression expression)
             => AddToProjection(expression, true);
@@ -478,14 +478,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Adds an expression to the projection.
         /// </summary>
         /// <param name="expression"> The expression. </param>
-        /// <param name="resetProjectStar"> true to reset the value of <see cref="IsProjectStar"/>. </param>
+        /// <param name="resetProjectStar"> true to reset the value of <see cref="IsProjectStar" />. </param>
         /// <returns>
-        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        ///     The corresponding index of the added expression in <see cref="Projection" />.
         /// </returns>
         public virtual int AddToProjection([NotNull] Expression expression, bool resetProjectStar)
         {
             Check.NotNull(expression, nameof(expression));
-            
+
             if (expression.NodeType == ExpressionType.Convert)
             {
                 var unaryExpression = (UnaryExpression)expression;
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             {
                 return AddToProjection(columnExpression);
             }
-            
+
             var aliasExpression = expression as AliasExpression;
 
             if (aliasExpression != null)
@@ -522,11 +522,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Adds an <see cref="AliasExpression"/> to the projection.
+        ///     Adds an <see cref="AliasExpression" /> to the projection.
         /// </summary>
         /// <param name="aliasExpression"> The alias expression. </param>
         /// <returns>
-        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        ///     The corresponding index of the added expression in <see cref="Projection" />.
         /// </returns>
         public virtual int AddToProjection([NotNull] AliasExpression aliasExpression)
             => AddAliasToProjection(aliasExpression.Alias, aliasExpression.Expression);
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="alias"> The alias. </param>
         /// <param name="expression"> The expression. </param>
         /// <returns>
-        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        ///     The corresponding index of the added expression in <see cref="Projection" />.
         /// </returns>
         public virtual int AddAliasToProjection([CanBeNull] string alias, [NotNull] Expression expression)
         {
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                                     && columnExpression != null
                                     && ce.Name == columnExpression.Name
                                     && ce.TableAlias == columnExpression.TableAlias)
-                                || ae?.Expression == expression;
+                                   || ae?.Expression == expression;
                         });
 
             if (projectionIndex == -1)
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="columnExpression"> The column expression. </param>
         /// <returns>
-        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        ///     The corresponding index of the added expression in <see cref="Projection" />.
         /// </returns>
         public virtual int AddToProjection([NotNull] ColumnExpression columnExpression)
         {
@@ -620,8 +620,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             var ce = e.TryGetColumnExpression();
 
                             return ce != null
-                                && ce.Name == columnExpression.Name
-                                && ce.TableAlias == columnExpression.TableAlias;
+                                   && ce.Name == columnExpression.Name
+                                   && ce.TableAlias == columnExpression.TableAlias;
                         });
 
             if (projectionIndex == -1)
@@ -651,10 +651,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Gets the types of the expressions in <see cref="Projection"/>.
+        ///     Gets the types of the expressions in <see cref="Projection" />.
         /// </summary>
         /// <returns>
-        ///     The types of the expressions in <see cref="Projection"/>.
+        ///     The types of the expressions in <see cref="Projection" />.
         /// </returns>
         public virtual IEnumerable<Type> GetProjectionTypes()
         {
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Sets a <see cref="ConditionalExpression"/> as the single projected expression
+        ///     Sets a <see cref="ConditionalExpression" /> as the single projected expression
         ///     in this SelectExpression.
         /// </summary>
         /// <param name="conditionalExpression"> The conditional expression. </param>
@@ -742,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         /// <summary>
         ///     Removes expressions from the projection corresponding to the
-        ///     supplied <see cref="Ordering"/> expressions.
+        ///     supplied <see cref="Ordering" /> expressions.
         /// </summary>
         /// <param name="orderBy"> The Orderings to remove from the projection. </param>
         public virtual void RemoveFromProjection([NotNull] IEnumerable<Ordering> orderBy)
@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Computes the index in <see cref="Projection"/> corresponding to the supplied property and query source.
+        ///     Computes the index in <see cref="Projection" /> corresponding to the supplied property and query source.
         /// </summary>
         /// <param name="property"> The corresponding EF property. </param>
         /// <param name="querySource"> The originating query source. </param>
@@ -839,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Adds a single <see cref="Ordering"/> to the order by.
+        ///     Adds a single <see cref="Ordering" /> to the order by.
         /// </summary>
         /// <param name="ordering"> The ordering. </param>
         public virtual void AddToOrderBy([NotNull] Ordering ordering)
@@ -1104,8 +1104,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The new FromSql query SQL generator.
         /// </returns>
         public virtual IQuerySqlGenerator CreateFromSqlQuerySqlGenerator(
-            [NotNull] string sql,
-            [NotNull] Expression arguments)
+                [NotNull] string sql,
+                [NotNull] Expression arguments)
             => _querySqlGeneratorFactory
                 .CreateFromSql(
                     this,

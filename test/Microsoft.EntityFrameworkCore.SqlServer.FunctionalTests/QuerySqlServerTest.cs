@@ -13,7 +13,6 @@ using Xunit.Abstractions;
 #if NETCOREAPP1_0
 using System.Threading;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
@@ -1105,13 +1104,13 @@ ORDER BY [e].[EmployeeID] - [e].[EmployeeID]",
             base.OrderBy_condition_comparison();
 
             Assert.Equal(
-               @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 ORDER BY CASE
     WHEN [p].[UnitsInStock] > 0
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END, [p].[ProductID]",
-               Sql);
+                Sql);
         }
 
         public override void OrderBy_ternary_conditions()
@@ -2317,12 +2316,12 @@ WHERE LEN([c].[City]) = 6",
             base.Where_datetime_date_component();
 
             Assert.Equal(
-              @"@__myDatetime_0: 05/04/1998 00:00:00
+                @"@__myDatetime_0: 05/04/1998 00:00:00
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE CONVERT(date, [o].[OrderDate]) = @__myDatetime_0",
-              Sql);
+                Sql);
         }
 
         public override void Where_datetime_day_component()
@@ -2330,11 +2329,10 @@ WHERE CONVERT(date, [o].[OrderDate]) = @__myDatetime_0",
             base.Where_datetime_day_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(day, [o].[OrderDate]) = 4",
-              Sql);
-
+                Sql);
         }
 
         public override void Where_datetime_year_component()
@@ -2342,11 +2340,10 @@ WHERE DATEPART(day, [o].[OrderDate]) = 4",
             base.Where_datetime_year_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(year, [o].[OrderDate]) = 1998",
-              Sql);
-
+                Sql);
         }
 
         public override void Where_datetime_dayOfYear_component()
@@ -2354,11 +2351,10 @@ WHERE DATEPART(year, [o].[OrderDate]) = 1998",
             base.Where_datetime_dayOfYear_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(dayofyear, [o].[OrderDate]) = 68",
-              Sql);
-
+                Sql);
         }
 
         public override void Where_datetime_month_component()
@@ -2366,10 +2362,10 @@ WHERE DATEPART(dayofyear, [o].[OrderDate]) = 68",
             base.Where_datetime_month_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(month, [o].[OrderDate]) = 4",
-              Sql);
+                Sql);
         }
 
         public override void Where_datetime_hour_component()
@@ -2377,10 +2373,10 @@ WHERE DATEPART(month, [o].[OrderDate]) = 4",
             base.Where_datetime_hour_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(hour, [o].[OrderDate]) = 14",
-              Sql);
+                Sql);
         }
 
         public override void Where_datetime_minute_component()
@@ -2388,10 +2384,10 @@ WHERE DATEPART(hour, [o].[OrderDate]) = 14",
             base.Where_datetime_minute_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(minute, [o].[OrderDate]) = 23",
-              Sql);
+                Sql);
         }
 
         public override void Where_datetime_second_component()
@@ -2399,10 +2395,10 @@ WHERE DATEPART(minute, [o].[OrderDate]) = 23",
             base.Where_datetime_second_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(second, [o].[OrderDate]) = 44",
-              Sql);
+                Sql);
         }
 
         public override void Where_datetime_millisecond_component()
@@ -2410,10 +2406,10 @@ WHERE DATEPART(second, [o].[OrderDate]) = 44",
             base.Where_datetime_millisecond_component();
 
             Assert.Equal(
-@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE DATEPART(millisecond, [o].[OrderDate]) = 88",
-              Sql);
+                Sql);
         }
 
         public override void Where_datetime_now()
@@ -3867,10 +3863,10 @@ WHERE [c].[CustomerID] = N'ALFKI'",
             base.Where_ternary_boolean_condition();
 
             Assert.Contains(
-                    @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
-                    Sql);
+                Sql);
         }
 
         public override void Where_ternary_boolean_condition_with_another_condition()
@@ -3878,13 +3874,13 @@ WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND 
             base.Where_ternary_boolean_condition_with_another_condition();
 
             Assert.Equal(
-                    @"@__productId_0: 15
+                @"@__productId_0: 15
 @__flag_1: True
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
-                    Sql);
+                Sql);
         }
 
         public override void Where_ternary_boolean_condition_with_false_as_result()
@@ -3892,10 +3888,10 @@ WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsIn
             base.Where_ternary_boolean_condition_with_false_as_result();
 
             Assert.Contains(
-                    @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)",
-                    Sql);
+                Sql);
         }
 
         public override void Where_concat_string_int_comparison1()

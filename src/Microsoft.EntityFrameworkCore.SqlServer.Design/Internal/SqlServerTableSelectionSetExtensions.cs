@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var patternToMatch = pattern.Replace("{schema}", schemaName);
                     var matchingSchemaSelections = tableSelectionSet.Schemas.Where(
-                        s => s.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase))
+                            s => s.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase))
                         .ToList();
                     if (matchingSchemaSelections.Any())
                     {
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 var patternToMatch = pattern.Replace("{schema}", schemaName).Replace("{table}", tableName);
                 var matchingTableSelections = tableSelectionSet.Tables.Where(
-                    t => t.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase))
+                        t => t.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase))
                     .ToList();
                 if (matchingTableSelections.Any())
                 {

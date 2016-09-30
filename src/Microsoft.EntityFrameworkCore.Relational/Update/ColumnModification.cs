@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isRead,
             bool isWrite,
             bool isKey,
-            bool isCondition, 
+            bool isCondition,
             bool isConcurrencyToken)
         {
             Check.NotNull(entry, nameof(entry));

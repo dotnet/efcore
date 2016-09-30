@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design
             Assert.Equal(unicode, mapping.ScaffoldUnicode);
         }
 
-        private static ScaffoldingTypeMapper CreateMapper() 
+        private static ScaffoldingTypeMapper CreateMapper()
             => new ScaffoldingTypeMapper(new SqlServerTypeMapper());
     }
 }

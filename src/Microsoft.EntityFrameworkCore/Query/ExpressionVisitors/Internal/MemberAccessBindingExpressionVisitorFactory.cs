@@ -7,19 +7,19 @@ using Remotion.Linq.Clauses;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class MemberAccessBindingExpressionVisitorFactory : IMemberAccessBindingExpressionVisitorFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ExpressionVisitor Create(
-            QuerySourceMapping querySourceMapping,
-            EntityQueryModelVisitor queryModelVisitor,
-            bool inProjection)
+                QuerySourceMapping querySourceMapping,
+                EntityQueryModelVisitor queryModelVisitor,
+                bool inProjection)
             => new MemberAccessBindingExpressionVisitor(querySourceMapping, queryModelVisitor, inProjection);
     }
 }

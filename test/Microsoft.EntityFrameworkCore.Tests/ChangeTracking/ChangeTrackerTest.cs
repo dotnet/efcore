@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Tag = new ProductDetailsTag
                     {
                         Details = new ProductDetails
-                        { Product = new Product() }
+                            { Product = new Product() }
                     }
                 };
 
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Tag = new ProductDetailsTag
                     {
                         Details = new ProductDetails
-                        { Product = new Product() }
+                            { Product = new Product() }
                     }
                 };
 
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Tag = new ProductDetailsTag
                     {
                         Details = new ProductDetails
-                        { Product = new Product() }
+                            { Product = new Product() }
                     }
                 };
 
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Tag = new ProductDetailsTag
                     {
                         Details = new ProductDetails
-                        { Product = new Product() }
+                            { Product = new Product() }
                     }
                 };
 
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Tag = new ProductDetailsTag
                     {
                         Details = new ProductDetails
-                        { Product = new Product() }
+                            { Product = new Product() }
                     }
                 };
 
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     Tag = new ProductDetailsTag
                     {
                         Details = new ProductDetails
-                        { Product = new Product() }
+                            { Product = new Product() }
                     }
                 };
 

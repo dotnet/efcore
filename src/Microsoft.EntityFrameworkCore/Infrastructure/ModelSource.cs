@@ -27,31 +27,31 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private readonly ConcurrentDictionary<object, IModel> _models = new ConcurrentDictionary<object, IModel>();
 
         /// <summary>
-        ///     Gets the <see cref="IDbSetFinder"/> that will locate the <see cref="DbSet{TEntity}"/> properties
+        ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
         ///     on the derived context.
         /// </summary>
         protected virtual IDbSetFinder SetFinder { get; }
 
         /// <summary>
-        ///     Gets the <see cref="ICoreConventionSetBuilder"/> that will build the conventions to be used 
+        ///     Gets the <see cref="ICoreConventionSetBuilder" /> that will build the conventions to be used
         ///     to build the model.
         /// </summary>
         protected virtual ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IModelCustomizer"/> that will perform additional configuration of the model
+        ///     Gets the <see cref="IModelCustomizer" /> that will perform additional configuration of the model
         ///     in addition to what is discovered by convention.
         /// </summary>
         protected virtual IModelCustomizer ModelCustomizer { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IModelCacheKeyFactory"/> that will create keys used to store and lookup models
+        ///     Gets the <see cref="IModelCacheKeyFactory" /> that will create keys used to store and lookup models
         ///     the model cache.
         /// </summary>
         protected virtual IModelCacheKeyFactory ModelCacheKeyFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected ModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
@@ -127,8 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
         /// </summary>
-        /// <param name="modelBuilder"> The <see cref="ModelBuilder"/> being used to build the model. </param>
-        /// <param name="context"> The context to find <see cref="DbSet{TEntity}"/> properties on. </param>
+        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
+        /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
         protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
         {
             foreach (var setInfo in SetFinder.FindSets(context))

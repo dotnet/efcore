@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
 
                 return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.TableName,
-                    ProviderFullAnnotationNames?.TableName)
+                           RelationalFullAnnotationNames.Instance.TableName,
+                           ProviderFullAnnotationNames?.TableName)
                        ?? EntityType.DisplayName();
             }
             [param: CanBeNull] set { SetTableName(value); }
@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
 
                 return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.Schema,
-                    ProviderFullAnnotationNames?.Schema)
+                           RelationalFullAnnotationNames.Instance.Schema,
+                           ProviderFullAnnotationNames?.Schema)
                        ?? GetAnnotations((IMutableModel)EntityType.Model).DefaultSchema;
             }
             [param: CanBeNull] set { SetSchema(value); }
@@ -185,9 +185,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return Annotations.SetAnnotation
-                (RelationalFullAnnotationNames.Instance.DiscriminatorValue,
-                    ProviderFullAnnotationNames?.DiscriminatorValue,
-                    value);
+            (RelationalFullAnnotationNames.Instance.DiscriminatorValue,
+                ProviderFullAnnotationNames?.DiscriminatorValue,
+                value);
         }
 
         protected virtual ConfigurationSource? GetDiscriminatorValueConfigurationSource()

@@ -63,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual IServiceProvider Build([NotNull] string provider)
             => ConfigureUserServices(
-                ConfigureProviderServices(
-                    Check.NotEmpty(provider, nameof(provider)),
-                    ConfigureServices(new ServiceCollection()), throwOnError: true))
+                    ConfigureProviderServices(
+                        Check.NotEmpty(provider, nameof(provider)),
+                        ConfigureServices(new ServiceCollection()), throwOnError: true))
                 .BuildServiceProvider();
 
         /// <summary>
@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IServiceCollection ConfigureContextServices(
-            [NotNull] IServiceProvider contextServices,
-            [NotNull] IServiceCollection services)
+                [NotNull] IServiceProvider contextServices,
+                [NotNull] IServiceCollection services)
             => services
                 .AddTransient<MigrationsScaffolder>()
                 .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())

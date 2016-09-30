@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </summary>
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
-        public virtual object Next([NotNull] EntityEntry entry) 
+        public virtual object Next([NotNull] EntityEntry entry)
             => NextValue(entry);
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
         public virtual Task<object> NextAsync(
-            [NotNull] EntityEntry entry, 
-            CancellationToken cancellationToken = default(CancellationToken)) 
+                [NotNull] EntityEntry entry,
+                CancellationToken cancellationToken = default(CancellationToken))
             => NextValueAsync(entry, cancellationToken);
 
         /// <summary>
@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The generated value. </returns>
         protected virtual Task<object> NextValueAsync(
-            [NotNull] EntityEntry entry, 
-            CancellationToken cancellationToken = default(CancellationToken))
+                [NotNull] EntityEntry entry,
+                CancellationToken cancellationToken = default(CancellationToken))
             => Task.FromResult(NextValue(entry));
 
         /// <summary>

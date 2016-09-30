@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="KeyBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="KeyBuilder" />.
     /// </summary>
     public static class RelationalKeyBuilderExtensions
     {

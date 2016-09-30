@@ -136,9 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => TransactionManager.RollbackTransaction();
 
         /// <summary>
-        ///     Creates an instance of the configured <see cref="IExecutionStrategy"/>.
+        ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.
         /// </summary>
-        /// <returns>An <see cref="IExecutionStrategy"/> instance.</returns>
+        /// <returns>An <see cref="IExecutionStrategy" /> instance.</returns>
         public virtual IExecutionStrategy CreateExecutionStrategy()
             => ExecutionStrategyFactory.Create();
 
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         'BeginTransaction' or 'UseTransaction' methods have been called.
         ///     </para>
         ///     <para>
-        ///         Setting this value to false will also disable the <see cref="IExecutionStrategy"/>
+        ///         Setting this value to false will also disable the <see cref="IExecutionStrategy" />
         ///         for <see cref="DbContext.SaveChanges()" />
         ///     </para>
         ///     <para>

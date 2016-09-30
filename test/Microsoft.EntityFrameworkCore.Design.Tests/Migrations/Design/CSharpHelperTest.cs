@@ -13,74 +13,74 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
     {
         [Theory]
         [InlineData(
-            "single-line string with \"",
-            "\"single-line string with \\\"\"")]
+             "single-line string with \"",
+             "\"single-line string with \\\"\"")]
         [InlineData(
-            true,
-            "true")]
+             true,
+             "true")]
         [InlineData(
-            false,
-            "false")]
+             false,
+             "false")]
         [InlineData(
-            (byte)42,
-            "(byte)42")]
+             (byte)42,
+             "(byte)42")]
         [InlineData(
-            'A',
-            "'A'")]
+             'A',
+             "'A'")]
         [InlineData(
-            '\'',
-            @"'\''")]
+             '\'',
+             @"'\''")]
         [InlineData(
-            4.2,
-            "4.2")]
+             4.2,
+             "4.2")]
         [InlineData(
-            -1.7976931348623157E+308, // Double MinValue
-            "-1.7976931348623157E+308")]
+             -1.7976931348623157E+308, // Double MinValue
+             "-1.7976931348623157E+308")]
         [InlineData(
-            1.7976931348623157E+308, // Double MaxValue
-            "1.7976931348623157E+308")]
+             1.7976931348623157E+308, // Double MaxValue
+             "1.7976931348623157E+308")]
         [InlineData(
-            4.2f,
-            "4.2f")]
+             4.2f,
+             "4.2f")]
         [InlineData(
-            -3.402823E+38f, // Single MinValue
-            "-3.402823E+38f")]
+             -3.402823E+38f, // Single MinValue
+             "-3.402823E+38f")]
         [InlineData(
-            3.402823E+38f, // Single MaxValue
-            "3.402823E+38f")]
+             3.402823E+38f, // Single MaxValue
+             "3.402823E+38f")]
         [InlineData(
-            42,
-            "42")]
+             42,
+             "42")]
         [InlineData(
-            42L,
-            "42L")]
+             42L,
+             "42L")]
         [InlineData(
-            9000000000000000000L, // Ensure not printed as exponent
-            "9000000000000000000L")]
+             9000000000000000000L, // Ensure not printed as exponent
+             "9000000000000000000L")]
         [InlineData(
-            (sbyte)42,
-            "(sbyte)42")]
+             (sbyte)42,
+             "(sbyte)42")]
         [InlineData(
-            (short)42,
-            "(short)42")]
+             (short)42,
+             "(short)42")]
         [InlineData(
-            42u,
-            "42u")]
+             42u,
+             "42u")]
         [InlineData(
-            42ul,
-            "42ul")]
+             42ul,
+             "42ul")]
         [InlineData(
-            18000000000000000000ul, // Ensure not printed as exponent
-            "18000000000000000000ul")]
+             18000000000000000000ul, // Ensure not printed as exponent
+             "18000000000000000000ul")]
         [InlineData(
-            (ushort)42,
-            "(ushort)42")]
+             (ushort)42,
+             "(ushort)42")]
         [InlineData(
-            "",
-            "\"\"")]
+             "",
+             "\"\"")]
         [InlineData(
-            SomeEnum.Default,
-            "CSharpHelperTest.SomeEnum.Default")]
+             SomeEnum.Default,
+             "CSharpHelperTest.SomeEnum.Default")]
         public void Literal_works(object value, string expected)
         {
             var literal = new CSharpHelper().UnknownLiteral(value);

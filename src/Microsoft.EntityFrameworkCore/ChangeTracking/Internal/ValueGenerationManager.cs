@@ -54,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var valueGenerator = GetValueGenerator(entry, property);
 
                     SetGeneratedValue(
-                        entry, 
-                        property, 
-                        valueGenerator.Next(entityEntry), 
+                        entry,
+                        property,
+                        valueGenerator.Next(entityEntry),
                         valueGenerator.GeneratesTemporaryValues);
                 }
             }
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task GenerateAsync(
-            InternalEntityEntry entry, 
+            InternalEntityEntry entry,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var entityEntry = new EntityEntry(entry);
@@ -85,9 +85,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var valueGenerator = GetValueGenerator(entry, property);
 
                     SetGeneratedValue(
-                        entry, 
-                        property, 
-                        await valueGenerator.NextAsync(entityEntry, cancellationToken), 
+                        entry,
+                        property,
+                        await valueGenerator.NextAsync(entityEntry, cancellationToken),
                         valueGenerator.GeneratesTemporaryValues);
                 }
             }

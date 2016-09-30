@@ -30,37 +30,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private const string DateTimeOffsetFormatStringConst = "TIMESTAMP '{0:" + DateTimeOffsetFormatConst + "}'";
 
         /// <summary>
-        /// Gets the floating point format.
+        ///     Gets the floating point format.
         /// </summary>
         protected virtual string FloatingPointFormatString => "{0}E0";
 
         /// <summary>
-        /// Gets the decimal format.
+        ///     Gets the decimal format.
         /// </summary>
         protected virtual string DecimalFormat => DecimalFormatConst;
 
         /// <summary>
-        /// Gets the decimal format.
+        ///     Gets the decimal format.
         /// </summary>
         protected virtual string DecimalFormatString => DecimalFormatStringConst;
 
         /// <summary>
-        /// Gets the date time format.
+        ///     Gets the date time format.
         /// </summary>
         protected virtual string DateTimeFormat => DateTimeFormatConst;
 
         /// <summary>
-        /// Gets the date time format.
+        ///     Gets the date time format.
         /// </summary>
         protected virtual string DateTimeFormatString => DateTimeFormatStringConst;
 
         /// <summary>
-        /// Gets the date time offset format.
+        ///     Gets the date time offset format.
         /// </summary>
         protected virtual string DateTimeOffsetFormat => DateTimeOffsetFormatConst;
 
         /// <summary>
-        /// Gets the date time offset format.
+        ///     Gets the date time offset format.
         /// </summary>
         protected virtual string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
 
@@ -228,8 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string DelimitIdentifier(string name, string schema)
             => (!string.IsNullOrEmpty(schema)
-                ? DelimitIdentifier(schema) + "."
-                : string.Empty)
+                   ? DelimitIdentifier(schema) + "."
+                   : string.Empty)
                + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
 
         /// <summary>
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
         protected virtual string GenerateLiteralValue(TimeSpan value)
-            => String.Format(CultureInfo.InvariantCulture, "'{0}'", value);
+            => string.Format(CultureInfo.InvariantCulture, "'{0}'", value);
 
         /// <summary>
         ///     Writes the SQL representation of a literal value.

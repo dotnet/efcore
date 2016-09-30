@@ -32,17 +32,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
         Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        ///     Specifies an existing <see cref="DbTransaction"/> to be used for database operations.
+        ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
         /// <returns>
-        ///     An instance of <see cref="IDbTransaction"/> that wraps the provided transaction.
+        ///     An instance of <see cref="IDbTransaction" /> that wraps the provided transaction.
         /// </returns>
         IDbContextTransaction UseTransaction([CanBeNull] DbTransaction transaction);
     }

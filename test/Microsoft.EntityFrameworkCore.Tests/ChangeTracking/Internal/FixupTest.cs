@@ -3708,10 +3708,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     });
 
                 modelBuilder.Entity<SpecialOffer>(b =>
-                {
-                    b.HasKey(e => e.Id);
-                    b.Property(e => e.ProductId);
-                });
+                    {
+                        b.HasKey(e => e.Id);
+                        b.Property(e => e.ProductId);
+                    });
 
                 modelBuilder.Entity<CategoryPN>()
                     .HasMany(e => e.Products)

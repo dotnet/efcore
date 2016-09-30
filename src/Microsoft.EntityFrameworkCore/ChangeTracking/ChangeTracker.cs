@@ -35,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Context = context;
             _queryTrackingBehavior = context
-                .GetService<IDbContextOptions>()
-                .Extensions
-                .OfType<CoreOptionsExtension>()
-                .FirstOrDefault()
-                ?.QueryTrackingBehavior
+                                         .GetService<IDbContextOptions>()
+                                         .Extensions
+                                         .OfType<CoreOptionsExtension>()
+                                         .FirstOrDefault()
+                                         ?.QueryTrackingBehavior
                                      ?? QueryTrackingBehavior.TrackAll;
         }
 

@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<IUpdateEntry> entries,
-            CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult(_store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _logger));
+            CancellationToken cancellationToken = default(CancellationToken)
+        ) => Task.FromResult(_store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _logger));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

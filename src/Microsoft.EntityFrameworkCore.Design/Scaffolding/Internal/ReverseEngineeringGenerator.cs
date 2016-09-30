@@ -183,8 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             // later to form the canonicalized relative path we strip off the
             // correct number of characters.
             for (var projectPathLastChar = projectPath.Last();
-                _directorySeparatorChars.Contains(projectPathLastChar);
-                projectPathLastChar = projectPath.Last())
+                 _directorySeparatorChars.Contains(projectPathLastChar);
+                 projectPathLastChar = projectPath.Last())
             {
                 projectPath = projectPath.Substring(0, projectPath.Length - 1);
             }

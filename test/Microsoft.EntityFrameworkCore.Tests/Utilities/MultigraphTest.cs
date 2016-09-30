@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             Assert.Equal(
                 new[] { vertexOne },
                 graph.TopologicalSort((from, to, edges) =>
-                    (@from == vertexOne) &&
+                    (from == vertexOne) &&
                     (to == vertexOne) &&
                     (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
         }
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
                 new[] { vertexOne, vertexTwo, vertexThree },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        (@from == vertexThree) &&
+                        (from == vertexThree) &&
                         (to == vertexOne) &&
                         (edges.Single() == edgeThree)).ToArray());
         }
