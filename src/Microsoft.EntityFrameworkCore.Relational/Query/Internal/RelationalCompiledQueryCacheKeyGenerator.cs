@@ -74,7 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public override bool Equals(object obj)
-                => !ReferenceEquals(null, obj) && obj is RelationalCompiledQueryCacheKey && Equals((RelationalCompiledQueryCacheKey)obj);
+                => !ReferenceEquals(null, obj)
+                   && obj is RelationalCompiledQueryCacheKey
+                   && Equals((RelationalCompiledQueryCacheKey)obj);
 
             private bool Equals(RelationalCompiledQueryCacheKey other)
                 => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
