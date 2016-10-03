@@ -3140,7 +3140,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 91);
         }
 
-        //[ConditionalFact] TODO: See issue#6145
+        [ConditionalFact]
         public virtual void OrderBy_true()
         {
             AssertQuery<Customer>(
@@ -3149,11 +3149,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 91);
         }
 
-        //[ConditionalFact] TODO: See issue#6145
+        [ConditionalFact]
         public virtual void OrderBy_integer()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => 3),
+                assertOrder: true,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_parameter()
+        {
+            var param = 5;
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => param),
                 assertOrder: true,
                 entryCount: 91);
         }

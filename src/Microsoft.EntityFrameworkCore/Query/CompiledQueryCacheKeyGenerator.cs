@@ -111,6 +111,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </returns>
             public override bool Equals(object obj)
             {
+                if (ReferenceEquals(null, obj)
+                    || !(obj is CompiledQueryCacheKey))
+                {
+                    return false;
+                }
+
                 var other = (CompiledQueryCacheKey)obj;
 
                 return ReferenceEquals(_model, other._model)
