@@ -42,8 +42,7 @@
     "netstandard1.3": {
       "dependencies": {
         "System.ComponentModel.Annotations": "4.3.0-*",
-        "System.Linq.Queryable": "4.3.0-*",
-        "System.Reflection.TypeExtensions": "4.3.0-*"
+        "System.Linq.Queryable": "4.3.0-*"
       }
     }
   }

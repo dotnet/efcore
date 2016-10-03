@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (value != null)
             {
-                if (!property.ClrType.IsInstanceOfType(value))
+                if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
                 {
                     throw new InvalidCastException(
                         CoreStrings.InvalidType(

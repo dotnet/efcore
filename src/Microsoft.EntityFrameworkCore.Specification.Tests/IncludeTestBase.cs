@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
@@ -12,9 +13,6 @@ using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 
-#if NETSTANDARD1_3
-using System.Reflection;
-#endif
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class IncludeTestBase<TFixture> : IClassFixture<TFixture>
@@ -62,14 +60,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var anonymousType = new { Customer = default(Customer), OrderDetails = default(ICollection<OrderDetail>) }.GetType();
             var lambdaExpression = Expression.Lambda(
                 Expression.New(
-                    anonymousType.GetConstructors()[0],
+                    anonymousType.GetTypeInfo().DeclaredConstructors.First(),
                     new List<Expression>
                     {
-                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("Customer")[0]),
-                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("OrderDetails")[0])
+                        Expression.MakeMemberAccess(
+                            Expression.Parameter(typeof(Order), "o"), 
+                            typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer")),
+                        Expression.MakeMemberAccess(
+                            Expression.Parameter(typeof(Order), "o"), 
+                            typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails"))
                     },
-                    anonymousType.GetMember("Customer")[0],
-                    anonymousType.GetMember("OrderDetails")[0]
+                    anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer"),
+                    anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails")
                 ),
                 Expression.Parameter(typeof(Order), "o"));
 
@@ -133,14 +135,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var anonymousType = new { Customer = default(Customer), OrderDetails = default(ICollection<OrderDetail>) }.GetType();
             var lambdaExpression = Expression.Lambda(
                 Expression.New(
-                    anonymousType.GetConstructors()[0],
+                    anonymousType.GetTypeInfo().DeclaredConstructors.First(),
                     new List<Expression>
                     {
-                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("Customer")[0]),
-                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("OrderDetails")[0])
+                        Expression.MakeMemberAccess(
+                            Expression.Parameter(typeof(Order), "o"), 
+                            typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer")),
+                        Expression.MakeMemberAccess(
+                            Expression.Parameter(typeof(Order), "o"), 
+                            typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails"))
                     },
-                    anonymousType.GetMember("Customer")[0],
-                    anonymousType.GetMember("OrderDetails")[0]
+                    anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer"),
+                    anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails")
                 ),
                 Expression.Parameter(typeof(Order), "o"));
 

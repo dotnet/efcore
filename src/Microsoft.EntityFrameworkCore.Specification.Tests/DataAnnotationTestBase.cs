@@ -1385,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private class Book
         {
-            public static readonly PropertyInfo BookdDetailsNavigation = typeof(Book).GetProperty("Details");
+            public static readonly PropertyInfo BookdDetailsNavigation = typeof(Book).GetTypeInfo().GetDeclaredProperty("Details");
 
             public int Id { get; set; }
 

@@ -434,8 +434,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _storeGeneratedValues.GetValue(currentValue, storeGeneratedIndex);
 
         internal static readonly MethodInfo GetCurrentValueMethod
-            = typeof(InternalEntityEntry).GetMethods()
-                .Single(m => m.Name == nameof(GetCurrentValue) && m.IsGenericMethod);
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(m => m.IsGenericMethod);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

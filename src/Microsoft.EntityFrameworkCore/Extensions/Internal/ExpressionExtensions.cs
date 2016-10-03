@@ -44,15 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (declaringType != null
                 && declaringType != parameterType
                 && declaringType.GetTypeInfo().IsInterface
-                && declaringType.IsAssignableFrom(parameterType))
+                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo()))
             {
-                var propertyGetter = propertyInfo.GetGetMethod(true);
+                var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
                 var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p == propertyGetter);
                 var targetMethod = interfaceMapping.TargetMethods[index];
                 foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
                 {
-                    if (targetMethod == runtimeProperty.GetGetMethod(true))
+                    if (targetMethod == runtimeProperty.GetMethod)
                     {
                         return runtimeProperty;
                     }

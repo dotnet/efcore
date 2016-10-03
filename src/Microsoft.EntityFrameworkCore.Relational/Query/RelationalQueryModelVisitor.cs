@@ -1530,7 +1530,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             parameterNameExpressions.Add(Expression.Constant(parameterName));
             parameterValueExpressions.Add(propertyExpression);
 
-            var elementType = expression.Type.GetGenericArguments().Single();
+            var elementType = expression.Type.GetTypeInfo().GenericTypeArguments.Single();
 
             return Expression.Call(
                 QueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(elementType),

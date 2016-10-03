@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private Expression ApplyTopLevelInclude(MethodCallExpression methodCallExpression)
             {
-                var elementType = methodCallExpression.Type.GetGenericArguments().First();
+                var elementType = methodCallExpression.Type.GetTypeInfo().GenericTypeArguments.First();
                 var includeMethod = _includeMethodInfo.MakeGenericMethod(elementType);
 
                 var result = Expression.Call(
