@@ -251,5 +251,18 @@ namespace Microsoft.EntityFrameworkCore
         public static ChangeTrackingStrategy GetChangeTrackingStrategy(
                 [NotNull] this IEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy;
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public static IEnumerable<IComplexTypeUsage> GetDeclaredComplexTypeUsages([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDeclaredComplexTypeUsages();
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public static IComplexTypeUsage FindDeclaredComplexTypeUsage(
+            [NotNull] this IEntityType entityType, [NotNull] string name)
+            => entityType.AsEntityType().FindDeclaredComplexTypeUsage(name);
     }
 }

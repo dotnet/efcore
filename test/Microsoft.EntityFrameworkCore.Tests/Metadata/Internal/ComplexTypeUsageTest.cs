@@ -19,25 +19,29 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var complexDef1 = model.AddComplexTypeDefinition(typeof(Complex1));
             var complexDef2 = model.AddComplexTypeDefinition(typeof(Complex2));
+            var complexDef3 = model.AddComplexTypeDefinition(typeof(Complex3));
 
             var reference1 = complexDef1.AddComplexTypeReferenceDefinition("Nested", complexDef2);
             var reference2 = complexDef1.AddComplexTypeReferenceDefinition("_fieldNested", complexDef2);
             var reference3 = complexDef1.AddComplexTypeReferenceDefinition("ShadowNested", complexDef2);
 
-            var entity = model.AddEntityType(typeof(Entity1));
+            var entity1 = model.AddEntityType(typeof(Entity1));
+            var entity2 = model.AddEntityType(typeof(Entity2));
+            entity2.HasBaseType(entity1);
 
-            var usage1 = entity.AddComplexTypeUsage("Usage", complexDef1);
-            var usage2 = entity.AddComplexTypeUsage("_fieldUsage", complexDef1);
-            var usage3 = entity.AddComplexTypeUsage("Usage2", complexDef2);
-            var usage4 = entity.AddComplexTypeUsage("ShadowUsage", complexDef2);
+            var usage1 = entity1.AddComplexTypeUsage("Usage", complexDef1);
+            var usage2 = entity1.AddComplexTypeUsage("_fieldUsage", complexDef1);
+            var usage3 = entity1.AddComplexTypeUsage("Usage2", complexDef2);
+            var usage4 = entity1.AddComplexTypeUsage("ShadowUsage", complexDef2);
+            var usage5 = entity2.AddComplexTypeUsage("DerivedUsage", complexDef3);
 
             var nested1 = usage1.AddComplexTypeUsage(reference1);
             var nested2 = usage1.AddComplexTypeUsage(reference2);
             var nested3 = usage1.AddComplexTypeUsage(reference3);
 
             AssertReferences(
-                entity, complexDef1, complexDef2, reference1, reference2, reference3,
-                usage1, usage2, usage3, usage4, nested1, nested2, nested3, ConfigurationSource.Explicit);
+                entity1, entity2, complexDef1, complexDef2, complexDef3, reference1, reference2, reference3,
+                usage1, usage2, usage3, usage4, usage5, nested1, nested2, nested3, ConfigurationSource.Explicit);
         }
 
         [Fact]
@@ -47,26 +51,31 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var complexDef1 = model.AddComplexTypeDefinition(typeof(Complex1));
             var complexDef2 = model.AddComplexTypeDefinition(typeof(Complex2));
+            var complexDef3 = model.AddComplexTypeDefinition(typeof(Complex3));
 
             var reference1 = complexDef1.AddComplexTypeReferenceDefinition("Nested", complexDef2);
             var reference2 = complexDef1.AddComplexTypeReferenceDefinition("_fieldNested", complexDef2);
             var reference3 = complexDef1.AddComplexTypeReferenceDefinition("ShadowNested", complexDef2);
 
-            var entity = model.AddEntityType(typeof(Entity1));
+            var entity1 = model.AddEntityType(typeof(Entity1));
+            var entity2 = model.AddEntityType(typeof(Entity2));
+            ((EntityType)entity2).HasBaseType((EntityType)entity1);
 
-            var usage1 = entity.AddComplexTypeUsage("Usage", complexDef1);
-            var usage2 = entity.AddComplexTypeUsage("_fieldUsage", complexDef1);
-            var usage3 = entity.AddComplexTypeUsage("Usage2", complexDef2);
-            var usage4 = entity.AddComplexTypeUsage("ShadowUsage", complexDef2);
+            var usage1 = entity1.AddComplexTypeUsage("Usage", complexDef1);
+            var usage2 = entity1.AddComplexTypeUsage("_fieldUsage", complexDef1);
+            var usage3 = entity1.AddComplexTypeUsage("Usage2", complexDef2);
+            var usage4 = entity1.AddComplexTypeUsage("ShadowUsage", complexDef2);
+            var usage5 = entity2.AddComplexTypeUsage("DerivedUsage", complexDef3);
 
             var nested1 = usage1.AddComplexTypeUsage(reference1);
             var nested2 = usage1.AddComplexTypeUsage(reference2);
             var nested3 = usage1.AddComplexTypeUsage(reference3);
 
             AssertReferences(
-                (EntityType)entity, (ComplexTypeDefinition)complexDef1, (ComplexTypeDefinition)complexDef2,
+                (EntityType)entity1, (EntityType)entity2, 
+                (ComplexTypeDefinition)complexDef1, (ComplexTypeDefinition)complexDef2, (ComplexTypeDefinition)complexDef3,
                 (ComplexTypeReferenceDefinition)reference1, (ComplexTypeReferenceDefinition)reference2, (ComplexTypeReferenceDefinition)reference3,
-                (ComplexTypeUsage)usage1, (ComplexTypeUsage)usage2, (ComplexTypeUsage)usage3, (ComplexTypeUsage)usage4,
+                (ComplexTypeUsage)usage1, (ComplexTypeUsage)usage2, (ComplexTypeUsage)usage3, (ComplexTypeUsage)usage4, (ComplexTypeUsage)usage5,
                 (ComplexTypeUsage)nested1, (ComplexTypeUsage)nested2, (ComplexTypeUsage)nested3, ConfigurationSource.Explicit);
         }
 
@@ -77,31 +86,37 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var complexDef1 = model.AddComplexTypeDefinition(typeof(Complex1));
             var complexDef2 = model.AddComplexTypeDefinition(typeof(Complex2));
+            var complexDef3 = model.AddComplexTypeDefinition(typeof(Complex3));
 
             var reference1 = complexDef1.AddComplexTypeReferenceDefinition("Nested", complexDef2);
             var reference2 = complexDef1.AddComplexTypeReferenceDefinition("_fieldNested", complexDef2);
             var reference3 = complexDef1.AddComplexTypeReferenceDefinition("ShadowNested", complexDef2);
 
-            var entity = model.AddEntityType(typeof(Entity1));
+            var entity1 = model.AddEntityType(typeof(Entity1));
+            var entity2 = model.AddEntityType(typeof(Entity2));
+            entity2.HasBaseType(entity1);
 
-            var usage1 = entity.AddComplexTypeUsage("Usage", complexDef1, ConfigurationSource.Convention);
-            var usage2 = entity.AddComplexTypeUsage("_fieldUsage", complexDef1, ConfigurationSource.Convention);
-            var usage3 = entity.AddComplexTypeUsage("Usage2", complexDef2, ConfigurationSource.Convention);
-            var usage4 = entity.AddComplexTypeUsage("ShadowUsage", complexDef2, ConfigurationSource.Convention);
+            var usage1 = entity1.AddComplexTypeUsage("Usage", complexDef1, ConfigurationSource.Convention);
+            var usage2 = entity1.AddComplexTypeUsage("_fieldUsage", complexDef1, ConfigurationSource.Convention);
+            var usage3 = entity1.AddComplexTypeUsage("Usage2", complexDef2, ConfigurationSource.Convention);
+            var usage4 = entity1.AddComplexTypeUsage("ShadowUsage", complexDef2, ConfigurationSource.Convention);
+            var usage5 = entity2.AddComplexTypeUsage("DerivedUsage", complexDef3, ConfigurationSource.Convention);
 
             var nested1 = usage1.AddComplexTypeUsage(reference1, ConfigurationSource.Convention);
             var nested2 = usage1.AddComplexTypeUsage(reference2, ConfigurationSource.Convention);
             var nested3 = usage1.AddComplexTypeUsage(reference3, ConfigurationSource.Convention);
 
             AssertReferences(
-                entity, complexDef1, complexDef2, reference1, reference2, reference3,
-                usage1, usage2, usage3, usage4, nested1, nested2, nested3, ConfigurationSource.Convention);
+                entity1, entity2, complexDef1, complexDef2, complexDef3, reference1, reference2, reference3,
+                usage1, usage2, usage3, usage4, usage5, nested1, nested2, nested3, ConfigurationSource.Convention);
         }
 
         private static void AssertReferences(
-            EntityType entity,
+            EntityType entity1,
+            EntityType entity2,
             ComplexTypeDefinition complexDef1,
             ComplexTypeDefinition complexDef2,
+            ComplexTypeDefinition complexDef3,
             ComplexTypeReferenceDefinition reference1,
             ComplexTypeReferenceDefinition reference2,
             ComplexTypeReferenceDefinition reference3,
@@ -109,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             ComplexTypeUsage usage2,
             ComplexTypeUsage usage3,
             ComplexTypeUsage usage4,
+            ComplexTypeUsage usage5,
             ComplexTypeUsage nested1,
             ComplexTypeUsage nested2,
             ComplexTypeUsage nested3,
@@ -116,13 +132,39 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             Assert.Equal(
                 new[] { usage4, usage1, usage3, usage2 },
-                entity.GetComplexTypeUsages().ToArray());
+                entity1.GetComplexTypeUsages().ToArray());
 
-            Assert.Same(usage1, entity.FindComplexTypeUsage("Usage"));
-            Assert.Same(usage2, entity.FindComplexTypeUsage("_fieldUsage"));
-            Assert.Same(usage3, entity.FindComplexTypeUsage("Usage2"));
-            Assert.Same(usage4, entity.FindComplexTypeUsage("ShadowUsage"));
-            Assert.Null(entity.FindComplexTypeUsage("NotFound"));
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2, usage5 },
+                entity2.GetComplexTypeUsages().ToArray());
+
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2 },
+                entity1.GetDeclaredComplexTypeUsages().ToArray());
+
+            Assert.Equal(
+                new[] { usage5 },
+                entity2.GetDeclaredComplexTypeUsages().ToArray());
+
+            Assert.Same(usage1, entity1.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity1.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity1.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity1.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Null(entity1.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Same(usage1, entity2.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity2.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity2.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity2.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("_fieldUsage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage2"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindDeclaredComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity1.FindComplexTypeUsage("NotFound"));
 
             Assert.Equal(
                 new[] { nested1, nested3, nested2 },
@@ -136,8 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("Usage", usage1.Name);
             Assert.False(usage1.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage1.ClrType);
-            Assert.Same(entity, usage1.DeclaringType);
-            Assert.Same(entity, usage1.DeclaringEntityType);
+            Assert.Same(entity1, usage1.DeclaringType);
+            Assert.Same(entity1, usage1.DeclaringEntityType);
             Assert.Same(complexDef1, usage1.Definition);
             Assert.True(usage1.IsRequired);
             Assert.Null(usage1.FieldInfo);
@@ -147,8 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("_fieldUsage", usage2.Name);
             Assert.False(usage2.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage2.ClrType);
-            Assert.Same(entity, usage2.DeclaringType);
-            Assert.Same(entity, usage2.DeclaringEntityType);
+            Assert.Same(entity1, usage2.DeclaringType);
+            Assert.Same(entity1, usage2.DeclaringEntityType);
             Assert.Same(complexDef1, usage2.Definition);
             Assert.True(usage2.IsRequired);
             Assert.Equal("_fieldUsage", usage2.FieldInfo?.Name);
@@ -158,8 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("Usage2", usage3.Name);
             Assert.False(usage3.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage3.ClrType);
-            Assert.Same(entity, usage3.DeclaringType);
-            Assert.Same(entity, usage3.DeclaringEntityType);
+            Assert.Same(entity1, usage3.DeclaringType);
+            Assert.Same(entity1, usage3.DeclaringEntityType);
             Assert.Same(complexDef2, usage3.Definition);
             Assert.True(usage3.IsRequired);
             Assert.Null(usage3.FieldInfo);
@@ -169,19 +211,30 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("ShadowUsage", usage4.Name);
             Assert.True(usage4.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage4.ClrType);
-            Assert.Same(entity, usage4.DeclaringType);
-            Assert.Same(entity, usage4.DeclaringEntityType);
+            Assert.Same(entity1, usage4.DeclaringType);
+            Assert.Same(entity1, usage4.DeclaringEntityType);
             Assert.Same(complexDef2, usage4.Definition);
             Assert.True(usage4.IsRequired);
             Assert.Null(usage4.FieldInfo);
             Assert.Null(usage4.PropertyInfo);
             Assert.Equal(configurationSource, usage4.GetConfigurationSource());
 
+            Assert.Equal("DerivedUsage", usage5.Name);
+            Assert.False(usage5.IsShadowProperty);
+            Assert.Same(typeof(Complex3), usage5.ClrType);
+            Assert.Same(entity2, usage5.DeclaringType);
+            Assert.Same(entity2, usage5.DeclaringEntityType);
+            Assert.Same(complexDef3, usage5.Definition);
+            Assert.True(usage5.IsRequired);
+            Assert.Null(usage5.FieldInfo);
+            Assert.Same(typeof(Entity2).GetAnyProperty("DerivedUsage"), usage5.PropertyInfo);
+            Assert.Equal(configurationSource, usage5.GetConfigurationSource());
+
             Assert.Equal("Nested", nested1.Name);
             Assert.False(nested1.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested1.ClrType);
             Assert.Same(usage1, nested1.DeclaringType);
-            Assert.Same(entity, nested1.DeclaringEntityType);
+            Assert.Same(entity1, nested1.DeclaringEntityType);
             Assert.Same(complexDef2, nested1.Definition);
             Assert.True(nested1.IsRequired);
             Assert.Null(nested1.FieldInfo);
@@ -192,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(nested2.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested2.ClrType);
             Assert.Same(usage1, nested2.DeclaringType);
-            Assert.Same(entity, nested2.DeclaringEntityType);
+            Assert.Same(entity1, nested2.DeclaringEntityType);
             Assert.Same(complexDef2, nested2.Definition);
             Assert.True(nested2.IsRequired);
             Assert.Equal("_fieldNested", nested2.FieldInfo?.Name);
@@ -203,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.True(nested3.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested3.ClrType);
             Assert.Same(usage1, nested3.DeclaringType);
-            Assert.Same(entity, nested3.DeclaringEntityType);
+            Assert.Same(entity1, nested3.DeclaringEntityType);
             Assert.Same(complexDef2, nested3.Definition);
             Assert.True(nested3.IsRequired);
             Assert.Null(nested3.FieldInfo);
@@ -211,14 +264,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(configurationSource, nested3.GetConfigurationSource());
 
             AssertReferences(
-                entity, complexDef1, complexDef2, reference1, reference2, reference3,
-                usage1, usage2, usage3, usage4, nested1, nested2, nested3);
+                entity1, entity2, complexDef1, complexDef2, complexDef3, reference1, reference2, reference3,
+                usage1, usage2, usage3, usage4, usage5, nested1, nested2, nested3);
         }
 
         private static void AssertReferences(
-            IMutableEntityType entity,
+            IMutableEntityType entity1,
+            IMutableEntityType entity2,
             IMutableComplexTypeDefinition complexDef1,
             IMutableComplexTypeDefinition complexDef2,
+            IMutableComplexTypeDefinition complexDef3,
             IMutableComplexTypeReferenceDefinition reference1,
             IMutableComplexTypeReferenceDefinition reference2,
             IMutableComplexTypeReferenceDefinition reference3,
@@ -226,19 +281,46 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             IMutableComplexTypeUsage usage2,
             IMutableComplexTypeUsage usage3,
             IMutableComplexTypeUsage usage4,
+            IMutableComplexTypeUsage usage5,
             IMutableComplexTypeUsage nested1,
             IMutableComplexTypeUsage nested2,
             IMutableComplexTypeUsage nested3)
         {
             Assert.Equal(
                 new[] { usage4, usage1, usage3, usage2 },
-                entity.GetComplexTypeUsages().ToArray());
+                entity1.GetComplexTypeUsages().ToArray());
 
-            Assert.Same(usage1, entity.FindComplexTypeUsage("Usage"));
-            Assert.Same(usage2, entity.FindComplexTypeUsage("_fieldUsage"));
-            Assert.Same(usage3, entity.FindComplexTypeUsage("Usage2"));
-            Assert.Same(usage4, entity.FindComplexTypeUsage("ShadowUsage"));
-            Assert.Null(entity.FindComplexTypeUsage("NotFound"));
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2, usage5 },
+                entity2.GetComplexTypeUsages().ToArray());
+
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2 },
+                entity1.GetDeclaredComplexTypeUsages().ToArray());
+
+            Assert.Equal(
+                new[] { usage5 },
+                entity2.GetDeclaredComplexTypeUsages().ToArray());
+
+            Assert.Same(usage1, entity1.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity1.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity1.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity1.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Null(entity1.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Same(usage1, entity2.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity2.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity2.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity2.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("_fieldUsage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage2"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindDeclaredComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity1.FindComplexTypeUsage("NotFound"));
 
             Assert.Equal(
                 new[] { nested1, nested3, nested2 },
@@ -252,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("Usage", usage1.Name);
             Assert.False(usage1.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage1.ClrType);
-            Assert.Same(entity, usage1.DeclaringType);
-            Assert.Same(entity, usage1.DeclaringEntityType);
+            Assert.Same(entity1, usage1.DeclaringType);
+            Assert.Same(entity1, usage1.DeclaringEntityType);
             Assert.Same(complexDef1, usage1.Definition);
             Assert.True(usage1.IsRequired);
             Assert.Null(usage1.FieldInfo);
@@ -262,8 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("_fieldUsage", usage2.Name);
             Assert.False(usage2.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage2.ClrType);
-            Assert.Same(entity, usage2.DeclaringType);
-            Assert.Same(entity, usage2.DeclaringEntityType);
+            Assert.Same(entity1, usage2.DeclaringType);
+            Assert.Same(entity1, usage2.DeclaringEntityType);
             Assert.Same(complexDef1, usage2.Definition);
             Assert.True(usage2.IsRequired);
             Assert.Equal("_fieldUsage", usage2.FieldInfo?.Name);
@@ -272,8 +354,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("Usage2", usage3.Name);
             Assert.False(usage3.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage3.ClrType);
-            Assert.Same(entity, usage3.DeclaringType);
-            Assert.Same(entity, usage3.DeclaringEntityType);
+            Assert.Same(entity1, usage3.DeclaringType);
+            Assert.Same(entity1, usage3.DeclaringEntityType);
             Assert.Same(complexDef2, usage3.Definition);
             Assert.True(usage3.IsRequired);
             Assert.Null(usage3.FieldInfo);
@@ -282,18 +364,28 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("ShadowUsage", usage4.Name);
             Assert.True(usage4.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage4.ClrType);
-            Assert.Same(entity, usage4.DeclaringType);
-            Assert.Same(entity, usage4.DeclaringEntityType);
+            Assert.Same(entity1, usage4.DeclaringType);
+            Assert.Same(entity1, usage4.DeclaringEntityType);
             Assert.Same(complexDef2, usage4.Definition);
             Assert.True(usage4.IsRequired);
             Assert.Null(usage4.FieldInfo);
             Assert.Null(usage4.PropertyInfo);
 
+            Assert.Equal("DerivedUsage", usage5.Name);
+            Assert.False(usage5.IsShadowProperty);
+            Assert.Same(typeof(Complex3), usage5.ClrType);
+            Assert.Same(entity2, usage5.DeclaringType);
+            Assert.Same(entity2, usage5.DeclaringEntityType);
+            Assert.Same(complexDef3, usage5.Definition);
+            Assert.True(usage5.IsRequired);
+            Assert.Null(usage5.FieldInfo);
+            Assert.Same(typeof(Entity2).GetAnyProperty("DerivedUsage"), usage5.PropertyInfo);
+
             Assert.Equal("Nested", nested1.Name);
             Assert.False(nested1.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested1.ClrType);
             Assert.Same(usage1, nested1.DeclaringType);
-            Assert.Same(entity, nested1.DeclaringEntityType);
+            Assert.Same(entity1, nested1.DeclaringEntityType);
             Assert.Same(complexDef2, nested1.Definition);
             Assert.True(nested1.IsRequired);
             Assert.Null(nested1.FieldInfo);
@@ -303,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(nested2.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested2.ClrType);
             Assert.Same(usage1, nested2.DeclaringType);
-            Assert.Same(entity, nested2.DeclaringEntityType);
+            Assert.Same(entity1, nested2.DeclaringEntityType);
             Assert.Same(complexDef2, nested2.Definition);
             Assert.True(nested2.IsRequired);
             Assert.Equal("_fieldNested", nested2.FieldInfo?.Name);
@@ -313,21 +405,23 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.True(nested3.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested3.ClrType);
             Assert.Same(usage1, nested3.DeclaringType);
-            Assert.Same(entity, nested3.DeclaringEntityType);
+            Assert.Same(entity1, nested3.DeclaringEntityType);
             Assert.Same(complexDef2, nested3.Definition);
             Assert.True(nested3.IsRequired);
             Assert.Null(nested3.FieldInfo);
             Assert.Null(nested3.PropertyInfo);
 
             AssertReferences(
-                entity, complexDef1, complexDef2, reference1, reference2, reference3,
-                (IComplexTypeUsage)usage1, usage2, usage3, usage4, nested1, nested2, nested3);
+                entity1, entity2, complexDef1, complexDef2, complexDef3, reference1, reference2, reference3,
+                (IComplexTypeUsage)usage1, usage2, usage3, usage4, usage5, nested1, nested2, nested3);
         }
 
         private static void AssertReferences(
-            IEntityType entity,
+            IEntityType entity1,
+            IEntityType entity2,
             IComplexTypeDefinition complexDef1,
             IComplexTypeDefinition complexDef2,
+            IComplexTypeDefinition complexDef3,
             IComplexTypeReferenceDefinition reference1,
             IComplexTypeReferenceDefinition reference2,
             IComplexTypeReferenceDefinition reference3,
@@ -335,19 +429,46 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             IComplexTypeUsage usage2,
             IComplexTypeUsage usage3,
             IComplexTypeUsage usage4,
+            IComplexTypeUsage usage5,
             IComplexTypeUsage nested1,
             IComplexTypeUsage nested2,
             IComplexTypeUsage nested3)
         {
             Assert.Equal(
                 new[] { usage4, usage1, usage3, usage2 },
-                entity.GetComplexTypeUsages().ToArray());
+                entity1.GetComplexTypeUsages().ToArray());
 
-            Assert.Same(usage1, entity.FindComplexTypeUsage("Usage"));
-            Assert.Same(usage2, entity.FindComplexTypeUsage("_fieldUsage"));
-            Assert.Same(usage3, entity.FindComplexTypeUsage("Usage2"));
-            Assert.Same(usage4, entity.FindComplexTypeUsage("ShadowUsage"));
-            Assert.Null(entity.FindComplexTypeUsage("NotFound"));
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2, usage5 },
+                entity2.GetComplexTypeUsages().ToArray());
+
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2 },
+                entity1.GetDeclaredComplexTypeUsages().ToArray());
+
+            Assert.Equal(
+                new[] { usage5 },
+                entity2.GetDeclaredComplexTypeUsages().ToArray());
+
+            Assert.Same(usage1, entity1.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity1.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity1.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity1.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Null(entity1.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Same(usage1, entity2.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity2.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity2.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity2.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("_fieldUsage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage2"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindDeclaredComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity1.FindComplexTypeUsage("NotFound"));
 
             Assert.Equal(
                 new[] { nested1, nested3, nested2 },
@@ -361,8 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("Usage", usage1.Name);
             Assert.False(usage1.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage1.ClrType);
-            Assert.Same(entity, usage1.DeclaringType);
-            Assert.Same(entity, usage1.DeclaringEntityType);
+            Assert.Same(entity1, usage1.DeclaringType);
+            Assert.Same(entity1, usage1.DeclaringEntityType);
             Assert.Same(complexDef1, usage1.Definition);
             Assert.True(usage1.IsRequired);
             Assert.Null(usage1.FieldInfo);
@@ -371,8 +492,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("_fieldUsage", usage2.Name);
             Assert.False(usage2.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage2.ClrType);
-            Assert.Same(entity, usage2.DeclaringType);
-            Assert.Same(entity, usage2.DeclaringEntityType);
+            Assert.Same(entity1, usage2.DeclaringType);
+            Assert.Same(entity1, usage2.DeclaringEntityType);
             Assert.Same(complexDef1, usage2.Definition);
             Assert.True(usage2.IsRequired);
             Assert.Equal("_fieldUsage", usage2.FieldInfo?.Name);
@@ -381,8 +502,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("Usage2", usage3.Name);
             Assert.False(usage3.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage3.ClrType);
-            Assert.Same(entity, usage3.DeclaringType);
-            Assert.Same(entity, usage3.DeclaringEntityType);
+            Assert.Same(entity1, usage3.DeclaringType);
+            Assert.Same(entity1, usage3.DeclaringEntityType);
             Assert.Same(complexDef2, usage3.Definition);
             Assert.True(usage3.IsRequired);
             Assert.Null(usage3.FieldInfo);
@@ -391,18 +512,28 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal("ShadowUsage", usage4.Name);
             Assert.True(usage4.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage4.ClrType);
-            Assert.Same(entity, usage4.DeclaringType);
-            Assert.Same(entity, usage4.DeclaringEntityType);
+            Assert.Same(entity1, usage4.DeclaringType);
+            Assert.Same(entity1, usage4.DeclaringEntityType);
             Assert.Same(complexDef2, usage4.Definition);
             Assert.True(usage4.IsRequired);
             Assert.Null(usage4.FieldInfo);
             Assert.Null(usage4.PropertyInfo);
 
+            Assert.Equal("DerivedUsage", usage5.Name);
+            Assert.False(usage5.IsShadowProperty);
+            Assert.Same(typeof(Complex3), usage5.ClrType);
+            Assert.Same(entity2, usage5.DeclaringType);
+            Assert.Same(entity2, usage5.DeclaringEntityType);
+            Assert.Same(complexDef3, usage5.Definition);
+            Assert.True(usage5.IsRequired);
+            Assert.Null(usage5.FieldInfo);
+            Assert.Same(typeof(Entity2).GetAnyProperty("DerivedUsage"), usage5.PropertyInfo);
+
             Assert.Equal("Nested", nested1.Name);
             Assert.False(nested1.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested1.ClrType);
             Assert.Same(usage1, nested1.DeclaringType);
-            Assert.Same(entity, nested1.DeclaringEntityType);
+            Assert.Same(entity1, nested1.DeclaringEntityType);
             Assert.Same(complexDef2, nested1.Definition);
             Assert.True(nested1.IsRequired);
             Assert.Null(nested1.FieldInfo);
@@ -412,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(nested2.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested2.ClrType);
             Assert.Same(usage1, nested2.DeclaringType);
-            Assert.Same(entity, nested2.DeclaringEntityType);
+            Assert.Same(entity1, nested2.DeclaringEntityType);
             Assert.Same(complexDef2, nested2.Definition);
             Assert.True(nested2.IsRequired);
             Assert.Equal("_fieldNested", nested2.FieldInfo?.Name);
@@ -422,25 +553,27 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.True(nested3.IsShadowProperty);
             Assert.Same(typeof(Complex2), nested3.ClrType);
             Assert.Same(usage1, nested3.DeclaringType);
-            Assert.Same(entity, nested3.DeclaringEntityType);
+            Assert.Same(entity1, nested3.DeclaringEntityType);
             Assert.Same(complexDef2, nested3.Definition);
             Assert.True(nested3.IsRequired);
             Assert.Null(nested3.FieldInfo);
             Assert.Null(nested3.PropertyInfo);
 
             AssertReferences(
-                entity, complexDef1, complexDef2, reference1, reference2, reference3,
-                (IPropertyBase)usage1, usage2, usage3, usage4, nested1, nested2, nested3);
+                entity1, entity2, complexDef1, complexDef2, complexDef3, reference1, reference2, reference3,
+                (IPropertyBase)usage1, usage2, usage3, usage4, usage5, nested1, nested2, nested3);
 
             AssertReferences(
-                entity, complexDef1, complexDef2, reference1, reference2, reference3,
-                (ITypeBase)usage1, usage2, usage3, usage4, nested1, nested2, nested3);
+                entity1, entity2, complexDef1, complexDef2, complexDef3, reference1, reference2, reference3,
+                (ITypeBase)usage1, usage2, usage3, usage4, usage5, nested1, nested2, nested3);
         }
 
         private static void AssertReferences(
-            IEntityType entity,
+            IEntityType entity1,
+            IEntityType entity2,
             IComplexTypeDefinition complexDef1,
             IComplexTypeDefinition complexDef2,
+            IComplexTypeDefinition complexDef3,
             IComplexTypeReferenceDefinition reference1,
             IComplexTypeReferenceDefinition reference2,
             IComplexTypeReferenceDefinition reference3,
@@ -448,47 +581,81 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             IPropertyBase usage2,
             IPropertyBase usage3,
             IPropertyBase usage4,
+            IPropertyBase usage5,
             IPropertyBase nested1,
             IPropertyBase nested2,
             IPropertyBase nested3)
         {
             Assert.Equal(
                 new[] { usage4, usage1, usage3, usage2 },
-                entity.GetComplexTypeUsages().Cast<IPropertyBase>().ToArray());
+                entity1.GetComplexTypeUsages().Cast<IPropertyBase>().ToArray());
 
-            Assert.Same(usage1, entity.FindComplexTypeUsage("Usage"));
-            Assert.Same(usage2, entity.FindComplexTypeUsage("_fieldUsage"));
-            Assert.Same(usage3, entity.FindComplexTypeUsage("Usage2"));
-            Assert.Same(usage4, entity.FindComplexTypeUsage("ShadowUsage"));
-            Assert.Null(entity.FindComplexTypeUsage("NotFound"));
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2, usage5 },
+                entity2.GetComplexTypeUsages().Cast<IPropertyBase>().ToArray());
+
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2 },
+                entity1.GetDeclaredComplexTypeUsages().Cast<IPropertyBase>().ToArray());
+
+            Assert.Equal(
+                new[] { usage5 },
+                entity2.GetDeclaredComplexTypeUsages().Cast<IPropertyBase>().ToArray());
+
+            Assert.Same(usage1, entity1.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity1.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity1.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity1.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Null(entity1.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Same(usage1, entity2.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity2.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity2.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity2.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("_fieldUsage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage2"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindDeclaredComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity1.FindComplexTypeUsage("NotFound"));
 
             Assert.Equal("Usage", usage1.Name);
             Assert.False(usage1.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage1.ClrType);
-            Assert.Same(entity, usage1.DeclaringType);
+            Assert.Same(entity1, usage1.DeclaringType);
             Assert.Null(usage1.FieldInfo);
             Assert.Same(typeof(Entity1).GetAnyProperty("Usage"), usage1.PropertyInfo);
 
             Assert.Equal("_fieldUsage", usage2.Name);
             Assert.False(usage2.IsShadowProperty);
             Assert.Same(typeof(Complex1), usage2.ClrType);
-            Assert.Same(entity, usage2.DeclaringType);
+            Assert.Same(entity1, usage2.DeclaringType);
             Assert.Equal("_fieldUsage", usage2.FieldInfo?.Name);
             Assert.Null(usage2.PropertyInfo);
 
             Assert.Equal("Usage2", usage3.Name);
             Assert.False(usage3.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage3.ClrType);
-            Assert.Same(entity, usage3.DeclaringType);
+            Assert.Same(entity1, usage3.DeclaringType);
             Assert.Null(usage3.FieldInfo);
             Assert.Same(typeof(Entity1).GetAnyProperty("Usage2"), usage3.PropertyInfo);
 
             Assert.Equal("ShadowUsage", usage4.Name);
             Assert.True(usage4.IsShadowProperty);
             Assert.Same(typeof(Complex2), usage4.ClrType);
-            Assert.Same(entity, usage4.DeclaringType);
+            Assert.Same(entity1, usage4.DeclaringType);
             Assert.Null(usage4.FieldInfo);
             Assert.Null(usage4.PropertyInfo);
+
+            Assert.Equal("DerivedUsage", usage5.Name);
+            Assert.False(usage5.IsShadowProperty);
+            Assert.Same(typeof(Complex3), usage5.ClrType);
+            Assert.Same(entity2, usage5.DeclaringType);
+            Assert.Null(usage5.FieldInfo);
+            Assert.Same(typeof(Entity2).GetAnyProperty("DerivedUsage"), usage5.PropertyInfo);
 
             Assert.Equal("Nested", nested1.Name);
             Assert.False(nested1.IsShadowProperty);
@@ -513,9 +680,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         private static void AssertReferences(
-            IEntityType entity,
+            IEntityType entity1,
+            IEntityType entity2,
             IComplexTypeDefinition complexDef1,
             IComplexTypeDefinition complexDef2,
+            IComplexTypeDefinition complexDef3,
             IComplexTypeReferenceDefinition reference1,
             IComplexTypeReferenceDefinition reference2,
             IComplexTypeReferenceDefinition reference3,
@@ -523,19 +692,46 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             ITypeBase usage2,
             ITypeBase usage3,
             ITypeBase usage4,
+            ITypeBase usage5,
             ITypeBase nested1,
             ITypeBase nested2,
             ITypeBase nested3)
         {
             Assert.Equal(
                 new[] { usage4, usage1, usage3, usage2 },
-                entity.GetComplexTypeUsages().Cast<ITypeBase>().ToArray());
+                entity1.GetComplexTypeUsages().Cast<ITypeBase>().ToArray());
 
-            Assert.Same(usage1, entity.FindComplexTypeUsage("Usage"));
-            Assert.Same(usage2, entity.FindComplexTypeUsage("_fieldUsage"));
-            Assert.Same(usage3, entity.FindComplexTypeUsage("Usage2"));
-            Assert.Same(usage4, entity.FindComplexTypeUsage("ShadowUsage"));
-            Assert.Null(entity.FindComplexTypeUsage("NotFound"));
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2, usage5 },
+                entity2.GetComplexTypeUsages().Cast<ITypeBase>().ToArray());
+
+            Assert.Equal(
+                new[] { usage4, usage1, usage3, usage2 },
+                entity1.GetDeclaredComplexTypeUsages().Cast<ITypeBase>().ToArray());
+
+            Assert.Equal(
+                new[] { usage5 },
+                entity2.GetDeclaredComplexTypeUsages().Cast<ITypeBase>().ToArray());
+
+            Assert.Same(usage1, entity1.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity1.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity1.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity1.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Null(entity1.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Same(usage1, entity2.FindComplexTypeUsage("Usage"));
+            Assert.Same(usage2, entity2.FindComplexTypeUsage("_fieldUsage"));
+            Assert.Same(usage3, entity2.FindComplexTypeUsage("Usage2"));
+            Assert.Same(usage4, entity2.FindComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("_fieldUsage"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("Usage2"));
+            Assert.Null(entity2.FindDeclaredComplexTypeUsage("ShadowUsage"));
+            Assert.Same(usage5, entity2.FindDeclaredComplexTypeUsage("DerivedUsage"));
+
+            Assert.Null(entity1.FindComplexTypeUsage("NotFound"));
 
             Assert.Equal("Usage", usage1.Name);
             Assert.Same(typeof(Complex1), usage1.ClrType);
@@ -548,6 +744,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal("ShadowUsage", usage4.Name);
             Assert.Same(typeof(Complex2), usage4.ClrType);
+
+            Assert.Equal("DerivedUsage", usage5.Name);
+            Assert.Same(typeof(Complex3), usage5.ClrType);
 
             Assert.Equal("Nested", nested1.Name);
             Assert.Same(typeof(Complex2), nested1.ClrType);
@@ -1071,6 +1270,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 #pragma warning restore 169
             public Complex2 Usage2 { get; set; }
             public Complex3 StructUsage { get; set; }
+        }
+
+        private class Entity2 : Entity1
+        {
+            public Complex3 DerivedUsage { get; set; }
         }
 
         private class Complex1

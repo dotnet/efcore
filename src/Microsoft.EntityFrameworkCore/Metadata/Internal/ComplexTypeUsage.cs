@@ -215,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     TODO: ComplexType docs
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ComplexProperty RemoveProperty([NotNull] string name)
         {
@@ -308,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     TODO: ComplexType docs
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ComplexTypeUsage RemoveComplexTypeUsage([NotNull] string name)
         {

@@ -1629,9 +1629,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         #endregion
 
         /// <summary>
-        ///     TODO: ComplexType docs
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ComplexTypeUsage FindComplexTypeUsage([NotNull] string name)
+            => FindDeclaredComplexTypeUsage(name) ?? _baseType?.FindComplexTypeUsage(name);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ComplexTypeUsage FindDeclaredComplexTypeUsage([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -1642,9 +1650,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     TODO: ComplexType docs
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<ComplexTypeUsage> GetComplexTypeUsages() => _complexTypeUsages.Values;
+        public virtual IEnumerable<ComplexTypeUsage> GetDeclaredComplexTypeUsages() => _complexTypeUsages.Values;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<ComplexTypeUsage> GetComplexTypeUsages()
+            => _baseType?.GetDeclaredComplexTypeUsages().Concat(_complexTypeUsages.Values) ?? _complexTypeUsages.Values;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1741,7 +1757,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     TODO: ComplexType docs
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ComplexTypeUsage RemoveComplexTypeUsage([NotNull] string name)
         {

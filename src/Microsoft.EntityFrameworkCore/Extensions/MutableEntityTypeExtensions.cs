@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set as the primary key if one is not already defined. </param>
         /// <returns> The existing or newly created key. </returns>
         public static IMutableKey GetOrSetPrimaryKey(
-                [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
             => entityType.GetOrSetPrimaryKey(new[] { property });
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property that is used as the alternate key. </param>
         /// <returns> The existing or newly created alternate key. </returns>
         public static IMutableKey GetOrAddKey(
-                [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
             => entityType.GetOrAddKey(new[] { property });
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IMutableForeignKey> FindForeignKeys(
-                [NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
+            [NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
             => entityType.FindForeignKeys(new[] { property });
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IMutableForeignKey> FindForeignKeys(
-                [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
+            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
             => ((IEntityType)entityType).FindForeignKeys(properties).Cast<IMutableForeignKey>();
 
         /// <summary>
@@ -219,10 +219,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The existing or newly created foreign key. </returns>
         public static IMutableForeignKey GetOrAddForeignKey(
-                [NotNull] this IMutableEntityType entityType,
-                [NotNull] IMutableProperty property,
-                [NotNull] IMutableKey principalKey,
-                [NotNull] IMutableEntityType principalEntityType)
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IMutableProperty property,
+            [NotNull] IMutableKey principalKey,
+            [NotNull] IMutableEntityType principalEntityType)
             => entityType.GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
 
         /// <summary>
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The existing or newly created property. </returns>
         /// <remarks> The returned property might not have the specified type and shadowness. </remarks>
         public static IMutableProperty GetOrAddProperty(
-                [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] Type propertyType)
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] Type propertyType)
             => entityType.FindProperty(name) ?? entityType.AddProperty(name, propertyType);
 
         /// <summary>
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to be indexed. </param>
         /// <returns> The existing or newly created index. </returns>
         public static IMutableIndex GetOrAddIndex(
-                [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
             => entityType.GetOrAddIndex(new[] { property });
 
         /// <summary>
@@ -407,5 +407,18 @@ namespace Microsoft.EntityFrameworkCore
 
             entityType[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
         }
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public static IEnumerable<IMutableComplexTypeUsage> GetDeclaredComplexTypeUsages([NotNull] this IMutableEntityType entityType)
+            => entityType.AsEntityType().GetDeclaredComplexTypeUsages();
+
+        /// <summary>
+        ///     TODO: ComplexType docs
+        /// </summary>
+        public static IMutableComplexTypeUsage FindDeclaredComplexTypeUsage(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            => entityType.AsEntityType().FindDeclaredComplexTypeUsage(name);
     }
 }
