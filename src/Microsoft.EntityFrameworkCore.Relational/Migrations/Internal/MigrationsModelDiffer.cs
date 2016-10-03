@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Distinct((x, y) => Annotations.For(x).Name == Annotations.For(y).Name);
 
         private IEnumerable<IProperty> GetPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetDeclaredProperties())
+            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetCollapsedDeclaredProperties())
                 .Distinct((x, y) => Annotations.For(x).ColumnName == Annotations.For(y).ColumnName);
 
         #endregion

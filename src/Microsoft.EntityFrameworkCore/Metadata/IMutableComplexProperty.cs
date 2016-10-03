@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     TODO: ComplexType docs
     /// </summary>
-    public interface IMutableComplexProperty : IComplexProperty, IMutablePropertyBase
+    public interface IMutableComplexProperty : IComplexProperty, IMutableProperty
     {
         /// <summary>
         ///     TODO: ComplexType docs

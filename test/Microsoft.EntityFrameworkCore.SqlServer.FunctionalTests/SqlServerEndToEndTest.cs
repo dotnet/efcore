@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -23,6 +24,169 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
+        [Fact]
+        public void Can_create_a_table_with_complex_properties()
+        {
+            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            {
+                var options = new DbContextOptionsBuilder()
+                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
+                    .UseInternalServiceProvider(_fixture.ServiceProvider)
+                    .Options;
+
+                using (var context = new PhiladelphiaContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.Database.ExecuteSqlCommand(
+                        "INSERT INTO dbo.[In] " +
+                        "(Id, Discriminator, Friendship, Karate, Champion_Sun, Champion_Defeated_Dreams, Champion_Defeated_Spider) " +
+                        "VALUES (77, 1, 9, 'cool', 'hot', 'not', 8)");
+
+                    context.Database.ExecuteSqlCommand(
+                        "INSERT INTO dbo.[In] " +
+                        "(Id, Discriminator, Friendship, Karate, Champion_Sun, Champion_Defeated_Dreams, Champion_Defeated_Spider, Name, Dreams, Spider) " +
+                        "VALUES (78, 2, 29, '2cool', '2hot', '2not', 28, 'Mac', '2bad', 27)");
+
+                    var connection = context.Database.GetDbConnection();
+                    connection.Open();
+                    try
+                    {
+                        var command = connection.CreateCommand();
+                        command.CommandText =
+                            "SELECT  " +
+                            "Id, Discriminator, Friendship, Karate, Champion_Sun, Champion_Defeated_Dreams, Champion_Defeated_Spider, Name, Dreams, Spider " +
+                            "FROM dbo.[In]";
+
+                        using (var results = command.ExecuteReader())
+                        {
+                            Assert.True(results.Read());
+
+                            Assert.Equal(77, results.GetInt32(0));
+                            Assert.Equal(1, results.GetInt32(1));
+                            Assert.Equal(9, results.GetInt32(2));
+                            Assert.Equal("cool", results.GetString(3));
+                            Assert.Equal("hot", results.GetString(4));
+                            Assert.Equal("not", results.GetString(5));
+                            Assert.Equal(8, results.GetInt32(6));
+                            Assert.True(results.IsDBNull(7));
+                            Assert.True(results.IsDBNull(8));
+                            Assert.True(results.IsDBNull(9));
+
+                            Assert.True(results.Read());
+
+                            Assert.Equal(78, results.GetInt32(0));
+                            Assert.Equal(2, results.GetInt32(1));
+                            Assert.Equal(29, results.GetInt32(2));
+                            Assert.Equal("2cool", results.GetString(3));
+                            Assert.Equal("2hot", results.GetString(4));
+                            Assert.Equal("2not", results.GetString(5));
+                            Assert.Equal(28, results.GetInt32(6));
+                            Assert.Equal("Mac", results.GetString(7));
+                            Assert.Equal("2bad", results.GetString(8));
+                            Assert.Equal(27, results.GetInt32(9));
+
+                            Assert.False(results.Read());
+                        }
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+        }
+
+        private class In
+        {
+            public int Id { get; set; }
+            public Dayman Dayman { get; set; }
+        }
+
+        private class Sunny : In
+        {
+            public string Name { get; set; }
+            public Nightman Nightman { get; set; }
+        }
+
+        private class Dayman
+        {
+            public int Friendship { get; set; }
+            public string Karate { get; set; }
+            public Champion Champion { get; set; }
+        }
+
+        private struct Nightman
+        {
+            public int Spider { get; set; }
+            public string Dreams { get; set; }
+        }
+
+        private class Champion
+        {
+            public Nightman Defeated { get; set; }
+            public string Sun { get; set; }
+        }
+
+        private class PhiladelphiaContext : DbContext
+        {
+            public PhiladelphiaContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var model = (Model)modelBuilder.Model;
+
+                var daymanDef = model.AddComplexTypeDefinition(typeof(Dayman));
+                var nightmanDef = model.AddComplexTypeDefinition(typeof(Nightman));
+                var championDef = model.AddComplexTypeDefinition(typeof(Champion));
+
+                var friendshipDef = daymanDef.AddPropertyDefinition(nameof(Dayman.Friendship));
+                var karateDef = daymanDef.AddPropertyDefinition(nameof(Dayman.Karate));
+                var spiderDef = nightmanDef.AddPropertyDefinition(nameof(Nightman.Spider));
+                var dreamsDef = nightmanDef.AddPropertyDefinition(nameof(Nightman.Dreams));
+                var sunDef = championDef.AddPropertyDefinition(nameof(Champion.Sun));
+
+                var championRef = daymanDef.AddComplexTypeReferenceDefinition(nameof(Dayman.Champion), championDef);
+                var defeatedRef = championDef.AddComplexTypeReferenceDefinition(nameof(Champion.Defeated), nightmanDef);
+
+                var inType = model.AddEntityType(typeof(In), runConventions: false);
+                var sunnyType = model.AddEntityType(typeof(Sunny), runConventions: false);
+
+                sunnyType.HasBaseType(inType, runConventions: false);
+
+                var discriminatorProp = inType.AddProperty("Discriminator", typeof(int));
+                inType.Relational().DiscriminatorProperty = discriminatorProp;
+                inType.Relational().DiscriminatorValue = 1;
+                sunnyType.Relational().DiscriminatorValue = 2;
+
+                var idProp = inType.AddProperty(nameof(Sunny.Id));
+                idProp.ValueGenerated = ValueGenerated.Never;
+                inType.SetPrimaryKey(idProp);
+
+                sunnyType.AddProperty(nameof(Sunny.Name));
+
+                var daymanUsage = inType.AddComplexTypeUsage(nameof(Sunny.Dayman), daymanDef);
+                var nightmanUsage = sunnyType.AddComplexTypeUsage(nameof(Sunny.Nightman), nightmanDef);
+                var championUsage = daymanUsage.AddComplexTypeUsage(championRef);
+                var defeatedUsage = championUsage.AddComplexTypeUsage(defeatedRef);
+
+                daymanUsage.AddProperty(friendshipDef);
+                daymanUsage.AddProperty(karateDef);
+                nightmanUsage.AddProperty(spiderDef);
+                nightmanUsage.AddProperty(dreamsDef);
+                var championSunProp = championUsage.AddProperty(sunDef);
+                var championDefeatedSpiderProp = defeatedUsage.AddProperty(spiderDef);
+                var championDefeatedDreamsProp = defeatedUsage.AddProperty(dreamsDef);
+
+                championSunProp.SqlServer().ColumnName = "Champion_Sun";
+                championDefeatedSpiderProp.SqlServer().ColumnName = "Champion_Defeated_Spider";
+                championDefeatedDreamsProp.SqlServer().ColumnName = "Champion_Defeated_Dreams";
+            }
+        }
+
         [Fact]
         public void Can_use_decimal_as_identity_column()
         {

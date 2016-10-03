@@ -46,6 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
 
+                    clrProperties.ExceptWith(entityType.GetComplexTypeUsages().Select(p => p.Name));
+
                     var entityTypeBuilder = modelBuilder.Entity(entityType.ClrType, ConfigurationSource.Convention);
 
                     clrProperties.RemoveWhere(p => entityTypeBuilder.IsIgnored(p, ConfigurationSource.Convention));
