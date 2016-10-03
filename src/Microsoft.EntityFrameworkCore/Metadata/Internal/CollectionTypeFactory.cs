@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -13,13 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CollectionTypeFactory : ICollectionTypeFactory
+    public class CollectionTypeFactory
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type TryFindTypeToInstantiate(Type entityType, Type collectionType)
+        public virtual Type TryFindTypeToInstantiate([NotNull] Type entityType, [NotNull] Type collectionType)
         {
             // Code taken from EF6. The rules are:
             // If the collection is defined as a concrete type with a public parameterless constructor, then create an instance of that type

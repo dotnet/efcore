@@ -46,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             VerifySingleton<IDbSetFinder>();
             VerifySingleton<IDbSetInitializer>();
             VerifySingleton<IDbSetSource>();
-            VerifySingleton<ICollectionTypeFactory>();
             VerifySingleton<IEntityMaterializerSource>();
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<ICoreConventionSetBuilder>();

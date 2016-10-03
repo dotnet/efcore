@@ -85,7 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddSingleton<IDbSetInitializer, DbSetInitializer>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
                 .AddSingleton<IEntityFinderSource, EntityFinderSource>()
-                .AddSingleton<ICollectionTypeFactory, CollectionTypeFactory>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
                 .AddSingleton<ICoreConventionSetBuilder, CoreConventionSetBuilder>()
                 .AddSingleton<IModelCustomizer, ModelCustomizer>()

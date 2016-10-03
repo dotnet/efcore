@@ -382,7 +382,6 @@
     <Compile Include="Metadata\Internal\IClrCollectionAccessor.cs" />
     <Compile Include="Metadata\Internal\IClrPropertyGetter.cs" />
     <Compile Include="Metadata\Internal\IClrPropertySetter.cs" />
-    <Compile Include="Metadata\Internal\ICollectionTypeFactory.cs" />
     <Compile Include="Metadata\Internal\IEntityMaterializer.cs" />
     <Compile Include="Metadata\Internal\IEntityMaterializerSource.cs" />
     <Compile Include="Metadata\Internal\Index.cs" />
