@@ -505,6 +505,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void All_top_level_subquery_ef_property()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+        }
+
+        [ConditionalFact]
         public virtual void All_client()
         {
             AssertQuery<Customer>(

@@ -504,10 +504,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private Expression ProcessComparisonExpression(BinaryExpression binaryExpression)
         {
             var leftExpression = Visit(binaryExpression.Left);
+
+            if (leftExpression == null)
+            {
+                return null;
+            }
+
             var rightExpression = Visit(binaryExpression.Right);
 
-            if (leftExpression == null
-                || rightExpression == null)
+            if (rightExpression == null)
             {
                 return null;
             }
@@ -616,11 +621,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 && _bindParentQueries)
             {
                 expression
-                    = _queryModelVisitor?.ParentQueryModelVisitor
-                        .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore);
+                    = TryBindParentExpression(
+                        _queryModelVisitor.ParentQueryModelVisitor,
+                        qmv => qmv.BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore));
             }
 
-            return expression ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
+            return expression 
+                ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
         /// <summary>
@@ -664,8 +671,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 && _bindParentQueries)
             {
                 aliasExpression
-                    = _queryModelVisitor?.ParentQueryModelVisitor
-                        .BindMemberExpression(expression, CreateAliasedColumnExpressionCore);
+                    = TryBindParentExpression(
+                        _queryModelVisitor.ParentQueryModelVisitor,
+                        qmv => qmv.BindMemberExpression(expression, CreateAliasedColumnExpressionCore));
             }
 
             if (aliasExpression == null)
@@ -688,7 +696,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return aliasExpression ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
+            return aliasExpression 
+                ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
+        }
+
+        private static AliasExpression TryBindParentExpression(
+            RelationalQueryModelVisitor queryModelVisitor, 
+            Func<RelationalQueryModelVisitor, AliasExpression> binder)
+        {
+            if (queryModelVisitor == null)
+            {
+                return null;
+            }
+
+            return binder(queryModelVisitor) 
+                ?? TryBindParentExpression(queryModelVisitor.ParentQueryModelVisitor, binder); 
         }
 
         private AliasExpression CreateAliasedColumnExpression(

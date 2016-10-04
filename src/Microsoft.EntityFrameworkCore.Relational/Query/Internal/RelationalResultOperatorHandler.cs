@@ -173,16 +173,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleAll(HandlerContext handlerContext)
         {
-            var filteringVisitor = handlerContext.CreateSqlTranslatingVisitor();
+            var sqlTranslatingVisitor 
+                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
             var predicate
-                = filteringVisitor.Visit(
+                = sqlTranslatingVisitor.Visit(
                     ((AllResultOperator)handlerContext.ResultOperator).Predicate);
 
             if (predicate != null)
             {
                 var innerSelectExpression
-                    = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
+                    = handlerContext.SelectExpressionFactory
+                        .Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
 
                 innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
                 innerSelectExpression.Predicate = Expression.Not(predicate);
@@ -211,7 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleAny(HandlerContext handlerContext)
         {
-            var innerSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
+            var innerSelectExpression 
+                = handlerContext.SelectExpressionFactory
+                    .Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
 
             innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
             innerSelectExpression.Predicate = handlerContext.SelectExpression.Predicate;
@@ -673,7 +677,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var skipResultOperator = (SkipResultOperator)handlerContext.ResultOperator;
 
-            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+            var sqlTranslatingExpressionVisitor 
+                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
             var offset = sqlTranslatingExpressionVisitor.Visit(skipResultOperator.Count);
             if (offset != null)

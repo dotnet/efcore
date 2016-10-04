@@ -1333,13 +1333,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual Expression BindMemberToOuterQueryParameter(
-            [NotNull] MemberExpression memberExpression)
-        {
-            return base.BindMemberExpression(
+                [NotNull] MemberExpression memberExpression)
+            => base.BindMemberExpression(
                 memberExpression,
                 null,
                 (property, qs) => BindPropertyToOuterParameter(qs, property, true));
-        }
 
         /// <summary>
         ///     Bind a method call expression.
@@ -1363,14 +1361,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private TResult BindMethodCallExpression<TResult>(
-            MethodCallExpression methodCallExpression,
-            IQuerySource querySource,
-            Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
-            bool bindSubQueries)
-        {
-            return base.BindMethodCallExpression(methodCallExpression, querySource,
+                MethodCallExpression methodCallExpression,
+                IQuerySource querySource,
+                Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
+                bool bindSubQueries)
+            => base.BindMethodCallExpression(
+                methodCallExpression,
+                querySource,
                 (property, qs) => BindMemberOrMethod(memberBinder, qs, property, bindSubQueries));
-        }
 
         /// <summary>
         ///     Bind a local method call expression.

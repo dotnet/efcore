@@ -454,36 +454,21 @@ FROM (
 ) AS [t1]
 ORDER BY [t1].[ProductID], [t1].[OrderID]
 
-SELECT [c5].[CustomerID], [c5].[Country]
-FROM [Customers] AS [c5]
-ORDER BY [c5].[CustomerID]
+SELECT [c3].[CustomerID], [c3].[Country]
+FROM [Customers] AS [c3]
+ORDER BY [c3].[CustomerID]
 
 @_outer_OrderID1: 10285
 
-SELECT TOP(1) [c6].[Country]
-FROM [Orders] AS [o23]
-INNER JOIN [Customers] AS [c6] ON [o23].[CustomerID] = [c6].[CustomerID]
-WHERE [o23].[OrderID] = @_outer_OrderID1
-ORDER BY [o23].[OrderID], [c6].[CustomerID]
+SELECT TOP(1) [c4].[Country]
+FROM [Orders] AS [o21]
+INNER JOIN [Customers] AS [c4] ON [o21].[CustomerID] = [c4].[CustomerID]
+WHERE [o21].[OrderID] = @_outer_OrderID1
+ORDER BY [o21].[OrderID], [c4].[CustomerID]
 
-SELECT [c5].[CustomerID], [c5].[Country]
-FROM [Customers] AS [c5]
-ORDER BY [c5].[CustomerID]
-
-@_outer_OrderID1: 10294
-
-SELECT TOP(1) [c6].[Country]
-FROM [Orders] AS [o23]
-INNER JOIN [Customers] AS [c6] ON [o23].[CustomerID] = [c6].[CustomerID]
-WHERE [o23].[OrderID] = @_outer_OrderID1
-ORDER BY [o23].[OrderID], [c6].[CustomerID]
-
-SELECT [t1].[OrderID]
-FROM (
-    SELECT TOP(2) [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice]
-    FROM [Order Details] AS [o4]
-) AS [t1]
-ORDER BY [t1].[ProductID], [t1].[OrderID]",
+SELECT [c3].[CustomerID], [c3].[Country]
+FROM [Customers] AS [c3]
+ORDER BY [c3].[CustomerID]",
                 Sql);
         }
 
@@ -1810,6 +1795,58 @@ END",
         SELECT 1
         FROM [Customers] AS [c]
         WHERE (NOT ([c].[ContactName] LIKE [c].[ContactName] + N'%') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) <> 1)) AND (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        public override void All_top_level_subquery()
+        {
+            base.All_top_level_subquery();
+
+            Assert.Equal(
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c1]
+        WHERE NOT ((
+            SELECT CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM [Customers] AS [c2]
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM [Customers] AS [c3]
+                        WHERE [c1].[CustomerID] = [c3].[CustomerID]))
+                THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            END
+        ) = 1))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        public override void All_top_level_subquery_ef_property()
+        {
+            base.All_top_level_subquery_ef_property();
+
+            Assert.Equal(
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c1]
+        WHERE NOT ((
+            SELECT CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM [Customers] AS [c2]
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM [Customers] AS [c3]
+                        WHERE [c1].[CustomerID] = [c3].[CustomerID]))
+                THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            END
+        ) = 1))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
