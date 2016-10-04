@@ -31,7 +31,7 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "System.Diagnostics.DiagnosticSource": "4.0.0-*"
+        "System.Diagnostics.DiagnosticSource": "4.3.0-*"
       },
       "frameworkAssemblies": {
         "System.Data": "",
