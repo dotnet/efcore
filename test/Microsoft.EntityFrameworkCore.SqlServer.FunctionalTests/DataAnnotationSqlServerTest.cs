@@ -249,7 +249,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
         {
             base.TimestampAttribute_throws_if_value_in_database_changed();
 
-            // Not vallidating SQL because not significantly different from other tests and
+            // Not validating SQL because not significantly different from other tests and
             // row version value is not stable.
         }
 

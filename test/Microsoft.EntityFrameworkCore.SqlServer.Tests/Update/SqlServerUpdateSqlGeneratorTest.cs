@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT [Computed]" + Environment.NewLine +
                 "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] IS NULL;" + Environment.NewLine,
+                "WHERE @@ROWCOUNT = 1 AND [Id] IS NULL;" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
                 "SELECT [Id], [Computed]" + Environment.NewLine +
                 "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "DEFAULT VALUES;" + Environment.NewLine +
                 "SELECT [Id]" + Environment.NewLine +
                 "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
                 "SELECT [Id]" + Environment.NewLine +
                 "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -77,32 +77,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "DEFAULT VALUES;" + Environment.NewLine +
                 "SELECT [Id], [Computed]" + Environment.NewLine +
                 "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
         protected override void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
         {
-            Assert.Equal(
-                "DECLARE @inserted0 TABLE ([Computed] uniqueidentifier);" + Environment.NewLine +
-                "UPDATE [dbo].[Ducks] SET [Name] = @p0, [Quacks] = @p1, [ConcurrencyToken] = @p2" + Environment.NewLine +
-                "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
-                "INTO @inserted0" + Environment.NewLine +
-                "WHERE [Id] IS NULL AND [ConcurrencyToken] IS NULL;" + Environment.NewLine +
-                "SELECT [Computed] FROM @inserted0;" + Environment.NewLine,
-                stringBuilder.ToString());
+            base.AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(stringBuilder);
         }
 
         protected override void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
         {
-            Assert.Equal(
-                "DECLARE @inserted0 TABLE ([Computed] uniqueidentifier);" + Environment.NewLine +
-                "UPDATE [dbo].[Ducks] SET [Name] = @p0, [Quacks] = @p1, [ConcurrencyToken] = @p2" + Environment.NewLine +
-                "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
-                "INTO @inserted0" + Environment.NewLine +
-                "WHERE [Id] IS NULL;" + Environment.NewLine +
-                "SELECT [Computed] FROM @inserted0;" + Environment.NewLine,
-                stringBuilder.ToString());
+            base.AppendUpdateOperation_appends_select_for_computed_property_verification(stringBuilder);
         }
 
         [Fact]
@@ -119,15 +105,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "INSERT INTO @toInsert0" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2, 0)," + Environment.NewLine +
                 "(@p0, @p1, @p2, 1);" + Environment.NewLine + Environment.NewLine +
-                "DECLARE @inserted0 TABLE ([Id] int, [Name] nvarchar(max), [Quacks] int, [Computed] uniqueidentifier, [ConcurrencyToken] varbinary(max), [_Position] [int]);" + Environment.NewLine +
+                "DECLARE @inserted0 TABLE ([Id] int, [_Position] [int]);" + Environment.NewLine +
                 "MERGE [dbo].[Ducks] USING @toInsert0 AS i ON 1=0" + Environment.NewLine +
                 "WHEN NOT MATCHED THEN" + Environment.NewLine +
                 "INSERT ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
                 "VALUES (i.[Name], i.[Quacks], i.[ConcurrencyToken])" + Environment.NewLine +
-                "OUTPUT INSERTED.[Id], INSERTED.[Name], INSERTED.[Quacks], INSERTED.[Computed], INSERTED.[ConcurrencyToken], i._Position" + Environment.NewLine +
+                "OUTPUT INSERTED.[Id], i._Position" + Environment.NewLine +
                 "INTO @inserted0;" + Environment.NewLine + Environment.NewLine +
-                "SELECT [Id], [Computed] FROM @inserted0" + Environment.NewLine +
-                "ORDER BY _Position;" + Environment.NewLine,
+                "SELECT [t].[Id], [t].[Computed] FROM [dbo].[Ducks] t" + Environment.NewLine +
+                "INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id])" + Environment.NewLine +
+                "ORDER BY [i].[_Position];" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
             Assert.Equal(ResultSetMapping.NotLastInResultSet, grouping);
         }
@@ -159,13 +146,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
 
             var expectedText =
-                "DECLARE @inserted0 TABLE ([Id] int, [Computed] uniqueidentifier);" + Environment.NewLine +
+                "DECLARE @inserted0 TABLE ([Id] int);" + Environment.NewLine +
                 "INSERT INTO [dbo].[Ducks] ([Id])" + Environment.NewLine +
-                "OUTPUT INSERTED.[Id], INSERTED.[Computed]" + Environment.NewLine +
+                "OUTPUT INSERTED.[Id]" + Environment.NewLine +
                 "INTO @inserted0" + Environment.NewLine +
                 "VALUES (DEFAULT)," + Environment.NewLine +
                 "(DEFAULT);" + Environment.NewLine +
-                "SELECT [Id], [Computed] FROM @inserted0;" + Environment.NewLine;
+                "SELECT [t].[Id], [t].[Computed] FROM [dbo].[Ducks] t" + Environment.NewLine +
+                "INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);" + Environment.NewLine + Environment.NewLine;
             Assert.Equal(expectedText, stringBuilder.ToString());
             Assert.Equal(ResultSetMapping.NotLastInResultSet, grouping);
         }

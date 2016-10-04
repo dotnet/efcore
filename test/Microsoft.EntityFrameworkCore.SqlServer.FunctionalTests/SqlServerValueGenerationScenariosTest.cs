@@ -485,6 +485,75 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
             }
         }
 
+        // #6044
+        [Fact]
+        public void Insert_and_update_with_computed_column_with_querying_function()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            {
+                using (var context = new BlogContextComputedColumn(testStore.Name))
+                {
+                    context.GetService<IRelationalDatabaseCreator>().CreateTables();
+
+                    context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+
+                    context.Database.ExecuteSqlCommand(@"CREATE FUNCTION [dbo].[GetFullName](@Id int)
+RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS
+BEGIN
+    DECLARE @FullName NVARCHAR(MAX);
+    SELECT @FullName = [FirstName] + [LastName] FROM [dbo].[FullNameBlogs] WHERE [Id] = @Id;
+    RETURN @FullName
+END");
+
+                    context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
+                }
+
+                try
+                {
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
+
+                        context.SaveChanges();
+
+                        Assert.Equal("OneUnicorn", blog.FullName);
+                    }
+
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        var blog = context.FullNameBlogs.Single();
+
+                        Assert.Equal("OneUnicorn", blog.FullName);
+
+                        blog.LastName = "Pegasus";
+
+                        context.SaveChanges();
+
+                        Assert.Equal("OnePegasus", blog.FullName);
+                    }
+
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        var blog1 = context.Add(new FullNameBlog { FirstName = "Hank", LastName = "Unicorn" }).Entity;
+                        var blog2 = context.Add(new FullNameBlog { FirstName = "Jeff", LastName = "Unicorn" }).Entity;
+
+                        context.SaveChanges();
+
+                        Assert.Equal("HankUnicorn", blog1.FullName);
+                        Assert.Equal("JeffUnicorn", blog2.FullName);
+                    }
+                }
+                finally
+                {
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                        context.Database.ExecuteSqlCommand("DROP FUNCTION [dbo].[GetFullName];");
+                    }
+                }
+            }
+        }
+
         [Fact]
         public void Insert_with_client_generated_GUID_key()
         {

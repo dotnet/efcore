@@ -155,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             AppendFromClause(commandStringBuilder, name, schema);
             // TODO: there is no notion of operator - currently all the where conditions check equality
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+                .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
         }

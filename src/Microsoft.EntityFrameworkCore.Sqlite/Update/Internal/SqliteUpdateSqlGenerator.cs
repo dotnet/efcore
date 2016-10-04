@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             commandStringBuilder
                 .Append("SELECT changes()")
-                .Append(SqlGenerationHelper.StatementTerminator)
+                .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
