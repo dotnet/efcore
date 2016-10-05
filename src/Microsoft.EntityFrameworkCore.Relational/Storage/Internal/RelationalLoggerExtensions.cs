@@ -131,17 +131,34 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
         }
 
-        public static void ReportInformation(
+        public static void ReportInformation<TState>(
             [NotNull] this ILogger logger,
             RelationalEventId eventId,
-            [NotNull] Func<string> formatter)
-            => logger.LogReported<object>(LogLevel.Information, (int)eventId, null, null, (_, __) => formatter());
+            [CanBeNull] TState state,
+            [NotNull] Func<TState, string> formatter)
+        {
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogReported<object>(
+                    LogLevel.Information,
+                    (int)eventId,
+                    state,
+                    null,
+                    (s, _) => formatter((TState)s));
+            }
+        }
 
-        public static void ReportDebug(
+        public static void ReportDebug<TState>(
             [NotNull] this ILogger logger,
             RelationalEventId eventId,
-            [NotNull] Func<string> formatter)
-            => logger.LogReported<object>(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
+            [CanBeNull] TState state,
+            [NotNull] Func<TState, string> formatter)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogReported<object>(LogLevel.Debug, (int)eventId, state, null, (s, _) => formatter((TState)s));
+            }
+        }
 
         private static readonly double TimestampToMilliseconds = (double)TimeSpan.TicksPerSecond / (Stopwatch.Frequency * TimeSpan.TicksPerMillisecond);
 

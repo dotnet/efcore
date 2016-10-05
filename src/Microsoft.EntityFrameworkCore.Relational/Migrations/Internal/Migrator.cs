@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var connection = _connection.DbConnection;
             _logger.ReportDebug(
                 RelationalEventId.MigrateUsingConnection,
-                () => RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+                connection,
+                c => RelationalStrings.UsingConnection(c.Database, c.DataSource));
 
             if (!_historyRepository.Exists())
             {
@@ -114,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var connection = _connection.DbConnection;
             _logger.ReportDebug(
                 RelationalEventId.MigrateUsingConnection,
-                () => RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+                connection,
+                c => RelationalStrings.UsingConnection(c.Database, c.DataSource));
 
             if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
@@ -158,13 +160,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         _logger.ReportInformation(
                             RelationalEventId.RevertingMigration,
-                            () => RelationalStrings.RevertingMigration(migration.GetId()));
+                            migration,
+                            m => RelationalStrings.RevertingMigration(m.GetId()));
 
-                        return GenerateDownSql(
+                        var commands = GenerateDownSql(
                             migration,
                             index != migrationsToRevert.Count - 1
                                 ? migrationsToRevert[index + 1]
                                 : null);
+
+                        _logger.ReportDebug(
+                             RelationalEventId.RevertingMigrationSql,
+                             commands,
+                             c => FormatCommandsForReporting(c));
+
+                        return commands;
                     };
             }
 
@@ -174,9 +184,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         _logger.ReportInformation(
                             RelationalEventId.ApplyingMigration,
-                            () => RelationalStrings.ApplyingMigration(migration.GetId()));
+                            migration,
+                            m => RelationalStrings.ApplyingMigration(m.GetId()));
 
-                        return GenerateUpSql(migration);
+                        var commands = GenerateUpSql(migration);
+
+                        _logger.ReportDebug(
+                             RelationalEventId.ApplyingMigrationSql,
+                             commands,
+                             c => FormatCommandsForReporting(c));
+
+                        return commands;
                     };
             }
         }
@@ -279,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 _logger.ReportDebug(
                     RelationalEventId.GeneratingMigrationDownScript,
-                    () => RelationalStrings.GeneratingDown(migration.GetId()));
+                    migration,
+                    m => RelationalStrings.GeneratingDown(m.GetId()));
 
                 foreach (var command in GenerateDownSql(migration, previousMigration))
                 {
@@ -305,7 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 _logger.ReportDebug(
                     RelationalEventId.GeneratingMigrationUpScript,
-                    () => RelationalStrings.GeneratingUp(migration.GetId()));
+                    migration,
+                    m => RelationalStrings.GeneratingUp(m.GetId()));
 
                 foreach (var command in GenerateUpSql(migration))
                 {
@@ -364,6 +384,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Generate(migration.DownOperations, previousMigration?.TargetModel)
                 .Concat(new[] { new MigrationCommand(deleteCommand) })
                 .ToList();
+        }
+
+        private string FormatCommandsForReporting(IEnumerable<MigrationCommand> commands)
+        {
+            var builder = new IndentedStringBuilder();
+            foreach (var command in commands)
+            {
+                builder
+                   .AppendLine(command.CommandText)
+                   .Append(_sqlGenerationHelper.BatchTerminator);
+            }
+
+            return builder.ToString();
         }
     }
 }

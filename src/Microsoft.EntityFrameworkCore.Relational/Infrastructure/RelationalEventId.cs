@@ -90,6 +90,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     A migration is being reverted.
         /// </summary>
-        RevertingMigration
+        RevertingMigration,
+
+        /// <summary>
+        ///     The SQL for a migration being reverted.
+        /// </summary>
+        RevertingMigrationSql,
+
+        /// <summary>
+        ///     The SQL for a migration being applied.
+        /// </summary>
+        ApplyingMigrationSql
     }
 }
