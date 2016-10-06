@@ -406,5 +406,36 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
             var ex = Assert.Throws<NotSupportedException>(() => base.DropUniqueConstraintOperation());
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropUniqueConstraintOperation)), ex.Message);
         }
+
+        [Fact]
+        public virtual void CreateTableOperation_old_autoincrement_annotation()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            ["Autoincrement"] = true
+                        }
+                    },
+                    PrimaryKey = new AddPrimaryKeyOperation
+                    {
+                        Columns = new[] { "Id" }
+                    }
+                });
+
+            Assert.Equal(
+                "CREATE TABLE \"People\" (" + EOL +
+                "    \"Id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + EOL +
+                ");" + EOL,
+                Sql);
+        }
     }
 }

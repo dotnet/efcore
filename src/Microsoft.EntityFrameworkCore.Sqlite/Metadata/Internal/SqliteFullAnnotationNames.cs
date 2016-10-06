@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected SqliteFullAnnotationNames(string prefix)
             : base(prefix)
         {
-            Autoincrement = "Autoincrement";
-            InlinePrimaryKey = "InlinePrimaryKey";
-            InlinePrimaryKeyName = "InlinePrimaryKeyName";
+            Autoincrement = prefix + SqliteAnnotationNames.Autoincrement;
+            InlinePrimaryKey = prefix + SqliteAnnotationNames.InlinePrimaryKey;
+            InlinePrimaryKeyName = prefix + SqliteAnnotationNames.InlinePrimaryKeyName;
         }
 
         /// <summary>
