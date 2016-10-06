@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual bool RetriesOnFailure => false;
 
-        public virtual TResult Execute<TState, TResult>(Func<TState, TResult> operation, TState state)
+        public virtual TResult Execute<TState, TResult>(
+            Func<TState, TResult> operation, Func<TState, ExecutionResult<TResult>> verifySucceeded, TState state)
         {
             try
             {
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             catch (Exception ex)
             {
-                if (ExecutionStrategy.UnwrapAndHandleException(ex, SqlAzureRetriableExceptionDetector.ShouldRetryOn))
+                if (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
                 {
                     throw new InvalidOperationException(SqlServerStrings.TransientExceptionDetected, ex);
                 }
@@ -37,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual async Task<TResult> ExecuteAsync<TState, TResult>(
             Func<TState, CancellationToken, Task<TResult>> operation,
+            Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
             TState state,
             CancellationToken cancellationToken)
         {
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             catch (Exception ex)
             {
-                if (ExecutionStrategy.UnwrapAndHandleException(ex, SqlAzureRetriableExceptionDetector.ShouldRetryOn))
+                if (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
                 {
                     throw new InvalidOperationException(SqlServerStrings.TransientExceptionDetected, ex);
                 }

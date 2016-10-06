@@ -71,7 +71,7 @@
     <Compile Include="Infrastructure\Internal\SqlServerModelSource.cs" />
     <Compile Include="Infrastructure\Internal\SqlServerOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqlServerDbContextOptionsBuilder.cs" />
-    <Compile Include="Metadata\Conventions\Internal\SqlServerInMemoryTablesConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\SqlServerMemoryOptimizedTablesConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilder.cs" />
     <Compile Include="Metadata\Internal\SqlServerAnnotationNames.cs" />
@@ -139,7 +139,7 @@
     <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGeneratorFactory.cs" />
     <Compile Include="Query\Sql\Internal\ISqlServerExpressionVisitor.cs" />
-    <Compile Include="SqlAzureExecutionStrategy.cs" />
+    <Compile Include="SqlServerRetryingExecutionStrategy.cs" />
     <Compile Include="Storage\Internal\ISqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerDatabaseCreator.cs" />
@@ -150,7 +150,7 @@
     <Compile Include="Storage\Internal\SqlServerSqlGenerationHelper.cs" />
     <Compile Include="Storage\Internal\SqlServerTypeMapper.cs" />
     <Compile Include="Storage\Internal\SqlServerExecutionStrategyFactory.cs" />
-    <Compile Include="Storage\Internal\SqlAzureRetriableExceptionDetector.cs" />
+    <Compile Include="Storage\Internal\SqlServerTransientExceptionDetector.cs" />
     <Compile Include="Update\Internal\ISqlServerUpdateSqlGenerator.cs" />
     <Compile Include="Update\Internal\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Update\Internal\SqlServerModificationCommandBatchFactory.cs" />

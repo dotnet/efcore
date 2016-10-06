@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,7 +48,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                    .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                     .BuildServiceProvider();
             }
 
@@ -66,7 +66,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new StoreGeneratedFixupContext(new DbContextOptionsBuilder()
                     .UseInMemoryDatabase()
-                    .UseInternalServiceProvider(_serviceProvider).Options);
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                    .Options);
 
             public class InMemoryStoreGeneratedFixupTestStore : InMemoryTestStore
             {

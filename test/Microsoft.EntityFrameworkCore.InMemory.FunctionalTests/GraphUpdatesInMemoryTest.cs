@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -188,25 +189,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                    .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                     .BuildServiceProvider();
             }
 
             public override InMemoryTestStore CreateTestStore()
-            {
-                return InMemoryTestStore.CreateScratch(() =>
+                => InMemoryTestStore.CreateScratch(() =>
+                    {
+                        using (var context = CreateContext(null))
                         {
-                            using (var context = CreateContext(null))
-                            {
-                                Seed(context);
-                            }
-                        },
+                            Seed(context);
+                        }
+                    },
                     _serviceProvider);
-            }
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new GraphUpdatesContext(new DbContextOptionsBuilder()
                     .UseInMemoryDatabase()
+                    .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                     .UseInternalServiceProvider(_serviceProvider).Options);
         }
     }

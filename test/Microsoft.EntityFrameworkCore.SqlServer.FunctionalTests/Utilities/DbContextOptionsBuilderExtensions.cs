@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
             if (TestEnvironment.IsSqlAzure)
             {
-                optionsBuilder.ExecutionStrategy(c => new TestSqlAzureExecutionStrategy(c));
+                optionsBuilder.ExecutionStrategy(c => new TestSqlServerRetryingExecutionStrategy(c));
             }
 
             return optionsBuilder;

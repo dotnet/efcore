@@ -7,28 +7,33 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
-    public class TestSqlAzureExecutionStrategy : SqlAzureExecutionStrategy
+    public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecutionStrategy
     {
         private static readonly int[] _additionalErrorNumbers =
         {
             -1, // Physical connection is not usable
             -2, // Timeout
             42008, // Mirroring (Only when a database is deleted and another one is crated in fast succession)
-            42019, // CREATE DATABASE operation failed
-            49918 // Not enough resources to process request
+            42019 // CREATE DATABASE operation failed
         };
 
-        public TestSqlAzureExecutionStrategy()
-            : base(DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
+        public TestSqlServerRetryingExecutionStrategy()
+            : base(new DbContext(new DbContextOptionsBuilder().UseSqlServer(TestEnvironment.DefaultConnection).Options),
+                  DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
         {
         }
 
-        public TestSqlAzureExecutionStrategy(DbContext context)
+        public TestSqlServerRetryingExecutionStrategy(DbContext context)
             : base(context, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
         {
         }
 
-        public TestSqlAzureExecutionStrategy(ExecutionStrategyContext context)
+        public TestSqlServerRetryingExecutionStrategy(DbContext context, TimeSpan maxDelay)
+            : base(context, DefaultMaxRetryCount, maxDelay, _additionalErrorNumbers)
+        {
+        }
+
+        public TestSqlServerRetryingExecutionStrategy(ExecutionStrategyContext context)
             : base(context, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
         {
         }

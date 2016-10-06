@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public TransactionSqlServerTest(TransactionSqlServerFixture fixture)
             : base(fixture)
         {
-            TestSqlAzureExecutionStrategy.Suspended = true;
+            TestSqlServerRetryingExecutionStrategy.Suspended = true;
         }
 
         protected override bool SnapshotSupported => true;
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override void Dispose()
         {
             base.Dispose();
-            TestSqlAzureExecutionStrategy.Suspended = false;
+            TestSqlServerRetryingExecutionStrategy.Suspended = false;
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             ReplaceConvention(conventionSet.PropertyAddedConventions, (DatabaseGeneratedAttributeConvention)valueGenerationStrategyConvention);
 
-            var sqlServerInMemoryTablesConvention = new SqlServerInMemoryTablesConvention();
+            var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention();
             conventionSet.EntityTypeAnnotationSetConventions.Add(sqlServerInMemoryTablesConvention);
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);

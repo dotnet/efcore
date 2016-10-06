@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.UpdatesModel;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
@@ -17,12 +17,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public UpdatesInMemoryFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             _optionsBuilder = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase()
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .UseInternalServiceProvider(_serviceProvider);
         }
 

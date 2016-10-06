@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -170,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             {
                 if (++OpenCount < FailAfter)
                 {
-                    throw CreateSqlException(ErrorNumber);
+                    throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
             }
 
@@ -178,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             {
                 if (++OpenCount < FailAfter)
                 {
-                    throw CreateSqlException(ErrorNumber);
+                    throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
 
                 return Task.FromResult(0);
@@ -190,11 +191,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
             public IRelationalCommandBuilder Create() => new FakeRelationalCommandBuilder();
-
-            public IRelationalCommandBuilder CreateDefinition()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
@@ -247,36 +243,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             {
                 throw new NotImplementedException();
             }
-        }
-
-        private static SqlException CreateSqlException(int number)
-        {
-            var errorCtors = typeof(SqlError)
-                .GetTypeInfo()
-                .DeclaredConstructors;
-
-#if NET451
-            var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
-                .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
-#else
-    // CoreCLR internal constructor has an additional parameter
-            var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
-                .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
-#endif
-            var errors = (SqlErrorCollection)typeof(SqlErrorCollection)
-                .GetTypeInfo()
-                .DeclaredConstructors
-                .Single()
-                .Invoke(null);
-
-            typeof(SqlErrorCollection).GetRuntimeMethods().Single(m => m.Name == "Add").Invoke(errors, new object[] { error });
-
-            var exceptionCtors = typeof(SqlException)
-                .GetTypeInfo()
-                .DeclaredConstructors;
-
-            return (SqlException)exceptionCtors.First(c => c.GetParameters().Length == 4)
-                .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
         }
     }
 }

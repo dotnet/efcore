@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
 {
-    public class SqlServerInMemoryTablesConventionTest
+    public class SqlServerMemoryOptimizedTablesConventionTest
     {
         [Fact]
         public void Keys_and_indexes_are_nonclustered_for_memory_optimized_tables()
