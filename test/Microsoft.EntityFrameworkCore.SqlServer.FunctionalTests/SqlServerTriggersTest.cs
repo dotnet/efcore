@@ -130,9 +130,9 @@ CREATE TRIGGER TRG_InsertProduct
 ON Products
 AFTER INSERT AS
 BEGIN
-	if @@ROWCOUNT = 0
+	IF @@ROWCOUNT = 0
 		return
-	set nocount on;
+	SET nocount on;
 
     INSERT INTO ProductBackups
     SELECT * FROM INSERTED;
@@ -143,15 +143,16 @@ CREATE TRIGGER TRG_UpdateProduct
 ON Products
 AFTER UPDATE AS
 BEGIN
-	if @@ROWCOUNT = 0
+	IF @@ROWCOUNT = 0
 		return
-	set nocount on;
+	SET nocount on;
 
-    DELETE FROM ProductBackups
-    WHERE Id IN(SELECT DELETED.Id FROM DELETED);
-
-    INSERT INTO ProductBackups
-    SELECT * FROM INSERTED;
+    UPDATE b
+    SET b.Name = p.Name, b.StoreUpdated = p.StoreUpdated, b.Version = p.Version
+    FROM ProductBackups b
+    INNER JOIN Products p
+        ON b.Id = p.Id
+    WHERE p.Id IN(SELECT INSERTED.Id FROM INSERTED);
 END");
 
                     testStore.ExecuteNonQuery(@"
@@ -159,9 +160,9 @@ CREATE TRIGGER TRG_DeleteProduct
 ON Products
 AFTER DELETE AS
 BEGIN
-	if @@ROWCOUNT = 0
+	IF @@ROWCOUNT = 0
 		return
-	set nocount on;
+	SET nocount on;
 
     DELETE FROM ProductBackups
     WHERE Id IN(SELECT DELETED.Id FROM DELETED);
@@ -173,9 +174,9 @@ CREATE TRIGGER TRG_InsertUpdateProduct
 ON Products
 AFTER INSERT, UPDATE AS
 BEGIN
-	if @@ROWCOUNT = 0
+	IF @@ROWCOUNT = 0
 		return
-	set nocount on;
+	SET nocount on;
 
     UPDATE Products set StoreUpdated = StoreUpdated + 1
     WHERE Id IN(SELECT INSERTED.Id FROM INSERTED);
