@@ -114,15 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped(p => GetContextServices(p).CurrentContext)
                 .AddScoped(p => GetContextServices(p).ContextOptions)
                 .AddScoped(p => GetContextServices(p).DatabaseProviderServices)
-                .AddScoped(p => GetProviderServices(p).Database)
-                .AddScoped(p => GetProviderServices(p).TransactionManager)
-                .AddScoped(p => GetProviderServices(p).ValueGeneratorSelector)
-                .AddScoped(p => GetProviderServices(p).Creator)
-                .AddScoped(p => GetProviderServices(p).ConventionSetBuilder)
-                .AddScoped(p => GetProviderServices(p).ValueGeneratorCache)
-                .AddScoped(p => GetProviderServices(p).ModelSource)
-                .AddScoped(p => GetProviderServices(p).ModelValidator)
-                .AddScoped(p => GetProviderServices(p).ExecutionStrategyFactory)
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).Database))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).TransactionManager))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ValueGeneratorSelector))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).Creator))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ConventionSetBuilder))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ValueGeneratorCache))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ModelSource))
+                .AddScoped(p => ServiceProviderExtensions.InjectAdditionalServices(p, GetProviderServices(p).ModelValidator))
+                .AddScoped(p => ServiceProviderExtensions.InjectAdditionalServices(p, GetProviderServices(p).ExecutionStrategyFactory))
                 .AddQuery());
 
             return serviceCollection;
@@ -151,19 +151,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<ResultOperatorHandler>()
                 .AddScoped<QueryCompilationContextFactory>()
                 .AddScoped<ProjectionExpressionVisitorFactory>()
-                .AddScoped(p => GetProviderServices(p).QueryContextFactory)
-                .AddScoped(p => GetProviderServices(p).QueryCompilationContextFactory)
-                .AddScoped(p => GetProviderServices(p).CompiledQueryCacheKeyGenerator)
-                .AddScoped(p => GetProviderServices(p).EntityQueryModelVisitorFactory)
-                .AddScoped(p => GetProviderServices(p).EntityQueryableExpressionVisitorFactory)
-                .AddScoped(p => GetProviderServices(p).ExpressionPrinter)
-                .AddScoped(p => GetProviderServices(p).ResultOperatorHandler)
-                .AddScoped(p => GetProviderServices(p).ProjectionExpressionVisitorFactory);
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).QueryContextFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).QueryCompilationContextFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).CompiledQueryCacheKeyGenerator))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).EntityQueryModelVisitorFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).EntityQueryableExpressionVisitorFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ExpressionPrinter))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ResultOperatorHandler))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ProjectionExpressionVisitorFactory));
 
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
             => serviceProvider.GetRequiredService<IDbContextServices>();
 
         private static IDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
             => GetContextServices(serviceProvider).DatabaseProviderServices;
+        
     }
 }

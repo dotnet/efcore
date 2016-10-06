@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
-        public override IDatabaseCreator Creator => GetService<SqliteDatabaseCreator>();
         public override IHistoryRepository HistoryRepository => GetService<SqliteHistoryRepository>();
         public override ISqlGenerationHelper SqlGenerationHelper => GetService<SqliteSqlGenerationHelper>();
         public override IMigrationsSqlGenerator MigrationsSqlGenerator => GetService<SqliteMigrationsSqlGenerator>();

@@ -29,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             StateManager = new LazyRef<IStateManager>(() => currentContext.Context.GetService<IStateManager>());
             ConcurrencyDetector = concurrencyDetector;
             ChangeDetector = new LazyRef<IChangeDetector>(() => currentContext.Context.GetService<IChangeDetector>());
-            ;
         }
 
         /// <summary>

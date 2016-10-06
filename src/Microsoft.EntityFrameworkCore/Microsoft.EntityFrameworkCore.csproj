@@ -241,12 +241,14 @@
     <Compile Include="Internal\IModelValidator.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />
+    <Compile Include="Internal\IServiceInjectionSite.cs" />
     <Compile Include="Internal\LazyRef.cs" />
     <Compile Include="Internal\LoggingModelValidator.cs" />
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\Multigraph.cs" />
     <Compile Include="Internal\NonCapturingLazyInitializer.cs" />
     <Compile Include="Internal\ReportedLogData.cs" />
+    <Compile Include="Internal\ServiceProviderExtensions.cs" />
     <Compile Include="Storage\Internal\ExecutionStrategyFactory.cs" />
     <Compile Include="Storage\Internal\NoopExecutionStrategy.cs" />
     <Compile Include="Internal\ProductInfo.cs" />

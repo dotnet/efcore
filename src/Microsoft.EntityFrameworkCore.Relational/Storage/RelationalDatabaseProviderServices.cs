@@ -139,6 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<RelationalCompositeExpressionFragmentTranslator>();
 
         /// <summary>
+        ///     Gets the <see cref="IDatabaseCreator" /> for the database provider.
+        /// </summary>
+        public override IDatabaseCreator Creator => RelationalDatabaseCreator;
+
+        /// <summary>
         ///     Gets the <see cref="IMethodCallTranslator" /> for the database provider.
         /// </summary>
         public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
