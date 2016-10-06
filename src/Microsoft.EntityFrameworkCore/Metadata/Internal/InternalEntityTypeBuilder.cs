@@ -348,6 +348,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
+                var duplicateNavigation = Metadata.FindNavigationsInHierarchy(propertyName).FirstOrDefault();
+                if (duplicateNavigation != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.PropertyCalledOnNavigation(propertyName, Metadata.DisplayName()));
+                }
+
                 if (clrProperty != null)
                 {
                     property = Metadata.AddProperty(clrProperty, configurationSource.Value);

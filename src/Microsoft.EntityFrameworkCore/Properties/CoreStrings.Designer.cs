@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         /// Compiling query model: {newline}'{queryModel}'
         /// </summary>
-        public static string LogCompilingQueryModel([CanBeNull] string newline, [CanBeNull] object queryModel)
+        public static string LogCompilingQueryModel([CanBeNull] object newline, [CanBeNull] object queryModel)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "newline", "queryModel"), newline, queryModel);
         }
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         /// Optimized query model: {newline}'{queryModel}'
         /// </summary>
-        public static string LogOptimizedQueryModel([CanBeNull] string newline, [CanBeNull] object queryModel)
+        public static string LogOptimizedQueryModel([CanBeNull] object newline, [CanBeNull] object queryModel)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogOptimizedQueryModel", "newline", "queryModel"), newline, queryModel);
         }
@@ -1454,6 +1454,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string ExecutionStrategyExistingTransaction([CanBeNull] object strategy, [CanBeNull] object getExecutionStrategyMethod)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ExecutionStrategyExistingTransaction", "strategy", "getExecutionStrategyMethod"), strategy, getExecutionStrategyMethod);
+        }
+
+        /// <summary>
+        /// Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.
+        /// </summary>
+        public static string PropertyCalledOnNavigation([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyCalledOnNavigation", "property", "entityType"), property, entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

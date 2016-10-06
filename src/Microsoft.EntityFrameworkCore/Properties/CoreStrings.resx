@@ -657,4 +657,7 @@
   <data name="ExecutionStrategyExistingTransaction" xml:space="preserve">
     <value>The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.</value>
   </data>
+  <data name="PropertyCalledOnNavigation" xml:space="preserve">
+    <value>Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.</value>
+  </data>
 </root>

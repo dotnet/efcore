@@ -1249,6 +1249,24 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Property_throws_for_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Explicit)
+                .DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Explicit)
+                .PrincipalToDependent(Customer.OrdersProperty.Name, ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.PropertyCalledOnNavigation(nameof(Order.Customer), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(
+                    () => dependentEntityBuilder
+                        .Property(Order.CustomerProperty, ConfigurationSource.Explicit)).Message);
+        }
+
+        [Fact]
         public void Cannot_add_shadow_property_without_type()
         {
             var modelBuilder = CreateModelBuilder();
