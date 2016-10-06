@@ -11,11 +11,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             : base(fixture)
         {
         }
-
-        public override void Complex_navigations_with_predicate_projected_into_anonymous_type()
-        {
-            // TODO: #6702
-            //base.Complex_navigations_with_predicate_projected_into_anonymous_type();
-        }
     }
 }

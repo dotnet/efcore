@@ -1695,6 +1695,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated_complex1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated_complex2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => !(!t.Gear.HasSoulPatch ? false : t.Gear.HasSoulPatch));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Optional_navigation_type_compensation_works_with_conditional_expression()
         {
             using (var context = CreateContext())

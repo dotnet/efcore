@@ -1029,6 +1029,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (nullConditionalExpression != null)
             {
                 var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
+                var columnExpression = newAccessOperation.TryGetColumnExpression();
+
+                if (columnExpression != null)
+                {
+                    columnExpression.IsNullable = true;
+                }
 
                 if (newAccessOperation != null
                     && newAccessOperation.Type != nullConditionalExpression.Type)

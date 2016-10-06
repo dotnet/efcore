@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -71,7 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // a == true -> a
             if (node.NodeType == ExpressionType.Equal
                 && node.Left.Type.UnwrapNullableType() == typeof(bool)
-                && node.Right.Type.UnwrapNullableType() == typeof(bool))
+                && node.Right.Type.UnwrapNullableType() == typeof(bool)
+                && !NegatedNullableAliasOrColumn(node.Left)
+                && !NegatedNullableAliasOrColumn(node.Right))
             {
                 var newLeft = Visit(node.Left);
                 var newRight = Visit(node.Right);
@@ -94,6 +97,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return base.VisitBinary(node);
+        }
+
+        private bool NegatedNullableAliasOrColumn(Expression expression)
+        {
+            var unaryExpression = expression.RemoveConvert() as UnaryExpression;
+
+            return unaryExpression != null
+                && unaryExpression.Type == typeof(bool?)
+                && unaryExpression.Operand.RemoveConvert().TryGetColumnExpression() != null;
         }
     }
 }

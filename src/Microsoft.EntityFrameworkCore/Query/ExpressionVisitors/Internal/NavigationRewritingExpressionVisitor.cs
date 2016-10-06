@@ -376,7 +376,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var ifTrue = Visit(node.IfTrue);
             var ifFalse = Visit(node.IfFalse);
 
-            return node.Update(test, ifTrue, ifFalse);
+            if (ifTrue.Type.IsNullableType() && !ifFalse.Type.IsNullableType())
+            {
+                ifFalse = Expression.Convert(ifFalse, ifTrue.Type);
+            }
+
+            if (ifFalse.Type.IsNullableType() && !ifTrue.Type.IsNullableType())
+            {
+                ifTrue = Expression.Convert(ifTrue, ifFalse.Type);
+            }
+
+            return test != node.Test || ifTrue != node.IfTrue || ifFalse != node.IfFalse
+                ? Expression.Condition(test, ifTrue, ifFalse)
+                : node;
         }
 
         private static NewExpression CreateNullCompositeKey(Expression otherExpression)
