@@ -272,6 +272,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(querySource, nameof(querySource));
 
+            querySource
+                = (querySource as GroupJoinClause)?.JoinClause ?? querySource;
+
             SelectExpression selectExpression;
             return QueriesBySource.TryGetValue(querySource, out selectExpression)
                 ? selectExpression
@@ -682,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Equal(
                                     joinClause.OuterKeySelector,
                                     joinClause.InnerKeySelector));
-
+                    
                     if (predicate != null)
                     {
                         QueriesBySource.Remove(joinClause);
@@ -766,7 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     previousSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
 
                                     QueriesBySource.Remove(joinClause);
-
+                                    
                                     operatorToFlatten = LinqOperatorProvider.Join;
                                 }
                             }
@@ -812,6 +815,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                         querySource,
                         QueryCompilationContext.QuerySourceMapping
                             .GetExpression(querySource));
+
+                    var groupJoinClause = querySource as GroupJoinClause;
+
+                    if (groupJoinClause != null
+                        && QueryCompilationContext.QuerySourceMapping
+                            .ContainsMapping(groupJoinClause.JoinClause))
+                    {
+                        previousMapping.Add(
+                            groupJoinClause.JoinClause,
+                            QueryCompilationContext.QuerySourceMapping
+                                .GetExpression(groupJoinClause.JoinClause));
+                    }
                 }
             }
 

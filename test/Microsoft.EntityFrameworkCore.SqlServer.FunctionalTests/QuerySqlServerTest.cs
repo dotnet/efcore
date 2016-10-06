@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -34,9 +35,17 @@ WHERE [e].[EmployeeID] = 1",
                 Sql);
         }
 
+        public void NotXunit()
+        {
+            Assert.Equal(default(ValueBuffer), default(ValueBuffer));
+        }
+
         public override void Project_to_int_array()
         {
             base.Project_to_int_array();
+
+            
+
 
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[ReportsTo]
@@ -3275,6 +3284,19 @@ ORDER BY [e].[City], [c].[CustomerID] DESC",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_DefaultIfEmpty_multiple()
+        {
+            base.GroupJoin_DefaultIfEmpty_multiple();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+LEFT JOIN [Orders] AS [o2] ON [c].[CustomerID] = [o2].[CustomerID]
 ORDER BY [c].[CustomerID]",
                 Sql);
         }

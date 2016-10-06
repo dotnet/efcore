@@ -313,9 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Executes the query and logs any exceptions that occur.
         /// </summary>
-        protected virtual void InterceptExceptions()
-        {
-            _expression
+        protected virtual void InterceptExceptions() 
+            => _expression
                 = Expression.Call(
                     LinqOperatorProvider.InterceptExceptions
                         .MakeGenericMethod(_expression.Type.GetSequenceType()),
@@ -323,7 +322,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(QueryCompilationContext.ContextType),
                     Expression.Constant(QueryCompilationContext.Logger),
                     QueryContextParameter);
-        }
 
         /// <summary>
         ///     Populates <see cref="Query.QueryCompilationContext.QueryAnnotations" /> based on annotations found in the query.
@@ -610,7 +608,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ?.ReferencedQuerySource as MainFromClause)?.FromExpression as SubQueryExpression;
 
                     var nestedGroupResultOperator
-                        = subqueryExpression?.QueryModel?.ResultOperators?.OfType<GroupResultOperator>()?.LastOrDefault();
+                        = subqueryExpression?.QueryModel?.ResultOperators
+                            ?.OfType<GroupResultOperator>()
+                            .LastOrDefault();
 
                     if (nestedGroupResultOperator != null)
                     {

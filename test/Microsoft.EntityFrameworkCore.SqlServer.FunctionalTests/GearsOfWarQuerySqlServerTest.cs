@@ -395,24 +395,16 @@ ORDER BY [g].[Nickname], [g].[SquadId]",
         {
             base.Include_where_list_contains_navigation2();
 
-            // Separate asserts to account for ordering differences on .NETCore
-
-            Assert.Contains(
+            Assert.Equal(
                 @"SELECT [t].[Id]
-FROM [CogTag] AS [t]",
-                Sql);
+FROM [CogTag] AS [t]
 
-            Assert.Contains(
-                @"SELECT [g.CityOfBirth].[Name], [g.CityOfBirth].[Location]
-FROM [City] AS [g.CityOfBirth]",
-                Sql);
-
-            Assert.Contains(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
 FROM [Gear] AS [g]
 LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+INNER JOIN [City] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]
 LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g.CityOfBirth].[Location] IS NOT NULL
 ORDER BY [g].[Nickname], [g].[SquadId]",
                 Sql);
         }
@@ -535,21 +527,17 @@ ORDER BY [g1].[LeaderNickname], [g1].[LeaderSquadId]",
         {
             base.Include_with_nested_navigation_in_order_by();
 
-            Assert.Contains(
-                @"SELECT [w.Owner.CityOfBirth].[Name], [w.Owner.CityOfBirth].[Location]
-FROM [City] AS [w.Owner.CityOfBirth]",
-                Sql);
-
-            Assert.Contains(
-                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [w.Owner].[Nickname], [w.Owner].[SquadId], [w.Owner].[AssignedCityName], [w.Owner].[CityOrBirthName], [w.Owner].[Discriminator], [w.Owner].[FullName], [w.Owner].[HasSoulPatch], [w.Owner].[LeaderNickname], [w.Owner].[LeaderSquadId], [w.Owner].[Rank], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+            Assert.Equal(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [w.Owner].[Nickname], [w.Owner].[SquadId], [w.Owner].[AssignedCityName], [w.Owner].[CityOrBirthName], [w.Owner].[Discriminator], [w.Owner].[FullName], [w.Owner].[HasSoulPatch], [w.Owner].[LeaderNickname], [w.Owner].[LeaderSquadId], [w.Owner].[Rank], [w.Owner.CityOfBirth].[Name], [w.Owner.CityOfBirth].[Location], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Weapon] AS [w]
 LEFT JOIN [Gear] AS [w.Owner] ON [w].[OwnerFullName] = [w.Owner].[FullName]
+LEFT JOIN [City] AS [w.Owner.CityOfBirth] ON [w.Owner].[CityOrBirthName] = [w.Owner.CityOfBirth].[Name]
 LEFT JOIN (
     SELECT [g].*
     FROM [Gear] AS [g]
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [g] ON [w].[OwnerFullName] = [g].[FullName]
-ORDER BY [w].[OwnerFullName]",
+ORDER BY [w.Owner.CityOfBirth].[Name], [w].[OwnerFullName], [w.Owner].[CityOrBirthName]",
                 Sql);
         }
 
@@ -1112,22 +1100,23 @@ WHERE ([g1].[Discriminator] = N'Officer') OR ([g1].[Discriminator] = N'Gear')",
 
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
-            base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();
-#if NET451
-            Assert.StartsWith(
-                @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[HasSoulPatch], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
-FROM [Gear] AS [ct2.Gear]
-WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')
-
-SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
-FROM [CogTag] AS [ct1]
-LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
-ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]
-
-SELECT [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
-FROM [CogTag] AS [ct2]",
-                Sql);
-#endif
+            // #6702
+//            base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();
+//#if NET451
+//            Assert.StartsWith(
+//                @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[HasSoulPatch], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
+//FROM [Gear] AS [ct2.Gear]
+//WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')
+//
+//SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
+//FROM [CogTag] AS [ct1]
+//LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+//ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]
+//
+//SELECT [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
+//FROM [CogTag] AS [ct2]",
+//                Sql);
+//#endif
         }
 
         public override void Select_Singleton_Navigation_With_Member_Access()
@@ -1171,22 +1160,23 @@ ORDER BY [o].[GearNickName], [o].[GearSquadId]",
 
         public override void Select_Where_Navigation_Equals_Navigation()
         {
-            base.Select_Where_Navigation_Equals_Navigation();
-#if NET451
-            Assert.StartsWith(
-                @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[HasSoulPatch], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
-FROM [Gear] AS [ct2.Gear]
-WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')
-
-SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
-FROM [CogTag] AS [ct1]
-LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
-ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]
-
-SELECT [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
-FROM [CogTag] AS [ct2]",
-                Sql);
-#endif
+            // TODO: #6702
+//            base.Select_Where_Navigation_Equals_Navigation();
+//#if NET451
+//            Assert.StartsWith(
+//                @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[HasSoulPatch], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
+//FROM [Gear] AS [ct2.Gear]
+//WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')
+//
+//SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
+//FROM [CogTag] AS [ct1]
+//LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+//ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]
+//
+//SELECT [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
+//FROM [CogTag] AS [ct2]",
+//                Sql);
+//#endif
         }
 
         public override void Select_Where_Navigation_Null()
@@ -1213,25 +1203,26 @@ WHERE [ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL",
 
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
-            base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
-
-            Assert.Contains(
-                @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[HasSoulPatch], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
-FROM [Gear] AS [ct2.Gear]
-WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')",
-                Sql);
-
-            Assert.Contains(
-                @"SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
-FROM [CogTag] AS [ct1]
-LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
-ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]",
-                Sql);
-
-            Assert.Contains(
-                @"SELECT [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Id]
-FROM [CogTag] AS [ct2]",
-                Sql);
+            // TODO: #6702
+//            base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
+//
+//            Assert.Contains(
+//                @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[HasSoulPatch], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
+//FROM [Gear] AS [ct2.Gear]
+//WHERE [ct2.Gear].[Discriminator] IN (N'Officer', N'Gear')",
+//                Sql);
+//
+//            Assert.Contains(
+//                @"SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[HasSoulPatch], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
+//FROM [CogTag] AS [ct1]
+//LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+//ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]",
+//                Sql);
+//
+//            Assert.Contains(
+//                @"SELECT [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Id]
+//FROM [CogTag] AS [ct2]",
+//                Sql);
         }
 
         public override void Optional_Navigation_Null_Coalesce_To_Clr_Type()

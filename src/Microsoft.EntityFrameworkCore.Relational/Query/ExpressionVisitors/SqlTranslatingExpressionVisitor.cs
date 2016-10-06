@@ -900,8 +900,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
                             .CreateQueryModelVisitor(_queryModelVisitor);
 
-                    var queriesProjectionCountMapping = _queryModelVisitor.Queries
-                        .ToDictionary(k => k, s => s.Projection.Count);
+                    var queriesProjectionCountMapping 
+                        = _queryModelVisitor.Queries
+                            .ToDictionary(k => k, s => s.Projection.Count);
 
                     queryModelVisitor.VisitSubQueryModel(subQueryModel);
 

@@ -5034,6 +5034,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupJoin_DefaultIfEmpty_multiple()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o1 in os on c.CustomerID equals o1.CustomerID into orders1
+                from o1 in orders1.DefaultIfEmpty()
+                join o2 in os on c.CustomerID equals o2.CustomerID into orders2
+                from o2 in orders2.DefaultIfEmpty()
+                select new { c, o1, o2 });
+        }
+
+        [ConditionalFact]
         public virtual void GroupJoin_DefaultIfEmpty2()
         {
             AssertQuery<Employee, Order>((es, os) =>
