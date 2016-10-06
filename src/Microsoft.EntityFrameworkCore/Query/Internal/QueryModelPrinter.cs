@@ -74,6 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return base.VisitExtension(node);
             }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                StringBuilder.Append(node.Name);
+
+                return node;
+            }
         }
 
         private class QueryModelPrintingVisitor : ExpressionTransformingQueryModelVisitor<ExpressionPrinter>
@@ -110,11 +117,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
             {
-                base.VisitJoinClause(joinClause, queryModel, index);
+                TransformingVisitor.StringBuilder.AppendLine();
+                TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
+                TransformingVisitor.Visit(joinClause.InnerSequence);
+                TransformingVisitor.StringBuilder.AppendLine();
+                TransformingVisitor.StringBuilder.Append("on ");
+                TransformingVisitor.Visit(joinClause.OuterKeySelector);
+                TransformingVisitor.StringBuilder.Append(" equals ");
+                TransformingVisitor.Visit(joinClause.InnerKeySelector);
             }
 
             public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
             {
+                TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
+                TransformingVisitor.Visit(joinClause.InnerSequence);
                 TransformingVisitor.StringBuilder.AppendLine();
                 TransformingVisitor.StringBuilder.Append("on ");
                 TransformingVisitor.Visit(joinClause.OuterKeySelector);
@@ -125,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
             {
                 TransformingVisitor.StringBuilder.AppendLine();
-                TransformingVisitor.StringBuilder.Append($"join {groupJoinClause.ItemType.ShortDisplayName()} {groupJoinClause.ItemName}");
                 base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
                 TransformingVisitor.StringBuilder.Append($" into {groupJoinClause.ItemName}");
             }
