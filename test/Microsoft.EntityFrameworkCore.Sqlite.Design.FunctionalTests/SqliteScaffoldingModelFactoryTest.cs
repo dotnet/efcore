@@ -26,9 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceProvider = new SqliteDesignTimeServices()
-                .ConfigureDesignTimeServices(
-                    new ServiceCollection().AddScaffolding().AddLogging())
+            var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging();
+            new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
+
+            var serviceProvider = serviceCollection
                 .AddSingleton<IFileService, FileSystemFileService>()
                 .BuildServiceProvider();
 

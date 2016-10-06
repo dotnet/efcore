@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceProvider = new SqliteDesignTimeServices()
-                .ConfigureDesignTimeServices(new ServiceCollection().AddLogging())
-                .BuildServiceProvider();
+            var serviceCollection = new ServiceCollection().AddLogging();
+            new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var logger = new TestLogger();
             serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(logger));

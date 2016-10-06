@@ -28,10 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
         {
             _output = output;
 
-            var serviceProvider = ConfigureDesignTimeServices(
-                    new ServiceCollection()
-                        .AddScaffolding()
-                        .AddLogging())
+            var serviceBuilder = new ServiceCollection()
+                .AddScaffolding()
+                .AddLogging();
+            ConfigureDesignTimeServices(serviceBuilder);
+
+            var serviceProvider = serviceBuilder
                 .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService()).BuildServiceProvider();
 
             _reporter = new InMemoryOperationReporter(_output);
@@ -44,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
         protected abstract ICollection<BuildReference> References { get; }
         protected abstract string ProviderName { get; }
 
-        protected abstract IServiceCollection ConfigureDesignTimeServices(IServiceCollection services);
+        protected abstract void ConfigureDesignTimeServices(IServiceCollection services);
 
         protected virtual void AssertEqualFileContents(FileSet expected, FileSet actual)
         {
