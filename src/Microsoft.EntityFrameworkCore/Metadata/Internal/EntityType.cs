@@ -185,13 +185,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
             => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
 
-        private readonly List<EntityType> _directlyDerivedTypes = new List<EntityType>();
+        private readonly SortedSet<EntityType> _directlyDerivedTypes = new SortedSet<EntityType>(EntityTypeNameComparer.Instance);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<EntityType> GetDirectlyDerivedTypes() => _directlyDerivedTypes;
+        // Note this is ISet because there is no suitable readonly interface in the profiles we are using
+        public virtual ISet<EntityType> GetDirectlyDerivedTypes() => _directlyDerivedTypes;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -687,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (principalKey.ReferencingForeignKeys == null)
             {
-                principalKey.ReferencingForeignKeys = new List<ForeignKey> { foreignKey };
+                principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
             }
             else
             {
@@ -696,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (principalEntityType.DeclaredReferencingForeignKeys == null)
             {
-                principalEntityType.DeclaredReferencingForeignKeys = new List<ForeignKey> { foreignKey };
+                principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
             }
             else
             {
@@ -965,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<ForeignKey> GetDeclaredReferencingForeignKeys()
             => DeclaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
-        private List<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
+        private SortedSet<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

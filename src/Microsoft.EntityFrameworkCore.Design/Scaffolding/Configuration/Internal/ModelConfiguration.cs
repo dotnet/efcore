@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                 if (_entityConfigurationMap == null)
                 {
                     _entityConfigurationMap = new
-                        SortedDictionary<EntityType, EntityConfiguration>(new EntityTypeNameComparer());
+                        SortedDictionary<EntityType, EntityConfiguration>(EntityTypeNameComparer.Instance);
                     AddEntityConfigurations();
                 }
 

@@ -117,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
+        // Note this is ISet because there is no suitable readonly interface in the profiles we are using
+        public virtual ISet<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
