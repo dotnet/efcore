@@ -120,7 +120,7 @@ FROM [Customers] AS [c]",
                 @"SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
 FROM (
     SELECT NULL AS [empty]
-) AS [empty0]
+) AS [empty]
 LEFT JOIN (
     SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
     FROM [Employees] AS [c]
@@ -137,7 +137,7 @@ LEFT JOIN (
                 @"SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
 FROM (
     SELECT NULL AS [empty]
-) AS [empty0]
+) AS [empty]
 LEFT JOIN (
     SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
     FROM [Employees] AS [c]
@@ -165,7 +165,7 @@ WHERE [c].[EmployeeID] = -1",
                 @"SELECT [t].[EmployeeID]
 FROM (
     SELECT NULL AS [empty]
-) AS [empty0]
+) AS [empty]
 LEFT JOIN (
     SELECT [e].[EmployeeID]
     FROM [Employees] AS [e]
@@ -3523,19 +3523,19 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
             base.SelectMany_Joined_DefaultIfEmpty();
 
             Assert.Equal(
-                @"SELECT [t2].[OrderID], [t2].[CustomerID], [t2].[EmployeeID], [t2].[OrderDate], [c].[ContactName]
+                @"SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [c].[ContactName]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT NULL AS [empty]
-    ) AS [empty10]
+    ) AS [empty0]
     LEFT JOIN (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
         FROM [Orders] AS [o0]
         WHERE [o0].[CustomerID] = [c].[CustomerID]
-    ) AS [t1] ON 1 = 1
-) AS [t2]",
+    ) AS [t0] ON 1 = 1
+) AS [t1]",
                 Sql);
         }
 
@@ -3544,19 +3544,19 @@ CROSS APPLY (
             base.SelectMany_Joined_DefaultIfEmpty2();
 
             Assert.Equal(
-                @"SELECT [t2].[OrderID], [t2].[CustomerID], [t2].[EmployeeID], [t2].[OrderDate]
+                @"SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT NULL AS [empty]
-    ) AS [empty10]
+    ) AS [empty0]
     LEFT JOIN (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
         FROM [Orders] AS [o0]
         WHERE [o0].[CustomerID] = [c].[CustomerID]
-    ) AS [t1] ON 1 = 1
-) AS [t2]",
+    ) AS [t0] ON 1 = 1
+) AS [t1]",
                 Sql);
         }
 
@@ -6226,6 +6226,26 @@ FROM (
     WHERE [o0].[OrderDate] IS NOT NULL
 ) AS [t]
 WHERE [t].[c0] < @__nextYear_0",
+                Sql);
+        }
+
+        public override void DefaultIfEmpty_without_group_join()
+        {
+            base.DefaultIfEmpty_without_group_join();
+
+            Assert.Equal(
+                @"SELECT [t1].[CustomerID]
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty0]
+    LEFT JOIN (
+        SELECT [c0].*
+        FROM [Customers] AS [c0]
+        WHERE [c0].[City] = N'London'
+    ) AS [t0] ON 1 = 1
+) AS [t1]",
                 Sql);
         }
 

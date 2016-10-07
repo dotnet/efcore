@@ -352,14 +352,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext, "empty");
             emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
 
-            selectExpression.AddTable(emptySelectExpression);
+            selectExpression.AddTable(emptySelectExpression, createUniqueAlias: false);
 
             var leftOuterJoinExpression = new LeftOuterJoinExpression(subquery);
             var constant1 = Expression.Constant(1);
 
             leftOuterJoinExpression.Predicate = Expression.Equal(constant1, constant1);
 
-            selectExpression.AddTable(leftOuterJoinExpression);
+            selectExpression.AddTable(leftOuterJoinExpression, createUniqueAlias: false);
 
             handlerContext.QueryModelVisitor.Expression
                 = new DefaultIfEmptyExpressionVisitor(

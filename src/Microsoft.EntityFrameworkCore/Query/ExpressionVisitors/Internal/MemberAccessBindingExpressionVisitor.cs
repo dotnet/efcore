@@ -69,22 +69,54 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitBinary(BinaryExpression node)
         {
             var newLeft = Visit(node.Left);
+            var newRight = Visit(node.Right);
 
             if (newLeft.Type == typeof(ValueBuffer))
             {
+                if (node.NodeType == ExpressionType.Equal
+                    || node.NodeType == ExpressionType.NotEqual)
+                {
+                    var rightConstantExpression = newRight as ConstantExpression;
+                    if (rightConstantExpression != null
+                        && rightConstantExpression.Value == null)
+                    {
+                        return ValueBufferNullCheck(newLeft, node.NodeType == ExpressionType.Equal);
+                    }
+                }
+
                 newLeft = _queryModelVisitor.BindReadValueMethod(node.Left.Type, newLeft, 0);
             }
 
-            var newRight = Visit(node.Right);
-
             if (newRight.Type == typeof(ValueBuffer))
             {
+                if (node.NodeType == ExpressionType.Equal
+                    || node.NodeType == ExpressionType.NotEqual)
+                {
+                    var leftConstantExpression = newLeft as ConstantExpression;
+                    if (leftConstantExpression != null
+                        && leftConstantExpression.Value == null)
+                    {
+                        return ValueBufferNullCheck(newRight, node.NodeType == ExpressionType.Equal);
+                    }
+                }
+
                 newRight = _queryModelVisitor.BindReadValueMethod(node.Right.Type, newRight, 0);
             }
 
             var newConversion = VisitAndConvert(node.Conversion, "VisitBinary");
 
             return node.Update(newLeft, newConversion, newRight);
+        }
+
+        private static Expression ValueBufferNullCheck(Expression valueBufferExpression, bool equality)
+        {
+            var equalsMethod = typeof(ValueBuffer).GetRuntimeMethod(nameof(ValueBuffer.Equals), new[] { typeof(object) });
+            var equalsExpression = Expression.Call(
+                valueBufferExpression,
+                equalsMethod,
+                Expression.Constant(null, typeof(object)));
+
+            return equality ? (Expression)equalsExpression : Expression.Not(equalsExpression);
         }
 
         /// <summary>

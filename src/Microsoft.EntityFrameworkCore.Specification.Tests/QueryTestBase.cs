@@ -6316,6 +6316,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Where(x => x < nextYear));
         }
 
+        [ConditionalFact]
+        public virtual void DefaultIfEmpty_without_group_join()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.City == "London")
+                    .DefaultIfEmpty()
+                    .Where(d => d != null)
+                    .Select(d => d.CustomerID)
+                    .ToList();
+
+                Assert.Equal(6, query.Count);
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)
