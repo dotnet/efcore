@@ -202,14 +202,12 @@
     <Compile Include="Infrastructure\IModelCacheKeyFactory.cs" />
     <Compile Include="Infrastructure\IModelCustomizer.cs" />
     <Compile Include="Infrastructure\IModelSource.cs" />
-    <Compile Include="Infrastructure\IReportedLogData.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger`.cs" />
     <Compile Include="Infrastructure\ModelCacheKey.cs" />
     <Compile Include="Infrastructure\ModelCacheKeyFactory.cs" />
     <Compile Include="Infrastructure\ModelCustomizer.cs" />
     <Compile Include="Infrastructure\ModelSource.cs" />
-    <Compile Include="Infrastructure\EntityFrameworkLoggerExtensions.cs" />
     <Compile Include="Infrastructure\SensitiveDataLogger.cs" />
     <Compile Include="Infrastructure\WarningsConfigurationBuilder.cs" />
     <Compile Include="Internal\AsyncLock.cs" />
@@ -247,7 +245,6 @@
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\Multigraph.cs" />
     <Compile Include="Internal\NonCapturingLazyInitializer.cs" />
-    <Compile Include="Internal\ReportedLogData.cs" />
     <Compile Include="Internal\ServiceProviderExtensions.cs" />
     <Compile Include="Storage\Internal\ExecutionStrategyFactory.cs" />
     <Compile Include="Storage\Internal\NoopExecutionStrategy.cs" />

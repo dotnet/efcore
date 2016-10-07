@@ -19,5 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Design.TestUtilities
 
         public void WriteWarning(string message)
             => _messages.Add("warn: " + message);
+
+        public void WriteError(string message)
+            => _messages.Add("error: " + message);
     }
 }

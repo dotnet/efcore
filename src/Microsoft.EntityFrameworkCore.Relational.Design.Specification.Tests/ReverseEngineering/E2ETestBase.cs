@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
                 .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService()).BuildServiceProvider();
 
             _reporter = new InMemoryOperationReporter(_output);
-            serviceProvider.GetService<ILoggerFactory>().AddProvider(new LoggerProvider(name => new OperationLogger(name, _reporter)));
+            serviceProvider.GetService<ILoggerFactory>().AddProvider(new LoggerProvider(_ => new OperationLogger(_reporter)));
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
@@ -77,8 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
 
         protected virtual void AssertLog(LoggerMessages expected)
         {
+            AssertLoggerMessages(expected.Error, _reporter.Messages.Error, "ERROR");
             AssertLoggerMessages(expected.Warn, _reporter.Messages.Warn, "WARNING");
             AssertLoggerMessages(expected.Info, _reporter.Messages.Info, "INFO");
+            AssertLoggerMessages(expected.Debug, _reporter.Messages.Info, "DEBUG");
         }
 
         protected virtual void AssertLoggerMessages(

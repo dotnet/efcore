@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _reporter.WriteVerbose(DesignStrings.LogUseContext(context.GetType().ShortDisplayName()));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
-            loggerFactory.AddProvider(new LoggerProvider(name => new OperationLogger(name, _reporter)));
+            loggerFactory.AddProvider(new LoggerProvider(_ => new OperationLogger(_reporter)));
 
             return context;
         }

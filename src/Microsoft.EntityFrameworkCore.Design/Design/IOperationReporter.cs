@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public interface IOperationReporter
     {
+        void WriteError([NotNull] string message);
         void WriteWarning([NotNull] string message);
         void WriteInformation([NotNull] string message);
         void WriteVerbose([NotNull] string message);

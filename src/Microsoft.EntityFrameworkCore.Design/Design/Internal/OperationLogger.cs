@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -17,19 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class OperationLogger : ILogger
     {
-        // TODO: Consider removing. Providers will need to react.
-        private const string FormerlyWellKnownLoggerName = "Microsoft.EntityFrameworkCore.Tools";
-
-        private readonly bool _enabledByName;
         private readonly IOperationReporter _reporter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public OperationLogger([NotNull] string name, [NotNull] IOperationReporter reporter)
+        public OperationLogger([NotNull] IOperationReporter reporter)
         {
-            _enabledByName = name == FormerlyWellKnownLoggerName;
             _reporter = reporter;
         }
 
@@ -38,9 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsEnabled(LogLevel logLevel)
-            => logLevel == LogLevel.Warning
-                || logLevel == LogLevel.Information
-                || logLevel == LogLevel.Debug;
+            => true;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -60,34 +50,24 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Exception exception,
             Func<TState, Exception, string> formatter)
         {
-            if (!IsEnabled(logLevel))
-            {
-                return;
-            }
-
-            var reportedState = state as IReportedLogData;
-            if (reportedState == null && _enabledByName)
-            {
-                reportedState = new ReportedLogData<TState>(state, exception, formatter);
-            }
-            else if (reportedState == null)
-            {
-                return;
-            }
-
+            var message = GetMessage(state, exception, formatter);
             switch (logLevel)
             {
-                case LogLevel.Warning:
-                    _reporter.WriteWarning(reportedState.Message);
+                case LogLevel.Critical:
+                case LogLevel.Error:
+                    _reporter.WriteError(message);
                     break;
 
-                case LogLevel.Debug:
-                    _reporter.WriteVerbose(reportedState.Message);
+                case LogLevel.Warning:
+                    _reporter.WriteWarning(message);
+                    break;
+
+                case LogLevel.Information:
+                    _reporter.WriteInformation(message);
                     break;
 
                 default:
-                    Debug.Assert(logLevel == LogLevel.Information, "Unexpected logLevel: " + logLevel);
-                    _reporter.WriteInformation(reportedState.Message);
+                    _reporter.WriteVerbose(message);
                     break;
             }
         }

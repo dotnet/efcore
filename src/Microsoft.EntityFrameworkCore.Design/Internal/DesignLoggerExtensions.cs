@@ -10,22 +10,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
 {
     internal static class DesignLoggerExtensions
     {
-        public static void ReportWarning(
+        public static void LogWarning(
                [NotNull] this ILogger logger,
                DesignEventId eventId,
                [NotNull] Func<string> formatter)
-               => logger.LogReported<object>(LogLevel.Warning, (int)eventId, null, null, (_, __) => formatter());
+               => logger.Log<object>(LogLevel.Warning, (int)eventId, null, null, (_, __) => formatter());
 
-        public static void ReportInformation(
+        public static void LogInformation(
                [NotNull] this ILogger logger,
                DesignEventId eventId,
                [NotNull] Func<string> formatter)
-               => logger.LogReported<object>(LogLevel.Information, (int)eventId, null, null, (_, __) => formatter());
+               => logger.Log<object>(LogLevel.Information, (int)eventId, null, null, (_, __) => formatter());
 
-        public static void ReportDebug(
+        public static void LogDebug(
             [NotNull] this ILogger logger,
             DesignEventId eventId,
             [NotNull] Func<string> formatter)
-            => logger.LogReported<object>(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
+            => logger.Log<object>(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
     }
 }

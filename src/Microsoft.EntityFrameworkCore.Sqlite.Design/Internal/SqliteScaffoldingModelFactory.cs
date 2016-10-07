@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (tableSelectionSet != null
                 && tableSelectionSet.Schemas.Any())
             {
-                Logger.ReportWarning(
+                Logger.LogWarning(
                     SqliteDesignEventId.UsingSchemaSelectionsWarning,
                     () => SqliteDesignStrings.UsingSchemaSelectionsWarning);
 

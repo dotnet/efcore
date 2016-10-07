@@ -16,7 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
         public InMemoryOperationReporter(ITestOutputHelper output)
         {
             _output = output;
-        }        
+        }
+
+        public void WriteError(string message)
+        {
+            if (_logToOutput)
+            {
+                _output?.WriteLine("[ERROR]: " + message);
+            }
+
+            Messages.Error.Add(message);
+        }
 
         public void WriteWarning(string message)
         {
@@ -51,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
 
     public class LoggerMessages
     {
+        public List<string> Error = new List<string>();
         public List<string> Warn = new List<string>();
         public List<string> Info = new List<string>();
         public List<string> Debug = new List<string>();

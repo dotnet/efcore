@@ -131,32 +131,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
         }
 
-        public static void ReportInformation<TState>(
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void LogInformation(
             [NotNull] this ILogger logger,
             RelationalEventId eventId,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, string> formatter)
+            [NotNull] Func<string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogReported<object>(
-                    LogLevel.Information,
-                    (int)eventId,
-                    state,
-                    null,
-                    (s, _) => formatter((TState)s));
-            }
-        }
-
-        public static void ReportDebug<TState>(
-            [NotNull] this ILogger logger,
-            RelationalEventId eventId,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, string> formatter)
-        {
-            if (logger.IsEnabled(LogLevel.Debug))
-            {
-                logger.LogReported<object>(LogLevel.Debug, (int)eventId, state, null, (s, _) => formatter((TState)s));
+                logger.Log<object>(LogLevel.Information, (int)eventId, null, null, (_, __) => formatter());
             }
         }
 
