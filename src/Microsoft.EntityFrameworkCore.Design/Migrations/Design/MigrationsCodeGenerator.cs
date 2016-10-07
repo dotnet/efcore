@@ -37,7 +37,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] IModel model);
 
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IEnumerable<MigrationOperation> operations)
-            => GetAnnotationNamespaces(GetAnnotatables(operations));
+            => operations.OfType<ColumnOperation>().SelectMany(GetColumnNamespaces)
+                .Concat(operations.OfType<CreateTableOperation>().SelectMany(o => o.Columns).SelectMany(GetColumnNamespaces))
+                .Concat(GetAnnotationNamespaces(GetAnnotatables(operations)));
+
+        private static IEnumerable<string> GetColumnNamespaces(ColumnOperation columnOperation)
+        {
+            yield return columnOperation.ClrType.Namespace;
+
+            var alterColumnOperation = columnOperation as AlterColumnOperation;
+            if (alterColumnOperation?.OldColumn != null)
+            {
+                yield return alterColumnOperation.OldColumn.ClrType.Namespace;
+            }
+        }
 
         private IEnumerable<IAnnotatable> GetAnnotatables(IEnumerable<MigrationOperation> operations)
         {
@@ -69,8 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
-            => GetAnnotationNamespaces(GetAnnotatables(model));
-
+            => model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties().Select(p => p.ClrType.Namespace))
+                .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
+        
         private IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
         {
             yield return model;

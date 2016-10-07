@@ -4,7 +4,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -13,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
@@ -31,12 +34,28 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
             var migrationCode = generator.GenerateMigration(
                 "MyNamespace",
                 "MyMigration",
-                new[]
+                new MigrationOperation[]
                 {
                     new SqlOperation
                     {
                         Sql = "-- TEST",
                         ["Some:EnumValue"] = RegexOptions.Multiline
+                    },
+                    new AlterColumnOperation
+                    {
+                        Name = "C2",
+                        Table = "T1",
+                        ClrType = typeof(Database),
+                        OldColumn = new ColumnOperation
+                        {
+                            ClrType = typeof(Property)
+                        }
+                    },
+                    new AddColumnOperation
+                    {
+                        Name = "C3",
+                        Table = "T1",
+                        ClrType = typeof(PropertyEntry)
                     }
                 },
                 new MigrationOperation[0]);
@@ -44,6 +63,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                 @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
@@ -54,6 +76,17 @@ namespace MyNamespace
         {
             migrationBuilder.Sql(""-- TEST"")
                 .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
+
+            migrationBuilder.AlterColumn<Database>(
+                name: ""C2"",
+                table: ""T1"",
+                nullable: false,
+                oldClrType: typeof(Property));
+
+            migrationBuilder.AddColumn<PropertyEntry>(
+                name: ""C3"",
+                table: ""T1"",
+                nullable: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -104,7 +137,7 @@ namespace MyNamespace
                     BuildReference.ByName("System.Text.RegularExpressions"),
 #else
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                    BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+                    BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
 #endif
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.FunctionalTests", depContextAssembly: GetType().GetTypeInfo().Assembly),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
@@ -125,7 +158,7 @@ namespace MyNamespace
 
             Assert.Equal("20150511161616_MyMigration", migration.GetId());
 
-            Assert.Equal(1, migration.UpOperations.Count);
+            Assert.Equal(3, migration.UpOperations.Count);
             Assert.Empty(migration.DownOperations);
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
@@ -139,17 +172,22 @@ namespace MyNamespace
                 new CSharpMigrationOperationGenerator(codeHelper),
                 new CSharpSnapshotGenerator(codeHelper));
 
+            var model = new Model { ["Some:EnumValue"] = RegexOptions.Multiline };
+            var entityType = model.AddEntityType("Cheese");
+            entityType.AddProperty("Pickle", typeof(StringBuilder));
+
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
                 typeof(MyContext),
                 "MySnapshot",
-                new Model { ["Some:EnumValue"] = RegexOptions.Multiline });
+                model);
             Assert.Equal(@"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.FunctionalTests.Migrations;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
@@ -161,13 +199,20 @@ namespace MyNamespace
         {
             modelBuilder
                 .HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
+
+            modelBuilder.Entity(""Cheese"", b =>
+                {
+                    b.Property<StringBuilder>(""Pickle"");
+
+                    b.ToTable(""Cheese"");
+                });
         }
     }
 }
 ", modelSnapshotCode);
 
             var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
-            Assert.Empty(snapshot.Model.GetEntityTypes());
+            Assert.Equal(1, snapshot.Model.GetEntityTypes().Count());
         }
 
         [Fact]
