@@ -1,104 +1,91 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    /// <summary>
-    ///     <para>
-    ///         A command to be executed against a relational database.
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    public interface IRelationalCommand
+    public static class RelationalCommandExtensions
     {
-        /// <summary>
-        ///     Gets the command text to be executed.
-        /// </summary>
-        string CommandText { get; }
-
-        /// <summary>
-        ///     Gets the parameters for the command.
-        /// </summary>
-        IReadOnlyList<IRelationalParameter> Parameters { get; }
-
         /// <summary>
         ///     Executes the command with no results.
         /// </summary>
+        /// <param name="command"> The command to be executed. </param>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
         /// <returns> The number of rows affected. </returns>
-        int ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues);
+        public static int ExecuteNonQuery(
+            [NotNull] this IRelationalCommand command,
+            [NotNull] IRelationalConnection connection)
+            => command.ExecuteNonQuery(connection, parameterValues: null);
 
         /// <summary>
         ///     Asynchronously executes the command with no results.
         /// </summary>
+        /// <param name="command"> The command to be executed. </param>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
         /// </returns>
-        Task<int> ExecuteNonQueryAsync(
+        public static Task<int> ExecuteNonQueryAsync(
+            [NotNull] this IRelationalCommand command,
             [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default(CancellationToken))
+            => command.ExecuteNonQueryAsync(connection, parameterValues: null, cancellationToken: cancellationToken);
 
         /// <summary>
         ///     Executes the command with a single scalar result.
         /// </summary>
+        /// <param name="command"> The command to be executed. </param>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
         /// <returns> The result of the command. </returns>
-        object ExecuteScalar(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues);
+        public static object ExecuteScalar(
+            [NotNull] this IRelationalCommand command,
+            [NotNull] IRelationalConnection connection)
+            => command.ExecuteScalar(connection, parameterValues: null);
 
         /// <summary>
         ///     Asynchronously executes the command with a single scalar result.
         /// </summary>
+        /// <param name="command"> The command to be executed. </param>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
-        Task<object> ExecuteScalarAsync(
+        public static Task<object> ExecuteScalarAsync(
+            [NotNull] this IRelationalCommand command,
             [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default(CancellationToken))
+            => command.ExecuteScalarAsync(connection, parameterValues: null, cancellationToken: cancellationToken);
 
         /// <summary>
         ///     Executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
+        /// <param name="command"> The command to be executed. </param>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
         /// <returns> The result of the command. </returns>
-        RelationalDataReader ExecuteReader(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues);
+        public static RelationalDataReader ExecuteReader(
+            [NotNull] this IRelationalCommand command,
+            [NotNull] IRelationalConnection connection)
+            => command.ExecuteReader(connection, parameterValues: null);
 
         /// <summary>
         ///     Asynchronously executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
+        /// <param name="command"> The command to be executed. </param>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
-        Task<RelationalDataReader> ExecuteReaderAsync(
+        public static Task<RelationalDataReader> ExecuteReaderAsync(
+            [NotNull] this IRelationalCommand command,
             [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default(CancellationToken))
+            => command.ExecuteReaderAsync(connection, parameterValues: null, cancellationToken: cancellationToken);
     }
 }

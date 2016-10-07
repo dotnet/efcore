@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="Extensions\DbCommandLogData.cs" />
     <Compile Include="Extensions\DbParameterLogData.cs" />
+    <Compile Include="Extensions\RelationalCommandExtensions.cs" />
     <Compile Include="Extensions\RelationalExpressionExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />

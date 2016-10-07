@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommandBuilderFactory(
-            [NotNull] ISensitiveDataLogger<RelationalCommandBuilderFactory> logger,
+            [NotNull] ISensitiveDataLogger<IRelationalCommandBuilderFactory> logger,
             [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] IRelationalTypeMapper typeMapper)
         {

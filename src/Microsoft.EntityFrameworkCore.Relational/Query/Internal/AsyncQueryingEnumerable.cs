@@ -110,8 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             = await relationalCommand.ExecuteReaderAsync(
                                 _queryingEnumerable._relationalQueryContext.Connection,
                                 _queryingEnumerable._relationalQueryContext.ParameterValues,
-                                manageConnection: false,
-                                cancellationToken: cancellationToken);
+                                cancellationToken);
 
                         _dbDataReader = _dataReader.DbDataReader;
                         _queryingEnumerable._shaperCommandContext.NotifyReaderCreated(_dbDataReader);
