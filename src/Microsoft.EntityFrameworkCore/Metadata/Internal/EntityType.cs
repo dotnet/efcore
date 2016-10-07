@@ -1639,6 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         #region Explicit interface implementations
 
         IModel ITypeBase.Model => Model;
+        IModel IEntityType.Model => Model;
         IMutableModel IMutableTypeBase.Model => Model;
         IMutableModel IMutableEntityType.Model => Model;
         IEntityType IEntityType.BaseType => _baseType;

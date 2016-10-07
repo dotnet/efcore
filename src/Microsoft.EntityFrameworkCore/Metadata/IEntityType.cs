@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
@@ -102,5 +103,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The properties defined on this entity. </returns>
         IEnumerable<IProperty> GetProperties();
+
+        /// <summary>
+        ///     Gets the model that this type belongs to.
+        /// </summary>
+        new IModel Model { get; } // Defined here to maintain binary compat with 1.0
+
+        /// <summary>
+        ///     Gets the name of this type.
+        /// </summary>
+        new string Name { get; } // Defined here to maintain binary compat with 1.0
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the CLR class that is used to represent instances of this type. Returns null if the type does not have a
+        ///         corresponding CLR class (known as a shadow type).
+        ///     </para>
+        ///     <para>
+        ///         Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
+        ///         Therefore, shadow types will only exist in migration model snapshots, etc.
+        ///     </para>
+        /// </summary>
+        new Type ClrType { get; } // Defined here to maintain binary compat with 1.0
     }
 }
