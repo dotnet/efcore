@@ -707,6 +707,47 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Key_property_is_not_used_for_FK_when_set_by_annotation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Parent>();
+            modelBuilder.Entity<Child>();
+            var toy = modelBuilder.Entity<Toy>();
+
+            Assert.False(toy.Metadata.GetForeignKeys().Any(fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow))));
+
+            Validate(modelBuilder);
+        }
+
+        public class Parent
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int IdRow { get; set; }
+            public string Name { get; set; }
+
+            public ICollection<Child> Children { get; set; }
+        }
+
+        public class Child
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int IdRow { get; set; }
+            public string Name { get; set; }
+            public ICollection<Toy> Toys { get; set; }
+        }
+
+        public class Toy
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int IdRow { get; set; }
+            public string Name { get; set; }
+        }
+
+        [Fact]
         public virtual ModelBuilder Timestamp_takes_precedence_over_MaxLength()
         {
             var modelBuilder = CreateModelBuilder();

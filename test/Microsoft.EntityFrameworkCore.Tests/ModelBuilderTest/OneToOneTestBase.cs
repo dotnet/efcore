@@ -2121,8 +2121,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentKey = dependentType.FindPrimaryKey();
 
                 modelBuilder
-                    .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard)
-                    .HasForeignKey<Moostard>(e => new { e.Id1, e.Id2 });
+                    .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard);
 
                 var fk = dependentType.GetForeignKeys().Single();
 
@@ -2164,8 +2163,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentKey = dependentType.FindPrimaryKey();
 
                 modelBuilder
-                    .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard)
-                    .HasForeignKey<Moostard>(e => new { e.Id1, e.Id2 });
+                    .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard);
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);

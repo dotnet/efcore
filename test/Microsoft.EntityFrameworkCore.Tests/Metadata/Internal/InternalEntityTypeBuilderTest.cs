@@ -984,11 +984,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 .PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             var shadowProperty = entityBuilder.Property("Shadow", typeof(Guid), ConfigurationSource.Convention);
-            Assert.NotNull(shadowConfig(entityBuilder, shadowProperty.Metadata));
 
             var key = entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name, shadowProperty.Metadata.Name }, ConfigurationSource.Convention);
             Assert.NotNull(key);
 
+            Assert.NotNull(shadowConfig(entityBuilder, shadowProperty.Metadata));
             Assert.Equal(ConfigurationSource.Convention, entityBuilder.RemoveKey(key.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(1, entityBuilder.Metadata.GetProperties().Count(p => p.Name == shadowProperty.Metadata.Name));

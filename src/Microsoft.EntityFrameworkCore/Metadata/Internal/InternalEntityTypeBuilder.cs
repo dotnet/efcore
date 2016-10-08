@@ -92,8 +92,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                var detachedRelationships = key.GetReferencingForeignKeys().ToList()
-                    .Select(DetachRelationship).ToList();
+                var referencingForeignKeys = key.GetReferencingForeignKeys().ToList();
+                if (referencingForeignKeys.Count == 0)
+                {
+                    continue;
+                }
+
+                var detachedRelationships = referencingForeignKeys.Select(DetachRelationship).ToList();
                 RemoveKey(key, ConfigurationSource.DataAnnotation);
                 foreach (var relationshipSnapshot in detachedRelationships)
                 {

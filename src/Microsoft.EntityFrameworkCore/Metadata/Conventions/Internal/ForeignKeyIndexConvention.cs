@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool IForeignKeyUniquenessConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+        InternalRelationshipBuilder IForeignKeyUniquenessConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            return true;
+            return relationshipBuilder;
         }
 
         /// <summary>

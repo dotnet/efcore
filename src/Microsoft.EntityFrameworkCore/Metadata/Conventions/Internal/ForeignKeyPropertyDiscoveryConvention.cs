@@ -13,8 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ForeignKeyPropertyDiscoveryConvention
-        : IForeignKeyConvention, INavigationConvention, IPropertyConvention, IPrincipalEndConvention, IPropertyFieldChangedConvention
+    public class ForeignKeyPropertyDiscoveryConvention :
+        IForeignKeyConvention,
+        INavigationConvention,
+        IPropertyConvention,
+        IPrincipalEndConvention,
+        IPropertyFieldChangedConvention,
+        IForeignKeyUniquenessConvention,
+        IKeyConvention,
+        IKeyRemovedConvention
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -233,12 +240,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            var primaryKeyProperties = dependentEntityType.FindPrimaryKey()?.Properties;
-            if (primaryKeyProperties != null
-                && primaryKeyProperties.Count == foreignKeyProperties.Length
-                && foreignKeyProperties.All(property => primaryKeyProperties.Contains(property)))
+            foreach (var key in dependentEntityType.GetKeys())
             {
-                return null;
+                if (key.Properties.All(property => foreignKeyProperties.Contains(property))
+                    && (!foreignKey.IsUnique || key.IsPrimaryKey()))
+                {
+                    return null;
+                }
             }
 
             // Don't match with only Id since it is ambiguous. PK in dependent entity used as FK is matched elsewhere
@@ -311,6 +319,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Apply(propertyBuilder);
             return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        InternalRelationshipBuilder IForeignKeyUniquenessConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+            => Apply(relationshipBuilder);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
+        {
+            var key = keyBuilder.Metadata;
+            foreach (var foreignKey in key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList())
+            {
+                if (key.Properties.All(p => foreignKey.Properties.Contains(p))
+                    && (!foreignKey.IsUnique || foreignKey.DeclaringEntityType.BaseType != null))
+                {
+                    foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>)null, ConfigurationSource.Convention);
+                }
+            }
+
+            return keyBuilder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
+        {
+            foreach (var foreignKey in key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList())
+            {
+                if (!foreignKey.IsUnique || foreignKey.DeclaringEntityType.BaseType != null)
+                {
+                    Apply(foreignKey.Builder);
+                }
+            }
         }
     }
 }

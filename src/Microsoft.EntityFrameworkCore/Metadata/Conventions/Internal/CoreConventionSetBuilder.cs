@@ -66,8 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var keyConvention = new KeyConvention();
             conventionSet.PrimaryKeySetConventions.Add(keyConvention);
 
+            conventionSet.KeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.KeyAddedConventions.Add(foreignKeyIndexConvention);
 
+            conventionSet.KeyRemovedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.KeyRemovedConventions.Add(foreignKeyIndexConvention);
 
             var cascadeDeleteConvention = new CascadeDeleteConvention();
@@ -80,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 
+            conventionSet.ForeignKeyUniquenessConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ForeignKeyUniquenessConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());

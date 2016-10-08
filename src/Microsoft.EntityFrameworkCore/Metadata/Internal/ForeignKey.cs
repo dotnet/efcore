@@ -362,16 +362,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetIsUnique(bool unique, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetIsUnique(bool unique, ConfigurationSource configurationSource, bool runConventions = true)
         {
             var isChanging = IsUnique != unique;
             _isUnique = unique;
             UpdateIsUniqueConfigurationSource(configurationSource);
 
-            if (isChanging)
+            if (isChanging
+                && runConventions)
             {
-                DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder);
+                return DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata;
             }
+
+            return this;
         }
 
         private bool DefaultIsUnique => false;

@@ -897,7 +897,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (Metadata.IsUnique == unique)
             {
-                Metadata.SetIsUnique(unique, configurationSource);
+                Metadata.SetIsUnique(unique, configurationSource, runConventions);
 
                 return this;
             }
@@ -923,8 +923,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            builder.Metadata.SetIsUnique(unique, configurationSource);
-            Metadata.DeclaringEntityType.FindIndex(Metadata.Properties)?.SetIsUnique(unique, configurationSource);
+            builder = builder.Metadata.SetIsUnique(unique, configurationSource, runConventions)?.Builder;
+            builder?.Metadata.DeclaringEntityType.FindIndex(builder.Metadata.Properties)?.SetIsUnique(unique, configurationSource);
             return builder;
         }
 

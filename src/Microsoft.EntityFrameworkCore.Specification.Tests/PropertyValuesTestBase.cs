@@ -2025,7 +2025,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 modelBuilder.Entity<BuildingDetail>(b =>
                     {
                         b.HasKey(d => d.BuildingId);
-                        b.HasOne(d => d.Building).WithOne();
+                        b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
                     });
 
                 modelBuilder.Entity<Building>(b =>

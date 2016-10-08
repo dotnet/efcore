@@ -31,6 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(model, nameof(model));
 
             _typeOrName = name;
+#if DEBUG
+            DebugName = name;
+#endif
         }
 
         /// <summary>
@@ -43,6 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(model, nameof(model));
 
             _typeOrName = clrType;
+#if DEBUG
+            DebugName = clrType.DisplayName();
+#endif
         }
 
         private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)
@@ -50,6 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Model = model;
             _configurationSource = configurationSource;
         }
+
+#if DEBUG
+        // For breakpoint conditions
+        private string DebugName { get; }
+#endif
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

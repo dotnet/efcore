@@ -943,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
                 {
                     Assert.NotNull(b);
                     relationshipBuilder = b;
-                    return true;
+                    return b;
                 });
             conventions.ForeignKeyUniquenessConventions.Add(convention.Object);
 
@@ -951,7 +951,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.Same(relationshipBuilder, b);
-                    return false;
+                    return null;
                 });
             conventions.ForeignKeyUniquenessConventions.Add(nullConvention.Object);
 
@@ -959,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.False(true);
-                    return false;
+                    return b;
                 });
             conventions.ForeignKeyUniquenessConventions.Add(extraConvention.Object);
 
