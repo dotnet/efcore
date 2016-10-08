@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
+using Xunit.Abstractions;
 
 #if NETCOREAPP1_0
 using System.Threading;
@@ -12,9 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>
     {
-        public QuerySqliteTest(NorthwindQuerySqliteFixture fixture)
+        public QuerySqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         public override void Take_Skip()

@@ -2588,6 +2588,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void Query_source_materialization_bug_4547()
         {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from e3 in context.LevelThree.ToList()
+                               join e1 in context.LevelOne.ToList()
+                               on
+                               (int?)e3.Id
+                               equals
+                               (
+                                   from subQuery2 in context.LevelTwo.ToList()
+                                   join subQuery3 in context.LevelThree.ToList()
+                                   on
+                                   subQuery2 != null ? (int?)subQuery2.Id : null
+                                   equals
+                                   subQuery3.Level2_Optional_Id
+                                   into
+                                   grouping
+                                   from subQuery3 in grouping.DefaultIfEmpty()
+                                   select subQuery3 != null ? (int?)subQuery3.Id : null
+                               ).FirstOrDefault()
+                               select e1.Id).ToList();
+
+            }
+
+            ClearLog();
+
             using (var context = CreateContext())
             {
                 var query = from e3 in context.LevelThree
@@ -2610,6 +2636,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             select e1.Id;
 
                 var result = query.ToList();
+
+                Assert.Equal(expected, result);
             }
         }
 

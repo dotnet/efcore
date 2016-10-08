@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
-        private static Expression TryRemoveNullCheck(ConditionalExpression node)
+        private Expression TryRemoveNullCheck(ConditionalExpression node)
         {
             var binaryTest = node.Test as BinaryExpression;
 
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var testExpression = isLeftNullConstant ? binaryTest.Right : binaryTest.Left;
             var resultExpression = binaryTest.NodeType == ExpressionType.Equal ? node.IfFalse : node.IfTrue;
 
-            var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor();
+            var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor(_queryModelVisitor.QueryCompilationContext.Model);
 
             return nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression)
                 ? resultExpression
@@ -350,8 +350,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private class NullCheckRemovalTestingVisitor : ExpressionVisitorBase
         {
             private IQuerySource _querySource;
+            private IModel _model;
             private string _propertyName;
             private bool? _canRemoveNullCheck;
+
+            public NullCheckRemovalTestingVisitor(IModel model)
+            {
+                _model = model;
+            }
 
             public bool CanRemoveNullCheck(Expression testExpression, Expression resultExpression)
             {
@@ -404,6 +410,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             _querySource = querySourceCaller.ReferencedQuerySource;
                             _propertyName = (string)propertyNameExpression.Value;
+                            if (_model.FindEntityType(_querySource.ItemType)?.FindProperty(_propertyName)?.IsPrimaryKey() ?? false)
+                            {
+                                _propertyName = null;
+                            }
                         }
                     }
                 }

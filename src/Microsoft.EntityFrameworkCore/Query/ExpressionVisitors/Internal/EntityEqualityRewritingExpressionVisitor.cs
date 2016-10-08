@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -58,32 +59,38 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
                 var constantExpression = newBinaryExpression.Left.RemoveConvert() as ConstantExpression;
-
-                if (constantExpression != null
-                    && constantExpression.Value == null)
-                {
-                    return newBinaryExpression;
-                }
+                var isLeftNullConstant = constantExpression != null && constantExpression.Value == null;
 
                 constantExpression = newBinaryExpression.Right.RemoveConvert() as ConstantExpression;
+                var isRightNullConstant = constantExpression != null && constantExpression.Value == null;
 
-                if (constantExpression != null
-                    && constantExpression.Value == null)
+                if (isLeftNullConstant && isRightNullConstant)
                 {
                     return newBinaryExpression;
                 }
 
-                var entityType = _model.FindEntityType(newBinaryExpression.Left.Type);
+                var isNullComparison = isLeftNullConstant || isRightNullConstant;
+                var nonNullExpression = isLeftNullConstant ? newBinaryExpression.Right : newBinaryExpression.Left;
+                // If a navigation being compared to null then don't rewrite
+                if (isNullComparison
+                    && !(nonNullExpression is QuerySourceReferenceExpression))
+                {
+                    return newBinaryExpression;
+                }
+
+                var entityType = _model.FindEntityType(nonNullExpression.Type);
 
                 if (entityType != null)
                 {
                     var primaryKeyProperties = entityType.FindPrimaryKey().Properties;
 
-                    var newLeftExpression
-                        = CreateKeyAccessExpression(newBinaryExpression.Left, primaryKeyProperties);
+                    var newLeftExpression = isLeftNullConstant
+                        ? Expression.Constant(null, typeof(object))
+                        : CreateKeyAccessExpression(newBinaryExpression.Left, primaryKeyProperties, isNullComparison);
 
-                    var newRightExpression
-                        = CreateKeyAccessExpression(newBinaryExpression.Right, primaryKeyProperties);
+                    var newRightExpression = isRightNullConstant
+                        ? Expression.Constant(null, typeof(object))
+                        : CreateKeyAccessExpression(newBinaryExpression.Right, primaryKeyProperties, isNullComparison);
 
                     return Expression.MakeBinary(newBinaryExpression.NodeType, newLeftExpression, newRightExpression);
                 }
@@ -92,9 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return newBinaryExpression;
         }
 
-        private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)
+        private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties, bool nullComparison)
         {
-            return properties.Count == 1
+            // If comparing with null then we need only first PK property
+            return (properties.Count == 1) || nullComparison
                 ? EntityQueryModelVisitor.CreatePropertyExpression(target, properties[0])
                 : Expression.New(
                     CompositeKey.CompositeKeyCtor,

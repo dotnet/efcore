@@ -102,6 +102,28 @@ WHERE [c].[CustomerID] = N'ANATR'",
                 Sql);
         }
 
+        public override void Entity_equality_null()
+        {
+            base.Entity_equality_null();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NULL",
+                Sql);
+        }
+
+        public override void Entity_equality_not_null()
+        {
+            base.Entity_equality_not_null();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NOT NULL",
+                Sql);
+        }
+
         public override void Queryable_reprojection()
         {
             base.Queryable_reprojection();
@@ -6245,7 +6267,63 @@ FROM (
         FROM [Customers] AS [c0]
         WHERE [c0].[City] = N'London'
     ) AS [t0] ON 1 = 1
-) AS [t1]",
+) AS [t1]
+WHERE [t1].[CustomerID] IS NOT NULL",
+                Sql);
+        }
+
+        public override void DefaultIfEmpty_in_subquery()
+        {
+            base.DefaultIfEmpty_in_subquery();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [t1].[OrderID]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [t0].*
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty0]
+    LEFT JOIN (
+        SELECT [o0].*
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = [c].[CustomerID]
+    ) AS [t0] ON 1 = 1
+) AS [t1]
+WHERE [t1].[OrderID] IS NOT NULL",
+                Sql);
+        }
+
+        public override void DefaultIfEmpty_in_subquery_nested()
+        {
+            base.DefaultIfEmpty_in_subquery_nested();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [t1].[OrderID], [t4].[OrderDate]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [t0].*
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty0]
+    LEFT JOIN (
+        SELECT [o0].*
+        FROM [Orders] AS [o0]
+        WHERE [o0].[OrderID] > 11000
+    ) AS [t0] ON 1 = 1
+) AS [t1]
+CROSS APPLY (
+    SELECT [t3].*
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty2]
+    LEFT JOIN (
+        SELECT [o2].*
+        FROM [Orders] AS [o2]
+        WHERE [o2].[CustomerID] = [c].[CustomerID]
+    ) AS [t3] ON 1 = 1
+) AS [t4]
+WHERE (([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL) AND ([t1].[OrderID] IS NOT NULL AND [t4].[OrderID] IS NOT NULL)",
                 Sql);
         }
 

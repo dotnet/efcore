@@ -68,38 +68,52 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
         {
+
+
+            var leftConstantExpression = node.Left.RemoveConvert() as ConstantExpression;
+            var isLeftNullConstant = leftConstantExpression != null && leftConstantExpression.Value == null;
+
+            var rightConstantExpression = node.Right.RemoveConvert() as ConstantExpression;
+            var isRightNullConstant = rightConstantExpression != null && rightConstantExpression.Value == null;
+
+            if (isLeftNullConstant || isRightNullConstant)
+            {
+                var nonNullExpression = isLeftNullConstant ? node.Right : node.Left;
+
+                var methodCallExpression = nonNullExpression as MethodCallExpression;
+                if (methodCallExpression != null)
+                {
+                    if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                    {
+                        var firstArgument = methodCallExpression.Arguments[0];
+                        var visitedArgument = Visit(firstArgument);
+                        if (visitedArgument.Type == typeof(ValueBuffer))
+                        {
+                            var nullCheck = ValueBufferNullComparisonCheck(visitedArgument);
+                            var propertyAccessExpression = Visit(nonNullExpression);
+
+                            return Expression.MakeBinary(
+                                node.NodeType,
+                                Expression.Condition(
+                                    nullCheck,
+                                    propertyAccessExpression,
+                                    Expression.Constant(null, propertyAccessExpression.Type)),
+                                Expression.Constant(null));
+                        }
+                    }
+                }
+            }
+
             var newLeft = Visit(node.Left);
             var newRight = Visit(node.Right);
 
             if (newLeft.Type == typeof(ValueBuffer))
             {
-                if (node.NodeType == ExpressionType.Equal
-                    || node.NodeType == ExpressionType.NotEqual)
-                {
-                    var rightConstantExpression = newRight as ConstantExpression;
-                    if (rightConstantExpression != null
-                        && rightConstantExpression.Value == null)
-                    {
-                        return ValueBufferNullCheck(newLeft, node.NodeType == ExpressionType.Equal);
-                    }
-                }
-
                 newLeft = _queryModelVisitor.BindReadValueMethod(node.Left.Type, newLeft, 0);
             }
 
             if (newRight.Type == typeof(ValueBuffer))
             {
-                if (node.NodeType == ExpressionType.Equal
-                    || node.NodeType == ExpressionType.NotEqual)
-                {
-                    var leftConstantExpression = newLeft as ConstantExpression;
-                    if (leftConstantExpression != null
-                        && leftConstantExpression.Value == null)
-                    {
-                        return ValueBufferNullCheck(newRight, node.NodeType == ExpressionType.Equal);
-                    }
-                }
-
                 newRight = _queryModelVisitor.BindReadValueMethod(node.Right.Type, newRight, 0);
             }
 
@@ -108,16 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node.Update(newLeft, newConversion, newRight);
         }
 
-        private static Expression ValueBufferNullCheck(Expression valueBufferExpression, bool equality)
-        {
-            var equalsMethod = typeof(ValueBuffer).GetRuntimeMethod(nameof(ValueBuffer.Equals), new[] { typeof(object) });
-            var equalsExpression = Expression.Call(
+        private Expression ValueBufferNullComparisonCheck(Expression valueBufferExpression) => Expression.Not(
+            Expression.MakeMemberAccess(
                 valueBufferExpression,
-                equalsMethod,
-                Expression.Constant(null, typeof(object)));
-
-            return equality ? (Expression)equalsExpression : Expression.Not(equalsExpression);
-        }
+                typeof(ValueBuffer).GetRuntimeProperty(nameof(ValueBuffer.IsEmpty))));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
