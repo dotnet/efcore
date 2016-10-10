@@ -9,3 +9,7 @@ using System.Resources;
 [assembly: AssemblyCompany("Microsoft Corporation.")]
 [assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
 [assembly: AssemblyProduct("Microsoft EntityFramework Core")]
+
+#if CSPROJ
+[assembly: AssemblyVersion("1.0.1.0")]
+#endif
