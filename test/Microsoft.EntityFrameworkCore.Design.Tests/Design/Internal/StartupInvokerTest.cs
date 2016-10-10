@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Design.TestUtilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -156,6 +157,26 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
         {
             public void ConfigureDesignTimeServices(IServiceCollection services)
                 => services.AddSingleton(new TestService("NotStartup"));
+        }
+
+        [Fact]
+        public void ConfigureDesignTimeServices_works_on_IDesignTimeServices_implementations()
+        {
+            var services = new ServiceCollection();
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(DesignTimeServices)),
+                "Irrelevant");
+
+            startup.ConfigureDesignTimeServices(services);
+
+            var service = services.BuildServiceProvider().GetRequiredService<TestService>();
+            Assert.Equal("DesignTimeServices", service.Value);
+        }
+
+        private class DesignTimeServices : IDesignTimeServices
+        {
+            public void ConfigureDesignTimeServices(IServiceCollection services)
+                => services.AddSingleton(new TestService("DesignTimeServices"));
         }
 
         [Fact]

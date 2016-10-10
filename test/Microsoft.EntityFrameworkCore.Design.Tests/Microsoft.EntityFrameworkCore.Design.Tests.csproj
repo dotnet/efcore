@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Design\Internal\OperationLoggerTest.cs" />
     <Compile Include="TestUtilities\TestOperationReporter.cs" />
     <Compile Include="Design\Internal\StartupInvokerTest.cs" />
     <Compile Include="Design\OperationExecutorTest.cs" />

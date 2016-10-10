@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     public class StartupInvoker
     {
         private readonly Type _startupType;
+        private readonly Type _designTimeServicesType;
         private readonly string _environment;
         private readonly string _contentRootPath;
         private readonly string _startupAssemblyName;
@@ -54,6 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup"))
                 .Select(t => t.AsType())
                 .FirstOrDefault();
+
+            _designTimeServicesType = startupAssembly.GetLoadableDefinedTypes()
+                .Where(t => typeof(IDesignTimeServices).IsAssignableFrom(t.AsType())).Select(t => t.AsType())
+                .FirstOrDefault()
+                ?? _startupType;
         }
 
         /// <summary>
@@ -76,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IServiceCollection ConfigureDesignTimeServices([NotNull] IServiceCollection services)
-            => ConfigureDesignTimeServices(_startupType, services);
+            => ConfigureDesignTimeServices(_designTimeServicesType, services);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
