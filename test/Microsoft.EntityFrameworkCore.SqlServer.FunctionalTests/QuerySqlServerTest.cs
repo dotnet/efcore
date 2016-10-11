@@ -35,18 +35,10 @@ WHERE [e].[EmployeeID] = 1",
                 Sql);
         }
 
-        public void NotXunit()
-        {
-            Assert.Equal(default(ValueBuffer), default(ValueBuffer));
-        }
-
         public override void Project_to_int_array()
         {
             base.Project_to_int_array();
-
             
-
-
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[ReportsTo]
 FROM [Employees] AS [e]
