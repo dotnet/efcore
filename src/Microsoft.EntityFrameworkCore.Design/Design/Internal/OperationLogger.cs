@@ -4,6 +4,8 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -14,14 +16,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class OperationLogger : ILogger
     {
+        private readonly string _categoryName;
         private readonly IOperationReporter _reporter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public OperationLogger([NotNull] IOperationReporter reporter)
+        public OperationLogger([NotNull] string categoryName, [NotNull] IOperationReporter reporter)
         {
+            _categoryName = categoryName;
             _reporter = reporter;
         }
 
@@ -50,6 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Exception exception,
             Func<TState, Exception, string> formatter)
         {
+            // Only show SQL when verbose
+            if (_categoryName == typeof(RelationalCommandBuilderFactory).FullName
+                && eventId.Id == (int)RelationalEventId.ExecutedCommand)
+            {
+                logLevel = LogLevel.Debug;
+            }
+
             var message = GetMessage(state, exception, formatter);
             switch (logLevel)
             {
