@@ -489,5 +489,41 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             public int Id { get; set; }
         }
+
+        protected class CityViewModel
+        {
+            public int Id { get; set; }
+
+            public virtual ICollection<CitizenViewModel> People { get; set; }
+
+            public virtual ICollection<PoliceViewModel> Police { get; set; }
+
+            public virtual ICollection<DoctorViewModel> Medics { get; set; }
+        }
+
+        protected abstract class PersonBaseViewModel
+        {
+            public int Id { get; set; }
+
+            public int CityVMId { get; set; }
+
+            public virtual CityViewModel CityVM { get; set; }
+        }
+
+        protected class CitizenViewModel : PersonBaseViewModel
+        {
+        }
+
+        protected abstract class ServicePersonViewModel : PersonBaseViewModel
+        {
+        }
+
+        protected class DoctorViewModel : ServicePersonViewModel
+        {
+        }
+
+        protected class PoliceViewModel : ServicePersonViewModel
+        {
+        }
     }
 }

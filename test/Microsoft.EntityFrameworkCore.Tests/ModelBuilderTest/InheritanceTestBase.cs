@@ -515,6 +515,29 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<PersonBaseViewModel>();
+
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(PersonBaseViewModel)).GetForeignKeys());
+
+                var citizen = modelBuilder.Model.FindEntityType(typeof(CitizenViewModel));
+                var citizenNavigation = citizen.GetDeclaredNavigations().Single(n => n.Name == nameof(CitizenViewModel.CityVM));
+                Assert.Equal(nameof(CityViewModel.People), citizenNavigation.FindInverse().Name);
+
+                var doctor = modelBuilder.Model.FindEntityType(typeof(DoctorViewModel));
+                var doctorNavigation = doctor.GetDeclaredNavigations().Single(n => n.Name == nameof(CitizenViewModel.CityVM));
+                Assert.Equal(nameof(CityViewModel.Medics), doctorNavigation.FindInverse().Name);
+
+                var police = modelBuilder.Model.FindEntityType(typeof(PoliceViewModel));
+                var policeNavigation = police.GetDeclaredNavigations().Single(n => n.Name == nameof(CitizenViewModel.CityVM));
+                Assert.Equal(nameof(CityViewModel.Police), policeNavigation.FindInverse().Name);
+
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(CityViewModel)).GetForeignKeys());
+            }
+
+            [Fact]
             public virtual void Can_remove_objects_in_derived_type_which_was_set_using_data_annotation_while_setting_base_type_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
