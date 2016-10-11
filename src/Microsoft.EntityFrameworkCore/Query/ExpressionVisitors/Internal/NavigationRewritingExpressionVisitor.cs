@@ -509,13 +509,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var newObject = Visit(node.Object);
             var newArguments = node.Arguments.Select(Visit);
 
-            if (newObject != node.Object
-                && newObject.Type.IsNullableType()
-                && newObject is NullConditionalExpression)
+            if (newObject != node.Object)
             {
-                var newMethodCallExpression = node.Update(node.Object, newArguments);
+                var nullConditionalExpression = newObject as NullConditionalExpression;
 
-                return new NullConditionalExpression(newObject, node.Object, newMethodCallExpression);
+                if (nullConditionalExpression != null)
+                {
+                    var newMethodCallExpression = node.Update(nullConditionalExpression.AccessOperation, newArguments);
+
+                    return new NullConditionalExpression(newObject, node.Object, newMethodCallExpression);
+                }
             }
 
             return node.Update(newObject, newArguments);
@@ -929,9 +932,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private static Expression CreateKeyAccessExpression(
-            Expression target, IReadOnlyList<IProperty> properties, bool addNullCheck = false)
-        {
-            return properties.Count == 1
+            Expression target, IReadOnlyList<IProperty> properties, bool addNullCheck = false) 
+            => properties.Count == 1
                 ? CreatePropertyExpression(target, properties[0], addNullCheck)
                 : Expression.New(
                     CompositeKey.CompositeKeyCtor,
@@ -941,7 +943,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             .Select(p => Expression.Convert(CreatePropertyExpression(target, p, addNullCheck), typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
-        }
 
         private static readonly MethodInfo _propertyMethodInfo
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));

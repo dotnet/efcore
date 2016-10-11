@@ -149,6 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         ///     A textual representation of the <see cref="T:System.Linq.Expressions.Expression" />.
         /// </returns>
         public override string ToString()
-            => Caller.ToString() + "?" + AccessOperation.ToString().Substring(Caller.ToString().Length);
+            => $"(?{AccessOperation}?)"; // TODO: Improve this
     }
 }

@@ -31,6 +31,19 @@ ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
+        public override void Select_Where_Navigation_Contains()
+        {
+            base.Select_Where_Navigation_Contains();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE CHARINDEX(N'Sea', [o.Customer].[City]) > 0
+ORDER BY [o].[CustomerID]",
+            Sql);
+        }
+
         public override void Select_Where_Navigation_Deep()
         {
             base.Select_Where_Navigation_Deep();

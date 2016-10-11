@@ -34,6 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Select_Where_Navigation_Contains()
+        {
+            AssertQuery<Order>(
+                os => from o in os
+                      where o.Customer.City.Contains("Sea")
+                      select o,
+                entryCount: 14);
+        }
+
+        [ConditionalFact]
         public virtual async Task Select_Where_Navigation_Async()
         {
             using (var context = CreateContext())
