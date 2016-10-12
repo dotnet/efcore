@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
             GetOrCreateShared(name, true, false, initializeDatabase);
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
         private static string BaseDirectory => AppContext.BaseDirectory;
 #else
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;

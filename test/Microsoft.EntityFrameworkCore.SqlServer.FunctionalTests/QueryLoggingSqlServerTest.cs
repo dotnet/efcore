@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using System.Threading;
 #endif
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests

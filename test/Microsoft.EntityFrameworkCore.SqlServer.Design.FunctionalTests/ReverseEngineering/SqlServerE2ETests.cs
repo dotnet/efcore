@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 #endif
@@ -304,7 +304,7 @@ CREATE TABLE PrimaryKeyWithSequence (
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.Data.Common"),
             BuildReference.ByName("System.Linq.Expressions"),
