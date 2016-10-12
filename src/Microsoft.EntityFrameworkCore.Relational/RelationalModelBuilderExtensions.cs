@@ -44,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-                [NotNull] this ModelBuilder modelBuilder,
-                [NotNull] string name,
-                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.HasSequence(name, null, builderAction);
 
         /// <summary>
@@ -107,10 +107,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-                [NotNull] this ModelBuilder modelBuilder,
-                [NotNull] Type clrType,
-                [NotNull] string name,
-                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] Type clrType,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.HasSequence(clrType, name, null, builderAction);
 
         /// <summary>
@@ -172,9 +172,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence<T>(
-                [NotNull] this ModelBuilder modelBuilder,
-                [NotNull] string name,
-                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.HasSequence<T>(name, null, builderAction);
 
         /// <summary>

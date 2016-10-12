@@ -44,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
             where TReferencedEntity : class
-        => (ReferenceReferenceBuilder<TEntity, TReferencedEntity>)((ReferenceReferenceBuilder)builder).ForSqliteHasConstraintName(name);
+            => (ReferenceReferenceBuilder<TEntity, TReferencedEntity>)((ReferenceReferenceBuilder)builder).ForSqliteHasConstraintName(name);
     }
 }

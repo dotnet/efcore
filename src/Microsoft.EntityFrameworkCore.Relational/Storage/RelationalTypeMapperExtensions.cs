@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value"> The object to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMappingForValue(
-                [CanBeNull] this IRelationalTypeMapper typeMapper,
-                [CanBeNull] object value)
+            [CanBeNull] this IRelationalTypeMapper typeMapper,
+            [CanBeNull] object value)
             => (value == null)
                || (value == DBNull.Value)
                || (typeMapper == null)

@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Equal(
                                     joinClause.OuterKeySelector,
                                     joinClause.InnerKeySelector));
-                    
+
                     if (predicate != null)
                     {
                         QueriesBySource.Remove(joinClause);
@@ -769,7 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     previousSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
 
                                     QueriesBySource.Remove(joinClause);
-                                    
+
                                     operatorToFlatten = LinqOperatorProvider.Join;
                                 }
                             }
@@ -1348,7 +1348,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual Expression BindMemberToOuterQueryParameter(
-                [NotNull] MemberExpression memberExpression)
+            [NotNull] MemberExpression memberExpression)
             => base.BindMemberExpression(
                 memberExpression,
                 null,
@@ -1376,10 +1376,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private TResult BindMethodCallExpression<TResult>(
-                MethodCallExpression methodCallExpression,
-                IQuerySource querySource,
-                Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
-                bool bindSubQueries)
+            MethodCallExpression methodCallExpression,
+            IQuerySource querySource,
+            Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
+            bool bindSubQueries)
             => base.BindMethodCallExpression(
                 methodCallExpression,
                 querySource,

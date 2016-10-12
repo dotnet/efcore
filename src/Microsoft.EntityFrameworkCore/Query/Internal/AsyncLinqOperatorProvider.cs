@@ -81,13 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             IOrderedAsyncEnumerable<TResult> IOrderedAsyncEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
-                    Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
+                Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
                 => !descending
                     ? Results.OrderBy(keySelector, comparer)
                     : Results.OrderByDescending(keySelector, comparer);
 
             IOrderedEnumerable<TResult> IOrderedEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
-                    Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
+                Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
                 => !descending
                     ? Results.ToEnumerable().OrderBy(keySelector, comparer)
                     : Results.ToEnumerable().OrderByDescending(keySelector, comparer);
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _InterceptExceptions<T>(
-                IAsyncEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
+            IAsyncEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
         /// <summary>
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IOrderedQueryable<TSource> _ToQueryable<TSource>(
-                IAsyncEnumerable<TSource> source, QueryContext queryContext)
+            IAsyncEnumerable<TSource> source, QueryContext queryContext)
             => new AsyncQueryableAdapter<TSource>(source, queryContext);
 
         private sealed class AsyncQueryableAdapter<T> : IOrderedQueryable<T>
@@ -362,9 +362,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
-                IAsyncEnumerable<TSource> source,
-                Func<TSource, IAsyncEnumerable<TCollection>> collectionSelector,
-                Func<TSource, TCollection, TResult> resultSelector)
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, IAsyncEnumerable<TCollection>> collectionSelector,
+            Func<TSource, TCollection, TResult> resultSelector)
             => source.SelectMany(collectionSelector, resultSelector);
 
         /// <summary>
@@ -380,11 +380,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
-                IAsyncEnumerable<TOuter> outer,
-                IAsyncEnumerable<TInner> inner,
-                Func<TOuter, TKey> outerKeySelector,
-                Func<TInner, TKey> innerKeySelector,
-                Func<TOuter, TInner, TResult> resultSelector)
+            IAsyncEnumerable<TOuter> outer,
+            IAsyncEnumerable<TInner> inner,
+            Func<TOuter, TKey> outerKeySelector,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, TInner, TResult> resultSelector)
             => outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
 
         /// <summary>
@@ -400,11 +400,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
-                IAsyncEnumerable<TOuter> outer,
-                IAsyncEnumerable<TInner> inner,
-                Func<TOuter, TKey> outerKeySelector,
-                Func<TInner, TKey> innerKeySelector,
-                Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+            IAsyncEnumerable<TOuter> outer,
+            IAsyncEnumerable<TInner> inner,
+            Func<TOuter, TKey> outerKeySelector,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
             => new GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult>(
                 outer, inner, outerKeySelector, innerKeySelector, resultSelector);
 
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         // ReSharper disable once InconsistentNaming
         public static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
-                [NotNull] IAsyncEnumerable<TSource> source, [NotNull] Func<TSource, TResult> selector)
+            [NotNull] IAsyncEnumerable<TSource> source, [NotNull] Func<TSource, TResult> selector)
             => new SelectAsyncEnumerable<TSource, TResult>(source, selector);
 
         private sealed class SelectAsyncEnumerable<TSource, TResult> : IAsyncEnumerable<TResult>
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
-                IAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
+            IAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.OrderBy(expression)
                 : source.OrderByDescending(expression);
@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
-                IOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
+            IOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.ThenBy(expression)
                 : source.ThenByDescending(expression);
@@ -798,9 +798,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
-                IAsyncEnumerable<TSource> source,
-                Func<TSource, TKey> keySelector,
-                Func<TSource, TElement> elementSelector)
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector)
             => new GroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
 
         internal sealed class GroupByAsyncEnumerable<TSource, TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
@@ -1157,9 +1157,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .ToList();
 
             return candidateMethods
-                       .SingleOrDefault(mi =>
-                           mi.GetParameters().Length == parameterCount + 2
-                           && mi.GetParameters().Last().ParameterType == typeof(CancellationToken))
+                .SingleOrDefault(mi =>
+                    mi.GetParameters().Length == parameterCount + 2
+                    && mi.GetParameters().Last().ParameterType == typeof(CancellationToken))
                    ?? candidateMethods.Single(mi => mi.GetParameters().Length == parameterCount + 1);
         }
 
@@ -1169,7 +1169,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TSource> _Intersect<TSource>(
-                IAsyncEnumerable<TSource> first, IAsyncEnumerable<TSource> second)
+            IAsyncEnumerable<TSource> first, IAsyncEnumerable<TSource> second)
             => new IntersectAsyncEnumerable<TSource>(first, second);
 
         private class IntersectAsyncEnumerable<TSource> : IAsyncEnumerable<TSource>

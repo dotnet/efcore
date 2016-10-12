@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalModelBuilderAnnotations Sqlite(
-                [NotNull] this InternalModelBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalModelBuilder builder,
+            ConfigurationSource configurationSource)
             => new RelationalModelBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         /// <summary>
@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalPropertyBuilderAnnotations Sqlite(
-                [NotNull] this InternalPropertyBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalPropertyBuilder builder,
+            ConfigurationSource configurationSource)
             => new RelationalPropertyBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         /// <summary>
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalEntityTypeBuilderAnnotations Sqlite(
-                [NotNull] this InternalEntityTypeBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalEntityTypeBuilder builder,
+            ConfigurationSource configurationSource)
             => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         /// <summary>
@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalKeyBuilderAnnotations Sqlite(
-                [NotNull] this InternalKeyBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalKeyBuilder builder,
+            ConfigurationSource configurationSource)
             => new RelationalKeyBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         /// <summary>
@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalIndexBuilderAnnotations Sqlite(
-                [NotNull] this InternalIndexBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalIndexBuilder builder,
+            ConfigurationSource configurationSource)
             => new RelationalIndexBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         /// <summary>
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalForeignKeyBuilderAnnotations Sqlite(
-                [NotNull] this InternalRelationshipBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalRelationshipBuilder builder,
+            ConfigurationSource configurationSource)
             => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
     }
 }

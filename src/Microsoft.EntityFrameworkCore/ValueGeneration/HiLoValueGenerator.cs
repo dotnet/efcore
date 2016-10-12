@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
         public override Task<TValue> NextAsync(
-                EntityEntry entry, CancellationToken cancellationToken = default(CancellationToken))
+            EntityEntry entry, CancellationToken cancellationToken = default(CancellationToken))
             => _generatorState.NextAsync<TValue>(GetNewLowValueAsync);
 
         /// <summary>

@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation OnAnnotationSet(
-                [NotNull] string name, [CanBeNull] Annotation annotation, [CanBeNull] Annotation oldAnnotation)
+            [NotNull] string name, [CanBeNull] Annotation annotation, [CanBeNull] Annotation oldAnnotation)
             => annotation;
 
         /// <summary>

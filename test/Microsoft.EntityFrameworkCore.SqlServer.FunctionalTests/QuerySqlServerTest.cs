@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
-using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -38,7 +37,7 @@ WHERE [e].[EmployeeID] = 1",
         public override void Project_to_int_array()
         {
             base.Project_to_int_array();
-            
+
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[ReportsTo]
 FROM [Employees] AS [e]

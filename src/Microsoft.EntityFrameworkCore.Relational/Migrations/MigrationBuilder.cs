@@ -59,15 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         public virtual OperationBuilder<AddForeignKeyOperation> AddForeignKey(
-                [NotNull] string name,
-                [NotNull] string table,
-                [NotNull] string column,
-                [NotNull] string principalTable,
-                [CanBeNull] string schema = null,
-                [CanBeNull] string principalSchema = null,
-                [CanBeNull] string principalColumn = null,
-                ReferentialAction onUpdate = ReferentialAction.NoAction,
-                ReferentialAction onDelete = ReferentialAction.NoAction)
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [NotNull] string principalTable,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string principalSchema = null,
+            [CanBeNull] string principalColumn = null,
+            ReferentialAction onUpdate = ReferentialAction.NoAction,
+            ReferentialAction onDelete = ReferentialAction.NoAction)
             => AddForeignKey(
                 name,
                 table,
@@ -113,10 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         public virtual OperationBuilder<AddPrimaryKeyOperation> AddPrimaryKey(
-                [NotNull] string name,
-                [NotNull] string table,
-                [NotNull] string column,
-                [CanBeNull] string schema = null)
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [CanBeNull] string schema = null)
             => AddPrimaryKey(
                 name,
                 table,
@@ -146,10 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         public virtual OperationBuilder<AddUniqueConstraintOperation> AddUniqueConstraint(
-                [NotNull] string name,
-                [NotNull] string table,
-                [NotNull] string column,
-                [CanBeNull] string schema = null)
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [CanBeNull] string schema = null)
             => AddUniqueConstraint(
                 name,
                 table,
@@ -296,11 +296,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
-                [NotNull] string name,
-                [NotNull] string table,
-                [NotNull] string column,
-                [CanBeNull] string schema = null,
-                bool unique = false)
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [CanBeNull] string schema = null,
+            bool unique = false)
             => CreateIndex(
                 name,
                 table,
@@ -347,13 +347,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence(
-                [NotNull] string name,
-                [CanBeNull] string schema = null,
-                long startValue = 1L,
-                int incrementBy = 1,
-                [CanBeNull] long? minValue = null,
-                [CanBeNull] long? maxValue = null,
-                bool cyclic = false)
+            [NotNull] string name,
+            [CanBeNull] string schema = null,
+            long startValue = 1L,
+            int incrementBy = 1,
+            [CanBeNull] long? minValue = null,
+            [CanBeNull] long? maxValue = null,
+            bool cyclic = false)
             => CreateSequence<long>(name, schema, startValue, incrementBy, minValue, maxValue, cyclic);
 
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence<T>(

@@ -121,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ConventionSetBuilder))
                 .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ValueGeneratorCache))
                 .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ModelSource))
-                .AddScoped(p => ServiceProviderExtensions.InjectAdditionalServices(p, GetProviderServices(p).ModelValidator))
-                .AddScoped(p => ServiceProviderExtensions.InjectAdditionalServices(p, GetProviderServices(p).ExecutionStrategyFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ModelValidator))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ExecutionStrategyFactory))
                 .AddQuery());
 
             return serviceCollection;
@@ -165,6 +165,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static IDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
             => GetContextServices(serviceProvider).DatabaseProviderServices;
-        
     }
 }

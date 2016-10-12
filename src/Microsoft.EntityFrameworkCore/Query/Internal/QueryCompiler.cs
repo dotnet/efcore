@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryCompiler : IQueryCompiler
     {
         private static MethodInfo CompileQueryMethod { get; }
-        = typeof(IDatabase).GetTypeInfo()
-            .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
+            = typeof(IDatabase).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
         private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter
             = new EvaluatableExpressionFilter();
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             var resultItemType
                                 = (queryModel.GetOutputDataInfo()
-                                      as StreamedSequenceInfo)?.ResultItemType
+                                    as StreamedSequenceInfo)?.ResultItemType
                                   ?? typeof(TResult);
 
                             if (resultItemType == typeof(TResult))

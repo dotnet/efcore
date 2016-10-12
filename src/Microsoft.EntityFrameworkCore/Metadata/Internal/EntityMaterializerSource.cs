@@ -149,13 +149,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     instanceVariable,
                     property.GetMemberInfo(forConstruction: true, forSet: true))
                 select
-                Expression.Assign(
-                    targetMember,
-                    CreateReadValueExpression(
-                        valueBufferExpression,
-                        targetMember.Type,
-                        indexMap?[property.GetIndex()] ?? property.GetIndex(),
-                        property)));
+                    Expression.Assign(
+                        targetMember,
+                        CreateReadValueExpression(
+                            valueBufferExpression,
+                            targetMember.Type,
+                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
+                            property)));
 
             blockExpressions.Add(instanceVariable);
 
@@ -176,8 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "values");
 
                     return Expression.Lambda<Func<ValueBuffer, object>>(
-                            CreateMaterializeExpression(e, valueBufferParameter),
-                            valueBufferParameter)
+                        CreateMaterializeExpression(e, valueBufferParameter),
+                        valueBufferParameter)
                         .Compile();
                 });
     }

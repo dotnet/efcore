@@ -40,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder<TEntity> builder,
             [CanBeNull] string name)
             where TEntity : class
-        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)builder).ForSqliteToTable(name);
+            => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)builder).ForSqliteToTable(name);
     }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                         .BuildServiceProvider()).Options;
 
         public override NorthwindContext CreateContext(
-                QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
             => new NorthwindContext(_options, queryTrackingBehavior);
     }
 

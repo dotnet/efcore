@@ -17,9 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ExpressionVisitor Create(
-                QuerySourceMapping querySourceMapping,
-                EntityQueryModelVisitor queryModelVisitor,
-                bool inProjection)
+            QuerySourceMapping querySourceMapping,
+            EntityQueryModelVisitor queryModelVisitor,
+            bool inProjection)
             => new MemberAccessBindingExpressionVisitor(querySourceMapping, queryModelVisitor, inProjection);
     }
 }

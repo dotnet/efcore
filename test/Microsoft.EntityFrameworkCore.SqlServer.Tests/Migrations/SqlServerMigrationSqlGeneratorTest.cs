@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     DefaultValue = 0,
                     IsNullable = false,
                     [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
-                    SqlServerValueGenerationStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Name = "Id",
                     ClrType = typeof(int),
                     [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
-                    SqlServerValueGenerationStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(

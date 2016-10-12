@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<QueryContext, TResult> GetOrAddQuery<TResult>(
-                object cacheKey, Func<Func<QueryContext, TResult>> compiler)
+            object cacheKey, Func<Func<QueryContext, TResult>> compiler)
             => GetOrAddQueryCore(cacheKey, compiler);
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> GetOrAddAsyncQuery<TResult>(
-                object cacheKey, Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
+            object cacheKey, Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
             => GetOrAddQueryCore(cacheKey, compiler);
 
         private Func<QueryContext, TFunc> GetOrAddQueryCore<TFunc>(

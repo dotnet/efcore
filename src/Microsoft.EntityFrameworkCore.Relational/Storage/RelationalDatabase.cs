@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
         public override int SaveChanges(
-                IReadOnlyList<IUpdateEntry> entries)
+            IReadOnlyList<IUpdateEntry> entries)
             => _batchExecutor.Execute(
                 _batchPreparer.BatchCommands(
                     Check.NotNull(entries, nameof(entries))),
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     number of entries persisted to the database.
         /// </returns>
         public override Task<int> SaveChangesAsync(
-                IReadOnlyList<IUpdateEntry> entries,
-                CancellationToken cancellationToken = default(CancellationToken))
+            IReadOnlyList<IUpdateEntry> entries,
+            CancellationToken cancellationToken = default(CancellationToken))
             => _batchExecutor.ExecuteAsync(
                 _batchPreparer.BatchCommands(
                     Check.NotNull(entries, nameof(entries))),

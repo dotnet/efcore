@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasAnnotation(
-                [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
             => HasAnnotation(name, value, configurationSource, canOverrideSameSource: true);
 
         private bool HasAnnotation(

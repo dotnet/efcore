@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = modificationCommands[0].ColumnModifications
-                    .Where(o => o.Property.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
-                    .ToList();
+                .Where(o => o.Property.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
+                .ToList();
 
             if (defaultValuesOnly)
             {
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
-                    .Any(e => e.SqlServer().IsMemoryOptimized))
+                .Any(e => e.SqlServer().IsMemoryOptimized))
             {
                 if (!nonIdentityOperations.Any(o => o.IsRead && o.IsKey))
                 {

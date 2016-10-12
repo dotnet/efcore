@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to be stored in the annotation if a new one is created. </param>
         /// <returns> The found or added annotation. </returns>
         public static Annotation GetOrAddAnnotation(
-                [NotNull] this IMutableAnnotatable annotatable, [NotNull] string annotationName, [NotNull] string value)
+            [NotNull] this IMutableAnnotatable annotatable, [NotNull] string annotationName, [NotNull] string value)
             => annotatable.FindAnnotation(annotationName) ?? annotatable.AddAnnotation(annotationName, value);
 
         /// <summary>

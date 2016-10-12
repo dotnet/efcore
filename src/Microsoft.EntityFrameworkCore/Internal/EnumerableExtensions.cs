@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IOrderedEnumerable<TSource> OrderByOrdinal<TSource>(
-                [NotNull] this IEnumerable<TSource> source,
-                [NotNull] Func<TSource, string> keySelector)
+            [NotNull] this IEnumerable<TSource> source,
+            [NotNull] Func<TSource, string> keySelector)
             => source.OrderBy(keySelector, StringComparer.Ordinal);
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IEnumerable<T> source,
             [NotNull] Func<T, T, bool> comparer)
             where T : class
-        => source.Distinct(new DynamicEqualityComparer<T>(comparer));
+            => source.Distinct(new DynamicEqualityComparer<T>(comparer));
 
         private sealed class DynamicEqualityComparer<T> : IEqualityComparer<T>
             where T : class
@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string Join(
-                [NotNull] this IEnumerable<object> source,
-                [NotNull] string separator = ", ")
+            [NotNull] this IEnumerable<object> source,
+            [NotNull] string separator = ", ")
             => string.Join(separator, source);
 
         /// <summary>

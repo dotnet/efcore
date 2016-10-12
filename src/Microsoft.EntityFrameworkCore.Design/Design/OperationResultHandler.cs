@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     }
 
 #if NET451
-    partial class OperationResultHandler : MarshalByRefObject
+    public partial class OperationResultHandler : MarshalByRefObject
     {
     }
 #endif

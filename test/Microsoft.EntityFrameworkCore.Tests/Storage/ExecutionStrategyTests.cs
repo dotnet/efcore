@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                                executeAsync(mockExecutionStrategy)).Message);
+                            executeAsync(mockExecutionStrategy)).Message);
             }
         }
 
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () =>
-                                executeAsync(mockExecutionStrategy))).Message);
+                            executeAsync(mockExecutionStrategy))).Message);
             }
         }
 
@@ -623,18 +623,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 e => e is ArgumentOutOfRangeException);
 
             Assert.IsType<ArgumentOutOfRangeException>(
-            (await Assert.ThrowsAsync<RetryLimitExceededException>(
-                () =>
-                    executeAsync(
-                        executionStrategyMock.Object, ct =>
-                            {
-                                if (executionCount++ < 3)
+                (await Assert.ThrowsAsync<RetryLimitExceededException>(
+                    () =>
+                        executeAsync(
+                            executionStrategyMock.Object, ct =>
                                 {
-                                    throw new ArgumentOutOfRangeException();
-                                }
-                                Assert.True(false);
-                                return Task.FromResult(0);
-                            }))).InnerException);
+                                    if (executionCount++ < 3)
+                                    {
+                                        throw new ArgumentOutOfRangeException();
+                                    }
+                                    Assert.True(false);
+                                    return Task.FromResult(0);
+                                }))).InnerException);
 
             Assert.Equal(3, executionCount);
         }

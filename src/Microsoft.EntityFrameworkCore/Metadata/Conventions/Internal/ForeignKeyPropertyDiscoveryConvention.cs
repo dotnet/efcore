@@ -355,7 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var foreignKey in key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList())
             {
-                if (!foreignKey.IsUnique || foreignKey.DeclaringEntityType.BaseType != null)
+                if (!foreignKey.IsUnique
+                    || foreignKey.DeclaringEntityType.BaseType != null)
                 {
                     Apply(foreignKey.Builder);
                 }

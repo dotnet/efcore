@@ -141,8 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     An EntityQueryModelVisitor.
         /// </returns>
         public override EntityQueryModelVisitor Create(
-                QueryCompilationContext queryCompilationContext,
-                EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            QueryCompilationContext queryCompilationContext,
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new RelationalQueryModelVisitor(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,

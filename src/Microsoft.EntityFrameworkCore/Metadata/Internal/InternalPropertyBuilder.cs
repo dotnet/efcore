@@ -96,17 +96,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return HasValueGenerator((_, __)
                 =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
-                        }
-                    }, configurationSource);
+                        return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
+                    }
+                }, configurationSource);
         }
 
         /// <summary>

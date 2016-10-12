@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<BaseEntity3>();
 
             Assert.Equal(CoreStrings.InheritedPropertyCannotBeIgnored(
-                    nameof(Unit3.VirtualBaseClassProperty), typeof(Unit3).ShortDisplayName(), typeof(BaseEntity3).ShortDisplayName()),
+                nameof(Unit3.VirtualBaseClassProperty), typeof(Unit3).ShortDisplayName(), typeof(BaseEntity3).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => Validate(modelBuilder)).Message);
         }
@@ -725,6 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             [Key]
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public int IdRow { get; set; }
+
             public string Name { get; set; }
 
             public ICollection<Child> Children { get; set; }
@@ -735,6 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             [Key]
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public int IdRow { get; set; }
+
             public string Name { get; set; }
             public ICollection<Toy> Toys { get; set; }
         }
@@ -744,6 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             [Key]
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public int IdRow { get; set; }
+
             public string Name { get; set; }
         }
 

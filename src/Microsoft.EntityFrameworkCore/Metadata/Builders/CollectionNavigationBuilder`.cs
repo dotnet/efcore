@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
+            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,

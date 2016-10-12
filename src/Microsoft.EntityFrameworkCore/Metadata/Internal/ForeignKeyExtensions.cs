@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory<TKey>(
-                [NotNull] this IForeignKey foreignKey)
+            [NotNull] this IForeignKey foreignKey)
             => (IDependentKeyValueFactory<TKey>)foreignKey.AsForeignKey().DependentKeyValueFactory;
 
         /// <summary>

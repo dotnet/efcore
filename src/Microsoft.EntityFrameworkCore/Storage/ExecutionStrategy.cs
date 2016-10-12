@@ -213,8 +213,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Task<TResult> ExecuteAsync<TState, TResult>(
             Func<TState, CancellationToken, Task<TResult>> operation,
             TState state,
-            CancellationToken cancellationToken = default(CancellationToken)
-        ) => Suspended ? operation(state, cancellationToken) : ExecuteAsyncImplementation(operation, state, cancellationToken);
+            CancellationToken cancellationToken = default(CancellationToken))
+            => Suspended ? operation(state, cancellationToken) : ExecuteAsyncImplementation(operation, state, cancellationToken);
 
         private async Task<TResult> ExecuteAsyncImplementation<TState, TResult>(
             Func<TState, CancellationToken, Task<TResult>> operation,

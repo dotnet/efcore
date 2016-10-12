@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 throw new NotImplementedException();
             }
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues , CancellationToken cancellationToken = default(CancellationToken))
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
 #else
-// CoreCLR internal constructor has an additional parameter
+    // CoreCLR internal constructor has an additional parameter
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
 #endif

@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity) where TEntity : class
-        => new EntityEntry<TEntity>(StateManager.GetOrCreateEntry(entity));
+            => new EntityEntry<TEntity>(StateManager.GetOrCreateEntry(entity));
 
         /// <summary>
         ///     <para>
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity) where TEntity : class
-        => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
 
         /// <summary>
         ///     <para>
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity) where TEntity : class
-        => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
 
         /// <summary>
         ///     <para>
@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity) where TEntity : class
-        => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -985,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues) where TEntity : class
-        => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -998,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues) where TEntity : class
-        => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -1012,6 +1012,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken) where TEntity : class
-        => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
     }
 }

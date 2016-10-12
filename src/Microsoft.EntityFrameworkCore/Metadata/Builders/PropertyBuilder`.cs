@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
             where TGenerator : ValueGenerator
-        => (PropertyBuilder<TProperty>)base.HasValueGenerator<TGenerator>();
+            => (PropertyBuilder<TProperty>)base.HasValueGenerator<TGenerator>();
 
         /// <summary>
         ///     <para>

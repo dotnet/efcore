@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _currentContext = new CurrentDbContext(context);
 
             _providerServices = new LazyRef<IDatabaseProviderServices>(() =>
-                    _scopedProvider.GetRequiredService<IDatabaseProviderSelector>().SelectServices());
+                _scopedProvider.GetRequiredService<IDatabaseProviderSelector>().SelectServices());
 
             _modelFromSource = new LazyRef<IModel>(CreateModel);
 

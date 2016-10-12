@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override EntityQueryModelVisitor Create(
-                QueryCompilationContext queryCompilationContext,
-                EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            QueryCompilationContext queryCompilationContext,
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new SqlServerQueryModelVisitor(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,

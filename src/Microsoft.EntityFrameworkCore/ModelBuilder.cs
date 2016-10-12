@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>() where TEntity : class
-        => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
+            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder Ignore<TEntity>() where TEntity : class
-        => Ignore(typeof(TEntity));
+            => Ignore(typeof(TEntity));
 
         /// <summary>
         ///     Excludes the given entity type from the model. This method is typically used to remove types from

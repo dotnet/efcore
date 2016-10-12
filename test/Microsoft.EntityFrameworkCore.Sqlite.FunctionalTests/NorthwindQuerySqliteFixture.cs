@@ -26,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
-                    new DbContextOptionsBuilder()
-                        .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
-                            .AddEntityFrameworkSqlite()
-                            .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
-                            .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
-                            .BuildServiceProvider()))
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
+                        .AddEntityFrameworkSqlite()
+                        .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                        .BuildServiceProvider()))
                 .UseSqlite(
                     _testStore.ConnectionString,
                     b => ConfigureOptions(b).SuppressForeignKeyEnforcement())
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             => sqliteDbContextOptionsBuilder;
 
         public override NorthwindContext CreateContext(
-                QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
             => new SqliteNorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();

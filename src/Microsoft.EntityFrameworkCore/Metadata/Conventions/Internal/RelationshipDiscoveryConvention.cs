@@ -574,8 +574,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private void SetNavigationCandidates(
-                InternalEntityTypeBuilder entityTypeBuilder,
-                ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
+            InternalEntityTypeBuilder entityTypeBuilder,
+            ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
             => entityTypeBuilder.HasAnnotation(NavigationCandidatesAnnotationName, navigationCandidates, ConfigurationSource.Convention);
 
         private bool IsAmbiguous(EntityType entityType, PropertyInfo navigationProperty)
@@ -648,8 +648,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private void SetAmbigousNavigations(
-                InternalEntityTypeBuilder entityTypeBuilder,
-                ImmutableSortedDictionary<PropertyInfo, Type> ambiguousNavigations)
+            InternalEntityTypeBuilder entityTypeBuilder,
+            ImmutableSortedDictionary<PropertyInfo, Type> ambiguousNavigations)
             => entityTypeBuilder.HasAnnotation(AmbiguousNavigationsAnnotationName, ambiguousNavigations, ConfigurationSource.Convention);
 
         private class PropertyInfoNameComparer : IComparer<PropertyInfo>

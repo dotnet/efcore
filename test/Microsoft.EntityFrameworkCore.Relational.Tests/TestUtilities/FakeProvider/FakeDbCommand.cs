@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             => new FakeDbParameter();
 
         protected override DbParameterCollection DbParameterCollection { get; }
-        = new FakeDbParameterCollection();
+            = new FakeDbParameterCollection();
 
         public override void Prepare()
         {

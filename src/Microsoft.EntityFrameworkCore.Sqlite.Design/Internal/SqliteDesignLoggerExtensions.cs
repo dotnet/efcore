@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void LogWarning(
-               [NotNull] this ILogger logger,
-               SqliteDesignEventId eventId,
-               [NotNull] Func<string> formatter)
-               => logger.Log<object>(LogLevel.Warning, (int)eventId, null, null, (_, __) => formatter());
+            [NotNull] this ILogger logger,
+            SqliteDesignEventId eventId,
+            [NotNull] Func<string> formatter)
+            => logger.Log<object>(LogLevel.Warning, (int)eventId, null, null, (_, __) => formatter());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

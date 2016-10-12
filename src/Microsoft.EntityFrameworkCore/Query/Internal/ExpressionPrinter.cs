@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class ExpressionPrinter : ExpressionVisitorBase, IExpressionPrinter
     {
-        private IndentedStringBuilder _stringBuilder;
-        private List<IConstantPrinter> _constantPrinters;
-        private Dictionary<ParameterExpression, string> _parametersInScope;
+        private readonly IndentedStringBuilder _stringBuilder;
+        private readonly List<IConstantPrinter> _constantPrinters;
+        private readonly Dictionary<ParameterExpression, string> _parametersInScope;
 
         private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new Dictionary<ExpressionType, string>
         {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected ExpressionPrinter(List<IConstantPrinter> constantPrinters)
@@ -71,18 +71,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     new EntityQueryableConstantPrinter(),
                     new CollectionConstantPrinter(),
                     new MetadataPropertyPrinter(),
-                    new DefaultConstantPrinter(),
+                    new DefaultConstantPrinter()
                 });
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IndentedStringBuilder StringBuilder => _stringBuilder;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected static Action<IndentedStringBuilder, string> Append
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Print(Expression expression)
@@ -486,8 +486,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _stringBuilder.Append(node.Method.Name + "(");
 
-            var appendAction = simpleMethods.Contains(node.Method.Name) || EntityQueryModelVisitor.IsPropertyMethod(node.Method) 
-                ? Append 
+            var appendAction = simpleMethods.Contains(node.Method.Name) || EntityQueryModelVisitor.IsPropertyMethod(node.Method)
+                ? Append
                 : AppendLine;
 
             if (node.Arguments.Count > 0)
@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual string PostProcess([NotNull] string queryPlan)
@@ -708,7 +708,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
             {
-                if (value != null && value.GetType().GetTypeInfo().IsGenericType
+                if (value != null
+                    && value.GetType().GetTypeInfo().IsGenericType
                     && value.GetType().GetTypeInfo().GetGenericTypeDefinition() == typeof(EntityQueryable<>))
                 {
                     stringBuilder.Append($"DbSet<{value.GetType().GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
@@ -777,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (value is string)
                     {
-                        stringValue = $@"""{stringValue}""";  
+                        stringValue = $@"""{stringValue}""";
                     }
                 }
 

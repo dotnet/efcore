@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static SqlServerModelBuilderAnnotations SqlServer(
-                [NotNull] this InternalModelBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalModelBuilder builder,
+            ConfigurationSource configurationSource)
             => new SqlServerModelBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static SqlServerPropertyBuilderAnnotations SqlServer(
-                [NotNull] this InternalPropertyBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalPropertyBuilder builder,
+            ConfigurationSource configurationSource)
             => new SqlServerPropertyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static SqlServerEntityTypeBuilderAnnotations SqlServer(
-                [NotNull] this InternalEntityTypeBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalEntityTypeBuilder builder,
+            ConfigurationSource configurationSource)
             => new SqlServerEntityTypeBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static SqlServerKeyBuilderAnnotations SqlServer(
-                [NotNull] this InternalKeyBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalKeyBuilder builder,
+            ConfigurationSource configurationSource)
             => new SqlServerKeyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static SqlServerIndexBuilderAnnotations SqlServer(
-                [NotNull] this InternalIndexBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalIndexBuilder builder,
+            ConfigurationSource configurationSource)
             => new SqlServerIndexBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalForeignKeyBuilderAnnotations SqlServer(
-                [NotNull] this InternalRelationshipBuilder builder,
-                ConfigurationSource configurationSource)
+            [NotNull] this InternalRelationshipBuilder builder,
+            ConfigurationSource configurationSource)
             => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqlServerFullAnnotationNames.Instance);
     }
 }

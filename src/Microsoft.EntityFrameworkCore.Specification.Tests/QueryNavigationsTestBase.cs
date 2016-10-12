@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null
                         ? os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City
                         : null)
-            );
+                );
         }
 
         [ConditionalFact]
@@ -897,14 +897,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer, Order, OrderDetail, Customer>(
                 (cs, os, ods) => (from c in cs
                                   join subquery in
-                                  (
-                                      from od in ods
-                                      join o in os on od.OrderID equals 10260
-                                      join c2 in cs on o.CustomerID equals c2.CustomerID
-                                      select c2
-                                  )
-                                  on c.CustomerID equals subquery.CustomerID
-                                  into result
+                                      (
+                                          from od in ods
+                                          join o in os on od.OrderID equals 10260
+                                          join c2 in cs on o.CustomerID equals c2.CustomerID
+                                          select c2
+                                          )
+                                      on c.CustomerID equals subquery.CustomerID
+                                      into result
                                   from subquery in result.DefaultIfEmpty()
                                   select c),
                 entryCount: 91);
@@ -929,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int entryCount = 0,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem : class
-        => AssertQuery(query, query, assertOrder, entryCount, asserter);
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> query,
@@ -938,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Action<IList<TResult>, IList<TResult>> asserter = null)
             where TItem1 : class
             where TItem2 : class
-        => AssertQuery(query, query, assertOrder, entryCount, asserter);
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> query,
@@ -948,7 +948,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-        => AssertQuery(query, query, assertOrder, entryCount, asserter);
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem, TResult>(
             Func<IQueryable<TItem>, IQueryable<TResult>> query,
@@ -956,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int entryCount = 0,
             Action<IList<TResult>, IList<TResult>> asserter = null)
             where TItem : class
-        => AssertQuery(query, query, assertOrder, entryCount, asserter);
+            => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<object>> efQuery,

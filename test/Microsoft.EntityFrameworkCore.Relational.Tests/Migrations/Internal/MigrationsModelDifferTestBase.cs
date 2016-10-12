@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
     public class MigrationsModelDifferTestBase
     {
         protected void Execute(
-                Action<ModelBuilder> buildSourceAction,
-                Action<ModelBuilder> buildTargetAction,
-                Action<IReadOnlyList<MigrationOperation>> assertAction)
+            Action<ModelBuilder> buildSourceAction,
+            Action<ModelBuilder> buildTargetAction,
+            Action<IReadOnlyList<MigrationOperation>> assertAction)
             => Execute(m => { }, buildSourceAction, buildTargetAction, assertAction);
 
         protected void Execute(

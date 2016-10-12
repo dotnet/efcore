@@ -68,8 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
         {
-
-
             var leftConstantExpression = node.Left.RemoveConvert() as ConstantExpression;
             var isLeftNullConstant = leftConstantExpression != null && leftConstantExpression.Value == null;
 

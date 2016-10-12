@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             return ConcurrencyTestAsync(
                 c =>
-                        c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell"))),
+                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell"))),
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             return ConcurrencyTestAsync(
                 c =>
-                        c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA"))),
+                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA"))),
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         entry.Reload();
                     },
                 c =>
-                        Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
+                    Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
         }
 
         #endregion

@@ -1244,16 +1244,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected static TBlog CreateBlogAndPosts<TBlog, TPost>()
             where TBlog : IBlogAccesor, new()
             where TPost : IPostAccesor, new()
-        => new TBlog
-        {
-            AccessId = 10,
-            AccessTitle = "Blog10",
-            AccessPosts = (IEnumerable<IPostAccesor>)new List<TPost>
+            => new TBlog
             {
-                new TPost { AccessId = 10, AccessTitle = "Post10" },
-                new TPost { AccessId = 11, AccessTitle = "Post11" }
-            }
-        };
+                AccessId = 10,
+                AccessTitle = "Blog10",
+                AccessPosts = (IEnumerable<IPostAccesor>)new List<TPost>
+                {
+                    new TPost { AccessId = 10, AccessTitle = "Post10" },
+                    new TPost { AccessId = 11, AccessTitle = "Post11" }
+                }
+            };
 
         protected static IList<TPost> CreatePostsAndBlog<TBlog, TPost>()
             where TBlog : IBlogAccesor, new()

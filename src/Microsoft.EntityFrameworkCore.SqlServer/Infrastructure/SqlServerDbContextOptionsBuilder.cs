@@ -63,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
-                int maxRetryCount,
-                TimeSpan maxRetryDelay,
-                [NotNull] ICollection<int> errorNumbersToAdd)
+            int maxRetryCount,
+            TimeSpan maxRetryDelay,
+            [NotNull] ICollection<int> errorNumbersToAdd)
             => ExecutionStrategy(c => new SqlAzureExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
     }
 }

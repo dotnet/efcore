@@ -88,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-                [NotNull] Type dependentEntityType,
-                [NotNull] params string[] foreignKeyPropertyNames)
+            [NotNull] Type dependentEntityType,
+            [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             [NotNull] params string[] foreignKeyPropertyNames)
             where TDependentEntity : class
-        => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
+            => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -142,8 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-                [NotNull] Type principalEntityType,
-                [NotNull] params string[] keyPropertyNames)
+            [NotNull] Type principalEntityType,
+            [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
             [NotNull] params string[] keyPropertyNames)
             where TPrincipalEntity : class
-        => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
+            => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
 
         /// <summary>
         ///     <para>
@@ -197,8 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-                [NotNull] string dependentEntityTypeName,
-                [NotNull] params string[] foreignKeyPropertyNames)
+            [NotNull] string dependentEntityTypeName,
+            [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
@@ -221,8 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-                [NotNull] string principalEntityTypeName,
-                [NotNull] params string[] keyPropertyNames)
+            [NotNull] string principalEntityTypeName,
+            [NotNull] params string[] keyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
@@ -265,13 +265,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
             where TDependentEntity : class
-        => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-            HasForeignKeyBuilder(ResolveEntityType(typeof(TDependentEntity)),
-                typeof(TDependentEntity).ShortDisplayName(),
-                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
-            this,
-            inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
-            foreignKeySet: true);
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+                HasForeignKeyBuilder(ResolveEntityType(typeof(TDependentEntity)),
+                    typeof(TDependentEntity).ShortDisplayName(),
+                    Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
+                this,
+                inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
+                foreignKeySet: true);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -296,14 +296,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
             [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
             where TPrincipalEntity : class
-        => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-            HasPrincipalKeyBuilder(
-                ResolveEntityType(typeof(TPrincipalEntity)),
-                typeof(TPrincipalEntity).ShortDisplayName(),
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
-            this,
-            inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
-            principalKeySet: true);
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(typeof(TPrincipalEntity)),
+                    typeof(TPrincipalEntity).ShortDisplayName(),
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
+                this,
+                inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
+                principalKeySet: true);
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can

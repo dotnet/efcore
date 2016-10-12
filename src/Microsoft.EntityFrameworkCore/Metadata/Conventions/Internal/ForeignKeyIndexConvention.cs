@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 if (!foreignKey.IsUnique
                     && (foreignKey.DeclaringEntityType.GetKeys()
-                            .Any(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, true))
+                        .Any(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, true))
                         || foreignKey.DeclaringEntityType.GetIndexes()
                             .Any(i => AreIndexedBy(foreignKey.Properties, false, i.Properties, i.IsUnique))))
                 {
@@ -241,10 +241,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual bool AreIndexedBy(
-                [NotNull] IReadOnlyList<Property> properties,
-                bool unique,
-                [NotNull] IReadOnlyList<Property> existingIndexProperties,
-                bool existingIndexUniqueness)
+            [NotNull] IReadOnlyList<Property> properties,
+            bool unique,
+            [NotNull] IReadOnlyList<Property> existingIndexProperties,
+            bool existingIndexUniqueness)
             => (!unique || existingIndexUniqueness) && existingIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name));
     }
 }

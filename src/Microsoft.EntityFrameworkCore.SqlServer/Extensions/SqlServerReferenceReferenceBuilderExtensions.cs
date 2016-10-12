@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
             where TRelatedEntity : class
-        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ForSqlServerHasConstraintName(
-            (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
+            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ForSqlServerHasConstraintName(
+                (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
     }
 }

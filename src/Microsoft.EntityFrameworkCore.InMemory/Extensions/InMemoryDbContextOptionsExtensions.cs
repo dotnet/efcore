@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string databaseName,
             [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
             where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
-            (DbContextOptionsBuilder)optionsBuilder, databaseName, inMemoryOptionsAction);
+            => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
+                (DbContextOptionsBuilder)optionsBuilder, databaseName, inMemoryOptionsAction);
 
         /// <summary>
         ///     Configures the context to connect to an in-memory database.
@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
             where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
-            (DbContextOptionsBuilder)optionsBuilder, inMemoryOptionsAction);
+            => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
+                (DbContextOptionsBuilder)optionsBuilder, inMemoryOptionsAction);
 
         /// <summary>
         ///     Configures the context to connect to an in-memory database. By default, the same in-memory database instance

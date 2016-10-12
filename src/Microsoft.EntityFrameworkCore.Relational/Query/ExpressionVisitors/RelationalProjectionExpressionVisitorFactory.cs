@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         ///     An ExpressionVisitor.
         /// </returns>
         public virtual ExpressionVisitor Create(
-                EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
+            EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
             => new RelationalProjectionExpressionVisitor(
                 _sqlTranslatingExpressionVisitorFactory,
                 _entityMaterializerSource,

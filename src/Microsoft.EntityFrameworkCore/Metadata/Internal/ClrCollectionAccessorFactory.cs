@@ -138,6 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static TCollection CreateCollection<TCollection, TConcreteCollection>()
             where TCollection : class
             where TConcreteCollection : TCollection, new()
-        => new TConcreteCollection();
+            => new TConcreteCollection();
     }
 }

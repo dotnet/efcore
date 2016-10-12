@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ExpressionVisitor Create(
-                EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
+            EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
             => new InMemoryEntityQueryableExpressionVisitor(
                 _model,
                 _materializerFactory,

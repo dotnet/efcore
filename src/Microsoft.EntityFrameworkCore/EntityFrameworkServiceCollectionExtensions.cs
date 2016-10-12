@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
             [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
-        => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
+            => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
 
         /// <summary>
         ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
@@ -87,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
             [NotNull] this IServiceCollection serviceCollection,
             ServiceLifetime contextLifetime)
             where TContext : DbContext
-        => AddDbContext<TContext>(serviceCollection, (Action<IServiceProvider, DbContextOptionsBuilder>)null, contextLifetime);
+            => AddDbContext<TContext>(serviceCollection, (Action<IServiceProvider, DbContextOptionsBuilder>)null, contextLifetime);
 
         /// <summary>
         ///     <para>
@@ -164,7 +164,7 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContext : DbContext
         {
             var builder = new DbContextOptionsBuilder<TContext>(
-                    new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()))
+                new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()))
                 .UseMemoryCache(applicationServiceProvider.GetService<IMemoryCache>())
                 .UseLoggerFactory(applicationServiceProvider.GetService<ILoggerFactory>());
 

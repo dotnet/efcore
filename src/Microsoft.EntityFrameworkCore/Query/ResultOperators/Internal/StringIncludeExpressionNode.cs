@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression Resolve(
-                ParameterExpression inputParameter,
-                Expression expressionToBeResolved,
-                ClauseGenerationContext clauseGenerationContext)
+            ParameterExpression inputParameter,
+            Expression expressionToBeResolved,
+            ClauseGenerationContext clauseGenerationContext)
             => Source.Resolve(
                 inputParameter,
                 expressionToBeResolved,

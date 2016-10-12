@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConventionalAnnotation AddAnnotation(
-                [NotNull] string name, [NotNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name, [NotNull] object value, ConfigurationSource configurationSource)
             => (ConventionalAnnotation)base.AddAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConventionalAnnotation SetAnnotation(
-                [NotNull] string name, [NotNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name, [NotNull] object value, ConfigurationSource configurationSource)
             => (ConventionalAnnotation)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (ConventionalAnnotation)base.RemoveAnnotation(name);
 
         private static ConventionalAnnotation CreateAnnotation(
-                string name, object value, ConfigurationSource configurationSource)
+            string name, object value, ConfigurationSource configurationSource)
             => new ConventionalAnnotation(name, value, configurationSource);
 
         /// <summary>

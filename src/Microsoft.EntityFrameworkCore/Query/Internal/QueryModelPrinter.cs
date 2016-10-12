@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.ObjectModel;
@@ -13,17 +13,17 @@ using Remotion.Linq.Clauses.Expressions;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class QueryModelPrinter : IQueryModelPrinter
     {
-        private IndentedStringBuilder _stringBuilder;
-        private QueryModelExpressionPrinter _expressionPrinter;
-        private QueryModelPrintingVisitor _queryModelPrintingVisitor;
+        private readonly IndentedStringBuilder _stringBuilder;
+        private readonly QueryModelExpressionPrinter _expressionPrinter;
+        private readonly QueryModelPrintingVisitor _queryModelPrintingVisitor;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryModelPrinter()
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Print([NotNull] QueryModel queryModel)
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class QueryModelPrintingVisitor : ExpressionTransformingQueryModelVisitor<ExpressionPrinter>
         {
-            public QueryModelPrintingVisitor([NotNull] ExpressionPrinter expressionPrinter) 
+            public QueryModelPrintingVisitor([NotNull] ExpressionPrinter expressionPrinter)
                 : base(expressionPrinter)
             {
             }
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
             {
                 TransformingVisitor.StringBuilder.AppendLine();
-                TransformingVisitor.StringBuilder.Append($".{resultOperator.ToString()}");
+                TransformingVisitor.StringBuilder.Append($".{resultOperator}");
             }
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)

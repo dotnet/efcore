@@ -670,8 +670,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
-                IEnumerable<EntityTrackingInfo> entityTrackingInfos,
-                Expression selector)
+            IEnumerable<EntityTrackingInfo> entityTrackingInfos,
+            Expression selector)
             => (from entityTrackingInfo in entityTrackingInfos
                 select
                 (Func<TResult, object>)

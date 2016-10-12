@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get the change tracking strategy for. </param>
         /// <returns> The change tracking strategy. </returns>
         public static ChangeTrackingStrategy GetChangeTrackingStrategy(
-                [NotNull] this IEntityType entityType)
+            [NotNull] this IEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy;
     }
 }

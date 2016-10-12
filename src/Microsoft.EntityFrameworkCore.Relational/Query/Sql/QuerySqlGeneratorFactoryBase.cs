@@ -90,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     The query SQL generator.
         /// </returns>
         public virtual IQuerySqlGenerator CreateFromSql(
-                SelectExpression selectExpression,
-                string sql,
-                Expression arguments)
+            SelectExpression selectExpression,
+            string sql,
+            Expression arguments)
             => new FromSqlNonComposedQuerySqlGenerator(
                 CommandBuilderFactory,
                 SqlGenerationHelper,

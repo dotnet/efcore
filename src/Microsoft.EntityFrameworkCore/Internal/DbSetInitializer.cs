@@ -44,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual DbSet<TEntity> CreateSet<TEntity>(DbContext context) where TEntity : class
-        => (DbSet<TEntity>)_setSource.Create(context, typeof(TEntity));
+            => (DbSet<TEntity>)_setSource.Create(context, typeof(TEntity));
     }
 }

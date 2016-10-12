@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Action operation)
             => strategy.Execute(operationScoped =>
-            {
-                operationScoped();
-                return true;
-            }, operation);
+                {
+                    operationScoped();
+                    return true;
+                }, operation);
 
         /// <summary>
         ///     Executes the specified operation and returns the result.
@@ -53,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore
         public static void Execute<TState>(
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Action<TState> operation,
-            [CanBeNull] TState state) 
+            [CanBeNull] TState state)
             => strategy.Execute(s =>
-            {
-                s.operation(s.state);
-                return true;
-            }, new { operation, state });
+                {
+                    s.operation(s.state);
+                    return true;
+                }, new { operation, state });
 
         /// <summary>
         ///     Executes the specified asynchronous operation.
@@ -72,12 +72,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task ExecuteAsync(
             [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<Task> operation) 
+            [NotNull] Func<Task> operation)
             => strategy.ExecuteAsync(async (operationScoped, ct) =>
-            {
-                await operationScoped();
-                return true;
-            }, operation, default(CancellationToken));
+                {
+                    await operationScoped();
+                    return true;
+                }, operation, default(CancellationToken));
 
         /// <summary>
         ///     Executes the specified asynchronous operation.
@@ -96,12 +96,12 @@ namespace Microsoft.EntityFrameworkCore
         public static Task ExecuteAsync(
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<CancellationToken, Task> operation,
-            CancellationToken cancellationToken) 
+            CancellationToken cancellationToken)
             => strategy.ExecuteAsync(async (operationScoped, ct) =>
-            {
-                await operationScoped(ct);
-                return true;
-            }, operation, cancellationToken);
+                {
+                    await operationScoped(ct);
+                    return true;
+                }, operation, cancellationToken);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TResult> ExecuteAsync<TResult>(
             [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<Task<TResult>> operation) 
+            [NotNull] Func<Task<TResult>> operation)
             => strategy.ExecuteAsync((operationScoped, ct) => operationScoped(), operation, default(CancellationToken));
 
         /// <summary>
@@ -163,12 +163,12 @@ namespace Microsoft.EntityFrameworkCore
         public static Task ExecuteAsync<TState>(
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<TState, Task> operation,
-            [CanBeNull] TState state) 
+            [CanBeNull] TState state)
             => strategy.ExecuteAsync(async (t, ct) =>
-            {
-                await t.operation(t.state);
-                return true;
-            }, new { operation, state }, default(CancellationToken));
+                {
+                    await t.operation(t.state);
+                    return true;
+                }, new { operation, state }, default(CancellationToken));
 
         /// <summary>
         ///     Executes the specified asynchronous operation.
@@ -192,10 +192,10 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] TState state,
             CancellationToken cancellationToken)
             => strategy.ExecuteAsync(async (t, ct) =>
-            {
-                await t.operation(t.state, ct);
-                return true;
-            }, new { operation, state }, cancellationToken);
+                {
+                    await t.operation(t.state, ct);
+                    return true;
+                }, new { operation, state }, cancellationToken);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.

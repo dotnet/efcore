@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IOrderedEnumerable<TResult> CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending) => !descending
-                ? _results.OrderBy(keySelector, comparer)
-                : _results.OrderByDescending(keySelector, comparer);
+                    ? _results.OrderBy(keySelector, comparer)
+                    : _results.OrderByDescending(keySelector, comparer);
 
             public IEnumerator<TResult> GetEnumerator() => _results.GetEnumerator();
 
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _InterceptExceptions<T>(
-                IEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
+            IEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IOrderedQueryable<TSource> _ToQueryable<TSource>(
-                IEnumerable<TSource> source, QueryContext queryContext)
+            IEnumerable<TSource> source, QueryContext queryContext)
             => new QueryableAdapter<TSource>(source, queryContext);
 
         private sealed class QueryableAdapter<T> : IOrderedQueryable<T>
@@ -340,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
-                IEnumerable<TSource> source,
-                Func<TSource, IEnumerable<TCollection>> collectionSelector,
-                Func<TSource, TCollection, TResult> resultSelector)
+            IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TCollection>> collectionSelector,
+            Func<TSource, TCollection, TResult> resultSelector)
             => source.SelectMany(collectionSelector, resultSelector);
 
         /// <summary>
@@ -358,11 +358,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
-                IEnumerable<TOuter> outer,
-                IEnumerable<TInner> inner,
-                Func<TOuter, TKey> outerKeySelector,
-                Func<TInner, TKey> innerKeySelector,
-                Func<TOuter, TInner, TResult> resultSelector)
+            IEnumerable<TOuter> outer,
+            IEnumerable<TInner> inner,
+            Func<TOuter, TKey> outerKeySelector,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, TInner, TResult> resultSelector)
             => outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
 
         /// <summary>
@@ -378,11 +378,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
-                IEnumerable<TOuter> outer,
-                IEnumerable<TInner> inner,
-                Func<TOuter, TKey> outerKeySelector,
-                Func<TInner, TKey> innerKeySelector,
-                Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
+            IEnumerable<TOuter> outer,
+            IEnumerable<TInner> inner,
+            Func<TOuter, TKey> outerKeySelector,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
             => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
 
         /// <summary>
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _Select<TSource, TResult>(
-                IEnumerable<TSource> source, Func<TSource, TResult> selector)
+            IEnumerable<TSource> source, Func<TSource, TResult> selector)
             => source.Select(selector);
 
         /// <summary>
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IOrderedEnumerable<TSource> _OrderBy<TSource, TKey>(
-                IEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
+            IEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.OrderBy(expression)
                 : source.OrderByDescending(expression);
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IOrderedEnumerable<TSource> _ThenBy<TSource, TKey>(
-                IOrderedEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
+            IOrderedEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.ThenBy(expression)
                 : source.ThenByDescending(expression);
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
-                IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
+            IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
             => source.GroupBy(keySelector, elementSelector);
 
         /// <summary>

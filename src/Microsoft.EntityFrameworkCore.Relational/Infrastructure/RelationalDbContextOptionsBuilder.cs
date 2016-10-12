@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual TBuilder ExecutionStrategy(
-                [NotNull] Func<ExecutionStrategyContext, IExecutionStrategy> getExecutionStrategy)
+            [NotNull] Func<ExecutionStrategyContext, IExecutionStrategy> getExecutionStrategy)
             => SetOption(e => e.ExecutionStrategyFactory = Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy)));
 
         /// <summary>

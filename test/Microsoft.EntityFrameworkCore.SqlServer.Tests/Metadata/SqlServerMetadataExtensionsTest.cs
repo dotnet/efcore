@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Id), firstConfiguration),
                 Assert.Throws<InvalidOperationException>(() =>
-                        ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2")).Message);
+                    ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2")).Message);
         }
 
         protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)

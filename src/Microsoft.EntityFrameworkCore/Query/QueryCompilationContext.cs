@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The new query model visitor.
         /// </returns>
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor(
-                [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
 
         /// <summary>

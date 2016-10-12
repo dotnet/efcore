@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         ///     A SqlTranslatingExpressionVisitor.
         /// </returns>
         public virtual SqlTranslatingExpressionVisitor Create(
-                RelationalQueryModelVisitor queryModelVisitor,
-                SelectExpression targetSelectExpression = null,
-                Expression topLevelPredicate = null,
-                bool bindParentQueries = false,
-                bool inProjection = false)
+            RelationalQueryModelVisitor queryModelVisitor,
+            SelectExpression targetSelectExpression = null,
+            Expression topLevelPredicate = null,
+            bool bindParentQueries = false,
+            bool inProjection = false)
             => new SqlTranslatingExpressionVisitor(
                 _relationalAnnotationProvider,
                 _compositeExpressionFragmentTranslator,

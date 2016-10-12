@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name);
+            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name);
 
         /// <summary>
         ///     Configures the table that the entity maps to when targeting a relational database.
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             [CanBeNull] string schema)
             where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
+            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
 
         /// <summary>
         ///     Configures the discriminator column used to identify which entity type each row in a table represents

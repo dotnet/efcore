@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackEntitiesTest(
-                Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
-                Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
+            Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesTest(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackMultipleEntitiesTest(
-                Action<EarlyLearningCenter, Category[]> categoryAdder,
-                Action<EarlyLearningCenter, Product[]> productAdder, EntityState expectedState)
+            Action<EarlyLearningCenter, Category[]> categoryAdder,
+            Action<EarlyLearningCenter, Product[]> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTest(
                 (c, e) =>
                     {
@@ -274,8 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private static Task TrackMultipleEntitiesTestEnumerable(
-                Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
-                Action<EarlyLearningCenter, IEnumerable<Product>> productAdder, EntityState expectedState)
+            Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
+            Action<EarlyLearningCenter, IEnumerable<Product>> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTestEnumerable(
                 (c, e) =>
                     {
@@ -418,14 +418,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private Task ChangeStateWithMethod(
-                Action<EarlyLearningCenter, Category> action,
-                EntityState initialState,
-                EntityState expectedState)
+            Action<EarlyLearningCenter, Category> action,
+            EntityState initialState,
+            EntityState expectedState)
             => ChangeStateWithMethod((c, e) =>
-                    {
-                        action(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    action(c, e);
+                    return Task.FromResult(0);
+                },
                 initialState,
                 expectedState);
 

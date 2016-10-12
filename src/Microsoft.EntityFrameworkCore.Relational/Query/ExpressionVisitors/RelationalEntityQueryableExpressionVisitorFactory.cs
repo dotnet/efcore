@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         ///     An ExpressionVisitor.
         /// </returns>
         public virtual ExpressionVisitor Create(
-                EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
+            EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
             => new RelationalEntityQueryableExpressionVisitor(
                 _model,
                 _selectExpressionFactory,

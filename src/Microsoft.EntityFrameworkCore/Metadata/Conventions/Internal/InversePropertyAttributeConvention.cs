@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override InternalRelationshipBuilder Apply(
-                InternalRelationshipBuilder relationshipBuilder, Navigation navigation, InversePropertyAttribute attribute)
+            InternalRelationshipBuilder relationshipBuilder, Navigation navigation, InversePropertyAttribute attribute)
             => ConfigureInverseNavigation(
                 navigation.DeclaringEntityType.Builder, navigation.PropertyInfo, navigation.GetTargetType().Builder, attribute);
 
@@ -328,8 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 as Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>>;
 
         private void SetInverseNavigations(
-                InternalEntityTypeBuilder entityTypeBuilder,
-                Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>> inverseNavigations)
+            InternalEntityTypeBuilder entityTypeBuilder,
+            Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>> inverseNavigations)
             => entityTypeBuilder.HasAnnotation(InverseNavigationsAnnotationName, inverseNavigations, ConfigurationSource.Convention);
     }
 }

@@ -117,11 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static IEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
-                int? queryIndex)
+            int? queryIndex)
             => new QueryingEnumerable(
-            (RelationalQueryContext)queryContext,
-            shaperCommandContext,
-            queryIndex);
+                (RelationalQueryContext)queryContext,
+                shaperCommandContext,
+                queryIndex);
 
         /// <summary>
         ///     Gets the get result method.
@@ -440,9 +440,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
-                int valueBufferOffset,
-                int queryIndex,
-                Func<ValueBuffer, object> materializer)
+            int valueBufferOffset,
+            int queryIndex,
+            Func<ValueBuffer, object> materializer)
             => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
 
         private class ReferenceRelatedEntitiesLoader : IRelatedEntitiesLoader
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             int queryIndex,
-            Func<ValueBuffer, object> materializer) 
+            Func<ValueBuffer, object> materializer)
             => new CollectionRelatedEntitiesLoader(queryContext, shaperCommandContext, queryIndex, materializer);
 
         private class CollectionRelatedEntitiesLoader : IRelatedEntitiesLoader
@@ -541,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             IEnumerable<TElement> source,
             string[] parameterNames,
-                object[] parameterValues)
+            object[] parameterValues)
             => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
 
         private sealed class ParameterInjector<TElement> : IEnumerable<TElement>

@@ -158,10 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         [UsedImplicitly]
         private static CompositeShaper<TOuter, TInner, TResult> CreateCompositeShaper<TOuter, TInner, TResult>(
-                IQuerySource querySource,
-                IShaper<TOuter> outerShaper,
-                IShaper<TInner> innerShaper,
-                Func<TOuter, TInner, TResult> materializer)
+            IQuerySource querySource,
+            IShaper<TOuter> outerShaper,
+            IShaper<TInner> innerShaper,
+            Func<TOuter, TInner, TResult> materializer)
             => new CompositeShaper<TOuter, TInner, TResult>(
                 querySource, outerShaper, innerShaper, materializer);
 

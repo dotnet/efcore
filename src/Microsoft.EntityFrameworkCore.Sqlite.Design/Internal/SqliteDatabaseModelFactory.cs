@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                             Logger.LogDebug(
                                 SqliteDesignEventId.FoundIndex,
-                                    () => SqliteDesignStrings.FoundIndex(index.Name, table.Name, index.IsUnique));
+                                () => SqliteDesignStrings.FoundIndex(index.Name, table.Name, index.IsUnique));
 
                             table.Indexes.Add(index);
                         }
@@ -299,10 +299,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             var fkOrdinal = reader.GetValueOrDefault<int>("seq");
 
                             Logger.LogDebug(
-                                    SqliteDesignEventId.FoundForeignKeyColumn,
-                                    () => SqliteDesignStrings.FoundForeignKeyColumn(
-                                        dependentTable.Name, id, principalTableName, fromColumnName,
-                                        toColumnName, deleteAction, fkOrdinal));
+                                SqliteDesignEventId.FoundForeignKeyColumn,
+                                () => SqliteDesignStrings.FoundForeignKeyColumn(
+                                    dependentTable.Name, id, principalTableName, fromColumnName,
+                                    toColumnName, deleteAction, fkOrdinal));
 
                             ForeignKeyModel foreignKey;
                             if (!tableForeignKeys.TryGetValue(id, out foreignKey))
@@ -336,8 +336,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             {
                                 Logger.LogDebug(
                                     SqliteDesignEventId.PrincipalColumnNotFound,
-                                        () => SqliteDesignStrings.PrincipalColumnNotFound(
-                                            id, dependentTable.Name, toColumnName, principalTableName));
+                                    () => SqliteDesignStrings.PrincipalColumnNotFound(
+                                        id, dependentTable.Name, toColumnName, principalTableName));
                                 continue;
                             }
                             fkColumn.PrincipalColumn = toColumn;

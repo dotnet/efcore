@@ -85,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task<EntityEntry<TEntity>> AddAsync(
-                TEntity entity,
-                CancellationToken cancellationToken = default(CancellationToken))
+            TEntity entity,
+            CancellationToken cancellationToken = default(CancellationToken))
             => _context.AddAsync(entity, cancellationToken);
 
         /// <summary>
@@ -162,8 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task AddRangeAsync(
-                IEnumerable<TEntity> entities,
-                CancellationToken cancellationToken = default(CancellationToken))
+            IEnumerable<TEntity> entities,
+            CancellationToken cancellationToken = default(CancellationToken))
             => _context.AddRangeAsync(entities, cancellationToken);
 
         /// <summary>

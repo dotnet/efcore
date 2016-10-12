@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties().Select(p => p.ClrType.Namespace))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
-        
+
         private IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
         {
             yield return model;

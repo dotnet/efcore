@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ChangeTrackingStrategy ChangeTrackingStrategy { get; set; }
-        = ChangeTrackingStrategy.Snapshot;
+            = ChangeTrackingStrategy.Snapshot;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -230,8 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Ignore([NotNull] Type type,
-                ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-                bool runConventions = true)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
             => Ignore(Check.NotNull(type, nameof(type)).DisplayName(), type, configurationSource, runConventions);
 
         /// <summary>
@@ -239,8 +239,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Ignore([NotNull] string name,
-                ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-                bool runConventions = true)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
             => Ignore(Check.NotNull(name, nameof(name)), null, configurationSource, runConventions);
 
         private void Ignore([NotNull] string name,

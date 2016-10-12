@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         [UsedImplicitly]
         private static Func<DbContext, object> CreateConstructor<TEntity>() where TEntity : class
-        => c => new InternalDbSet<TEntity>(c);
+            => c => new InternalDbSet<TEntity>(c);
     }
 }

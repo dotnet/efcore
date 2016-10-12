@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                     {
                         var readerColumn
                             = readerColumns.SingleOrDefault(c =>
-                                    string.Equals(columnName, c.Name, StringComparison.OrdinalIgnoreCase));
+                                string.Equals(columnName, c.Name, StringComparison.OrdinalIgnoreCase));
 
                         if (readerColumn == null)
                         {

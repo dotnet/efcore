@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int Execute(
-                IEnumerable<ModificationCommandBatch> commandBatches,
-                IRelationalConnection connection)
+            IEnumerable<ModificationCommandBatch> commandBatches,
+            IRelationalConnection connection)
             => GetExecutionStrategy().Execute(Execute, Tuple.Create(commandBatches, connection));
 
         private int Execute(Tuple<IEnumerable<ModificationCommandBatch>, IRelationalConnection> parameters)
@@ -89,9 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<int> ExecuteAsync(
-                IEnumerable<ModificationCommandBatch> commandBatches,
-                IRelationalConnection connection,
-                CancellationToken cancellationToken = default(CancellationToken))
+            IEnumerable<ModificationCommandBatch> commandBatches,
+            IRelationalConnection connection,
+            CancellationToken cancellationToken = default(CancellationToken))
             => GetExecutionStrategy().ExecuteAsync(ExecuteAsync, Tuple.Create(commandBatches, connection), cancellationToken);
 
         private async Task<int> ExecuteAsync(

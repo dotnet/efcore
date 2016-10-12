@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private class NullCheckRemovalTestingVisitor : ExpressionVisitorBase
         {
             private IQuerySource _querySource;
-            private IModel _model;
+            private readonly IModel _model;
             private string _propertyName;
             private bool? _canRemoveNullCheck;
 
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var expression
                 = _queryModelVisitor
-                      .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
+                    .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
                   ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression);
 
             if (expression == null
@@ -636,8 +636,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         qmv => qmv.BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore));
             }
 
-            return expression 
-                ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
+            return expression
+                   ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
         /// <summary>
@@ -706,12 +706,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return aliasExpression 
-                ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
+            return aliasExpression
+                   ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
         }
 
         private static AliasExpression TryBindParentExpression(
-            RelationalQueryModelVisitor queryModelVisitor, 
+            RelationalQueryModelVisitor queryModelVisitor,
             Func<RelationalQueryModelVisitor, AliasExpression> binder)
         {
             if (queryModelVisitor == null)
@@ -719,8 +719,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return null;
             }
 
-            return binder(queryModelVisitor) 
-                ?? TryBindParentExpression(queryModelVisitor.ParentQueryModelVisitor, binder); 
+            return binder(queryModelVisitor)
+                   ?? TryBindParentExpression(queryModelVisitor.ParentQueryModelVisitor, binder);
         }
 
         private AliasExpression CreateAliasedColumnExpression(
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
 
         private AliasExpression CreateAliasedColumnExpressionCore(
-                IProperty property, IQuerySource querySource, SelectExpression selectExpression)
+            IProperty property, IQuerySource querySource, SelectExpression selectExpression)
             => new AliasExpression(
                 new ColumnExpression(
                     _relationalAnnotationProvider.For(property).ColumnName,
@@ -910,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
                             .CreateQueryModelVisitor(_queryModelVisitor);
 
-                    var queriesProjectionCountMapping 
+                    var queriesProjectionCountMapping
                         = _queryModelVisitor.Queries
                             .ToDictionary(k => k, s => s.Projection.Count);
 
@@ -1134,7 +1134,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="baseBehavior">The behavior exposed by <see cref="T:Remotion.Linq.Parsing.RelinqExpressionVisitor" /> for this item type.</param>
         /// <returns>An object to replace <paramref name="unhandledItem" /> in the expression tree. Alternatively, the method can throw any exception.</returns>
         protected override TResult VisitUnhandledItem<TItem, TResult>(
-                TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
+            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
             => default(TResult);
 
         /// <summary>

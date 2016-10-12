@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (lastModelSnapshotName != modelSnapshotName)
                 {
                     _logger.LogDebug(
-                    DesignEventId.ReusingSnapshotName,
-                    () => DesignStrings.ReusingSnapshotName(lastModelSnapshotName));
+                        DesignEventId.ReusingSnapshotName,
+                        () => DesignStrings.ReusingSnapshotName(lastModelSnapshotName));
 
                     modelSnapshotName = lastModelSnapshotName;
                 }

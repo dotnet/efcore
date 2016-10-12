@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
             where TRelatedEntity : class
-        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)HasConstraintName(
-            (ReferenceCollectionBuilder)referenceCollectionBuilder, name);
+            => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)HasConstraintName(
+                (ReferenceCollectionBuilder)referenceCollectionBuilder, name);
     }
 }

@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
 
         private static ICollection<ChangedOnlyNotificationEntity> CreateCollection(
-                bool ourCollection, params ChangedOnlyNotificationEntity[] items)
+            bool ourCollection, params ChangedOnlyNotificationEntity[] items)
             => ourCollection
                 ? (ICollection<ChangedOnlyNotificationEntity>)new ObservableHashSet<ChangedOnlyNotificationEntity>(items)
                 : new ObservableCollection<ChangedOnlyNotificationEntity>(items);
@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         private class TestNavigationListener : INavigationListener
         {
             public List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
-            = new List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>>();
+                = new List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>>();
 
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
 
             public void NavigationCollectionChanged(
-                    InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
+                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
                 => CollectionChanged.Add(Tuple.Create(entry, navigation, added, removed));
         }
 

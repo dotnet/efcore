@@ -55,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-                AddColumnOperation operation,
-                IModel model,
-                MigrationCommandListBuilder builder)
+            AddColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected override void Generate(
@@ -371,9 +371,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-                CreateIndexOperation operation,
-                IModel model,
-                MigrationCommandListBuilder builder)
+            CreateIndexOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected override void Generate(
@@ -681,9 +681,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-                DropIndexOperation operation,
-                IModel model,
-                MigrationCommandListBuilder builder)
+            DropIndexOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
@@ -722,9 +722,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected override void Generate(
-                DropColumnOperation operation,
-                IModel model,
-                MigrationCommandListBuilder builder)
+            DropColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected override void Generate(

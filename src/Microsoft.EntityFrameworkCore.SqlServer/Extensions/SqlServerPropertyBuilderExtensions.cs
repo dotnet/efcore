@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqlServerHasColumnName<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string name)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string name)
             => (PropertyBuilder<TProperty>)ForSqlServerHasColumnName((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
@@ -74,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="typeName"> The name of the data type of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqlServerHasColumnType<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string typeName)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string typeName)
             => (PropertyBuilder<TProperty>)ForSqlServerHasColumnType((PropertyBuilder)propertyBuilder, typeName);
 
         /// <summary>
@@ -105,8 +105,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The SQL expression for the default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqlServerHasDefaultValueSql<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string sql)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string sql)
             => (PropertyBuilder<TProperty>)ForSqlServerHasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
@@ -135,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqlServerHasDefaultValue<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] object value)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] object value)
             => (PropertyBuilder<TProperty>)ForSqlServerHasDefaultValue((PropertyBuilder)propertyBuilder, value);
 
         /// <summary>
@@ -166,8 +166,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqlServerHasComputedColumnSql<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string sql)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string sql)
             => (PropertyBuilder<TProperty>)ForSqlServerHasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
@@ -217,9 +217,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The schema of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqlServerUseSequenceHiLo<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string name = null,
-                [CanBeNull] string schema = null)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string name = null,
+            [CanBeNull] string schema = null)
             => (PropertyBuilder<TProperty>)ForSqlServerUseSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> UseSqlServerIdentityColumn<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
             => (PropertyBuilder<TProperty>)UseSqlServerIdentityColumn((PropertyBuilder)propertyBuilder);
     }
 }

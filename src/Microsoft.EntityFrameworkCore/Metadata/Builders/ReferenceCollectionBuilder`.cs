@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
-                [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+            [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
                 HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
                 this,
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
-                [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
+            [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
                 HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
                 this,

@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqliteHasColumnName<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string name)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string name)
             => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).ForSqliteHasColumnName(name);
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The name of the data type of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqliteHasColumnType<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string type)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string type)
             => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).ForSqliteHasColumnType(type);
 
         /// <summary>
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The SQL expression for the default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqliteHasDefaultValueSql<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] string sql)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string sql)
             => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).ForSqliteHasDefaultValueSql(sql);
 
         /// <summary>
@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ForSqliteHasDefaultValue<TProperty>(
-                [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-                [CanBeNull] object value)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] object value)
             => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).ForSqliteHasDefaultValue(value);
     }
 }

@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence(
-                [NotNull] this ModelBuilder modelBuilder,
-                [NotNull] string name,
-                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.ForSqlServerHasSequence(name, null, builderAction);
 
         /// <summary>
@@ -102,9 +102,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence<T>(
-                [NotNull] this ModelBuilder modelBuilder,
-                [NotNull] string name,
-                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.ForSqlServerHasSequence<T>(name, null, builderAction);
 
         /// <summary>
@@ -166,10 +166,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence(
-                [NotNull] this ModelBuilder modelBuilder,
-                [NotNull] Type clrType,
-                [NotNull] string name,
-                [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] Type clrType,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.ForSqlServerHasSequence(clrType, name, null, builderAction);
 
         /// <summary>

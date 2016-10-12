@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var _ = new ConcreteEntity1();
 
             Assert.Throws<InvalidOperationException>(() =>
-                    new ClrPropertySetterFactory().Create(property));
+                new ClrPropertySetterFactory().Create(property));
 
             entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
             property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.NoSetterProperty)));
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             _ = new ConcreteEntity2();
 
             Assert.Throws<InvalidOperationException>(() =>
-                    new ClrPropertySetterFactory().Create(property));
+                new ClrPropertySetterFactory().Create(property));
         }
 
         #region Fixture

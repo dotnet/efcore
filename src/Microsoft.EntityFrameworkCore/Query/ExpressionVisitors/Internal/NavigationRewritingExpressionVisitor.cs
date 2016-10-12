@@ -376,12 +376,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var ifTrue = Visit(node.IfTrue);
             var ifFalse = Visit(node.IfFalse);
 
-            if (ifTrue.Type.IsNullableType() && !ifFalse.Type.IsNullableType())
+            if (ifTrue.Type.IsNullableType()
+                && !ifFalse.Type.IsNullableType())
             {
                 ifFalse = Expression.Convert(ifFalse, ifTrue.Type);
             }
 
-            if (ifFalse.Type.IsNullableType() && !ifTrue.Type.IsNullableType())
+            if (ifFalse.Type.IsNullableType()
+                && !ifTrue.Type.IsNullableType())
             {
                 ifTrue = Expression.Convert(ifTrue, ifFalse.Type);
             }
@@ -944,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private static Expression CreateKeyAccessExpression(
-            Expression target, IReadOnlyList<IProperty> properties, bool addNullCheck = false) 
+            Expression target, IReadOnlyList<IProperty> properties, bool addNullCheck = false)
             => properties.Count == 1
                 ? CreatePropertyExpression(target, properties[0], addNullCheck)
                 : Expression.New(

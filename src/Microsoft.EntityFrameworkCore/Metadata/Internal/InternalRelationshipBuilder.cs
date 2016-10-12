@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder DependentToPrincipal(
-                [CanBeNull] string name,
-                ConfigurationSource configurationSource)
+            [CanBeNull] string name,
+            ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(name),
                 null,
@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder DependentToPrincipal(
-                [CanBeNull] PropertyInfo property,
-                ConfigurationSource configurationSource)
+            [CanBeNull] PropertyInfo property,
+            ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(property),
                 null,
@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder PrincipalToDependent(
-                [CanBeNull] string name,
-                ConfigurationSource configurationSource)
+            [CanBeNull] string name,
+            ConfigurationSource configurationSource)
             => Navigations(
                 null,
                 PropertyIdentity.Create(name),
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder PrincipalToDependent(
-                [CanBeNull] PropertyInfo property,
-                ConfigurationSource configurationSource)
+            [CanBeNull] PropertyInfo property,
+            ConfigurationSource configurationSource)
             => Navigations(
                 null,
                 PropertyIdentity.Create(property),
@@ -83,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Navigations(
-                [CanBeNull] string navigationToPrincipalName,
-                [CanBeNull] string navigationToDependentName,
-                ConfigurationSource configurationSource)
+            [CanBeNull] string navigationToPrincipalName,
+            [CanBeNull] string navigationToDependentName,
+            ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(navigationToPrincipalName),
                 PropertyIdentity.Create(navigationToDependentName),
@@ -96,18 +96,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Navigations(
-                [CanBeNull] PropertyInfo navigationToPrincipalProperty,
-                [CanBeNull] PropertyInfo navigationToDependentProperty,
-                ConfigurationSource configurationSource)
+            [CanBeNull] PropertyInfo navigationToPrincipalProperty,
+            [CanBeNull] PropertyInfo navigationToDependentProperty,
+            ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(navigationToPrincipalProperty),
                 PropertyIdentity.Create(navigationToDependentProperty),
                 configurationSource);
 
         private InternalRelationshipBuilder Navigations(
-                PropertyIdentity? navigationToPrincipal,
-                PropertyIdentity? navigationToDependent,
-                ConfigurationSource? configurationSource)
+            PropertyIdentity? navigationToPrincipal,
+            PropertyIdentity? navigationToDependent,
+            ConfigurationSource? configurationSource)
             => Navigations(
                 navigationToPrincipal,
                 navigationToDependent,
@@ -120,11 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Navigations(
-                [CanBeNull] string navigationToPrincipalName,
-                [CanBeNull] string navigationToDependentName,
-                [NotNull] EntityType principalEntityType,
-                [NotNull] EntityType dependentEntityType,
-                ConfigurationSource configurationSource)
+            [CanBeNull] string navigationToPrincipalName,
+            [CanBeNull] string navigationToDependentName,
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
+            ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(navigationToPrincipalName),
                 PropertyIdentity.Create(navigationToDependentName),
@@ -137,11 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Navigations(
-                [CanBeNull] PropertyInfo navigationToPrincipalProperty,
-                [CanBeNull] PropertyInfo navigationToDependentProperty,
-                [NotNull] EntityType principalEntityType,
-                [NotNull] EntityType dependentEntityType,
-                ConfigurationSource configurationSource)
+            [CanBeNull] PropertyInfo navigationToPrincipalProperty,
+            [CanBeNull] PropertyInfo navigationToDependentProperty,
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
+            ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(navigationToPrincipalProperty),
                 PropertyIdentity.Create(navigationToDependentProperty),
@@ -194,10 +194,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalRelationshipBuilder Navigations(
-                PropertyIdentity? navigationToPrincipal,
-                PropertyIdentity? navigationToDependent,
-                ConfigurationSource? configurationSource,
-                bool runConventions)
+            PropertyIdentity? navigationToPrincipal,
+            PropertyIdentity? navigationToDependent,
+            ConfigurationSource? configurationSource,
+            bool runConventions)
             => Navigations(
                 navigationToPrincipal,
                 navigationToDependent,
@@ -487,14 +487,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private bool CanSetNavigations(
-                PropertyIdentity? navigationToPrincipal,
-                PropertyIdentity? navigationToDependent,
-                ConfigurationSource? configurationSource,
-                bool shouldThrow,
-                bool overrideSameSource,
-                out bool? shouldInvert,
-                out bool? shouldBeUnique,
-                out bool removeOppositeNavigation)
+            PropertyIdentity? navigationToPrincipal,
+            PropertyIdentity? navigationToDependent,
+            ConfigurationSource? configurationSource,
+            bool shouldThrow,
+            bool overrideSameSource,
+            out bool? shouldInvert,
+            out bool? shouldBeUnique,
+            out bool removeOppositeNavigation)
             => CanSetNavigations(
                 navigationToPrincipal,
                 navigationToDependent,
@@ -967,7 +967,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder DependentEntityType(
-                [NotNull] InternalEntityTypeBuilder dependentEntityTypeBuilder, ConfigurationSource configurationSource)
+            [NotNull] InternalEntityTypeBuilder dependentEntityTypeBuilder, ConfigurationSource configurationSource)
             => DependentEntityType(dependentEntityTypeBuilder.Metadata, configurationSource, runConventions: true);
 
         /// <summary>
@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder DependentEntityType(
-                [NotNull] Type dependentType, ConfigurationSource configurationSource)
+            [NotNull] Type dependentType, ConfigurationSource configurationSource)
             => DependentEntityType(ModelBuilder.Entity(dependentType, configurationSource).Metadata,
                 configurationSource, runConventions: true);
 
@@ -984,7 +984,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder DependentEntityType(
-                [NotNull] string dependentTypeName, ConfigurationSource configurationSource)
+            [NotNull] string dependentTypeName, ConfigurationSource configurationSource)
             => DependentEntityType(ModelBuilder.Entity(dependentTypeName, configurationSource).Metadata, configurationSource, runConventions: true);
 
         /// <summary>
@@ -992,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder DependentEntityType(
-                [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
+            [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => DependentEntityType(dependentEntityType, configurationSource, runConventions: true);
 
         private InternalRelationshipBuilder DependentEntityType(
@@ -1030,7 +1030,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder PrincipalEntityType(
-                [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder, ConfigurationSource configurationSource)
+            [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder, ConfigurationSource configurationSource)
             => PrincipalEntityType(principalEntityTypeBuilder.Metadata, configurationSource, runConventions: true);
 
         /// <summary>
@@ -1038,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder PrincipalEntityType(
-                [NotNull] Type principalType, ConfigurationSource configurationSource)
+            [NotNull] Type principalType, ConfigurationSource configurationSource)
             => PrincipalEntityType(ModelBuilder.Entity(principalType, configurationSource).Metadata,
                 configurationSource, runConventions: true);
 
@@ -1047,7 +1047,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder PrincipalEntityType(
-                [NotNull] string principalTypeName, ConfigurationSource configurationSource)
+            [NotNull] string principalTypeName, ConfigurationSource configurationSource)
             => PrincipalEntityType(ModelBuilder.Entity(principalTypeName, configurationSource).Metadata,
                 configurationSource, runConventions: true);
 
@@ -1056,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder PrincipalEntityType(
-                [NotNull] EntityType principalEntityType, ConfigurationSource configurationSource)
+            [NotNull] EntityType principalEntityType, ConfigurationSource configurationSource)
             => PrincipalEntityType(principalEntityType, configurationSource, runConventions: true);
 
         private InternalRelationshipBuilder PrincipalEntityType(
@@ -1093,10 +1093,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder RelatedEntityTypes(
-                [NotNull] EntityType principalEntityType,
-                [NotNull] EntityType dependentEntityType,
-                ConfigurationSource? configurationSource,
-                bool runConventions = true)
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
+            ConfigurationSource? configurationSource,
+            bool runConventions = true)
             => RelatedEntityTypes(principalEntityType, dependentEntityType, configurationSource, configurationSource, runConventions);
 
         private InternalRelationshipBuilder RelatedEntityTypes(
@@ -1207,7 +1207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool CanInvert(
-                [CanBeNull] IReadOnlyList<Property> newForeignKeyProperties, ConfigurationSource configurationSource)
+            [CanBeNull] IReadOnlyList<Property> newForeignKeyProperties, ConfigurationSource configurationSource)
             => CanInvert(configurationSource)
                && ((newForeignKeyProperties == null)
                    || CanSetForeignKey(newForeignKeyProperties, configurationSource, Metadata.PrincipalEntityType));
@@ -1228,7 +1228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
-                [NotNull] IReadOnlyList<MemberInfo> properties, ConfigurationSource configurationSource)
+            [NotNull] IReadOnlyList<MemberInfo> properties, ConfigurationSource configurationSource)
             => HasForeignKey(properties, Metadata.DeclaringEntityType, configurationSource);
 
         /// <summary>
@@ -1236,7 +1236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
-                [NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
+            [NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => HasForeignKey(propertyNames, Metadata.DeclaringEntityType, configurationSource);
 
         /// <summary>
@@ -1244,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
-                [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+            [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
             => HasForeignKey(properties, Metadata.DeclaringEntityType, configurationSource);
 
         /// <summary>
@@ -1252,7 +1252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
-                [NotNull] IReadOnlyList<MemberInfo> properties, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
+            [NotNull] IReadOnlyList<MemberInfo> properties, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => HasForeignKey(
                 dependentEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
                 dependentEntityType,
@@ -1264,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
-                [NotNull] IReadOnlyList<string> propertyNames, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
+            [NotNull] IReadOnlyList<string> propertyNames, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => HasForeignKey(
                 dependentEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource, Metadata.PrincipalKey.Properties),
                 dependentEntityType,
@@ -1276,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
-                [CanBeNull] IReadOnlyList<Property> properties, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
+            [CanBeNull] IReadOnlyList<Property> properties, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => HasForeignKey(
                 dependentEntityType.Builder.GetActualProperties(properties, configurationSource),
                 dependentEntityType,
@@ -1288,7 +1288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
-                [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource? configurationSource, bool runConventions)
+            [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource? configurationSource, bool runConventions)
             => HasForeignKey(properties, Metadata.DeclaringEntityType, configurationSource, runConventions);
 
         /// <summary>
@@ -1455,7 +1455,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasPrincipalKey([NotNull] IReadOnlyList<PropertyInfo> properties,
-                ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource)
             => HasPrincipalKey(
                 Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
                 configurationSource,
@@ -1466,7 +1466,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasPrincipalKey([NotNull] IReadOnlyList<string> propertyNames,
-                ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource)
             => HasPrincipalKey(
                 Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource,
@@ -1477,7 +1477,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasPrincipalKey(
-                [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+            [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
             => HasPrincipalKey(
                 Metadata.PrincipalEntityType.Builder.GetActualProperties(properties, configurationSource),
                 configurationSource,
@@ -2141,10 +2141,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || resetToDependent)
             {
                 newRelationshipBuilder = newRelationshipBuilder.Navigations(
-                                             resetToPrincipal ? PropertyIdentity.None : (PropertyIdentity?)null,
-                                             resetToDependent ? PropertyIdentity.None : (PropertyIdentity?)null,
-                                             configurationSource,
-                                             runConventions: false)
+                    resetToPrincipal ? PropertyIdentity.None : (PropertyIdentity?)null,
+                    resetToDependent ? PropertyIdentity.None : (PropertyIdentity?)null,
+                    configurationSource,
+                    runConventions: false)
                                          ?? newRelationshipBuilder;
             }
             if (newRelationshipBuilder.Metadata.GetForeignKeyPropertiesConfigurationSource() != null

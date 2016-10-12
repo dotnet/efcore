@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         }
                     }
                     else if (orderingExpression is ConstantExpression
-                        || orderingExpression is ParameterExpression)
+                             || orderingExpression is ParameterExpression)
                     {
                         _relationalCommandBuilder.Append("(SELECT 1)");
                     }
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         private void VisitJoin(
-                IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
+            IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
             => VisitJoin(expressions, e => Visit(e), joinAction);
 
         private void VisitJoin<T>(

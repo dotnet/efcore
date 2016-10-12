@@ -181,10 +181,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
-                [CanBeNull] string name,
-                // ReSharper disable once MethodOverloadWithOptionalParameter
-                ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-                bool runConventions = true)
+            [CanBeNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
             => Navigation(PropertyIdentity.Create(name), configurationSource, runConventions, pointsToPrincipal: true);
 
         /// <summary>
@@ -192,9 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
-                [CanBeNull] PropertyInfo property,
-                ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-                bool runConventions = true)
+            [CanBeNull] PropertyInfo property,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
             => Navigation(PropertyIdentity.Create(property), configurationSource, runConventions, pointsToPrincipal: true);
 
         /// <summary>
@@ -221,10 +221,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
-                [CanBeNull] string name,
-                // ReSharper disable once MethodOverloadWithOptionalParameter
-                ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-                bool runConventions = true)
+            [CanBeNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
             => Navigation(PropertyIdentity.Create(name), configurationSource, runConventions, pointsToPrincipal: false);
 
         /// <summary>
@@ -232,9 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
-                [CanBeNull] PropertyInfo property,
-                ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-                bool runConventions = true)
+            [CanBeNull] PropertyInfo property,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
             => Navigation(PropertyIdentity.Create(property), configurationSource, runConventions, pointsToPrincipal: false);
 
         /// <summary>

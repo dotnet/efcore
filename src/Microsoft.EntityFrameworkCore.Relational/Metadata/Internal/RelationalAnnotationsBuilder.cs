@@ -44,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override bool SetAnnotation(
-                string relationalAnnotationName,
-                string providerAnnotationName,
-                object value)
+            string relationalAnnotationName,
+            string providerAnnotationName,
+            object value)
             => MetadataBuilder.HasAnnotation(providerAnnotationName ?? relationalAnnotationName, value, ConfigurationSource);
 
         /// <summary>
@@ -54,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override bool CanSetAnnotation(
-                string relationalAnnotationName,
-                string providerAnnotationName,
-                object value)
+            string relationalAnnotationName,
+            string providerAnnotationName,
+            object value)
             => MetadataBuilder.CanSetAnnotation(providerAnnotationName ?? relationalAnnotationName, value, ConfigurationSource);
     }
 }

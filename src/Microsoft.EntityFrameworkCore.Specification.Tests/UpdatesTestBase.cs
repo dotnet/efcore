@@ -253,14 +253,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected abstract string UpdateConcurrencyMessage { get; }
 
         protected virtual void ExecuteWithStrategyInTransaction(
-                Action<UpdatesContext> testOperation,
-                Action<UpdatesContext> nestedTestOperation1 = null)
+            Action<UpdatesContext> testOperation,
+            Action<UpdatesContext> nestedTestOperation1 = null)
             => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1);
 
         protected virtual Task ExecuteWithStrategyInTransactionAsync(
-                Func<UpdatesContext, Task> testOperation,
-                Func<UpdatesContext, Task> nestedTestOperation1 = null)
+            Func<UpdatesContext, Task> testOperation,
+            Func<UpdatesContext, Task> nestedTestOperation1 = null)
             => DbContextHelpers.ExecuteWithStrategyInTransactionAsync(CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1);
 

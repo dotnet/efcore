@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (keyProperties.Count == 0)
             {
                 keyProperties = candidateProperties.Where(
-                        p => string.Equals(p.Name, entityType.DisplayName() + KeySuffix, StringComparison.OrdinalIgnoreCase))
+                    p => string.Equals(p.Name, entityType.DisplayName() + KeySuffix, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
 
