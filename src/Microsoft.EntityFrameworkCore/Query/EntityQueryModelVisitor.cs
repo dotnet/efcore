@@ -450,9 +450,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         includeResultOperator.NavigationPropertyPath));
                             }
 
+                            var selectManyQuerySource = ((includeResultOperator.QuerySource as AdditionalFromClause)
+                                ?.FromExpression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
+
                             return new
                             {
-                                specification = new IncludeSpecification(includeResultOperator.QuerySource, navigationPath),
+                                specification = new IncludeSpecification(selectManyQuerySource ?? includeResultOperator.QuerySource, navigationPath),
                                 order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
                             };
                         })
