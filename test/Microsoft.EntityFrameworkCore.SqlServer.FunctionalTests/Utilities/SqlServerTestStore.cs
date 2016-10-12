@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         public const int CommandTimeout = 90;
 
-#if NETCOREAPP1_1
+#if NETCOREAPP1_0
         private static string BaseDirectory => AppContext.BaseDirectory;
 #else
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;

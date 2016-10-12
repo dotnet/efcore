@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_1
+#if NETCOREAPP1_0
 using System.Reflection;
 #endif
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
@@ -392,7 +392,7 @@ CREATE TABLE IF NOT EXISTS Comment (
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NETCOREAPP1_1
+#if NETCOREAPP1_0
                 BuildReference.ByName("System.Collections"),
                 BuildReference.ByName("System.Data.Common"),
                 BuildReference.ByName("System.Linq.Expressions"),

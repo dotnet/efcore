@@ -1928,7 +1928,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
             {
                 References =
                 {
-#if NETCOREAPP1_1
+#if NETCOREAPP1_0
                     BuildReference.ByName("System.Collections"),
                     BuildReference.ByName("System.Linq.Expressions"),
                     BuildReference.ByName("System.Reflection"),
