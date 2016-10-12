@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -90,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var oldConvention = conventionsList.OfType<T2>().FirstOrDefault();
             if (oldConvention == null)
             {
-                return;
+                throw new InvalidOperationException();
             }
             var index = conventionsList.IndexOf(oldConvention);
             conventionsList.RemoveAt(index);

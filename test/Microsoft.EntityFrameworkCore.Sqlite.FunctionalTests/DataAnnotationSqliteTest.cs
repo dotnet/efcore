@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        [Fact]
         public override ModelBuilder Non_public_annotations_are_enabled()
         {
             var modelBuilder = base.Non_public_annotations_are_enabled();
@@ -32,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Field_annotations_are_enabled()
         {
             var modelBuilder = base.Field_annotations_are_enabled();
@@ -44,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Key_and_column_work_together()
         {
             var modelBuilder = base.Key_and_column_work_together();
@@ -56,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Key_and_MaxLength_64_produce_nvarchar_64()
         {
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
@@ -67,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Timestamp_takes_precedence_over_MaxLength()
         {
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
@@ -78,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Timestamp_takes_precedence_over_MaxLength_with_value()
         {
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
@@ -89,13 +83,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
         {
             var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
 
             var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).Relational();
             Assert.Equal("A", relational.TableName);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
+        {
+            var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
+
+            var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
+            Assert.False(identity.RequiresValueGenerator);
 
             return modelBuilder;
         }

@@ -707,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
-        public virtual void Key_property_is_not_used_for_FK_when_set_by_annotation()
+        public virtual ModelBuilder Key_property_is_not_used_for_FK_when_set_by_annotation()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -718,6 +718,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.False(toy.Metadata.GetForeignKeys().Any(fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow))));
 
             Validate(modelBuilder);
+
+            return modelBuilder;
         }
 
         public class Parent
@@ -748,6 +750,43 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public int IdRow { get; set; }
 
             public string Name { get; set; }
+        }
+
+        [Fact]
+        public virtual ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<GeneratedEntity>();
+
+            var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity));
+
+            var id = entity.FindProperty(nameof(GeneratedEntity.Id));
+            Assert.Equal(ValueGenerated.Never, id.ValueGenerated);
+            Assert.False(id.RequiresValueGenerator);
+
+            var identity = entity.FindProperty(nameof(GeneratedEntity.Identity));
+            Assert.Equal(ValueGenerated.OnAdd, identity.ValueGenerated);
+
+            var version = entity.FindProperty(nameof(GeneratedEntity.Version));
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, version.ValueGenerated);
+            Assert.False(version.RequiresValueGenerator);
+
+            Validate(modelBuilder);
+
+            return modelBuilder;
+        }
+
+        public class GeneratedEntity
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int Identity { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+            public Guid Version { get; set; }
         }
 
         [Fact]

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            propertyBuilder.Metadata.SqlServer().ColumnName = name;
+            GetSqlServerInternalBuilder(propertyBuilder).ColumnName(name);
 
             return propertyBuilder;
         }
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(typeName, nameof(typeName));
 
-            propertyBuilder.Metadata.SqlServer().ColumnType = typeName;
+            GetSqlServerInternalBuilder(propertyBuilder).ColumnType(typeName);
 
             return propertyBuilder;
         }
@@ -91,8 +91,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
-            internalPropertyBuilder.SqlServer(ConfigurationSource.Explicit).DefaultValueSql(sql);
+            GetSqlServerInternalBuilder(propertyBuilder).DefaultValueSql(sql);
 
             return propertyBuilder;
         }
@@ -121,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
-            internalPropertyBuilder.SqlServer(ConfigurationSource.Explicit).DefaultValue(value);
+            GetSqlServerInternalBuilder(propertyBuilder).DefaultValue(value);
 
             return propertyBuilder;
         }
@@ -152,8 +150,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
-            internalPropertyBuilder.SqlServer(ConfigurationSource.Explicit).ComputedColumnSql(sql);
+            GetSqlServerInternalBuilder(propertyBuilder).ComputedColumnSql(sql);
 
             return propertyBuilder;
         }
@@ -198,9 +195,8 @@ namespace Microsoft.EntityFrameworkCore
                 model.SqlServer().GetOrAddSequence(name, schema).IncrementBy = 10;
             }
 
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
-            property.ValueGenerated = ValueGenerated.OnAdd;
-            property.RequiresValueGenerator = true;
+            GetSqlServerInternalBuilder(propertyBuilder).ValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
+
             property.SqlServer().HiLoSequenceName = name;
             property.SqlServer().HiLoSequenceSchema = schema;
 
@@ -233,13 +229,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var property = propertyBuilder.Metadata;
-
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
-            property.ValueGenerated = ValueGenerated.OnAdd;
-            property.RequiresValueGenerator = true;
-            property.SqlServer().HiLoSequenceName = null;
-            property.SqlServer().HiLoSequenceSchema = null;
+            GetSqlServerInternalBuilder(propertyBuilder).ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
 
             return propertyBuilder;
         }
@@ -254,5 +244,8 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyBuilder<TProperty> UseSqlServerIdentityColumn<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
             => (PropertyBuilder<TProperty>)UseSqlServerIdentityColumn((PropertyBuilder)propertyBuilder);
+
+        private static SqlServerPropertyBuilderAnnotations GetSqlServerInternalBuilder(PropertyBuilder propertyBuilder)
+            => propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().SqlServer(ConfigurationSource.Explicit);
     }
 }

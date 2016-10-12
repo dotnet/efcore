@@ -13,6 +13,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
         }
 
+        public override ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
+        {
+            var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
+
+            var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
+            Assert.False(identity.RequiresValueGenerator);
+
+            return modelBuilder;
+        }
+
         public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
         {
             using (var context = CreateContext())
