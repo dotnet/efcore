@@ -20,7 +20,7 @@
     "preserveCompilationContext": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-preview2-final",
+    "Microsoft.EntityFrameworkCore.Design": "1.0.1",
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.1",
     "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.1",
     "Microsoft.Extensions.DependencyModel": "1.0.0",

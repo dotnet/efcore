@@ -6,6 +6,9 @@ namespace E2E.Sqlite
 {
     public partial class FkToAltKeyContext : DbContext
     {
+        public virtual DbSet<Comment> Comment { get; set; }
+        public virtual DbSet<User> User { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
@@ -30,8 +33,5 @@ namespace E2E.Sqlite
                     .IsUnique();
             });
         }
-
-        public virtual DbSet<Comment> Comment { get; set; }
-        public virtual DbSet<User> User { get; set; }
     }
 }
