@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return node.Update(node.Object, new[] { node.Arguments[0], newSelector });
                 }
 
-                if (node.Method.MethodIsClosedFormOf(EntityQueryMethodInfo)
+                if (_accessorExpression.Type == node.Type.TryGetSequenceType()
                     || node.Method.MethodIsClosedFormOf(OfTypeMethodInfo))
                 {
                     return ApplyTopLevelInclude(node);
@@ -140,15 +140,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return base.VisitMethodCall(node);
             }
 
-            private Expression ApplyTopLevelInclude(MethodCallExpression methodCallExpression)
-            {
-                var elementType = methodCallExpression.Type.GetTypeInfo().GenericTypeArguments.First();
-                var includeMethod = _includeMethodInfo.MakeGenericMethod(elementType);
-
-                var result = Expression.Call(
-                    includeMethod,
+            private Expression ApplyTopLevelInclude(Expression expression)
+                => Expression.Call(
+                    _includeMethodInfo.MakeGenericMethod(
+                        expression.Type.GetTypeInfo().GenericTypeArguments.First()),
                     QueryContextParameter,
-                    methodCallExpression,
+                    expression,
                     Expression.Constant(_includeSpecification),
                     Expression.Constant(
                         _includeSpecification.NavigationPath
@@ -161,9 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 })
                             .ToArray()),
                     Expression.Constant(_querySourceRequiresTracking));
-
-                return result;
-            }
 
             private class SelectorIncludeInjectingExpressionVisitor : ExpressionVisitorBase
             {
@@ -237,14 +231,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
-            {
-                return ((InMemoryQueryContext)queryContext).Store
+                => ((InMemoryQueryContext)queryContext).Store
                     .GetTables(_targetType)
                     .SelectMany(t =>
                         t.Rows.Select(vs => new EntityLoadInfo(
                                 new ValueBuffer(vs), vb => _materializer(t.EntityType, vb)))
                             .Where(eli => keyComparer.ShouldInclude(eli.ValueBuffer)));
-            }
 
             public void Dispose()
             {
@@ -366,25 +358,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<IEntityType, ValueBuffer, object> materializer,
             bool queryStateManager)
             where TEntity : class
-        {
-            return ((InMemoryQueryContext)queryContext).Store
-                .GetTables(entityType)
-                .SelectMany(t =>
-                    t.Rows.Select(vs =>
-                        {
-                            var valueBuffer = new ValueBuffer(vs);
+        => ((InMemoryQueryContext)queryContext).Store
+            .GetTables(entityType)
+            .SelectMany(t =>
+                t.Rows.Select(vs =>
+                    {
+                        var valueBuffer = new ValueBuffer(vs);
 
-                            return (TEntity)queryContext
-                                .QueryBuffer
-                                .GetEntity(
-                                    key,
-                                    new EntityLoadInfo(
-                                        valueBuffer,
-                                        vr => materializer(t.EntityType, vr)),
-                                    queryStateManager,
-                                    throwOnNullKey: false);
-                        }));
-        }
+                        return (TEntity)queryContext
+                            .QueryBuffer
+                            .GetEntity(
+                                key,
+                                new EntityLoadInfo(
+                                    valueBuffer,
+                                    vr => materializer(t.EntityType, vr)),
+                                queryStateManager,
+                                throwOnNullKey: false);
+                    }));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -396,12 +386,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         private static IEnumerable<ValueBuffer> ProjectionQuery(
-            QueryContext queryContext,
-            IEntityType entityType)
-        {
-            return ((InMemoryQueryContext)queryContext).Store
+                QueryContext queryContext,
+                IEntityType entityType)
+            => ((InMemoryQueryContext)queryContext).Store
                 .GetTables(entityType)
                 .SelectMany(t => t.Rows.Select(vs => new ValueBuffer(vs)));
-        }
     }
 }
