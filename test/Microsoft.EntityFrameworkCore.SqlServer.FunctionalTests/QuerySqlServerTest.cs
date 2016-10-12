@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_1
+#if NETCOREAPP1_0
 using System.Threading;
 #endif
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests

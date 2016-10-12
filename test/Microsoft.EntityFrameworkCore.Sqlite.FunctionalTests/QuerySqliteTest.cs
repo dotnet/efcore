@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_1
+#if NETCOREAPP1_0
 using System.Threading;
 #endif
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
