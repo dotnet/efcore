@@ -4593,6 +4593,41 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
+        [ConditionalFact]
+        public virtual void Sometimes_not_calling_DetectChanges_when_required_does_not_throw_for_null_ref()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var dependent = context.BadOrders.Single();
+
+                    dependent.BadCustomerId = null;
+
+                    var principal = context.BadCustomers.Single();
+
+                    principal.Status++;
+
+                    Assert.Null(dependent.BadCustomerId);
+                    Assert.Null(dependent.BadCustomer);
+                    Assert.Empty(principal.BadOrders);
+
+                    context.SaveChanges();
+
+                    Assert.Null(dependent.BadCustomerId);
+                    Assert.Null(dependent.BadCustomer);
+                    Assert.Empty(principal.BadOrders);
+                },
+                context =>
+                {
+                    var dependent = context.BadOrders.Single();
+                    var principal = context.BadCustomers.Single();
+
+                    Assert.Null(dependent.BadCustomerId);
+                    Assert.Null(dependent.BadCustomer);
+                    Assert.Empty(principal.BadOrders);
+                });
+        }
+
         private void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
 
         private void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
@@ -6394,6 +6429,56 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public override int GetHashCode() => base.GetHashCode();
         }
 
+        protected class BadCustomer : NotifyingEntity
+        {
+            private int _id;
+            private int _status;
+            private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>();
+
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public int Status
+            {
+                get { return _status; }
+                set { SetWithNotify(value, ref _status); }
+            }
+
+            public ICollection<BadOrder> BadOrders
+            {
+                get { return _badOrders; }
+                set { SetWithNotify(value, ref _badOrders); }
+            }
+        }
+
+        protected class BadOrder : NotifyingEntity
+        {
+            private int _id;
+            private int? _badCustomerId;
+            private BadCustomer _badCustomer;
+
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public int? BadCustomerId
+            {
+                get { return _badCustomerId; }
+                set { SetWithNotify(value, ref _badCustomerId); }
+            }
+
+            public BadCustomer BadCustomer
+            {
+                get { return _badCustomer; }
+                set { SetWithNotify(value, ref _badCustomer); }
+            }
+        }
+
         protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
             protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
@@ -6446,6 +6531,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public DbSet<RequiredComposite2> RequiredComposite2s { get; set; }
             public DbSet<OptionalAk2> OptionalAk2s { get; set; }
             public DbSet<OptionalComposite2> OptionalComposite2s { get; set; }
+
+            public DbSet<BadCustomer> BadCustomers { get; set; }
+            public DbSet<BadOrder> BadOrders { get; set; }
         }
 
         protected GraphUpdatesContext CreateContext()
@@ -6919,6 +7007,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var tracker = new KeyValueEntityTracker();
 
                 context.ChangeTracker.TrackGraph(CreateFullGraph(), e => tracker.TrackEntity(e.Entry));
+
+                context.Add(new BadOrder { BadCustomer = new BadCustomer() });
+
                 context.SaveChanges();
             }
 
