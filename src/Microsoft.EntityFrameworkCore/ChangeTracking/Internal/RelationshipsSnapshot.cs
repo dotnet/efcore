@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var index = propertyBase.GetRelationshipIndex();
                 if (index != -1)
                 {
-                    ((HashSet<object>)_values[index]).Remove(removedEntity);
+                    ((HashSet<object>)_values[index])?.Remove(removedEntity);
                 }
             }
 
