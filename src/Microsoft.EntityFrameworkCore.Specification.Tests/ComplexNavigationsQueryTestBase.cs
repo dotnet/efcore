@@ -1298,9 +1298,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1332,9 +1332,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1359,9 +1359,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1393,9 +1393,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1420,9 +1420,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1451,9 +1451,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1491,9 +1491,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1522,9 +1522,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1562,9 +1562,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1589,9 +1589,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1620,9 +1620,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1651,9 +1651,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1682,9 +1682,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1713,9 +1713,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1744,9 +1744,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1775,9 +1775,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1803,9 +1803,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1830,9 +1830,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1857,9 +1857,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1886,9 +1886,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -1917,9 +1917,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -1950,10 +1950,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(expected.Count, result.Count);
                 var id1s = expected.Select(e => e.Key);
                 var id2s = expected.Select(e => e.Value);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(id1s.Contains(result[i].Id1));
-                    Assert.True(id2s.Contains(result[i].Id2));
+                    Assert.True(id1s.Contains(resultItem.Id1));
+                    Assert.True(id2s.Contains(resultItem.Id2));
                 }
             }
         }
@@ -1985,10 +1985,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(expected.Count, result.Count);
                 var id1s = expected.Select(e => e.Key);
                 var id2s = expected.Select(e => e.Value);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(id1s.Contains(result[i].Id1));
-                    Assert.True(id2s.Contains(result[i].Id2));
+                    Assert.True(id1s.Contains(resultItem.Id1));
+                    Assert.True(id2s.Contains(resultItem.Id2));
                 }
             }
         }
@@ -2020,10 +2020,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(expected.Count, result.Count);
                 var id1s = expected.Select(e => e.Key);
                 var id2s = expected.Select(e => e.Value);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(id1s.Contains(result[i].Id1));
-                    Assert.True(id2s.Contains(result[i].Id2));
+                    Assert.True(id1s.Contains(resultItem.Id1));
+                    Assert.True(id2s.Contains(resultItem.Id2));
                 }
             }
         }
@@ -2055,10 +2055,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(expected.Count, result.Count);
                 var id1s = expected.Select(e => e.Key);
                 var id2s = expected.Select(e => e.Value);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(id1s.Contains(result[i].Id1));
-                    Assert.True(id2s.Contains(result[i].Id2));
+                    Assert.True(id1s.Contains(resultItem.Id1));
+                    Assert.True(id2s.Contains(resultItem.Id2));
                 }
             }
         }
@@ -2085,9 +2085,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -2117,9 +2117,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -2149,9 +2149,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -2194,10 +2194,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(expected.Count, result.Count);
                 var names = expected.Select(e => e.Key);
                 var ids = expected.Select(e => e.Value);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(names.Contains(result[i].Name));
-                    Assert.True(ids.Contains(result[i].Id));
+                    Assert.True(names.Contains(resultItem.Name));
+                    Assert.True(ids.Contains(resultItem.Id));
                 }
             }
         }
@@ -2240,10 +2240,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(expected.Count, result.Count);
                 var names = expected.Select(e => e.Key);
                 var ids = expected.Select(e => e.Value);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(names.Contains(result[i].Name));
-                    Assert.True(ids.Contains(result[i].Id));
+                    Assert.True(names.Contains(resultItem.Name));
+                    Assert.True(ids.Contains(resultItem.Id));
                 }
             }
         }
@@ -2286,12 +2286,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    var expectedElement = expected.Where(e => e.Id == result[i].Id).Single();
-                    Assert.True(expectedElement.Name == result[i].Name);
-                    Assert.True(expectedElement.Inner?.Id == result[i].Inner?.Id);
-                    Assert.True(expectedElement.Inner?.Name == result[i].Inner?.Name);
+                    var expectedElement = expected.Where(e => e.Id == resultItem.Id).Single();
+                    Assert.True(expectedElement.Name == resultItem.Name);
+                    Assert.True(expectedElement.Inner?.Id == resultItem.Inner?.Id);
+                    Assert.True(expectedElement.Inner?.Name == resultItem.Inner?.Name);
                 }
             }
         }
@@ -2369,9 +2369,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -2448,12 +2448,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    var expectedElement = expected.Where(e => e.Id == result[i].Id).Single();
+                    var expectedElement = expected.Where(e => e.Id == resultItem.Id).Single();
 
-                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Id, result[i].OneToOne_Optional_FK?.Id);
-                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Name, result[i].OneToOne_Optional_FK?.Name);
+                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Id, resultItem.OneToOne_Optional_FK?.Id);
+                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Name, resultItem.OneToOne_Optional_FK?.Name);
                 }
             }
         }
@@ -2484,14 +2484,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    var expectedElement = expected.Where(e => e.Id == result[i].Id).Single();
+                    var expectedElement = expected.Where(e => e.Id == resultItem.Id).Single();
 
-                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Id, result[i].OneToOne_Optional_FK?.Id);
-                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Name, result[i].OneToOne_Optional_FK?.Name);
+                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Id, resultItem.OneToOne_Optional_FK?.Id);
+                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Name, resultItem.OneToOne_Optional_FK?.Name);
 
-                    var resultCollection = result[i].OneToOne_Optional_FK?.OneToMany_Required;
+                    var resultCollection = resultItem.OneToOne_Optional_FK?.OneToMany_Required;
                     Assert.Equal(expectedElement.OneToOne_Optional_FK?.OneToMany_Required?.Count, resultCollection?.Count);
 
                     if (resultCollection != null)
@@ -2538,12 +2538,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(5, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    var expectedElement = expected.Where(e => e.Key.Id == result[i].l1.Id).Single();
+                    var expectedElement = expected.Where(e => e.Key.Id == resultItem.l1.Id).Single();
 
                     var expectedOneToManyOptional = expectedElement.Key.OneToMany_Optional?.ToList();
-                    var actualOneToManyOptional = result[i].l1.OneToMany_Optional?.ToList();
+                    var actualOneToManyOptional = resultItem.l1.OneToMany_Optional?.ToList();
 
                     Assert.Equal(expectedOneToManyOptional?.Count, actualOneToManyOptional?.Count);
                     if (expectedOneToManyOptional != null)
@@ -2555,8 +2555,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     }
 
                     var expectedGrouping = expectedElement.Value?.ToList();
-                    var actualGrouping = result[i].grouping?.ToList();
-                    Assert.Equal(expectedGrouping?.Count(), result[i].grouping?.Count());
+                    var actualGrouping = resultItem.grouping?.ToList();
+                    Assert.Equal(expectedGrouping?.Count(), resultItem.grouping?.Count());
                     if (expectedGrouping != null)
                     {
                         for (var j = 0; j < expectedGrouping.Count(); j++)
@@ -2592,23 +2592,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 expected = (from e3 in context.LevelThree.ToList()
-                               join e1 in context.LevelOne.ToList()
-                               on
-                               (int?)e3.Id
-                               equals
-                               (
-                                   from subQuery2 in context.LevelTwo.ToList()
-                                   join subQuery3 in context.LevelThree.ToList()
-                                   on
-                                   subQuery2 != null ? (int?)subQuery2.Id : null
-                                   equals
-                                   subQuery3.Level2_Optional_Id
-                                   into
-                                   grouping
-                                   from subQuery3 in grouping.DefaultIfEmpty()
-                                   select subQuery3 != null ? (int?)subQuery3.Id : null
-                               ).FirstOrDefault()
-                               select e1.Id).ToList();
+                            join e1 in context.LevelOne.ToList()
+                            on
+                            (int?)e3.Id
+                            equals
+                            (
+                                from subQuery2 in context.LevelTwo.ToList()
+                                join subQuery3 in context.LevelThree.ToList()
+                                on
+                                subQuery2 != null ? (int?)subQuery2.Id : null
+                                equals
+                                subQuery3.Level2_Optional_Id
+                                into
+                                grouping
+                                from subQuery3 in grouping.DefaultIfEmpty()
+                                select subQuery3 != null ? (int?)subQuery3.Id : null
+                            ).FirstOrDefault()
+                            select e1.Id).ToList();
 
             }
 
@@ -2663,9 +2663,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -2692,9 +2692,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -2724,9 +2724,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -2756,9 +2756,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -2785,9 +2785,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Id));
+                    Assert.True(expected.Contains(resultItem.Id));
                 }
             }
         }
@@ -2815,9 +2815,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -2845,9 +2845,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Name));
+                    Assert.True(expected.Contains(resultItem.Name));
                 }
             }
         }
@@ -2874,9 +2874,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -2905,9 +2905,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -2936,9 +2936,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -2967,9 +2967,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -3004,9 +3004,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -3041,9 +3041,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -3076,9 +3076,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -3148,9 +3148,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -3213,9 +3213,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -3243,9 +3243,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -3284,9 +3284,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Name));
+                    Assert.True(expected.Contains(resultItem.Name));
                 }
             }
         }
@@ -3332,9 +3332,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Name));
+                    Assert.True(expected.Contains(resultItem.Name));
                 }
             }
         }
@@ -3378,9 +3378,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Name));
+                    Assert.True(expected.Contains(resultItem.Name));
                 }
             }
         }
@@ -3423,9 +3423,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i].Name));
+                    Assert.True(expected.Contains(resultItem.Name));
                 }
             }
         }
@@ -3465,9 +3465,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -3493,9 +3493,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]?.Name));
+                    Assert.True(expected.Contains(resultItem?.Name));
                 }
             }
         }
@@ -3528,9 +3528,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
@@ -3564,9 +3564,161 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
+                foreach (var resultItem in result)
                 {
-                    Assert.True(expected.Contains(result[i]));
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Projection_select_correct_table_from_subquery_when_materialization_is_not_required()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelTwo.Include(l2 => l2.OneToOne_Required_FK_Inverse).ToList()
+                    .Where(l2 => l2.OneToOne_Required_FK_Inverse.Name == "L1 03")
+                    .Take(3)
+                    .Select(l2 => l2.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelTwo
+                    .Where(l2 => l2.OneToOne_Required_FK_Inverse.Name == "L1 03")
+                    .Take(3)
+                    .Select(l2 => l2.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Projection_select_correct_table_with_anonymous_projection_in_subquery()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l2 in context.LevelTwo.ToList()
+                            join l1 in context.LevelOne.ToList()
+                               on l2.Level1_Required_Id equals l1.Id
+                            join l3 in context.LevelThree.ToList()
+                               on l1.Id equals l3.Level2_Required_Id
+                            where l1.Name == "L1 03"
+                            where l3.Name == "L3 08"
+                            select new { l2, l1 })
+                    .Take(3)
+                    .Select(l => l.l2.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = (from l2 in context.LevelTwo
+                             join l1 in context.LevelOne
+                                on l2.Level1_Required_Id equals l1.Id
+                             join l3 in context.LevelThree
+                                on l1.Id equals l3.Level2_Required_Id
+                             where l1.Name == "L1 03"
+                             where l3.Name == "L3 08"
+                             select new { l2, l1 })
+                    .Take(3)
+                    .Select(l => l.l2.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Projection_select_correct_table_in_subquery_when_materialization_is_not_required_in_multiple_joins()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l2 in context.LevelTwo.ToList()
+                            join l1 in context.LevelOne.ToList()
+                               on l2.Level1_Required_Id equals l1.Id
+                            join l3 in context.LevelThree.ToList()
+                               on l1.Id equals l3.Level2_Required_Id
+                            where l1.Name == "L1 03"
+                            where l3.Name == "L3 08"
+                            select l1)
+                    .Take(3)
+                    .Select(l1 => l1.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = (from l2 in context.LevelTwo
+                             join l1 in context.LevelOne
+                                on l2.Level1_Required_Id equals l1.Id
+                             join l3 in context.LevelThree
+                                on l1.Id equals l3.Level2_Required_Id
+                             where l1.Name == "L1 03"
+                             where l3.Name == "L3 08"
+                             select l1)
+                    .Take(3)
+                    .Select(l1 => l1.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        //[ConditionalFact] TODO: See issue#6782
+        public virtual void Where_predicate_on_optional_reference_navigation()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne.Include(l1 => l1.OneToOne_Required_FK).ToList()
+                    .Where(l1 => l1.OneToOne_Required_FK?.Name == "L2 03")
+                    .Take(3)
+                    .Select(l1 => l1.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l1 => l1.OneToOne_Required_FK.Name == "L2 03")
+                    .Take(3)
+                    .Select(l1 => l1.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
                 }
             }
         }
