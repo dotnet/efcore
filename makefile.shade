@@ -8,6 +8,6 @@ k-standard-goals
 #win10-test target='test' if='!IsLinux && File.Exists(@"C:\Windows\System32\winsqlite3.dll")'
     @{
         E("TEST_WINSQLITE3", "true");
-        Dotnet("test -f netcoreapp1.0 --configuration " + E("Configuration") + " -diagnostics", "test/Microsoft.Data.Sqlite.Tests");
+        Dotnet("test -f netcoreapp1.1 --configuration " + E("Configuration") + " -diagnostics", "test/Microsoft.Data.Sqlite.Tests");
         E("TEST_WINSQLITE3", null);
     }
