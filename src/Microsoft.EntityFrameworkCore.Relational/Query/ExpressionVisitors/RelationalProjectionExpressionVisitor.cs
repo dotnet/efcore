@@ -139,9 +139,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 if (sqlExpression == null)
                 {
-                    if (!(node is QuerySourceReferenceExpression))
+                    var qsre = node as QuerySourceReferenceExpression;
+                    if (qsre == null)
                     {
                         QueryModelVisitor.RequiresClientProjection = true;
+                    }
+                    else
+                    {
+                        if (QueryModelVisitor.ParentQueryModelVisitor != null)
+                        {
+                            selectExpression.SetTableForProjectStar(qsre.ReferencedQuerySource);
+                        }
                     }
                 }
                 else

@@ -79,6 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
+        public virtual string ProjectStarAlias { get; [param: CanBeNull] set; }
+
+        public virtual void SetTableForProjectStar([NotNull] IQuerySource querySource)
+            => ProjectStarAlias = GetTableForQuerySource(querySource)?.Alias;
+
         /// <summary>
         ///     Type of this expression.
         /// </summary>
@@ -412,11 +417,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
             subquery._subqueryDepth = _subqueryDepth;
+            subquery.ProjectStarAlias = ProjectStarAlias;
             subquery.IsProjectStar = IsProjectStar || !subquery._projection.Any();
 
             _limit = null;
             _offset = null;
             _isDistinct = false;
+            ProjectStarAlias = null;
 
             Predicate = null;
 

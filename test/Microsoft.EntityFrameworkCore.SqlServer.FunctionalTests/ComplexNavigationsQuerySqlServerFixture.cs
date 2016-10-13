@@ -17,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private readonly IServiceProvider _serviceProvider;
 
+        private readonly DbContextOptions _options;
+
         private readonly string _connectionString
             = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
@@ -27,17 +29,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
+                .UseInternalServiceProvider(_serviceProvider).Options;
         }
 
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
-                        .UseInternalServiceProvider(_serviceProvider);
-
-                    using (var context = new ComplexNavigationsContext(optionsBuilder.Options))
+                    using (var context = new ComplexNavigationsContext(_options))
                     {
                         context.Database.EnsureCreated();
                         ComplexNavigationsModelInitializer.Seed(context);
@@ -49,11 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override ComplexNavigationsContext CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
-                .UseInternalServiceProvider(_serviceProvider);
-
-            var context = new ComplexNavigationsContext(optionsBuilder.Options);
+            var context = new ComplexNavigationsContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
