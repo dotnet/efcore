@@ -59,8 +59,8 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
-    <Compile Include="Design\DatabaseOperations.cs" />
-    <Compile Include="Design\DbContextOperations.cs" />
+    <Compile Include="Design\Internal\DatabaseOperations.cs" />
+    <Compile Include="Design\Internal\DbContextOperations.cs" />
     <Compile Include="Design\Internal\OperationLogger.cs" />
     <Compile Include="Design\Internal\DesignTimeServicesBuilder.cs" />
     <Compile Include="Design\Internal\ForwardingProxy.cs" />
@@ -71,12 +71,12 @@
     <Compile Include="Design\OperationReportHandler.cs" />
     <Compile Include="Design\OperationResultHandler.cs" />
     <Compile Include="Design\Internal\StartupInvoker.cs" />
-    <Compile Include="Design\ContextInfo.cs" />
-    <Compile Include="Design\IOperationReporter.cs" />
+    <Compile Include="Design\Internal\ContextInfo.cs" />
+    <Compile Include="Design\Internal\IOperationReporter.cs" />
     <Compile Include="Design\IOperationReportHandler.cs" />
     <Compile Include="Design\IOperationResultHandler.cs" />
-    <Compile Include="Design\MigrationInfo.cs" />
-    <Compile Include="Design\MigrationsOperations.cs" />
+    <Compile Include="Design\Internal\MigrationInfo.cs" />
+    <Compile Include="Design\Internal\MigrationsOperations.cs" />
     <Compile Include="Design\OperationException.cs" />
     <Compile Include="Design\OperationExecutor.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
