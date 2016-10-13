@@ -14,6 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IPropertyBase : IAnnotatable
     {
         /// <summary>
+        ///     Gets the entity type that this property belongs to.
+        /// </summary>
+        [Obsolete("Use DeclaringType, IProperty.DeclaringEntityType, or INavigation.DeclaringEntityType.")]
+        IEntityType DeclaringEntityType { get; }
+
+        /// <summary>
         ///     Gets the name of the property.
         /// </summary>
         string Name { get; }

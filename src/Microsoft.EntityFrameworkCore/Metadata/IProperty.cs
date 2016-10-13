@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type that this property belongs to.
         /// </summary>
-        IEntityType DeclaringEntityType { get; }
+        new IEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets a value indicating whether this property can contain null.
