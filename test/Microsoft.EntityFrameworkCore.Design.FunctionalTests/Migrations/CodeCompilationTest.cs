@@ -15,14 +15,16 @@ using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class CodeCompilationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Migrations_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -157,7 +159,7 @@ namespace MyNamespace
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Snapshots_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -209,7 +211,7 @@ namespace MyNamespace
             Assert.Equal(1, snapshot.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Snapshot_with_default_values_are_round_tripped()
         {
             var codeHelper = new CSharpHelper();
