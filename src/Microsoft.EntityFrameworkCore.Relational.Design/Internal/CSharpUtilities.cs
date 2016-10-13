@@ -365,6 +365,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(propertyType, nameof(propertyType));
 
+            if (propertyType.IsArray)
+            {
+                return GetTypeName(propertyType.GetElementType()) + "[]";
+            }
+
             var isNullableType = propertyType.GetTypeInfo().IsGenericType
                                  && typeof(Nullable<>) == propertyType.GetGenericTypeDefinition();
             var type = isNullableType
