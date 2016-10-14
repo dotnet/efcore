@@ -321,9 +321,9 @@ namespace Microsoft.EntityFrameworkCore.Design
                 });
         }
 
-        public class ReverseEngineer : OperationBase
+        public class ScaffoldContext : OperationBase
         {
-            public ReverseEngineer([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+            public ScaffoldContext([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -338,13 +338,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
                 var overwriteFiles = (bool)args["overwriteFiles"];
 
-                Execute(() => executor.ReverseEngineerImpl(provider,
+                Execute(() => executor.ScaffoldContextImpl(provider,
                     connectionString, outputDir, dbContextClassName,
                     schemaFilters, tableFilters, useDataAnnotations, overwriteFiles));
             }
         }
 
-        private IEnumerable<string> ReverseEngineerImpl(
+        private IEnumerable<string> ScaffoldContextImpl(
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(schemaFilters, nameof(schemaFilters));
             Check.NotNull(tableFilters, nameof(tableFilters));
 
-            var files = _databaseOperations.Value.ReverseEngineerAsync(
+            var files = _databaseOperations.Value.ScaffoldContextAsync(
                 provider, connectionString, outputDir, dbContextClassName,
                 schemaFilters, tableFilters, useDataAnnotations, overwriteFiles).Result;
 

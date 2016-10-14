@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
-        public virtual Task<ReverseEngineerFiles> ReverseEngineerAsync(
+        public virtual Task<ReverseEngineerFiles> ScaffoldContextAsync(
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
