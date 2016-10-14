@@ -68,6 +68,7 @@
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
+    <Compile Include="Infrastructure\RelationalModelValidator.cs" />
     <Compile Include="Migrations\IMigrationCommandExecutor.cs" />
     <Compile Include="Migrations\Internal\MigrationCommandExecutor.cs" />
     <Compile Include="Migrations\MigrationCommandListBuilder.cs" />
@@ -78,7 +79,6 @@
     <Compile Include="Internal\RelationalDiagnostics.cs" />
     <Compile Include="Internal\RelationalDiagnosticSourceAfterMessage.cs" />
     <Compile Include="Internal\RelationalDiagnosticSourceBeforeMessage.cs" />
-    <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder`.cs" />
     <Compile Include="Metadata\Conventions\Internal\DiscriminatorConvention.cs" />

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
@@ -11,8 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     <para>
     ///         Produces an <see cref="IModel" /> based on a context. This is typically implemented by database providers to ensure that any
-    ///         conventions
-    ///         and validation specific to their database are used.
+    ///         conventions and validation specific to their database are used.
     ///     </para>
     ///     <para>
     ///         This interface is typically used by database providers (and other extensions). It is generally

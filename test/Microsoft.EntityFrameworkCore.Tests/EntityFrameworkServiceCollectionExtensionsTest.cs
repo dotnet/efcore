@@ -50,8 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<ICoreConventionSetBuilder>();
             VerifySingleton<ExecutionStrategyFactory>();
+            VerifySingleton<NoopModelValidator>();
 
-            VerifyScoped<LoggingModelValidator>();
+            VerifyScoped<CoreModelValidator>();
             VerifyScoped<IKeyPropagator>();
             VerifyScoped<INavigationFixer>();
             VerifyScoped<IStateManager>();
