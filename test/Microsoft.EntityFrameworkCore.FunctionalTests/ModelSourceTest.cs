@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private class MyModelSource : InMemoryModelSource
         {
-            public MyModelSource(IDbSetFinder setFinder, ICoreConventionSetBuilder coreConventionSetBuilder, IModelCustomizer modelCustomizer, IModelCacheKeyFactory modelCacheKeyFactory)
-                : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
+            public MyModelSource(IDbSetFinder setFinder, ICoreConventionSetBuilder coreConventionSetBuilder, IModelCustomizer modelCustomizer, IModelCacheKeyFactory modelCacheKeyFactory, CoreModelValidator coreModelValidator)
+                : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory, coreModelValidator)
             {
             }
 

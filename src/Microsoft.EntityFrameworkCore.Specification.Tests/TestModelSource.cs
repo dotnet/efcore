@@ -14,8 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
-        public TestModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder, ICoreConventionSetBuilder coreConventionSetBuilder, IModelCustomizer modelCustomizer, IModelCacheKeyFactory modelCacheKeyFactory)
-            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
+        public TestModelSource(
+            Action<ModelBuilder> onModelCreating,
+            IDbSetFinder setFinder,
+            ICoreConventionSetBuilder coreConventionSetBuilder,
+            IModelCustomizer modelCustomizer,
+            IModelCacheKeyFactory modelCacheKeyFactory,
+            CoreModelValidator coreModelValidator)
+            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory, coreModelValidator)
         {
             _onModelCreating = onModelCreating;
         }
@@ -33,17 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             _onModelCreating(modelBuilder);
 
             model.Validate();
+            CoreModelValidator.Validate(model);
             validator.Validate(model);
 
             return model;
-        }
-
-        private class ThrowingModelValidator : ModelValidator
-        {
-            protected override void ShowWarning(string message)
-            {
-                throw new InvalidOperationException(message);
-            }
         }
     }
 }

@@ -186,6 +186,7 @@
     <Compile Include="Infrastructure\AnnotatableExtensions.cs" />
     <Compile Include="Infrastructure\Annotation.cs" />
     <Compile Include="Infrastructure\CoreEventId.cs" />
+    <Compile Include="Infrastructure\CoreModelValidator.cs" />
     <Compile Include="Infrastructure\DatabaseFacade.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
     <Compile Include="Infrastructure\DbContextFactoryOptions.cs" />
@@ -236,15 +237,15 @@
     <Compile Include="Internal\IDbSetFinder.cs" />
     <Compile Include="Internal\IDbSetInitializer.cs" />
     <Compile Include="Internal\IDbSetSource.cs" />
-    <Compile Include="Internal\IModelValidator.cs" />
+    <Compile Include="Infrastructure\IModelValidator.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />
     <Compile Include="Internal\IServiceInjectionSite.cs" />
     <Compile Include="Internal\LazyRef.cs" />
-    <Compile Include="Internal\LoggingModelValidator.cs" />
-    <Compile Include="Internal\ModelValidator.cs" />
+    <Compile Include="Infrastructure\ModelValidator.cs" />
     <Compile Include="Internal\Multigraph.cs" />
     <Compile Include="Internal\NonCapturingLazyInitializer.cs" />
+    <Compile Include="Internal\NoopModelValidator.cs" />
     <Compile Include="Internal\ServiceProviderExtensions.cs" />
     <Compile Include="Storage\Internal\ExecutionStrategyFactory.cs" />
     <Compile Include="Storage\Internal\NoopExecutionStrategy.cs" />

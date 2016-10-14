@@ -28,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 });
 
             var model = CreateDefaultModelSource(setFinderMock.Object)
-                .GetModel(new Mock<DbContext>().Object, null,
-                    new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                .GetModel(new Mock<DbContext>().Object, null, new NoopModelValidator());
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -59,16 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1(), null,
-                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
-            var model2 = modelSource.GetModel(new Context2(), null,
-                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+            var model1 = modelSource.GetModel(new Context1(), null, new NoopModelValidator());
+            var model2 = modelSource.GetModel(new Context2(), null, new NoopModelValidator());
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), null,
-                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory()))));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), null,
-                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory()))));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), null, new NoopModelValidator()));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), null, new NoopModelValidator()));
         }
 
         [Fact]
@@ -76,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model = modelSource.GetModel(new Context1(), null,
-                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+            var model = modelSource.GetModel(new Context1(), null, new NoopModelValidator());
 
             Assert.StartsWith("1.1.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
@@ -96,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private class ConcreteModelSource : ModelSource
         {
             public ConcreteModelSource(IDbSetFinder setFinder)
-                : base(setFinder, new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+                : base(setFinder, new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
+                    new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
             {
             }
         }

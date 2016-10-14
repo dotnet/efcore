@@ -57,7 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected virtual void Validate(ModelBuilder modelBuilder)
         {
             modelBuilder.GetInfrastructure().Validate();
-            Fixture.ThrowingValidator.Validate(modelBuilder.Model);
+            var context = CreateContext();
+            context.GetService<CoreModelValidator>().Validate(modelBuilder.Model);
+            context.GetService<IModelValidator>().Validate(modelBuilder.Model);
         }
 
         protected class Person
@@ -1308,28 +1310,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void NotMappedAttribute_ignores_entityType()
         {
-            using (var context = CreateContext())
-            {
-                Assert.False(context.Model.GetEntityTypes().Any(e => e.Name == typeof(C).FullName));
-            }
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Two>();
+
+            Assert.Null(modelBuilder.Model.FindEntityType(typeof(Tests.C)));
         }
 
         [Fact]
         public virtual void NotMappedAttribute_ignores_navigation()
         {
-            using (var context = CreateContext())
-            {
-                Assert.False(context.Model.GetEntityTypes().Any(e => e.Name == typeof(UselessBookDetails).FullName));
-            }
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Tests.Book>();
+
+            Assert.Null(modelBuilder.Model.FindEntityType(typeof(UselessBookDetails)));
         }
 
         [Fact]
         public virtual void NotMappedAttribute_ignores_property()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(context.Model.GetEntityTypes().First(e => e.Name == typeof(One).FullName).FindProperty("IgnoredProperty"));
-            }
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<One>();
+
+            Assert.Null(modelBuilder.Model.FindEntityType(typeof(One)).FindProperty("IgnoredProperty"));
         }
 
         [Fact]
@@ -1692,13 +1694,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual void RequiredAttribute_does_nothing_when_specified_on_nav_to_dependent_per_convention()
         {
-            using (var context = CreateContext())
-            {
-                var relationship = context.Model.FindEntityType(typeof(AdditionalBookDetail))
-                    .FindNavigation(nameof(AdditionalBookDetail.BookDetail)).ForeignKey;
-                Assert.Equal(typeof(AdditionalBookDetail), relationship.PrincipalEntityType.ClrType);
-                Assert.False(relationship.IsRequired);
-            }
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<AdditionalBookDetail>();
+
+            var relationship = modelBuilder.Model.FindEntityType(typeof(AdditionalBookDetail))
+                .FindNavigation(nameof(AdditionalBookDetail.BookDetail)).ForeignKey;
+            Assert.Equal(typeof(AdditionalBookDetail), relationship.PrincipalEntityType.ClrType);
+            Assert.False(relationship.IsRequired);
         }
 
         [Fact]

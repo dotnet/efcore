@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -21,6 +22,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
+
+        [Fact]
+        public virtual ModelBuilder Default_for_key_string_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login1>().Property(l => l.UserName).HasDefaultValue("default");
+            modelBuilder.Ignore<Profile1>();
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    nameof(RelationalEventId) + "." + nameof(RelationalEventId.ModelValidationKeyDefaultValueWarning),
+                    RelationalStrings.KeyHasDefaultValue(nameof(Login1.UserName), nameof(Login1))),
+                Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+
+            return modelBuilder;
+        }
 
         public override ModelBuilder Non_public_annotations_are_enabled()
         {
