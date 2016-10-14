@@ -72,10 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     Gets the <see cref="IModelValidator" /> for the database provider. By default, EF will register a default implementation
-        ///     (<see cref="LoggingModelValidator" />) which provides basic functionality but can be
-        ///     overridden if needed.
+        ///     which does no validation.
         /// </summary>
-        public virtual IModelValidator ModelValidator => GetService<LoggingModelValidator>();
+        public virtual IModelValidator ModelValidator => GetService<NoopModelValidator>();
 
         /// <summary>
         ///     Gets the <see cref="ICompiledQueryCacheKeyGenerator" /> for the database provider. By default, EF will register a default

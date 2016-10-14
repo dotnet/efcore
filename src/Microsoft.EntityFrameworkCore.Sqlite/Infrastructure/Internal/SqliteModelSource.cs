@@ -17,8 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqliteModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
+        public SqliteModelSource(
+            [NotNull] IDbSetFinder setFinder,
+            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
+            [NotNull] IModelCustomizer modelCustomizer,
+            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory,
+            [NotNull] CoreModelValidator coreModelValidator)
+            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory, coreModelValidator)
         {
         }
     }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,45 +19,32 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ThrowingModelValidator>()
                 .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                 .BuildServiceProvider();
         }
 
-        public override ModelValidator ThrowingValidator
-            => _serviceProvider.GetService<ThrowingModelValidator>();
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class ThrowingModelValidator : ModelValidator
-        {
-            protected override void ShowWarning(string message)
-            {
-                throw new InvalidOperationException(message);
-            }
-        }
-
         public override InMemoryTestStore CreateTestStore()
-        {
-            return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
-                {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseInMemoryDatabase()
-                        .UseInternalServiceProvider(_serviceProvider);
+            => InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
+            {
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new DataAnnotationContext(optionsBuilder.Options))
+                using (var context = new DataAnnotationContext(optionsBuilder.Options))
+                {
+                    context.Database.EnsureDeleted();
+                    if (context.Database.EnsureCreated())
                     {
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            DataAnnotationModelInitializer.Seed(context);
-                        }
+                        DataAnnotationModelInitializer.Seed(context);
                     }
-                });
-        }
+                }
+            });
 
         public override DataAnnotationContext CreateContext(InMemoryTestStore testStore)
             => new DataAnnotationContext(new DbContextOptionsBuilder()
                 .UseInMemoryDatabase()
-                .UseInternalServiceProvider(_serviceProvider).Options);
+                .UseInternalServiceProvider(_serviceProvider)
+                .ConfigureWarnings(w => w.Default(WarningBehavior.Throw))
+                .Options);
     }
 }

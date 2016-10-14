@@ -100,6 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The SQL for a migration being applied.
         /// </summary>
-        ApplyingMigrationSql
+        ApplyingMigrationSql,
+
+        /// <summary>
+        ///     A warning during model validation indicating a key is configured with a default value.
+        /// </summary>
+        ModelValidationKeyDefaultValueWarning
     }
 }

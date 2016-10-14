@@ -5,35 +5,42 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     The validator that enforces rules common for all relational providers.
     /// </summary>
-    public class RelationalModelValidator : LoggingModelValidator
+    public class RelationalModelValidator : ModelValidator
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Gets the relational annotation provider.
         /// </summary>
+        /// <value>
+        ///     The relational annotation provider.
+        /// </value>
         protected virtual IRelationalAnnotationProvider RelationalExtensions { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Gets the type mapper.
         /// </summary>
+        /// <value>
+        ///     The type mapper.
+        /// </value>
         protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new instance of <see cref="RelationalModelValidator" />.
         /// </summary>
+        /// <param name="loggerFactory"> The logger factory. </param>
+        /// <param name="relationalExtensions"> The relational annotation provider. </param>
+        /// <param name="typeMapper"> The type mapper. </param>
         public RelationalModelValidator(
             [NotNull] ILogger<RelationalModelValidator> loggerFactory,
             [NotNull] IRelationalAnnotationProvider relationalExtensions,
@@ -45,13 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Validates a model, throwing an exception if any errors are found.
         /// </summary>
+        /// <param name="model"> The model to validate. </param>
         public override void Validate(IModel model)
         {
-            base.Validate(model);
-
             EnsureDistinctTableNames(model);
             EnsureSharedColumnsCompatibility(model);
             EnsureSharedForeignKeysCompatibility(model);
@@ -87,11 +92,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         protected virtual void EnsureNoDefaultValuesOnKeys([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes().SelectMany(
-                    t => t.GetDeclaredKeys().SelectMany(
-                        k => k.Properties))
+                t => t.GetDeclaredKeys().SelectMany(
+                    k => k.Properties))
                 .Where(p => RelationalExtensions.For(p).DefaultValue != null))
             {
-                ShowWarning(RelationalStrings.KeyHasDefaultValue(property.Name, property.DeclaringEntityType.DisplayName()));
+                ShowWarning(RelationalEventId.ModelValidationKeyDefaultValueWarning,
+                    RelationalStrings.KeyHasDefaultValue(property.Name, property.DeclaringEntityType.DisplayName()));
             }
         }
 
@@ -383,18 +389,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string Format(IEnumerable<string> columnNames)
-            => "{" + string.Join(", ", columnNames.Select(c => "'" + c + "'")) + "}";
-
-        private static string Format(string schema, string name)
-            => (string.IsNullOrEmpty(schema) ? "" : schema + ".") + name;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual
-            void ValidateInheritanceMapping([NotNull] IModel model)
+        protected virtual void ValidateInheritanceMapping([NotNull] IModel model)
         {
             foreach (var rootEntityType in model.GetRootEntityTypes())
             {
@@ -443,5 +442,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 discriminatorValues[discriminatorValue] = derivedType;
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ShowWarning(RelationalEventId eventId, [NotNull] string message)
+            => Logger.LogWarning(eventId, () => message);
+
+        private static string Format(IEnumerable<string> columnNames)
+            => "{" + string.Join(", ", columnNames.Select(c => "'" + c + "'")) + "}";
+
+        private static string Format(string schema, string name)
+            => (string.IsNullOrEmpty(schema) ? "" : schema + ".") + name;
     }
 }

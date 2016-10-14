@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual TestModelBuilder Validate()
             {
                 var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
-                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())).Validate(modelBuilder.Metadata);
-                return modelBuilder == null ? null : this;
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())).Validate(modelBuilder.Metadata);
+                return this;
             }
 
             public virtual string GetDisplayName(Type entityType) => entityType.Name;

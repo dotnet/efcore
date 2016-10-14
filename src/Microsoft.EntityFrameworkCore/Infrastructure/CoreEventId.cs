@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         SensitiveDataLoggingEnabledWarning,
 
         /// <summary>
-        ///     A warning during model validation.
+        ///     A warning during model validation indicating a key is configured on shadow properties.
         /// </summary>
-        ModelValidationWarning
+        ModelValidationShadowKeyWarning
     }
 }

@@ -1949,11 +1949,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(
+                new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
-                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                .Returns(new NoopModelValidator());
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
@@ -1993,11 +1995,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
-                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                .Returns(new NoopModelValidator());
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
@@ -2041,11 +2044,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
-                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                .Returns(new NoopModelValidator());
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
