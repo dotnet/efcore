@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering

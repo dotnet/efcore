@@ -6,13 +6,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Design
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class DatabaseOperations
     {
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
-        public virtual Task<ReverseEngineerFiles> ReverseEngineerAsync(
+        public virtual Task<ReverseEngineerFiles> ScaffoldContextAsync(
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
