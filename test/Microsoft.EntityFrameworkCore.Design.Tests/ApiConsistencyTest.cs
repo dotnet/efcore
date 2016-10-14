@@ -8,6 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(MigrationsOperations).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(OperationExecutor).GetTypeInfo().Assembly;
     }
 }
