@@ -3570,5 +3570,176 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_Include1()
+        {
+            List<Level2> expected; 
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .ThenInclude(l2 => l2.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .Include(l2 => l2.OneToMany_Optional);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    var expectedElement = expected.Single(e => e.Name == result[i].Name);
+                    var expectedInnerNames = expectedElement.OneToMany_Optional.Select(e => e.Name).ToList();
+                    for (int j = 0; j < expectedInnerNames.Count; j++)
+                    {
+                        Assert.True(result[i].OneToMany_Optional.Select(e => e.Name).Contains(expectedInnerNames[i]));
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_Include2()
+        {
+            List<Level2> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .ThenInclude(l2 => l2.OneToOne_Required_FK)
+                    .ToList()
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .ToList();
+            }
+
+            ClearLog();
+            
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .Include(l2 => l2.OneToOne_Required_FK);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    var expectedElement = expected.Single(e => e.Name == result[i].Name);
+                    Assert.Equal(expectedElement.OneToOne_Required_FK?.Name, result[i].OneToOne_Required_FK?.Name);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_Include_ThenInclude()
+        {
+            List<Level2> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .ThenInclude(l2 => l2.OneToOne_Required_FK)
+                    .ThenInclude(l3 => l3.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .Include(l2 => l2.OneToOne_Required_FK)
+                    .ThenInclude(l3 => l3.OneToMany_Optional);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    var expectedElement = expected.Single(e => e.Name == result[i].Name);
+                    Assert.Equal(expectedElement.OneToOne_Required_FK?.Name, result[i].OneToOne_Required_FK?.Name);
+
+                    if (expectedElement.OneToOne_Required_FK != null)
+                    {
+                        var expectedInnerNames = expectedElement.OneToOne_Required_FK.OneToMany_Optional?.Select(e => e.Name)?.ToList();
+                        Assert.Equal(expectedInnerNames?.Count, result[i].OneToOne_Required_FK.OneToMany_Optional?.Count);
+                        if (expectedInnerNames != null)
+                        {
+                            var actualInnerNames = result[i].OneToOne_Required_FK.OneToMany_Optional.Select(e => e.Name).ToList();
+                            for (int j = 0; j < expectedInnerNames.Count; j++)
+                            {
+                                Assert.True(actualInnerNames.Contains(expectedInnerNames[j]));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_SelectMany_with_Include()
+        {
+            List<Level3> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .ThenInclude(l2 => l2.OneToMany_Optional)
+                    .ThenInclude(l3 => l3.OneToOne_Required_FK)
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .ThenInclude(l2 => l2.OneToMany_Optional)
+                    .ThenInclude(l3 => l3.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .SelectMany(l2 => l2.OneToMany_Optional)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .SelectMany(l2 => l2.OneToMany_Optional)
+                    .Include(l3 => l3.OneToOne_Required_FK)
+                    .Include(l3 => l3.OneToMany_Optional);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+
+                for (int i = 0; i < result.Count; i++)
+                {
+                    var expectedElement = expected.Single(e => e.Name == result[i].Name);
+                    Assert.Equal(expectedElement.OneToOne_Required_FK?.Name, result[i].OneToOne_Required_FK?.Name);
+
+                    var expectedInnerNames = expectedElement.OneToMany_Optional?.Select(e => e.Name)?.ToList();
+                    Assert.Equal(expectedInnerNames?.Count, result[i].OneToMany_Optional?.Count);
+                    if (expectedInnerNames != null)
+                    {
+                        var actualInnerNames = result[i].OneToMany_Optional.Select(e => e.Name).ToList();
+                        for (int j = 0; j < expectedInnerNames.Count; j++)
+                        {
+                            Assert.True(actualInnerNames.Contains(expectedInnerNames[j]));
+                        }
+                    }
+                }
+            }
+        }
     }
 }
