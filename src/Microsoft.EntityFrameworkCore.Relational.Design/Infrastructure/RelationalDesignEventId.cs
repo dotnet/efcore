@@ -5,18 +5,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public enum RelationalDesignEventId
     {
-        MissingSchema = 1,
-        MissingTable = 2,
-        SequencesRequireName = 3,
-        BadSequenceType = 4,
-        UnableToGenerateEntityType = 5,
-        CannotFindTypeMappingForColumn = 6,
-        MissingPrimaryKey = 7,
-        PrimaryKeyErrorPropertyNotFound = 8,
-        UnableToScaffoldIndexMissingProperty = 9,
-        ForeignKeyScaffoldErrorPrincipalTableNotFound = 10,
-        ForeignKeyScaffoldErrorPropertyNotFound = 11,
-        ForeignKeyScaffoldErrorPrincipalTableScaffoldingError = 12,
-        ForeignKeyScaffoldErrorPrincipalKeyNotFound = 13
+        MissingSchemaWarning = 1,
+        MissingTableWarning,
+        SequenceMustBeNamedWarning,
+        SequenceTypeNotSupportedWarning,
+        UnableToGenerateEntityTypeWarning,
+        ColumnTypeNotMappedWarning,
+        MissingPrimaryKeyWarning,
+        PrimaryKeyColumnsNotMappedWarning,
+        IndexColumnsNotMappedWarning,
+        ForeignKeyReferencesMissingTableWarning,
+        ForeignKeyColumnsNotMappedWarning,
+        ForeignKeyReferencesMissingPrincipalKeyWarning,
+        FoundTable,
+        TableSkipped,
+        FoundColumn,
+        ColumnSkipped,
+        FoundIndex,
+        FoundIndexColumn,
+        IndexColumnSkipped,
+        FoundForeignKeyColumn,
+        FoundSequence,
+        ForeignKeyReferencesMissingTable
     }
 }

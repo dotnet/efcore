@@ -12,51 +12,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Column name empty on index.
         /// </summary>
-        ColumnNameEmptyOnIndex = 1,
-
-        /// <summary>
-        ///     Found table.
-        /// </summary>
-        FoundTable,
-
-        /// <summary>
-        ///     Table not in selection set.
-        /// </summary>
-        TableNotInSelectionSet,
-
-        /// <summary>
-        ///     Found column.
-        /// </summary>
-        FoundColumn,
-
-        /// <summary>
-        ///     Found index.
-        /// </summary>
-        FoundIndex,
-
-        /// <summary>
-        ///     Found index column.
-        /// </summary>
-        FoundIndexColumn,
-
-        /// <summary>
-        ///     Found foreign key column.
-        /// </summary>
-        FoundForeignKeyColumn,
-
-        /// <summary>
-        ///     Principal table not found.
-        /// </summary>
-        PrincipalTableNotFound,
+        IndexMissingColumnNameWarning = 1,
 
         /// <summary>
         ///     Principal column not found.
         /// </summary>
-        PrincipalColumnNotFound,
+        ForeignKeyReferencesMissingColumn,
 
         /// <summary>
         ///     Using schema selections warning.
         /// </summary>
-        UsingSchemaSelectionsWarning
+        SchemasNotSupportedWarning
     }
 }

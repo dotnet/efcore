@@ -103,34 +103,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
         ///     navigation property that associates this entity to another entity.
         /// </summary>
-        /// <param name="navigationPropertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName"> The name of the navigation property. </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>([NotNull] string navigationPropertyName)
+        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>([NotNull] string propertyName)
             where TProperty : class
         {
-            Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
-            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, navigationPropertyName);
+            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyName);
         }
 
         /// <summary>
         ///     Provides access to change tracking and loading information for a collection
         ///     navigation property that associates this entity to a collection of another entities.
         /// </summary>
-        /// <param name="navigationPropertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName"> The name of the navigation property. </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>([NotNull] string navigationPropertyName)
+        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>([NotNull] string propertyName)
             where TProperty : class
         {
-            Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
-            return new CollectionEntry<TEntity, TProperty>(InternalEntry, navigationPropertyName);
+            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyName);
         }
 
         /// <summary>

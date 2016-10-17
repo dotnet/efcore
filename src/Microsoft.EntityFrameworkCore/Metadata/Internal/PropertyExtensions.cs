@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(property.Name).Append(" (");
 
-            var field = property.GetField();
+            var field = property.GetFieldName();
             if (field == null)
             {
                 builder.Append("no field, ");

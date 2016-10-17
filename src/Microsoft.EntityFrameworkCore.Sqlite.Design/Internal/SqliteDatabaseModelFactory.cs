@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         var name = reader.GetValueOrDefault<string>("name");
 
                         Logger.LogDebug(
-                            SqliteDesignEventId.FoundTable,
+                            RelationalDesignEventId.FoundTable,
                             () => SqliteDesignStrings.FoundTable(name));
 
                         if (_tableSelectionSet.Allows(name))
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         else
                         {
                             Logger.LogDebug(
-                                SqliteDesignEventId.TableNotInSelectionSet,
+                                RelationalDesignEventId.TableSkipped,
                                 () => SqliteDesignStrings.TableNotInSelectionSet(name));
                         }
                     }
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             var defaultValue = reader.GetValueOrDefault<string>("dflt_value");
 
                             Logger.LogDebug(
-                                SqliteDesignEventId.FoundColumn,
+                                RelationalDesignEventId.FoundColumn,
                                 () => SqliteDesignStrings.FoundColumn(
                                     table.Name, columnName, dataType, ordinal,
                                     notNull, primaryKeyOrdinal, defaultValue));
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             };
 
                             Logger.LogDebug(
-                                SqliteDesignEventId.FoundIndex,
+                                RelationalDesignEventId.FoundIndex,
                                 () => SqliteDesignStrings.FoundIndex(index.Name, table.Name, index.IsUnique));
 
                             table.Indexes.Add(index);
@@ -249,14 +249,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 var indexOrdinal = reader.GetValueOrDefault<int>("seqno");
 
                                 Logger.LogDebug(
-                                    SqliteDesignEventId.FoundIndexColumn,
+                                    RelationalDesignEventId.FoundIndexColumn,
                                     () => SqliteDesignStrings.FoundIndexColumn(
                                         index.Name, table.Name, columnName, indexOrdinal));
 
                                 if (string.IsNullOrEmpty(columnName))
                                 {
                                     Logger.LogWarning(
-                                        SqliteDesignEventId.ColumnNameEmptyOnIndex,
+                                        SqliteDesignEventId.IndexMissingColumnNameWarning,
                                         () => SqliteDesignStrings.ColumnNameEmptyOnIndex(index.Name, table.Name));
                                     continue;
                                 }
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             var fkOrdinal = reader.GetValueOrDefault<int>("seq");
 
                             Logger.LogDebug(
-                                SqliteDesignEventId.FoundForeignKeyColumn,
+                                RelationalDesignEventId.FoundForeignKeyColumn,
                                 () => SqliteDesignStrings.FoundForeignKeyColumn(
                                     dependentTable.Name, id, principalTableName, fromColumnName,
                                     toColumnName, deleteAction, fkOrdinal));
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 if (!_tables.TryGetValue(principalTableName, out principalTable))
                                 {
                                     Logger.LogDebug(
-                                        SqliteDesignEventId.PrincipalTableNotFound,
+                                        RelationalDesignEventId.ForeignKeyReferencesMissingTable,
                                         () => SqliteDesignStrings.PrincipalTableNotFound(
                                             id, dependentTable.Name, principalTableName));
                                     continue;
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             if (!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
                             {
                                 Logger.LogDebug(
-                                    SqliteDesignEventId.PrincipalColumnNotFound,
+                                    SqliteDesignEventId.ForeignKeyReferencesMissingColumn,
                                     () => SqliteDesignStrings.PrincipalColumnNotFound(
                                         id, dependentTable.Name, toColumnName, principalTableName));
                                 continue;

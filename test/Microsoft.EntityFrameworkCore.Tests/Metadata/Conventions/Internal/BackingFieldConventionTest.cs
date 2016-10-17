@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var property = entityType.AddProperty("SpeakToMe", typeof(int));
             new BackingFieldConvention().Apply(property.Builder);
 
-            Assert.Null(property.GetField());
+            Assert.Null(property.GetFieldName());
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var property = entityType.AddProperty("SpeakToMe", typeof(int));
             new BackingFieldConvention().Apply(property.Builder);
 
-            Assert.Null(property.GetField());
+            Assert.Null(property.GetFieldName());
         }
 
         private static void FieldMatchTest<TEntity>(string propertyName, string fieldName)
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             new BackingFieldConvention().Apply(property.Builder);
 
-            Assert.Equal(fieldName, property.GetField());
+            Assert.Equal(fieldName, property.GetFieldName());
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             new BackingFieldConvention().Apply(property.Builder);
 
-            Assert.Equal("_theGreatGigInTheSky", property.GetField());
+            Assert.Equal("_theGreatGigInTheSky", property.GetFieldName());
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             new BackingFieldConvention().Apply(property.Builder);
 
-            Assert.Equal("_onBase", property.GetField());
+            Assert.Equal("_onBase", property.GetFieldName());
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             new BackingFieldConvention().Apply(property.Builder);
 
-            Assert.Equal("m_onTheRun", property.GetField());
+            Assert.Equal("m_onTheRun", property.GetFieldName());
         }
 
         [Fact]
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             new BackingFieldConvention().Apply(property.Builder);
 
-            Assert.Equal("m_onTheRun", property.GetField());
+            Assert.Equal("m_onTheRun", property.GetFieldName());
         }
 
         private class TheDarkSideOfTheMoon

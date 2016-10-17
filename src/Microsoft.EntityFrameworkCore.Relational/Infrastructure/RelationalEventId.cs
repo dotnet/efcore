@@ -57,15 +57,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         PossibleUnintendedUseOfEqualsWarning,
 
         /// <summary>
+        ///     An ambient transaction is present, which is not fully supported by Entity Framework Core.
+        /// </summary>
+        AmbientTransactionWarning,
+
+        /// <summary>
         ///     Linq translation of 'Contains', 'EndsWith' and 'StartsWith' functions may produce incorrect results
         ///     when searched value contains wildcard characters.
         /// </summary>
         PossibleIncorrectResultsUsingLikeOperator,
-
-        /// <summary>
-        ///     An ambient transaction is present, which is not fully supported by Entity Framework Core.
-        /// </summary>
-        AmbientTransactionWarning,
 
         /// <summary>
         ///     A migration is being applied to the database.

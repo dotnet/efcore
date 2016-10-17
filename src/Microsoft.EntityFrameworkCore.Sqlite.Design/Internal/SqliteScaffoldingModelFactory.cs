@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 && tableSelectionSet.Schemas.Any())
             {
                 Logger.LogWarning(
-                    SqliteDesignEventId.UsingSchemaSelectionsWarning,
+                    SqliteDesignEventId.SchemasNotSupportedWarning,
                     () => SqliteDesignStrings.UsingSchemaSelectionsWarning);
 
                 // we've logged a general warning above that sqlite ignores all

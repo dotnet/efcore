@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (typeof(byte) == propertyBuilder.Metadata.ClrType)
                 {
                     Logger.LogWarning(
-                        SqlServerDesignEventId.DataTypeDoesNotAllowSqlServerIdentityStrategy,
+                        SqlServerDesignEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
                         () => SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(
                             column.DisplayName, column.DataType));
                 }
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 else
                 {
                     Logger.LogWarning(
-                        SqlServerDesignEventId.CannotInterpretDefaultValue,
+                        SqlServerDesignEventId.CannotInterpretDefaultValueWarning,
                         () => SqlServerDesignStrings.CannotInterpretDefaultValue(
                             column.DisplayName,
                             column.DefaultValue,
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 else
                 {
                     Logger.LogWarning(
-                        SqlServerDesignEventId.CannotInterpretComputedValue,
+                        SqlServerDesignEventId.CannotInterpretComputedValueWarning,
                         () => SqlServerDesignStrings.CannotInterpretComputedValue(
                             column.DisplayName,
                             column.ComputedValue,
