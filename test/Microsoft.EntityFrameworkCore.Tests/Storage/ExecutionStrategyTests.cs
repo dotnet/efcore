@@ -19,11 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         public class TestExecutionStrategy : ExecutionStrategy
         {
-            public TestExecutionStrategy()
-                : base(null, DefaultMaxRetryCount, DefaultMaxDelay)
-            {
-            }
-
             public TestExecutionStrategy(DbContext context)
                 : base(new ExecutionStrategyContext(context, null), DefaultMaxRetryCount, DefaultMaxDelay)
             {
@@ -41,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void GetNextDelay_returns_the_expected_default_sequence()
         {
-            var strategy = new TestExecutionStrategy();
+            var strategy = new TestExecutionStrategy(CreateContext());
             var delays = new List<TimeSpan?>();
             for (var i = 0; i < 5; i++)
             {
@@ -70,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void RetriesOnFailure_returns_true()
         {
-            var mockExecutionStrategy = new TestExecutionStrategy();
+            var mockExecutionStrategy = new TestExecutionStrategy(CreateContext());
 
             Assert.True(mockExecutionStrategy.RetriesOnFailure);
         }
@@ -117,11 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var executed = false;
 
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.ShouldRetryOn(It.IsAny<Exception>())).Returns<Exception>(
                 e => e is ArgumentOutOfRangeException);
@@ -158,11 +152,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void Execute_doesnt_retry_if_succesful(Action<ExecutionStrategy, Func<int>> execute)
         {
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e =>
@@ -197,11 +190,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void Execute_doesnt_retry_if_suspended(Action<ExecutionStrategy, Func<int>> execute)
         {
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e =>
@@ -243,11 +235,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void Execute_retries_until_succesful(Action<ExecutionStrategy, Func<int>> execute)
         {
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e => TimeSpan.FromTicks(0));
@@ -284,9 +275,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void Execute_retries_until_not_retrieable_exception_is_thrown(Action<ExecutionStrategy, Func<int>> execute)
         {
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
                     CallBase = true
                 };
 
@@ -328,9 +318,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var executionCount = 0;
 
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
                     CallBase = true
                 };
 
@@ -365,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public Task ExecuteAsync_Func_throws_for_an_existing_transaction()
         {
-            return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync((s, ct) => Task.FromResult(1), CancellationToken.None));
+            return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync((s, ct) => Task.FromResult(1), null, CancellationToken.None));
         }
 
         private async Task ExecuteAsync_throws_for_an_existing_transaction(Func<ExecutionStrategy, Task> executeAsync)
@@ -397,12 +386,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private async Task ExecuteAsync_does_not_throw_when_invoked_twice(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executed = false;
-
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.ShouldRetryOn(It.IsAny<Exception>())).Returns<Exception>(
                 e => e is ArgumentOutOfRangeException);
@@ -439,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private async Task ExecuteAsync_doesnt_retry_if_succesful(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
-            var executionStrategyMock = new Mock<TestExecutionStrategy>
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
             {
                 CallBase = true
             };
@@ -477,8 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private async Task ExecuteAsync_doesnt_retry_if_suspended(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
                 {
                     CallBase = true
                 };
@@ -525,11 +511,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private async Task ExecuteAsync_retries_until_succesful(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e => TimeSpan.FromTicks(0));
@@ -568,11 +553,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private async Task ExecuteAsync_retries_until_not_retrieable_exception_is_thrown(
             Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e => TimeSpan.FromTicks(0));
@@ -611,11 +595,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var executionCount = 0;
 
-            var executionStrategyMock =
-                new Mock<TestExecutionStrategy>
-                {
-                    CallBase = true
-                };
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e => executionCount < 3 ? (TimeSpan?)TimeSpan.FromTicks(0) : null);
@@ -630,41 +613,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 {
                                     if (executionCount++ < 3)
                                     {
-                                        throw new ArgumentOutOfRangeException();
+                                        throw new DbUpdateException("", new ArgumentOutOfRangeException());
                                     }
                                     Assert.True(false);
                                     return Task.FromResult(0);
-                                }))).InnerException);
+                                }))).InnerException.InnerException);
 
             Assert.Equal(3, executionCount);
-        }
-
-        [Fact]
-        public void Unwraps_DbUpdateException()
-        {
-            var innerException = new TimeoutException();
-            Assert.True(
-                ExecutionStrategy.UnwrapAndHandleException(
-                    new DbUpdateException("", innerException),
-                    ex =>
-                        {
-                            Assert.Same(innerException, ex);
-                            return true;
-                        }));
-        }
-
-        [Fact]
-        public void Unwraps_wrapped_null_exception()
-        {
-            Exception innerException = null;
-            Assert.True(
-                ExecutionStrategy.UnwrapAndHandleException(
-                    new DbUpdateException("", innerException),
-                    ex =>
-                        {
-                            Assert.Same(innerException, ex);
-                            return true;
-                        }));
         }
 
         protected DbContext CreateContext()

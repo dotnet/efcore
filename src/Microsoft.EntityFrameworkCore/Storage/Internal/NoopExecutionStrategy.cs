@@ -33,7 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public TResult Execute<TState, TResult>(Func<TState, TResult> operation, TState state) => operation(state);
+        public TResult Execute<TState, TResult>(
+            Func<TState, TResult> operation, Func<TState, ExecutionResult<TResult>> verifySucceeded, TState state)
+            => operation(state);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -41,8 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public Task<TResult> ExecuteAsync<TState, TResult>(
             Func<TState, CancellationToken, Task<TResult>> operation,
+            Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
             TState state,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
             => operation(state, cancellationToken);
     }
 }

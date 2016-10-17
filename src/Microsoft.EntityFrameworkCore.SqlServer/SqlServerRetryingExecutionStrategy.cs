@@ -13,101 +13,65 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class SqlAzureExecutionStrategy : ExecutionStrategy
+    public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     {
         private readonly ICollection<int> _errorNumbersToAdd;
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" /> without a context.
-        /// </summary>
-        /// <remarks>
-        ///     The default retry limit is 5, which means that the total amount of time spent before failing is 26 seconds plus the random factor.
-        /// </remarks>
-        protected SqlAzureExecutionStrategy()
-            : base(null, DefaultMaxRetryCount, DefaultMaxDelay)
-        {
-        }
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" />.
+        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <remarks>
         ///     The default retry limit is 5, which means that the total amount of time spent before failing is 26 seconds plus the random factor.
         /// </remarks>
-        public SqlAzureExecutionStrategy(
+        public SqlServerRetryingExecutionStrategy(
             [NotNull] DbContext context)
             : this(context, DefaultMaxRetryCount)
         {
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" />.
+        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
         /// <param name="context"> The required dependencies. </param>
-        public SqlAzureExecutionStrategy(
+        public SqlServerRetryingExecutionStrategy(
             [NotNull] ExecutionStrategyContext context)
             : this(context, DefaultMaxRetryCount)
         {
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" /> without a context.
-        /// </summary>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        protected SqlAzureExecutionStrategy(
-            int maxRetryCount)
-            : base(null, maxRetryCount, DefaultMaxDelay)
-        {
-        }
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" />.
+        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        public SqlAzureExecutionStrategy(
+        public SqlServerRetryingExecutionStrategy(
             [NotNull] DbContext context,
             int maxRetryCount)
-            : this(context, maxRetryCount, DefaultMaxDelay, null)
+            : this(context, maxRetryCount, DefaultMaxDelay, errorNumbersToAdd: null)
         {
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" />.
+        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
         /// <param name="context"> The required dependencies. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        public SqlAzureExecutionStrategy(
+        public SqlServerRetryingExecutionStrategy(
             [NotNull] ExecutionStrategyContext context,
             int maxRetryCount)
-            : this(context, maxRetryCount, DefaultMaxDelay, null)
+            : this(context, maxRetryCount, DefaultMaxDelay, errorNumbersToAdd: null)
         {
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" /> without a context.
-        /// </summary>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
-        /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
-        protected SqlAzureExecutionStrategy(
-            int maxRetryCount,
-            TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int> errorNumbersToAdd)
-            : base(null, maxRetryCount, maxRetryDelay)
-        {
-            _errorNumbersToAdd = errorNumbersToAdd;
-        }
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" />.
+        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
-        public SqlAzureExecutionStrategy(
+        public SqlServerRetryingExecutionStrategy(
             [NotNull] DbContext context,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
@@ -119,13 +83,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlAzureExecutionStrategy" />.
+        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
         /// <param name="context"> The required dependencies. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
-        public SqlAzureExecutionStrategy(
+        public SqlServerRetryingExecutionStrategy(
             [NotNull] ExecutionStrategyContext context,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
@@ -152,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            return SqlAzureRetriableExceptionDetector.ShouldRetryOn(exception);
+            return SqlServerTransientExceptionDetector.ShouldRetryOn(exception);
         }
     }
 }

@@ -8,9 +8,9 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
-    ///     Detects the exceptions caused by SQL Azure transient failures.
+    ///     Detects the exceptions caused by SQL Server transient failures.
     /// </summary>
-    public class SqlAzureRetriableExceptionDetector
+    public class SqlServerTransientExceptionDetector
     {
         public static bool ShouldRetryOn([NotNull] Exception ex)
         {
@@ -21,6 +21,23 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 {
                     switch (err.Number)
                     {
+                        // SQL Error Code: 49920
+                        // Cannot process request. Too many operations in progress for subscription "%ld".
+                        // The service is busy processing multiple requests for this subscription.
+                        // Requests are currently blocked for resource optimization. Query sys.dm_operation_status for operation status.
+                        // Wait until pending requests are complete or delete one of your pending requests and retry your request later.
+                        case 49920:
+                        // SQL Error Code: 49919
+                        // Cannot process create or update request. Too many create or update operations in progress for subscription "%ld".
+                        // The service is busy processing multiple create or update requests for your subscription or server.
+                        // Requests are currently blocked for resource optimization. Query sys.dm_operation_status for pending operations.
+                        // Wait till pending create or update requests are complete or delete one of your pending requests and
+                        // retry your request later.
+                        case 49919:
+                        // SQL Error Code: 49918
+                        // Cannot process request. Not enough resources to process request.
+                        // The service is currently busy.Please retry the request later.
+                        case 49918:
                         // SQL Error Code: 41325
                         // The current transaction failed to commit due to a serializable validation failure.
                         case 41325:
@@ -30,10 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         // SQL Error Code: 41302
                         // The current transaction attempted to update a record that has been updated since the transaction started.
                         case 41302:
-                        // SQL Error Code: 41301
-                        // A previous transaction that the current transaction took a dependency on has aborted,
-                        // and the current transaction can no longer commit
-                        case 41301:
                         // SQL Error Code: 40613
                         // Database XXXX on server YYYY is not currently available. Please retry the connection later.
                         // If the problem persists, contact customer support, and provide them the session tracing ID of ZZZZZ.
@@ -75,6 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         // allowed connections) on the server. (provider: TCP Provider, error: 0 - An existing connection was forcibly closed by
                         // the remote host.)
                         case 233:
+                        // SQL Error Code: 121
+                        // The semaphore timeout period has expired
+                        case 121:
                         // SQL Error Code: 64
                         // A connection was successfully established with the server, but then an error occurred during the login process.
                         // (provider: TCP Provider, error: 0 - The specified network name is no longer available.)

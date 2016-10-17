@@ -210,8 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (CurrentTransaction != null)
                 {
                     CurrentTransaction = null;
-
-                    Close();
                 }
             }
             else

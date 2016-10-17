@@ -48,6 +48,7 @@
     <Compile Include="BuiltInDataTypesSqlServerTest.cs" />
     <Compile Include="ChangeTrackingSqlServerTest.cs" />
     <Compile Include="CommandConfigurationTest.cs" />
+    <Compile Include="ExecutionStrategyTest.cs" />
     <Compile Include="CompiledQueryCacheKeyGeneratorTest.cs" />
     <Compile Include="ComplexNavigationsQuerySqlServerFixture.cs" />
     <Compile Include="ComplexNavigationsQuerySqlServerTest.cs" />
@@ -126,6 +127,8 @@
     <Compile Include="SqlAzure\SqlAzureFundamentalsTest.cs" />
     <Compile Include="SqlExecutorSqlServerTest.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
+    <Compile Include="Utilities\CollectionExtensions.cs" />
+    <Compile Include="Utilities\SqlExceptionFactory.cs" />
     <Compile Include="Utilities\SqlServerDatabaseCleaner.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
@@ -149,7 +152,10 @@
     <Compile Include="Utilities\SqlServerConfiguredConditionAttribute.cs" />
     <Compile Include="Utilities\SqlServerTestStore.cs" />
     <Compile Include="Utilities\TestEnvironment.cs" />
-    <Compile Include="Utilities\TestSqlAzureExecutionStrategy.cs" />
+    <Compile Include="Utilities\TestRelationalCommandBuilderFactory.cs" />
+    <Compile Include="Utilities\TestRelationalTransaction.cs" />
+    <Compile Include="Utilities\TestSqlServerConnection.cs" />
+    <Compile Include="Utilities\TestSqlServerRetryingExecutionStrategy.cs" />
     <Compile Include="Utilities\TestSqlServerModelSource.cs" />
     <Compile Include="WarningsSqlServerFixture.cs" />
     <Compile Include="WarningsSqlServerTest.cs" />

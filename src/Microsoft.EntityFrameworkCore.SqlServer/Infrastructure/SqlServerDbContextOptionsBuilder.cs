@@ -48,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
         /// </summary>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure()
-            => ExecutionStrategy(c => new SqlAzureExecutionStrategy(c));
+            => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c));
 
         /// <summary>
         ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
         /// </summary>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount)
-            => ExecutionStrategy(c => new SqlAzureExecutionStrategy(c, maxRetryCount));
+            => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount));
 
         /// <summary>
         ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
@@ -66,6 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             int maxRetryCount,
             TimeSpan maxRetryDelay,
             [NotNull] ICollection<int> errorNumbersToAdd)
-            => ExecutionStrategy(c => new SqlAzureExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
+            => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
     }
 }

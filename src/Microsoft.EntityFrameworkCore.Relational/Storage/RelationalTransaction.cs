@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly ILogger _logger;
         private readonly bool _transactionOwned;
 
+        private bool _connectionClosed;
         private bool _disposed;
 
         /// <summary>
@@ -113,6 +114,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Debug.Assert((_relationalConnection.CurrentTransaction == null) || (_relationalConnection.CurrentTransaction == this));
 
             _relationalConnection.UseTransaction(null);
+
+            if (!_connectionClosed)
+            {
+                _connectionClosed = true;
+
+                _relationalConnection.Close();
+            }
         }
 
         DbTransaction IInfrastructure<DbTransaction>.Instance => _dbTransaction;

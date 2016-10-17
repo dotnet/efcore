@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -21,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ThrowingModelValidator>()
-                .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()
                 .BuildServiceProvider();
         }
 
@@ -38,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         }
 
         public override InMemoryTestStore CreateTestStore()
-        {
-            return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
+            => InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
                         .UseInMemoryDatabase()
+                        .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                         .UseInternalServiceProvider(_serviceProvider);
 
                     using (var context = new DataAnnotationContext(optionsBuilder.Options))
@@ -54,11 +54,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                         }
                     }
                 });
-        }
 
         public override DataAnnotationContext CreateContext(InMemoryTestStore testStore)
             => new DataAnnotationContext(new DbContextOptionsBuilder()
                 .UseInMemoryDatabase()
-                .UseInternalServiceProvider(_serviceProvider).Options);
+                .UseInternalServiceProvider(_serviceProvider)
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options);
     }
 }

@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                                           END", name);
 
         public static IExecutionStrategy GetExecutionStrategy()
-            => TestEnvironment.IsSqlAzure ? new TestSqlAzureExecutionStrategy() : (IExecutionStrategy)NoopExecutionStrategy.Instance;
+            => TestEnvironment.IsSqlAzure ? new TestSqlServerRetryingExecutionStrategy() : (IExecutionStrategy)NoopExecutionStrategy.Instance;
 
         public override DbConnection Connection => _connection;
 
