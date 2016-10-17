@@ -92,6 +92,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 return result;
             }
 
+            int IRelationalCommand.ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+            {
+                throw new System.NotImplementedException();
+            }
+
             public Task<int> ExecuteNonQueryAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = new CancellationToken())
             {
@@ -104,6 +109,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
                 return result;
+            }
+
+            Task<int> IRelationalCommand.ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
             }
 
             public object ExecuteScalar(
@@ -120,6 +130,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 return result;
             }
 
+            object IRelationalCommand.ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+            {
+                throw new System.NotImplementedException();
+            }
+
             public async Task<object> ExecuteScalarAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = new CancellationToken())
             {
@@ -132,6 +147,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
                 return result;
+            }
+
+            Task<object> IRelationalCommand.ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
             }
 
             public RelationalDataReader ExecuteReader(
@@ -148,6 +168,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 return result;
             }
 
+            RelationalDataReader IRelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+            {
+                throw new System.NotImplementedException();
+            }
+
             public async Task<RelationalDataReader> ExecuteReaderAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = new CancellationToken())
             {
@@ -160,6 +185,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
                 return result;
+            }
+
+            Task<RelationalDataReader> IRelationalCommand.ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
             }
 
             private int? PreExecution(IRelationalConnection connection)

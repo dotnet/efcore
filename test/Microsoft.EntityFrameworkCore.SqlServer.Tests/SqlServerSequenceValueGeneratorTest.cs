@@ -221,7 +221,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                     throw new NotImplementedException();
                 }
 
+                int IRelationalCommand.ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+                {
+                    throw new NotImplementedException();
+                }
+
                 public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+                {
+                    throw new NotImplementedException();
+                }
+
+                Task<int> IRelationalCommand.ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
                 {
                     throw new NotImplementedException();
                 }
@@ -229,15 +239,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
                     => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
 
+                object IRelationalCommand.ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+                {
+                    throw new NotImplementedException();
+                }
+
                 public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
                     => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
+
+                Task<object> IRelationalCommand.ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
+                {
+                    throw new NotImplementedException();
+                }
 
                 public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
                 {
                     throw new NotImplementedException();
                 }
 
+                RelationalDataReader IRelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+                {
+                    throw new NotImplementedException();
+                }
+
                 public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+                {
+                    throw new NotImplementedException();
+                }
+
+                Task<RelationalDataReader> IRelationalCommand.ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
                 {
                     throw new NotImplementedException();
                 }
