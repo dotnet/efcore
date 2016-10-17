@@ -104,13 +104,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     , 
     entityAccessor: default(System.Func`2[Specification.Tests.TestModels.Northwind.Customer,System.Object]), 
     navigationPath: INavigation[] { Customer.Orders, }, 
-    relatedEntitiesLoaderFactories: List<Func<QueryContext, IRelatedEntitiesLoader>> 
-    { 
-        System.Func`2[QueryContext,Internal.IRelatedEntitiesLoader], 
-    }
+    relatedEntitiesLoaderFactories: new Func<QueryContext, IRelatedEntitiesLoader>[]{ (QueryContext ) => IRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
+            queryContext: , 
+            shaperCommandContext: SelectExpression: 
+                SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                FROM [Orders] AS [o]
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM [Customers] AS [c]
+                    WHERE [o].[CustomerID] = [c].[CustomerID])
+                ORDER BY [o].[CustomerID]
+            , 
+            queryIndex: 1, 
+            materializer: (ValueBuffer valueBuffer) => 
+            {
+                var var3
+                var3 = new Order()
+                var3.OrderID = (int) object valueBuffer.get_Item(0)
+                var3.CustomerID = (string) object valueBuffer.get_Item(1)
+                var3.EmployeeID = (Nullable<int>) object valueBuffer.get_Item(2)
+                var3.OrderDate = (Nullable<DateTime>) object valueBuffer.get_Item(3)
+                var3
+            }
+        )
+         }
     , 
     querySourceRequiresTracking: True
-)",
+)
+Opening connection to database 'Northwind' on server '(localdb)\MSSQLLocalDB'.
+Closing connection to database 'Northwind' on server '(localdb)\MSSQLLocalDB'.",
                     TestSqlLoggerFactory.Log);
             }
         }
