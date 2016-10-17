@@ -37,17 +37,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private readonly HashSet<ColumnModel> _unmappedColumns = new HashSet<ColumnModel>();
 
         public RelationalScaffoldingModelFactory(
-            [NotNull] ILogger<RelationalScaffoldingModelFactory> logger,
+            [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService)
         {
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
 
-            Logger = logger;
+            Logger = loggerFactory.CreateLogger<RelationalScaffoldingModelFactory>();
             TypeMapper = typeMapper;
             CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;
