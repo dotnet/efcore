@@ -206,8 +206,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (selectExpression.IsProjectStar)
             {
+                var tableAlias = selectExpression.ProjectStarAlias ?? selectExpression.Tables.Last().Alias;
+
                 _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Tables.Last().Alias))
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableAlias))
                     .Append(".*");
 
                 projectionAdded = true;
