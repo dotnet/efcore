@@ -194,16 +194,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
         ///     navigation property that associates this entity to another entity.
         /// </summary>
-        /// <param name="navigationPropertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName"> The name of the navigation property. </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual ReferenceEntry Reference([NotNull] string navigationPropertyName)
+        public virtual ReferenceEntry Reference([NotNull] string propertyName)
         {
-            Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
-            return new ReferenceEntry(InternalEntry, navigationPropertyName);
+            return new ReferenceEntry(InternalEntry, propertyName);
         }
 
         /// <summary>
@@ -218,16 +218,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking and loading information for a collection
         ///     navigation property that associates this entity to a collection of another entities.
         /// </summary>
-        /// <param name="navigationPropertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName"> The name of the navigation property. </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual CollectionEntry Collection([NotNull] string navigationPropertyName)
+        public virtual CollectionEntry Collection([NotNull] string propertyName)
         {
-            Check.NotEmpty(navigationPropertyName, nameof(navigationPropertyName));
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
-            return new CollectionEntry(InternalEntry, navigationPropertyName);
+            return new CollectionEntry(InternalEntry, propertyName);
         }
 
         /// <summary>

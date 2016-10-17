@@ -38,13 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(navigation.Name);
 
-            if (navigation.GetField() == null)
+            if (navigation.GetFieldName() == null)
             {
                 builder.Append(" (no field, ");
             }
             else
             {
-                builder.Append(" (").Append(navigation.GetField()).Append(", ");
+                builder.Append(" (").Append(navigation.GetFieldName()).Append(", ");
             }
 
             builder.Append(navigation.ClrType?.ShortDisplayName()).Append(")");

@@ -64,5 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets or sets the active cursor.
         /// </summary>
         IValueBufferCursor ActiveCursor { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Gets the current transaction.
+        /// </summary>
+        new IDbContextTransaction CurrentTransaction { get; }
     }
 }

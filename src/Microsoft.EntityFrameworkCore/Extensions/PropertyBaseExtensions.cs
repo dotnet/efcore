@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="propertyBase"> The property for which the backing field will be returned. </param>
         /// <returns> The name of the backing field, or null. </returns>
-        public static string GetField([NotNull] this IPropertyBase propertyBase)
+        public static string GetFieldName([NotNull] this IPropertyBase propertyBase)
             => propertyBase.FieldInfo?.Name;
 
         /// <summary>

@@ -20,94 +20,34 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         FoundTypeAlias,
 
         /// <summary>
-        ///     Found sequence.
-        /// </summary>
-        FoundSequence,
-
-        /// <summary>
-        ///     Sequence name empty.
-        /// </summary>
-        SequenceNameEmpty,
-
-        /// <summary>
-        ///     Found table.
-        /// </summary>
-        FoundTable,
-
-        /// <summary>
-        ///     Table not in selection set.
-        /// </summary>
-        TableNotInSelectionSet,
-
-        /// <summary>
-        ///     Found column.
-        /// </summary>
-        FoundColumn,
-
-        /// <summary>
-        ///     Column not in selection set.
-        /// </summary>
-        ColumnNotInSelectionSet,
-
-        /// <summary>
         ///     Column name empty on table.
         /// </summary>
-        ColumnNameEmptyOnTable,
-
-        /// <summary>
-        ///     Unable to find table for column.
-        /// </summary>
-        UnableToFindTableForColumn,
-
-        /// <summary>
-        ///     Found index column.
-        /// </summary>
-        FoundIndexColumn,
-
-        /// <summary>
-        ///     Index column not in selection set.
-        /// </summary>
-        IndexColumnNotInSelectionSet,
+        ColumnMustBeNamedWarning,
 
         /// <summary>
         ///     Index name empty.
         /// </summary>
-        IndexNameEmpty,
+        IndexMustBeNamedWarning,
 
         /// <summary>
         ///     Unable to find table for index.
         /// </summary>
-        UnableToFindTableForIndex,
+        IndexTableMissingWarning,
 
         /// <summary>
         ///     Column name empty on index.
         /// </summary>
-        ColumnNameEmptyOnIndex,
-
-        /// <summary>
-        ///     Unable to find column for index.
-        /// </summary>
-        UnableToFindColumnForIndex,
-
-        /// <summary>
-        ///     Found foreign key column.
-        /// </summary>
-        FoundForeignKeyColumn,
+        IndexColumnMustBeNamedWarning,
 
         /// <summary>
         ///     Foreign key name empty.
         /// </summary>
-        ForeignKeyNameEmpty,
+        ForeignKeyMustBeNamedWarning,
 
         /// <summary>
         ///     Foreign key column not in selection set.
         /// </summary>
-        ForeignKeyColumnNotInSelectionSet,
-
-        /// <summary>
-        ///     Principal table not in selection set.
-        /// </summary>
-        PrincipalTableNotInSelectionSet,
+        ForeignKeyColumnSkipped,
 
         /// <summary>
         ///     Column name empty on foreign key.
@@ -115,23 +55,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ColumnNameEmptyOnForeignKey,
 
         /// <summary>
-        ///     Unable to find column for foreign key.
-        /// </summary>
-        UnableToFindColumnForForeignKey,
-
-        /// <summary>
         ///     Data type does not allow SQL Server identity strategy.
         /// </summary>
-        DataTypeDoesNotAllowSqlServerIdentityStrategy,
+        DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
 
         /// <summary>
         ///     Cannot interpret default value.
         /// </summary>
-        CannotInterpretDefaultValue,
+        CannotInterpretDefaultValueWarning,
 
         /// <summary>
         ///     Cannot interpret computed value.
         /// </summary>
-        CannotInterpretComputedValue
+        CannotInterpretComputedValueWarning
     }
 }

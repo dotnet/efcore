@@ -602,8 +602,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.Equal("_forUp", entityType.FindProperty("Up").GetField());
-                Assert.Equal("_forDown", entityType.FindProperty("Down").GetField());
+                Assert.Equal("_forUp", entityType.FindProperty("Up").GetFieldName());
+                Assert.Equal("_forDown", entityType.FindProperty("Down").GetFieldName());
             }
 
             [Fact]
