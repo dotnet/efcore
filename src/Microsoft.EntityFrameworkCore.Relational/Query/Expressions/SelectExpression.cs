@@ -79,8 +79,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     Gets or sets the table alias to be used for star projection.
+        /// </summary>
+        /// <value>
+        ///     The table alias.
+        /// </value>
         public virtual string ProjectStarAlias { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     Sets the table alias for the star projection.
+        /// </summary>
+        /// <param name="querySource"> The query source.</param>
         public virtual void SetTableForProjectStar([NotNull] IQuerySource querySource)
             => ProjectStarAlias = GetTableForQuerySource(querySource)?.Alias;
 
