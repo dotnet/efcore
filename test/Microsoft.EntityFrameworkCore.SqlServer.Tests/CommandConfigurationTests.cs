@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
                     context.Database.SetCommandTimeout(null);
                     Assert.Null(context.Database.GetCommandTimeout());
+
+                    context.Database.SetCommandTimeout(TimeSpan.FromSeconds(66));
+                    Assert.Equal(66, context.Database.GetCommandTimeout());
                 }
             }
 
@@ -41,9 +44,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
                     Assert.Throws<ArgumentException>(
                         () => context.Database.SetCommandTimeout(-3));
+                    Assert.Throws<ArgumentException>(
+                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-3)));
 
                     Assert.Throws<ArgumentException>(
                         () => context.Database.SetCommandTimeout(-99));
+                    Assert.Throws<ArgumentException>(
+                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-99)));
+
+                    Assert.Throws<ArgumentException>(
+                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(UInt32.MaxValue)));
                 }
             }
 

@@ -211,6 +211,18 @@ namespace Microsoft.EntityFrameworkCore
 
         public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, int? timeout)
             => GetRelationalConnection(databaseFacade).CommandTimeout = timeout;
+        public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, TimeSpan timeout)
+        {
+            if (timeout < TimeSpan.Zero)
+            {
+                throw new ArgumentException($"Timeout must be greater than or equal to zero.  Provided: {timeout.TotalSeconds} seconds.");
+            }
+            if (timeout.TotalSeconds > Int32.MaxValue)
+            {
+                throw new ArgumentException($"Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds.  Provided: {timeout.Seconds} seconds.");
+            }
+            SetCommandTimeout(databaseFacade, Convert.ToInt32(timeout.TotalSeconds));
+        }
 
         public static int? GetCommandTimeout([NotNull] this DatabaseFacade databaseFacade)
             => GetRelationalConnection(databaseFacade).CommandTimeout;
