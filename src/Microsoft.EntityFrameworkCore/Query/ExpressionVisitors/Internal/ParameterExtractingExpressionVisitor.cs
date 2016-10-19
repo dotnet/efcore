@@ -184,11 +184,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => !_inLambda
-               && _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
-               && !_queryableTypeInfo.IsAssignableFrom(constantExpression.Type.GetTypeInfo())
+        {
+            var detachableContext = constantExpression.Value as IDetachableContext;
+
+            if (detachableContext != null)
+            {
+                return Expression.Constant(detachableContext.DetachContext());
+            }
+
+            return !_inLambda
+                   && _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
+                   && !_queryableTypeInfo.IsAssignableFrom(constantExpression.Type.GetTypeInfo())
                 ? TryExtractParameter(constantExpression)
                 : constantExpression;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
