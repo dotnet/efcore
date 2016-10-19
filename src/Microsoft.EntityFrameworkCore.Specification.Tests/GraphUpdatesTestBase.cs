@@ -1271,6 +1271,277 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalTheory]
+        [InlineData((int)ChangeMechanism.Dependent, false)]
+        [InlineData((int)ChangeMechanism.Dependent, true)]
+        [InlineData((int)ChangeMechanism.Principal, false)]
+        [InlineData((int)ChangeMechanism.Principal, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
+        public virtual void Reparent_to_different_one_to_many(ChangeMechanism changeMechanism, bool useExistingParent)
+        {
+            Root root = null;
+            IReadOnlyList<EntityEntry> entries = null;
+            var compositeCount = 0;
+            OptionalAk1 oldParent = null;
+            OptionalComposite2 oldComposite1 = null;
+            OptionalComposite2 oldComposite2 = null;
+            Optional1 newParent = null;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        if (!useExistingParent)
+                        {
+                            newParent = new Optional1
+                            {
+                                CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
+                            };
+
+                            context.Optional1s.Add(newParent);
+                            context.SaveChanges();
+                        }
+                    },
+                context =>
+                {
+                    root = LoadOptionalOneToManyGraph(context);
+
+                    compositeCount = context.OptionalComposite2s.Count();
+
+                    oldParent = root.OptionalChildrenAk.OrderBy(e => e.Id).First();
+
+                    oldComposite1 = oldParent.CompositeChildren.OrderBy(e => e.Id).First();
+                    oldComposite2 = oldParent.CompositeChildren.OrderBy(e => e.Id).Last();
+
+                    if (useExistingParent)
+                    {
+                        newParent = root.OptionalChildren.OrderBy(e => e.Id).Last();
+                    }
+                    else
+                    {
+                        newParent = context.Optional1s.Single(e => e.Id == newParent.Id);
+                        newParent.Parent = root;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Principal) != 0)
+                    {
+                        oldParent.CompositeChildren.Remove(oldComposite1);
+                        newParent.CompositeChildren.Add(oldComposite1);
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                    {
+                        oldComposite1.Parent = null;
+                        oldComposite1.Parent2 = newParent;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                    {
+                        oldComposite1.ParentId = null;
+                        oldComposite1.Parent2Id = newParent.Id;
+                    }
+
+                    Assert.True(context.ChangeTracker.HasChanges());
+
+                    context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
+
+                    Assert.Same(oldComposite2, oldParent.CompositeChildren.Single());
+                    Assert.Same(oldParent, oldComposite2.Parent);
+                    Assert.Equal(oldParent.Id, oldComposite2.ParentId);
+                    Assert.Null(oldComposite2.Parent2);
+                    Assert.Null(oldComposite2.Parent2Id);
+
+                    Assert.Same(oldComposite1, newParent.CompositeChildren.Single());
+                    Assert.Same(newParent, oldComposite1.Parent2);
+                    Assert.Equal(newParent.Id, oldComposite1.Parent2Id);
+                    Assert.Null(oldComposite1.Parent);
+                    Assert.Null(oldComposite1.ParentId);
+
+                    entries = context.ChangeTracker.Entries().ToList();
+
+                    Assert.Equal(compositeCount, context.OptionalComposite2s.Count());
+                },
+                context =>
+                {
+                    var loadedRoot = LoadOptionalOneToManyGraph(context);
+
+                    AssertKeys(root, loadedRoot);
+                    AssertNavigations(loadedRoot);
+
+                    oldParent = context.OptionalAk1s.Single(e => e.Id == oldParent.Id);
+                    newParent = context.Optional1s.Single(e => e.Id == newParent.Id);
+
+                    oldComposite1 = context.OptionalComposite2s.Single(e => e.Id == oldComposite1.Id);
+                    oldComposite2 = context.OptionalComposite2s.Single(e => e.Id == oldComposite2.Id);
+
+                    Assert.Same(oldComposite2, oldParent.CompositeChildren.Single());
+                    Assert.Same(oldParent, oldComposite2.Parent);
+                    Assert.Equal(oldParent.Id, oldComposite2.ParentId);
+                    Assert.Null(oldComposite2.Parent2);
+                    Assert.Null(oldComposite2.Parent2Id);
+
+                    Assert.Same(oldComposite1, newParent.CompositeChildren.Single());
+                    Assert.Same(newParent, oldComposite1.Parent2);
+                    Assert.Equal(newParent.Id, oldComposite1.Parent2Id);
+                    Assert.Null(oldComposite1.Parent);
+                    Assert.Null(oldComposite1.ParentId);
+
+                    AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+
+                    Assert.Equal(compositeCount, context.OptionalComposite2s.Count());
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData((int)ChangeMechanism.Dependent, false)]
+        [InlineData((int)ChangeMechanism.Dependent, true)]
+        [InlineData((int)ChangeMechanism.Principal, false)]
+        [InlineData((int)ChangeMechanism.Principal, true)]
+        [InlineData((int)ChangeMechanism.Fk, false)]
+        [InlineData((int)ChangeMechanism.Fk, true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
+        [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
+        [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
+        public virtual void Reparent_one_to_many_overlapping(ChangeMechanism changeMechanism, bool useExistingParent)
+        {
+            Root root = null;
+            IReadOnlyList<EntityEntry> entries = null;
+            var childCount = 0;
+            RequiredComposite1 oldParent = null;
+            OptionalOverlaping2 oldChild1 = null;
+            OptionalOverlaping2 oldChild2 = null;
+            RequiredComposite1 newParent = null;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    if (!useExistingParent)
+                    {
+                        newParent = new RequiredComposite1
+                        {
+                            Id = 3,
+                            Parent = context.Roots.Single(IsTheRoot),
+                            CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
+                            {
+                                new OptionalOverlaping2 { Id = 5 },
+                                new OptionalOverlaping2 { Id = 6 }
+                            }
+                        };
+
+                        context.RequiredComposite1s.Add(newParent);
+                        context.SaveChanges();
+                    }
+                },
+                context =>
+                {
+                    root = LoadRequiredCompositeGraph(context);
+
+                    childCount = context.OptionalOverlaping2s.Count();
+
+                    oldParent = root.RequiredCompositeChildren.OrderBy(e => e.Id).First();
+
+                    oldChild1 = oldParent.CompositeChildren.OrderBy(e => e.Id).First();
+                    oldChild2 = oldParent.CompositeChildren.OrderBy(e => e.Id).Last();
+
+                    Assert.Equal(useExistingParent ? 2 : 3, root.RequiredCompositeChildren.Count());
+
+                    if (useExistingParent)
+                    {
+                        newParent = root.RequiredCompositeChildren.OrderBy(e => e.Id).Last();
+                    }
+                    else
+                    {
+                        newParent = context.RequiredComposite1s.Single(e => e.Id == newParent.Id);
+                        newParent.Parent = root;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Principal) != 0)
+                    {
+                        oldParent.CompositeChildren.Remove(oldChild1);
+                        newParent.CompositeChildren.Add(oldChild1);
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                    {
+                        oldChild1.Parent = newParent;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                    {
+                        oldChild1.ParentId = newParent.Id;
+                    }
+
+                    Assert.True(context.ChangeTracker.HasChanges());
+
+                    context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
+
+                    Assert.Same(oldChild2, oldParent.CompositeChildren.Single());
+                    Assert.Same(oldParent, oldChild2.Parent);
+                    Assert.Equal(oldParent.Id, oldChild2.ParentId);
+                    Assert.Equal(oldParent.ParentAlternateId, oldChild2.ParentAlternateId);
+                    Assert.Equal(root.AlternateId, oldChild2.ParentAlternateId);
+                    Assert.Same(root, oldChild2.Root);
+
+                    Assert.Equal(3, newParent.CompositeChildren.Count);
+                    Assert.Same(oldChild1, newParent.CompositeChildren.Single(e => e.Id == oldChild1.Id));
+                    Assert.Same(newParent, oldChild1.Parent);
+                    Assert.Equal(newParent.Id, oldChild1.ParentId);
+                    Assert.Equal(oldParent.ParentAlternateId, oldChild1.ParentAlternateId);
+                    Assert.Equal(root.AlternateId, oldChild1.ParentAlternateId);
+                    Assert.Same(root, oldChild1.Root);
+
+                    entries = context.ChangeTracker.Entries().ToList();
+
+                    Assert.Equal(childCount, context.OptionalOverlaping2s.Count());
+                },
+                context =>
+                {
+                    var loadedRoot = LoadRequiredCompositeGraph(context);
+
+                    AssertKeys(root, loadedRoot);
+                    AssertNavigations(loadedRoot);
+
+                    oldParent = context.RequiredComposite1s.Single(e => e.Id == oldParent.Id);
+                    newParent = context.RequiredComposite1s.Single(e => e.Id == newParent.Id);
+
+                    oldChild1 = context.OptionalOverlaping2s.Single(e => e.Id == oldChild1.Id);
+                    oldChild2 = context.OptionalOverlaping2s.Single(e => e.Id == oldChild2.Id);
+
+                    Assert.Same(oldChild2, oldParent.CompositeChildren.Single());
+                    Assert.Same(oldParent, oldChild2.Parent);
+                    Assert.Equal(oldParent.Id, oldChild2.ParentId);
+                    Assert.Equal(oldParent.ParentAlternateId, oldChild2.ParentAlternateId);
+                    Assert.Equal(root.AlternateId, oldChild2.ParentAlternateId);
+
+                    Assert.Same(oldChild1, newParent.CompositeChildren.Single(e => e.Id == oldChild1.Id));
+                    Assert.Same(newParent, oldChild1.Parent);
+                    Assert.Equal(newParent.Id, oldChild1.ParentId);
+                    Assert.Equal(oldParent.ParentAlternateId, oldChild1.ParentAlternateId);
+                    Assert.Equal(root.AlternateId, oldChild1.ParentAlternateId);
+
+                    AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+
+                    Assert.Equal(childCount, context.OptionalOverlaping2s.Count());
+                });
+        }
+
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
@@ -4651,6 +4922,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected Root LoadOptionalGraph(GraphUpdatesContext context)
             => context.Roots
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
+                .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
                 .Include(e => e.OptionalSingleDerived).ThenInclude(e => e.Single)
                 .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
@@ -4692,6 +4964,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Root)
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
+                .Single(IsTheRoot);
+
+        protected Root LoadOptionalOneToManyGraph(GraphUpdatesContext context)
+            => context.Roots
+                .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
+                .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
+                .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
+                .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
+                .Single(IsTheRoot);
+
+        protected Root LoadRequiredCompositeGraph(GraphUpdatesContext context)
+            => context.Roots
+                .Include(e => e.RequiredCompositeChildren).ThenInclude(e => e.CompositeChildren)
                 .Single(IsTheRoot);
 
         private static void AssertEntries(IReadOnlyList<EntityEntry> expectedEntries, IReadOnlyList<EntityEntry> actualEntries)
@@ -4801,6 +5086,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.Equal(expected.RequiredNonPkSingleAk?.Single?.AlternateId, actual.RequiredNonPkSingleAk?.Single?.AlternateId);
             Assert.Equal(expected.RequiredNonPkSingleAkDerived?.Single?.AlternateId, actual.RequiredNonPkSingleAkDerived?.Single?.AlternateId);
             Assert.Equal(expected.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId, actual.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId);
+
+            Assert.Equal(
+                expected.RequiredCompositeChildren.OrderBy(e => e.Id).Select(e => new { e.Id, e.ParentAlternateId}),
+                actual.RequiredCompositeChildren.OrderBy(e => e.Id).Select(e => new { e.Id, e.ParentAlternateId }));
+
+            Assert.Equal(
+                expected.RequiredCompositeChildren.OrderBy(e => e.Id).Select(e => e.CompositeChildren.Count()),
+                actual.RequiredCompositeChildren.OrderBy(e => e.Id).Select(e => e.CompositeChildren.Count()));
+
+            Assert.Equal(
+                expected.RequiredCompositeChildren.OrderBy(e => e.Id).SelectMany(e => e.CompositeChildren).OrderBy(e => e.Id)
+                    .Select(e => new { e.Id, e.ParentAlternateId }),
+                actual.RequiredCompositeChildren.OrderBy(e => e.Id).SelectMany(e => e.CompositeChildren).OrderBy(e => e.Id)
+                    .Select(e => new { e.Id, e.ParentAlternateId }));
         }
 
         private static void AssertNavigations(Root root)
@@ -4963,8 +5262,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             private int _id;
             private Guid _alternateId;
-            private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>();
-            private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>();
+            private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance);
+            private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance);
             private RequiredSingle1 _requiredSingle;
             private RequiredNonPkSingle1 _requiredNonPkSingle;
             private RequiredNonPkSingle1Derived _requiredNonPkSingleDerived;
@@ -4972,8 +5271,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             private OptionalSingle1 _optionalSingle;
             private OptionalSingle1Derived _optionalSingleDerived;
             private OptionalSingle1MoreDerived _optionalSingleMoreDerived;
-            private IEnumerable<RequiredAk1> _requiredChildrenAk = new ObservableHashSet<RequiredAk1>();
-            private IEnumerable<OptionalAk1> _optionalChildrenAk = new ObservableHashSet<OptionalAk1>();
+            private IEnumerable<RequiredAk1> _requiredChildrenAk = new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance);
+            private IEnumerable<OptionalAk1> _optionalChildrenAk = new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance);
             private RequiredSingleAk1 _requiredSingleAk;
             private RequiredNonPkSingleAk1 _requiredNonPkSingleAk;
             private RequiredNonPkSingleAk1Derived _requiredNonPkSingleAkDerived;
@@ -4981,6 +5280,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             private OptionalSingleAk1 _optionalSingleAk;
             private OptionalSingleAk1Derived _optionalSingleAkDerived;
             private OptionalSingleAk1MoreDerived _optionalSingleAkMoreDerived;
+            private IEnumerable<RequiredComposite1> _requiredCompositeChildren
+                = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -5102,6 +5403,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 set { SetWithNotify(value, ref _optionalSingleAkMoreDerived); }
             }
 
+            public IEnumerable<RequiredComposite1> RequiredCompositeChildren
+            {
+                get { return _requiredCompositeChildren; }
+                set { SetWithNotify(value, ref _requiredCompositeChildren); }
+            }
+
             public override bool Equals(object obj)
             {
                 var other = obj as Root;
@@ -5218,6 +5525,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             private int? _parentId;
             private Root _parent;
             private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>();
+            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>();
 
             public int Id
             {
@@ -5241,6 +5549,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 get { return _children; }
                 set { SetWithNotify(value, ref _children); }
+            }
+
+            public ICollection<OptionalComposite2> CompositeChildren
+            {
+                get { return _compositeChildren; }
+                set { SetWithNotify(value, ref _compositeChildren); }
             }
 
             public override bool Equals(object obj)
@@ -5742,6 +6056,93 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public override int GetHashCode() => _id;
         }
 
+        protected class RequiredComposite1 : NotifyingEntity
+        {
+            private int _id;
+            private Guid _parentAlternateId;
+            private Root _parent;
+            private ICollection<OptionalOverlaping2> _compositeChildren = new ObservableHashSet<OptionalOverlaping2>();
+
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Guid ParentAlternateId
+            {
+                get { return _parentAlternateId; }
+                set { SetWithNotify(value, ref _parentAlternateId); }
+            }
+
+            public Root Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
+
+            public override bool Equals(object obj)
+            {
+                var other = obj as RequiredComposite1;
+                return _id == other?.Id;
+            }
+
+            public ICollection<OptionalOverlaping2> CompositeChildren
+            {
+                get { return _compositeChildren; }
+                set { SetWithNotify(value, ref _compositeChildren); }
+            }
+
+            public override int GetHashCode() => _id;
+        }
+
+        protected class OptionalOverlaping2 : NotifyingEntity
+        {
+            private int _id;
+            private Guid _parentAlternateId;
+            private int? _parentId;
+            private RequiredComposite1 _parent;
+            private Root _root;
+
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public Guid ParentAlternateId
+            {
+                get { return _parentAlternateId; }
+                set { SetWithNotify(value, ref _parentAlternateId); }
+            }
+
+            public int? ParentId
+            {
+                get { return _parentId; }
+                set { SetWithNotify(value, ref _parentId); }
+            }
+
+            public RequiredComposite1 Parent
+            {
+                get { return _parent; }
+                set { SetWithNotify(value, ref _parent); }
+            }
+
+            public Root Root
+            {
+                get { return _root; }
+                set { SetWithNotify(value, ref _root); }
+            }
+
+            public override bool Equals(object obj)
+            {
+                var other = obj as OptionalOverlaping2;
+                return _id == other?.Id;
+            }
+
+            public override int GetHashCode() => _id;
+        }
+
         protected class RequiredComposite2 : NotifyingEntity
         {
             private int _id;
@@ -5803,7 +6204,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             private Guid? _parentId;
             private Root _parent;
             private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>();
-            private IEnumerable<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>();
+            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>();
 
             public int Id
             {
@@ -5835,7 +6236,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 set { SetWithNotify(value, ref _children); }
             }
 
-            public IEnumerable<OptionalComposite2> CompositeChildren
+            public ICollection<OptionalComposite2> CompositeChildren
             {
                 get { return _compositeChildren; }
                 set { SetWithNotify(value, ref _compositeChildren); }
@@ -5909,7 +6310,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             private int _id;
             private Guid _alternateId;
             private int? _parentId;
+            private int? _parent2Id;
             private OptionalAk1 _parent;
+            private Optional1 _parent2;
 
             public int Id
             {
@@ -5933,6 +6336,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 get { return _parent; }
                 set { SetWithNotify(value, ref _parent); }
+            }
+
+            public int? Parent2Id
+            {
+                get { return _parent2Id; }
+                set { SetWithNotify(value, ref _parent2Id); }
+            }
+
+            public Optional1 Parent2
+            {
+                get { return _parent2; }
+                set { SetWithNotify(value, ref _parent2); }
             }
 
             public override bool Equals(object obj)
@@ -6532,6 +6947,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public DbSet<OptionalAk2> OptionalAk2s { get; set; }
             public DbSet<OptionalComposite2> OptionalComposite2s { get; set; }
 
+            public DbSet<RequiredComposite1> RequiredComposite1s { get; set; }
+            public DbSet<OptionalOverlaping2> OptionalOverlaping2s { get; set; }
+
             public DbSet<BadCustomer> BadCustomers { get; set; }
             public DbSet<BadOrder> BadOrders { get; set; }
         }
@@ -6664,6 +7082,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             .HasPrincipalKey<Root>(e => e.AlternateId)
                             .HasForeignKey<RequiredNonPkSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
                             .OnDelete(DeleteBehavior.Restrict);
+
+                        b.HasMany(e => e.RequiredCompositeChildren)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentAlternateId);
                     });
 
                 modelBuilder.Entity<Required1>()
@@ -6676,11 +7099,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 modelBuilder.Entity<Required2Derived>();
                 modelBuilder.Entity<Required2MoreDerived>();
 
-                modelBuilder.Entity<Optional1>()
-                    .HasMany(e => e.Children)
-                    .WithOne(e => e.Parent)
-                    .HasForeignKey(e => e.ParentId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                modelBuilder.Entity<Optional1>(b =>
+                    {
+                        b.HasMany(e => e.Children)
+                            .WithOne(e => e.Parent)
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
+
+                        b.HasMany(e => e.CompositeChildren)
+                            .WithOne(e => e.Parent2)
+                            .HasForeignKey(e => new { e.Parent2Id });
+                    });
 
                 modelBuilder.Entity<Optional1Derived>();
                 modelBuilder.Entity<Optional1MoreDerived>();
@@ -6823,6 +7252,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 modelBuilder.Entity<OptionalSingleAk2>()
                     .Property(e => e.AlternateId)
                     .ValueGeneratedOnAdd();
+
+                modelBuilder.Entity<RequiredComposite1>(eb =>
+                    {
+                        eb.HasKey(e => new { e.Id, e.ParentAlternateId });
+
+                        eb.HasMany(e => e.CompositeChildren)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => new { e.Id, e.ParentAlternateId })
+                            .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+                    });
+
+                modelBuilder.Entity<OptionalOverlaping2>(eb =>
+                {
+                    eb.HasKey(e => new { e.Id, e.ParentAlternateId });
+
+                    eb.HasOne(e => e.Root)
+                        .WithMany()
+                        .HasPrincipalKey(e => e.AlternateId)
+                        .HasForeignKey(e => e.ParentAlternateId);
+                });
             }
 
             protected virtual object CreateFullGraph()
@@ -6856,7 +7305,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             {
                                 new Optional2(),
                                 new Optional2()
-                            }
+                            },
+                            CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                         },
                         new Optional1
                         {
@@ -6864,7 +7314,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             {
                                 new Optional2(),
                                 new Optional2()
-                            }
+                            },
+                            CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                         }
                     },
                     RequiredSingle = new RequiredSingle1
@@ -6999,6 +7450,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         Single = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() },
                         Root = new Root(),
                         DerivedRoot = new Root()
+                    },
+                    RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance)
+                    {
+                        new RequiredComposite1
+                        {
+                            Id = 1,
+                            CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
+                            {
+                                new OptionalOverlaping2 { Id = 1 },
+                                new OptionalOverlaping2 { Id = 2 }
+                            }
+                        },
+                        new RequiredComposite1
+                        {
+                            Id = 2,
+                            CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
+                            {
+                                new OptionalOverlaping2 { Id = 3 },
+                                new OptionalOverlaping2 { Id = 4 }
+                            }
+                        }
                     }
                 };
 
