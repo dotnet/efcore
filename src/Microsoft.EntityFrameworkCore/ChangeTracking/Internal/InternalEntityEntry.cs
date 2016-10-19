@@ -667,7 +667,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (!Equals(currentValue, value)
                     || (propertyIndex.HasValue
-                        && _stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Unknown)))
+                        && (_stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Unknown)
+                            || _stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Null))))
                 {
                     var writeValue = true;
 
