@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -751,6 +752,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                                                 e,
                                                 querySourceMapping,
                                                 throwOnUnmappedReferences: false));
+
+                                    foreach (var annotation in QueryCompilationContext.QueryAnnotations
+                                        .OfType<IncludeResultOperator>()
+                                        .Where(a => a.QuerySource == additionalFromClause))
+                                    {
+                                        annotation.QuerySource = joinClause;
+                                        annotation.PathFromQuerySource = ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
+                                            annotation.PathFromQuerySource,
+                                            querySourceMapping,
+                                            throwOnUnmappedReferences: false);
+                                    }
 
                                     Expression = ((MethodCallExpression)Expression).Arguments[0];
 

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -418,6 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             return RewriteNavigationProperties(
                                 ps.ToList(),
                                 qs,
+                                node,
                                 node.Expression,
                                 node.Member.Name,
                                 node.Type,
@@ -501,6 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             return RewriteNavigationProperties(
                                 ps.ToList(),
                                 qs,
+                                node,
                                 node.Arguments[0],
                                 (string)((ConstantExpression)node.Arguments[1]).Value,
                                 node.Type,
@@ -541,6 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private Expression RewriteNavigationProperties(
             List<IPropertyBase> properties,
             IQuerySource querySource,
+            Expression expression,
             Expression declaringExpression,
             string propertyName,
             Type propertyType,
@@ -588,6 +592,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     properties.Count == navigations.Count ? null : propertyType,
                     propertyCreator,
                     conditionalAccessPropertyCreator);
+
+                var resultQsre = navigationResultExpression as QuerySourceReferenceExpression;
+                if (resultQsre != null)
+                {
+                    foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations
+                        .OfType<IncludeResultOperator>()
+                        .Where(o => o.PathFromQuerySource == expression))
+                    {
+                        includeResultOperator.QuerySource = resultQsre.ReferencedQuerySource;
+                        includeResultOperator.PathFromQuerySource = resultQsre;
+                    }
+                }
 
                 return navigationResultExpression;
             }
@@ -886,6 +902,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _queryModel.TransformExpressions(e =>
                 ReferenceReplacingExpressionVisitor
                     .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+
+            foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
+            {
+                if ((includeResultOperator.PathFromQuerySource as QuerySourceReferenceExpression)?.ReferencedQuerySource
+                    == additionalFromClauseBeingProcessed)
+                {
+                    includeResultOperator.PathFromQuerySource = querySourceReferenceExpression;
+                    includeResultOperator.QuerySource = querySourceReferenceExpression.ReferencedQuerySource;
+                }
+            }
 
             return querySourceReferenceExpression;
         }

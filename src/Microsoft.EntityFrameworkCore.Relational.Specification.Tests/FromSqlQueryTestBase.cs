@@ -635,6 +635,54 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             }
         }
 
+        [Fact]
+        public virtual void From_sql_with_SelectMany_and_include()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from c1 in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
+                            from c2 in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'").Include(c => c.Orders)
+                            select new { c1, c2 };
+
+                var result = query.ToList();
+                Assert.Equal(1, result.Count);
+
+                var customers1 = result.Select(r => r.c1);
+                var customers2 = result.Select(r => r.c2);
+                foreach (var customer1 in customers1)
+                {
+                    Assert.Null(customer1.Orders);
+                }
+
+                foreach (var customer2 in customers2)
+                {
+                    Assert.NotNull(customer2.Orders);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_with_join_and_include()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
+                            join o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1").Include(o => o.OrderDetails)
+                            on c.CustomerID equals o.CustomerID
+                            select new { c, o };
+
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+
+                var orders = result.Select(r => r.o);
+                foreach (var order in orders)
+                {
+                    Assert.NotNull(order.OrderDetails);
+                }
+            }
+        }
+
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
             using (var context = CreateContext())

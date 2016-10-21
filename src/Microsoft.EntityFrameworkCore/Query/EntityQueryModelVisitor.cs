@@ -397,57 +397,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OfType<IncludeResultOperator>()
                     .Select(includeResultOperator =>
                         {
-                            INavigation[] navigationPath;
-                            if (includeResultOperator.StringNavigationPropertyPath != null)
+                            var entityType = QueryCompilationContext.Model.FindEntityType(
+                                includeResultOperator.PathFromQuerySource.Type);
+
+                            var parts = includeResultOperator.NavigationPropertyPaths.ToArray();
+                            var navigationPath = new INavigation[parts.Length];
+                            for (var i = 0; i < parts.Length; i++)
                             {
-                                var entityType = QueryCompilationContext.Model.FindEntityType(
-                                    includeResultOperator.QuerySource.ItemType);
+                                navigationPath[i] = entityType.FindNavigation(parts[i]);
 
-                                var parts = includeResultOperator.StringNavigationPropertyPath.Split('.');
-
-                                navigationPath = new INavigation[parts.Length];
-                                for (var i = 0; i < parts.Length; i++)
+                                if (navigationPath[i] == null)
                                 {
-                                    navigationPath[i] = entityType.FindNavigation(parts[i]);
-
-                                    if (navigationPath[i] == null)
-                                    {
-                                        throw new InvalidOperationException(
-                                            CoreStrings.IncludeBadNavigation(parts[i], entityType.DisplayName()));
-                                    }
-
-                                    entityType = navigationPath[i].GetTargetType();
+                                    throw new InvalidOperationException(
+                                        CoreStrings.IncludeBadNavigation(parts[i], entityType.DisplayName()));
                                 }
-                            }
-                            else
-                            {
-                                navigationPath
-                                    = BindNavigationPathPropertyExpression(
-                                        includeResultOperator.NavigationPropertyPath,
-                                        (ps, _) =>
-                                            {
-                                                var properties = ps.ToList();
-                                                var navigations = properties.OfType<INavigation>().ToList();
 
-                                                if (properties.Count != navigations.Count)
-                                                {
-                                                    throw new InvalidOperationException(
-                                                        CoreStrings.IncludeNonBindableExpression(
-                                                            includeResultOperator.NavigationPropertyPath));
-                                                }
-
-                                                return BindChainedNavigations(
-                                                        navigations,
-                                                        includeResultOperator.ChainedNavigationProperties)
-                                                    .ToArray();
-                                            });
-                            }
-
-                            if (navigationPath == null)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.IncludeNonBindableExpression(
-                                        includeResultOperator.NavigationPropertyPath));
+                                entityType = navigationPath[i].GetTargetType();
                             }
 
                             return new
@@ -522,30 +487,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             () => CoreStrings.LogIgnoredInclude(includeSpecification));
                 }
             }
-        }
-
-        private static IEnumerable<INavigation> BindChainedNavigations(
-            IEnumerable<INavigation> boundNavigations, IReadOnlyList<PropertyInfo> chainedNavigationProperties)
-        {
-            var boundNavigationsList = boundNavigations.ToList();
-
-            if (chainedNavigationProperties != null)
-            {
-                foreach (var propertyInfo in chainedNavigationProperties)
-                {
-                    var lastNavigation = boundNavigationsList.Last();
-                    var navigation = lastNavigation.GetTargetType().FindNavigation(propertyInfo.Name);
-
-                    if (navigation == null)
-                    {
-                        return null;
-                    }
-
-                    boundNavigationsList.Add(navigation);
-                }
-            }
-
-            return boundNavigationsList;
         }
 
         /// <summary>

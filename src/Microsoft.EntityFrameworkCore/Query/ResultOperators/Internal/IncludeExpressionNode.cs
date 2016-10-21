@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -47,11 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
         {
-            var navigationPropertyPath
-                = Source.Resolve(
-                    _navigationPropertyPathLambda.Parameters[0],
-                    _navigationPropertyPathLambda.Body,
-                    clauseGenerationContext) as MemberExpression;
+            var prm = Expression.Parameter(typeof(object));
+            var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
+            var navigationPropertyPath = _navigationPropertyPathLambda.Body as MemberExpression;
 
             if (navigationPropertyPath == null)
             {
@@ -59,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
                     CoreStrings.InvalidComplexPropertyExpression(_navigationPropertyPathLambda));
             }
 
-            var includeResultOperator = new IncludeResultOperator(navigationPropertyPath);
+            var includeResultOperator = new IncludeResultOperator(
+                _navigationPropertyPathLambda.GetComplexPropertyAccess().Select(p => p.Name),
+                pathFromQuerySource);
 
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);
 
