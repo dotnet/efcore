@@ -665,14 +665,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The expression '{expression}' passed to the Include operator could not be bound.
-        /// </summary>
-        public static string IncludeNonBindableExpression([CanBeNull] object expression)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IncludeNonBindableExpression", "expression"), expression);
-        }
-
-        /// <summary>
         /// The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.
         /// </summary>
         public static string IncludeBadNavigation([CanBeNull] object property, [CanBeNull] object entityType)

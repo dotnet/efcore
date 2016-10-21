@@ -288,6 +288,26 @@ ORDER BY [g0].[LeaderNickname], [g0].[LeaderSquadId]",
                 Sql);
         }
 
+        public override void String_based_Include_navigation_on_derived_type()
+        {
+            base.String_based_Include_navigation_on_derived_type();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] = N'Officer'
+ORDER BY [g].[Nickname], [g].[SquadId]
+
+SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gear] AS [g0]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
+    FROM [Gear] AS [g]
+    WHERE ([g].[Discriminator] = N'Officer') AND (([g0].[LeaderNickname] = [g].[Nickname]) AND ([g0].[LeaderSquadId] = [g].[SquadId])))
+ORDER BY [g0].[LeaderNickname], [g0].[LeaderSquadId]",
+                Sql);
+        }
+
         public override void Select_Where_Navigation_Included()
         {
             base.Select_Where_Navigation_Included();
