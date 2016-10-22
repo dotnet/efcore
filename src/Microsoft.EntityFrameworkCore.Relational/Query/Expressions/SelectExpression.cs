@@ -301,9 +301,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [param: CanBeNull]
             set
             {
-                Check.NotNull(value, nameof(value));
-
-                PushDownIfLimit();
+                if (value != null)
+                {
+                    PushDownIfLimit();
+                }
 
                 _limit = value;
             }

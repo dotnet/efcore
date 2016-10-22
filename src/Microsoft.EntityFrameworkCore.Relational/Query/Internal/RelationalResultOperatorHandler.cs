@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleAll(HandlerContext handlerContext)
         {
-            var sqlTranslatingVisitor 
+            var sqlTranslatingVisitor
                 = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
             var predicate
@@ -182,19 +182,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (predicate != null)
             {
-                var innerSelectExpression
-                    = handlerContext.SelectExpressionFactory
-                        .Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
+                var innerSelectExpression = handlerContext.SelectExpression.Clone();
 
-                innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
-                innerSelectExpression.Predicate = Expression.Not(predicate);
+                innerSelectExpression.ClearProjection();
+                innerSelectExpression.AddToProjection(Expression.Constant(1));
 
                 if (handlerContext.SelectExpression.Predicate != null)
                 {
                     innerSelectExpression.Predicate
                         = Expression.AndAlso(
                             handlerContext.SelectExpression.Predicate,
-                            innerSelectExpression.Predicate);
+                            Expression.Not(predicate));
+                }
+                else
+                {
+                    innerSelectExpression.Predicate = Expression.Not(predicate);
+                }
+
+                if (innerSelectExpression.Limit == null
+                    && innerSelectExpression.Offset == null)
+                {
+                    innerSelectExpression.ClearOrderBy();
                 }
 
                 SetProjectionConditionalExpression(
@@ -213,12 +221,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleAny(HandlerContext handlerContext)
         {
-            var innerSelectExpression 
-                = handlerContext.SelectExpressionFactory
-                    .Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
+            var innerSelectExpression = handlerContext.SelectExpression.Clone();
 
-            innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
-            innerSelectExpression.Predicate = handlerContext.SelectExpression.Predicate;
+            innerSelectExpression.ClearProjection();
+            innerSelectExpression.AddToProjection(Expression.Constant(1));
+
+            if (innerSelectExpression.Limit == null
+                && innerSelectExpression.Offset == null)
+            {
+                innerSelectExpression.ClearOrderBy();
+            }
 
             SetProjectionConditionalExpression(
                 handlerContext,
@@ -679,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var skipResultOperator = (SkipResultOperator)handlerContext.ResultOperator;
 
-            var sqlTranslatingExpressionVisitor 
+            var sqlTranslatingExpressionVisitor
                 = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
             var offset = sqlTranslatingExpressionVisitor.Visit(skipResultOperator.Count);
@@ -736,6 +748,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             handlerContext.SelectExpression.SetProjectionConditionalExpression(conditionalExpression);
             handlerContext.SelectExpression.ClearTables();
             handlerContext.SelectExpression.ClearOrderBy();
+            handlerContext.SelectExpression.Offset = null;
+            handlerContext.SelectExpression.Limit = null;
             handlerContext.SelectExpression.Predicate = null;
         }
 
