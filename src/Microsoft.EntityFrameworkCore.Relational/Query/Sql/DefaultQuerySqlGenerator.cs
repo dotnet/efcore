@@ -366,8 +366,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     Generates a single ordering in an SQL ORDER BY clause.
         /// </summary>
         /// <param name="ordering"> The ordering. </param>
-        protected virtual void GenerateOrdering(Ordering ordering)
+        protected virtual void GenerateOrdering([NotNull] Ordering ordering)
         {
+            Check.NotNull(ordering, nameof(ordering));
+
             var orderingExpression = ordering.Expression;
             var aliasExpression = orderingExpression as AliasExpression;
 
