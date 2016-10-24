@@ -83,17 +83,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy,
                 null);
 
+            if (value != null)
+            {
+                return value;
+            }
+
             var relationalProperty = Property.Relational();
-            return value ??
-                   (fallbackToModel
-                    && Property.ValueGenerated == ValueGenerated.OnAdd
-                    && (Property.ClrType.UnwrapNullableType().IsInteger()
-                        || Property.ClrType.UnwrapNullableType() == typeof(decimal))
-                    && relationalProperty.DefaultValue == null
-                    && relationalProperty.DefaultValueSql == null
-                    && relationalProperty.ComputedColumnSql == null
-                       ? Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy
-                       : null);
+            if (!fallbackToModel
+                || Property.ValueGenerated != ValueGenerated.OnAdd
+                || relationalProperty.DefaultValue != null
+                || relationalProperty.DefaultValueSql != null
+                || relationalProperty.ComputedColumnSql != null)
+            {
+                return null;
+            }
+
+            var modelStrategy = Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
+
+            if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+                && IsCompatibleSequenceHiLo(Property.ClrType))
+            {
+                return SqlServerValueGenerationStrategy.SequenceHiLo;
+            }
+
+            if (modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatibleIdentityColumn(Property.ClrType))
+            {
+                return SqlServerValueGenerationStrategy.IdentityColumn;
+            }
+
+            return null;
         }
 
         protected virtual bool SetValueGenerationStrategy(SqlServerValueGenerationStrategy? value)
@@ -103,17 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var propertyType = Property.ClrType;
 
                 if (value == SqlServerValueGenerationStrategy.IdentityColumn
-                    && propertyType != typeof(decimal)
-                    && (!propertyType.IsInteger()
-                        || propertyType == typeof(byte)
-                        || propertyType == typeof(byte?)))
+                    && !IsCompatibleIdentityColumn(propertyType))
                 {
                     throw new ArgumentException(SqlServerStrings.IdentityBadType(
                         Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
                 }
 
-                if ((value == SqlServerValueGenerationStrategy.SequenceHiLo)
-                    && !propertyType.IsInteger())
+                if (value == SqlServerValueGenerationStrategy.SequenceHiLo
+                    && !IsCompatibleSequenceHiLo(propertyType))
                 {
                     throw new ArgumentException(SqlServerStrings.SequenceBadType(
                         Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
@@ -272,5 +288,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             base.ClearAllServerGeneratedValues();
         }
+
+        private static bool IsCompatibleIdentityColumn(Type type)
+            => type == typeof(decimal)
+            || (type.IsInteger()
+                && type != typeof(byte)
+                && type != typeof(byte?));
+
+        private static bool IsCompatibleSequenceHiLo(Type type) => type.IsInteger();
     }
 }

@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.IsType<TemporaryShortValueGenerator>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
             Assert.IsType<TemporaryByteValueGenerator>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
             Assert.IsType<TemporaryCharValueGenerator>(selector.Select(entityType.FindProperty("NullableChar"), entityType));
+            Assert.IsType<TemporaryDecimalValueGenerator>(selector.Select(entityType.FindProperty("Decimal"), entityType));
             Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
             Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
             Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
@@ -79,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<short>>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<byte>>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<char>>(selector.Select(entityType.FindProperty("NullableChar"), entityType));
+            Assert.IsType<TemporaryDecimalValueGenerator>(selector.Select(entityType.FindProperty("Decimal"), entityType));
             Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
             Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
             Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
@@ -157,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public Guid Guid { get; set; }
             public byte[] Binary { get; set; }
             public float Float { get; set; }
+            public decimal Decimal { get; set; }
             public int AlwaysIdentity { get; set; }
             public int AlwaysSequence { get; set; }
             public Random Random { get; set; }
