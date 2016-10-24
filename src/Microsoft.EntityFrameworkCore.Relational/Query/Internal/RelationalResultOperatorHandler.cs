@@ -361,6 +361,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             selectExpression.AddTable(leftOuterJoinExpression, createUniqueAlias: false);
 
+            selectExpression.ProjectStarAlias = subquery.Alias;
+
             handlerContext.QueryModelVisitor.Expression
                 = new DefaultIfEmptyExpressionVisitor(
                         handlerContext.QueryModelVisitor.QueryCompilationContext)

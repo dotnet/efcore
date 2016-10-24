@@ -88,13 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual string ProjectStarAlias { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Sets the table alias for the star projection.
-        /// </summary>
-        /// <param name="querySource"> The query source.</param>
-        public virtual void SetTableForProjectStar([NotNull] IQuerySource querySource)
-            => ProjectStarAlias = GetTableForQuerySource(querySource)?.Alias;
-
-        /// <summary>
         ///     Type of this expression.
         /// </summary>
         public override Type Type => _projection.Count == 1
@@ -442,6 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ClearOrderBy();
 
             AddTable(subquery, createUniqueAlias: false);
+            ProjectStarAlias = subquery.Alias;
 
             return subquery;
         }
