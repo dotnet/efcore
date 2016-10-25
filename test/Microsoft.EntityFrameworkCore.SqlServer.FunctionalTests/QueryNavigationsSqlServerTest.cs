@@ -73,6 +73,7 @@ FROM (
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
 ) AS [t]
+ORDER BY [t].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
@@ -104,7 +105,8 @@ FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
-) AS [t]",
+) AS [t]
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -124,7 +126,8 @@ FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
-) AS [t]",
+) AS [t]
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -141,6 +144,7 @@ FROM (
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
 ) AS [t]
+ORDER BY [t].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
@@ -169,6 +173,7 @@ FROM (
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
 ) AS [t]
+ORDER BY [t].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 

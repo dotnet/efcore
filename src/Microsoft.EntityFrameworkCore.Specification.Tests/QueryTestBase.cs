@@ -6405,6 +6405,61 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                  select new { c.CustomerID, o1.OrderID, o2.OrderDate }));
         }
 
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_level_1()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(8),
+                assertOrder: true,
+                entryCount: 8);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_level_2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(8)
+                    .Take(3),
+                assertOrder: true,
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_distinct()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(15)
+                    .Distinct()
+                    .Take(8),
+                assertOrder: false,
+                entryCount: 8);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_level_3()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(15)
+                    .Take(10)
+                    .Take(8)
+                    .Take(5),
+                assertOrder: true,
+                entryCount: 5);
+        }
+
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)

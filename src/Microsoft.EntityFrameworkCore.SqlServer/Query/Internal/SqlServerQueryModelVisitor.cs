@@ -207,6 +207,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 selectExpression.Predicate = predicate;
 
+                if (selectExpression.Alias != null)
+                {
+                    selectExpression.ClearOrderBy();
+                }
+
                 return selectExpression;
             }
         }

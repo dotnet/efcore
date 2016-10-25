@@ -3500,7 +3500,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
+        //[ConditionalFact] // TODO: See issue#6896
         public virtual void Required_navigation_take_required_navigation()
         {
             List<string> expected;
