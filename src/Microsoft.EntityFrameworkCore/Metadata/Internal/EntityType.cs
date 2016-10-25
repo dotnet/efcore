@@ -138,15 +138,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var propertyCollisions = entityType.GetProperties()
                     .Select(p => p.Name)
-                    .SelectMany(FindPropertiesInHierarchy)
+                    .SelectMany(FindDerivedPropertiesInclusive)
                     .ToList();
+
                 if (propertyCollisions.Any())
                 {
+                    var derivedProperty = propertyCollisions.First();
+                    var baseProperty = entityType.FindProperty(derivedProperty.Name);
                     throw new InvalidOperationException(
                         CoreStrings.DuplicatePropertiesOnBase(
                             this.DisplayName(),
                             entityType.DisplayName(),
-                            string.Join(", ", propertyCollisions.Select(p => p.Name))));
+                            derivedProperty.DeclaringEntityType.DisplayName(),
+                            derivedProperty.Name,
+                            baseProperty.DeclaringEntityType.DisplayName(),
+                            baseProperty.Name));
                 }
 
                 var navigationCollisions = entityType.GetNavigations()
@@ -1499,6 +1505,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return GetDerivedTypes().Select(et => et.FindDeclaredProperty(propertyName)).Where(p => p != null);
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<Property> FindDerivedPropertiesInclusive([NotNull] string propertyName)
+            => ToEnumerable(FindDeclaredProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

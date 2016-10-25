@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseType = clrType.GetTypeInfo().BaseType;
             EntityType baseEntityType = null;
 
-            while ((baseType != null)
-                   && (baseEntityType == null))
+            while (baseType != null
+                   && baseEntityType == null)
             {
                 baseEntityType = entityType.Model.FindEntityType(baseType);
                 baseType = baseType.GetTypeInfo().BaseType;

@@ -16,6 +16,60 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public abstract class InheritanceTestBase : ModelBuilderTestBase
         {
             [Fact]
+            public virtual void Can_map_derived_types_first()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<AnotherBookLabel>();
+                modelBuilder.Ignore<Book>();
+
+                modelBuilder.Entity<ExtraSpecialBookLabel>()
+                    .HasBaseType(null)
+                    .Property(b => b.BookId);
+
+                modelBuilder.Entity<SpecialBookLabel>()
+                    .HasBaseType(null)
+                    .Ignore(b => b.BookLabel)
+                    .Ignore(b => b.BookId);
+
+                modelBuilder.Entity<BookLabel>();
+
+                modelBuilder.Entity<ExtraSpecialBookLabel>().HasBaseType<SpecialBookLabel>();
+
+                modelBuilder.Entity<SpecialBookLabel>().HasBaseType<BookLabel>();
+
+                modelBuilder.Entity<SpecialBookLabel>().Property(b => b.BookId);
+
+                modelBuilder.Validate();
+
+                var model = modelBuilder.Model;
+                Assert.Equal(0, model.FindEntityType(typeof(ExtraSpecialBookLabel)).GetDeclaredProperties().Count());
+                Assert.Equal(0, model.FindEntityType(typeof(SpecialBookLabel)).GetDeclaredProperties().Count());
+                Assert.NotNull(model.FindEntityType(typeof(SpecialBookLabel)).FindProperty(nameof(BookLabel.BookId)));
+            }
+
+            [Fact]
+            public virtual void Base_types_are_mapped_correctly_if_discovered_last()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<AnotherBookLabel>();
+                modelBuilder.Ignore<Book>();
+                modelBuilder.Entity<ExtraSpecialBookLabel>();
+                modelBuilder.Entity<SpecialBookLabel>().Ignore(b => b.BookLabel);
+
+                modelBuilder.Validate();
+
+                var model = modelBuilder.Model;
+                var moreDerived = model.FindEntityType(typeof(ExtraSpecialBookLabel));
+                var derived = model.FindEntityType(typeof(SpecialBookLabel));
+                var baseType = model.FindEntityType(typeof(BookLabel));
+
+                Assert.Same(baseType, derived.BaseType);
+                Assert.Same(derived, moreDerived.BaseType);
+            }
+
+            [Fact]
             public virtual void Can_set_and_remove_base_type()
             {
                 var modelBuilder = CreateModelBuilder();

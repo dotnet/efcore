@@ -21,7 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             new DerivedTypeDiscoveryConvention().Apply(entityBuilderA);
 
             Assert.Same(entityBuilderA.Metadata, entityBuilderB.Metadata.BaseType);
-            Assert.Null(entityBuilderC.Metadata.BaseType);
+            Assert.Same(entityBuilderA.Metadata, entityBuilderC.Metadata.BaseType);
+
+            new DerivedTypeDiscoveryConvention().Apply(entityBuilderB);
+
+            Assert.Same(entityBuilderA.Metadata, entityBuilderB.Metadata.BaseType);
+            Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
         }
 
         [Fact]

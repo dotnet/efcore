@@ -656,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 detachedKeys = DetachKeys(Metadata.GetDeclaredKeys());
 
                 var duplicatedProperties = baseEntityType.GetProperties()
-                    .Select(p => Metadata.FindDeclaredProperty(p.Name))
+                    .SelectMany(p => Metadata.FindDerivedPropertiesInclusive(p.Name))
                     .Where(p => p != null);
 
                 detachedProperties = DetachProperties(duplicatedProperties);
@@ -684,22 +684,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var detachedIndexes = new List<IndexBuilderSnapshot>();
-            HashSet<Property> removedInheritedProperties = null;
+            HashSet<Property> removedInheritedPropertiesToDuplicate = null;
             if (Metadata.BaseType != null)
             {
-                removedInheritedProperties = new HashSet<Property>(Metadata.BaseType.GetProperties()
+                var removedInheritedProperties = new HashSet<Property>(Metadata.BaseType.GetProperties()
                     .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
                 if (removedInheritedProperties.Count != 0)
                 {
+                    removedInheritedPropertiesToDuplicate = new HashSet<Property>();
                     foreach (var foreignKey in Metadata.GetDerivedForeignKeysInclusive()
                         .Where(fk => fk.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
                     {
+                        foreach (var property in foreignKey.Properties)
+                        {
+                            if (removedInheritedProperties.Contains(property))
+                            {
+                                removedInheritedPropertiesToDuplicate.Add(property);
+                            }
+                        }
                         detachedRelationships.Add(DetachRelationship(foreignKey));
                     }
 
                     foreach (var index in Metadata.GetDerivedIndexesInclusive()
                         .Where(i => i.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
                     {
+                        foreach (var property in index.Properties)
+                        {
+                            if (removedInheritedProperties.Contains(property))
+                            {
+                                removedInheritedPropertiesToDuplicate.Add(property);
+                            }
+                        }
                         detachedIndexes.Add(DetachIndex(index));
                     }
                 }
@@ -708,11 +723,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var originalBaseType = Metadata.BaseType;
             Metadata.HasBaseType(baseEntityType, configurationSource, runConventions: false);
 
-            if (removedInheritedProperties != null)
+            if (removedInheritedPropertiesToDuplicate != null)
             {
-                foreach (var property in removedInheritedProperties)
+                foreach (var property in removedInheritedPropertiesToDuplicate)
                 {
-                    property.Builder.Attach(this, property.GetConfigurationSource());
+                    property.Builder?.Attach(this, property.GetConfigurationSource());
                 }
             }
 

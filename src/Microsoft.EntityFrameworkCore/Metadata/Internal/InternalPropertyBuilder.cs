@@ -268,14 +268,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalPropertyBuilder Attach(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder, ConfigurationSource configurationSource)
         {
-            var newProperty = Metadata.DeclaringEntityType.FindProperty(Metadata.Name);
-            InternalPropertyBuilder newPropertyBuilder = null;
+            var newProperty = entityTypeBuilder.Metadata.FindProperty(Metadata.Name);
+            InternalPropertyBuilder newPropertyBuilder;
             if (newProperty != null
-                && newProperty.GetConfigurationSource().Overrides(configurationSource)
-                && ((Metadata.ClrType != null
-                     && Metadata.ClrType != newProperty.ClrType)
-                    || (Metadata.PropertyInfo != null
-                        && newProperty.PropertyInfo == null)))
+                && (newProperty.GetConfigurationSource().Overrides(configurationSource)
+                    || (Metadata.ClrType == newProperty.ClrType
+                        && Metadata.PropertyInfo?.Name == newProperty.PropertyInfo?.Name)))
             {
                 newPropertyBuilder = newProperty.Builder;
             }

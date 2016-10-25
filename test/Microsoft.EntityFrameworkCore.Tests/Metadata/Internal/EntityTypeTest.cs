@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             b.AddProperty(A.GProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(B).Name, typeof(A).Name, "G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(B).Name, typeof(A).Name, typeof(B).Name, "G", typeof(A).Name, "G"),
                 Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.AddProperty(A.GProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(D).Name, typeof(C).Name, "E, G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(D).Name, typeof(C).Name, typeof(D).Name, "E", typeof(A).Name, "E"),
                 Assert.Throws<InvalidOperationException>(() => { d.HasBaseType(c); }).Message);
         }
 
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.HasBaseType(c);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(C).Name, typeof(A).Name, "E, G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(C).Name, typeof(A).Name, typeof(D).Name, "E", typeof(A).Name, "E"),
                 Assert.Throws<InvalidOperationException>(() => { c.HasBaseType(a); }).Message);
         }
 
