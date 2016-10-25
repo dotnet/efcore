@@ -2394,6 +2394,17 @@ WHERE DATEPART(day, [o].[OrderDate]) = 4",
                 Sql);
         }
 
+        public override void Where_date_add_year_constant_component()
+        {
+            base.Where_date_add_year_constant_component();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(year, DATEADD(year, -1, [o].[OrderDate])) = 1997",
+                Sql);
+        }
+
         public override void Where_datetime_year_component()
         {
             base.Where_datetime_year_component();
@@ -6263,6 +6274,17 @@ FROM [Orders] AS [o]
 SELECT TOP(2) [c0].[City]
 FROM [Customers] AS [c0]
 WHERE [c0].[CustomerID] = @_outer_CustomerID",
+                Sql);
+        }
+
+        public override void Select_expression_date_add_year()
+        {
+            base.Select_expression_date_add_year();
+
+            Assert.Equal(
+                @"SELECT DATEADD(year, 1, [o].[OrderDate])
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
                 Sql);
         }
 

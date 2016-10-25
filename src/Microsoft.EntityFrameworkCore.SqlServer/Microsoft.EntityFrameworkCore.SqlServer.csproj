@@ -104,10 +104,13 @@
       <DependentUpon>SqlServerStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Query\Expressions\Internal\DateAddExpression.cs" />
+    <Compile Include="Query\Expressions\Internal\DatePartExpression.cs" />
     <Compile Include="Query\Expressions\Internal\RowNumberExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerContainsOptimizedTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateAddTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerConvertTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeDateComponentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeNowTranslator.cs" />
