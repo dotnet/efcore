@@ -65,13 +65,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 
                 if (!string.IsNullOrEmpty(Index.Relational().Name))
                 {
-                    lines.Add("." + nameof(RelationalIndexBuilderExtensions.HasName) + "("
-                              + CSharpUtilities.Instance.DelimitString(Index.Relational().Name) + ")");
+                    lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({CSharpUtilities.Instance.DelimitString(Index.Relational().Name)})");
                 }
 
                 if (Index.IsUnique)
                 {
-                    lines.Add("." + nameof(IndexBuilder.IsUnique) + "()");
+                    lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
+                }
+
+                if (Index.Relational().Filter != null)
+                {
+                    lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}(\"{Index.Relational().Filter}\")");
                 }
 
                 return lines;

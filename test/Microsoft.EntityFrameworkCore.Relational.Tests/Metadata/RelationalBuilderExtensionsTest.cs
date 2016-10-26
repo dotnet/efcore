@@ -14,6 +14,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
     public class RelationalBuilderExtensionsTest
     {
         [Fact]
+        public void Can_write_index_builder_extension_with_where_clauses()
+        {
+            var builder = CreateConventionModelBuilder();
+
+            var returnedBuilder = builder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .HasFilter("[Id] % 2 = 0");
+
+            Assert.IsType<IndexBuilder>(returnedBuilder);
+
+            var model = builder.Model;
+            var index = model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+            Assert.Equal("[Id] % 2 = 0", index.Relational().Filter);
+        }
+
+        [Fact]
         public void Can_set_column_name()
         {
             var modelBuilder = CreateConventionModelBuilder();

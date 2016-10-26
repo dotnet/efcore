@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -423,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 var primaryKeyColumns = index.Table.Columns
                     .Where(c => c.PrimaryKeyOrdinal.HasValue)
                     .OrderBy(c => c.PrimaryKeyOrdinal);
-                if (columnNames.SequenceEqual(primaryKeyColumns.Select(c => c.Name)))
+                if (columnNames.SequenceEqual(primaryKeyColumns.Select(c => c.Name)) && index.Filter == null)
                 {
                     // index is supporting the primary key. So there is no need for
                     // an extra index in the model. But if the index name does not
@@ -444,6 +445,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             var indexBuilder = builder.HasIndex(propertyNames)
                 .IsUnique(index.IsUnique);
+
+            if (index.Filter != null)
+            {
+                indexBuilder.HasFilter(index.Filter);
+            }
 
             if (!string.IsNullOrEmpty(index.Name))
             {

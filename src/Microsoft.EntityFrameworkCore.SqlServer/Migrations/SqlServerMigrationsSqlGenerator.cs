@@ -1035,7 +1035,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Name = Annotations.For(index).Name,
                     Schema = Annotations.For(index.DeclaringEntityType).Schema,
                     Table = Annotations.For(index.DeclaringEntityType).TableName,
-                    Columns = index.Properties.Select(p => Annotations.For(p).ColumnName).ToArray()
+                    Columns = index.Properties.Select(p => Annotations.For(p).ColumnName).ToArray(),
+                    Filter = Annotations.For(index).Filter
                 };
                 operation.AddAnnotations(_migrationsAnnotations.For(index));
 

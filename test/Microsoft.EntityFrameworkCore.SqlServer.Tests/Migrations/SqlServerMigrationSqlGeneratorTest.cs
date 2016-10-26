@@ -38,6 +38,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public override void CreateIndexOperation_with_filter_where_clause()
+        {
+            base.CreateIndexOperation_with_filter_where_clause();
+
+            Assert.Equal(
+                "CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public override void CreateIndexOperation_with_filter_where_clause_and_is_unique()
+        {
+            base.CreateIndexOperation_with_filter_where_clause_and_is_unique();
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND <> '';" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void AddColumnOperation_with_computedSql()
         {
             Generate(

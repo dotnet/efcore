@@ -142,6 +142,12 @@
     <None Include="ReverseEngineering\Expected\Attributes\UnmappablePKColumn.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ReverseEngineering\Expected\FilteredIndexContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\FilteredIndex.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ReverseEngineering\Expected\PrimaryKeyWithSequence.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

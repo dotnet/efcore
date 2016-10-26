@@ -302,6 +302,54 @@ CREATE TABLE PrimaryKeyWithSequence (
             }
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void Index_with_filter()
+        {
+            using (var scratch = SqlServerTestStore.Create("SqlServerE2E"))
+            {
+                scratch.ExecuteNonQuery(@"
+CREATE TABLE FilteredIndex (
+    Id int,
+    Number int,
+    PRIMARY KEY (Id)
+);
+
+CREATE INDEX Unicorn_Filtered_Index
+    ON FilteredIndex (Number) WHERE Number > 10
+");
+
+                var configuration = new ReverseEngineeringConfiguration
+                {
+                    ConnectionString = scratch.ConnectionString,
+                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
+                    ProjectRootNamespace = TestNamespace,
+                    ContextClassName = "FilteredIndexContext",
+                    UseFluentApiOnly = true
+                };
+                var expectedFileSet = new FileSet(new FileSystemFileService(),
+                    Path.Combine("ReverseEngineering", "Expected"),
+                    contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
+                {
+                    Files = new List<string>
+                    {
+                        "FilteredIndexContext.expected",
+                        "FilteredIndex.expected",
+                    }
+                };
+
+                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+
+                var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
+                {
+                    Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
+
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
+
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
 #if NETCOREAPP1_1

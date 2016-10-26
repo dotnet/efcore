@@ -19,6 +19,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         protected virtual string Sql { get; set; }
 
         [Fact]
+        public virtual void CreateIndexOperation_with_filter_where_clause()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    Filter = "[Name] IS NOT NULL"
+                });
+
+        [Fact]
+        public virtual void CreateIndexOperation_with_filter_where_clause_and_is_unique()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    Filter = "[Name] IS NOT NULL AND <> ''"
+                });
+
+        [Fact]
         public virtual void AddColumnOperation_with_defaultValue()
             => Generate(
                 new AddColumnOperation
@@ -353,6 +378,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = false
+                });
+
+        [Fact]
+        public virtual void CreateIndexOperation_with_where_clauses()
+            => Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = false,
+                    Filter = "[Id] > 2"
                 });
 
         [Fact]

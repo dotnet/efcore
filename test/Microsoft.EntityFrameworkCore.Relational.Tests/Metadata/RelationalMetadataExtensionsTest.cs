@@ -13,6 +13,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
     public class RelationalMetadataExtensionsTest
     {
         [Fact]
+        public void Can_get_and_set_index_filter()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .HasFilter("[Id] % 2 = 0")
+                .Metadata;
+
+            Assert.Equal("[Id] % 2 = 0", property.Relational().Filter);
+
+            property.Relational().Filter = "[Id] % 3 = 0";
+
+            Assert.Equal("[Id] % 3 = 0", property.Relational().Filter);
+        }
+
+        [Fact]
         public void Can_get_and_set_column_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

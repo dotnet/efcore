@@ -298,6 +298,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(ColumnList(operation.Columns))
                 .Append(")");
 
+            if (operation.Filter != null)
+            {
+                builder
+                    .Append(" WHERE ")
+                    .Append(operation.Filter);
+            }
+
             if (terminate)
             {
                 builder.AppendLine(SqlGenerationHelper.StatementTerminator);

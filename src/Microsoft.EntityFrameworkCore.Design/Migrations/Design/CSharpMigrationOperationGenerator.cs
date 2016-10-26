@@ -623,6 +623,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("unique: true");
                 }
 
+                if (operation.Filter != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("filter: ")
+                        .Append(operation.Filter);
+                }
+
                 builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);

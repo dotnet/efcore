@@ -300,20 +300,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string table,
             [NotNull] string column,
             [CanBeNull] string schema = null,
-            bool unique = false)
+            bool unique = false,
+            [CanBeNull] string filter = null)
             => CreateIndex(
                 name,
                 table,
                 new[] { column },
                 schema,
-                unique);
+                unique,
+                filter);
 
         public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
             [NotNull] string name,
             [NotNull] string table,
             [NotNull] string[] columns,
             [CanBeNull] string schema = null,
-            bool unique = false)
+            bool unique = false,
+            [CanBeNull] string filter = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -325,7 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Table = table,
                 Name = name,
                 Columns = columns,
-                IsUnique = unique
+                IsUnique = unique,
+                Filter = filter
             };
             Operations.Add(operation);
 
