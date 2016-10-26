@@ -25,11 +25,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services) 
+        ///         public void ConfigureServices(IServiceCollection services)
         ///         {
         ///             var connectionString = "connection string to database";
-        /// 
-        ///             services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString)); 
+        ///
+        ///             services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
         ///         }
         ///     </code>
         /// </example>
@@ -69,11 +69,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services) 
+        ///         public void ConfigureServices(IServiceCollection services)
         ///         {
         ///             var connectionString = "connection string to database";
-        /// 
-        ///             services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped); 
+        ///
+        ///             services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
         ///         }
         ///     </code>
         /// </example>
@@ -106,15 +106,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services) 
+        ///         public void ConfigureServices(IServiceCollection services)
         ///         {
         ///             var connectionString = "connection string to database";
-        /// 
+        ///
         ///             services
         ///                 .AddEntityFrameworkSqlServer()
-        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) => 
+        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
         ///                     options.UseSqlServer(connectionString)
-        ///                            .UseInternalServiceProvider(serviceProvider)); 
+        ///                            .UseInternalServiceProvider(serviceProvider));
         ///         }
         ///     </code>
         /// </example>
