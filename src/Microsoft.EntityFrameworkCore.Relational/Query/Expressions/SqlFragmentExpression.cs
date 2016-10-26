@@ -4,29 +4,30 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     /// <summary>
-    ///     Base class for aggregate expressions.
+    ///     Represents a SQL fragment that will be directly inserted into the generated output during SQL generation.
     /// </summary>
-    public abstract class AggregateExpression : Expression
+    public class SqlFragmentExpression : Expression
     {
-        private readonly Expression _expression;
-
         /// <summary>
-        ///     Specialised constructor for use only by derived class.
+        ///     Creates a new instance of a SqlFragmentExpression.
         /// </summary>
-        /// <param name="expression"> The expression to aggregate. </param>
-        protected AggregateExpression([NotNull] Expression expression)
+        public SqlFragmentExpression([NotNull] string sql)
         {
-            _expression = expression;
+            Check.NotEmpty(sql, nameof(sql));
+
+            Sql = sql;
         }
 
         /// <summary>
-        ///     The expression to aggregate.
+        /// The SQL fragment.
         /// </summary>
-        public virtual Expression Expression => _expression;
+        public virtual string Sql { get; }
 
         /// <summary>
         ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
@@ -35,13 +36,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         /// <summary>
-        ///     Gets the static type of the expression that this <see cref="Expression" /> represents. (Inherited from <see cref="Expression" />.)
+        ///     Gets the static type of the expression that this <see cref="Expression" /> represents.
+        ///     (Inherited from <see cref="Expression" />.)
         /// </summary>
         /// <returns> The <see cref="Type" /> that represents the static type of the expression. </returns>
-        public override Type Type => _expression.Type;
+        public override Type Type => typeof(object);
 
         /// <summary>
-        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
+        ///     Dispatches to the specific visit method for this node type.
+        /// </summary>
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            var specificVisitor = visitor as ISqlExpressionVisitor;
+
+            return specificVisitor != null
+                ? specificVisitor.VisitSqlFragment(this)
+                : base.Accept(visitor);
+        }
+
+        /// <summary>
+        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the
         ///     reduced expression.
         ///     Throws an exception if the node isn't reducible.
         /// </summary>

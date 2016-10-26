@@ -636,79 +636,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
-        ///     Visit a CountExpression
+        ///     Visit a SqlFragmentExpression.
         /// </summary>
-        /// <param name="countExpression"> The count expression. </param>
+        /// <param name="sqlFragmentExpression"> The SqlFragmentExpression expression. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        public virtual Expression VisitCount(CountExpression countExpression)
+        public virtual Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
         {
-            Check.NotNull(countExpression, nameof(countExpression));
+            Check.NotNull(sqlFragmentExpression, nameof(sqlFragmentExpression));
 
-            _relationalCommandBuilder.Append("COUNT(*)");
+            _relationalCommandBuilder.Append(sqlFragmentExpression.Sql);
 
-            return countExpression;
-        }
-
-        /// <summary>
-        ///     Visit a SumExpression.
-        /// </summary>
-        /// <param name="sumExpression"> The sum expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        public virtual Expression VisitSum(SumExpression sumExpression)
-        {
-            Check.NotNull(sumExpression, nameof(sumExpression));
-
-            _relationalCommandBuilder.Append("SUM(");
-
-            Visit(sumExpression.Expression);
-
-            _relationalCommandBuilder.Append(")");
-
-            return sumExpression;
-        }
-
-        /// <summary>
-        ///     Visit a MinExpression.
-        /// </summary>
-        /// <param name="minExpression"> The min expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        public virtual Expression VisitMin(MinExpression minExpression)
-        {
-            Check.NotNull(minExpression, nameof(minExpression));
-
-            _relationalCommandBuilder.Append("MIN(");
-
-            Visit(minExpression.Expression);
-
-            _relationalCommandBuilder.Append(")");
-
-            return minExpression;
-        }
-
-        /// <summary>
-        ///     Visit a MaxExpression.
-        /// </summary>
-        /// <param name="maxExpression"> The max expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        public virtual Expression VisitMax(MaxExpression maxExpression)
-        {
-            Check.NotNull(maxExpression, nameof(maxExpression));
-
-            _relationalCommandBuilder.Append("MAX(");
-
-            Visit(maxExpression.Expression);
-
-            _relationalCommandBuilder.Append(")");
-
-            return maxExpression;
+            return sqlFragmentExpression;
         }
 
         /// <summary>
@@ -1316,14 +1256,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
-            _relationalCommandBuilder.Append("(");
-
-            VisitJoin(sqlFunctionExpression.Arguments.ToList());
-
-            _relationalCommandBuilder.Append(")");
+            GenerateFunctionCall(sqlFunctionExpression.FunctionName, sqlFunctionExpression.Arguments);
 
             return sqlFunctionExpression;
+        }
+
+        /// <summary>
+        ///     Generates a SQL function call.
+        /// </summary>
+        /// <param name="functionName">The function name</param>
+        /// <param name="arguments">The function arguments</param>
+        protected virtual void GenerateFunctionCall(
+            [NotNull] string functionName, [NotNull] IReadOnlyList<Expression> arguments)
+        {
+            Check.NotEmpty(functionName, nameof(functionName));
+            Check.NotNull(arguments, nameof(arguments));
+
+            _relationalCommandBuilder.Append(functionName);
+            _relationalCommandBuilder.Append("(");
+
+            VisitJoin(arguments);
+
+            _relationalCommandBuilder.Append(")");
         }
 
         /// <summary>

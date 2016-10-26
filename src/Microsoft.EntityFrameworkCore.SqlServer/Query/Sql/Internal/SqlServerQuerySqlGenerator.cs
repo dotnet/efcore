@@ -56,24 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Expression VisitCount(CountExpression countExpression)
-        {
-            Check.NotNull(countExpression, nameof(countExpression));
-
-            if (countExpression.Type == typeof(long))
-            {
-                Sql.Append("COUNT_BIG(*)");
-
-                return countExpression;
-            }
-
-            return base.VisitCount(countExpression);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             if (selectExpression.Projection.OfType<RowNumberExpression>().Any())
@@ -109,29 +91,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression VisitDatePartExpression(DatePartExpression datePartExpression)
-        {
-            Check.NotNull(datePartExpression, nameof(datePartExpression));
-
-            Sql.Append("DATEPART(")
-                .Append(datePartExpression.DatePart)
-                .Append(", ");
-            Visit(datePartExpression.Argument);
-            Sql.Append(")");
-            return datePartExpression;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             if (sqlFunctionExpression.FunctionName.StartsWith("@@", StringComparison.Ordinal))
             {
                 Sql.Append(sqlFunctionExpression.FunctionName);
+
                 return sqlFunctionExpression;
             }
+
+            if (sqlFunctionExpression.FunctionName == "COUNT"
+                && sqlFunctionExpression.Type == typeof(long))
+            {
+                GenerateFunctionCall("COUNT_BIG", sqlFunctionExpression.Arguments);
+
+                return sqlFunctionExpression;
+            }
+
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
     }

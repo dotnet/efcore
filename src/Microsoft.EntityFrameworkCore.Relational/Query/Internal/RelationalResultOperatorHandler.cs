@@ -336,7 +336,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static Expression HandleCount(HandlerContext handlerContext)
         {
             handlerContext.SelectExpression
-                .SetProjectionExpression(new CountExpression());
+                .SetProjectionExpression(
+                    new SqlFunctionExpression(
+                        "COUNT", 
+                        typeof(int), 
+                        new [] { new SqlFragmentExpression("*") }));
 
             handlerContext.SelectExpression.ClearOrderBy();
 
@@ -525,7 +529,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static Expression HandleLongCount(HandlerContext handlerContext)
         {
             handlerContext.SelectExpression
-                .SetProjectionExpression(new CountExpression(typeof(long)));
+                .SetProjectionExpression(
+                    new SqlFunctionExpression(
+                        "COUNT", 
+                        typeof(long), 
+                        new [] { new SqlFragmentExpression("*") }));
 
             handlerContext.SelectExpression.ClearOrderBy();
 
@@ -534,10 +542,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleMin(HandlerContext handlerContext)
         {
-            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection
+                && handlerContext.SelectExpression.Projection.Count == 1)
             {
-                var minExpression
-                    = new MinExpression(handlerContext.SelectExpression.Projection.Single());
+                var expression = handlerContext.SelectExpression.Projection.First();
+                var minExpression = new SqlFunctionExpression("MIN", expression.Type, new [] { expression });
 
                 handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
@@ -551,10 +560,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleMax(HandlerContext handlerContext)
         {
-            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection
+                && handlerContext.SelectExpression.Projection.Count == 1)
             {
-                var maxExpression
-                    = new MaxExpression(handlerContext.SelectExpression.Projection.Single());
+                var expression = handlerContext.SelectExpression.Projection.First();
+                var maxExpression = new SqlFunctionExpression("MAX", expression.Type, new [] { expression });
 
                 handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
@@ -710,8 +720,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (!handlerContext.QueryModelVisitor.RequiresClientProjection
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
-                var sumExpression
-                    = new SumExpression(handlerContext.SelectExpression.Projection.First());
+                var expression = handlerContext.SelectExpression.Projection.First();
+                var sumExpression = new SqlFunctionExpression("SUM", expression.Type, new [] { expression });
 
                 handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
 
