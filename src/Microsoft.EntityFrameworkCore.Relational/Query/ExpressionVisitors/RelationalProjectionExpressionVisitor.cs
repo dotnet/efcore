@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     {
                         if (QueryModelVisitor.ParentQueryModelVisitor != null)
                         {
-                            selectExpression.SetTableForProjectStar(qsre.ReferencedQuerySource);
+                            selectExpression.ProjectStarAlias = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource).Alias;
                         }
                     }
                 }

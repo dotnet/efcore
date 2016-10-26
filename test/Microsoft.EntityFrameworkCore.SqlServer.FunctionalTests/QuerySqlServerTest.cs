@@ -3657,6 +3657,47 @@ FROM [Customers] AS [c]",
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Skip_Take_Distinct() => base.Skip_Take_Distinct();
 
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Skip_Take_Any()
+        {
+            base.Skip_Take_Any();
+
+            Assert.Equal(
+                @"@__p_0: 5
+@__p_1: 10
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]
+        ORDER BY [c].[ContactName]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Skip_Take_All()
+        {
+            base.Skip_Take_All();
+
+            Assert.Equal(
+                @"@__p_0: 5
+@__p_1: 10
+
+SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]
+        WHERE LEN([c].[CustomerID]) <> 5
+        ORDER BY [c].[ContactName]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
         public override void OrderBy()
         {
             base.OrderBy();

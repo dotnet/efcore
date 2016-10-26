@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (selectExpression.IsProjectStar)
             {
-                var tableAlias = selectExpression.ProjectStarAlias ?? selectExpression.Tables.Last().Alias;
+                var tableAlias = selectExpression.ProjectStarAlias;
 
                 _relationalCommandBuilder
                     .Append(_sqlGenerationHelper.DelimitIdentifier(tableAlias))
@@ -359,46 +359,54 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             _relationalCommandBuilder.Append("ORDER BY ");
 
-            VisitJoin(orderings, t =>
+            VisitJoin(orderings, GenerateOrdering);
+        }
+
+        /// <summary>
+        ///     Generates a single ordering in an SQL ORDER BY clause.
+        /// </summary>
+        /// <param name="ordering"> The ordering. </param>
+        protected virtual void GenerateOrdering([NotNull] Ordering ordering)
+        {
+            Check.NotNull(ordering, nameof(ordering));
+
+            var orderingExpression = ordering.Expression;
+            var aliasExpression = orderingExpression as AliasExpression;
+
+            if (aliasExpression != null)
+            {
+                if (aliasExpression.Alias != null)
                 {
-                    var orderingExpression = t.Expression;
-                    var aliasExpression = orderingExpression as AliasExpression;
+                    var columnExpression = aliasExpression.TryGetColumnExpression();
 
-                    if (aliasExpression != null)
+                    if (columnExpression != null)
                     {
-                        if (aliasExpression.Alias != null)
-                        {
-                            var columnExpression = aliasExpression.TryGetColumnExpression();
-
-                            if (columnExpression != null)
-                            {
-                                _relationalCommandBuilder
-                                    .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
-                                    .Append(".");
-                            }
-
-                            _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(aliasExpression.Alias));
-                        }
-                        else
-                        {
-                            Visit(aliasExpression.Expression);
-                        }
-                    }
-                    else if (orderingExpression is ConstantExpression
-                             || orderingExpression is ParameterExpression)
-                    {
-                        _relationalCommandBuilder.Append("(SELECT 1)");
-                    }
-                    else
-                    {
-                        Visit(ApplyOptimizations(orderingExpression, searchCondition: false));
+                        _relationalCommandBuilder
+                            .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
+                            .Append(".");
                     }
 
-                    if (t.OrderingDirection == OrderingDirection.Desc)
-                    {
-                        _relationalCommandBuilder.Append(" DESC");
-                    }
-                });
+                    _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(aliasExpression.Alias));
+                }
+                else
+                {
+                    Visit(aliasExpression.Expression);
+                }
+            }
+            else if (orderingExpression is ConstantExpression
+                     || orderingExpression is ParameterExpression)
+            {
+                _relationalCommandBuilder.Append("(SELECT 1)");
+            }
+            else
+            {
+                Visit(ApplyOptimizations(orderingExpression, searchCondition: false));
+            }
+
+            if (ordering.OrderingDirection == OrderingDirection.Desc)
+            {
+                _relationalCommandBuilder.Append(" DESC");
+            }
         }
 
         private void VisitJoin(

@@ -357,6 +357,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Skip_Take_Any()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).Any());
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Take_All()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).All(p => p.CustomerID.Length == 5));
+        }
+
+        [ConditionalFact]
         public virtual void Take_Skip_Distinct()
         {
             AssertQuery<Customer>(

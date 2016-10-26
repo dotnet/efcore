@@ -79,10 +79,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     Gets or sets the table alias to be used for star projection.
+        /// </summary>
+        /// <value>
+        ///     The table alias.
+        /// </value>
         public virtual string ProjectStarAlias { get; [param: CanBeNull] set; }
-
-        public virtual void SetTableForProjectStar([NotNull] IQuerySource querySource)
-            => ProjectStarAlias = GetTableForQuerySource(querySource)?.Alias;
 
         /// <summary>
         ///     Type of this expression.
@@ -298,9 +301,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [param: CanBeNull]
             set
             {
-                Check.NotNull(value, nameof(value));
-
-                PushDownIfLimit();
+                if (value != null)
+                {
+                    PushDownIfLimit();
+                }
 
                 _limit = value;
             }
@@ -432,6 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ClearOrderBy();
 
             AddTable(subquery, createUniqueAlias: false);
+            ProjectStarAlias = subquery.Alias;
 
             return subquery;
         }
