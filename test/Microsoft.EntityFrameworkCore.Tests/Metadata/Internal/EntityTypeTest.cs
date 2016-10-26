@@ -2402,7 +2402,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrSetPrimaryKey(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
+                CoreStrings.PropertyInUseKey("Id", typeof(Customer).Name, "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2416,7 +2416,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrAddKey(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
+                CoreStrings.PropertyInUseKey("Id", typeof(Customer).Name, "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2432,7 +2432,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             orderType.GetOrAddForeignKey(customerFk, customerPk, customerType);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("CustomerId", typeof(Order).Name),
+                CoreStrings.PropertyInUseForeignKey("CustomerId", typeof(Order).Name, "{'CustomerId'}", typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveProperty(customerFk.Name)).Message);
         }
 
@@ -2446,7 +2446,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrAddIndex(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
+                CoreStrings.PropertyInUseIndex("Id", typeof(Customer).Name, "{'Id'}", typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 

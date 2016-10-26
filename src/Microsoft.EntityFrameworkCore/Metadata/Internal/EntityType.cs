@@ -465,16 +465,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in properties)
             {
-                var currentKeys = property.Keys;
-                if (currentKeys == null)
+                if (property.Keys == null)
                 {
-                    property.Keys = new IKey[] { key };
+                    property.Keys = new List<IKey> { key };
                 }
                 else
                 {
-                    var newKeys = currentKeys.ToList();
-                    newKeys.Add(key);
-                    property.Keys = newKeys;
+                    property.Keys.Add(key);
                 }
             }
 
@@ -566,11 +563,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in key.Properties)
             {
-                property.Keys =
-                    property.Keys != null
-                    && property.Keys.Count > 1
-                        ? property.Keys.Where(k => k != key).ToList()
-                        : null;
+                if (property.Keys != null)
+                {
+                    property.Keys.Remove(key);
+                    if (property.Keys.Count == 0)
+                    {
+                        property.Keys = null;
+                    }
+                }
             }
 
             PropertyMetadataChanged();
@@ -673,16 +673,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in properties)
             {
-                var currentKeys = property.ForeignKeys;
-                if (currentKeys == null)
+                if (property.ForeignKeys == null)
                 {
-                    property.ForeignKeys = new IForeignKey[] { foreignKey };
+                    property.ForeignKeys = new List<IForeignKey> { foreignKey };
                 }
                 else
                 {
-                    var newKeys = currentKeys.ToList();
-                    newKeys.Add(foreignKey);
-                    property.ForeignKeys = newKeys;
+                    property.ForeignKeys.Add(foreignKey);
                 }
             }
 
@@ -909,11 +906,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in foreignKey.Properties)
             {
-                property.ForeignKeys =
-                    property.ForeignKeys != null
-                    && property.ForeignKeys.Count > 1
-                        ? property.ForeignKeys.Where(k => k != foreignKey).ToList()
-                        : null;
+                if (property.ForeignKeys != null)
+                {
+                    property.ForeignKeys.Remove(foreignKey);
+                    if (property.ForeignKeys.Count == 0)
+                    {
+                        property.ForeignKeys = null;
+                    }
+                }
             }
 
             foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
@@ -1194,16 +1194,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in properties)
             {
-                var currentIndexes = property.Indexes;
-                if (currentIndexes == null)
+                if (property.Indexes == null)
                 {
-                    property.Indexes = new IIndex[] { index };
+                    property.Indexes = new List<IIndex> { index };
                 }
                 else
                 {
-                    var newIndex = currentIndexes.ToList();
-                    newIndex.Add(index);
-                    property.Indexes = newIndex;
+                    property.Indexes.Add(index);
                 }
             }
 
@@ -1295,31 +1292,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Index RemoveIndex([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Index RemoveIndex([NotNull] IReadOnlyList<IProperty> properties, bool runConventions = true)
         {
             Check.NotEmpty(properties, nameof(properties));
 
             var index = FindDeclaredIndex(properties);
             return index == null
                 ? null
-                : RemoveIndex(index);
+                : RemoveIndex(index, runConventions);
         }
 
-        private Index RemoveIndex(Index index)
+        private Index RemoveIndex(Index index, bool runConventions)
         {
             _indexes.Remove(index.Properties);
             index.Builder = null;
 
             foreach (var property in index.Properties)
             {
-                property.Indexes =
-                    property.Indexes != null
-                    && property.Indexes.Count > 1
-                        ? property.Indexes.Where(k => k != index).ToList()
-                        : null;
+                if (property.Indexes != null)
+                {
+                    property.Indexes.Remove(index);
+                    if (property.Indexes.Count == 0)
+                    {
+                        property.Indexes = null;
+                    }
+                }
             }
 
-            Model.ConventionDispatcher.OnIndexRemoved(Builder, index);
+            if (runConventions)
+            {
+                Model.ConventionDispatcher.OnIndexRemoved(Builder, index);
+            }
 
             return index;
         }
@@ -1535,21 +1538,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void CheckPropertyNotInUse(Property property)
         {
-            CheckPropertyNotInUse(property, this);
-
-            foreach (var entityType in GetDerivedTypes())
+            var containingKey = property.Keys?.FirstOrDefault();
+            if (containingKey != null)
             {
-                CheckPropertyNotInUse(property, entityType);
+                throw new InvalidOperationException(
+                    CoreStrings.PropertyInUseKey(property.Name, this.DisplayName(), Property.Format(containingKey.Properties)));
             }
-        }
 
-        private void CheckPropertyNotInUse(Property property, EntityType entityType)
-        {
-            if (entityType.GetDeclaredKeys().Any(k => k.Properties.Contains(property))
-                || entityType.GetDeclaredForeignKeys().Any(k => k.Properties.Contains(property))
-                || entityType.GetDeclaredIndexes().Any(i => i.Properties.Contains(property)))
+            var containingForeignKey = property.ForeignKeys?.FirstOrDefault();
+            if (containingForeignKey != null)
             {
-                throw new InvalidOperationException(CoreStrings.PropertyInUse(property.Name, this.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.PropertyInUseForeignKey(property.Name, this.DisplayName(),
+                        Property.Format(containingForeignKey.Properties), containingForeignKey.DeclaringEntityType.DisplayName()));
+            }
+
+            var containingIndex = property.Indexes?.FirstOrDefault();
+            if (containingIndex != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.PropertyInUseIndex(property.Name, this.DisplayName(),
+                        Property.Format(containingIndex.Properties), containingIndex.DeclaringEntityType.DisplayName()));
             }
         }
 

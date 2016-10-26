@@ -449,11 +449,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in an index or key. All indexes and keys must be removed or redefined before the property can be removed.
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the key {key}. All containing keys must be removed or redefined before the property can be removed.
         /// </summary>
-        public static string PropertyInUse([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyInUseKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUse", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUseKey", "property", "entityType", "key"), property, entityType, key);
         }
 
         /// <summary>
@@ -1462,6 +1462,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string PropertyCalledOnNavigation([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyCalledOnNavigation", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.
+        /// </summary>
+        public static string PropertyInUseForeignKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object foreignKeyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUseForeignKey", "property", "entityType", "foreignKey", "foreignKeyType"), property, entityType, foreignKey, foreignKeyType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.
+        /// </summary>
+        public static string PropertyInUseIndex([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object index, [CanBeNull] object indexType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUseIndex", "property", "entityType", "index", "indexType"), property, entityType, index, indexType);
         }
 
         private static string GetString(string name, params string[] formatterNames)
