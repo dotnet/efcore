@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(cs =>
                 from c in cs
-                // ReSharper disable once EqualExpressionComparison
-                // ReSharper disable once PossibleUnintendedReferenceComparison
+                    // ReSharper disable once EqualExpressionComparison
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
 #pragma warning disable CS1718 // Comparison made to same variable
                 where c == c
 #pragma warning restore CS1718 // Comparison made to same variable
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             AssertQuery<Customer>(cs =>
                 from c in cs
-                // ReSharper disable once PossibleUnintendedReferenceComparison
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
                 where c == local
                 select c.CustomerID);
         }
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(cs =>
                 from c in cs
-                // ReSharper disable once PossibleUnintendedReferenceComparison
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
                 where c == new Customer { CustomerID = "ANATR" }
                 select c.CustomerID);
         }
@@ -1294,6 +1294,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_date_add_year_constant_component()
+        {
+            AssertQuery<Order>(
+                oc => oc.Where(o =>
+                        o.OrderDate.Value.AddYears(-1).Year == 1997),
+                entryCount: 270);
+        }
+
+        [ConditionalFact]
         public virtual void Where_datetime_year_component()
         {
             AssertQuery<Order>(
@@ -1558,7 +1567,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer, Employee>((cs, es) =>
                 from c in cs
                 from e in es
-                // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
                 where (c.City == "London" && c.Country == "UK")
                       && (e.City == "London" && e.Country == "UK")
                 select new { c, e });
@@ -3771,10 +3780,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Order>(
                 os => os.Select(o => new ProjectedType
-                    {
-                        Order = o.OrderID,
-                        Customer = o.CustomerID
-                    })
+                {
+                    Order = o.OrderID,
+                    Customer = o.CustomerID
+                })
                     .GroupBy(p => p.Customer),
                 asserter:
                 (l2oResults, efResults) =>
@@ -3795,10 +3804,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Order>(
                 os => os.Select(o => new ProjectedType
-                    {
-                        Order = o.OrderID,
-                        Customer = o.CustomerID
-                    })
+                {
+                    Order = o.OrderID,
+                    Customer = o.CustomerID
+                })
                     .GroupBy(o => o.Order)
                     .SelectMany(g => g));
         }
@@ -5859,7 +5868,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var orders
                     = (from o in context.Orders.Take(2)
-                       // ReSharper disable once UseMethodAny.0
+                           // ReSharper disable once UseMethodAny.0
                        where (from od in context.OrderDetails.Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
@@ -6335,6 +6344,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 .OrderBy(o => o.City)
                 .Skip(0)
                 .Take(10));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_date_add_year()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value.AddYears(1)
+                    }));
         }
 
         [ConditionalFact]
