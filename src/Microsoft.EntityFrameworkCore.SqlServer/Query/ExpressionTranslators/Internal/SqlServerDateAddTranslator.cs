@@ -2,15 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-    using System.Linq;
-    using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
-
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
@@ -18,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     public class SqlServerDateAddTranslator : IMethodCallTranslator
     {
         /// <summary>
-        /// Translates the given method call expression.
+        ///     Translates the given method call expression.
         /// </summary>
         /// <param name="methodCallExpression">The method call expression.</param>
         /// <returns>
-        /// A SQL expression representing the translated MethodCallExpression.
+        ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        public Expression Translate(MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             string datePart;
             if (methodCallExpression.Method.DeclaringType == typeof(DateTime)
@@ -65,7 +62,5 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     return null;
             }
         }
-
-       
     }
 }
