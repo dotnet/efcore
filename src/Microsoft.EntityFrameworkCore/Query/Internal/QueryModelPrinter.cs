@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class QueryModelPrinter : IQueryModelPrinter
     {
-        private readonly IndentedStringBuilder _stringBuilder;
         private readonly QueryModelExpressionPrinter _expressionPrinter;
         private readonly QueryModelPrintingVisitor _queryModelPrintingVisitor;
 
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public QueryModelPrinter()
         {
             _expressionPrinter = new QueryModelExpressionPrinter();
-            _stringBuilder = _expressionPrinter.StringBuilder;
             _queryModelPrintingVisitor = new QueryModelPrintingVisitor(_expressionPrinter);
             _expressionPrinter.SetQueryModelPrintingVisitor(_queryModelPrintingVisitor);
         }
@@ -38,13 +36,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Print([NotNull] QueryModel queryModel)
+        public virtual string Print(QueryModel queryModel, bool removeFormatting = false, int? characterLimit = null)
         {
-            _stringBuilder.Clear();
+            _expressionPrinter.StringBuilder.Clear();
 
+            _queryModelPrintingVisitor.RemoveFormatting = removeFormatting;
+            _expressionPrinter.RemoveFormatting = removeFormatting;
+            _expressionPrinter.CharacterLimit = characterLimit;
             _queryModelPrintingVisitor.VisitQueryModel(queryModel);
 
-            return _stringBuilder.ToString();
+            var result = _expressionPrinter.StringBuilder.ToString();
+            if (characterLimit != null && characterLimit.Value > 0)
+            {
+                result = result.Length > characterLimit
+                    ? result.Substring(0, characterLimit.Value) + "..."
+                    : result;
+            }
+
+            return result;
         }
 
         private class QueryModelExpressionPrinter : ExpressionPrinter
@@ -52,9 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private QueryModelPrintingVisitor _queryModelPrintingVisitor;
 
             public void SetQueryModelPrintingVisitor(QueryModelPrintingVisitor queryModelPrintingVisitor)
-            {
-                _queryModelPrintingVisitor = queryModelPrintingVisitor;
-            }
+                => _queryModelPrintingVisitor = queryModelPrintingVisitor;
 
             protected override Expression VisitExtension(Expression node)
             {
@@ -91,12 +98,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public bool IsSubquery { get; set; }
+            public bool RemoveFormatting { get; set; }
 
             public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
             {
                 if (IsSubquery)
                 {
-                    TransformingVisitor.StringBuilder.AppendLine();
+                    AppendLine();
                 }
 
                 if (queryModel.ResultOperators.Count > 0)
@@ -110,17 +118,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
             {
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine();
                 TransformingVisitor.StringBuilder.Append($"from {fromClause.ItemType.ShortDisplayName()} {fromClause.ItemName} in ");
                 base.VisitAdditionalFromClause(fromClause, queryModel, index);
             }
 
             public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
             {
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine();
                 TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
                 TransformingVisitor.Visit(joinClause.InnerSequence);
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine();
                 TransformingVisitor.StringBuilder.Append("on ");
                 TransformingVisitor.Visit(joinClause.OuterKeySelector);
                 TransformingVisitor.StringBuilder.Append(" equals ");
@@ -131,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
                 TransformingVisitor.Visit(joinClause.InnerSequence);
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine();
                 TransformingVisitor.StringBuilder.Append("on ");
                 TransformingVisitor.Visit(joinClause.OuterKeySelector);
                 TransformingVisitor.StringBuilder.Append(" equals ");
@@ -140,21 +148,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
             {
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine();
                 base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
                 TransformingVisitor.StringBuilder.Append($" into {groupJoinClause.ItemName}");
             }
 
             public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
             {
-                TransformingVisitor.StringBuilder.AppendLine();
-                TransformingVisitor.StringBuilder.Append($"where ");
+                AppendLine();
+                TransformingVisitor.StringBuilder.Append("where ");
                 base.VisitWhereClause(whereClause, queryModel, index);
             }
 
             public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
             {
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine();
                 TransformingVisitor.StringBuilder.Append("order by ");
 
                 var first = true;
@@ -191,15 +199,39 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
             {
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine("");
                 TransformingVisitor.StringBuilder.Append($".{resultOperator}");
             }
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
             {
-                TransformingVisitor.StringBuilder.AppendLine();
+                AppendLine();
                 TransformingVisitor.StringBuilder.Append("select ");
                 base.VisitSelectClause(selectClause, queryModel);
+            }
+
+            private void AppendLine()
+            {
+                if (RemoveFormatting)
+                {
+                    TransformingVisitor.StringBuilder.Append(" ");
+                }
+                else
+                {
+                    TransformingVisitor.StringBuilder.AppendLine();
+                }
+            }
+
+            private void AppendLine(string message)
+            {
+                if (RemoveFormatting)
+                {
+                    TransformingVisitor.StringBuilder.Append(message);
+                }
+                else
+                {
+                    TransformingVisitor.StringBuilder.AppendLine(message);
+                }
             }
         }
     }

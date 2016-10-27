@@ -657,4 +657,10 @@
   <data name="PropertyCalledOnNavigation" xml:space="preserve">
     <value>Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.</value>
   </data>
+  <data name="RowLimitingOperationWithoutOrderBy" xml:space="preserve">
+    <value>Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.</value>
+  </data>
+  <data name="FirstWithoutOrderByAndFilter" xml:space="preserve">
+    <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
+  </data>  
 </root>

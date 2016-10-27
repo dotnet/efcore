@@ -1456,6 +1456,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyCalledOnNavigation", "property", "entityType"), property, entityType);
         }
 
+        /// <summary>
+        /// Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
+        /// </summary>
+        public static string RowLimitingOperationWithoutOrderBy([CanBeNull] object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RowLimitingOperationWithoutOrderBy", "queryModel"), queryModel);
+        }
+
+        /// <summary>
+        /// Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
+        /// </summary>
+        public static string FirstWithoutOrderByAndFilter([CanBeNull] object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FirstWithoutOrderByAndFilter", "queryModel"), queryModel);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

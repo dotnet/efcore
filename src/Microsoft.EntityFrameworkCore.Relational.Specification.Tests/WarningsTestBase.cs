@@ -38,6 +38,49 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
+        public virtual void Paging_operation_without_orderby_issues_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Skip(2).Take(3).ToList();
+                Assert.Equal(3, query.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void FirstOrDefault_without_orderby_and_filter_issues_warning_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.FirstOrDefault().OrderID > 1000).ToList();
+                Assert.Equal(1, query.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void FirstOrDefault_without_orderby_but_with_filter_doesnt_issue_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Where(c => c.CustomerID == "ALFKI").FirstOrDefault();
+                Assert.NotNull(query);
+            }
+        }
+
+        [Fact]
+        public virtual void Single_SingleOrDefault_without_orderby_doesnt_issue_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var query1 = context.Customers.Where(c => c.CustomerID == "ALFKI").Single();
+                Assert.NotNull(query1);
+
+                var query2 = context.Customers.Where(c => c.CustomerID == "AROUT").SingleOrDefault();
+                Assert.NotNull(query2);
+            }
+        }
+      
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected WarningsTestBase(TFixture fixture)

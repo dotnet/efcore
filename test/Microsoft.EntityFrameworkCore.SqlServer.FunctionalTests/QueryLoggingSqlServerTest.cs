@@ -145,7 +145,7 @@ select c'
                     TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
-
+    
         private readonly NorthwindQuerySqlServerFixture _fixture;
 
         public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture fixture)
