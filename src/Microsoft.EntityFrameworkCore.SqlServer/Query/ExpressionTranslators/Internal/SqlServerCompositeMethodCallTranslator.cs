@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             new SqlServerContainsOptimizedTranslator(),
             new SqlServerConvertTranslator(),
+            new SqlServerDateAddTranslator(),
             new SqlServerEndsWithOptimizedTranslator(),
             new SqlServerMathAbsTranslator(),
             new SqlServerMathCeilingTranslator(),
@@ -32,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqlServerStringToUpperTranslator(),
             new SqlServerStringTrimEndTranslator(),
             new SqlServerStringTrimStartTranslator(),
-            new SqlServerStringTrimTranslator(),
-            new SqlServerDateAddTranslator()
+            new SqlServerStringTrimTranslator()
         };
 
         // ReSharper disable once SuggestBaseTypeForParameter
