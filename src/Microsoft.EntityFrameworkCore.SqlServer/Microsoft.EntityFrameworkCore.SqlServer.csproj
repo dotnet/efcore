@@ -104,7 +104,6 @@
       <DependentUpon>SqlServerStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="Query\Expressions\Internal\DateAddExpression.cs" />
     <Compile Include="Query\Expressions\Internal\RowNumberExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMethodCallTranslator.cs" />

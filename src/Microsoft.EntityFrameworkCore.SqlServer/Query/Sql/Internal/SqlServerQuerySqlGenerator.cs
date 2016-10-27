@@ -110,22 +110,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
-
-        public Expression VisitDateAddExpression([NotNull] DateAddExpression dateAddExpression)
-        {
-            Check.NotNull(dateAddExpression, nameof(dateAddExpression));
-
-            Sql.Append("DATEADD(")
-                .Append(dateAddExpression.DatePart);
-
-            foreach (var expression in dateAddExpression.Arguments)
-            {
-                Sql.Append(", ");
-                Visit(expression);
-            }
-
-            Sql.Append(")");
-            return dateAddExpression;
-        }
     }
 }

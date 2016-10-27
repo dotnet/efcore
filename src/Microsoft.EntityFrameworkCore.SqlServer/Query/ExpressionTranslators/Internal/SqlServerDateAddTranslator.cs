@@ -30,10 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             if (methodCallExpression.Method.DeclaringType == typeof(DateTime)
                 && (datePart = GetDatePart(methodCallExpression.Method.Name)) != null)
             {
-                return new DateAddExpression(datePart,
-                    methodCallExpression.Type,
-                    new []
+                return new SqlFunctionExpression(
+                    functionName: "DATEADD",
+                    returnType: methodCallExpression.Type,
+                    arguments: new[]
                     {
+                        new SqlFragmentExpression(datePart),
                         methodCallExpression.Arguments.First(),
                         methodCallExpression.Object
                     });
