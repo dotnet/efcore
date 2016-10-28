@@ -384,16 +384,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 dependentEntityBuilder.HasIndex(o => new { o.CustomerId, o.AnotherCustomerId })
                     .IsUnique();
 
-                derivedPrincipalEntityBuilder.HasOne<BackOrder>().WithOne()
-                    .HasPrincipalKey<OtherCustomer>(c => new { c.Id })
-                    .HasForeignKey<BackOrder>(o => new { o.CustomerId });
+                derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
+                    .HasPrincipalKey(c => new { c.Id })
+                    .HasForeignKey(o => new { o.CustomerId });
 
                 var dependentEntityType = dependentEntityBuilder.Metadata;
                 var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
                 var fk = dependentEntityType.GetForeignKeys().Single();
                 Assert.Null(dependentEntityType.FindIndex(fk.Properties));
                 Assert.True(dependentEntityType.GetIndexes().Single().IsUnique);
-                Assert.True(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
+                Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
                 var backOrderClone = modelBuilder.Model.Clone().FindEntityType(derivedDependentEntityType.Name);
@@ -407,12 +407,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var derivedFk = derivedDependentEntityType.GetForeignKeys()
                     .Single(foreignKey => foreignKey.PrincipalEntityType == derivedPrincipalEntityBuilder.Metadata);
                 Assert.Equal(2, derivedDependentEntityType.GetIndexes().Count());
-                Assert.True(derivedDependentEntityType.FindIndex(derivedFk.Properties).IsUnique);
+                Assert.False(derivedDependentEntityType.FindIndex(derivedFk.Properties).IsUnique);
 
                 derivedDependentEntityBuilder.HasBaseType<Order>();
 
                 Assert.True(dependentEntityType.GetIndexes().Single().IsUnique);
-                Assert.True(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
+                Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
                 AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .IsUnique(false);
 
                 Assert.False(dependentEntityType.GetIndexes().Single().IsUnique);
-                Assert.True(derivedDependentEntityType.GetDeclaredIndexes().Single().IsUnique);
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
             }
 
             [Fact]
