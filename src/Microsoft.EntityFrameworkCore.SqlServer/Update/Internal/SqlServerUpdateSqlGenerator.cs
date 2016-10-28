@@ -352,11 +352,35 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private string GetTypeNameForCopy(IProperty property)
         {
-            var typeName = property.SqlServer().ColumnType
-                           ?? _typeMapper.GetMapping(property).StoreType;
+            var typeName = property.SqlServer().ColumnType;
+            if (typeName == null)
+            {
+                var principalProperty = property.FindPrincipal();
+                typeName = principalProperty?.SqlServer().ColumnType;
+                if (typeName == null)
+                {
+                    if (property.ClrType == typeof(string))
+                    {
+                        typeName = _typeMapper.StringMapper?.FindMapping(
+                            property.IsUnicode() ?? principalProperty?.IsUnicode() ?? true,
+                            keyOrIndex: false,
+                            maxLength: null).StoreType;
+                    }
+                    else if (property.ClrType == typeof(byte[]))
+                    {
+                        typeName = _typeMapper.ByteArrayMapper?.FindMapping(
+                            rowVersion: false,
+                            keyOrIndex: false,
+                            size: null).StoreType;
+                    }
 
-            return typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                   || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
+                    return typeName ?? _typeMapper.FindMapping(property.ClrType).StoreType;
+                }
+            }
+
+            return property.ClrType == typeof(byte[])
+                   && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
+                       || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                 ? (property.IsNullable ? "varbinary(8)" : "binary(8)")
                 : typeName;
         }

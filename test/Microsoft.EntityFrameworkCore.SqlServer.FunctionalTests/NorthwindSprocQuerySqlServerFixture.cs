@@ -33,6 +33,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .BuildServiceProvider())
                 .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration()).Options;
 
+        public override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<OrderDetail>()
+                .Property(od => od.UnitPrice).ForSqlServerHasColumnType("money");
+        }
+
         public override NorthwindContext CreateContext(
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
         {

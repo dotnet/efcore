@@ -71,6 +71,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
         }
 
+        [Fact]
+        public virtual void Detects_default_decimal_mapping()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>().Property<decimal>("Price");
+
+            VerifyWarning(SqlServerStrings.DefaultDecimalTypeColumn("Price", nameof(Animal)), modelBuilder.Model);
+        }
+
         private class Cheese
         {
             public int Id { get; set; }
@@ -79,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         protected override ModelValidator CreateModelValidator()
-            => new RelationalModelValidator(
+            => new SqlServerModelValidator(
                 new Logger<RelationalModelValidator>(
                     new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
                 new TestSqlServerAnnotationProvider(),

@@ -72,6 +72,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("TransientExceptionDetected"); }
         }
 
+        /// <summary>
+        /// No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForSqlServerHasColumnType()'.
+        /// </summary>
+        public static string DefaultDecimalTypeColumn([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DefaultDecimalTypeColumn", "property", "entityType"), property, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
+                .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
 

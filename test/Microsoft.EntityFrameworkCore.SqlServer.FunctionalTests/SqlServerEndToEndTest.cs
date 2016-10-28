@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -110,6 +111,144 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             public decimal Id { get; set; }
             public string TheWalrus { get; set; }
+        }
+
+        [Fact]
+        public void Default_mapping_does_not_cause_data_loss()
+        {
+            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            {
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
+                    .UseInternalServiceProvider(_fixture.ServiceProvider);
+
+                var charArray = new char[750];
+                for (var i = 0; i < charArray.Length; i++)
+                {
+                    charArray[i] = 'a';
+                }
+
+                var byteArray = new byte[1024];
+                for (var i = 0; i < byteArray.Length; i++)
+                {
+                    byteArray[i] = 1;
+                }
+
+                var first = new VariableDataTypes
+                {
+                    String = new string(charArray),
+                    ByteArray = byteArray,
+                    //Issue #6965
+                    //Decimal = decimal.Parse("1E-28", NumberStyles.Any),
+                    Double = double.MaxValue
+                };
+                var second = new VariableDataTypes { String = "1", ByteArray = new byte[1] };
+
+                using (var context = new HiFiContext(optionsBuilder.Options))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.AddRange(first, second);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new HiFiContext(optionsBuilder.Options))
+                {
+                    var storeFirst = context.VariableDataTypes.Single(e => e.Id == first.Id);
+                    var storeSecond = context.VariableDataTypes.Single(e => e.Id == second.Id);
+
+                    AssertEqual(first, storeFirst);
+                    AssertEqual(second, storeSecond);
+                }
+
+                first.Id = 0;
+                second.Id = 0;
+                using (var context = new LoFiContext(optionsBuilder.Options))
+                {
+                    context.AddRange(first, second);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new LoFiContext(optionsBuilder.Options))
+                {
+                    var storeFirst = context.VariableDataTypes.Single(e => e.Id == first.Id);
+                    var storeSecond = context.VariableDataTypes.Single(e => e.Id == second.Id);
+
+                    AssertEqual(first, storeFirst);
+                    AssertEqual(second, storeSecond);
+                }
+            }
+        }
+
+        private class HiFiContext : DbContext
+        {
+            public HiFiContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<VariableDataTypes> VariableDataTypes { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<VariableDataTypes>(eb =>
+                    {
+                        eb.HasIndex(e => e.String);
+                        eb.HasIndex(e => e.ByteArray);
+                        eb.Property(e => e.String)
+                            .HasColumnType("nvarchar(750)");
+                        eb.Property(e => e.ByteArray)
+                            .HasColumnType("varbinary(1024)");
+                        eb.Property(e => e.Double)
+                            .HasColumnType("float(53)");
+                        eb.Property(e => e.Decimal)
+                            .HasColumnType("decimal(38, 28)");
+                    });
+            }
+        }
+
+        private class LoFiContext : DbContext
+        {
+            public LoFiContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<VariableDataTypes> VariableDataTypes { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<VariableDataTypes>(eb =>
+                    {
+                        eb.HasIndex(e => e.String);
+                        eb.HasIndex(e => e.ByteArray);
+                        eb.Property(e => e.String);
+                        eb.Property(e => e.ByteArray);
+                        eb.Property(e => e.Double);
+                        eb.Property(e => e.Decimal);
+                    });
+            }
+        }
+
+        private class VariableDataTypes
+        {
+            public int Id { get; set; }
+            public string String { get; set; }
+            public byte[] ByteArray { get; set; }
+            public double Double { get; set; }
+            public decimal Decimal { get; set; }
+        }
+
+        private void AssertEqual(VariableDataTypes expected, VariableDataTypes actual)
+        {
+            Assert.Equal(expected.Id, actual.Id);
+
+            Assert.Equal(expected.String, actual.String);
+            Assert.Equal(expected.ByteArray, actual.ByteArray);
+            Assert.Equal(expected.Double, actual.Double);
+            Assert.Equal(expected.Decimal, actual.Decimal);
         }
 
         [Fact]

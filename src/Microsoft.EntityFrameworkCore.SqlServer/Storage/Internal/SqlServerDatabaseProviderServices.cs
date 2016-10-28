@@ -58,6 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override ISqlGenerationHelper SqlGenerationHelper => GetService<SqlServerSqlGenerationHelper>();
 
         /// <summary>
+        ///     Gets the <see cref="IModelValidator" /> for the database provider.
+        /// </summary>
+        public override IModelValidator ModelValidator => GetService<SqlServerModelValidator>();
+
+        /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>

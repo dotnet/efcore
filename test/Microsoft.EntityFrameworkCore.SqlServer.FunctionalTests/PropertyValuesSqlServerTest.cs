@@ -31,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
 
             public override SqlServerTestStore CreateTestStore()
-            {
-                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+                => SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
                             .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
@@ -44,6 +43,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             Seed(context);
                         }
                     });
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Building>()
+                    .Property(b => b.Value).ForSqlServerHasColumnType("decimal(18,2)");
+
+                modelBuilder.Entity<CurrentEmployee>()
+                    .Property(ce => ce.LeaveBalance).ForSqlServerHasColumnType("decimal(18,2)");
             }
 
             public override DbContext CreateContext(SqlServerTestStore testStore)

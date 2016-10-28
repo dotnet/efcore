@@ -17,14 +17,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
+                .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
 
         protected virtual string DatabaseName => "PartialUpdateSqlServerTest";
 
         public override SqlServerTestStore CreateTestStore()
-        {
-            return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+            => SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
                         .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         UpdatesModelInitializer.Seed(context);
                     }
                 });
-        }
 
         public override UpdatesContext CreateContext(SqlServerTestStore testStore)
         {
@@ -47,6 +46,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var context = new UpdatesContext(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price).ForSqlServerHasColumnType("decimal(18,2)");
         }
     }
 }

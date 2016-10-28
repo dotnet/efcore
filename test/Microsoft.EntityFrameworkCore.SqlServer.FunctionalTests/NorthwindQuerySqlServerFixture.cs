@@ -50,6 +50,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
+        public override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<OrderDetail>()
+                .Property(od => od.UnitPrice).ForSqlServerHasColumnType("money");
+        }
+
         public override NorthwindContext CreateContext(
                 QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
             => new SqlServerNorthwindContext(_options, queryTrackingBehavior);

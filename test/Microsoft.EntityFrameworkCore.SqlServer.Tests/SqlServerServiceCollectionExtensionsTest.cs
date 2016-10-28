@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             VerifySingleton<SqlServerMigrationsAnnotationProvider>();
 
             // SQL Server scoped
+            VerifyScoped<SqlServerModelValidator>();
             VerifyScoped<SqlServerConventionSetBuilder>();
             VerifyScoped<ISqlServerUpdateSqlGenerator>();
             VerifyScoped<ISqlServerSequenceValueGeneratorFactory>();
