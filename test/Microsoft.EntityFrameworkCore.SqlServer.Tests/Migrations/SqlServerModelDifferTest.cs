@@ -164,6 +164,39 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public void Add_column_with_dependencies()
+        {
+            Execute(
+                source => source.Entity(
+                    "Person",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").ForSqlServerHasName("PK_People");
+                        x.ForSqlServerToTable("People", "dbo");
+                    }),
+                modelBuilder => modelBuilder.Entity(
+                    "Person",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").ForSqlServerHasName("PK_People");
+                        x.ForSqlServerToTable("People", "dbo");
+                        x.Property<string>("FirstName");
+                        x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + [LastName]");
+                        x.Property<string>("LastName");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+
+                    var columnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
+                    Assert.Equal("[FirstName] + [LastName]", columnOperation.ComputedColumnSql);
+                });
+        }
+
+
+        [Fact]
         public void Rename_column_overridden()
         {
             Execute(
