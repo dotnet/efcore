@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var createTableOperations = new List<CreateTableOperation>();
             var alterDatabaseOperations = new List<MigrationOperation>();
             var alterTableOperations = new List<MigrationOperation>();
-            var columnOperations = new List<MigrationOperation>();
+            var columnOperations = new List<ColumnOperation>();
             var alterOperations = new List<MigrationOperation>();
             var restartSequenceOperations = new List<MigrationOperation>();
             var constraintOperations = new List<MigrationOperation>();
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
                 else if (_columnOperationTypes.Contains(type))
                 {
-                    columnOperations.Add(operation);
+                    columnOperations.Add(operation as ColumnOperation);
                 }
                 else if (_alterOperationTypes.Contains(type))
                 {
@@ -230,15 +230,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
             createTableOperations = createTableGraph.TopologicalSort(
                 (principalCreateTableOperation, createTableOperation, cyclicAddForeignKeyOperations) =>
+                {
+                    foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                     {
-                        foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
-                        {
-                            createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
-                            constraintOperations.Add(cyclicAddForeignKeyOperation);
-                        }
+                        createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
+                        constraintOperations.Add(cyclicAddForeignKeyOperation);
+                    }
 
-                        return true;
-                    }).ToList();
+                    return true;
+                }).ToList();
 
             var dropTableGraph = new Multigraph<DropTableOperation, IForeignKey>();
             dropTableGraph.AddVertices(dropTableOperations);
@@ -263,11 +263,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var newDiffContext = new DiffContext();
             dropTableOperations = dropTableGraph.TopologicalSort(
                 (dropTableOperation, principalDropTableOperation, foreignKeys) =>
-                    {
-                        dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
+                {
+                    dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
 
-                        return true;
-                    }).ToList();
+                    return true;
+                }).ToList();
 
             return dropForeignKeyOperations
                 .Concat(dropTableOperations)
@@ -279,7 +279,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(alterDatabaseOperations)
                 .Concat(createSequenceOperations)
                 .Concat(alterTableOperations)
-                .Concat(columnOperations)
+                .Concat(columnOperations.Where(t => string.IsNullOrWhiteSpace(t.ComputedColumnSql)))
+                .Concat(columnOperations.Where(t => !string.IsNullOrWhiteSpace(t.ComputedColumnSql)))
                 .Concat(alterOperations)
                 .Concat(restartSequenceOperations)
                 .Concat(createTableOperations)
@@ -431,11 +432,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 source,
                 target,
                 (s, t) =>
-                    {
-                        diffContext.AddMapping(s, t);
+                {
+                    diffContext.AddMapping(s, t);
 
-                        return Diff(s, t, diffContext);
-                    },
+                    return Diff(s, t, diffContext);
+                },
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
@@ -589,11 +590,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 source,
                 target,
                 (s, t) =>
-                    {
-                        diffContext.AddMapping(s, t);
+                {
+                    diffContext.AddMapping(s, t);
 
-                        return Diff(s, t);
-                    },
+                    return Diff(s, t);
+                },
                 t => Add(t, diffContext),
                 Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
@@ -602,21 +603,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Annotations.For(t).ColumnName,
                     StringComparison.OrdinalIgnoreCase),
                 (s, t) =>
-                    {
-                        var sAnnotations = Annotations.For(s);
-                        var tAnnotations = Annotations.For(t);
+                {
+                    var sAnnotations = Annotations.For(s);
+                    var tAnnotations = Annotations.For(t);
 
-                        return s.ClrType == t.ClrType
-                               && s.IsConcurrencyToken == t.IsConcurrencyToken
-                               && s.ValueGenerated == t.ValueGenerated
-                               && s.GetMaxLength() == t.GetMaxLength()
-                               && s.IsColumnNullable() == t.IsColumnNullable()
-                               && s.IsUnicode() == t.IsUnicode()
-                               && sAnnotations.ColumnType == tAnnotations.ColumnType
-                               && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
-                               && sAnnotations.DefaultValue == tAnnotations.DefaultValue
-                               && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
-                    });
+                    return s.ClrType == t.ClrType
+                           && s.IsConcurrencyToken == t.IsConcurrencyToken
+                           && s.ValueGenerated == t.ValueGenerated
+                           && s.GetMaxLength() == t.GetMaxLength()
+                           && s.IsColumnNullable() == t.IsColumnNullable()
+                           && s.IsUnicode() == t.IsUnicode()
+                           && sAnnotations.ColumnType == tAnnotations.ColumnType
+                           && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
+                           && sAnnotations.DefaultValue == tAnnotations.DefaultValue
+                           && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
+                });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -660,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
-                    // TODO: Detect type narrowing
+                                          // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
