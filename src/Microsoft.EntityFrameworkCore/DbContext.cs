@@ -1012,7 +1012,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -1025,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -1038,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -1052,7 +1052,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -1065,7 +1065,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -1078,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
