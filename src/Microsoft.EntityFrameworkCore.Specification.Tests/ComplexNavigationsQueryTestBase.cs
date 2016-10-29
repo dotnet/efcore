@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable MergeConditionalExpression
 // ReSharper disable ReplaceWithSingleCallToSingle
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
@@ -1948,8 +1948,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                var id1s = expected.Select(e => e.Key);
-                var id2s = expected.Select(e => e.Value);
+                var id1s = expected.Select(e => e.Key).ToList();
+                var id2s = expected.Select(e => e.Value).ToList();
                 foreach (var resultItem in result)
                 {
                     Assert.True(id1s.Contains(resultItem.Id1));
@@ -1983,8 +1983,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                var id1s = expected.Select(e => e.Key);
-                var id2s = expected.Select(e => e.Value);
+                var id1s = expected.Select(e => e.Key).ToList();
+                var id2s = expected.Select(e => e.Value).ToList();
                 foreach (var resultItem in result)
                 {
                     Assert.True(id1s.Contains(resultItem.Id1));
@@ -2018,8 +2018,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                var id1s = expected.Select(e => e.Key);
-                var id2s = expected.Select(e => e.Value);
+                var id1s = expected.Select(e => e.Key).ToList();
+                var id2s = expected.Select(e => e.Value).ToList();
                 foreach (var resultItem in result)
                 {
                     Assert.True(id1s.Contains(resultItem.Id1));
@@ -2053,8 +2053,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                var id1s = expected.Select(e => e.Key);
-                var id2s = expected.Select(e => e.Value);
+                var id1s = expected.Select(e => e.Key).ToList();
+                var id2s = expected.Select(e => e.Value).ToList();
                 foreach (var resultItem in result)
                 {
                     Assert.True(id1s.Contains(resultItem.Id1));
@@ -2192,8 +2192,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                var names = expected.Select(e => e.Key);
-                var ids = expected.Select(e => e.Value);
+                var names = expected.Select(e => e.Key).ToList();
+                var ids = expected.Select(e => e.Value).ToList();
                 foreach (var resultItem in result)
                 {
                     Assert.True(names.Contains(resultItem.Name));
@@ -2238,8 +2238,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                var names = expected.Select(e => e.Key);
-                var ids = expected.Select(e => e.Value);
+                var names = expected.Select(e => e.Key).ToList();
+                var ids = expected.Select(e => e.Value).ToList();
                 foreach (var resultItem in result)
                 {
                     Assert.True(names.Contains(resultItem.Name));
@@ -4354,6 +4354,283 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             Assert.Equal(expectedCollection[j].Name, resultCollection?[j].Name);
                         }
                     }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_navigation_and_explicit_DefaultIfEmpty()
+        {
+            List<Level1> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.Include(l => l.OneToMany_Optional).ToList()
+                            from l2 in l1.OneToMany_Optional.DefaultIfEmpty()
+                            where l2 != null
+                            select l1).ToList().OrderBy(l => l.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            from l2 in l1.OneToMany_Optional.DefaultIfEmpty()
+                            where l2 != null
+                            select l1;
+
+                var result = query.ToList().OrderBy(l => l.Id).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, result[i].Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_navigation_and_Distinct()
+        {
+            List<Level1> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.Include(l => l.OneToMany_Optional).ToList()
+                            from l2 in l1.OneToMany_Optional.Distinct()
+                            where l2 != null
+                            select l1).ToList().OrderBy(l => l.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne.Include(l => l.OneToMany_Optional)
+                            from l2 in l1.OneToMany_Optional.Distinct()
+                            where l2 != null
+                            select l1;
+
+                var result = query.ToList().OrderBy(l => l.Id).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, result[i].Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_navigation_filter_and_explicit_DefaultIfEmpty()
+        {
+            List<Level1> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.Include(l => l.OneToMany_Optional).ToList()
+                            from l2 in l1.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
+                            where l2 != null
+                            select l1).ToList().OrderBy(l => l.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            from l2 in l1.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
+                            where l2 != null
+                            select l1;
+
+                var result = query.ToList().OrderBy(l => l.Id).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, result[i].Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty()
+        {
+            List<Level1> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.Include(l => l.OneToOne_Required_FK.OneToMany_Optional).ToList().Where(l => l.OneToOne_Required_FK != null)
+                            from l3 in l1.OneToOne_Required_FK?.OneToMany_Optional?.DefaultIfEmpty()
+                            where l3 != null
+                            select l1).ToList().OrderBy(l => l.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            from l3 in l1.OneToOne_Required_FK.OneToMany_Optional.DefaultIfEmpty()
+                            where l3 != null
+                            select l1;
+
+                var result = query.ToList().OrderBy(l => l.Id).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, result[i].Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty()
+        {
+            List<Level1> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.Include(l => l.OneToOne_Optional_FK.OneToMany_Optional).ToList().Where(l => l.OneToOne_Optional_FK != null)
+                            from l3 in l1.OneToOne_Optional_FK?.OneToMany_Optional?.Where(l => l.Id > 5).DefaultIfEmpty()
+                            where l3 != null
+                            select l1).ToList().OrderBy(l => l.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            from l3 in l1.OneToOne_Optional_FK.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
+                            where l3 != null
+                            select l1;
+
+                var result = query.ToList().OrderBy(l => l.Id).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, result[i].Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_SelectMany_with_navigation_and_explicit_DefaultIfEmpty()
+        {
+            List<Level1> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.Include(l => l.OneToMany_Optional).ThenInclude(l => l.OneToMany_Optional).ToList()
+                            from l2 in l1.OneToMany_Optional
+                            from l3 in l2.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
+                            where l3 != null
+                            select l1).ToList().OrderBy(l => l.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            from l2 in l1.OneToMany_Optional
+                            from l3 in l2.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
+                            where l3 != null
+                            select l1;
+
+                var result = query.ToList().OrderBy(l => l.Id).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, result[i].Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefautltIfEmpty()
+        {
+            List<Level1> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.Include(l => l.OneToMany_Required).ToList()
+                            from l2 in l1.OneToMany_Required.Where(l => l.Id > 5).Take(3).DefaultIfEmpty()
+                            where l2 != null
+                            select l1).ToList().OrderBy(l => l.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            from l2 in l1.OneToMany_Required.Where(l => l.Id > 5).Take(3).DefaultIfEmpty()
+                            where l2 != null
+                            select l1;
+
+                var result = query.ToList().OrderBy(l => l.Id).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, result[i].Id);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_join_subquery_containing_filter_and_distinct()
+        {
+            List<string> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.ToList()
+                            join l2 in ctx.LevelTwo.ToList().Where(l => l.Id > 2).Distinct() on l1.Id equals l2.Level1_Optional_Id
+                            select new { l1, l2 }).ToList().OrderBy(l => l.l1.Id).ThenBy(l => l.l2.Id).ToList().Select(r => r.l1.Name + " " + r.l2.Name).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            join l2 in ctx.LevelTwo.Where(l => l.Id > 2).Distinct() on l1.Id equals l2.Level1_Optional_Id
+                            select new { l1, l2 };
+
+                var result = query.ToList().OrderBy(l => l.l1.Id).ThenBy(l => l.l2.Id).Select(r => r.l1.Name + " " + r.l2.Name).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i], result[i]);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_join_with_key_selector_being_a_subquery()
+        {
+            List<string> expected;
+            using (var ctx = CreateContext())
+            {
+                expected = (from l1 in ctx.LevelOne.ToList()
+                            join l2 in ctx.LevelTwo.ToList() on l1.Id equals ctx.LevelTwo.ToList().Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
+                            select new { l1, l2 }).ToList().OrderBy(l => l.l1.Id).ThenBy(l => l.l2.Id).ToList().Select(r => r.l1.Name + " " + r.l2.Name).ToList();
+            }
+
+            ClearLog();
+
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            join l2 in ctx.LevelTwo on l1.Id equals ctx.LevelTwo.Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
+                            select new { l1, l2 };
+
+                var result = query.ToList().OrderBy(l => l.l1.Id).ThenBy(l => l.l2.Id).Select(r => r.l1.Name + " " + r.l2.Name).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i], result[i]);
                 }
             }
         }

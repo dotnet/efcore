@@ -728,6 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 = (additionalFromClause?.FromExpression as SubQueryExpression)?.QueryModel;
 
                             if (subQueryModel != null
+                                && subQueryModel.BodyClauses.Count == 0
                                 && subQueryModel.ResultOperators.Count == 1
                                 && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator)
                             {
