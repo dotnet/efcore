@@ -108,6 +108,62 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertStoreInitialState();
         }
 
+        [Fact]
+        public virtual void SaveChanges_does_not_close_connection_opened_by_user()
+        {
+            EnsureInitialState();
+
+            using (var context = CreateContext())
+            {
+                var connection = context.Database.GetDbConnection();
+                context.Database.OpenConnection();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                context.Database.AutoTransactionsEnabled = true;
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.SaveChanges();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int> { 1, 2, 77 },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [Fact]
+        public virtual async Task SaveChangesAsync_does_not_close_connection_opened_by_user()
+        {
+            EnsureInitialState();
+
+            using (var context = CreateContext())
+            {
+                var connection = context.Database.GetDbConnection();
+                context.Database.OpenConnection();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                context.Database.AutoTransactionsEnabled = true;
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                await context.SaveChangesAsync();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int> { 1, 2, 77 },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]

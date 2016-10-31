@@ -77,8 +77,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
             finally
             {
-                startedTransaction?.Dispose();
-                connection.Close();
+                if (startedTransaction != null)
+                {
+                    startedTransaction.Dispose();
+                }
+                else
+                {
+                    connection.Close();
+                }
             }
 
             return rowsAffected;
@@ -124,8 +130,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
             finally
             {
-                startedTransaction?.Dispose();
-                connection.Close();
+                if (startedTransaction != null)
+                {
+                    startedTransaction.Dispose();
+                }
+                else
+                {
+                    connection.Close();
+                }
             }
 
             return rowsAffected;
