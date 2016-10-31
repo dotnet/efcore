@@ -2777,7 +2777,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Does_not_create_index_if_covered_by_an_alternate_key()
+            public virtual void Creates_index_even_if_covered_by_an_alternate_key()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -2800,7 +2800,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(2, dependentType.GetKeys().Count());
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
                 Assert.Empty(principalType.GetIndexes());
-                Assert.Equal(dependentType.GetForeignKeys().Count() - 1, dependentType.GetIndexes().Count());
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
 
                 modelBuilder.Entity<Tomato>().Ignore(t => t.BurgerId2);
 
