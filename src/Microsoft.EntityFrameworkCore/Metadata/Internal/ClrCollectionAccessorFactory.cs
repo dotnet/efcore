@@ -96,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.MakeMemberAccess(
                             entityParameter,
                             setterMemberInfo),
-                        valueParameter),
+                        Expression.Convert(
+                            valueParameter,
+                            setterMemberInfo.GetMemberType())),
                     entityParameter,
                     valueParameter).Compile();
             }

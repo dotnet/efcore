@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             private int _id;
             private string _title;
-            private IEnumerable<PostFull> _posts;
+            private ICollection<PostFull> _posts;
 
             // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -621,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public IEnumerable<PostFull> Posts
             {
                 get { return _posts; }
-                set { _posts = value; }
+                set { _posts = (ICollection<PostFull>)value; }
             }
 
             int IBlogAccesor.AccessId
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             private int _myid;
             private string _mytitle;
-            private IEnumerable<PostFullExplicit> _myposts;
+            private ICollection<PostFullExplicit> _myposts;
 
             // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public IEnumerable<PostFullExplicit> Posts
             {
                 get { return _myposts; }
-                set { _myposts = value; }
+                set { _myposts = (ICollection<PostFullExplicit>)value; }
             }
 
             int IBlogAccesor.AccessId
@@ -816,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             private int _id;
             private string _title;
-            private IEnumerable<PostReadOnly> _posts;
+            private ICollection<PostReadOnly> _posts;
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -843,7 +843,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             IEnumerable<IPostAccesor> IBlogAccesor.AccessPosts
             {
                 get { return Posts; }
-                set { _posts = (IEnumerable<PostReadOnly>)value; }
+                set { _posts = (ICollection<PostReadOnly>)value; }
             }
         }
 
@@ -896,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             private int _myid;
             private string _mytitle;
-            private IEnumerable<PostReadOnlyExplicit> _myposts;
+            private ICollection<PostReadOnlyExplicit> _myposts;
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -923,7 +923,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             IEnumerable<IPostAccesor> IBlogAccesor.AccessPosts
             {
                 get { return Posts; }
-                set { _myposts = (IEnumerable<PostReadOnlyExplicit>)value; }
+                set { _myposts = (ICollection<PostReadOnlyExplicit>)value; }
             }
         }
 
@@ -976,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             private int _id;
             private string _title;
-            private IEnumerable<PostWriteOnly> _posts;
+            private ICollection<PostWriteOnly> _posts;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
@@ -991,7 +991,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             public IEnumerable<PostWriteOnly> Posts
             {
-                set { _posts = value; }
+                set { _posts = (ICollection<PostWriteOnly>)value; }
             }
 
             int IBlogAccesor.AccessId
@@ -1070,7 +1070,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             private int _myid;
             private string _mytitle;
-            private IEnumerable<PostWriteOnlyExplicit> _myposts;
+            private ICollection<PostWriteOnlyExplicit> _myposts;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             public IEnumerable<PostWriteOnlyExplicit> Posts
             {
-                set { _myposts = value; }
+                set { _myposts = (ICollection<PostWriteOnlyExplicit>)value; }
             }
 
             int IBlogAccesor.AccessId
