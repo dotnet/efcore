@@ -110,16 +110,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void SetFieldInfo(
             [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
         {
-            if (fieldInfo != null
-                && !fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+            if (fieldInfo != null)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.BadBackingFieldType(
-                        fieldInfo.Name,
-                        fieldInfo.FieldType.ShortDisplayName(),
-                        DeclaringType.DisplayName(),
-                        Name,
-                        ClrType.ShortDisplayName()));
+                var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
+                var typeInfo = ClrType.GetTypeInfo();
+
+                if (!typeInfo.IsAssignableFrom(fieldTypeInfo)
+                    && !fieldTypeInfo.IsAssignableFrom(typeInfo))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.BadBackingFieldType(
+                            fieldInfo.Name,
+                            fieldInfo.FieldType.ShortDisplayName(),
+                            DeclaringType.DisplayName(),
+                            Name,
+                            ClrType.ShortDisplayName()));
+                }
             }
 
             UpdateFieldInfoConfigurationSource(configurationSource);

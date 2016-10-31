@@ -71,22 +71,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var typeInfo = propertyType.GetTypeInfo();
 
             FieldInfo fieldInfo;
-            return (fields.TryGetValue("<" + propertyName + ">k__BackingField", out fieldInfo)
-                    && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(typeInfo))
+            return fields.TryGetValue("<" + propertyName + ">k__BackingField", out fieldInfo)
                    || (fields.TryGetValue(propertyName, out fieldInfo)
-                       && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(typeInfo))
+                       && IsConvertable(typeInfo, fieldInfo))
                    || (fields.TryGetValue(camelized, out fieldInfo)
-                       && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(typeInfo))
+                       && IsConvertable(typeInfo, fieldInfo))
                    || (fields.TryGetValue("_" + camelized, out fieldInfo)
-                       && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(typeInfo))
+                       && IsConvertable(typeInfo, fieldInfo))
                    || (fields.TryGetValue("_" + propertyName, out fieldInfo)
-                       && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(typeInfo))
+                       && IsConvertable(typeInfo, fieldInfo))
                    || (fields.TryGetValue("m_" + camelized, out fieldInfo)
-                       && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(typeInfo))
+                       && IsConvertable(typeInfo, fieldInfo))
                    || (fields.TryGetValue("m_" + propertyName, out fieldInfo)
-                       && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(typeInfo))
+                       && IsConvertable(typeInfo, fieldInfo))
                 ? fieldInfo
                 : null;
+        }
+
+        private static bool IsConvertable(TypeInfo typeInfo, FieldInfo fieldInfo)
+        {
+            var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
+
+            return typeInfo.IsAssignableFrom(fieldTypeInfo)
+                   || fieldTypeInfo.IsAssignableFrom(typeInfo);
         }
     }
 }
