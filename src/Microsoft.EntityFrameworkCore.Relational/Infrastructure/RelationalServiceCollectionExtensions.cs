@@ -103,7 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
                 .AddScoped<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>()
                 .AddScoped<IQueryFlattenerFactory, QueryFlattenerFactory>()
-                .AddScoped<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>()
                 .AddScoped<ISelectExpressionFactory, SelectExpressionFactory>()
                 .AddScoped<RelationalExpressionPrinter>()
                 .AddScoped<RelationalResultOperatorHandler>()
@@ -114,7 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<RelationalProjectionExpressionVisitorFactory>()
                 .AddScoped<RelationalCompiledQueryCacheKeyGenerator>()
                 .AddScoped<RelationalCompositeExpressionFragmentTranslator>()
-                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).QuerySqlGeneratorFactory));
+                .AddScoped<SqlTranslatingExpressionVisitorFactory>()
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).QuerySqlGeneratorFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).SqlTranslatingExpressionVisitorFactory));
 
         private static IRelationalDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
         {

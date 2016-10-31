@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -109,5 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The <see cref="IQuerySqlGeneratorFactory" /> for the provider.
         /// </summary>
         IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; }
+
+        /// <summary>
+        ///     The <see cref="ISqlTranslatingExpressionVisitorFactory" /> for the provider.
+        /// </summary>
+        ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
     }
 }
