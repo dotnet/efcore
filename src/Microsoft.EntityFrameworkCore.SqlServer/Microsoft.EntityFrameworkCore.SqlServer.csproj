@@ -134,6 +134,7 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToLowerTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToUpperTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeDatePartComponentTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerObjectToStringTranslator.cs" />
     <Compile Include="Query\Internal\SqlServerCompiledQueryCacheKeyGenerator.cs" />
     <Compile Include="Query\Internal\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\Internal\SqlServerQueryCompilationContextFactory.cs" />
