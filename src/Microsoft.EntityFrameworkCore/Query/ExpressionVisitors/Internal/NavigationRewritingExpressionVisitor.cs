@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private bool _insideInnerSequence;
         private bool _innerKeySelectorRequiresNullRefProtection;
         private bool _insideInnerKeySelector;
+        private bool _insideOrderBy;
 
         private class NavigationJoin
         {
@@ -579,10 +580,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         additionalFromClauseBeingProcessed);
                 }
 
-                if (navigations.Count == 1
-                    && navigations[0].IsDependentToPrincipal())
+                if (navigations.Count == 1 && navigations[0].IsDependentToPrincipal())
                 {
-                    var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(propertyName, declaringExpression, navigations[0]);
+                    var foreignKeyMemberAccess = TryCreateForeignKeyMemberAccess(propertyName, declaringExpression, navigations[0]);
                     if (foreignKeyMemberAccess != null)
                     {
                         return foreignKeyMemberAccess;
@@ -622,6 +622,106 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return default(Expression);
+        }
+
+        private class QsreWithNavigationFindingExpressionVisitor : ExpressionVisitorBase
+        {
+            private readonly QuerySourceReferenceExpression _searchedQsre;
+            private readonly INavigation _navigation;
+            private bool _navigationFound;
+
+            public QsreWithNavigationFindingExpressionVisitor([NotNull] QuerySourceReferenceExpression searchedQsre, [NotNull] INavigation navigation)
+            {
+                _searchedQsre = searchedQsre;
+                _navigation = navigation;
+                _navigationFound = false;
+                SearchedQsreFound = false;
+            }
+
+            public bool SearchedQsreFound { get; private set; }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (!_navigationFound && node.Member.Name == _navigation.Name)
+                {
+                    _navigationFound = true;
+
+                    return base.VisitMember(node);
+                }
+
+                _navigationFound = false;
+
+                return node;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (EntityQueryModelVisitor.IsPropertyMethod(node.Method)
+                    && !_navigationFound
+                    && (string)((ConstantExpression)node.Arguments[1]).Value == _navigation.Name)
+                {
+                    _navigationFound = true;
+
+                    return base.VisitMethodCall(node);
+                }
+
+                _navigationFound = false;
+
+                return node;
+            }
+
+            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+            {
+                if (_navigationFound && expression.ReferencedQuerySource == _searchedQsre.ReferencedQuerySource)
+                {
+                    SearchedQsreFound = true;
+                }
+                else
+                {
+                    _navigationFound = false;
+                }
+
+                return expression;
+            }
+        }
+
+        private Expression TryCreateForeignKeyMemberAccess(string propertyName, Expression declaringExpression, INavigation navigation)
+        {
+            var canPerformOptimization = true;
+            if (_insideOrderBy)
+            {
+                var qsre = (declaringExpression as MemberExpression)?.Expression as QuerySourceReferenceExpression;
+                if (qsre == null)
+                {
+                    var methodCallExpression = declaringExpression as MethodCallExpression;
+                    if (methodCallExpression != null && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                    {
+                        qsre = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
+                    }
+                }
+
+                if (qsre != null)
+                {
+                    var qsreFindingVisitor = new QsreWithNavigationFindingExpressionVisitor(qsre, navigation);
+                    qsreFindingVisitor.Visit(_queryModel.SelectClause.Selector);
+
+                    if (qsreFindingVisitor.SearchedQsreFound)
+                    {
+                        canPerformOptimization = false;
+                    }
+                }
+            }
+
+            if (canPerformOptimization)
+            {
+                var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(propertyName, declaringExpression, navigation);
+                if (foreignKeyMemberAccess != null)
+                {
+                    return foreignKeyMemberAccess;
+                }
+            }
+
+            return null;
         }
 
         private static Expression CreateForeignKeyMemberAccess(string propertyName, Expression declaringExpression, INavigation navigation)
@@ -1217,7 +1317,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var originalTypes = orderByClause.Orderings.Select(o => o.Expression.Type).ToList();
 
+                var oldInsideOrderBy = TransformingVisitor._insideOrderBy;
+                TransformingVisitor._insideOrderBy = true;
+
                 base.VisitOrderByClause(orderByClause, queryModel, index);
+
+                TransformingVisitor._insideOrderBy = oldInsideOrderBy;
 
                 for (var i = 0; i < orderByClause.Orderings.Count; i++)
                 {

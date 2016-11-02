@@ -3500,8 +3500,132 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact] // TODO: See issue#6896
-        public virtual void Required_navigation_take_required_navigation()
+        [ConditionalFact]
+        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access1()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelThree.Include(l3 => l3.OneToOne_Required_FK_Inverse)
+                    .ToList()
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse.Name)
+                    .ToList().OrderBy(l => l).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelThree
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse);
+
+                var result = query.ToList().Select(l => l.Name).OrderBy(l => l).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access2()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelThree.Include(l3 => l3.OneToOne_Required_FK_Inverse)
+                    .ToList()
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse.Name)
+                    .ToList().OrderBy(l => l).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelThree
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
+                    .Select(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse"));
+
+                var result = query.ToList().Select(l => l.Name).OrderBy(l => l).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access3()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelThree.Include(l3 => l3.OneToOne_Required_FK_Inverse)
+                    .ToList()
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse.Name)
+                    .ToList().OrderBy(l => l).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelThree
+                    .OrderBy(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse").Id)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse);
+
+                var result = query.ToList().Select(l => l.Name).OrderBy(l => l).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_key_of_navigation_similar_to_projected_gets_optimized_into_FK_access()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelThree.Include(l3 => l3.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse)
+                    .ToList()
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.Name)
+                    .ToList().OrderBy(l => l).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelThree
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse);
+
+                var result = query.ToList().Select(l => l.Name).OrderBy(l => l).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
         {
             List<string> expected;
             using (var context = CreateContext())
@@ -3521,7 +3645,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = context.LevelThree
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
-                    .OrderBy(l3 => l3.Id)
+                    .OrderBy(l2 => l2.Id)
+                    .Take(10)
+                    .Select(l2 => l2.OneToOne_Required_FK_Inverse.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_key_of_anonymous_type_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelThree.Include(l3 => l3.OneToOne_Required_FK_Inverse).ThenInclude(l2 => l2.OneToOne_Required_FK_Inverse)
+                    .ToList()
+                    .Select(l3 => new { l3.OneToOne_Required_FK_Inverse, name = l3.Name })
+                    .OrderBy(l2 => l2.OneToOne_Required_FK_Inverse.Id)
+                    .Take(10)
+                    .Select(l2 => l2.OneToOne_Required_FK_Inverse.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelThree
+                    .Select(l3 => new { l3.OneToOne_Required_FK_Inverse, name = l3.Name })
+                    .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
                     .Take(10)
                     .Select(l2 => l2.OneToOne_Required_FK_Inverse.Name);
 
