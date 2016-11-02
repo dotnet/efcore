@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -158,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)
@@ -167,58 +168,61 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return _compiledQueryCache
                 .GetOrAddQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
-                    () =>
+                    () => CompileQueryCore<TResult>(query, NodeTypeProvider, _database, _logger, _contextType));
+        }
+
+        private static Func<QueryContext, TResult> CompileQueryCore<TResult>(
+            Expression query, INodeTypeProvider nodeTypeProvider, IDatabase database, ILogger logger, Type contextType)
+        {
+            var queryModel
+                = CreateQueryParser(nodeTypeProvider)
+                    .GetParsedQuery(query);
+
+            var resultItemType
+                = (queryModel.GetOutputDataInfo()
+                      as StreamedSequenceInfo)?.ResultItemType
+                  ?? typeof(TResult);
+
+            if (resultItemType == typeof(TResult))
+            {
+                var compiledQuery = database.CompileQuery<TResult>(queryModel);
+
+                return qc =>
+                    {
+                        try
                         {
-                            var queryModel
-                                = CreateQueryParser(NodeTypeProvider)
-                                    .GetParsedQuery(query);
+                            return compiledQuery(qc).First();
+                        }
+                        catch (Exception exception)
+                        {
+                            logger
+                                .LogError(
+                                    CoreEventId.DatabaseError,
+                                    () => new DatabaseErrorLogState(contextType),
+                                    exception,
+                                    e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
 
-                            var resultItemType
-                                = (queryModel.GetOutputDataInfo()
-                                    as StreamedSequenceInfo)?.ResultItemType
-                                  ?? typeof(TResult);
+                            throw;
+                        }
+                    };
+            }
 
-                            if (resultItemType == typeof(TResult))
-                            {
-                                var compiledQuery = _database.CompileQuery<TResult>(queryModel);
+            try
+            {
+                return (Func<QueryContext, TResult>)CompileQueryMethod
+                    .MakeGenericMethod(resultItemType)
+                    .Invoke(database, new object[] { queryModel });
+            }
+            catch (TargetInvocationException e)
+            {
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
 
-                                return qc =>
-                                    {
-                                        try
-                                        {
-                                            return compiledQuery(qc).First();
-                                        }
-                                        catch (Exception exception)
-                                        {
-                                            _logger
-                                                .LogError(
-                                                    CoreEventId.DatabaseError,
-                                                    () => new DatabaseErrorLogState(_contextType),
-                                                    exception,
-                                                    e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
-
-                                            throw;
-                                        }
-                                    };
-                            }
-
-                            try
-                            {
-                                return (Func<QueryContext, TResult>)CompileQueryMethod
-                                    .MakeGenericMethod(resultItemType)
-                                    .Invoke(_database, new object[] { queryModel });
-                            }
-                            catch (TargetInvocationException e)
-                            {
-                                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
-
-                                throw;
-                            }
-                        });
+                throw;
+            }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] Expression query)
@@ -227,14 +231,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return _compiledQueryCache
                 .GetOrAddAsyncQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
-                    () =>
-                        {
-                            var queryModel
-                                = CreateQueryParser(NodeTypeProvider)
-                                    .GetParsedQuery(query);
+                    () => CompileAsyncQueryCore<TResult>(query, NodeTypeProvider, _database));
+        }
 
-                            return _database.CompileAsyncQuery<TResult>(queryModel);
-                        });
+        private static Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQueryCore<TResult>(
+            Expression query, INodeTypeProvider nodeTypeProvider, IDatabase database)
+        {
+            var queryModel
+                = CreateQueryParser(nodeTypeProvider)
+                    .GetParsedQuery(query);
+
+            return database.CompileAsyncQuery<TResult>(queryModel);
         }
 
         private static QueryParser CreateQueryParser(INodeTypeProvider nodeTypeProvider)
