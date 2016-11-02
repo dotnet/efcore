@@ -13,6 +13,7 @@ using Xunit.Abstractions;
 #if NETCOREAPP1_1
 using System.Threading;
 #endif
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
@@ -21,6 +22,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             : base(fixture)
         {
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
+        [ConditionalFact]
+        public virtual void Cache_key_expressions_are_detached()
+        {
+            WeakReference wr;
+            MakeGarbage(CreateContext(), out wr);
+
+            GC.Collect();
+
+            Assert.False(wr.IsAlive);
+        }
+
+        private static void MakeGarbage(NorthwindContext context, out WeakReference wr)
+        {
+            using (context)
+            {
+                wr = new WeakReference(context.Customers.First());
+
+                Assert.True(wr.IsAlive);
+            }
         }
 
         public override void Project_to_object_array()
