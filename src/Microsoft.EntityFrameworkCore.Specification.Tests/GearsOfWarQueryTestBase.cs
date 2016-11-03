@@ -2048,6 +2048,36 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void DateTimeOffset_Date_works()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            where m.Timeline.Date > new DateTimeOffset().Date
+                            select m;
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_Datepart_works()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            where m.Timeline.Month == 5
+                            select m;
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

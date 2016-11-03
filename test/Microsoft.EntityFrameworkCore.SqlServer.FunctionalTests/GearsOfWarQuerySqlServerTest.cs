@@ -2056,6 +2056,30 @@ END",
                 Sql);
         }
 
+        public override void DateTimeOffset_Date_works()
+        {
+            base.DateTimeOffset_Date_works();
+
+            Assert.Equal(
+                @"@__Date_0: 01/01/0001 00:00:00
+
+SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Mission] AS [m]
+WHERE CONVERT(date, [m].[Timeline]) > @__Date_0",
+                Sql);
+        }
+
+        public override void DateTimeOffset_Datepart_works()
+        {
+            base.DateTimeOffset_Datepart_works();
+
+            Assert.Equal(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Mission] AS [m]
+WHERE DATEPART(month, [m].[Timeline]) = 5",
+                Sql);
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"
