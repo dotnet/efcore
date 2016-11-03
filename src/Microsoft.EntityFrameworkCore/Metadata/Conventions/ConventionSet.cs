@@ -78,6 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IIndexUniquenessConvention> IndexUniquenessConventions { get; } = new List<IIndexUniquenessConvention>();
 
         /// <summary>
+        ///     Conventions to run when an annotation is set or removed on an index.
+        /// </summary>
+        public virtual IList<IIndexAnnotationSetConvention> IndexAnnotationSetConventions { get; } = new List<IIndexAnnotationSetConvention>();
+
+        /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.
         /// </summary>
         public virtual IList<IPrincipalEndConvention> PrincipalEndSetConventions { get; } = new List<IPrincipalEndConvention>();
@@ -122,5 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public virtual IList<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } =
             new List<IPropertyFieldChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is set or removed on a property.
+        /// </summary>
+        public virtual IList<IPropertyAnnotationSetConvention> PropertyAnnotationSetConventions { get; } = new List<IPropertyAnnotationSetConvention>();
     }
 }

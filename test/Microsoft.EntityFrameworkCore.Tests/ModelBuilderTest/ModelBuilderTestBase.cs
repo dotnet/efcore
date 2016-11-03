@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => new TestKeyBuilder(KeyBuilder.HasAnnotation(annotation, value));
         }
 
-        public class TestIndexBuilder
+        public class TestIndexBuilder : IInfrastructure<IndexBuilder>
         {
             public TestIndexBuilder(IndexBuilder indexBuilder)
             {
@@ -212,6 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public virtual TestIndexBuilder IsUnique(bool isUnique = true)
                 => new TestIndexBuilder(IndexBuilder.IsUnique(isUnique));
+
+            IndexBuilder IInfrastructure<IndexBuilder>.Instance => IndexBuilder;
         }
 
         public abstract class TestPropertyBuilder<TProperty>

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         [Fact]
         public virtual void CreateIndexOperation_with_filter_where_clause_and_is_unique()
             => Generate(
-                modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",

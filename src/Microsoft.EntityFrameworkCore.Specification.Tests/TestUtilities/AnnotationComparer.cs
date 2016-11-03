@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
 {
@@ -30,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
             }
 
             return x.Name == y.Name
-                   && x.Value.Equals(y.Value);
+                   && (x.Name == CoreAnnotationNames.ValueGeneratorFactoryAnnotation
+                       || x.Value.Equals(y.Value));
         }
 
         public int GetHashCode(IAnnotation obj) => obj.Name.GetHashCode() ^ obj.Value.GetHashCode();

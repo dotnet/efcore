@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NOT NULL;" + EOL +
-                "ALTER TABLE [Person] ADD INDEX [IX_Person_Name] ([Name]);" + EOL,
+                "ALTER TABLE [Person] ADD INDEX [IX_Person_Name] NONCLUSTERED ([Name]);" + EOL,
                 Sql);
         }
 
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             base.CreateIndexOperation_unique();
 
             Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;" + EOL,
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]);" + EOL,
                 Sql);
         }
 
@@ -744,42 +744,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
-        public virtual void CreateIndexOperation_unique_nonclustered()
-        {
-            Generate(
-                new CreateIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "Name" },
-                    IsUnique = true,
-                    [SqlServerFullAnnotationNames.Instance.Clustered] = false
-                });
-
-            Assert.Equal(
-                "CREATE UNIQUE NONCLUSTERED INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
-                Sql);
-        }
-
-        [Fact]
-        public virtual void CreateIndexOperation_unique_bound_null()
-        {
-            Generate(
-                modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
-                new CreateIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "Name" },
-                    IsUnique = true
-                });
-
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
-                Sql);
-        }
-
-        [Fact]
         public virtual void CreateIndexOperation_unique_bound_not_null()
         {
             Generate(
@@ -798,30 +762,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
-        public virtual void CreateIndexOperation_composite_unique_bound_one_not_null()
-        {
-            Generate(
-                modelBuilder => modelBuilder.Entity(
-                    "People",
-                    x =>
-                        {
-                            x.Property<string>("FirstName");
-                            x.Property<string>("LastName").IsRequired();
-                        }),
-                new CreateIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "FirstName", "LastName" },
-                    IsUnique = true
-                });
-
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL;" + EOL,
-                Sql);
-        }
-
-        [Fact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
             Generate(
@@ -832,6 +772,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
+                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                });
+
+            Assert.Equal(
+                "ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    Filter = "[Name] IS NOT NULL AND <> ''",
                     [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
                 });
 
@@ -1045,5 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "EXEC sp_rename N'dbo.People', N'Person';" + EOL,
                 Sql);
         }
+
+        protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
     }
 }

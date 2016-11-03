@@ -421,25 +421,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             else
             {
                 base.Generate(operation, model, builder, terminate: false);
-
-                var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
-                if (operation.IsUnique
-                    && (clustered != true)
-                    && nullableColumns.Count != 0)
-                {
-                    builder.Append(" WHERE ");
-                    for (var i = 0; i < nullableColumns.Count; i++)
-                    {
-                        if (i != 0)
-                        {
-                            builder.Append(" AND ");
-                        }
-
-                        builder
-                            .Append(SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
-                            .Append(" IS NOT NULL");
-                    }
-                }
             }
 
             if (terminate)

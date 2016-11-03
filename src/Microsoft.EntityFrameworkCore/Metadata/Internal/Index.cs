@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -107,6 +108,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void UpdateIsUniqueConfigurationSource(ConfigurationSource configurationSource)
             => _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
+
+        /// <summary>
+        ///     Runs the conventions when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
+            => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnIndexAnnotationSet(Builder, name, annotation, oldAnnotation);
 
         IReadOnlyList<IProperty> IIndex.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;

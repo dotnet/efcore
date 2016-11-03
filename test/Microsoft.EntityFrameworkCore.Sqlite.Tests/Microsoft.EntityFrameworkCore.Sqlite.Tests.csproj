@@ -62,6 +62,10 @@
       <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj">
+      <Project>{1a73d95e-e8b5-4f96-908c-7b040e4f7afe}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Specification.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite\Microsoft.EntityFrameworkCore.Sqlite.csproj">
       <Project>{a257c01b-bb91-44ba-831c-1e04f7800ac8}</Project>
       <Name>Microsoft.EntityFrameworkCore.Sqlite</Name>
