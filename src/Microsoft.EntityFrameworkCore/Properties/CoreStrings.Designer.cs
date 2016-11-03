@@ -1488,6 +1488,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("FirstWithoutOrderByAndFilter", "queryModel"), queryModel);
         }
 
+        /// <summary>
+        /// The specified poolSize must be greater than 0.
+        /// </summary>
+        public static string InvalidPoolSize
+        {
+            get { return GetString("InvalidPoolSize"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

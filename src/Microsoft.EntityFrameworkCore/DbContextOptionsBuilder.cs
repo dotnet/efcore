@@ -148,6 +148,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder UseQueryTrackingBehavior(QueryTrackingBehavior queryTrackingBehavior)
             => SetOption(e => e.QueryTrackingBehavior = queryTrackingBehavior);
 

@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private WarningsConfiguration _warningsConfiguration;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<Type, Type> _replacedServices;
+        private int? _maxPoolSize;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -48,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
+            _maxPoolSize = copyFrom.MaxPoolSize;
 
             if (copyFrom._replacedServices != null)
             {
@@ -143,6 +145,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyDictionary<Type, Type> ReplacedServices => (IReadOnlyDictionary<Type, Type>)_replacedServices;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual int? MaxPoolSize
+        {
+            get { return _maxPoolSize; }
+            set { _maxPoolSize = value; }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -48,6 +48,7 @@
     <Compile Include="BuiltInDataTypesSqlServerTest.cs" />
     <Compile Include="ChangeTrackingSqlServerTest.cs" />
     <Compile Include="CommandConfigurationTest.cs" />
+    <Compile Include="DbContextPoolingTest.cs" />
     <Compile Include="ExecutionStrategyTest.cs" />
     <Compile Include="CompiledQueryCacheKeyGeneratorTest.cs" />
     <Compile Include="ComplexNavigationsQuerySqlServerFixture.cs" />

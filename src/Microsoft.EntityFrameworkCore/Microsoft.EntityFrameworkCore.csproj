@@ -192,7 +192,7 @@
     <Compile Include="Infrastructure\DbContextFactoryOptions.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServiceCollectionExtensions.cs" />
-    <Compile Include="Infrastructure\IAccessor.cs" />
+    <Compile Include="Infrastructure\IInfrastructure.cs" />
     <Compile Include="Infrastructure\IAnnotatable.cs" />
     <Compile Include="Infrastructure\IAnnotation.cs" />
     <Compile Include="Infrastructure\IDbContextFactory.cs" />
@@ -214,9 +214,13 @@
     <Compile Include="Internal\AsyncLock.cs" />
     <Compile Include="Internal\ConcurrencyDetector.cs" />
     <Compile Include="Internal\CurrentDbContext.cs" />
+    <Compile Include="Internal\DbContextPool.cs" />
+    <Compile Include="Internal\DbContextPoolConfigurationSnapshot.cs" />
     <Compile Include="Internal\EntityFinder.cs" />
     <Compile Include="Internal\EntityFinderSource.cs" />
     <Compile Include="Internal\ICurrentDbContext.cs" />
+    <Compile Include="Internal\IDbContextPool.cs" />
+    <Compile Include="Internal\IDbContextPoolable.cs" />
     <Compile Include="Internal\IEntityFinder.cs" />
     <Compile Include="Internal\IEntityFinderSource.cs" />
     <Compile Include="Internal\IEntityFinder`.cs" />

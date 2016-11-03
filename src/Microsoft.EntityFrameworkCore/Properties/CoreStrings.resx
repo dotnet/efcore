@@ -669,4 +669,7 @@
   <data name="FirstWithoutOrderByAndFilter" xml:space="preserve">
     <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
   </data>
+  <data name="InvalidPoolSize" xml:space="preserve">
+    <value>The specified poolSize must be greater than 0.</value>
+  </data>
 </root>

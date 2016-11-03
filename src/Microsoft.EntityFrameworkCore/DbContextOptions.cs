@@ -80,5 +80,16 @@ namespace Microsoft.EntityFrameworkCore
         ///     options are not built for a specific derived context.
         /// </summary>
         public abstract Type ContextType { get; }
+
+        /// <summary>
+        ///     Specifies that no further configuration of this options object should occur.
+        /// </summary>
+        public virtual void Freeze() => IsFrozen = true;
+
+        /// <summary>
+        ///     Returns true if <see cref="Freeze" />. has been called. A frozen options object cannot be further
+        ///     configured with <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
+        /// </summary>
+        public virtual bool IsFrozen { get; private set; }
     }
 }

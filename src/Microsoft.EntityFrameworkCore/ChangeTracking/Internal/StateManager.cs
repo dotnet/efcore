@@ -387,6 +387,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void Reset()
+        {
+            Unsubscribe();
+            _entityReferenceMap.Clear();
+
+            if (_referencedUntrackedEntities.HasValue)
+            {
+                _referencedUntrackedEntities.Value.Clear();
+            }
+
+            _identityMaps?.Clear();
+            _identityMap0?.Clear();
+            _identityMap1?.Clear();
+
+            _needsUnsubscribe = false;
+            _queryIsTracked = false;
+            _trackingQueryMode = TrackingQueryMode.Simple;
+            _singleQueryModeEntityType = null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void RecordReferencedUntrackedEntity(
             object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry)
         {

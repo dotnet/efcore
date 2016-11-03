@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -61,6 +63,128 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
             => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
+
+        /// <summary>
+        ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
+        ///     You use this method when using dependency injection in your application, such as with ASP.NET.
+        ///     For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        /// </summary>
+        /// <example>
+        ///     <code>
+        ///         public void ConfigureServices(IServiceCollection services)
+        ///         {
+        ///             var connectionString = "connection string to database";
+        ///
+        ///             services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
+        ///         }
+        ///     </code>
+        /// </example>
+        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="optionsAction">
+        ///     <para>
+        ///         An required action to configure the <see cref="DbContextOptions" /> for the context. When using
+        ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
+        ///         will not be called.
+        ///     </para>
+        /// </param>
+        /// <param name="poolSize">
+        ///     Enables DbContext instance pooling and sets the maximum number of instances retained by the pool.
+        ///     Instance pooling can increase throughput in high-scale scenarios such as web servers by re-using
+        ///     DbContext instances, rather than creating new instances for each request.
+        /// </param>
+        /// <returns>
+        ///     The same service collection so that multiple calls can be chained.
+        /// </returns>
+         public static IServiceCollection AddDbContext<TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [NotNull] Action<DbContextOptionsBuilder> optionsAction,
+            int poolSize)
+            where TContext : DbContext
+            => AddDbContext<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
+
+        /// <summary>
+        ///     <para>
+        ///         Registers the given context as a service in the <see cref="IServiceCollection" />.
+        ///         You use this method when using dependency injection in your application, such as with ASP.NET.
+        ///         For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        ///     </para>
+        ///     <para>
+        ///         This overload has an <paramref name="optionsAction" /> that provides the applications <see cref="IServiceProvider" />.
+        ///         This is useful if you want to setup Entity Framework to resolve its internal services from the primary application service
+        ///         provider.
+        ///         By default, we recommend using the other overload, which allows Entity Framework to create and maintain its own
+        ///         <see cref="IServiceProvider" />
+        ///         for internal Entity Framework services.
+        ///     </para>
+        /// </summary>
+        /// <example>
+        ///     <code>
+        ///         public void ConfigureServices(IServiceCollection services)
+        ///         {
+        ///             var connectionString = "connection string to database";
+        ///
+        ///             services
+        ///                 .AddEntityFrameworkSqlServer()
+        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                     options.UseSqlServer(connectionString)
+        ///                            .UseInternalServiceProvider(serviceProvider));
+        ///         }
+        ///     </code>
+        /// </example>
+        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="optionsAction">
+        ///     <para>
+        ///         An required action to configure the <see cref="DbContextOptions" /> for the context. When using
+        ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
+        ///         will not be called.
+        ///     </para>
+        /// </param>
+        /// <param name="poolSize">
+        ///     Enables DbContext instance pooling and sets the maximum number of instances retained by the pool.
+        ///     Instance pooling can increase throughput in high-scale scenarios such as web servers by re-using
+        ///     DbContext instances, rather than creating new instances for each request.
+        /// </param>
+        /// <returns>
+        ///     The same service collection so that multiple calls can be chained.
+        /// </returns>
+        public static IServiceCollection AddDbContext<TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [NotNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            int poolSize)
+            where TContext : DbContext
+        {
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
+            Check.NotNull(optionsAction, nameof(optionsAction));
+
+            if (poolSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(poolSize), CoreStrings.InvalidPoolSize);
+            }
+
+            AddCoreServices<TContext>(serviceCollection,
+                (sp, ob) =>
+                    {
+                        optionsAction(sp, ob);
+
+                        ob.Options.GetExtension<CoreOptionsExtension>().MaxPoolSize = poolSize;
+                    });
+
+            serviceCollection.TryAdd(
+                new ServiceDescriptor(
+                    typeof(DbContextPool<TContext>),
+                    typeof(DbContextPool<TContext>),
+                    ServiceLifetime.Singleton));
+
+            serviceCollection.Add(
+                new ServiceDescriptor(
+                    typeof(TContext),
+                    sp => sp.GetService<DbContextPool<TContext>>().Rent(sp),
+                    ServiceLifetime.Scoped));
+
+            return serviceCollection;
+        }
 
         /// <summary>
         ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
@@ -146,16 +270,26 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
         {
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
+
+            AddCoreServices<TContext>(serviceCollection, optionsAction);
+
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContext), typeof(TContext), contextLifetime));
+
+            return serviceCollection;
+        }
+
+        private static void AddCoreServices<TContext>(
+            IServiceCollection serviceCollection, 
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction) 
+            where TContext : DbContext
+        {
             serviceCollection
                 .AddMemoryCache()
                 .AddLogging();
 
             serviceCollection.TryAddSingleton(p => DbContextOptionsFactory<TContext>(p, optionsAction));
             serviceCollection.AddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
-
-            serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContext), typeof(TContext), contextLifetime));
-
-            return serviceCollection;
         }
 
         private static DbContextOptions<TContext> DbContextOptionsFactory<TContext>(

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         is discovered by convention, you can override the <see cref="OnModelCreating(ModelBuilder)" /> method.
     ///     </para>
     /// </remarks>
-    public class DbContext : IDisposable, IInfrastructure<IServiceProvider>
+    public class DbContext : IDisposable, IInfrastructure<IServiceProvider>, IDbContextPoolable
     {
         private readonly DbContextOptions _options;
 
@@ -54,11 +54,11 @@ namespace Microsoft.EntityFrameworkCore
         private ChangeTracker _changeTracker;
         private DatabaseFacade _database;
         private IStateManager _stateManager;
-        private IChangeDetector _changeDetector;
         private IEntityGraphAttacher _graphAttacher;
         private IModel _model;
         private ILogger _logger;
         private IAsyncQueryProvider _queryProvider;
+        private IDbContextPool _dbContextPool;
 
         private bool _initializing;
         private IServiceScope _serviceScope;
@@ -104,10 +104,6 @@ namespace Microsoft.EntityFrameworkCore
             initializer.InitializeSets(this);
         }
 
-        private IChangeDetector ChangeDetector
-            => _changeDetector
-               ?? (_changeDetector = InternalServiceProvider.GetRequiredService<IChangeDetector>());
-
         private IStateManager StateManager
             => _stateManager
                ?? (_stateManager = InternalServiceProvider.GetRequiredService<IStateManager>());
@@ -119,11 +115,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             get
             {
-                if (_disposed)
-                {
-                    throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
-                }
+                CheckDisposed();
+
                 return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
+            }
+        }
+
+        private void CheckDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
             }
         }
 
@@ -138,11 +140,16 @@ namespace Microsoft.EntityFrameworkCore
             {
                 _initializing = true;
 
-                var optionsBuilder = new DbContextOptionsBuilder(_options);
+                var options = _options;
 
-                OnConfiguring(optionsBuilder);
+                if (!options.IsFrozen)
+                {
+                    var optionsBuilder = new DbContextOptionsBuilder(options);
 
-                var options = optionsBuilder.Options;
+                    OnConfiguring(optionsBuilder);
+
+                    options = optionsBuilder.Options;
+                }
 
                 _serviceScope = GetServiceProvider(options)
                     .GetRequiredService<IServiceScopeFactory>()
@@ -169,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static IServiceProvider GetServiceProvider(DbContextOptions options)
+        private static IServiceProvider GetServiceProvider(IDbContextOptions options)
         {
             var coreExtension = options.FindExtension<CoreOptionsExtension>();
             if (coreExtension?.InternalServiceProvider != null
@@ -177,7 +184,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidReplaceService(
-                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+                        nameof(DbContextOptionsBuilder.ReplaceService), 
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
 
             return coreExtension?.InternalServiceProvider
@@ -204,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         In situations where an instance of <see cref="DbContextOptions" /> may or may not have been passed
         ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured" /> to determine if
         ///         the options have already been set, and skip some or all of the logic in
-        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
+        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
         /// <param name="optionsBuilder">
@@ -265,6 +273,8 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
+            CheckDisposed();
+
             TryDetectChanges();
 
             try
@@ -339,6 +349,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            CheckDisposed();
+
             TryDetectChanges();
 
             try
@@ -357,24 +369,66 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        void IDbContextPoolable.SetPool(IDbContextPool dbContextPool)
+        {
+            Check.NotNull(dbContextPool, nameof(dbContextPool));
+
+            _dbContextPool = dbContextPool;
+        }
+
+        DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()
+            => new DbContextPoolConfigurationSnapshot(
+                _changeTracker?.AutoDetectChangesEnabled,
+                _changeTracker?.QueryTrackingBehavior,
+                _database?.AutoTransactionsEnabled);
+
+        void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
+        {
+            if (configurationSnapshot.AutoDetectChangesEnabled != null)
+            {
+                ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
+            }
+
+            if (configurationSnapshot.QueryTrackingBehavior != null)
+            {
+                ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
+            }
+
+            if (configurationSnapshot.AutoTransactionsEnabled != null)
+            {
+                Database.AutoTransactionsEnabled = configurationSnapshot.AutoTransactionsEnabled.Value;
+            }
+
+            _disposed = false;
+        }
+
         /// <summary>
         ///     Releases the allocated resources for this context.
         /// </summary>
         public virtual void Dispose()
         {
-            if (!_disposed)
+            if (_dbContextPool == null
+                || !_dbContextPool.Return(this))
             {
+                if (!_disposed)
+                {
+                    _disposed = true;
+
+                    _stateManager?.Unsubscribe();
+
+                    _serviceScope?.Dispose();
+                    _setInitializer = null;
+                    _changeTracker = null;
+                    _stateManager = null;
+                    _graphAttacher = null;
+                    _model = null;
+                    _dbContextPool = null;
+                }
+            }
+            else
+            {
+                _changeTracker?.Reset();
                 _disposed = true;
-
-                _stateManager?.Unsubscribe();
-
-                _serviceScope?.Dispose();
-                _setInitializer = null;
-                _changeTracker = null;
-                _stateManager = null;
-                _changeDetector = null;
-                _graphAttacher = null;
-                _model = null;
             }
         }
 
