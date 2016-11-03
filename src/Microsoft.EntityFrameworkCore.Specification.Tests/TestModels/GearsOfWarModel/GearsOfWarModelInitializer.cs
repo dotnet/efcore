@@ -28,6 +28,46 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             context.Squads.Add(kiloSquad);
             context.SaveChanges();
 
+            var lightmassOffensive = new Mission
+            {
+                CodeName = "Lightmass Offensive",
+                Timeline = new DateTimeOffset(2, 1, 2, 10, 0, 0, new TimeSpan())
+            };
+
+            var hollowStorm = new Mission
+            {
+                CodeName = "Lightmass Offensive",
+                Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan())
+            };
+
+            var halvoBay = new Mission
+            {
+                CodeName = "Halvo Bay defense",
+                Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan())
+            };
+
+            var lightMassDelta = new SquadMission
+            {
+                Mission = lightmassOffensive,
+                Squad = deltaSquad,
+            };
+
+            var hollowStormDelta = new SquadMission
+            {
+                Mission = hollowStorm,
+                Squad = deltaSquad,
+            };
+
+            var halvoBayKilo = new SquadMission
+            {
+                Mission = halvoBay,
+                Squad = kiloSquad,
+            };
+
+            context.Missions.AddRange(lightmassOffensive, hollowStorm, halvoBay);
+            context.SquadMissions.AddRange(lightMassDelta, hollowStormDelta, halvoBayKilo);
+            context.SaveChanges();
+
             var jacinto = new City
             {
                 Location = "Jacinto's location",
