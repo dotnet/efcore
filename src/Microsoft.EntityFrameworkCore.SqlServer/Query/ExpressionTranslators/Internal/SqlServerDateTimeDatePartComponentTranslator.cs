@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             string datePart;
             if (memberExpression.Expression != null
-                && memberExpression.Expression.Type == typeof(DateTime)
+                && (memberExpression.Expression.Type == typeof(DateTime) || memberExpression.Expression.Type == typeof(DateTimeOffset))
                 && (datePart = GetDatePart(memberExpression.Member.Name)) != null)
             {
                 return new SqlFunctionExpression(

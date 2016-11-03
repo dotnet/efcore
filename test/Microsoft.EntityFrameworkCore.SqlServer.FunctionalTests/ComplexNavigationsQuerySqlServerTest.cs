@@ -1816,30 +1816,6 @@ WHERE EXISTS (
                 Sql);
         }
 
-        public override void Required_navigation_take_required_navigation()
-        {
-            base.Required_navigation_take_required_navigation();
-
-            // Separate asserts to account for ordering differences on .NETCore
-
-            Assert.Contains(
-                @"SELECT [l2.OneToOne_Required_FK_Inverse].[Id], [l2.OneToOne_Required_FK_Inverse].[Name]
-FROM [Level1] AS [l2.OneToOne_Required_FK_Inverse]",
-                Sql);
-
-            Assert.Contains(
-                @"@__p_0: 10
-
-SELECT [t].[Level1_Required_Id]
-FROM (
-    SELECT TOP(@__p_0) [l3.OneToOne_Required_FK_Inverse0].*
-    FROM [Level3] AS [l30]
-    INNER JOIN [Level2] AS [l3.OneToOne_Required_FK_Inverse0] ON [l30].[Level2_Required_Id] = [l3.OneToOne_Required_FK_Inverse0].[Id]
-    ORDER BY [l30].[Level2_Required_Id]
-) AS [t]",
-                Sql);
-        }
-
         public override void Optional_navigation_take_optional_navigation()
         {
             base.Optional_navigation_take_optional_navigation();
@@ -1865,7 +1841,7 @@ FROM (
 ) AS [t]",
                 Sql);
         }
-
+        
         public override void Projection_select_correct_table_with_anonymous_projection_in_subquery()
         {
             base.Projection_select_correct_table_with_anonymous_projection_in_subquery();

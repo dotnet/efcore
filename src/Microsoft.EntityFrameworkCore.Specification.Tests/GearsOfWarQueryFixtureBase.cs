@@ -41,6 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);
                     b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
                 });
+
+            modelBuilder.Entity<SquadMission>(b =>
+                {
+                    b.HasKey(sm => new { sm.SquadId, sm.MissionId });
+                    b.HasOne(sm => sm.Mission).WithMany(m => m.ParticipatingSquads).HasForeignKey(sm => sm.MissionId);
+                    b.HasOne(sm => sm.Squad).WithMany(s => s.Missions).HasForeignKey(sm => sm.SquadId);
+                });
         }
     }
 }

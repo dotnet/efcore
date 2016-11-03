@@ -20,5 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
         public int InternalNumber { get; set; }
 
         public virtual ICollection<Gear> Members { get; set; }
+        public virtual ICollection<SquadMission> Missions { get; set; }
     }
 }
