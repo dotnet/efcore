@@ -863,12 +863,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
             var idProperty = dependentEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationship = derivedDependentEntityBuilder.Relationship(
+            derivedDependentEntityBuilder.Relationship(
                     principalEntityBuilder,
                     Order.CustomerProperty.Name,
                     nameof(Customer.SpecialOrders),
                     ConfigurationSource.Explicit)
-                .HasForeignKey(new[] { idProperty }, ConfigurationSource.Convention);
+                .HasForeignKey(new[] { idProperty }, ConfigurationSource.Explicit);
 
             Assert.Null(dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation));
 

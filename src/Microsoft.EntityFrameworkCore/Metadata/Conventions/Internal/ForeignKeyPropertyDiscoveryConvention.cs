@@ -353,10 +353,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
         {
-            foreach (var foreignKey in key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList())
+            var fks = key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList();
+            foreach (var foreignKey in fks)
             {
-                if (!foreignKey.IsUnique
-                    || foreignKey.DeclaringEntityType.BaseType != null)
+                if (foreignKey.Builder != null
+                    && (!foreignKey.IsUnique
+                        || foreignKey.DeclaringEntityType.BaseType != null))
                 {
                     Apply(foreignKey.Builder);
                 }

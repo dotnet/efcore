@@ -132,13 +132,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
+            if (Metadata.FieldInfo?.Name == fieldName)
             {
                 Metadata.SetField(fieldName, configurationSource);
                 return true;
             }
 
-            return false;
+            if (!configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
+            {
+                return false;
+            }
+
+            if (fieldName != null)
+            {
+                var fieldInfo = PropertyBase.GetFieldInfo(fieldName, Metadata.DeclaringType.ClrType, Metadata.Name,
+                    shouldThrow: configurationSource == ConfigurationSource.Explicit);
+                Metadata.SetFieldInfo(fieldInfo, configurationSource);
+                return true;
+            }
+
+            Metadata.SetField(fieldName, configurationSource);
+            return true;
         }
 
         /// <summary>
@@ -147,7 +161,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool HasFieldInfo([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
+            if ((configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
+                 && (fieldInfo == null
+                     || PropertyBase.IsCompatible(
+                         fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
+                         shouldThrow: configurationSource == ConfigurationSource.Explicit)))
+                || Metadata.FieldInfo == fieldInfo)
             {
                 Metadata.SetFieldInfo(fieldInfo, configurationSource);
                 return true;

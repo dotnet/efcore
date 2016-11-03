@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -78,29 +79,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource, bool runConventions = true)
         {
             if (fieldName == null)
             {
-                SetFieldInfo(null, configurationSource);
+                SetFieldInfo(null, configurationSource, runConventions);
                 return;
             }
 
-            var typesInHierarchy = DeclaringType.ClrType.GetTypesInHierarchy().ToList();
-
-            foreach (var type in typesInHierarchy)
+            if (FieldInfo?.Name == fieldName)
             {
-                var fields = type.GetRuntimeFields().ToDictionary(f => f.Name);
-                FieldInfo fieldInfo;
-                if (fields.TryGetValue(fieldName, out fieldInfo))
-                {
-                    SetFieldInfo(fieldInfo, configurationSource);
-                    return;
-                }
+                SetFieldInfo(FieldInfo, configurationSource, runConventions);
+                return;
             }
 
-            throw new InvalidOperationException(
-                CoreStrings.MissingBackingField(fieldName, Name, DeclaringType.DisplayName()));
+            var fieldInfo = GetFieldInfo(fieldName, DeclaringType.ClrType, Name, shouldThrow: true);
+            if (fieldInfo != null)
+            {
+                SetFieldInfo(fieldInfo, configurationSource, runConventions);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static FieldInfo GetFieldInfo([NotNull] string fieldName, [NotNull] Type type, [CanBeNull] string propertyName, bool shouldThrow)
+        {
+            Debug.Assert(propertyName != null || !shouldThrow);
+
+            var fieldInfo = type.GetFieldInfo(fieldName);
+            if (fieldInfo == null
+                && shouldThrow)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.MissingBackingField(fieldName, propertyName, type.ShortDisplayName()));
+            }
+
+            return fieldInfo;
         }
 
         /// <summary>
@@ -110,38 +126,71 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void SetFieldInfo(
             [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
         {
+            if (ReferenceEquals(FieldInfo, fieldInfo))
+            {
+                UpdateFieldInfoConfigurationSource(configurationSource);
+                return;
+            }
+
             if (fieldInfo != null)
             {
-                var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
-                var typeInfo = ClrType.GetTypeInfo();
+                IsCompatible(fieldInfo, ClrType, DeclaringType.ClrType, Name, shouldThrow: true);
+            }
 
-                if (!typeInfo.IsAssignableFrom(fieldTypeInfo)
-                    && !fieldTypeInfo.IsAssignableFrom(typeInfo))
+            UpdateFieldInfoConfigurationSource(configurationSource);
+
+            var oldFieldInfo = FieldInfo;
+            _fieldInfo = fieldInfo;
+
+            PropertyMetadataChanged();
+
+            if (runConventions)
+            {
+                OnFieldInfoSet(oldFieldInfo);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsCompatible(
+            [NotNull] FieldInfo fieldInfo,
+            [NotNull] Type propertyType,
+            [NotNull] Type entityClrType,
+            [CanBeNull] string propertyName,
+            bool shouldThrow)
+        {
+            Debug.Assert(propertyName != null || !shouldThrow);
+
+            var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
+            if (!fieldTypeInfo.IsAssignableFrom(propertyType.GetTypeInfo())
+                && !propertyType.GetTypeInfo().IsAssignableFrom(fieldTypeInfo))
+            {
+                if (shouldThrow)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.BadBackingFieldType(
                             fieldInfo.Name,
                             fieldInfo.FieldType.ShortDisplayName(),
-                            DeclaringType.DisplayName(),
-                            Name,
-                            ClrType.ShortDisplayName()));
+                            entityClrType.ShortDisplayName(),
+                            propertyName,
+                            propertyType.ShortDisplayName()));
                 }
+                return false;
             }
 
-            UpdateFieldInfoConfigurationSource(configurationSource);
-
-            if (!ReferenceEquals(FieldInfo, fieldInfo))
+            if (!fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityClrType.GetTypeInfo()))
             {
-                var oldFieldInfo = FieldInfo;
-                _fieldInfo = fieldInfo;
-
-                PropertyMetadataChanged();
-
-                if (runConventions)
+                if (shouldThrow)
                 {
-                    OnFieldInfoSet(oldFieldInfo);
+                    throw new InvalidOperationException(
+                        CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityClrType.ShortDisplayName()));
                 }
+                return false;
             }
+
+            return true;
         }
 
         /// <summary>

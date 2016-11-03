@@ -354,6 +354,40 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Removing_a_key_triggers_fk_discovery_on_derived_types()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<BackOrder>();
+                modelBuilder.Ignore<OtherCustomer>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                var derivedPrincipalEntityBuilder = modelBuilder.Entity<SpecialCustomer>();
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                dependentEntityBuilder.Ignore(nameof(Order.Customer));
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                dependentEntityBuilder.Property<int?>("SpecialCustomerId");
+
+                derivedPrincipalEntityBuilder
+                    .HasMany(e => (IEnumerable<SpecialOrder>)e.Orders)
+                    .WithOne(e => e.SpecialCustomer);
+
+                dependentEntityBuilder.HasKey("SpecialCustomerId");
+                dependentEntityBuilder.HasKey(o => o.OrderId);
+                dependentEntityBuilder.Ignore("SpecialCustomerId");
+                derivedDependentEntityBuilder.Property(e => e.SpecialCustomerId);
+
+                Assert.Null(dependentEntityBuilder.Metadata.FindProperty("SpecialCustomerId"));
+                Assert.NotNull(derivedDependentEntityBuilder.Metadata.FindProperty("SpecialCustomerId"));
+                Assert.Empty(principalEntityBuilder.Metadata.GetNavigations());
+                var newFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.Equal(nameof(SpecialOrder.SpecialCustomer), newFk.DependentToPrincipal.Name);
+                Assert.Equal(nameof(SpecialCustomer.Orders), newFk.PrincipalToDependent.Name);
+                Assert.Same(derivedPrincipalEntityBuilder.Metadata, newFk.PrincipalEntityType);
+            }
+
+            [Fact]
             public virtual void Index_removed_when_covered_by_an_inherited_foreign_key()
             {
                 var modelBuilder = CreateModelBuilder();
