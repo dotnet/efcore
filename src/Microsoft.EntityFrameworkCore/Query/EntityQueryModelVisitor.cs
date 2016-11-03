@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Executes the query and logs any exceptions that occur.
         /// </summary>
-        protected virtual void InterceptExceptions() 
+        protected virtual void InterceptExceptions()
             => _expression
                 = Expression.Call(
                     LinqOperatorProvider.InterceptExceptions
@@ -1231,12 +1231,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (elementType != null)
                 {
-                    return
-                        Expression.Call(
-                            AsyncLinqOperatorProvider
-                                .ToAsyncEnumerableMethod
-                                .MakeGenericMethod(elementType),
-                            expression);
+                    var asyncLinqOperatorProvider = LinqOperatorProvider as AsyncLinqOperatorProvider;
+                    if (asyncLinqOperatorProvider != null)
+                    {
+                        return
+                            Expression.Call(
+                                asyncLinqOperatorProvider
+                                    .ToAsyncEnumerable
+                                    .MakeGenericMethod(elementType),
+                                expression);
+                    }
                 }
             }
 

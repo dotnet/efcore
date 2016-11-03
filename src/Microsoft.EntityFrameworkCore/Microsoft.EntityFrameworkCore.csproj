@@ -516,7 +516,6 @@
     <Compile Include="Query\Internal\QueryCompiler.cs" />
     <Compile Include="Query\Internal\QueryModelPrinter.cs" />
     <Compile Include="Query\Internal\QueryOptimizer.cs" />
-    <Compile Include="Query\Internal\TaskResultAsyncEnumerable.cs" />
     <Compile Include="Query\Internal\WeakReferenceIdentityMap.cs" />
     <Compile Include="Query\Internal\WeakReferenceIdentityMapFactoryFactory.cs" />
     <Compile Include="Query\IQueryCompilationContextFactory.cs" />

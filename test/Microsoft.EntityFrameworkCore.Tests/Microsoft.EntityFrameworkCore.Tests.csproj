@@ -161,7 +161,6 @@
     <Compile Include="ModelBuilderTest\OneToOneTestBase.cs" />
     <Compile Include="ModelBuilderTest\TestModel.cs" />
     <Compile Include="ModelSourceTest.cs" />
-    <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="Storage\DatabaseProviderSelectorTest.cs" />
     <Compile Include="Storage\ExecutionStrategyTests.cs" />

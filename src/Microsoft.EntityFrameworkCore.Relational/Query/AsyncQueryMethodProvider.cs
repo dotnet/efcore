@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Current
                                 = _groupJoinAsyncEnumerable._resultSelector(
-                                    outer, AsyncLinqOperatorProvider.ToAsyncEnumerable(inners));
+                                    outer, inners.ToAsyncEnumerable());
 
                             _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
 
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         Current
                             = _groupJoinAsyncEnumerable._resultSelector(
-                                outer, AsyncLinqOperatorProvider.ToAsyncEnumerable(inners));
+                                outer, inners.ToAsyncEnumerable());
 
                         return true;
                     }
