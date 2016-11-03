@@ -129,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var createTableOperations = new List<CreateTableOperation>();
             var alterDatabaseOperations = new List<MigrationOperation>();
             var alterTableOperations = new List<MigrationOperation>();
-            var columnOperations = new List<ColumnOperation>();
+            var columnOperations = new List<MigrationOperation>();
+            var computedColumnOperations = new List<MigrationOperation>();
             var alterOperations = new List<MigrationOperation>();
             var restartSequenceOperations = new List<MigrationOperation>();
             var constraintOperations = new List<MigrationOperation>();
@@ -178,7 +179,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
                 else if (_columnOperationTypes.Contains(type))
                 {
-                    columnOperations.Add(operation as ColumnOperation);
+                    if (string.IsNullOrWhiteSpace(((ColumnOperation)operation).ComputedColumnSql))
+                    {
+                        columnOperations.Add(operation);
+                    }
+                    else
+                    {
+                        computedColumnOperations.Add(operation);
+                    }
                 }
                 else if (_alterOperationTypes.Contains(type))
                 {
@@ -279,8 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(alterDatabaseOperations)
                 .Concat(createSequenceOperations)
                 .Concat(alterTableOperations)
-                .Concat(columnOperations.Where(t => string.IsNullOrWhiteSpace(t.ComputedColumnSql)))
-                .Concat(columnOperations.Where(t => !string.IsNullOrWhiteSpace(t.ComputedColumnSql)))
+                .Concat(columnOperations)
+                .Concat(computedColumnOperations)
                 .Concat(alterOperations)
                 .Concat(restartSequenceOperations)
                 .Concat(createTableOperations)
