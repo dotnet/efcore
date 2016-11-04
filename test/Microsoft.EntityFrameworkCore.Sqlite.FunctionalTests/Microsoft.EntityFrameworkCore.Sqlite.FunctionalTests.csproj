@@ -101,6 +101,7 @@
     <Compile Include="UpdatesSqliteTest.cs" />
     <Compile Include="Utilities\SqliteVersionConditionAttribute.cs" />
     <Compile Include="WarningsSqliteFixture.cs" />
+    <Compile Include="BadDataSqliteTest.cs" />
     <Compile Include="WarningsSqliteTest.cs" />
   </ItemGroup>
   <ItemGroup>

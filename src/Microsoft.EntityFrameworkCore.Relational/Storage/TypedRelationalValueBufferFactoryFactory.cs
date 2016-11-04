@@ -8,6 +8,8 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -165,6 +167,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 expression = Expression.Convert(expression, type);
             }
 
+            var exceptionParameter
+                = Expression.Parameter(typeof(Exception), "e");
+
+            var catchBlock
+                = Expression
+                    .Catch(exceptionParameter,
+                        Expression.Call(
+                            EntityMaterializerSource
+                                .ThrowReadValueExceptionMethod
+                                .MakeGenericMethod(expression.Type),
+                            exceptionParameter,
+                            Expression.Call(
+                                dataReaderExpression,
+                                _getFieldValueMethod.MakeGenericMethod(typeof(object)),
+                                indexExpression),
+                            Expression.Constant(null, typeof(IPropertyBase))));
+
+            expression = Expression.TryCatch(expression, catchBlock);
+
             if (expression.Type.GetTypeInfo().IsValueType)
             {
                 expression = Expression.Convert(expression, typeof(object));
@@ -178,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         Expression.Default(expression.Type),
                         expression);
             }
-
+            
             return expression;
         }
     }
