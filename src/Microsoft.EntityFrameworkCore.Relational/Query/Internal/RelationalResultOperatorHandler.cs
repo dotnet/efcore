@@ -338,9 +338,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             handlerContext.SelectExpression
                 .SetProjectionExpression(
                     new SqlFunctionExpression(
-                        "COUNT", 
-                        typeof(int), 
-                        new [] { new SqlFragmentExpression("*") }));
+                        "COUNT",
+                        typeof(int),
+                        new[] { new SqlFragmentExpression("*") }));
 
             handlerContext.SelectExpression.ClearOrderBy();
 
@@ -510,6 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleLast(HandlerContext handlerContext)
         {
+            var requiresClientResultOperator = true;
             if (handlerContext.SelectExpression.OrderBy.Any())
             {
                 foreach (var ordering in handlerContext.SelectExpression.OrderBy)
@@ -521,9 +522,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 handlerContext.SelectExpression.Limit = Expression.Constant(1);
+                requiresClientResultOperator = false;
             }
 
-            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+            requiresClientResultOperator
+                = requiresClientResultOperator
+                || (!((LastResultOperator)handlerContext.ResultOperator).ReturnDefaultWhenEmpty
+                    && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null);
+
+            return handlerContext.EvalOnClient(requiresClientResultOperator: requiresClientResultOperator);
         }
 
         private static Expression HandleLongCount(HandlerContext handlerContext)
@@ -531,9 +538,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             handlerContext.SelectExpression
                 .SetProjectionExpression(
                     new SqlFunctionExpression(
-                        "COUNT", 
-                        typeof(long), 
-                        new [] { new SqlFragmentExpression("*") }));
+                        "COUNT",
+                        typeof(long),
+                        new[] { new SqlFragmentExpression("*") }));
 
             handlerContext.SelectExpression.ClearOrderBy();
 
@@ -546,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 var expression = handlerContext.SelectExpression.Projection.First();
-                var minExpression = new SqlFunctionExpression("MIN", expression.Type, new [] { expression });
+                var minExpression = new SqlFunctionExpression("MIN", expression.Type, new[] { expression });
 
                 handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
@@ -564,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 var expression = handlerContext.SelectExpression.Projection.First();
-                var maxExpression = new SqlFunctionExpression("MAX", expression.Type, new [] { expression });
+                var maxExpression = new SqlFunctionExpression("MAX", expression.Type, new[] { expression });
 
                 handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
@@ -721,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 var expression = handlerContext.SelectExpression.Projection.First();
-                var sumExpression = new SqlFunctionExpression("SUM", expression.Type, new [] { expression });
+                var sumExpression = new SqlFunctionExpression("SUM", expression.Type, new[] { expression });
 
                 handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
 
