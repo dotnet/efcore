@@ -643,12 +643,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
-
-                if (actualProperty.GetContainingKeys().Any(k => k.DeclaringEntityType != this))
-                {
-                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertyInKey(actualProperty.Name, this.DisplayName()));
-                }
             }
+
+            ForeignKey.AreCompatible(
+                principalEntityType,
+                dependentEntityType: this,
+                navigationToPrincipal: null,
+                navigationToDependent: null,
+                dependentProperties: properties,
+                principalProperties: principalKey.Properties,
+                unique: null,
+                required: null,
+                shouldThrow: true);
 
             var duplicateForeignKey = FindForeignKeysInHierarchy(properties, principalKey, principalEntityType).FirstOrDefault();
             if (duplicateForeignKey != null)

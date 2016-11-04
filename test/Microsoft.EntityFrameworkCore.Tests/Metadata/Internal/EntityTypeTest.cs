@@ -1707,7 +1707,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var fkProperty = entityType.AddProperty("fk", typeof(int));
 
             Assert.Equal(
-                CoreStrings.ForeignKeyPropertyInKey(Customer.IdProperty.Name, typeof(Customer).Name),
+                CoreStrings.ForeignKeyPropertyInKey(
+                    Customer.IdProperty.Name,
+                    typeof(Customer).Name,
+                    "{'" + Customer.IdProperty.Name + "'" + ", 'id2'}",
+                    typeof(BaseType).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType)).Message);
         }
 

@@ -1347,14 +1347,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            // FKs are not allowed to use properties from inherited keys since this could result in an ambiguous value space
-            if (dependentEntityType.BaseType != null
-                && configurationSource != ConfigurationSource.Explicit // let it throw for explicit
-                && properties.Any(p => p.GetContainingKeys().Any(k => k.DeclaringEntityType != dependentEntityType)))
-            {
-                return null;
-            }
-
             if (resetIsRequired)
             {
                 Metadata.SetIsRequiredConfigurationSource(null);
@@ -1414,6 +1406,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (dependentEntityType == null)
             {
                 dependentEntityType = Metadata.DeclaringEntityType;
+            }
+
+            // FKs are not allowed to use properties from inherited keys since this could result in an ambiguous value space
+            if (dependentEntityType.BaseType != null
+                && configurationSource != ConfigurationSource.Explicit // let it throw for explicit
+                && properties.Any(p => p.GetContainingKeys().Any(k => k.DeclaringEntityType != dependentEntityType)))
+            {
+                return false;
             }
 
             if (!CanSetRequiredOnProperties(
@@ -2755,6 +2755,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else if (Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) == true)
             {
                 principalProperties = principalKey.Properties;
+            }
+
+            if (dependentProperties != null
+                && dependentProperties.Count != 0)
+            {
+                bool _;
+                bool resetPrincipalKey;
+                if (!CanSetForeignKey(dependentProperties, Metadata.DeclaringEntityType, configurationSource, out _, out resetPrincipalKey))
+                {
+                    dependentProperties = new List<Property>();
+                }
+                else if (resetPrincipalKey)
+                {
+                    principalProperties = new List<Property>();
+                }
             }
 
             Metadata.DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRemoved(Metadata.DeclaringEntityType.Builder, Metadata);

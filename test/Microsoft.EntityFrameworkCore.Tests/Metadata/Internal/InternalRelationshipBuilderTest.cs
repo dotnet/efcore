@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Null(relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(
-                CoreStrings.ForeignKeyPropertyInKey(Order.IdProperty.Name, typeof(SpecialOrder).Name),
+                CoreStrings.ForeignKeyPropertyInKey(Order.IdProperty.Name, typeof(SpecialOrder).Name, "{'" + Order.IdProperty.Name + "'}", typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.Explicit)).Message);
         }
 
