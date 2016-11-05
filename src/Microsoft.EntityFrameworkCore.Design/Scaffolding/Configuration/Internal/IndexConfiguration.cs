@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 
                 if (Index.Relational().Filter != null)
                 {
-                    lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}(\"{Index.Relational().Filter}\")");
+                    lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}(@\"{Index.Relational().Filter.Replace("\"", "\"\"")}\")");
                 }
 
                 return lines;
