@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "SQLite database provider for Entity Framework Core.",
   "packOptions": {
     "tags": [
@@ -26,7 +26,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.1",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.2",
     "Microsoft.Data.Sqlite": "1.0.0"
   },
   "frameworks": {
