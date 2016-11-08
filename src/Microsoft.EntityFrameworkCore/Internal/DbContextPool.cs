@@ -10,9 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    // Based on:
-    //   https://github.com/dotnet/corefx/blob/master/src/System.Reflection.Metadata/src/System/Reflection/Internal/Utilities/ObjectPool%601.cs
-
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
@@ -27,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private int _maxSize;
         private int _count;
 
-        private bool _takenSnapshot;
         private DbContextPoolConfigurationSnapshot _configurationSnapshot;
 
         /// <summary>
@@ -63,12 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             context = ActivatorUtilities.CreateInstance<TContext>(serviceProvider);
 
-            if (!_takenSnapshot)
-            {
-                // Race to set this
-                _takenSnapshot = true;
-                _configurationSnapshot = ((IDbContextPoolable)context).SnapshotConfiguration();
-            }
+            NonCapturingLazyInitializer
+                .EnsureInitialized(
+                    ref _configurationSnapshot,
+                    (IDbContextPoolable)context,
+                    c => c.SnapshotConfiguration());
 
             ((IDbContextPoolable)context).SetPool(this);
 
@@ -87,10 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 return true;
             }
-            
+
             Interlocked.Decrement(ref _count);
 
-            Debug.Assert(_pool.Count <= _maxSize);
+            Debug.Assert(_maxSize > 0 && _pool.Count <= _maxSize);
 
             return false;
         }

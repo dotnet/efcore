@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public struct DbContextPoolConfigurationSnapshot
+    public class DbContextPoolConfigurationSnapshot
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -27,18 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public bool? AutoDetectChangesEnabled { get; }
+        public virtual bool? AutoDetectChangesEnabled { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryTrackingBehavior? QueryTrackingBehavior { get; }
+        public virtual QueryTrackingBehavior? QueryTrackingBehavior { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public bool? AutoTransactionsEnabled { get; }
+        public virtual bool? AutoTransactionsEnabled { get; }
     }
 }
