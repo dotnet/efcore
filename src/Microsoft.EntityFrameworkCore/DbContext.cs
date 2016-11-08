@@ -428,6 +428,7 @@ namespace Microsoft.EntityFrameworkCore
             else
             {
                 _changeTracker?.Reset();
+                _contextServices?.Reset();
                 _disposed = true;
             }
         }

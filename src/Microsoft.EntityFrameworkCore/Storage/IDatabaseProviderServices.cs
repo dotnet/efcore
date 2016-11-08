@@ -112,5 +112,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IExecutionStrategyFactory" /> for the database provider.
         /// </summary>
         IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+
+        /// <summary>
+        ///     Reset any stateful database provider services. Used when context pooling is enabled to allow
+        ///     re-use of provider services.
+        /// </summary>
+        void Reset();
     }
 }

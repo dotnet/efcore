@@ -199,9 +199,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public abstract IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Gets the <see cref="IExecutionStrategyFactory" /> for the database provider.
         /// </summary>
         public override IExecutionStrategyFactory ExecutionStrategyFactory => GetService<RelationalExecutionStrategyFactory>();
+
+        /// <summary>
+        ///     Reset any stateful database provider services. Used when context pooling is enabled to allow
+        ///     re-use of provider services.
+        /// </summary>
+        public override void Reset() => RelationalConnection?.Dispose();
     }
 }

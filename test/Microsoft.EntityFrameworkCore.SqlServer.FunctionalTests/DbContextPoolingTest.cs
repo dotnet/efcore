@@ -203,6 +203,42 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
+        [Fact]
+        public void Provider_services_are_reset()
+        {
+            var serviceProvider = BuildServiceProvider<PooledContext>();
+
+            var serviceScope = serviceProvider.CreateScope();
+
+            var context1 = serviceScope.ServiceProvider.GetService<PooledContext>();
+
+            context1.Database.BeginTransaction();
+
+            Assert.NotNull(context1.Database.CurrentTransaction);
+
+            serviceScope.Dispose();
+
+            serviceScope = serviceProvider.CreateScope();
+
+            var context2 = serviceScope.ServiceProvider.GetService<PooledContext>();
+
+            Assert.Same(context1, context2);
+            Assert.Null(context2.Database.CurrentTransaction);
+
+            context2.Database.BeginTransaction();
+
+            Assert.NotNull(context2.Database.CurrentTransaction);
+
+            serviceScope.Dispose();
+
+            serviceScope = serviceProvider.CreateScope();
+
+            var context3 = serviceScope.ServiceProvider.GetService<PooledContext>();
+
+            Assert.Same(context2, context3);
+            Assert.Null(context3.Database.CurrentTransaction);
+        }
+
         //[Fact]
         public async Task Concurrency_test()
         {
