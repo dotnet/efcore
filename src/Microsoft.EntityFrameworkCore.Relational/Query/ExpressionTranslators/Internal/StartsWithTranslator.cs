@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -31,6 +32,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Obsolete("Use constructor StartsWithTranslator(ILogger) instead.")]
+        public StartsWithTranslator()
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public StartsWithTranslator([NotNull] ILogger logger)
         {
             Check.NotNull(logger, nameof(logger));
@@ -48,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
             if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
             {
-                _logger.LogWarning(
+                _logger?.LogWarning(
                     RelationalEventId.PossibleIncorrectResultsUsingLikeOperator,
                     () => RelationalStrings.PossibleIncorrectResultsUsingLikeOperator(
                         nameof(string.StartsWith)));
