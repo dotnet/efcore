@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "NETStandard.Library": "1.6.1-*",
-    "SQLite": "3.13.0",
+    "sqlite": "3.13.0",
     "StyleCop.Analyzers": {
       "version": "1.0.0",
       "type": "build"
