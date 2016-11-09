@@ -82,6 +82,7 @@
     <Compile Include="TestModelSource.cs" />
     <Compile Include="TestModels\ChangedChangingMonsterContext.cs" />
     <Compile Include="TestModels\ChangedOnlyMonsterContext.cs" />
+    <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationsData.cs" />
     <Compile Include="TestModels\GearsOfWarModel\Mission.cs" />
     <Compile Include="TestModels\GearsOfWarModel\SquadMission.cs" />
     <Compile Include="TestModels\Northwind\NorthwindData.Objects.cs" />

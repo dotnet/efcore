@@ -183,5 +183,79 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
             return actual.Count;
         }
+
+        public static int AssertResults<T>(
+            IList<T> expected,
+            IList<T> actual,
+            Func<T, object> elementSorter,
+            Action<T, T> elementAsserter,
+            bool verifyOrdered)
+        {
+            Assert.Equal(expected.Count, actual.Count);
+
+            elementAsserter = elementAsserter ?? Assert.Equal;
+            if (!verifyOrdered)
+            {
+                expected = expected.OrderBy(elementSorter).ToList();
+                actual = actual.OrderBy(elementSorter).ToList();
+            }
+
+            for (var i = 0; i < expected.Count; i++)
+            {
+                elementAsserter(expected[i], actual[i]);
+            }
+
+            return actual.Count;
+        }
+
+        public static int AssertResults<T>(
+            IList<T> expected,
+            IList<T> actual,
+            Func<T, T> elementSorter,
+            Action<T, T> elementAsserter,
+            bool verifyOrdered)
+            where T : struct
+        {
+            Assert.Equal(expected.Count, actual.Count);
+
+            elementAsserter = elementAsserter ?? Assert.Equal;
+            if (!verifyOrdered)
+            { 
+                expected = expected.OrderBy(elementSorter).ToList();
+                actual = actual.OrderBy(elementSorter).ToList();
+            }
+
+            for (var i = 0; i < expected.Count; i++)
+            {
+                elementAsserter(expected[i], actual[i]);
+            }
+
+            return actual.Count;
+        }
+
+        public static int AssertResultsNullable<T>(
+            IList<T?> expected,
+            IList<T?> actual,
+            Func<T?, T?> elementSorter,
+            Action<T?, T?> elementAsserter,
+            bool verifyOrdered)
+            where T : struct
+        {
+            Assert.Equal(expected.Count, actual.Count);
+
+            elementAsserter = elementAsserter ?? Assert.Equal;
+            if (!verifyOrdered)
+            {
+                expected = expected.OrderBy(elementSorter).ToList();
+                actual = actual.OrderBy(elementSorter).ToList();
+            }
+
+            for (var i = 0; i < expected.Count; i++)
+            {
+                elementAsserter(expected[i], actual[i]);
+            }
+
+            return actual.Count;
+        }
     }
 }
