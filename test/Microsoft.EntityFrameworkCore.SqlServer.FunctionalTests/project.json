@@ -15,11 +15,11 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.0-*",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.1.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.2.0-*",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.2.0-*",
+    "Microsoft.Extensions.Configuration.Json": "1.2.0-*"
   },
   "publishOptions": {
     "include": [

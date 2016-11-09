@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.Sqlite": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.Sqlite": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.2.0-*"
   },
   "publishOptions": {
     "includeFiles": "northwind.db"

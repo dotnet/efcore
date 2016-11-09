@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0-*",
+  "version": "1.2.0-*",
   "description": "Entity Framework Core is a lightweight and extensible version of the popular Entity Framework data access technology.\r\n\r\nCommonly Used Types:\r\nMicrosoft.EntityFrameworkCore.DbContext\r\nMicrosoft.EntityFrameworkCore.DbSet",
   "packOptions": {
     "tags": [
@@ -22,9 +22,9 @@
     }
   },
   "dependencies": {
-    "Microsoft.Extensions.Caching.Memory": "1.1.0-*",
-    "Microsoft.Extensions.DependencyInjection": "1.1.0-*",
-    "Microsoft.Extensions.Logging": "1.1.0-*",
+    "Microsoft.Extensions.Caching.Memory": "1.2.0-*",
+    "Microsoft.Extensions.DependencyInjection": "1.2.0-*",
+    "Microsoft.Extensions.Logging": "1.2.0-*",
     "NETStandard.Library": "1.6.1-*",
     "Remotion.Linq": "2.1.1",
     "System.Collections.Immutable": "1.3.0-*",
