@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     {
-        private readonly ICollection<int> _errorNumbersToAdd;
+        private readonly ICollection<int> _additionalErrorNumbers;
 
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -96,19 +96,19 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] ICollection<int> errorNumbersToAdd)
             : base(context, maxRetryCount, maxRetryDelay)
         {
-            _errorNumbersToAdd = errorNumbersToAdd;
+            _additionalErrorNumbers = errorNumbersToAdd;
         }
 
         protected override bool ShouldRetryOn(Exception exception)
         {
-            if (_errorNumbersToAdd != null)
+            if (_additionalErrorNumbers != null)
             {
                 var sqlException = exception as SqlException;
                 if (sqlException != null)
                 {
                     foreach (SqlError err in sqlException.Errors)
                     {
-                        if (_errorNumbersToAdd.Contains(err.Number))
+                        if (_additionalErrorNumbers.Contains(err.Number))
                         {
                             return true;
                         }
@@ -117,6 +117,44 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return SqlServerTransientExceptionDetector.ShouldRetryOn(exception);
+        }
+
+        protected override TimeSpan? GetNextDelay(Exception lastException)
+        {
+            var baseDelay = base.GetNextDelay(lastException);
+            if (baseDelay == null)
+            {
+                return null;
+            }
+
+            if (CallOnWrappedException(lastException, IsMemoryOptimizedError))
+            {
+                return TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds);
+            }
+
+            return baseDelay;
+        }
+
+        private bool IsMemoryOptimizedError(Exception exception)
+        {
+            var sqlException = exception as SqlException;
+            if (sqlException != null)
+            {
+                foreach (SqlError err in sqlException.Errors)
+                {
+                    switch (err.Number)
+                    {
+                        case 41301:
+                        case 41302:
+                        case 41305:
+                        case 41325:
+                        case 41839:
+                            return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
