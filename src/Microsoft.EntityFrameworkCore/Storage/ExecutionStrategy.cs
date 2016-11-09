@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
         ///     <c>null</c> otherwise
         /// </returns>
-        protected internal virtual TimeSpan? GetNextDelay([NotNull] Exception lastException)
+        protected virtual TimeSpan? GetNextDelay([NotNull] Exception lastException)
         {
             var currentRetryCount = ExceptionsEncountered.Count - 1;
             if (currentRetryCount < MaxRetryCount)

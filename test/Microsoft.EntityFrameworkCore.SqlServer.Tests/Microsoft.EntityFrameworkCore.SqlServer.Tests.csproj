@@ -63,6 +63,7 @@
     <Compile Include="SqlServerTypeMapperTest.cs" />
     <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
+    <Compile Include="Storage\SqlServerRetryingExecutionStrategyTests.cs" />
     <Compile Include="Storage\SqlServerSqlGeneratorTest.cs" />
     <Compile Include="Storage\SqlServerTypeMappingTest.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />

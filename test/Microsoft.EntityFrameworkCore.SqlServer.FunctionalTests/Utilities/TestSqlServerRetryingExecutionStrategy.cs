@@ -66,6 +66,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             return false;
         }
 
+        public new virtual TimeSpan? GetNextDelay(Exception lastException)
+        {
+            ExceptionsEncountered.Add(lastException);
+            return base.GetNextDelay(lastException);
+        }
+
         public new static bool Suspended
         {
             get { return ExecutionStrategy.Suspended; }

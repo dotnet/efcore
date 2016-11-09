@@ -38,6 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         // Cannot process request. Not enough resources to process request.
                         // The service is currently busy.Please retry the request later.
                         case 49918:
+                        // SQL Error Code: 41839
+                        // Transaction exceeded the maximum number of commit dependencies.
+                        case 41839:
                         // SQL Error Code: 41325
                         // The current transaction failed to commit due to a serializable validation failure.
                         case 41325:
@@ -47,6 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         // SQL Error Code: 41302
                         // The current transaction attempted to update a record that has been updated since the transaction started.
                         case 41302:
+                        // SQL Error Code: 41301
+                        // Dependency failure: a dependency was taken on another transaction that later failed to commit.
+                        case 41301:
                         // SQL Error Code: 40613
                         // Database XXXX on server YYYY is not currently available. Please retry the connection later.
                         // If the problem persists, contact customer support, and provide them the session tracing ID of ZZZZZ.
@@ -81,6 +87,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         // A transport-level error has occurred when receiving results from the server.
                         // An established connection was aborted by the software in your host machine.
                         case 10053:
+                        // SQL Error Code: 1205
+                        // Deadlock
+                        case 1205:
                         // SQL Error Code: 233
                         // The client was unable to establish a connection because of an error during connection initialization process before login.
                         // Possible causes include the following: the client tried to connect to an unsupported version of SQL Server;
