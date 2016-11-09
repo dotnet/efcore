@@ -362,6 +362,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             detachedProperties?.Attach(this);
 
+            if (builder != null
+                && builder.Metadata.Builder == null)
+            {
+                return Metadata.FindProperty(propertyName)?.Builder;
+            }
+
             return builder;
         }
 
@@ -871,12 +877,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     propertyTuple.Item1.Attach(entityTypeBuilder, propertyTuple.Item2);
                 }
 
+                Keys?.Attach();
+
                 foreach (var indexBuilderSnapshot in Indexes)
                 {
                     indexBuilderSnapshot.Attach();
                 }
-
-                Keys?.Attach();
 
                 foreach (var detachedRelationship in Relationships)
                 {
@@ -1841,8 +1847,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     else if (type != null)
                     {
-                        // TODO: Log that shadow property is created by convention
-                        propertyBuilder = Property(propertyName, type.MakeNullable(), ConfigurationSource.Convention);
+                        // TODO: Log that a shadow property is created
+                        propertyBuilder = Property(propertyName, type.MakeNullable(), configurationSource);
                     }
                     else
                     {

@@ -354,6 +354,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Can_promote_shadow_fk_to_the_base_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<BackOrder>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                principalEntityBuilder.Ignore(nameof(Customer.Orders));
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                dependentEntityBuilder.Ignore(e => e.Customer);
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(e => e.SpecialCustomerId);
+
+                dependentEntityBuilder
+                    .HasOne<SpecialCustomer>()
+                    .WithMany()
+                    .HasForeignKey(nameof(SpecialOrder.SpecialCustomerId));
+
+                var newFk = dependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Single();
+                Assert.NotEqual(newFk, derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Single());
+                Assert.Null(newFk.DependentToPrincipal);
+                Assert.Null(newFk.PrincipalToDependent);
+                Assert.Equal(nameof(SpecialOrder.SpecialCustomerId), newFk.Properties.Single().Name);
+            }
+
+            [Fact]
             public virtual void Removing_a_key_triggers_fk_discovery_on_derived_types()
             {
                 var modelBuilder = CreateModelBuilder();
