@@ -24,7 +24,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
+            public TestExecutionStrategy(DbContext context, int retryCount)
+                : base(new ExecutionStrategyContext(context, null), retryCount, DefaultMaxDelay)
+            {
+            }
+
             protected internal override bool ShouldRetryOn(Exception exception) => false;
+
+            public new virtual TimeSpan? GetNextDelay(Exception lastException)
+            {
+                ExceptionsEncountered.Add(lastException);
+                return base.GetNextDelay(lastException);
+            }
 
             public new static bool Suspended
             {
@@ -37,10 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void GetNextDelay_returns_the_expected_default_sequence()
         {
             var strategy = new TestExecutionStrategy(CreateContext());
-            var delays = new List<TimeSpan?>();
-            for (var i = 0; i < 5; i++)
+            var delays = new List<TimeSpan>();
+            var delay = strategy.GetNextDelay(new Exception());
+            while (delay != null)
             {
-                delays.Add(strategy.GetNextDelay(new Exception()));
+                delays.Add(delay.Value);
+                delay = strategy.GetNextDelay(new Exception());
             }
 
             var expectedDelays = new List<TimeSpan>
@@ -56,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             for (var i = 0; i < expectedDelays.Count; i++)
             {
                 Assert.True(
-                    (delays[i] - expectedDelays[i])?.TotalMilliseconds <=
+                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds) <=
                     expectedDelays[i].TotalMilliseconds * 0.1 + 1,
                     string.Format("Expected: {0}; Actual: {1}", expectedDelays[i], delays[i]));
             }
@@ -318,13 +331,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var executionCount = 0;
 
-            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext(), 2)
             {
-                    CallBase = true
-                };
+                CallBase = true
+            };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e => executionCount < 3 ? (TimeSpan?)TimeSpan.FromTicks(0) : null);
             executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
                 e => e is ArgumentOutOfRangeException);
 
@@ -595,13 +606,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var executionCount = 0;
 
-            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
+            var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext(), 2)
             {
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e => executionCount < 3 ? (TimeSpan?)TimeSpan.FromTicks(0) : null);
             executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
                 e => e is ArgumentOutOfRangeException);
 
