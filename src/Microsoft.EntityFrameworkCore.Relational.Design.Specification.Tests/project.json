@@ -31,7 +31,7 @@
     "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": {
       "target": "project"
     },
-    "Microsoft.Extensions.DependencyModel": "1.2.0-*",
+    "Microsoft.Extensions.DependencyModel": "1.1.0-*",
     "NETStandard.Library": "1.6.1-*"
   },
   "frameworks": {
