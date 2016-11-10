@@ -26,7 +26,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.Data.Sqlite": "1.1.0-*",
+    "Microsoft.Data.Sqlite": "1.2.0-*",
     "Microsoft.EntityFrameworkCore.Relational": "1.2.0-*",
     "NETStandard.Library": "1.6.1-*"
   },

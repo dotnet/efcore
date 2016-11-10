@@ -22,7 +22,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.AspNetCore.Hosting.Abstractions": "1.1.0-*",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.2.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.2.0-*",
     "NETStandard.Library": "1.6.1-*"
   },
