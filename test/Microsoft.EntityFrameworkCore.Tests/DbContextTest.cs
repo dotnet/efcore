@@ -569,13 +569,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public async Task Can_add_existing_entities_with_default_value_to_context_to_be_attached_with_graph_method()
         {
-            await TrackEntitiesDefaultValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            await TrackEntitiesDefaultValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_existing_entities_with_default_value_to_context_to_be_updated_with_graph_method()
         {
-            await TrackEntitiesDefaultValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            await TrackEntitiesDefaultValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
         }
 
         private static Task TrackEntitiesDefaultValueTest(
@@ -628,13 +628,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached()
         {
-            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AttachRange(e[0]), (c, e) => c.AttachRange(e[0]), EntityState.Unchanged);
+            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AttachRange(e[0]), (c, e) => c.AttachRange(e[0]), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated()
         {
-            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.UpdateRange(e[0]), (c, e) => c.UpdateRange(e[0]), EntityState.Modified);
+            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.UpdateRange(e[0]), (c, e) => c.UpdateRange(e[0]), EntityState.Added);
         }
 
         [Fact]
@@ -902,13 +902,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public async Task Can_add_existing_entities_with_default_value_to_context_to_be_attached_non_generic_graph()
         {
-            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_existing_entities_with_default_value_to_context_to_be_updated_non_generic_graph()
         {
-            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
         }
 
         private static Task TrackEntitiesDefaultValuesTestNonGeneric(
@@ -967,13 +967,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached_Enumerable_graph()
         {
-            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Unchanged);
+            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated_Enumerable_graph()
         {
-            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Modified);
+            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Added);
         }
 
         private static Task TrackMultipleEntitiesDefaultValueTestEnumerable(

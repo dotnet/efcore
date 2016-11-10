@@ -690,6 +690,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 => optionsBuilder.UseInMemoryDatabase();
 
             public DbSet<Chunky> Icecream { get; set; }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Chunky>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Cherry>().Property(e => e.Id).ValueGeneratedNever();
+            }
         }
     }
 }

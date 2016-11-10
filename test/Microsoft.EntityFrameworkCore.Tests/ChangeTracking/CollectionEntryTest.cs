@@ -323,8 +323,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky1 = new Chunky { Garcia = cherry };
-                var chunky2 = new Chunky { Garcia = cherry };
+                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
+                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
                 cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
                 context.AttachRange(cherry, chunky1, chunky2);
 
@@ -348,8 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky1 = new Chunky { Garcia = cherry };
-                var chunky2 = new Chunky { Garcia = cherry };
+                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
+                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
                 cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
                 context.AttachRange(cherry, chunky1, chunky2);
 
@@ -396,6 +396,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 => optionsBuilder.UseInMemoryDatabase();
 
             public DbSet<Chunky> Icecream { get; set; }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Chunky>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Cherry>().Property(e => e.Id).ValueGeneratedNever();
+            }
         }
     }
 }

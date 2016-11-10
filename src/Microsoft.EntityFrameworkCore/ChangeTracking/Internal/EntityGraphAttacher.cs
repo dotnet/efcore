@@ -43,13 +43,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            if (node.InboundNavigation != null
-                && !internalEntityEntry.IsKeySet)
-            {
-                node.NodeState = EntityState.Added;
-            }
-
-            internalEntityEntry.SetEntityState((EntityState)node.NodeState, acceptChanges: true);
+            internalEntityEntry.SetEntityState(
+                internalEntityEntry.IsKeySet
+                    ? (EntityState)node.NodeState
+                    : EntityState.Added,
+                acceptChanges: true);
 
             return true;
         }
