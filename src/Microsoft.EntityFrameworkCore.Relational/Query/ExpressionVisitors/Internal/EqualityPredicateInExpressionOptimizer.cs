@@ -73,16 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (leftAliasExpression == null)
             {
-                leftAliasExpression = equalityType == ExpressionType.Equal
+                leftAliasExpression = (equalityType == ExpressionType.Equal
                     ? MatchInExpression(leftExpression, ref leftInValues)
-                    : MatchNotInExpression(leftExpression, ref leftInValues);
+                    : MatchNotInExpression(leftExpression, ref leftInValues)) as AliasExpression;
             }
 
             if (rightAliasExpression == null)
             {
-                rightAliasExpression = equalityType == ExpressionType.Equal
+                rightAliasExpression = (equalityType == ExpressionType.Equal
                     ? MatchInExpression(rightExpression, ref rightInValues)
-                    : MatchNotInExpression(rightExpression, ref rightInValues);
+                    : MatchNotInExpression(rightExpression, ref rightInValues)) as AliasExpression;
             }
 
             if (leftAliasExpression.HasColumnExpression()
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return null;
         }
 
-        private static AliasExpression MatchInExpression(
+        private static Expression MatchInExpression(
             Expression expression,
             ref IReadOnlyList<Expression> values)
         {
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return null;
         }
 
-        private static AliasExpression MatchNotInExpression(
+        private static Expression MatchNotInExpression(
             Expression expression,
             ref IReadOnlyList<Expression> values)
         {

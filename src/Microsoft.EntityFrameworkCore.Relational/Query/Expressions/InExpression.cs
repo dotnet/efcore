@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="operand"> The operand. </param>
         /// <param name="values"> The values. </param>
         public InExpression(
-            [NotNull] AliasExpression operand,
+            [NotNull] Expression operand,
             [NotNull] IReadOnlyList<Expression> values)
         {
             Check.NotNull(operand, nameof(operand));
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="operand"> The operand. </param>
         /// <param name="subQuery"> The sub query. </param>
         public InExpression(
-            [NotNull] AliasExpression operand,
+            [NotNull] Expression operand,
             [NotNull] SelectExpression subQuery)
         {
             Check.NotNull(operand, nameof(operand));
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <value>
         ///     The operand.
         /// </value>
-        public virtual AliasExpression Operand { get; }
+        public virtual Expression Operand { get; }
 
         /// <summary>
         ///     Gets the values.
@@ -117,6 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <returns>A <see cref="String" /> representation of the Expression.</returns>
         public override string ToString()
-            => Operand.Expression + " IN (" + string.Join(", ", Values) + ")";
+            => Operand + " IN (" + string.Join(", ", Values) + ")";
     }
 }

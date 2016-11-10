@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     handlerContext,
                     Expression.Condition(
                         new InExpression(
-                            new AliasExpression(item),
+                            item,
                             handlerContext.SelectExpression.Clone("")),
                         Expression.Constant(true),
                         Expression.Constant(false),
