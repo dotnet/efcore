@@ -56,6 +56,7 @@
     <Compile Include="BuiltInDataTypesInMemoryFixture.cs" />
     <Compile Include="BuiltInDataTypesInMemoryTest.cs" />
     <Compile Include="ChangeTrackingInMemoryTest.cs" />
+    <Compile Include="CompiledQueryInMemoryTest.cs" />
     <Compile Include="ComplexNavigationsQueryInMemoryFixture.cs" />
     <Compile Include="ComplexNavigationsQueryInMemoryTest.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />

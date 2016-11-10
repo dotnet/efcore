@@ -42,6 +42,7 @@
     <Compile Include="BuiltInDataTypesSqliteTest.cs" />
     <Compile Include="ChangeTrackingSqliteTest.cs" />
     <Compile Include="CommandConfigurationTest.cs" />
+    <Compile Include="CompiledQueryInMemoryTest.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteFixture.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteTest.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />

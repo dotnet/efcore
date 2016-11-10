@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var expression
                 = _queryModelVisitor
-                    .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
+                      .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
                   ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression);
 
             if (expression == null
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
 
         private AliasExpression CreateAliasedColumnExpressionCore(
-            IProperty property, IQuerySource querySource, SelectExpression selectExpression)
+                IProperty property, IQuerySource querySource, SelectExpression selectExpression)
             => new AliasExpression(
                 new ColumnExpression(
                     _relationalAnnotationProvider.For(property).ColumnName,
@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="baseBehavior">The behavior exposed by <see cref="T:Remotion.Linq.Parsing.RelinqExpressionVisitor" /> for this item type.</param>
         /// <returns>An object to replace <paramref name="unhandledItem" /> in the expression tree. Alternatively, the method can throw any exception.</returns>
         protected override TResult VisitUnhandledItem<TItem, TResult>(
-            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
+                TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
             => default(TResult);
 
         /// <summary>

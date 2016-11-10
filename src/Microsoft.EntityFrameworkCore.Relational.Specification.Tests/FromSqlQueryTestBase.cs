@@ -199,6 +199,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void From_sql_queryable_composed_compiled()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context) => context.Set<Customer>()
+                    .FromSql(@"SELECT * FROM ""Customers""")
+                    .Where(c => c.ContactName.Contains("z")));
+
+            using (var context = CreateContext())
+            {
+                var actual = query(context).ToArray();
+
+                Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [Fact]
         public virtual void From_sql_composed_contains()
         {
             using (var context = CreateContext())

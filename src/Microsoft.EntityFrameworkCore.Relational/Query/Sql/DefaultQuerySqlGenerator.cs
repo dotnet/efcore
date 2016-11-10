@@ -1082,58 +1082,65 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(expression, nameof(expression));
 
-            if (expression.NodeType == ExpressionType.Coalesce)
+            switch (expression.NodeType)
             {
-                _relationalCommandBuilder.Append("COALESCE(");
-                Visit(expression.Left);
-                _relationalCommandBuilder.Append(", ");
-                Visit(expression.Right);
-                _relationalCommandBuilder.Append(")");
-            }
-            else
-            {
-                var parentTypeMapping = _typeMapping;
-
-                if (expression.IsComparisonOperation()
-                    || (expression.NodeType == ExpressionType.Add))
+                case ExpressionType.Coalesce:
                 {
-                    _typeMapping
-                        = InferTypeMappingFromColumn(expression.Left)
-                          ?? InferTypeMappingFromColumn(expression.Right)
-                          ?? parentTypeMapping;
-                }
-
-                var needParens = expression.Left.RemoveConvert() is BinaryExpression;
-
-                if (needParens)
-                {
-                    _relationalCommandBuilder.Append("(");
-                }
-
-                Visit(expression.Left);
-
-                if (needParens)
-                {
+                    _relationalCommandBuilder.Append("COALESCE(");
+                    Visit(expression.Left);
+                    _relationalCommandBuilder.Append(", ");
+                    Visit(expression.Right);
                     _relationalCommandBuilder.Append(")");
+
+                    break;
                 }
-
-                _relationalCommandBuilder.Append(GenerateOperator(expression));
-
-                needParens = expression.Right.RemoveConvert() is BinaryExpression;
-
-                if (needParens)
+                default:
                 {
-                    _relationalCommandBuilder.Append("(");
+                    var parentTypeMapping = _typeMapping;
+
+                    if (expression.IsComparisonOperation()
+                        || (expression.NodeType == ExpressionType.Add))
+                    {
+                        _typeMapping
+                            = InferTypeMappingFromColumn(expression.Left)
+                              ?? InferTypeMappingFromColumn(expression.Right)
+                              ?? parentTypeMapping;
+                    }
+
+                    var needParens = expression.Left.RemoveConvert() is BinaryExpression;
+
+                    if (needParens)
+                    {
+                        _relationalCommandBuilder.Append("(");
+                    }
+
+                    Visit(expression.Left);
+
+                    if (needParens)
+                    {
+                        _relationalCommandBuilder.Append(")");
+                    }
+
+                    _relationalCommandBuilder.Append(GenerateOperator(expression));
+
+                    needParens = expression.Right.RemoveConvert() is BinaryExpression;
+
+                    if (needParens)
+                    {
+                        _relationalCommandBuilder.Append("(");
+                    }
+
+                    Visit(expression.Right);
+
+                    if (needParens)
+                    {
+                        _relationalCommandBuilder.Append(")");
+                    }
+
+                    _typeMapping = parentTypeMapping;
+                    
+                    break;
                 }
-
-                Visit(expression.Right);
-
-                if (needParens)
-                {
-                    _relationalCommandBuilder.Append(")");
-                }
-
-                _typeMapping = parentTypeMapping;
             }
 
             return expression;
@@ -1840,7 +1847,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 var newExpression = base.VisitParameter(expression);
 
-                return _isSearchCondition && (newExpression.Type == typeof(bool))
+                return _isSearchCondition && newExpression.Type == typeof(bool)
                     ? Expression.Equal(newExpression, Expression.Constant(true, typeof(bool)))
                     : newExpression;
             }

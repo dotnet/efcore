@@ -687,6 +687,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_indexer_closure()
+        {
+            // ReSharper disable once ConvertToConstant.Local
+            var city = new [] { "London" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city[0]),
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
         public virtual void Where_simple_closure_constant()
         {
             // ReSharper disable once ConvertToConstant.Local

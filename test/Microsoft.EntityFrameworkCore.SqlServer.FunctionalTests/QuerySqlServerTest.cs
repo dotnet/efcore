@@ -677,6 +677,16 @@ WHERE [c].[City] = @__city_0",
                 Sql);
         }
 
+        public override void Where_indexer_closure()
+        {
+            base.Where_indexer_closure();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Where_simple_closure_constant()
         {
             base.Where_simple_closure_constant();

@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryCompiler : IQueryCompiler
     {
         private static MethodInfo CompileQueryMethod { get; }
-            = typeof(IDatabase).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
+        = typeof(IDatabase).GetTypeInfo()
+            .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
         private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter
             = new EvaluatableExpressionFilter();
@@ -96,86 +96,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             query = ExtractParameters(query, queryContext);
 
-            return CompileQuery<TResult>(query)(queryContext);
+            var compiledQuery
+                = _compiledQueryCache
+                    .GetOrAddQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
+                        () => CompileQueryCore<TResult>(query, NodeTypeProvider, _database, _logger, _contextType));
+
+            return compiledQuery(queryContext);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression query)
+        public virtual Func<QueryContext, TResult> CreateCompiledQuery<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
 
-            var queryContext = _queryContextFactory.Create();
+            query = ExtractParameters(query, _queryContextFactory.Create(), parameterize: false);
 
-            query = ExtractParameters(query, queryContext);
-
-            return CompileAsyncQuery<TResult>(query)(queryContext);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual async Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
-        {
-            Check.NotNull(query, nameof(query));
-
-            var queryContext = _queryContextFactory.Create();
-
-            queryContext.CancellationToken = cancellationToken;
-
-            query = ExtractParameters(query, queryContext);
-
-            try
-            {
-                var asyncEnumerable = CompileAsyncQuery<TResult>(query)(queryContext);
-
-                using (var asyncEnumerator = asyncEnumerable.GetEnumerator())
-                {
-                    await asyncEnumerator.MoveNext(cancellationToken);
-
-                    return asyncEnumerator.Current;
-                }
-            }
-            catch (Exception exception)
-            {
-                _logger
-                    .LogError(
-                        CoreEventId.DatabaseError,
-                        () => new DatabaseErrorLogState(_contextType),
-                        exception,
-                        e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
-
-                throw;
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Expression ExtractParameters([NotNull] Expression query, [NotNull] QueryContext queryContext)
-        {
-            Check.NotNull(query, nameof(query));
-            Check.NotNull(queryContext, nameof(queryContext));
-
-            return ParameterExtractingExpressionVisitor
-                .ExtractParameters(query, queryContext, _evaluatableExpressionFilter, _logger);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)
-        {
-            Check.NotNull(query, nameof(query));
-
-            return _compiledQueryCache
-                .GetOrAddQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
-                    () => CompileQueryCore<TResult>(query, NodeTypeProvider, _database, _logger, _contextType));
+            return CompileQueryCore<TResult>(query, NodeTypeProvider, _database, _logger, _contextType);
         }
 
         private static Func<QueryContext, TResult> CompileQueryCore<TResult>(
@@ -232,6 +171,102 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression query)
+        {
+            Check.NotNull(query, nameof(query));
+
+            var queryContext = _queryContextFactory.Create();
+
+            query = ExtractParameters(query, queryContext);
+
+            return CompileAsyncQuery<TResult>(query)(queryContext);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateCompiledAsyncEnumerableQuery<TResult>(Expression query)
+        {
+            Check.NotNull(query, nameof(query));
+
+            query = ExtractParameters(query, _queryContextFactory.Create(), parameterize: false);
+
+            return CompileAsyncQueryCore<TResult>(query, NodeTypeProvider, _database);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<QueryContext, Task<TResult>> CreateCompiledAsyncTaskQuery<TResult>(Expression query)
+        {
+            Check.NotNull(query, nameof(query));
+
+            query = ExtractParameters(query, _queryContextFactory.Create(), parameterize: false);
+
+            var compiledQuery = CompileAsyncQueryCore<TResult>(query, NodeTypeProvider, _database);
+
+            return CreateCompiledSingletonAsyncQuery(compiledQuery, _logger, _contextType);
+        }
+
+        private static Func<QueryContext, Task<TResult>> CreateCompiledSingletonAsyncQuery<TResult>(
+                Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery, ILogger logger, Type contextType)
+            => qc => ExecuteSingletonAsyncQuery(qc, compiledQuery, logger, contextType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
+        {
+            Check.NotNull(query, nameof(query));
+
+            var queryContext = _queryContextFactory.Create();
+
+            queryContext.CancellationToken = cancellationToken;
+
+            query = ExtractParameters(query, queryContext);
+
+            var compiledQuery = CompileAsyncQuery<TResult>(query);
+
+            return ExecuteSingletonAsyncQuery(queryContext, compiledQuery, _logger, _contextType);
+        }
+
+        private static async Task<TResult> ExecuteSingletonAsyncQuery<TResult>(
+            QueryContext queryContext,
+            Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery,
+            ILogger logger,
+            Type contextType)
+        {
+            try
+            {
+                var asyncEnumerable = compiledQuery(queryContext);
+
+                using (var asyncEnumerator = asyncEnumerable.GetEnumerator())
+                {
+                    await asyncEnumerator.MoveNext(queryContext.CancellationToken);
+
+                    return asyncEnumerator.Current;
+                }
+            }
+            catch (Exception exception)
+            {
+                logger
+                    .LogError(
+                        CoreEventId.DatabaseError,
+                        () => new DatabaseErrorLogState(contextType),
+                        exception,
+                        e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));
@@ -249,6 +284,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .GetParsedQuery(query);
 
             return database.CompileAsyncQuery<TResult>(queryModel);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Expression ExtractParameters(
+            [NotNull] Expression query,
+            [NotNull] QueryContext queryContext,
+            bool parameterize = true)
+        {
+            Check.NotNull(query, nameof(query));
+            Check.NotNull(queryContext, nameof(queryContext));
+
+            return ParameterExtractingExpressionVisitor
+                .ExtractParameters(
+                    query,
+                    queryContext,
+                    _evaluatableExpressionFilter,
+                    _logger,
+                    parameterize);
         }
 
         private static QueryParser CreateQueryParser(INodeTypeProvider nodeTypeProvider)
@@ -277,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
             {
-                if ((methodCallExpression.Method == _guidNewGuid)
+                if (methodCallExpression.Method == _guidNewGuid
                     || _randomNext.Contains(methodCallExpression.Method))
                 {
                     return false;

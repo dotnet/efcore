@@ -106,6 +106,7 @@
     <Compile Include="QueryNavigationsSqlServerTest.cs" />
     <Compile Include="QueryNoClientEvalSqlServerFixture.cs" />
     <Compile Include="QueryNoClientEvalSqlServerTest.cs" />
+    <Compile Include="CompiledQuerySqlServerTest.cs" />
     <Compile Include="QuerySqlServerTest.cs" />
     <Compile Include="RowNumberPagingTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />

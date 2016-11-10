@@ -148,6 +148,10 @@
     <Compile Include="ChangeTracking\PropertyValues.cs" />
     <Compile Include="ChangeTracking\ReferenceEntry.cs" />
     <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
+    <Compile Include="EF.CompileAsyncQuery.cs" />
+    <Compile Include="Query\Internal\CompiledAsyncTaskQuery.cs" />
+    <Compile Include="Query\Internal\CompiledAsyncEnumerableQuery.cs" />
+    <Compile Include="Query\Internal\CompiledQuery.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
@@ -256,9 +260,11 @@
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
+    <Compile Include="Query\Internal\CompiledQueryBase.cs" />
     <Compile Include="Query\Internal\IDetachableContext.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPropertyAnnotationSetConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IIndexAnnotationSetConvention.cs" />
+    <Compile Include="EF.CompileQuery.cs" />
     <Compile Include="Storage\ExecutionResult.cs" />
     <Compile Include="Storage\Internal\ExecutionStrategyFactory.cs" />
     <Compile Include="Storage\Internal\NoopExecutionStrategy.cs" />
