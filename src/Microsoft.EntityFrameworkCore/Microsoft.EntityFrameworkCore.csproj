@@ -168,6 +168,7 @@
     <Compile Include="EntityFrameworkQueryableExtensions.cs" />
     <Compile Include="EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="EntityState.cs" />
+    <Compile Include="IEntityTypeConfiguration`.cs" />
     <Compile Include="Extensions\EntityTypeExtensions.cs" />
     <Compile Include="Extensions\ExecutionStrategyExtensions.cs" />
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />

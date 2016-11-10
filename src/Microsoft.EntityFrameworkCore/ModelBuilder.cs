@@ -215,6 +215,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Applies configuration that is defined in an <see cref="IEntityTypeConfiguration{TEntity}"/> instance.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
+        /// <param name="configuration"> The configuration to be applied. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder ApplyConfiguration<TEntity>([NotNull] IEntityTypeConfiguration<TEntity> configuration)
+            where TEntity : class
+        {
+            Check.NotNull(configuration, nameof(configuration));
+
+            configuration.Configure(Entity<TEntity>());
+
+            return this;
+        }
+
+        /// <summary>
         ///     Configures the default <see cref="ChangeTrackingStrategy" /> to be used for this model.
         ///     This strategy indicates how the context detects changes to properties for an instance of an entity type.
         /// </summary>

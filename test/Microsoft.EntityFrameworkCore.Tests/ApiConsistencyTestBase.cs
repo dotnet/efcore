@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                              || (((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType))
                          && (method.Name != nameof(DbContext.OnConfiguring))
                          && (method.Name != nameof(DbContext.OnModelCreating))
+                         && !(type == typeof(IEntityTypeConfiguration<>) && method.Name == nameof(IEntityTypeConfiguration<object>.Configure))
                    where type.GetTypeInfo().IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                    where !events.Any(e => (e.AddMethod == method) || (e.RemoveMethod == method))
                    from parameter in method.GetParameters()

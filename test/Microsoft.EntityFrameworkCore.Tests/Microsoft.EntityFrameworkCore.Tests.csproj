@@ -144,6 +144,7 @@
     <Compile Include="Metadata\Internal\PropertyTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
+    <Compile Include="ModelBuilderTest\IEntityTypeConfigurationTest.cs" />
     <Compile Include="ModelBuilderTest\GiantModel.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
