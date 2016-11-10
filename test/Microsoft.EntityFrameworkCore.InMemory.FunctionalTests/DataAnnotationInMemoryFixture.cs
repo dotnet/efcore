@@ -21,20 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ThrowingModelValidator>()
                 .BuildServiceProvider();
-        }
-
-        public override ModelValidator ThrowingValidator
-            => _serviceProvider.GetService<ThrowingModelValidator>();
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class ThrowingModelValidator : ModelValidator
-        {
-            protected override void ShowWarning(string message)
-            {
-                throw new InvalidOperationException(message);
-            }
         }
 
         public override InMemoryTestStore CreateTestStore()
@@ -47,11 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                     using (var context = new DataAnnotationContext(optionsBuilder.Options))
                     {
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            DataAnnotationModelInitializer.Seed(context);
-                        }
+                        DataAnnotationModelInitializer.Seed(context);
                     }
                 });
 
@@ -59,7 +42,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             => new DataAnnotationContext(new DbContextOptionsBuilder()
                 .UseInMemoryDatabase()
                 .UseInternalServiceProvider(_serviceProvider)
-                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .ConfigureWarnings(w =>
+				{
+					w.Default(WarningBehavior.Throw);
+					w.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+				})
                 .Options);
     }
 }

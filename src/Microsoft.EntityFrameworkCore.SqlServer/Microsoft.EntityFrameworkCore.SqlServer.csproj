@@ -71,6 +71,7 @@
     <Compile Include="Infrastructure\Internal\SqlServerModelSource.cs" />
     <Compile Include="Infrastructure\Internal\SqlServerOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqlServerDbContextOptionsBuilder.cs" />
+    <Compile Include="Metadata\Conventions\Internal\SqlServerIndexConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerMemoryOptimizedTablesConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilder.cs" />
@@ -104,11 +105,11 @@
       <DependentUpon>SqlServerStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="Query\Expressions\Internal\DatePartExpression.cs" />
     <Compile Include="Query\Expressions\Internal\RowNumberExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerContainsOptimizedTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateAddTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerConvertTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeDateComponentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeNowTranslator.cs" />

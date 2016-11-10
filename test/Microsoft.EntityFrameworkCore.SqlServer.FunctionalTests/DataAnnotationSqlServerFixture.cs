@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -30,31 +27,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .BuildServiceProvider();
         }
 
-        public override ModelValidator ThrowingValidator
-            => new ThrowingModelValidator(
-                _serviceProvider.GetService<ILogger<RelationalModelValidator>>(),
-                new SqlServerAnnotationProvider(),
-                new SqlServerTypeMapper());
-
-        private class ThrowingModelValidator : RelationalModelValidator
-        {
-            public ThrowingModelValidator(
-                ILogger<RelationalModelValidator> loggerFactory,
-                IRelationalAnnotationProvider relationalExtensions,
-                IRelationalTypeMapper typeMapper)
-                : base(loggerFactory, relationalExtensions, typeMapper)
-            {
-            }
-
-            protected override void ShowWarning(string message)
-            {
-                throw new InvalidOperationException(message);
-            }
-        }
-
         public override SqlServerTestStore CreateTestStore()
-        {
-            return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+            => SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
                         .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
@@ -68,14 +42,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         TestSqlLoggerFactory.Reset();
                     }
                 });
-        }
 
         public override DataAnnotationContext CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
                 .EnableSensitiveDataLogging()
                 .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
-                .UseInternalServiceProvider(_serviceProvider);
+                .UseInternalServiceProvider(_serviceProvider)
+                .ConfigureWarnings(w =>
+                    {
+                        w.Default(WarningBehavior.Throw);
+                        w.Ignore(CoreEventId.SensitiveDataLoggingEnabledWarning);
+                    });
 
             var context = new DataAnnotationContext(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);

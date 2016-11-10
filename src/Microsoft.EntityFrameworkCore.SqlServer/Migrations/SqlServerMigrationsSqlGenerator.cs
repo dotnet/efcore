@@ -421,25 +421,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             else
             {
                 base.Generate(operation, model, builder, terminate: false);
-
-                var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
-                if (operation.IsUnique
-                    && (clustered != true)
-                    && nullableColumns.Count != 0)
-                {
-                    builder.Append(" WHERE ");
-                    for (var i = 0; i < nullableColumns.Count; i++)
-                    {
-                        if (i != 0)
-                        {
-                            builder.Append(" AND ");
-                        }
-
-                        builder
-                            .Append(SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
-                            .Append(" IS NOT NULL");
-                    }
-                }
             }
 
             if (terminate)
@@ -1035,7 +1016,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Name = Annotations.For(index).Name,
                     Schema = Annotations.For(index.DeclaringEntityType).Schema,
                     Table = Annotations.For(index.DeclaringEntityType).TableName,
-                    Columns = index.Properties.Select(p => Annotations.For(p).ColumnName).ToArray()
+                    Columns = index.Properties.Select(p => Annotations.For(p).ColumnName).ToArray(),
+                    Filter = Annotations.For(index).Filter
                 };
                 operation.AddAnnotations(_migrationsAnnotations.For(index));
 

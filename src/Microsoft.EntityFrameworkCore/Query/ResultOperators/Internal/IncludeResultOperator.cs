@@ -22,33 +22,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     /// </summary>
     public class IncludeResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
-        private List<PropertyInfo> _chainedNavigationProperties;
+        private List<string> _navigationPropertyPaths;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public IncludeResultOperator([NotNull] MemberExpression navigationPropertyPath)
+        public IncludeResultOperator([NotNull] IEnumerable<string> navigationPropertyPaths, [NotNull] Expression pathFromQuerySource)
         {
-            NavigationPropertyPath = navigationPropertyPath;
-            QuerySource = GetQuerySource(navigationPropertyPath);
+            _navigationPropertyPaths = new List<string>(navigationPropertyPaths);
+            PathFromQuerySource = pathFromQuerySource;
+            QuerySource = GetQuerySource(pathFromQuerySource);
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public IncludeResultOperator([NotNull] string navigationPropertyPath)
+        private static IQuerySource GetQuerySource(Expression expression)
         {
-            StringNavigationPropertyPath = navigationPropertyPath;
-        }
+            var querySourceReferenceExpression = expression as QuerySourceReferenceExpression;
+            if (querySourceReferenceExpression != null)
+            {
+                return querySourceReferenceExpression.ReferencedQuerySource;
+            }
 
-        private static IQuerySource GetQuerySource(MemberExpression expression)
-        {
-            var expressionWithoutConvert = expression.Expression.RemoveConvert();
+            var memberExpression = expression as MemberExpression;
+            if (memberExpression != null)
+            {
+                return GetQuerySource(memberExpression.Expression.RemoveConvert());
+            }
 
-            return (expressionWithoutConvert as QuerySourceReferenceExpression)?.ReferencedQuerySource
-                   ?? GetQuerySource((MemberExpression)expressionWithoutConvert);
+            return null;
         }
 
         /// <summary>
@@ -67,19 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual MemberExpression NavigationPropertyPath { get; }
+        public virtual IReadOnlyCollection<string> NavigationPropertyPaths =>_navigationPropertyPaths;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string StringNavigationPropertyPath { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IReadOnlyList<PropertyInfo> ChainedNavigationProperties => _chainedNavigationProperties;
+        public virtual Expression PathFromQuerySource { get; [param: NotNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -87,38 +82,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public virtual void AppendToNavigationPath([NotNull] IReadOnlyList<PropertyInfo> propertyInfos)
         {
-            if (_chainedNavigationProperties == null)
+            if (_navigationPropertyPaths == null)
             {
-                _chainedNavigationProperties = new List<PropertyInfo>();
+                _navigationPropertyPaths = new List<string>();
             }
 
-            _chainedNavigationProperties.AddRange(propertyInfos);
+            _navigationPropertyPaths.AddRange(propertyInfos.Select(pi => pi.Name));
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string ToString()
-            => "Include("
-               + (StringNavigationPropertyPath ??
-                  NavigationPropertyPath
-                  + (_chainedNavigationProperties != null
-                      ? "." + _chainedNavigationProperties.Select(p => p.Name).Join(".")
-                      : string.Empty))
-               + ")";
+        public override string ToString() 
+            => $@"Include(""{NavigationPropertyPaths.Join(".")}"")";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override ResultOperatorBase Clone(CloneContext cloneContext)
-            => StringNavigationPropertyPath != null
-                ? new IncludeResultOperator(StringNavigationPropertyPath)
-                : new IncludeResultOperator(NavigationPropertyPath)
-                {
-                    _chainedNavigationProperties = _chainedNavigationProperties
-                };
+            => new IncludeResultOperator(NavigationPropertyPaths, PathFromQuerySource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

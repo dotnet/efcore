@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual TestModelBuilder Validate()
             {
                 var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
-                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())).Validate(modelBuilder.Metadata);
-                return modelBuilder == null ? null : this;
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())).Validate(modelBuilder.Metadata);
+                return this;
             }
 
             public virtual string GetDisplayName(Type entityType) => entityType.Name;
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => new TestKeyBuilder(KeyBuilder.HasAnnotation(annotation, value));
         }
 
-        public class TestIndexBuilder
+        public class TestIndexBuilder : IInfrastructure<IndexBuilder>
         {
             public TestIndexBuilder(IndexBuilder indexBuilder)
             {
@@ -212,6 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public virtual TestIndexBuilder IsUnique(bool isUnique = true)
                 => new TestIndexBuilder(IndexBuilder.IsUnique(isUnique));
+
+            IndexBuilder IInfrastructure<IndexBuilder>.Instance => IndexBuilder;
         }
 
         public abstract class TestPropertyBuilder<TProperty>

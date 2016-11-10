@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable UnusedMember.Local
@@ -611,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                new TestModelValidator().Validate(propertyBase.DeclaringType.Model);
+                new CoreModelValidator(new FakeLogger()).Validate(propertyBase.DeclaringType.Model);
                 Assert.Null(failMessage);
             }
             catch (InvalidOperationException ex)
@@ -620,12 +623,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
         }
 
-        private class TestModelValidator : ModelValidator
+        private class FakeLogger : ILogger<ModelValidator>
         {
-            protected override void ShowWarning(string message)
+            public void Log<TState>(
+                LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException(formatter(state, exception));
             }
+
+            public bool IsEnabled(LogLevel logLevel) => true;
+
+            public IDisposable BeginScope<TState>(TState state) => null;
         }
 
         [Fact]

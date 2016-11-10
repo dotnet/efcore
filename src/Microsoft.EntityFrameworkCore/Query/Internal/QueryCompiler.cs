@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
+        public virtual async Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
         {
             Check.NotNull(query, nameof(query));
 
@@ -130,7 +130,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             try
             {
-                return CompileAsyncQuery<TResult>(query)(queryContext).First(cancellationToken);
+                var asyncEnumerable = CompileAsyncQuery<TResult>(query)(queryContext);
+
+                using (var asyncEnumerator = asyncEnumerable.GetEnumerator())
+                {
+                    await asyncEnumerator.MoveNext(cancellationToken);
+
+                    return asyncEnumerator.Current;
+                }
             }
             catch (Exception exception)
             {

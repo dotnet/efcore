@@ -788,6 +788,86 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.NotNull(indexBuilder);
         }
 
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnIndexAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder)
+        {
+            var conventions = new ConventionSet();
+
+            InternalIndexBuilder indexBuilder = null;
+            Annotation annotationSet = null;
+            Annotation oldAnnotation = null;
+            var convention = new Mock<IIndexAnnotationSetConvention>();
+            convention.Setup(c => c.Apply(
+                    It.IsAny<InternalIndexBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
+                .Returns<InternalIndexBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.NotNull(b);
+                    Assert.Equal("foo", n);
+                    indexBuilder = b;
+                    annotationSet = a;
+                    oldAnnotation = o;
+                    return a;
+                });
+            conventions.IndexAnnotationSetConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IIndexAnnotationSetConvention>();
+            nullConvention.Setup(c => c.Apply(
+                    It.IsAny<InternalIndexBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
+                .Returns<InternalIndexBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.Same(indexBuilder, b);
+                    Assert.Equal("foo", n);
+                    return a == null ? new Annotation(n, n) : null;
+                });
+            conventions.IndexAnnotationSetConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IIndexAnnotationSetConvention>();
+            extraConvention.Setup(c => c.Apply(
+                    It.IsAny<InternalIndexBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
+                .Returns<InternalIndexBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.False(true);
+                    return null;
+                });
+            conventions.IndexAnnotationSetConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(conventions))
+                .Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
+                .HasIndex(new[] { nameof(SpecialOrder.Name) }, ConfigurationSource.Convention);
+
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.Equal("bar", annotationSet.Value);
+                Assert.Null(oldAnnotation);
+                Assert.NotNull(builder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+                Assert.Null(annotationSet);
+                Assert.Equal("bar", oldAnnotation?.Value);
+            }
+            else
+            {
+                builder.Metadata["foo"] = "bar";
+                Assert.Equal("bar", annotationSet.Value);
+                Assert.Null(oldAnnotation);
+                builder.Metadata.RemoveAnnotation("foo");
+                Assert.Null(annotationSet);
+                Assert.Equal("bar", oldAnnotation?.Value);
+            }
+
+            Assert.NotNull(indexBuilder);
+        }
+
         [Fact]
         public void OnForeignKeyRemoved_calls_apply_on_conventions_in_order()
         {
@@ -1221,6 +1301,86 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
                 return !_terminate;
             }
+        }
+
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnPropertyAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder)
+        {
+            var conventions = new ConventionSet();
+
+            InternalPropertyBuilder propertyBuilder = null;
+            Annotation annotationSet = null;
+            Annotation oldAnnotation = null;
+            var convention = new Mock<IPropertyAnnotationSetConvention>();
+            convention.Setup(c => c.Apply(
+                    It.IsAny<InternalPropertyBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
+                .Returns<InternalPropertyBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.NotNull(b);
+                    Assert.Equal("foo", n);
+                    propertyBuilder = b;
+                    annotationSet = a;
+                    oldAnnotation = o;
+                    return a;
+                });
+            conventions.PropertyAnnotationSetConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IPropertyAnnotationSetConvention>();
+            nullConvention.Setup(c => c.Apply(
+                    It.IsAny<InternalPropertyBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
+                .Returns<InternalPropertyBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.Same(propertyBuilder, b);
+                    Assert.Equal("foo", n);
+                    return a == null ? new Annotation(n, n) : null;
+                });
+            conventions.PropertyAnnotationSetConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IPropertyAnnotationSetConvention>();
+            extraConvention.Setup(c => c.Apply(
+                    It.IsAny<InternalPropertyBuilder>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Annotation>(),
+                    It.IsAny<Annotation>()))
+                .Returns<InternalPropertyBuilder, string, Annotation, Annotation>((b, n, a, o) =>
+                {
+                    Assert.False(true);
+                    return null;
+                });
+            conventions.PropertyAnnotationSetConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(conventions))
+                .Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
+                .Property(nameof(SpecialOrder.Name), ConfigurationSource.Convention);
+
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.Equal("bar", annotationSet.Value);
+                Assert.Null(oldAnnotation);
+                Assert.NotNull(builder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+                Assert.Null(annotationSet);
+                Assert.Equal("bar", oldAnnotation?.Value);
+            }
+            else
+            {
+                builder.Metadata["foo"] = "bar";
+                Assert.Equal("bar", annotationSet.Value);
+                Assert.Null(oldAnnotation);
+                builder.Metadata.RemoveAnnotation("foo");
+                Assert.Null(annotationSet);
+                Assert.Equal("bar", oldAnnotation?.Value);
+            }
+
+            Assert.NotNull(propertyBuilder);
         }
 
         private class Order

@@ -665,14 +665,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The expression '{expression}' passed to the Include operator could not be bound.
-        /// </summary>
-        public static string IncludeNonBindableExpression([CanBeNull] object expression)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IncludeNonBindableExpression", "expression"), expression);
-        }
-
-        /// <summary>
         /// The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.
         /// </summary>
         public static string IncludeBadNavigation([CanBeNull] object property, [CanBeNull] object entityType)
@@ -889,11 +881,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.
+        /// The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are conflicting.
         /// </summary>
-        public static string DuplicatePropertiesOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object properties)
+        public static string DuplicatePropertiesOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object derivedPropertyType, [CanBeNull] object derivedProperty, [CanBeNull] object basePropertyType, [CanBeNull] object baseProperty)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "entityType", "baseType", "properties"), entityType, baseType, properties);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "entityType", "baseType", "derivedPropertyType", "derivedProperty", "basePropertyType", "baseProperty"), entityType, baseType, derivedPropertyType, derivedProperty, basePropertyType, baseProperty);
         }
 
         /// <summary>
@@ -1145,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.
+        /// The extension method '{method}' is being used with a custom implementation of '{interfaceType}'. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from '{concreteType}' instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.
         /// </summary>
         public static string CustomMetadata([CanBeNull] object method, [CanBeNull] object interfaceType, [CanBeNull] object concreteType)
         {
@@ -1217,11 +1209,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in a key defined on a base entity type.
+        /// The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in the key {key} defined on a base entity type '{baseEntityType}'.
         /// </summary>
-        public static string ForeignKeyPropertyInKey([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string ForeignKeyPropertyInKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key, [CanBeNull] object baseEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertyInKey", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertyInKey", "property", "entityType", "key", "baseEntityType"), property, entityType, key, baseEntityType);
         }
 
         /// <summary>
@@ -1465,6 +1457,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
+        /// </summary>
+        public static string RowLimitingOperationWithoutOrderBy([CanBeNull] object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RowLimitingOperationWithoutOrderBy", "queryModel"), queryModel);
+        }
+
+        /// <summary>
         /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.
         /// </summary>
         public static string PropertyInUseForeignKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object foreignKeyType)
@@ -1478,6 +1478,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string PropertyInUseIndex([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object index, [CanBeNull] object indexType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUseIndex", "property", "entityType", "index", "indexType"), property, entityType, index, indexType);
+        }
+
+        /// <summary>
+        /// Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
+        /// </summary>
+        public static string FirstWithoutOrderByAndFilter([CanBeNull] object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FirstWithoutOrderByAndFilter", "queryModel"), queryModel);
         }
 
         private static string GetString(string name, params string[] formatterNames)

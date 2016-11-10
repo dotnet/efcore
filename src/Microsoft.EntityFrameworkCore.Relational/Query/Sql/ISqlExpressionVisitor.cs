@@ -121,42 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitExists([NotNull] ExistsExpression existsExpression);
 
         /// <summary>
-        ///     Visit a CountExpression.
-        /// </summary>
-        /// <param name="countExpression"> The count expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        Expression VisitCount([NotNull] CountExpression countExpression);
-
-        /// <summary>
-        ///     Visit a SumExpression.
-        /// </summary>
-        /// <param name="sumExpression"> The sum expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        Expression VisitSum([NotNull] SumExpression sumExpression);
-
-        /// <summary>
-        ///     Visit a MinExpression.
-        /// </summary>
-        /// <param name="minExpression"> The minimum expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        Expression VisitMin([NotNull] MinExpression minExpression);
-
-        /// <summary>
-        ///     Visit a MaxExpression.
-        /// </summary>
-        /// <param name="maxExpression"> The maximum expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        Expression VisitMax([NotNull] MaxExpression maxExpression);
-
-        /// <summary>
         ///     Visit an InExpression.
         /// </summary>
         /// <param name="inExpression"> The in expression. </param>
@@ -200,5 +164,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     An Expression.
         /// </returns>
         Expression VisitPropertyParameter([NotNull] PropertyParameterExpression propertyParameterExpression);
+        
+        /// <summary>
+        ///     Visit a SqlFragmentExpression.
+        /// </summary>
+        /// <param name="sqlFragmentExpression"> The SqlFragmentExpression expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        Expression VisitSqlFragment([NotNull] SqlFragmentExpression sqlFragmentExpression);
     }
 }

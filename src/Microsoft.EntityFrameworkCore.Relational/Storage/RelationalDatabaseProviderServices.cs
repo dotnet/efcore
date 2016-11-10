@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -137,6 +138,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IExpressionFragmentTranslator" /> for the database provider.
         /// </summary>
         public virtual IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<RelationalCompositeExpressionFragmentTranslator>();
+
+        /// <summary>
+        ///     Gets the <see cref="ISqlTranslatingExpressionVisitorFactory" /> for the database provider.
+        /// </summary>
+        public virtual ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory => GetService<SqlTranslatingExpressionVisitorFactory>();
 
         /// <summary>
         ///     Gets the <see cref="IDatabaseCreator" /> for the database provider.

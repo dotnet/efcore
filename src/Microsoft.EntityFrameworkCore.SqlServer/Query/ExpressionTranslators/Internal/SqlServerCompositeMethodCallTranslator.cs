@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             new SqlServerContainsOptimizedTranslator(),
             new SqlServerConvertTranslator(),
+            new SqlServerDateAddTranslator(),
             new SqlServerEndsWithOptimizedTranslator(),
             new SqlServerMathAbsTranslator(),
             new SqlServerMathCeilingTranslator(),

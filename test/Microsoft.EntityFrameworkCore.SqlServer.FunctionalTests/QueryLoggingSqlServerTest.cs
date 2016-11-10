@@ -96,7 +96,7 @@ select <generated>_0'
                 Assert.StartsWith(@"    Compiling query model: 
 '(from Customer c in DbSet<Customer>
 select c)
-.Include([c].Orders)'
+.Include(""Orders"")'
     Optimized query model: 
 'from Customer c in DbSet<Customer>
 select c'
@@ -145,7 +145,7 @@ select c'
                     TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
-
+    
         private readonly NorthwindQuerySqlServerFixture _fixture;
 
         public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture fixture)

@@ -20,12 +20,8 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design": {
-      "target": "project"
-    },
-    "Microsoft.EntityFrameworkCore.Sqlite": {
-      "target": "project"
-    },
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.Sqlite": "1.2.0-*",
     "NETStandard.Library": "1.6.1-*"
   },
   "frameworks": {

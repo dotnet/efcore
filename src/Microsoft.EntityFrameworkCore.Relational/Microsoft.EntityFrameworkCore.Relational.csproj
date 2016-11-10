@@ -68,6 +68,7 @@
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
+    <Compile Include="Infrastructure\RelationalModelValidator.cs" />
     <Compile Include="Migrations\IMigrationCommandExecutor.cs" />
     <Compile Include="Migrations\Internal\MigrationCommandExecutor.cs" />
     <Compile Include="Migrations\MigrationCommandListBuilder.cs" />
@@ -78,7 +79,6 @@
     <Compile Include="Internal\RelationalDiagnostics.cs" />
     <Compile Include="Internal\RelationalDiagnosticSourceAfterMessage.cs" />
     <Compile Include="Internal\RelationalDiagnosticSourceBeforeMessage.cs" />
-    <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder`.cs" />
     <Compile Include="Metadata\Conventions\Internal\DiscriminatorConvention.cs" />
@@ -181,10 +181,9 @@
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
-    <Compile Include="Query\Expressions\AggregateExpression.cs" />
     <Compile Include="Query\Expressions\AliasExpression.cs" />
     <Compile Include="Query\Expressions\ColumnExpression.cs" />
-    <Compile Include="Query\Expressions\CountExpression.cs" />
+    <Compile Include="Query\Expressions\SqlFragmentExpression.cs" />
     <Compile Include="Query\Expressions\CrossJoinExpression.cs" />
     <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
     <Compile Include="Query\Expressions\ExistsExpression.cs" />
@@ -198,15 +197,12 @@
     <Compile Include="Query\Expressions\LateralJoinExpression.cs" />
     <Compile Include="Query\Expressions\LeftOuterJoinExpression.cs" />
     <Compile Include="Query\Expressions\LikeExpression.cs" />
-    <Compile Include="Query\Expressions\MaxExpression.cs" />
-    <Compile Include="Query\Expressions\MinExpression.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
     <Compile Include="Query\Expressions\PropertyParameterExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpressionFactory.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
     <Compile Include="Query\Expressions\StringCompareExpression.cs" />
-    <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\EnumHasFlagTranslator.cs" />

@@ -12,12 +12,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
+        private readonly ISqlGenerationHelper _sqlGenerationHelper;
+
         public SqlServerConventionSetBuilder(
             [NotNull] IRelationalTypeMapper typeMapper,
             [CanBeNull] ICurrentDbContext currentContext,
-            [CanBeNull] IDbSetFinder setFinder)
+            [CanBeNull] IDbSetFinder setFinder,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
             : base(typeMapper, currentContext, setFinder)
         {
+            _sqlGenerationHelper = sqlGenerationHelper;
         }
 
         public override ConventionSet AddConventions(ConventionSet conventionSet)
@@ -36,15 +40,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
 
+            var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper);
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
+            conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
+
+            conventionSet.IndexUniquenessConventions.Add(sqlServerIndexConvention);
+
+            conventionSet.IndexAnnotationSetConventions.Add(sqlServerIndexConvention);
 
             ReplaceConvention(conventionSet.PropertyFieldChangedConventions, (DatabaseGeneratedAttributeConvention)valueGenerationStrategyConvention);
+
+            conventionSet.PropertyNullableChangedConventions.Add(sqlServerIndexConvention);
+
+            conventionSet.PropertyAnnotationSetConventions.Add(sqlServerIndexConvention);
 
             return conventionSet;
         }
 
         public static ConventionSet Build()
-            => new SqlServerConventionSetBuilder(new SqlServerTypeMapper(), null, null)
+            => new SqlServerConventionSetBuilder(new SqlServerTypeMapper(), null, null, new SqlServerSqlGenerationHelper())
                 .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
     }
 }

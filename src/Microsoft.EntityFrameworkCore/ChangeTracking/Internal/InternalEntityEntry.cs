@@ -286,12 +286,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 || currentState == EntityState.Detached
                 || !changeState)
             {
-                MarkAsTemporary(property, isTemporary: false);
-
-                var index = property.GetOriginalValueIndex();
-                if (index != -1)
+                object _;
+                if (!_storeGeneratedValues.TryGetValue(property, out _))
                 {
-                    SetOriginalValue(property, this[property], index);
+                    MarkAsTemporary(property, isTemporary: false);
+
+                    var index = property.GetOriginalValueIndex();
+                    if (index != -1)
+                    {
+                        SetOriginalValue(property, this[property], index);
+                    }
                 }
             }
 
@@ -663,7 +667,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (!Equals(currentValue, value)
                     || (propertyIndex.HasValue
-                        && _stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Unknown)))
+                        && (_stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Unknown)
+                            || _stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Null))))
                 {
                     var writeValue = true;
 
@@ -796,6 +801,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (EntityType.StoreGeneratedCount() > 0)
             {
+                DiscardStoreGeneratedValues();
                 _storeGeneratedValues = new StoreGeneratedValues(this);
             }
 
@@ -921,7 +927,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     object value;
                     if (storeGeneratedValues.TryGetValue(property, out value))
                     {
+                        var isTemp = HasTemporaryValue(property);
+
                         StateManager.Notify.PropertyChanged(this, property, setModified: false);
+
+                        if (isTemp)
+                        {
+                            MarkAsTemporary(property);
+                        }
                     }
                 }
             }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -183,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => Wrap(EntityTypeBuilder.UsePropertyAccessMode(propertyAccessMode));
         }
 
-        protected class GenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>
+        protected class GenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
         {
             public GenericTestPropertyBuilder(PropertyBuilder<TProperty> propertyBuilder)
             {
@@ -235,6 +236,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
+
+            PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance => PropertyBuilder;
         }
 
         protected class GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>

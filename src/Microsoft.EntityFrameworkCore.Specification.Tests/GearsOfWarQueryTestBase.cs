@@ -260,6 +260,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void String_based_Include_navigation_on_derived_type()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.OfType<Officer>().Include("Reports");
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+
+                var marcusReports = result.Where(e => e.Nickname == "Marcus").Single().Reports.ToList();
+                Assert.Equal(3, marcusReports.Count);
+                Assert.Contains("Baird", marcusReports.Select(g => g.Nickname));
+                Assert.Contains("Cole Train", marcusReports.Select(g => g.Nickname));
+                Assert.Contains("Dom", marcusReports.Select(g => g.Nickname));
+
+                var bairdReports = result.Where(e => e.Nickname == "Baird").Single().Reports.ToList();
+                Assert.Equal(1, bairdReports.Count);
+                Assert.Contains("Paduk", bairdReports.Select(g => g.Nickname));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Included()
         {
             using (var context = CreateContext())
@@ -2023,6 +2045,36 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_Date_works()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            where m.Timeline.Date > new DateTimeOffset().Date
+                            select m;
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_Datepart_works()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            where m.Timeline.Month == 5
+                            select m;
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
             }
         }
 

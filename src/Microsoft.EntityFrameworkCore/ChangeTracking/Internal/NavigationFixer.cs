@@ -739,7 +739,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(
                     dependentEntry[dependentProperty],
-                    principalValue))
+                    principalValue)
+                    || (dependentEntry.IsConceptualNull(dependentProperty)
+                        && principalValue != null))
                 {
                     dependentEntry.SetProperty(dependentProperty, principalValue, setModified);
                     dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
@@ -755,6 +757,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var principalProperties = foreignKey.PrincipalKey.Properties;
             var dependentProperties = foreignKey.Properties;
+            var hasNonKeyProperties = false;
 
             if (principalEntry != null
                 && principalEntry.EntityState != EntityState.Detached)
@@ -767,14 +770,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         return;
                     }
+
+                    if (!dependentProperties[i].IsKey())
+                    {
+                        hasNonKeyProperties = true;
+                    }
                 }
             }
 
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                dependentEntry[dependentProperties[i]] = null;
-                dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
-                dependentEntry.SetRelationshipSnapshotValue(dependentProperties[i], null);
+                if (!hasNonKeyProperties
+                    || !dependentProperties[i].IsKey())
+                {
+                    dependentEntry[dependentProperties[i]] = null;
+                    dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
+                    dependentEntry.SetRelationshipSnapshotValue(dependentProperties[i], null);
+                }
             }
         }
 

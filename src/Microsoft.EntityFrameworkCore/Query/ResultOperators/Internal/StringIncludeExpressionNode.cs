@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -44,7 +45,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-            => new IncludeResultOperator((string)_navigationPropertyPath.Value);
+        {
+            var prm = Expression.Parameter(typeof(object));
+            var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
+            var navigationPropertyPathValue = (string)_navigationPropertyPath.Value;
+
+            return new IncludeResultOperator(
+                navigationPropertyPathValue.Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries), 
+                pathFromQuerySource);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

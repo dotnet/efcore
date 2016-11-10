@@ -16,6 +16,60 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public abstract class InheritanceTestBase : ModelBuilderTestBase
         {
             [Fact]
+            public virtual void Can_map_derived_types_first()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<AnotherBookLabel>();
+                modelBuilder.Ignore<Book>();
+
+                modelBuilder.Entity<ExtraSpecialBookLabel>()
+                    .HasBaseType(null)
+                    .Property(b => b.BookId);
+
+                modelBuilder.Entity<SpecialBookLabel>()
+                    .HasBaseType(null)
+                    .Ignore(b => b.BookLabel)
+                    .Ignore(b => b.BookId);
+
+                modelBuilder.Entity<BookLabel>();
+
+                modelBuilder.Entity<ExtraSpecialBookLabel>().HasBaseType<SpecialBookLabel>();
+
+                modelBuilder.Entity<SpecialBookLabel>().HasBaseType<BookLabel>();
+
+                modelBuilder.Entity<SpecialBookLabel>().Property(b => b.BookId);
+
+                modelBuilder.Validate();
+
+                var model = modelBuilder.Model;
+                Assert.Equal(0, model.FindEntityType(typeof(ExtraSpecialBookLabel)).GetDeclaredProperties().Count());
+                Assert.Equal(0, model.FindEntityType(typeof(SpecialBookLabel)).GetDeclaredProperties().Count());
+                Assert.NotNull(model.FindEntityType(typeof(SpecialBookLabel)).FindProperty(nameof(BookLabel.BookId)));
+            }
+
+            [Fact]
+            public virtual void Base_types_are_mapped_correctly_if_discovered_last()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<AnotherBookLabel>();
+                modelBuilder.Ignore<Book>();
+                modelBuilder.Entity<ExtraSpecialBookLabel>();
+                modelBuilder.Entity<SpecialBookLabel>().Ignore(b => b.BookLabel);
+
+                modelBuilder.Validate();
+
+                var model = modelBuilder.Model;
+                var moreDerived = model.FindEntityType(typeof(ExtraSpecialBookLabel));
+                var derived = model.FindEntityType(typeof(SpecialBookLabel));
+                var baseType = model.FindEntityType(typeof(BookLabel));
+
+                Assert.Same(baseType, derived.BaseType);
+                Assert.Same(derived, moreDerived.BaseType);
+            }
+
+            [Fact]
             public virtual void Can_set_and_remove_base_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -38,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var ingredient = ingredientBuilder.Metadata;
 
                 Assert.Same(typeof(Ingredient), pickle.BaseType.ClrType);
-                AssertEqual(initialProperties, pickle.GetProperties(), new PropertyComparer(compareAnnotations: false));
+                AssertEqual(initialProperties, pickle.GetProperties().Where(p => p.Name != "Discriminator"), new PropertyComparer(compareAnnotations: false));
                 AssertEqual(initialKeys, pickle.GetKeys());
                 AssertEqual(initialIndexes, pickle.GetIndexes());
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
@@ -53,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
                 AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
-                AssertEqual(initialProperties, ingredient.GetProperties(), new PropertyComparer(compareAnnotations: false));
+                AssertEqual(initialProperties, ingredient.GetProperties().Where(p => p.Name != "Discriminator"), new PropertyComparer(compareAnnotations: false));
                 AssertEqual(initialKeys, ingredient.GetKeys());
                 AssertEqual(initialIndexes, ingredient.GetIndexes());
                 Assert.Equal(initialForeignKeys.Count(), ingredient.GetForeignKeys().Count());
@@ -297,6 +351,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(Order.Customer), otherDerivedFk.DependentToPrincipal.Name);
                 Assert.Null(otherDerivedFk.PrincipalToDependent);
                 Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Can_promote_shadow_fk_to_the_base_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<BackOrder>();
+
+                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                principalEntityBuilder.Ignore(nameof(Customer.Orders));
+                var dependentEntityBuilder = modelBuilder.Entity<Order>();
+                dependentEntityBuilder.Ignore(e => e.Customer);
+                var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(e => e.SpecialCustomerId);
+
+                dependentEntityBuilder
+                    .HasOne<SpecialCustomer>()
+                    .WithMany()
+                    .HasForeignKey(nameof(SpecialOrder.SpecialCustomerId));
+
+                var newFk = dependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Single();
+                Assert.NotEqual(newFk, derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Single());
+                Assert.Null(newFk.DependentToPrincipal);
+                Assert.Null(newFk.PrincipalToDependent);
+                Assert.Equal(nameof(SpecialOrder.SpecialCustomerId), newFk.Properties.Single().Name);
             }
 
             [Fact]

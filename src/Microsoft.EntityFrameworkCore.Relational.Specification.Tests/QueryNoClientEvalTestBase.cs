@@ -130,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         () =>
                             (from c1 in context.Customers
                                  .Where(c => c.IsLondon)
+                                 .OrderBy(c => c.CustomerID)
                                  .Take(5)
                              select c1)
                                 .ToList()).Message);

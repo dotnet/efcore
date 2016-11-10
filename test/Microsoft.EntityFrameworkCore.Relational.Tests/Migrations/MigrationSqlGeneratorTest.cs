@@ -196,6 +196,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
+        public override void CreateIndexOperation_with_where_clauses()
+        {
+            base.CreateIndexOperation_with_where_clauses();
+
+            Assert.Equal(
+                "CREATE INDEX \"IX_People_Name\" ON \"People\" (\"Name\") WHERE [Id] > 2;" + EOL,
+                Sql);
+        }
+
         public override void CreateSequenceOperation_with_minValue_and_maxValue()
         {
             base.CreateSequenceOperation_with_minValue_and_maxValue();

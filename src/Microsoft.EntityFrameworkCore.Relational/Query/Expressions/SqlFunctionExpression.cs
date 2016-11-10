@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private readonly ReadOnlyCollection<Expression> _arguments;
 
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.SqlFunctionExpression class.
+        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
         /// </summary>
         /// <param name="functionName"> Name of the function. </param>
         /// <param name="returnType"> The return type. </param>
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.SqlFunctionExpression class.
+        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
         /// </summary>
         /// <param name="functionName"> Name of the function. </param>
         /// <param name="returnType"> The return type. </param>
@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             FunctionName = functionName;
             Type = returnType;
+
             _arguments = arguments.ToList().AsReadOnly();
         }
 
@@ -55,12 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <value>
         ///     The name of the function.
         /// </value>
-        public virtual string FunctionName { get; [param: NotNull] set; }
+        public virtual string FunctionName { get; }
 
         /// <summary>
         ///     The arguments.
         /// </summary>
-        public virtual IReadOnlyCollection<Expression> Arguments => _arguments;
+        public virtual IReadOnlyList<Expression> Arguments => _arguments;
 
         /// <summary>
         ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
+        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the
         ///     reduced expression.
         ///     Throws an exception if the node isn't reducible.
         /// </summary>

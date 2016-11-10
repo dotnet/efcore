@@ -138,15 +138,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var propertyCollisions = entityType.GetProperties()
                     .Select(p => p.Name)
-                    .SelectMany(FindPropertiesInHierarchy)
+                    .SelectMany(FindDerivedPropertiesInclusive)
                     .ToList();
+
                 if (propertyCollisions.Any())
                 {
+                    var derivedProperty = propertyCollisions.First();
+                    var baseProperty = entityType.FindProperty(derivedProperty.Name);
                     throw new InvalidOperationException(
                         CoreStrings.DuplicatePropertiesOnBase(
                             this.DisplayName(),
                             entityType.DisplayName(),
-                            string.Join(", ", propertyCollisions.Select(p => p.Name))));
+                            derivedProperty.DeclaringEntityType.DisplayName(),
+                            derivedProperty.Name,
+                            baseProperty.DeclaringEntityType.DisplayName(),
+                            baseProperty.Name));
                 }
 
                 var navigationCollisions = entityType.GetNavigations()
@@ -637,12 +643,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
-
-                if (actualProperty.GetContainingKeys().Any(k => k.DeclaringEntityType != this))
-                {
-                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertyInKey(actualProperty.Name, this.DisplayName()));
-                }
             }
+
+            ForeignKey.AreCompatible(
+                principalEntityType,
+                dependentEntityType: this,
+                navigationToPrincipal: null,
+                navigationToDependent: null,
+                dependentProperties: properties,
+                principalProperties: principalKey.Properties,
+                unique: null,
+                required: null,
+                shouldThrow: true);
 
             var duplicateForeignKey = FindForeignKeysInHierarchy(properties, principalKey, principalEntityType).FirstOrDefault();
             if (duplicateForeignKey != null)
@@ -1502,6 +1514,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return GetDerivedTypes().Select(et => et.FindDeclaredProperty(propertyName)).Where(p => p != null);
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<Property> FindDerivedPropertiesInclusive([NotNull] string propertyName)
+            => ToEnumerable(FindDeclaredProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -49,6 +49,8 @@
     <Compile Include="Migrations\SqlServerHistoryRepositoryTest.cs" />
     <Compile Include="Migrations\SqlServerMigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\SqlServerModelDifferTest.cs" />
+    <Compile Include="ModelBuilderTest\SqlServerModelBuilderGenericTest.cs" />
+    <Compile Include="ModelBuilderTest\SqlServerTestModelBuilderExtensions.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
     <Compile Include="SqlServerDatabaseSourceTest.cs" />

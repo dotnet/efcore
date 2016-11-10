@@ -602,6 +602,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
+            // FKs are not allowed to use properties from inherited keys since this could result in an ambiguous value space
+            if (dependentProperties != null
+                && dependentEntityType.BaseType != null)
+            {
+                var inheritedKey = dependentProperties.SelectMany(p => p.GetContainingKeys().Where(k => k.DeclaringEntityType != dependentEntityType)).FirstOrDefault();
+                if (inheritedKey != null)
+                {
+                    if (shouldThrow)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ForeignKeyPropertyInKey(
+                                dependentProperties.First(p => inheritedKey.Properties.Contains(p)).Name,
+                                dependentEntityType.DisplayName(),
+                                Property.Format(inheritedKey.Properties),
+                                inheritedKey.DeclaringEntityType.DisplayName()));
+                    }
+                    return false;
+                }
+            }
+
             if (dependentProperties != null
                 && !CanPropertiesBeRequired(dependentProperties, required, dependentEntityType, true))
             {

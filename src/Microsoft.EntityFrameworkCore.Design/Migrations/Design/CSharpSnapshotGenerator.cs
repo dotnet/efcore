@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .Append("b.HasIndex(")
+                .Append($"b.{nameof(EntityTypeBuilder.HasIndex)}(")
                 .Append(string.Join(", ", index.Properties.Select(p => _code.Literal(p.Name))))
                 .Append(")");
 
@@ -341,7 +341,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".IsUnique()");
+                        .Append($".{nameof(IndexBuilder.IsUnique)}()");
+                }
+
+                if (index.Relational().Filter != null)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}({index.Relational().Filter})");
                 }
 
                 var annotations = index.GetAnnotations().ToList();

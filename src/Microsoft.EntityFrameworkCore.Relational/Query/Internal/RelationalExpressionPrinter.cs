@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalExpressionPrinter()
-            : base(new List<IConstantPrinter>
+            : base(new List<ConstantPrinterBase>
             {
                 new CommandBuilderPrinter(),
                 new EntityTrackingInfoListPrinter(),
@@ -29,14 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
         }
 
-        private class CommandBuilderPrinter : IConstantPrinter
+        private class CommandBuilderPrinter : ConstantPrinterBase
         {
-            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
             {
                 var shaperCommandContext = value as ShaperCommandContext;
                 if (shaperCommandContext != null)
                 {
-                    stringBuilder.AppendLine("SelectExpression: ");
+                    var appendAction = !removeFormatting ? AppendLine : Append;
+
+                    appendAction(stringBuilder, "SelectExpression: ");
                     stringBuilder.IncrementIndent();
 
                     var querySqlGenerator = shaperCommandContext.QuerySqlGeneratorFactory();
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
                     foreach (var line in lines)
                     {
-                        stringBuilder.AppendLine(line);
+                        appendAction(stringBuilder, removeFormatting ? " " + line.TrimStart(' ') : line);
                     }
 
                     stringBuilder.DecrementIndent();
@@ -57,14 +59,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class EntityTrackingInfoListPrinter : IConstantPrinter
+        private class EntityTrackingInfoListPrinter : ConstantPrinterBase
         {
-            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
             {
                 var trackingInfoList = value as List<EntityTrackingInfo>;
                 if (trackingInfoList != null)
                 {
-                    var appendAction = trackingInfoList.Count > 2 ? AppendLine : Append;
+                    var appendAction = trackingInfoList.Count > 2 && !removeFormatting ? AppendLine : Append;
 
                     appendAction(stringBuilder, "{ ");
                     stringBuilder.IncrementIndent();
@@ -87,15 +89,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class MetadataPropertyCollectionPrinter : IConstantPrinter
+        private class MetadataPropertyCollectionPrinter : ConstantPrinterBase
         {
-            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
             {
                 var properties = value as IEnumerable<IPropertyBase>;
                 if (properties != null)
                 {
                     var propertiesList = properties.ToList();
-                    var appendAction = propertiesList.Count > 2 ? AppendLine : Append;
+                    var appendAction = propertiesList.Count > 2 && !removeFormatting ? AppendLine : Append;
 
                     appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
                     appendAction(stringBuilder, "{ ");

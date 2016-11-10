@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Migrations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -437,5 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
                 ");" + EOL,
                 Sql);
         }
+
+        protected override ModelBuilder CreateModelBuilder() => SqliteTestHelpers.Instance.CreateConventionBuilder();
     }
 }

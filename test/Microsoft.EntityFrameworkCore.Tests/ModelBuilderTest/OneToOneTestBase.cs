@@ -240,6 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<OrderDetails>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<BackOrder>();
 
                 var dependentType = model.FindEntityType(typeof(OrderDetails));
                 var principalType = model.FindEntityType(typeof(Order));
@@ -363,6 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Order>();
                 modelBuilder.Entity<OrderDetails>();
                 modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<BackOrder>();
 
                 var dependentType = model.FindEntityType(typeof(OrderDetails));
                 var principalType = model.FindEntityType(typeof(Order));
@@ -672,6 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .Entity<OrderDetails>().HasOne<Order>().WithOne()
                     .HasForeignKey<OrderDetails>(c => c.Id);
                 modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<BackOrder>();
 
                 var dependentType = model.FindEntityType(typeof(OrderDetails));
                 var principalType = model.FindEntityType(typeof(Order));

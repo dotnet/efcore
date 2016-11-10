@@ -288,6 +288,26 @@ ORDER BY [g0].[LeaderNickname], [g0].[LeaderSquadId]",
                 Sql);
         }
 
+        public override void String_based_Include_navigation_on_derived_type()
+        {
+            base.String_based_Include_navigation_on_derived_type();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] = N'Officer'
+ORDER BY [g].[Nickname], [g].[SquadId]
+
+SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gear] AS [g0]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
+    FROM [Gear] AS [g]
+    WHERE ([g].[Discriminator] = N'Officer') AND (([g0].[LeaderNickname] = [g].[Nickname]) AND ([g0].[LeaderSquadId] = [g].[SquadId])))
+ORDER BY [g0].[LeaderNickname], [g0].[LeaderSquadId]",
+                Sql);
+        }
+
         public override void Select_Where_Navigation_Included()
         {
             base.Select_Where_Navigation_Included();
@@ -2033,6 +2053,30 @@ ORDER BY CASE
     WHEN [g].[FullName] IS NULL
     THEN CAST(0 AS BIT) ELSE CAST(1 AS BIT)
 END",
+                Sql);
+        }
+
+        public override void DateTimeOffset_Date_works()
+        {
+            base.DateTimeOffset_Date_works();
+
+            Assert.Equal(
+                @"@__Date_0: 01/01/0001 00:00:00
+
+SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Mission] AS [m]
+WHERE CONVERT(date, [m].[Timeline]) > @__Date_0",
+                Sql);
+        }
+
+        public override void DateTimeOffset_Datepart_works()
+        {
+            base.DateTimeOffset_Datepart_works();
+
+            Assert.Equal(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Mission] AS [m]
+WHERE DATEPART(month, [m].[Timeline]) = 5",
                 Sql);
         }
 

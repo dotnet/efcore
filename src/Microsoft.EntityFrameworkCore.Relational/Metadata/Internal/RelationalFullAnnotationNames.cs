@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             SequencePrefix = prefix + RelationalAnnotationNames.SequencePrefix;
             DiscriminatorProperty = prefix + RelationalAnnotationNames.DiscriminatorProperty;
             DiscriminatorValue = prefix + RelationalAnnotationNames.DiscriminatorValue;
+            Filter = prefix + RelationalAnnotationNames.Filter;
         }
 
         /// <summary>
@@ -95,6 +96,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public readonly string Name;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public readonly string Filter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -6,5 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IRelationalIndexAnnotations
     {
         string Name { get; }
+
+        string Filter { get; }
     }
 }

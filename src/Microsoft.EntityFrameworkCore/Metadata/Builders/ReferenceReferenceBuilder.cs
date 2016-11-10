@@ -248,10 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
             [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
-        {
-            return HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
+            => HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
                 (b, d) => b.HasForeignKey(foreignKeyPropertyNames, d, ConfigurationSource.Explicit));
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -261,10 +259,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
             [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
-        {
-            return HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
+            => HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
                 (b, d) => b.HasForeignKey(foreignKeyProperties, d, ConfigurationSource.Explicit));
-        }
 
         private InternalRelationshipBuilder HasForeignKeyBuilder(
             EntityType dependentEntityType,

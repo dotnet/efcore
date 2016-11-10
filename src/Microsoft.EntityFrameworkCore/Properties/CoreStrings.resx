@@ -360,9 +360,6 @@
   <data name="IncludeNotImplemented" xml:space="preserve">
     <value>The Include operator is not implemented by the current database provider.</value>
   </data>
-  <data name="IncludeNonBindableExpression" xml:space="preserve">
-    <value>The expression '{expression}' passed to the Include operator could not be bound.</value>
-  </data>
   <data name="IncludeBadNavigation" xml:space="preserve">
     <value>The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.</value>
   </data>
@@ -445,7 +442,7 @@
     <value>Options extension of type '{optionsExtension}' not found.</value>
   </data>
   <data name="DuplicatePropertiesOnBase" xml:space="preserve">
-    <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.</value>
+    <value>The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are conflicting.</value>
   </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
@@ -541,7 +538,7 @@
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
   </data>
   <data name="CustomMetadata" xml:space="preserve">
-    <value>The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.</value>
+    <value>The extension method '{method}' is being used with a custom implementation of '{interfaceType}'. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from '{concreteType}' instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.</value>
   </data>
   <data name="InvalidMemberInitBinding" xml:space="preserve">
     <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
@@ -568,7 +565,7 @@
     <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key targeting '{entityType}'. The foreign key must be targeting a type that is part of the relationship.</value>
   </data>
   <data name="ForeignKeyPropertyInKey" xml:space="preserve">
-    <value>The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in a key defined on a base entity type.</value>
+    <value>The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in the key {key} defined on a base entity type '{baseEntityType}'.</value>
   </data>
   <data name="KeyPropertyInForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be part of a key on '{entityType}' because it is contained in a foreign key defined on a derived entity type.</value>
@@ -660,10 +657,16 @@
   <data name="PropertyCalledOnNavigation" xml:space="preserve">
     <value>Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.</value>
   </data>
+  <data name="RowLimitingOperationWithoutOrderBy" xml:space="preserve">
+    <value>Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.</value>
+  </data>
   <data name="PropertyInUseForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="PropertyInUseIndex" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
+  </data>
+  <data name="FirstWithoutOrderByAndFilter" xml:space="preserve">
+    <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
   </data>
 </root>

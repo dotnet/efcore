@@ -14,5 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual string Name { get; [param: NotNull] set; }
         public virtual ICollection<IndexColumnModel> IndexColumns { get; [param: NotNull] set; } = new List<IndexColumnModel>();
         public virtual bool IsUnique { get; [param: NotNull] set; }
+        public virtual string Filter { get; [param: CanBeNull] set; }
     }
 }

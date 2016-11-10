@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
@@ -14,8 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public abstract TTestStore CreateTestStore();
 
         public abstract DataAnnotationContext CreateContext(TTestStore testStore);
-
-        public abstract ModelValidator ThrowingValidator { get; }
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
@@ -21,12 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             string datePart;
             if (memberExpression.Expression != null
-                && memberExpression.Expression.Type == typeof(DateTime)
+                && (memberExpression.Expression.Type == typeof(DateTime) || memberExpression.Expression.Type == typeof(DateTimeOffset))
                 && (datePart = GetDatePart(memberExpression.Member.Name)) != null)
             {
-                return new DatePartExpression(datePart,
-                    memberExpression.Type,
-                    memberExpression.Expression);
+                return new SqlFunctionExpression(
+                    functionName: "DATEPART",
+                    returnType: memberExpression.Type,
+                    arguments: new[]
+                    {
+                        new SqlFragmentExpression(datePart), 
+                        memberExpression.Expression
+                    });
             }
             return null;
         }

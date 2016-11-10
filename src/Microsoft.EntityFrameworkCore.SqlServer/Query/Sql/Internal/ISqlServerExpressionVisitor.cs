@@ -10,6 +10,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
     public interface ISqlServerExpressionVisitor
     {
         Expression VisitRowNumber([NotNull] RowNumberExpression rowNumberExpression);
-        Expression VisitDatePartExpression([NotNull] DatePartExpression datePartExpression);
     }
 }

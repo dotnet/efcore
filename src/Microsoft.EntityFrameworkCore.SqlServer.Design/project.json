@@ -20,12 +20,8 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design": {
-      "target": "project"
-    },
-    "Microsoft.EntityFrameworkCore.SqlServer": {
-      "target": "project"
-    },
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.2.0-*",
     "NETStandard.Library": "1.6.1-*"
   },
   "frameworks": {

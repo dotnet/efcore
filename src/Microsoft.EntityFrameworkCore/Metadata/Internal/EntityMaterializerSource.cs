@@ -34,8 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             int index,
             IProperty property = null)
         {
-            var readValueExpression
-                = Expression.Convert(CreateReadValueCallExpression(valueBuffer, index), type);
+            var readValueCallExpression 
+                = CreateReadValueCallExpression(valueBuffer, index);
+
+            var convertedReadValueExpression
+                = Expression.Convert(readValueCallExpression, type);
 
             var exceptionParameter
                 = Expression.Parameter(typeof(Exception), "e");
@@ -44,15 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 = Expression
                     .Catch(exceptionParameter,
                         Expression.Call(
-                            _createReadValueException.MakeGenericMethod(readValueExpression.Type),
+                            ThrowReadValueExceptionMethod.MakeGenericMethod(convertedReadValueExpression.Type),
                             exceptionParameter,
-                            CreateReadValueCallExpression(valueBuffer, index),
+                            readValueCallExpression,
                             Expression.Constant(property, typeof(IPropertyBase))));
 
-            return Expression.TryCatch(readValueExpression, catchBlock);
+            return Expression.TryCatch(convertedReadValueExpression, catchBlock);
         }
 
-        private static readonly MethodInfo _createReadValueException
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static readonly MethodInfo ThrowReadValueExceptionMethod
             = typeof(EntityMaterializerSource).GetTypeInfo()
                 .GetDeclaredMethod(nameof(ThrowReadValueException));
 
