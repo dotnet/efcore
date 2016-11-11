@@ -398,7 +398,7 @@ ORDER BY [w].[OwnerFullName]",
         {
             base.Include_where_list_contains_navigation();
 
-            Assert.Equal(
+            Assert.StartsWith(
                 @"SELECT [t].[Id]
 FROM [CogTag] AS [t]
 
@@ -406,7 +406,11 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthNa
 FROM [Gear] AS [g]
 LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
 LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g.Tag].[Id] IS NOT NULL
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN ('",
+                Sql);
+
+            Assert.EndsWith(
+                @"'))
 ORDER BY [g].[Nickname], [g].[SquadId]",
                 Sql);
         }
@@ -415,7 +419,7 @@ ORDER BY [g].[Nickname], [g].[SquadId]",
         {
             base.Include_where_list_contains_navigation2();
 
-            Assert.Equal(
+            Assert.StartsWith(
                 @"SELECT [t].[Id]
 FROM [CogTag] AS [t]
 
@@ -424,7 +428,11 @@ FROM [Gear] AS [g]
 LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
 INNER JOIN [City] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]
 LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g.CityOfBirth].[Location] IS NOT NULL
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.CityOfBirth].[Location] IS NOT NULL AND [g.Tag].[Id] IN ('",
+                Sql);
+
+            Assert.EndsWith(
+                @"'))
 ORDER BY [g].[Nickname], [g].[SquadId]",
                 Sql);
         }
@@ -433,14 +441,18 @@ ORDER BY [g].[Nickname], [g].[SquadId]",
         {
             base.Navigation_accessed_twice_outside_and_inside_subquery();
 
-            Assert.Equal(
+            Assert.StartsWith(
                 @"SELECT [t].[Id]
 FROM [CogTag] AS [t]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]
 FROM [Gear] AS [g]
 LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g.Tag].[Id] IS NOT NULL
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN ('",
+                Sql);
+
+            Assert.EndsWith(
+                @"'))
 ORDER BY [g].[Nickname], [g].[SquadId]",
                 Sql);
         }
