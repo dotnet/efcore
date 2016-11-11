@@ -1266,7 +1266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] IReadOnlyList<string> propertyNames, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => HasForeignKey(
-                dependentEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource, Metadata.PrincipalKey.Properties),
+                dependentEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource, Metadata.PrincipalKey.Properties, useDefaultType: true),
                 dependentEntityType,
                 configurationSource,
                 runConventions: true);
@@ -1815,6 +1815,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (dependentProperties != null
                 && dependentProperties.Any())
             {
+                dependentProperties = dependentEntityTypeBuilder.GetActualProperties(dependentProperties, configurationSource);
                 var foreignKeyPropertiesConfigurationSource = configurationSource;
                 if (PropertyListComparer.Instance.Equals(Metadata.Properties, dependentProperties)
                     && !oldRelationshipInverted)
@@ -1835,8 +1836,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (principalProperties != null
                 && principalProperties.Any())
             {
+                principalProperties = principalEntityTypeBuilder.GetActualProperties(principalProperties, configurationSource);
                 var principalKeyConfigurationSource = configurationSource;
-                if (PropertyListComparer.Instance.Equals(Metadata.PrincipalKey.Properties, principalProperties)
+                if (PropertyListComparer.Instance.Equals(principalProperties, newRelationshipBuilder.Metadata.PrincipalKey.Properties)
                     && !oldRelationshipInverted)
                 {
                     principalKeyConfigurationSource = principalKeyConfigurationSource.Max(Metadata.GetPrincipalKeyConfigurationSource());
@@ -1983,8 +1985,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(removedForeignKey.Item1, removedForeignKey.Item2);
                 }
 
-                dependentProperties = dependentProperties != null && dependentProperties.Any() ? dependentProperties : null;
-                principalProperties = principalProperties != null && principalProperties.Any() ? principalProperties : null;
+                dependentProperties = dependentProperties != null && dependentProperties.Any()
+                    ? newRelationshipBuilder.Metadata.Properties : null;
+                principalProperties = principalProperties != null && principalProperties.Any()
+                    ? newRelationshipBuilder.Metadata.PrincipalKey.Properties : null;
                 if (newRelationshipBuilder.Metadata.Builder == null)
                 {
                     newRelationshipBuilder = FindCurrentRelationshipBuilder(
@@ -2738,7 +2742,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<Property> dependentProperties = null;
             if (Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) == true)
             {
-                dependentProperties = Metadata.DeclaringEntityType.Builder.GetActualProperties(Metadata.Properties, null)
+                dependentProperties = Metadata.DeclaringEntityType.Builder.GetActualProperties(Metadata.Properties, configurationSource: null)
                                       ?? new List<Property>();
             }
 

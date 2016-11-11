@@ -92,14 +92,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                var referencingForeignKeys = key.GetReferencingForeignKeys().ToList();
+                var referencingForeignKeys = key.GetReferencingForeignKeys().Where(fk => fk.GetPrincipalKeyConfigurationSource() == null)
+                    .ToList();
                 if (referencingForeignKeys.Count == 0)
                 {
                     continue;
                 }
 
                 var detachedRelationships = referencingForeignKeys.Select(DetachRelationship).ToList();
-                RemoveKey(key, ConfigurationSource.DataAnnotation);
                 foreach (var relationshipSnapshot in detachedRelationships)
                 {
                     relationshipSnapshot.Attach();
@@ -307,28 +307,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalPropertyBuilder Property(
-            [NotNull] string propertyName, [NotNull] Type propertyType, ConfigurationSource configurationSource)
-            => Property(propertyName, propertyType, clrProperty: null, configurationSource: configurationSource);
+            [NotNull] string propertyName,
+            [NotNull] Type propertyType,
+            ConfigurationSource configurationSource)
+            => Property(propertyName, propertyType, configurationSource, typeConfigurationSource: configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalPropertyBuilder Property(
+            [NotNull] string propertyName,
+            [NotNull] Type propertyType,
+            ConfigurationSource configurationSource,
+            [CanBeNull] ConfigurationSource? typeConfigurationSource)
+            => Property(propertyName, propertyType, memberInfo: null,
+                configurationSource: configurationSource, typeConfigurationSource: typeConfigurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] string propertyName, ConfigurationSource configurationSource)
-            => Property(propertyName, null, clrProperty: null, configurationSource: configurationSource);
+            => Property(propertyName, propertyType: null, memberInfo: null, configurationSource: configurationSource, typeConfigurationSource: configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] MemberInfo clrProperty, ConfigurationSource configurationSource)
-            => Property(clrProperty.Name, clrProperty.GetMemberType(), clrProperty: clrProperty, configurationSource: configurationSource);
+            => Property(clrProperty.Name, clrProperty.GetMemberType(), clrProperty, configurationSource, configurationSource);
 
         private InternalPropertyBuilder Property(
             [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
-            [CanBeNull] MemberInfo clrProperty,
-            [CanBeNull] ConfigurationSource? configurationSource)
+            [CanBeNull] MemberInfo memberInfo,
+            [CanBeNull] ConfigurationSource? configurationSource,
+            [CanBeNull] ConfigurationSource? typeConfigurationSource)
         {
             if (IsIgnored(propertyName, configurationSource))
             {
@@ -341,24 +356,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var existingProperty = Metadata.FindProperty(propertyName);
             if (existingProperty == null)
             {
-                var derivedProperties = Metadata.FindDerivedProperties(propertyName);
-                detachedProperties = DetachProperties(derivedProperties);
+                detachedProperties = DetachProperties(Metadata.FindDerivedProperties(propertyName));
             }
             else if (existingProperty.DeclaringEntityType != Metadata)
             {
-                if (clrProperty != null
-                    && existingProperty.DeclaringEntityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == propertyName) == null)
+                if (memberInfo != null
+                    && existingProperty.MemberInfo == null)
                 {
                     detachedProperties = DetachProperties(new[] { existingProperty });
                 }
                 else
                 {
                     return existingProperty.DeclaringEntityType.Builder
-                        .Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);
+                        .Property(existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
                 }
             }
 
-            var builder = Property(existingProperty, propertyName, propertyType, clrProperty, configurationSource);
+            var builder = Property(existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
 
             detachedProperties?.Attach(this);
 
@@ -376,7 +390,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
             [CanBeNull] MemberInfo clrProperty,
-            [CanBeNull] ConfigurationSource? configurationSource)
+            [CanBeNull] ConfigurationSource? configurationSource,
+            [CanBeNull] ConfigurationSource? typeConfigurationSource)
         {
             var property = existingProperty;
             if (existingProperty == null)
@@ -398,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    property = Metadata.AddProperty(propertyName, propertyType, configurationSource: configurationSource.Value);
+                    property = Metadata.AddProperty(propertyName, propertyType,  configurationSource.Value, typeConfigurationSource);
                 }
             }
             else
@@ -422,14 +437,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     else
                     {
-                        property = Metadata.AddProperty(propertyName, propertyType, configurationSource: configurationSource.Value);
+                        property = Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource.Value);
                     }
 
                     detachedProperties.Attach(this);
                 }
-                else if (configurationSource.HasValue)
+                else
                 {
-                    property.UpdateConfigurationSource(configurationSource.Value);
+                    if (configurationSource.HasValue)
+                    {
+                        property.UpdateConfigurationSource(configurationSource.Value);
+                    }
+                    if (typeConfigurationSource.HasValue)
+                    {
+                        property.UpdateConfigurationSource(typeConfigurationSource.Value);
+                    }
                 }
             }
 
@@ -1261,7 +1283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? null
                 : HasForeignKeyInternal(
                     principalType,
-                    GetOrCreateProperties(propertyNames, configurationSource, principalType.Metadata.FindPrimaryKey()?.Properties),
+                    GetOrCreateProperties(propertyNames, configurationSource, principalType.Metadata.FindPrimaryKey()?.Properties, useDefaultType: true),
                     null,
                     configurationSource);
         }
@@ -1284,7 +1306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? null
                 : HasForeignKeyInternal(
                     principalType,
-                    GetOrCreateProperties(propertyNames, configurationSource, principalKey.Properties),
+                    GetOrCreateProperties(propertyNames, configurationSource, principalKey.Properties, useDefaultType: true),
                     principalKey,
                     configurationSource);
         }
@@ -1670,16 +1692,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 principalKey = principalType.FindPrimaryKey();
                 if (principalKey != null
-                    && dependentProperties != null
-                    && (!ForeignKey.AreCompatible(
+                    && dependentProperties != null)
+                {
+                    if (!ForeignKey.AreCompatible(
                         principalKey.Properties,
                         dependentProperties,
                         principalType,
                         Metadata,
-                        shouldThrow: false)
-                        || Metadata.FindForeignKeysInHierarchy(dependentProperties, principalKey, principalType).Any()))
-                {
-                    principalKey = null;
+                        shouldThrow: false))
+                    {
+                        if (dependentProperties.All(p => p.GetTypeConfigurationSource() == null))
+                        {
+                            var detachedProperties = DetachProperties(dependentProperties);
+                            GetOrCreateProperties(dependentProperties.Select(p => p.Name).ToList(), configurationSource, principalKey.Properties);
+                            detachedProperties.Attach(this);
+                        }
+                        else
+                        {
+                            principalKey = null;
+                        }
+                    }
+                    else if (Metadata.FindForeignKeysInHierarchy(dependentProperties, principalKey, principalType).Any())
+                    {
+                        principalKey = null;
+                    }
                 }
             }
 
@@ -1748,9 +1784,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string baseName)
         {
             var newProperties = new Property[propertyCount];
-            var clrProperties = Metadata.ClrType == null
+            var clrMembers = Metadata.ClrType == null
                 ? null
-                : new HashSet<string>(Metadata.ClrType.GetRuntimeProperties().Select(p => p.Name));
+                : new HashSet<string>(Metadata.ClrType.GetRuntimeProperties().Select(p => p.Name)
+                    .Concat(Metadata.ClrType.GetRuntimeFields().Select(p => p.Name)));
             var noNewProperties = true;
             using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
             {
@@ -1771,9 +1808,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
                             if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
-                                && (clrProperties?.Contains(propertyName) != true))
+                                && clrMembers?.Contains(propertyName) != true)
                             {
-                                var propertyBuilder = Property(propertyName, clrType, ConfigurationSource.Convention);
+                                var propertyBuilder = Property(propertyName, clrType, ConfigurationSource.Convention, typeConfigurationSource: null);
                                 if (propertyBuilder == null)
                                 {
                                     RemoveShadowPropertiesIfUnused(newProperties);
@@ -1814,32 +1851,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<Property> GetOrCreateProperties(
-            [CanBeNull] IEnumerable<string> propertyNames,
+            [CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource,
-            [CanBeNull] IEnumerable<Property> referencedProperties = null)
+            [CanBeNull] IReadOnlyList<Property> referencedProperties = null,
+            bool useDefaultType = false)
         {
             if (propertyNames == null)
             {
                 return null;
             }
 
-            var list = new List<Property>();
-            var propertyNamesList = propertyNames.ToList();
-            var referencedPropertiesList = referencedProperties?.ToList();
-            if (referencedPropertiesList != null
-                && referencedPropertiesList.Count != propertyNamesList.Count)
+            if (referencedProperties != null
+                && referencedProperties.Count != propertyNames.Count)
             {
-                referencedPropertiesList = null;
+                referencedProperties = null;
             }
-            var typesList = referencedPropertiesList?.Select(p => p.ClrType).ToList();
-            for (var i = 0; i < propertyNamesList.Count; i++)
+
+            var propertyList = new List<Property>();
+            for (var i = 0; i < propertyNames.Count; i++)
             {
-                var propertyName = propertyNamesList[i];
+                var propertyName = propertyNames[i];
                 var property = Metadata.FindProperty(propertyName);
                 if (property == null)
                 {
                     var clrProperty = Metadata.ClrType?.GetMembersInHierarchy(propertyName).FirstOrDefault();
-                    var type = typesList?[i];
+                    var type = referencedProperties == null
+                        ? useDefaultType ? typeof(int) : null
+                        : referencedProperties[i].ClrType;
+
                     InternalPropertyBuilder propertyBuilder;
                     if (clrProperty != null)
                     {
@@ -1848,7 +1887,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     else if (type != null)
                     {
                         // TODO: Log that a shadow property is created
-                        propertyBuilder = Property(propertyName, type.MakeNullable(), configurationSource);
+                        propertyBuilder = Property(propertyName, type.MakeNullable(), configurationSource, typeConfigurationSource: null);
                     }
                     else
                     {
@@ -1866,9 +1905,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     property.DeclaringEntityType.UpdateConfigurationSource(configurationSource);
                     property = property.DeclaringEntityType.Builder.Property(property.Name, configurationSource).Metadata;
                 }
-                list.Add(property);
+                propertyList.Add(property);
             }
-            return list;
+            return propertyList;
         }
 
         /// <summary>
@@ -1916,7 +1955,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : Metadata.FindProperty(property.Name)?.Builder
                       ?? (property.IsShadowProperty
                           ? null
-                          : Property(property.Name, property.ClrType, property.PropertyInfo, configurationSource));
+                          : Property(property.Name, property.ClrType, property.PropertyInfo, configurationSource, property.GetTypeConfigurationSource()));
                 if (builder == null)
                 {
                     return null;

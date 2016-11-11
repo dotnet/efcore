@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Customer>().HasOne(e => e.Details).WithOne(e => e.Customer);
 
                 var fk = dependentType.GetForeignKeys().Single();
-                Assert.Equal("Customer", dependentType.GetNavigations().Single().Name);
+                Assert.Same(fk.DependentToPrincipal, dependentType.GetNavigations().Single());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -2515,6 +2515,52 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(CoreStrings.DuplicateNavigation("SelfRef1", typeof(SelfRef).Name, typeof(SelfRef).Name),
                     Assert.Throws<InvalidOperationException>(() =>
                             modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
+            }
+
+            [Fact]
+            public virtual void Can_specify_shadow_fk_before_configuring_principal_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Hob>()
+                    .HasMany(c => c.Nobs)
+                    .WithOne(d => d.Hob)
+                    .HasForeignKey("Fk1");
+
+                modelBuilder.Entity<Hob>()
+                    .HasKey(e => new { e.NobId1 });
+                modelBuilder.Entity<Nob>()
+                    .HasKey(e => new { e.HobId1 });
+
+                modelBuilder.Validate();
+
+                Assert.Equal(typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob)).GetForeignKeys().Single().Properties.Single().ClrType);
+                Assert.Equal(typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob)).GetForeignKeys().Single().Properties.Single().ClrType);
+            }
+
+            [Fact]
+            public virtual void Can_specify_shadow_fk_before_reconfiguring_principal_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Hob>()
+                    .HasKey(e => new { e.Id1 });
+                modelBuilder.Entity<Nob>()
+                    .HasKey(e => new { e.Id1 });
+
+                modelBuilder.Entity<Hob>()
+                    .HasMany(c => c.Nobs)
+                    .WithOne(d => d.Hob)
+                    .HasForeignKey("Fk1");
+
+                modelBuilder.Entity<Hob>()
+                    .HasKey(e => new { e.NobId1 });
+                modelBuilder.Entity<Nob>()
+                    .HasKey(e => new { e.HobId1 });
+
+                modelBuilder.Validate();
+
+                Assert.Equal(typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob)).GetForeignKeys().Single().Properties.Single().ClrType);
+                Assert.Equal(typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob)).GetForeignKeys().Single().Properties.Single().ClrType);
             }
 
             [Fact]

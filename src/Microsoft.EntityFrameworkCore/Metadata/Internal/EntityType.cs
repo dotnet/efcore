@@ -1357,13 +1357,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             [CanBeNull] Type propertyType = null,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
         {
             Check.NotNull(name, nameof(name));
 
             ValidateCanAddProperty(name);
 
-            return AddProperty(name, propertyType, ClrType?.GetMembersInHierarchy(name).FirstOrDefault(), configurationSource, runConventions);
+            return AddProperty(
+                name,
+                propertyType,
+                ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                configurationSource,
+                typeConfigurationSource,
+                runConventions);
         }
 
         /// <summary>
@@ -1391,7 +1398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
             }
 
-            return AddProperty(memberInfo.Name, memberInfo.GetMemberType(), memberInfo, configurationSource, runConventions);
+            return AddProperty(memberInfo.Name, memberInfo.GetMemberType(), memberInfo, configurationSource, configurationSource, runConventions);
         }
 
         private void ValidateCanAddProperty(string name)
@@ -1416,6 +1423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type propertyType,
             MemberInfo memberInfo,
             ConfigurationSource configurationSource,
+            ConfigurationSource? typeConfigurationSource,
             bool runConventions)
         {
             Check.NotNull(name, nameof(name));
@@ -1442,7 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            var property = new Property(name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, configurationSource);
+            var property = new Property(name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, configurationSource, typeConfigurationSource);
 
             _properties.Add(property.Name, property);
 

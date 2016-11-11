@@ -228,17 +228,25 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_properties_count_mismatch()
+        public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_properties_count_mismatch()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention)
+                .HasForeignKey(new[] { "ShadowCustomerId", "ShadowCustomerUnique" }, ConfigurationSource.Convention);
 
-            Assert.Equal(
-                CoreStrings.NoPropertyType("ShadowCustomerId", nameof(Order)),
-                Assert.Throws<InvalidOperationException>(() => relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId", "ShadowCustomerUnique" }, ConfigurationSource.Convention)).Message);
+            var shadowProperty1 = relationshipBuilder.Metadata.Properties.First();
+            Assert.True(shadowProperty1.IsShadowProperty);
+            Assert.Equal("ShadowCustomerId", shadowProperty1.Name);
+
+            var shadowProperty2 = relationshipBuilder.Metadata.Properties.Last();
+            Assert.True(shadowProperty2.IsShadowProperty);
+            Assert.Equal("ShadowCustomerUnique", shadowProperty2.Name);
+
+            Assert.Null(customerEntityBuilder.Metadata.FindPrimaryKey());
+            Assert.Equal(2, relationshipBuilder.Metadata.PrincipalKey.Properties.Count);
         }
 
         [Fact]
@@ -252,8 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 .HasForeignKey(new[] { "ShadowCustomerId" }, ConfigurationSource.Convention);
 
             var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
-            Assert.NotNull(shadowProperty);
-            Assert.True(((IProperty)shadowProperty).IsShadowProperty);
+            Assert.True(shadowProperty.IsShadowProperty);
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
         }
 

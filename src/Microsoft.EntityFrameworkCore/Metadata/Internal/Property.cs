@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private int _flags;
 
         private ConfigurationSource _configurationSource;
+        private ConfigurationSource? _typeConfigurationSource;
         private ConfigurationSource? _isReadOnlyAfterSaveConfigurationSource;
         private ConfigurationSource? _isReadOnlyBeforeSaveConfigurationSource;
         private ConfigurationSource? _isNullableConfigurationSource;
@@ -42,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] PropertyInfo propertyInfo,
             [CanBeNull] FieldInfo fieldInfo,
             [NotNull] EntityType declaringEntityType,
-            ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource,
+            ConfigurationSource? typeConfigurationSource)
             : base(name, propertyInfo, fieldInfo)
         {
             Check.NotNull(clrType, nameof(clrType));
@@ -51,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             DeclaringEntityType = declaringEntityType;
             ClrType = clrType;
             _configurationSource = configurationSource;
+            _typeConfigurationSource = typeConfigurationSource;
 
             Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
         }
@@ -106,6 +109,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void SetConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = configurationSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ConfigurationSource? GetTypeConfigurationSource() => _typeConfigurationSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void UpdateTypeConfigurationSource(ConfigurationSource configurationSource)
+            => _typeConfigurationSource = _typeConfigurationSource.Max(configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

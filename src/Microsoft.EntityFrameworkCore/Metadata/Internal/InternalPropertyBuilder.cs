@@ -289,17 +289,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var newProperty = entityTypeBuilder.Metadata.FindProperty(Metadata.Name);
             InternalPropertyBuilder newPropertyBuilder;
+            var typeConfigurationSource = Metadata.GetTypeConfigurationSource();
             if (newProperty != null
                 && (newProperty.GetConfigurationSource().Overrides(configurationSource)
+                    || newProperty.GetTypeConfigurationSource().Overrides(typeConfigurationSource)
                     || (Metadata.ClrType == newProperty.ClrType
                         && Metadata.PropertyInfo?.Name == newProperty.PropertyInfo?.Name)))
             {
                 newPropertyBuilder = newProperty.Builder;
+                newProperty.UpdateConfigurationSource(configurationSource);
+                if (typeConfigurationSource.HasValue)
+                {
+                    newProperty.UpdateTypeConfigurationSource(typeConfigurationSource.Value);
+                }
             }
             else
             {
                 newPropertyBuilder = Metadata.PropertyInfo == null
-                    ? entityTypeBuilder.Property(Metadata.Name, Metadata.ClrType, configurationSource)
+                    ? entityTypeBuilder.Property(Metadata.Name, Metadata.ClrType, configurationSource, Metadata.GetTypeConfigurationSource())
                     : entityTypeBuilder.Property(Metadata.PropertyInfo, configurationSource);
             }
 
