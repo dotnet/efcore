@@ -2385,6 +2385,35 @@ INNER JOIN [Level2] AS [l2] ON [l1].[Id] = (
                 Sql);
         }
 
+        public override void Contains_with_subquery_optional_navigation_and_constant_item()
+        {
+            base.Contains_with_subquery_optional_navigation_and_constant_item();
+
+            Assert.Equal(
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Optional_FK].[Id], [l1.OneToOne_Optional_FK].[Date], [l1.OneToOne_Optional_FK].[Level1_Optional_Id], [l1.OneToOne_Optional_FK].[Level1_Required_Id], [l1.OneToOne_Optional_FK].[Name], [l1.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Optional_FK].[Level1_Optional_Id]
+WHERE 1 IN (
+    SELECT [t].[Id]
+    FROM (
+        SELECT DISTINCT [l0].*
+        FROM [Level3] AS [l0]
+        WHERE [l1.OneToOne_Optional_FK].[Id] = [l0].[OneToMany_Optional_InverseId]
+    ) AS [t]
+)
+ORDER BY [l1].[Id]",
+                Sql);
+        }
+
+        public override void Complex_query_with_optional_navigations_and_client_side_evaluation()
+        {
+            base.Complex_query_with_optional_navigations_and_client_side_evaluation();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

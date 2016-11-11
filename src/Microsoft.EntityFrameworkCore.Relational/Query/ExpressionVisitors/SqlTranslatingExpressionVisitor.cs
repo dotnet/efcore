@@ -858,25 +858,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     || fromExpression.NodeType == ExpressionType.ListInit
                     || fromExpression.NodeType == ExpressionType.NewArrayInit)
                 {
-                    var memberItem = contains.Item as MemberExpression;
-
-                    if (memberItem != null)
+                    var containsItem = Visit(contains.Item)?.RemoveConvert();
+                    if (containsItem != null)
                     {
-                        var aliasExpression = VisitMember(memberItem) as AliasExpression;
-
-                        return aliasExpression != null
-                            ? new InExpression(aliasExpression, new[] { fromExpression })
-                            : null;
-                    }
-
-                    var methodCallItem = contains.Item as MethodCallExpression;
-
-                    if (methodCallItem != null
-                        && EntityQueryModelVisitor.IsPropertyMethod(methodCallItem.Method))
-                    {
-                        var aliasExpression = (AliasExpression)VisitMethodCall(methodCallItem);
-
-                        return new InExpression(aliasExpression, new[] { fromExpression });
+                        return new InExpression(containsItem, new[] { fromExpression });
                     }
                 }
             }

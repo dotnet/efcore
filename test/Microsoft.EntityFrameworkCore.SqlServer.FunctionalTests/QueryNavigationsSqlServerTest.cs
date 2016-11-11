@@ -910,6 +910,7 @@ WHERE [o].[CustomerID] IN (N'ALFKI')",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o.Customer].[City] IN (N'Novigrad', N'Seattle')
 ORDER BY [o].[CustomerID]",
                 Sql);
         }
@@ -923,6 +924,7 @@ ORDER BY [o].[CustomerID]",
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+WHERE [od.Order.Customer].[City] IN (N'Novigrad', N'Seattle')
 ORDER BY [od.Order].[CustomerID]",
                 Sql);
         }
@@ -936,6 +938,7 @@ ORDER BY [od.Order].[CustomerID]",
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o.Customer].[Country] IN (N'USA', N'Redania')
 ORDER BY [o].[CustomerID]",
                 Sql);
         }
