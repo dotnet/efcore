@@ -29,11 +29,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     returnType: methodCallExpression.Type,
                     arguments: new[]
                     {
-                        new SqlFragmentExpression("VARCHAR(MAX)"),
+                        new SqlFragmentExpression(GetConvertBase(methodCallExpression.Object?.Type.Name)),
                         methodCallExpression.Object
                     });
             }
             return null;
+        }
+
+        private string GetConvertBase(string typeName)
+        {
+            switch (typeName)
+            {
+                case nameof(Int64):
+                    return "VARCHAR(20)";
+                case nameof(Int32):
+                    return "VARCHAR(10)";
+                case nameof(Int16):
+                    return "VARCHAR(5)";
+                default:
+                    return "VARCHAR(MAX)";
+            }
         }
     }
 }
