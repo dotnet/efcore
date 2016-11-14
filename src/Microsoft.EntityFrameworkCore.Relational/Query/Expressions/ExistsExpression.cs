@@ -75,19 +75,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var newExpression = visitor.Visit(Expression);
-            if (newExpression != Expression)
+            var selectExpression = newExpression as SelectExpression;
+            if (selectExpression != null
+                && selectExpression.Limit == null
+                && selectExpression.Offset == null)
             {
-                var selectExpression = newExpression as SelectExpression;
-                if (selectExpression != null
-                    && selectExpression.Limit == null
-                    && selectExpression.Offset == null)
-                {
-                    selectExpression.ClearOrderBy();
-                }
-                return new ExistsExpression(newExpression);
+                selectExpression.ClearOrderBy();
             }
-
-            return this;
+            return new ExistsExpression(newExpression);
         }
     }
 }
