@@ -6406,6 +6406,7 @@ WHERE (([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL) AND ([t1].[OrderID]
                 Sql);
         }
 
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void OrderBy_skip_take_level_1()
         {
             base.OrderBy_skip_take_level_1();
@@ -6421,6 +6422,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
                 Sql);
         }
 
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void OrderBy_skip_take_level_2()
         {
             base.OrderBy_skip_take_level_2();
@@ -6441,6 +6443,7 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]",
                 Sql);
         }
 
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void OrderBy_skip_take_distinct()
         {
             base.OrderBy_skip_take_distinct();
@@ -6460,6 +6463,7 @@ FROM (
                 Sql);
         }
 
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void OrderBy_skip_take_level_3()
         {
             base.OrderBy_skip_take_level_3();
