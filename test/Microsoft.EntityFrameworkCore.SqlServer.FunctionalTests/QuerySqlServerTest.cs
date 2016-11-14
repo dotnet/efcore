@@ -6329,7 +6329,7 @@ WHERE [c0].[CustomerID] = @_outer_CustomerID",
             Assert.Equal(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(MAX), [o].[EmployeeID])) > 0)",
+WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(10), [o].[EmployeeID])) > 0)",
                 Sql);
         }
 
