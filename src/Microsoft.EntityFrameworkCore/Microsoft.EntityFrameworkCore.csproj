@@ -149,6 +149,7 @@
     <Compile Include="ChangeTracking\ReferenceEntry.cs" />
     <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
     <Compile Include="EF.CompileAsyncQuery.cs" />
+    <Compile Include="Query\AsyncEnumerable.cs" />
     <Compile Include="Query\Internal\CompiledAsyncTaskQuery.cs" />
     <Compile Include="Query\Internal\CompiledAsyncEnumerableQuery.cs" />
     <Compile Include="Query\Internal\CompiledQuery.cs" />

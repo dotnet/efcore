@@ -173,8 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             var query = EF.CompileQuery(
                 (NorthwindContext context)
-                    => context.Customers.OrderBy(c => c.CustomerID).Select(c => c.CustomerID).FirstOrDefault() 
-                        + context.Orders.OrderBy(o => o.CustomerID).Select(o => o.CustomerID).FirstOrDefault());
+                    => context.Customers.OrderBy(c => c.CustomerID).Select(c => c.CustomerID).FirstOrDefault()
+                       + context.Orders.OrderBy(o => o.CustomerID).Select(o => o.CustomerID).FirstOrDefault());
 
             using (var context = CreateContext())
             {
@@ -215,12 +215,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Equal(91, await query(context).Count());
+                Assert.Equal(91, (await query(context).ToListAsync()).Count);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal(91, (await query(context).ToList()).Count);
+                Assert.Equal(91, (await query(context).ToListAsync()).Count);
             }
         }
 
@@ -244,12 +244,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Equal(91, await query(context).Count());
+                Assert.Equal(91, (await query(context).ToListAsync()).Count);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal(91, (await query(context).ToList()).Count);
+                Assert.Equal(91, (await query(context).ToListAsync()).Count);
             }
         }
 
@@ -262,12 +262,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ALFKI", (await query(context, "ALFKI").First()).CustomerID);
+                Assert.Equal("ALFKI", (await query(context, "ALFKI").ToListAsync()).First().CustomerID);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ANATR", (await query(context, "ANATR").First()).CustomerID);
+                Assert.Equal("ANATR", (await query(context, "ANATR").ToListAsync()).First().CustomerID);
             }
         }
 
@@ -318,12 +318,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ALFKI", (await query(context, null, "ALFKI").First()).CustomerID);
+                Assert.Equal("ALFKI", (await query(context, null, "ALFKI").ToListAsync()).First().CustomerID);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ANATR", (await query(context, null, "ANATR").First()).CustomerID);
+                Assert.Equal("ANATR", (await query(context, null, "ANATR").ToListAsync()).First().CustomerID);
             }
         }
 
@@ -336,12 +336,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ALFKI", (await query(context, null, 1, "ALFKI").First()).CustomerID);
+                Assert.Equal("ALFKI", (await query(context, null, 1, "ALFKI").ToListAsync()).First().CustomerID);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ANATR", (await query(context, null, 1, "ANATR").First()).CustomerID);
+                Assert.Equal("ANATR", (await query(context, null, 1, "ANATR").ToListAsync()).First().CustomerID);
             }
         }
 
@@ -354,12 +354,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ALFKI", (await query(context, new[] { "ALFKI" }).First()).CustomerID);
+                Assert.Equal("ALFKI", (await query(context, new[] { "ALFKI" }).ToListAsync()).First().CustomerID);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ANATR", (await query(context, new[] { "ANATR" }).First()).CustomerID);
+                Assert.Equal("ANATR", (await query(context, new[] { "ANATR" }).ToListAsync()).First().CustomerID);
             }
         }
 
@@ -373,14 +373,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ALFKI", (await query(context).First()).CustomerID);
+                Assert.Equal("ALFKI", (await query(context).ToListAsync()).First().CustomerID);
             }
 
             customerID = "ANATR";
 
             using (var context = CreateContext())
             {
-                Assert.Equal("ALFKI", (await query(context).First()).CustomerID);
+                Assert.Equal("ALFKI", (await query(context).ToListAsync()).First().CustomerID);
             }
         }
 
