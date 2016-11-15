@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -47,12 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     this property after the entity exists in the database.
         /// </summary>
         new bool IsReadOnlyAfterSave { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether this property requires a <see cref="ValueGenerator" /> to generate
-        ///     values when new entities are added to the context.
-        /// </summary>
-        new bool RequiresValueGenerator { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this property is used as a concurrency token. When a property is configured

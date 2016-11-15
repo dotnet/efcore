@@ -80,6 +80,44 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             VerifyWarning(SqlServerStrings.DefaultDecimalTypeColumn("Price", nameof(Animal)), modelBuilder.Model);
         }
 
+        [Fact]
+        public void Throws_for_non_key_identity()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
+
+            VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Throws_for_non_key_SequenceHiLo()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseSequenceHiLo();
+
+            VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Passes_for_non_key_identity_on_model()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.ForSqlServerUseIdentityColumns();
+            modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Passes_for_non_key_SequenceHiLo_on_model()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.ForSqlServerUseSequenceHiLo();
+            modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
+
+            Validate(modelBuilder.Model);
+        }
+
         private class Cheese
         {
             public int Id { get; set; }

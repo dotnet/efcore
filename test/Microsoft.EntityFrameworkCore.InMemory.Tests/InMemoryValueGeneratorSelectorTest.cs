@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 
             foreach (var property in entityType.GetProperties())
             {
-                property.RequiresValueGenerator = generateValues;
+                property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
             return model;

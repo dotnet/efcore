@@ -62,11 +62,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            foreach (var property in entityType.GetProperties())
-            {
-                property.ValueGenerated = ValueGenerated.OnAdd;
-            }
-
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<int>>(selector.Select(entityType.FindProperty("Id"), entityType));
@@ -129,8 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             foreach (var property in entityType.GetProperties())
             {
-                property.RequiresValueGenerator = generateValues;
-                property.ValueGenerated = ValueGenerated.OnAdd;
+                property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
             entityType.FindProperty("AlwaysIdentity").ValueGenerated = ValueGenerated.OnAdd;

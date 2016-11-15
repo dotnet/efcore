@@ -53,12 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Entity<SomeEntity>(
                         b =>
                             {
+                                b.HasAlternateKey(e => new { e.SpecialId, e.SpecialString });
                                 b.Property(e => e.SpecialId)
                                     .HasAnnotation("SpecialGuid", true)
-                                    .Metadata.RequiresValueGenerator = true;
+                                    .ValueGeneratedOnAdd();
 
                                 b.Property(e => e.SpecialString)
-                                    .Metadata.RequiresValueGenerator = true;
+                                    .ValueGeneratedOnAdd();
                             });
         }
 
@@ -149,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                                 b.Property(e => e.SpecialId)
                                     .HasAnnotation("SpecialGuid", true)
-                                    .Metadata.RequiresValueGenerator = true;
+                                    .ValueGeneratedOnAdd();
 
                                 b.Property(e => e.SpecialString).HasValueGenerator((p, e) => factory.Create(p));
                             });

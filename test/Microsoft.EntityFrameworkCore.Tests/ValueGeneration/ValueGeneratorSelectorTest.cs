@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
 
             foreach (var property in entityType.GetProperties())
             {
-                property.RequiresValueGenerator = generateValues;
+                property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
             return model;

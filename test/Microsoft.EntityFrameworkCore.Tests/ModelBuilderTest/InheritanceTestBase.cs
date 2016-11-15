@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
@@ -550,7 +551,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<OrderDetails>();
                 modelBuilder.Entity<SpecialOrder>();
 
-                Assert.False(modelBuilder.Model.FindEntityType(typeof(OrderDetails)).FindProperty(OrderDetails.OrderIdProperty).RequiresValueGenerator);
+                var fkProperty = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).FindProperty(OrderDetails.OrderIdProperty);
+                Assert.Equal(ValueGenerated.Never, fkProperty.ValueGenerated);
             }
 
             [Fact]

@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [param: CanBeNull] set { SetValueGenerationStrategy(value); }
         }
 
-        private SqlServerValueGenerationStrategy? GetSqlServerValueGenerationStrategy(bool fallbackToModel)
+        public virtual SqlServerValueGenerationStrategy? GetSqlServerValueGenerationStrategy(bool fallbackToModel)
         {
             if (GetDefaultValue(false) != null
                 || GetDefaultValueSql(false) != null
