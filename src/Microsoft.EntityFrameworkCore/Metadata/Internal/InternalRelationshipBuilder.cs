@@ -2755,6 +2755,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     dependentProperties = new List<Property>();
                 }
+
+                Metadata.DeclaringEntityType.Model.ConventionDispatcher.OnKeyRemoved(
+                    Metadata.PrincipalEntityType.Builder, Metadata.PrincipalKey);
             }
             else if (Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) == true)
             {
