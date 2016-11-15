@@ -16,10 +16,10 @@ using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Update;
 using Moq;
 using Xunit;
+using FakeRelationalOptionsExtension = Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider.FakeRelationalOptionsExtension;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local

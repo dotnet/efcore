@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Moq;
 using Xunit;
 
@@ -3271,7 +3271,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private static Model BuildFullNotificationEntityModel()
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<FullNotificationEntity>(
                 b =>

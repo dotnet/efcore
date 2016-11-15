@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         [Fact]
         public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
 
             var entityBuilder = modelBuilder.Entity<A>();
 
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         [Fact]
         public void ColumnAttribute_on_field_sets_column_name_and_type_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
 
             var entityBuilder = modelBuilder.Entity<F>();
 

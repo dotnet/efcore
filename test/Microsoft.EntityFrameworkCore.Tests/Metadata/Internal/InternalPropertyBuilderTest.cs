@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -396,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()
         {
-            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }

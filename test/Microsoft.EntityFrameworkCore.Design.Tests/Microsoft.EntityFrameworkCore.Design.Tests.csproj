@@ -83,7 +83,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Design\Internal\ForwardingProxyTest.cs" />
     <Compile Include="Design\Internal\OperationLoggerTest.cs" />
+    <Compile Include="Migrations\Design\CSharpMigrationsGeneratorTest.cs" />
+    <Compile Include="TestUtilities\TempDirectory.cs" />
     <Compile Include="TestUtilities\TestOperationReporter.cs" />
     <None Include="App.config">
       <SubType>Designer</SubType>

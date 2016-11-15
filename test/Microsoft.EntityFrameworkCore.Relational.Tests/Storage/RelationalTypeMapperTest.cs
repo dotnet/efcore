@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             Assert.Equal("just_binary(max)", mapping.StoreType);
         }
 
-        private static RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
+        private RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
         {
             var property = CreateEntityType().AddProperty("MyProp", propertyType);
             if (maxLength.HasValue)
@@ -118,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             Assert.Equal("just_binary(max)", mapping.StoreType);
         }
 
-        private static RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
+        private RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
         {
             var property = CreateEntityType().AddProperty("MyProp", propertyType);
             property.Relational().ColumnType = typeName;
@@ -245,5 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 "just_string(450)",
                 mapper.FindMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
         }
+
+        protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
     }
 }

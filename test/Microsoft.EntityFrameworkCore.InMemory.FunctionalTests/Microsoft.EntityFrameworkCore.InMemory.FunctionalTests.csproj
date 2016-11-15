@@ -61,14 +61,19 @@
     <Compile Include="ComplexNavigationsQueryInMemoryTest.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="ConfigPatternsInMemoryTest.cs" />
+    <Compile Include="CustomValueGeneratorTest.cs" />
     <Compile Include="DataAnnotationInMemoryFixture.cs" />
     <Compile Include="DataAnnotationInMemoryTest.cs" />
+    <Compile Include="DatabaseErrorLogStateTest.cs" />
     <Compile Include="DatabaseInMemoryTest.cs" />
     <Compile Include="DatabindingInMemoryTest.cs" />
     <Compile Include="F1InMemoryFixture.cs" />
     <Compile Include="FieldMappingInMemoryTest.cs" />
     <Compile Include="FindInMemoryTest.cs" />
+    <Compile Include="InMemoryServiceCollectionExtensionsTest.cs" />
+    <Compile Include="InMemoryTestHelpers.cs" />
     <Compile Include="LoadInMemoryTest.cs" />
+    <Compile Include="ModelSourceTest.cs" />
     <Compile Include="PropertyValuesInMemoryTest.cs" />
     <Compile Include="StoreGeneratedFixupInMemoryTest.cs" />
     <Compile Include="WarningsTest.cs" />
@@ -83,7 +88,6 @@
     <Compile Include="InheritanceInMemoryTest.cs" />
     <Compile Include="QueryBugsInMemoryTest.cs" />
     <Compile Include="InMemoryFixture.cs" />
-    <Compile Include="InMemoryTestHelpers.cs" />
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="IntegerGeneratorEndToEndInMemoryTest.cs" />
     <Compile Include="MonsterFixupInMemoryTest.cs" />
@@ -100,9 +104,6 @@
     <Compile Include="TestInMemoryModelSource.cs" />
     <Compile Include="UpdatesInMemoryFixture.cs" />
     <Compile Include="UpdatesInMemoryTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.Logging;
@@ -95,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             protected virtual TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(TestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance.CreateConventionBuilder());
 
             protected TestModelBuilder HobNobBuilder()
             {

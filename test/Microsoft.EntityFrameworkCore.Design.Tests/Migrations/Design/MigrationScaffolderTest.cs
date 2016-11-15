@@ -14,10 +14,10 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 new Model(),
                 new MigrationsAssembly(
                     currentContext,
-                    new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
+                    new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
                     idGenerator),
                 new MigrationsModelDiffer(
                     new TestRelationalTypeMapper(),
@@ -83,13 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
         private class ContextWithSnapshotModelSnapshot : ModelSnapshot
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
-            {
-            }
-        }
-
-        private class MockRelationalOptionsExtension : RelationalOptionsExtension
-        {
-            public override void ApplyServices(IServiceCollection services)
             {
             }
         }

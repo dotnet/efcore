@@ -121,9 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             _testHelpers = testHelpers;
 
-            var serviceProvider = AddServices(new ServiceCollection()).BuildServiceProvider();
-            _firstContext = _testHelpers.CreateContext(serviceProvider);
-            _secondContext = _testHelpers.CreateContext(serviceProvider);
+            _firstContext = _testHelpers.CreateContext(serviceProvider: null);
+            _secondContext = _testHelpers.CreateContext(serviceProvider: null);
         }
 
         private IServiceCollection AddServices(IServiceCollection serviceCollection)

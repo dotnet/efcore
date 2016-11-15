@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Migrations\ModelSnapshotSqliteTest.cs" />
     <Compile Include="ReverseEngineering\SqliteAllFluentApiE2ETest.cs" />
     <Compile Include="ReverseEngineering\SqliteAttributesInsteadOfFluentApiE2ETest.cs" />
     <Compile Include="ReverseEngineering\SqliteE2ETestBase.cs" />

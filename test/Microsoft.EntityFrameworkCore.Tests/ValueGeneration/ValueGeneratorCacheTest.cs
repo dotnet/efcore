@@ -3,8 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             var entityType = model.FindEntityType("Led");
             var property1 = entityType.FindProperty("Zeppelin");
             var property2 = entityType.FindProperty("Stairway");
-            var cache = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorCache>();
+            var cache = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorCache>();
 
             var generator1 = cache.GetOrAdd(property1, entityType, (p, et) => new GuidValueGenerator());
             Assert.NotNull(generator1);

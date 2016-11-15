@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         public void Entity_is_null()
         {
             var model = BuildModel();
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,

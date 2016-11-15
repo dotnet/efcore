@@ -5,6 +5,9 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
+    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": {
+      "target": "project"
+    },
     "Microsoft.EntityFrameworkCore.Specification.Tests": "1.2.0-*",
     "Moq": "4.6.36-*"
   },

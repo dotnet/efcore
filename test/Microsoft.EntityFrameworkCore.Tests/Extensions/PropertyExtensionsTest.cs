@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Extensions
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
 
         private IModel BuildModel()
         {
-            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder
                 .Entity<Category>()

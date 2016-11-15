@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
@@ -245,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
 
         private static IServiceProvider CreateContextServices(IModel model)
-            => TestHelpers.Instance.CreateContextServices(model);
+            => InMemoryTestHelpers.Instance.CreateContextServices(model);
 
         private static void PropagateValue(IKeyPropagator keyPropagator, InternalEntityEntry dependentEntry, IProperty property, bool async)
         {
@@ -312,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildModel(bool generateTemporary = false)
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<BaseType>();
 

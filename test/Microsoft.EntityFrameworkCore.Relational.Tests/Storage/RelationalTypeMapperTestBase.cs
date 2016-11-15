@@ -3,18 +3,17 @@
 
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 {
-    public class RelationalTypeMapperTestBase
+    public abstract class RelationalTypeMapperTestBase
     {
-        protected static EntityType CreateEntityType()
+        protected EntityType CreateEntityType()
             => (EntityType)CreateModel().FindEntityType(typeof(MyType));
 
-        protected static IModel CreateModel()
+        protected IModel CreateModel()
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = CreateModelBuilder();
 
             builder.Entity<MyType>().Property(e => e.Id).HasColumnType("money");
             builder.Entity<MyRelatedType1>().Property(e => e.Id).HasMaxLength(200);
@@ -27,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 
             return builder.Model;
         }
+
+        protected abstract ModelBuilder CreateModelBuilder();
 
         protected class MyType
         {

@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata

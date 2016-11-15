@@ -3,9 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
 
             Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
 
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
 
         private static IMutableModel BuildModel(bool generateValues = true)
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             builder.Ignore<Random>();
             builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
             var model = builder.Model;
