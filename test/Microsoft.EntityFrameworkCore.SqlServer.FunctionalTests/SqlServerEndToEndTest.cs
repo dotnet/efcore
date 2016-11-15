@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     charArray[i] = 'a';
                 }
 
-                var byteArray = new byte[1024];
+                var byteArray = new byte[900];
                 for (var i = 0; i < byteArray.Length; i++)
                 {
                     byteArray[i] = 1;
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         eb.Property(e => e.String)
                             .HasColumnType("nvarchar(750)");
                         eb.Property(e => e.ByteArray)
-                            .HasColumnType("varbinary(1024)");
+                            .HasColumnType("varbinary(900)");
                         eb.Property(e => e.Double)
                             .HasColumnType("float(53)");
                         eb.Property(e => e.Decimal)
