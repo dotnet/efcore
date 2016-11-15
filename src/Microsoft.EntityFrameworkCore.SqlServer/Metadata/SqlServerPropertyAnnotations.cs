@@ -124,15 +124,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 if (value == SqlServerValueGenerationStrategy.IdentityColumn
                     && !IsCompatibleIdentityColumn(propertyType))
                 {
-                    throw new ArgumentException(SqlServerStrings.IdentityBadType(
-                        Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+                    if (ShouldThrowOnInvalidConfiguration)
+                    {
+                        throw new ArgumentException(SqlServerStrings.IdentityBadType(
+                            Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+                    }
+
+                    return false;
                 }
 
                 if (value == SqlServerValueGenerationStrategy.SequenceHiLo
                     && !IsCompatibleSequenceHiLo(propertyType))
                 {
-                    throw new ArgumentException(SqlServerStrings.SequenceBadType(
-                        Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+                    if (ShouldThrowOnInvalidConfiguration)
+                    {
+                        throw new ArgumentException(SqlServerStrings.SequenceBadType(
+                            Property.Name, Property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+                    }
+
+                    return false;
                 }
             }
 

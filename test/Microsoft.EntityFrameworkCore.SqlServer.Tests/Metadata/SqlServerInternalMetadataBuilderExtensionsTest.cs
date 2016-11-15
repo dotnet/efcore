@@ -3,7 +3,9 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -68,6 +70,38 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             Assert.Equal(1, propertyBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
+        }
+
+        [Fact]
+        public void Throws_setting_sequence_generation_for_invalid_type_only_with_explicit()
+        {
+            var propertyBuilder = CreateBuilder()
+                .Entity(typeof(Splot), ConfigurationSource.Convention)
+                .Property("Name", typeof(string), ConfigurationSource.Convention);
+
+            Assert.False(propertyBuilder.SqlServer(ConfigurationSource.Convention)
+                .ValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
+
+            Assert.Equal(
+                SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
+                Assert.Throws<ArgumentException>(
+                    () => propertyBuilder.SqlServer(ConfigurationSource.Explicit).ValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo)).Message);
+        }
+
+        [Fact]
+        public void Throws_setting_identity_generation_for_invalid_type_only_with_explicit()
+        {
+            var propertyBuilder = CreateBuilder()
+                .Entity(typeof(Splot), ConfigurationSource.Convention)
+                .Property("Name", typeof(string), ConfigurationSource.Convention);
+
+            Assert.False(propertyBuilder.SqlServer(ConfigurationSource.Convention)
+                .ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn));
+
+            Assert.Equal(
+                SqlServerStrings.IdentityBadType("Name", nameof(Splot), "string"),
+                Assert.Throws<ArgumentException>(
+                    () => propertyBuilder.SqlServer(ConfigurationSource.Explicit).ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn)).Message);
         }
 
         [Fact]
