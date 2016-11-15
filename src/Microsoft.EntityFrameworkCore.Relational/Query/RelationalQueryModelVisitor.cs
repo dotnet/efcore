@@ -711,13 +711,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                         if (groupJoin)
                         {
                             var outerJoinOrderingExtractor = new OuterJoinOrderingExtractor();
-
                             outerJoinOrderingExtractor.Visit(predicate);
 
-                            foreach (var expression in outerJoinOrderingExtractor.Expressions)
+                            var previousOrderingCount = previousSelectExpression.OrderBy.Count;
+                            if (!outerJoinOrderingExtractor.DependentToPrincipalFound)
                             {
-                                previousSelectExpression
-                                    .AddToOrderBy(new Ordering(expression, OrderingDirection.Asc));
+                                foreach (var expression in outerJoinOrderingExtractor.Expressions)
+                                {
+                                    previousSelectExpression.AddToOrderBy(
+                                        new Ordering(expression, OrderingDirection.Asc));
+                                }
                             }
 
                             var additionalFromClause
@@ -784,6 +787,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     QueriesBySource.Remove(joinClause);
 
                                     operatorToFlatten = LinqOperatorProvider.Join;
+
+                                    if (previousOrderingCount != previousSelectExpression.OrderBy.Count)
+                                    {
+                                        previousSelectExpression.RemoveRangeFromOrderBy(previousOrderingCount);
+                                    }
                                 }
                             }
                         }
@@ -861,7 +869,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private readonly List<Expression> _expressions = new List<Expression>();
 
+            public bool DependentToPrincipalFound { get; private set; }
+
             public IEnumerable<Expression> Expressions => _expressions;
+
+            private IForeignKey _matchingCandidate;
+            private List<IProperty> _matchingCandidateProperties;
 
             public override Expression Visit(Expression expression)
             {
@@ -869,17 +882,63 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (binaryExpression != null)
                 {
-                    switch (binaryExpression.NodeType)
-                    {
-                        case ExpressionType.Equal:
-                            _expressions.Add(binaryExpression.Left.RemoveConvert());
-                            return expression;
-                        case ExpressionType.AndAlso:
-                            return VisitBinary(binaryExpression);
-                    }
+                    return VisitBinary(binaryExpression);
                 }
 
                 return expression;
+            }
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (DependentToPrincipalFound)
+                {
+                    return node;
+                }
+
+                if (node.NodeType == ExpressionType.Equal)
+                {
+                    var leftProperty = node.Left.RemoveConvert().TryGetColumnExpression()?.Property;
+                    var rightProperty = node.Right.RemoveConvert().TryGetColumnExpression()?.Property;
+                    if (leftProperty != null && rightProperty != null && leftProperty.IsForeignKey() && rightProperty.IsKey())
+                    {
+                        var keyDeclaringEntityType = rightProperty.GetContainingKeys().First().DeclaringEntityType;
+                        var matchingForeignKeys = leftProperty.GetContainingForeignKeys().Where(k => k.PrincipalKey.DeclaringEntityType == keyDeclaringEntityType);
+                        if (matchingForeignKeys.Count() == 1)
+                        {
+                            var matchingKey = matchingForeignKeys.Single();
+                            if (rightProperty.GetContainingKeys().Contains(matchingKey.PrincipalKey))
+                            {
+                                var matchingForeignKey = matchingKey;
+                                if (_matchingCandidate == null)
+                                {
+                                    _matchingCandidate = matchingForeignKey;
+                                    _matchingCandidateProperties = new List<IProperty> { leftProperty };
+                                }
+                                else if (_matchingCandidate == matchingForeignKey)
+                                {
+                                    _matchingCandidateProperties.Add(leftProperty);
+                                }
+
+                                if (_matchingCandidate.Properties.All(p => _matchingCandidateProperties.Contains(p)))
+                                {
+                                    DependentToPrincipalFound = true;
+                                    return node;
+                                }
+                            }
+                        }
+                    }
+
+                    _expressions.Add(node.Left.RemoveConvert());
+
+                    return node;
+                }
+
+                if (node.NodeType == ExpressionType.AndAlso)
+                {
+                    return base.VisitBinary(node);
+                }
+
+                return node;
             }
         }
 

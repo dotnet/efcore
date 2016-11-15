@@ -6470,6 +6470,60 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 5);
         }
 
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_fully_translated_manually_constructed_LOJ()
+        {
+            AssertQuery<Employee>(
+                es => from e1 in es
+                      join e2 in es on e1.EmployeeID equals e2.ReportsTo into grouping
+                      from e2 in grouping.DefaultIfEmpty()
+                      select new { City1 = e1.City, City2 = e2 != null ? e2.City : null });
+        }
+
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os
+                            join c in cs on o.CustomerID equals c.CustomerID into grouping
+                            from c in ClientDefaultIfEmpty(grouping)
+                            select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
+        }
+
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os
+                            join c in cs on new { o.CustomerID, o.OrderID } equals new { c.CustomerID, OrderID = 10000 } into grouping
+                            from c in ClientDefaultIfEmpty(grouping)
+                            select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
+        }
+
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os
+                            join c in cs on new { o.OrderID, o.CustomerID } equals new { OrderID = 10000, c.CustomerID,  } into grouping
+                            from c in ClientDefaultIfEmpty(grouping)
+                            select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
+        }
+
+        [ConditionalFact]
+        public virtual void Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ()
+        {
+            AssertQuery<Employee>(
+                es => from e1 in es
+                      join e2 in es on e1.EmployeeID equals e2.ReportsTo into grouping
+                      from e2 in ClientDefaultIfEmpty(grouping)
+                      select new { City1 = e1.City, City2 = e2 != null ? e2.City : null });
+        }
+
+        private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
+        {
+            return source?.Count() == 0 ? new[] { default(TElement) } : source;
+        }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 

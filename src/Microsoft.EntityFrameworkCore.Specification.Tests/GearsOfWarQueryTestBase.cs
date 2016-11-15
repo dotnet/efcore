@@ -2078,6 +2078,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from t in ctx.Tags
+                            join g in ctx.Gears on t.GearNickName equals g.Nickname into grouping
+                            from g in ClientDefaultIfEmpty(grouping)
+                            select new { Note = t.Note, Nickname = (g != null ? g.Nickname : null) };
+
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+            }
+        }
+
+        private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
+        {
+            return source?.Count() == 0 ? new[] { default(TElement) } : source;
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

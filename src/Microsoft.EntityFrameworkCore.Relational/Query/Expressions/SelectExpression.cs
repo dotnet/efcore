@@ -913,6 +913,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual void ClearOrderBy() => _orderBy.Clear();
 
         /// <summary>
+        ///     Removes a range from list of order by elements.
+        /// </summary>
+        /// <param name="index"> Zero-based index of the start of the range to remove. </param>
+        public virtual void RemoveRangeFromOrderBy(int index)
+        {
+            if (index < _orderBy.Count)
+            {
+                _orderBy.RemoveRange(index, _orderBy.Count - index);
+            }
+        }
+
+        /// <summary>
         ///     Transforms the projection of this SelectExpression by expanding the wildcard ('*') projection
         ///     into individual explicit projection expressions.
         /// </summary>
