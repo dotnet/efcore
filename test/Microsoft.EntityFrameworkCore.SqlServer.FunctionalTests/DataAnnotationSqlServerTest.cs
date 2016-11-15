@@ -118,8 +118,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
 
             var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
-            Assert.True(identity.RequiresValueGenerator);
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.SqlServer().ValueGenerationStrategy);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
+        {
+            var modelBuilder = base.DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties();
+
+            var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
+
+            var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
+            Assert.Null(stringProperty.SqlServer().ValueGenerationStrategy);
+
+            var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
+            Assert.Null(dateTimeProperty.SqlServer().ValueGenerationStrategy);
+
+            var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
+            Assert.Null(guidProperty.SqlServer().ValueGenerationStrategy);
 
             return modelBuilder;
         }

@@ -119,7 +119,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (HasAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation, factory, configurationSource))
             {
-                RequiresValueGenerator(factory != null, ConfigurationSource.Convention);
                 return true;
             }
 
@@ -234,10 +233,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool RequiresValueGenerator(bool generateValue, ConfigurationSource configurationSource)
+        public virtual bool RequiresValueGenerator(bool? generateValue, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetRequiresValueGeneratorConfigurationSource())
-                || (Metadata.RequiresValueGenerator == generateValue))
+                || Metadata.RequiresValueGenerator == generateValue)
             {
                 Metadata.SetRequiresValueGenerator(generateValue, configurationSource);
                 return true;

@@ -71,7 +71,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
                     Assert.Equal(1, blogs[0].Id);
-                    Assert.Equal(2, blogs[1].Id);
+                    Assert.Equal(2, blogs[0].OtherId);
+                    Assert.Equal(3, blogs[1].Id);
+                    Assert.Equal(4, blogs[1].OtherId);
                 }
             }
         }
@@ -84,7 +86,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.ForSqlServerUseSequenceHiLo();
+            {
+                modelBuilder.ForSqlServerUseSequenceHiLo();
+
+                modelBuilder.Entity<Blog>().Property(b => b.OtherId).ValueGeneratedOnAdd();
+            }
         }
 
         [ConditionalFact]
@@ -891,6 +897,7 @@ END");
             public int Id { get; set; }
             public string Name { get; set; }
             public DateTime CreatedOn { get; set; }
+            public int OtherId { get; set; }
         }
 
         public class NullableKeyBlog

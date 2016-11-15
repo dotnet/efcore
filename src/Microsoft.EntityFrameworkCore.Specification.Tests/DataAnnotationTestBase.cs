@@ -769,6 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             var identity = entity.FindProperty(nameof(GeneratedEntity.Identity));
             Assert.Equal(ValueGenerated.OnAdd, identity.ValueGenerated);
+            Assert.False(identity.RequiresValueGenerator);
 
             var version = entity.FindProperty(nameof(GeneratedEntity.Version));
             Assert.Equal(ValueGenerated.OnAddOrUpdate, version.ValueGenerated);
@@ -789,6 +790,46 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
             public Guid Version { get; set; }
+        }
+
+        [Fact]
+        public virtual ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<GeneratedEntityNonInteger>();
+
+            var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
+
+            var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
+            Assert.Equal(ValueGenerated.OnAdd, stringProperty.ValueGenerated);
+            Assert.False(stringProperty.RequiresValueGenerator);
+
+            var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
+            Assert.Equal(ValueGenerated.OnAdd, dateTimeProperty.ValueGenerated);
+            Assert.False(dateTimeProperty.RequiresValueGenerator);
+
+            var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
+            Assert.Equal(ValueGenerated.OnAdd, guidProperty.ValueGenerated);
+            Assert.False(guidProperty.RequiresValueGenerator);
+
+            Validate(modelBuilder);
+
+            return modelBuilder;
+        }
+
+        public class GeneratedEntityNonInteger
+        {
+            public int Id { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public string String { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public DateTime DateTime { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public Guid Guid { get; set; }
         }
 
         [Fact]
