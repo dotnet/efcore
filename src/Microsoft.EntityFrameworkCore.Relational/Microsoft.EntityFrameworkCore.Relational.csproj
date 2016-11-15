@@ -69,6 +69,7 @@
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Infrastructure\RelationalModelValidator.cs" />
+    <Compile Include="Metadata\RelationalFullAnnotationNames.cs" />
     <Compile Include="Migrations\IMigrationCommandExecutor.cs" />
     <Compile Include="Migrations\Internal\MigrationCommandExecutor.cs" />
     <Compile Include="Migrations\MigrationCommandListBuilder.cs" />
@@ -95,7 +96,6 @@
     <Compile Include="Metadata\Internal\RelationalAnnotationsBuilder.cs" />
     <Compile Include="Metadata\Internal\RelationalEntityTypeBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalForeignKeyBuilderAnnotations.cs" />
-    <Compile Include="Metadata\Internal\RelationalFullAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\RelationalIndexBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalInternalMetadataBuilderExtensions.cs" />
     <Compile Include="Metadata\Internal\RelationalKeyBuilderAnnotations.cs" />
