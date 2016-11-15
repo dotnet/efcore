@@ -50,19 +50,20 @@ namespace Microsoft.EntityFrameworkCore.Tests
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<ICoreConventionSetBuilder>();
             VerifySingleton<ExecutionStrategyFactory>();
+            VerifySingleton<IInternalEntityEntryFactory>();
+            VerifySingleton<IInternalEntityEntrySubscriber>();
+            VerifySingleton<IEntityEntryGraphIterator>();
+            VerifySingleton<IEntityGraphAttacher>();
             VerifySingleton<NoopModelValidator>();
 
             VerifyScoped<CoreModelValidator>();
             VerifyScoped<IKeyPropagator>();
             VerifyScoped<INavigationFixer>();
             VerifyScoped<IStateManager>();
-            VerifyScoped<IInternalEntityEntryFactory>();
             VerifyScoped<IInternalEntityEntryNotifier>();
-            VerifyScoped<IInternalEntityEntrySubscriber>();
             VerifyScoped<IValueGenerationManager>();
             VerifyScoped<IChangeTrackerFactory>();
             VerifyScoped<IChangeDetector>();
-            VerifyScoped<IEntityEntryGraphIterator>();
             VerifyScoped<IDbContextServices>();
             VerifyScoped<IDatabaseProviderSelector>();
             VerifyScoped<ValueGeneratorSelector>();
