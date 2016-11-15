@@ -46,6 +46,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (valueGenerator != null)
                 {
                     entry[property] = valueGenerator.Next(new EntityEntry(entry));
+
+                    if (valueGenerator.GeneratesTemporaryValues)
+                    {
+                        entry.MarkAsTemporary(property);
+                    }
                 }
             }
         }

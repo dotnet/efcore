@@ -766,36 +766,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (EntityState == EntityState.Added)
             {
-                IProperty setProperty = null;
                 foreach (var property in EntityType.GetProperties())
                 {
                     if (property.IsReadOnlyBeforeSave
-                        && !IsTemporaryOrDefault(property))
+                        && !HasTemporaryValue(property)
+                        && !HasDefaultValue(property))
                     {
-                        setProperty = property;
-                        break;
+                        throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(property.Name, EntityType.DisplayName()));
                     }
-                }
-                if (setProperty != null)
-                {
-                    throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(setProperty.Name, EntityType.DisplayName()));
                 }
             }
             else if (EntityState == EntityState.Modified)
             {
-                IProperty modifiedProperty = null;
                 foreach (var property in EntityType.GetProperties())
                 {
                     if (property.IsReadOnlyAfterSave
                         && IsModified(property))
                     {
-                        modifiedProperty = property;
-                        break;
+                        throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(property.Name, EntityType.DisplayName()));
                     }
-                }
-                if (modifiedProperty != null)
-                {
-                    throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(modifiedProperty.Name, EntityType.DisplayName()));
                 }
             }
 
@@ -947,19 +936,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool IsStoreGenerated(IProperty property)
             => property.ValueGenerated != ValueGenerated.Never
                && ((EntityState == EntityState.Added
-                    && (property.IsStoreGeneratedAlways || IsTemporaryOrDefault(property)))
+                    && (property.IsStoreGeneratedAlways
+                        || HasTemporaryValue(property)
+                        || HasDefaultValue(property)))
                    || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate && EntityState == EntityState.Modified && (property.IsStoreGeneratedAlways || !IsModified(property))));
 
-        private bool IsTemporaryOrDefault(IProperty property)
-            => HasTemporaryValue(property)
-               || property.ClrType.IsDefaultValue(this[property]);
+        private bool HasDefaultValue(IProperty property)
+            => property.ClrType.IsDefaultValue(this[property]);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(
-            p => p.ClrType.IsDefaultValue(this[p])
+            p => HasDefaultValue(p)
                  && (p.ValueGenerated == ValueGenerated.OnAdd
                      || p.IsForeignKey()));
 

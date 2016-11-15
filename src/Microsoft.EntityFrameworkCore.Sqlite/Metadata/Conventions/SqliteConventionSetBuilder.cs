@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -13,14 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     {
         public SqliteConventionSetBuilder(
             [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalAnnotationProvider annotationProvider,
             [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder)
-            : base(typeMapper, currentContext, setFinder)
+            : base(typeMapper, annotationProvider, currentContext, setFinder)
         {
         }
 
         public static ConventionSet Build()
-            => new SqliteConventionSetBuilder(new SqliteTypeMapper(), null, null)
+            => new SqliteConventionSetBuilder(new SqliteTypeMapper(), new SqliteAnnotationProvider(), null, null)
                 .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
     }
 }

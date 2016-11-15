@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (previousPrimaryKey != null)
             {
-                RemoveKeyIfUnused(previousPrimaryKey);
+                RemoveKeyIfUnused(previousPrimaryKey, runConventions: true);
             }
 
             return keyBuilder;
@@ -1097,12 +1097,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Debug.Assert(removedForeignKey == foreignKey);
 
             RemoveShadowPropertiesIfUnused(foreignKey.Properties.Where(p => p.DeclaringEntityType.FindDeclaredProperty(p.Name) != null).ToList());
-            foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey);
+            foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey, runConventions);
 
             return currentConfigurationSource;
         }
 
-        private void RemoveKeyIfUnused(Key key)
+        private void RemoveKeyIfUnused(Key key, bool runConventions)
         {
             if (Metadata.FindPrimaryKey() == key)
             {
@@ -1114,7 +1114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            RemoveKey(key, ConfigurationSource.Convention);
+            RemoveKey(key, ConfigurationSource.Convention, runConventions);
         }
 
         /// <summary>

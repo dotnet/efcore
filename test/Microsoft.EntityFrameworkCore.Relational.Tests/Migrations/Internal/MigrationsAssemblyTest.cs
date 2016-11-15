@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
                     {
-                        { typeof(ConcreteOptionsExtension), new ConcreteOptionsExtension() }
+                        { typeof(FakeRelationalOptionsExtension), new FakeRelationalOptionsExtension() }
                     }),
                 new MigrationsIdGenerator());
 
@@ -66,13 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         private class Migration2 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
-            {
-            }
-        }
-
-        private class ConcreteOptionsExtension : RelationalOptionsExtension
-        {
-            public override void ApplyServices(IServiceCollection services)
             {
             }
         }

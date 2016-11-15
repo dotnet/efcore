@@ -98,8 +98,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var property in entry.EntityType.GetProperties())
             {
                 var isForeignKey = property.IsForeignKey();
-
-                if ((property.RequiresValueGenerator || isForeignKey)
+                if ((property.RequiresValueGenerator() || isForeignKey)
                     && property.ClrType.IsDefaultValue(entry[property]))
                 {
                     yield return Tuple.Create(property, isForeignKey);
@@ -117,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool MayGetTemporaryValue(IProperty property, IEntityType entityType)
-            => property.RequiresValueGenerator
+            => property.RequiresValueGenerator()
                && _valueGeneratorSelector.Select(property, entityType).GeneratesTemporaryValues;
 
         private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)

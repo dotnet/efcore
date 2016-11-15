@@ -13,8 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalPropertyAnnotations : IRelationalPropertyAnnotations
     {
-        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
-
         public RelationalPropertyAnnotations([NotNull] IProperty property,
             [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
             : this(new RelationalAnnotations(property), providerFullAnnotationNames)
@@ -28,9 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
 
+        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
+
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IProperty Property => (IProperty)Annotations.Metadata;
         protected virtual bool ShouldThrowOnConflict => true;
+        protected virtual bool ShouldThrowOnInvalidConfiguration => true;
 
         public virtual string ColumnName
         {

@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             var property = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.Relational().DefaultValue);
             Assert.Null(property.SqlServer().DefaultValue);
             Assert.Null(property.Relational().DefaultValueSql);

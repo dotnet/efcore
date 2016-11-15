@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the model to use a sequence-based hi-lo pattern to generate values for properties
+        ///     Configures the model to use a sequence-based hi-lo pattern to generate values for key properties
         ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the model to use the SQL Server IDENTITY feature to generate values for properties
+        ///     Configures the model to use the SQL Server IDENTITY feature to generate values for key properties
         ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server. This is the default
         ///     behavior when targeting SQL Server.
         /// </summary>

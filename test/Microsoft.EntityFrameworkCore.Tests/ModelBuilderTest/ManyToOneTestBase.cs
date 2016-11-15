@@ -1826,7 +1826,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Alpha>().HasMany(b => b.Epsilons).WithOne();
 
                 var property = modelBuilder.Model.FindEntityType(typeof(Epsilon)).FindProperty("Id");
-                Assert.False(property.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
 

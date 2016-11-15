@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
-            if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
+            if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && property.IsKey())
             {
                 yield return new Annotation(
                     SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy,

@@ -3313,7 +3313,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Alpha>().HasOne(b => b.NavDelta).WithOne();
 
                 var property = modelBuilder.Model.FindEntityType(typeof(Delta)).FindProperty("Id");
-                Assert.False(property.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
 

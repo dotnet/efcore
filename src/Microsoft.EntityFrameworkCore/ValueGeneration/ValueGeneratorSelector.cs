@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class ValueGeneratorSelector : IValueGeneratorSelector
     {
+        private readonly TemporaryNumberValueGeneratorFactory _numberFactory
+            = new TemporaryNumberValueGeneratorFactory();
+
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
@@ -73,21 +76,48 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (propertyType == typeof(Guid))
             {
-                return new GuidValueGenerator();
+                return ShouldGenerateTemporaryValues(property)
+                    ? new TemporaryGuidValueGenerator() : new GuidValueGenerator();
             }
 
             if (propertyType == typeof(string))
             {
-                return new StringValueGenerator(generateTemporaryValues: false);
+                return new StringValueGenerator(ShouldGenerateTemporaryValues(property));
             }
 
             if (propertyType == typeof(byte[]))
             {
-                return new BinaryValueGenerator(generateTemporaryValues: false);
+                return new BinaryValueGenerator(ShouldGenerateTemporaryValues(property));
+            }
+
+            if (propertyType.IsInteger()
+                || (propertyType == typeof(decimal))
+                || (propertyType == typeof(float))
+                || (propertyType == typeof(double)))
+            {
+                return _numberFactory.Create(property);
+            }
+
+            if (propertyType == typeof(DateTime))
+            {
+                return new TemporaryDateTimeValueGenerator();
+            }
+
+            if (propertyType == typeof(DateTimeOffset))
+            {
+                return new TemporaryDateTimeOffsetValueGenerator();
             }
 
             throw new NotSupportedException(
                 CoreStrings.NoValueGenerator(property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
         }
+
+        /// <summary>
+        ///     Indicates whether the generated value should be temorary.
+        /// </summary>
+        /// <param name="property"> The property to get the value generator for.</param>
+        /// <returns> Whether the generated value should be temorary. </returns>
+        protected virtual bool ShouldGenerateTemporaryValues([NotNull] IProperty property)
+            => property.IsReadOnlyBeforeSave;
     }
 }

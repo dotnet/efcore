@@ -128,8 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var property = builder.Metadata.FindProperty(GetPropertyName(pkColumns[0]));
             var propertyType = property?.ClrType?.UnwrapNullableType();
 
-            if (propertyType?.IsInteger() == true
-                || propertyType == typeof(Guid))
+            if (propertyType?.IsInteger() == true)
             {
                 property.ValueGenerated = ValueGenerated.Never;
             }
@@ -247,7 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (column.DefaultValue != null)
             {
-                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                 propertyBuilder.Metadata.Relational().DefaultValueSql = null;
 
                 var defaultExpression = ConvertSqlServerDefaultValue(column.DefaultValue);
@@ -276,7 +274,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (column.ComputedValue != null)
             {
-                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                 propertyBuilder.Metadata.Relational().ComputedColumnSql = null;
 
                 var computedExpression = ConvertSqlServerDefaultValue(column.ComputedValue);

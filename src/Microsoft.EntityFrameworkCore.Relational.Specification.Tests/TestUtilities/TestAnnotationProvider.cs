@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
 {
     public class TestAnnotationProvider : IRelationalAnnotationProvider
     {

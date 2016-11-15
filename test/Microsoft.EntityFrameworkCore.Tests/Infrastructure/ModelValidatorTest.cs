@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             {
                 var property = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i), typeof(int?));
                 keyProperties[i] = property;
-                keyProperties[i].RequiresValueGenerator = true;
                 keyProperties[i].IsNullable = false;
             }
             return entityType.AddKey(keyProperties);
@@ -45,10 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
         {
             var foreignKey = dependEntityType.AddForeignKey(dependentProperties, principalKey, principalKey.DeclaringEntityType);
             foreignKey.IsUnique = true;
-            foreach (var property in dependentProperties)
-            {
-                property.RequiresValueGenerator = false;
-            }
 
             return foreignKey;
         }

@@ -54,12 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ValueGenerated ValueGenerated { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this property requires a <see cref="ValueGenerator" /> to generate
-        ///     values when new entities are added to the context.
-        /// </summary>
-        bool RequiresValueGenerator { get; }
-
-        /// <summary>
         ///     Gets a value indicating whether this property is used as a concurrency token. When a property is configured
         ///     as a concurrency token the value in the database will be checked when an instance of this entity type
         ///     is updated or deleted during <see cref="DbContext.SaveChanges()" /> to ensure it has not changed since

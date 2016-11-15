@@ -76,6 +76,7 @@
     <Compile Include="Metadata\Conventions\Internal\SqlServerIndexConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerMemoryOptimizedTablesConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\SqlServerValueGeneratorConvention.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilder.cs" />
     <Compile Include="Metadata\Internal\SqlServerAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\SqlServerEntityTypeBuilderAnnotations.cs" />
