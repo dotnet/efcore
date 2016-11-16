@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -168,6 +167,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             // In-memory store does not support store generation
         }
 
+        public override void Identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
+        {
+            // In-memory store does not support store generation
+        }
+
         public class StoreGeneratedInMemoryFixture : StoreGeneratedFixtureBase
         {
             private const string DatabaseName = "StoreGeneratedTest";
@@ -217,6 +221,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     {
                         // In-memory store does not support store generationof keys
                         b.Property(e => e.Id).Metadata.IsReadOnlyBeforeSave = false;
+                        b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).Metadata.IsReadOnlyBeforeSave = false;
+                        b.Property(e => e.IdentityReadOnlyBeforeSave).Metadata.IsReadOnlyBeforeSave = false;
                     });
             }
         }

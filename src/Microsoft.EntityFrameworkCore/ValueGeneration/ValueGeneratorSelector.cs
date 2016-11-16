@@ -73,21 +73,30 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (propertyType == typeof(Guid))
             {
-                return new GuidValueGenerator();
+                return ShouldGenerateTemporaryValues(property)
+                    ? new TemporaryGuidValueGenerator() : new GuidValueGenerator();
             }
 
             if (propertyType == typeof(string))
             {
-                return new StringValueGenerator(generateTemporaryValues: false);
+                return new StringValueGenerator(ShouldGenerateTemporaryValues(property));
             }
 
             if (propertyType == typeof(byte[]))
             {
-                return new BinaryValueGenerator(generateTemporaryValues: false);
+                return new BinaryValueGenerator(ShouldGenerateTemporaryValues(property));
             }
 
             throw new NotSupportedException(
                 CoreStrings.NoValueGenerator(property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
         }
+
+        /// <summary>
+        ///     Indicates whether the generated value should be temorary.
+        /// </summary>
+        /// <param name="property"> The property to get the value generator for.</param>
+        /// <returns> Whether the generated value should be temorary. </returns>
+        protected virtual bool ShouldGenerateTemporaryValues([NotNull] IProperty property)
+            => property.IsReadOnlyBeforeSave;
     }
 }

@@ -4,9 +4,12 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -48,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var metadata = CreateProperty();
             Assert.Null(metadata.GetIsConcurrencyTokenConfigurationSource());
             metadata.IsConcurrencyToken = true;
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsConcurrencyTokenConfigurationSource());
             Assert.True(builder.IsConcurrencyToken(true, ConfigurationSource.DataAnnotation));
@@ -81,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var metadata = CreateProperty();
             Assert.Null(metadata.GetRequiresValueGeneratorConfigurationSource());
             metadata.RequiresValueGenerator = true;
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetRequiresValueGeneratorConfigurationSource());
             Assert.True(builder.RequiresValueGenerator(true, ConfigurationSource.DataAnnotation));
@@ -114,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var metadata = CreateProperty();
             Assert.Null(metadata.GetValueGeneratedConfigurationSource());
             metadata.ValueGenerated = ValueGenerated.OnAddOrUpdate;
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetValueGeneratedConfigurationSource());
             Assert.True(builder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.DataAnnotation));
@@ -146,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var metadata = CreateProperty();
             metadata.SetMaxLength(1);
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.True(builder.HasMaxLength(1, ConfigurationSource.DataAnnotation));
             Assert.False(builder.HasMaxLength(2, ConfigurationSource.DataAnnotation));
@@ -181,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var metadata = CreateProperty();
             metadata.SetValueGeneratorFactory(factory);
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.True(builder.HasValueGenerator(factory, ConfigurationSource.DataAnnotation));
             Assert.False(builder.HasValueGenerator((p, e) => new CustomValueGenerator2(), ConfigurationSource.DataAnnotation));
@@ -198,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_clear_CustomValueGenerator_factory()
         {
             var metadata = CreateProperty();
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.True(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.DataAnnotation));
 
@@ -235,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_clear_CustomValueGenerator_type()
         {
             var metadata = CreateProperty();
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.True(builder.HasValueGenerator(typeof(CustomValueGenerator1), ConfigurationSource.DataAnnotation));
 
@@ -291,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var metadata = CreateProperty();
             metadata.IsUnicode(true);
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.True(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.IsUnicode(false, ConfigurationSource.DataAnnotation));
@@ -323,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var metadata = CreateProperty();
             Assert.Null(metadata.GetIsNullableConfigurationSource());
             metadata.IsNullable = false;
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsNullableConfigurationSource());
             Assert.True(builder.IsRequired(true, ConfigurationSource.DataAnnotation));
@@ -369,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var metadata = CreateProperty();
             Assert.Null(metadata.GetIsReadOnlyAfterSaveConfigurationSource());
             metadata.IsReadOnlyAfterSave = false;
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsReadOnlyAfterSaveConfigurationSource());
             Assert.True(builder.ReadOnlyAfterSave(false, ConfigurationSource.DataAnnotation));
@@ -402,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var metadata = CreateProperty();
             Assert.Null(metadata.GetIsReadOnlyBeforeSaveConfigurationSource());
             metadata.IsReadOnlyBeforeSave = true;
-            var builder = CreateInternalPropertyBuilder(metadata);
+            var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsReadOnlyBeforeSaveConfigurationSource());
             Assert.True(builder.ReadOnlyBeforeSave(true, ConfigurationSource.DataAnnotation));
@@ -416,14 +419,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }
 
-        private InternalPropertyBuilder CreateInternalPropertyBuilder(Property property) => property.Builder;
-
-        private Property CreateProperty() => new Model().AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty);
+        private Property CreateProperty() => CreateInternalPropertyBuilder().Metadata;
 
         private class Customer
         {

@@ -67,12 +67,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            return property.ClrType.UnwrapNullableType() == typeof(Guid)
-                ? property.ValueGenerated == ValueGenerated.Never
-                  || property.SqlServer().DefaultValueSql != null
+            var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+
+            if (propertyType == typeof(Guid))
+            {
+                return property.ValueGenerated == ValueGenerated.Never
+                  || ShouldGenerateTemporaryValues(property)
                     ? (ValueGenerator)new TemporaryGuidValueGenerator()
-                    : new SequentialGuidValueGenerator()
-                : base.Create(property, entityType);
+                    : new SequentialGuidValueGenerator();
+            }
+
+            return base.Create(property, entityType);
         }
     }
 }

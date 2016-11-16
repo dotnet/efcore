@@ -256,6 +256,7 @@
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
+    <Compile Include="Metadata\Conventions\Internal\ValueGeneratorConvention.cs" />
     <Compile Include="Query\Internal\IDetachableContext.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPropertyAnnotationSetConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IIndexAnnotationSetConvention.cs" />

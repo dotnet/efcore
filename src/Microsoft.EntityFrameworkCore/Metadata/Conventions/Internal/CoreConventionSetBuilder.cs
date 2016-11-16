@@ -119,6 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyFieldChangedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(timestampAttributeConvention);
 
+            conventionSet.PropertyAnnotationSetConventions.Add(new ValueGeneratorConvention());
+
             return conventionSet;
         }
     }

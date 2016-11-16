@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IProperty Property => (IProperty)Annotations.Metadata;
         protected virtual bool ShouldThrowOnConflict => true;
+        protected virtual bool ShouldThrowOnInvalidConfiguration => true;
 
         public virtual string ColumnName
         {
