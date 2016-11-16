@@ -56,5 +56,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             return base.Create(property, entityType);
         }
+
+        protected override bool ShouldGenerateTemporaryValues(IProperty property)
+        {
+            var relationalProperty = RelationalExtensions.For(property);
+            return relationalProperty.DefaultValue != null
+                   || relationalProperty.DefaultValueSql != null
+                   || relationalProperty.ComputedColumnSql != null
+                   || base.ShouldGenerateTemporaryValues(property);
+        }
     }
 }

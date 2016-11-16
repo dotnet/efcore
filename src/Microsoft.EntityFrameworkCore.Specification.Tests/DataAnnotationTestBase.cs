@@ -769,7 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             var identity = entity.FindProperty(nameof(GeneratedEntity.Identity));
             Assert.Equal(ValueGenerated.OnAdd, identity.ValueGenerated);
-            Assert.False(identity.RequiresValueGenerator);
+            Assert.True(identity.RequiresValueGenerator);
 
             var version = entity.FindProperty(nameof(GeneratedEntity.Version));
             Assert.Equal(ValueGenerated.OnAddOrUpdate, version.ValueGenerated);
@@ -803,15 +803,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
             Assert.Equal(ValueGenerated.OnAdd, stringProperty.ValueGenerated);
-            Assert.False(stringProperty.RequiresValueGenerator);
+            Assert.True(stringProperty.RequiresValueGenerator);
 
             var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
             Assert.Equal(ValueGenerated.OnAdd, dateTimeProperty.ValueGenerated);
-            Assert.False(dateTimeProperty.RequiresValueGenerator);
+            Assert.True(dateTimeProperty.RequiresValueGenerator);
 
             var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
             Assert.Equal(ValueGenerated.OnAdd, guidProperty.ValueGenerated);
-            Assert.False(guidProperty.RequiresValueGenerator);
+            Assert.True(guidProperty.RequiresValueGenerator);
 
             Validate(modelBuilder);
 
