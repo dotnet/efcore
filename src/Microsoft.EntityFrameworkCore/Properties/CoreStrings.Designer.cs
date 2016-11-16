@@ -1496,6 +1496,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("InvalidPoolSize"); }
         }
 
+        /// <summary>
+        /// The DbContext of type '{contextType}' cannot be pooled because it does not have a single public constructor accepting a single parameter of type DbContextOptions.
+        /// </summary>
+        public static string PoolingContextCtorError([CanBeNull] object contextType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PoolingContextCtorError", "contextType"), contextType);
+        }
+
+        /// <summary>
+        /// OnConfiguring cannot be used to modify DbContextOptions when DbContext pooling is enabled.
+        /// </summary>
+        public static string PoolingOptionsModified
+        {
+            get { return GetString("PoolingOptionsModified"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

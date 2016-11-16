@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -65,47 +66,39 @@ namespace Microsoft.Extensions.DependencyInjection
             => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
 
         /// <summary>
-        ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
+        ///     Registers the given context as a service in the <see cref="IServiceCollection" /> and enables DbContext pooling.
+        ///     Instance pooling can increase throughput in high-scale scenarios such as web servers by re-using
+        ///     DbContext instances, rather than creating new instances for each request.
         ///     You use this method when using dependency injection in your application, such as with ASP.NET.
         ///     For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
         /// </summary>
-        /// <example>
-        ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             var connectionString = "connection string to database";
-        ///
-        ///             services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
-        ///         }
-        ///     </code>
-        /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="optionsAction">
         ///     <para>
-        ///         An required action to configure the <see cref="DbContextOptions" /> for the context. When using
+        ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
         /// </param>
         /// <param name="poolSize">
-        ///     Enables DbContext instance pooling and sets the maximum number of instances retained by the pool.
-        ///     Instance pooling can increase throughput in high-scale scenarios such as web servers by re-using
-        ///     DbContext instances, rather than creating new instances for each request.
+        ///     ESets the maximum number of instances retained by the pool.
         /// </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
-         public static IServiceCollection AddDbContext<TContext>(
+         public static IServiceCollection AddDbContextPool<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
             [NotNull] Action<DbContextOptionsBuilder> optionsAction,
-            int poolSize)
+            int poolSize = 128)
             where TContext : DbContext
-            => AddDbContext<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
+            => AddDbContextPool<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
 
         /// <summary>
         ///     <para>
-        ///         Registers the given context as a service in the <see cref="IServiceCollection" />.
+        ///         Registers the given context as a service in the <see cref="IServiceCollection" /> and enables DbContext pooling.
+        ///         Instance pooling can increase throughput in high-scale scenarios such as web servers by re-using
+        ///         DbContext instances, rather than creating new instances for each request.
         ///         You use this method when using dependency injection in your application, such as with ASP.NET.
         ///         For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
         ///     </para>
@@ -118,41 +111,25 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         for internal Entity Framework services.
         ///     </para>
         /// </summary>
-        /// <example>
-        ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             var connectionString = "connection string to database";
-        ///
-        ///             services
-        ///                 .AddEntityFrameworkSqlServer()
-        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                     options.UseSqlServer(connectionString)
-        ///                            .UseInternalServiceProvider(serviceProvider));
-        ///         }
-        ///     </code>
-        /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="optionsAction">
         ///     <para>
-        ///         An required action to configure the <see cref="DbContextOptions" /> for the context. When using
+        ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
         /// </param>
         /// <param name="poolSize">
-        ///     Enables DbContext instance pooling and sets the maximum number of instances retained by the pool.
-        ///     Instance pooling can increase throughput in high-scale scenarios such as web servers by re-using
-        ///     DbContext instances, rather than creating new instances for each request.
+        ///     Sets the maximum number of instances retained by the pool.
         /// </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
-        public static IServiceCollection AddDbContext<TContext>(
+        public static IServiceCollection AddDbContextPool<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
             [NotNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-            int poolSize)
+            int poolSize = 128)
             where TContext : DbContext
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
@@ -180,7 +157,7 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.Add(
                 new ServiceDescriptor(
                     typeof(TContext),
-                    sp => sp.GetService<DbContextPool<TContext>>().Rent(sp),
+                    _ => _.GetService<DbContextPool<TContext>>().Rent(),
                     ServiceLifetime.Scoped));
 
             return serviceCollection;

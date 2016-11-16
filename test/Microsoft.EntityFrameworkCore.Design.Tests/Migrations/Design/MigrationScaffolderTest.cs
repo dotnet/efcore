@@ -132,6 +132,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
             public IEntityQueryableExpressionVisitorFactory EntityQueryableExpressionVisitorFactory => null;
             public IProjectionExpressionVisitorFactory ProjectionExpressionVisitorFactory => null;
             public IExecutionStrategyFactory ExecutionStrategyFactory => null;
+
+            public void Reset()
+            {
+                
+            }
         }
     }
 }

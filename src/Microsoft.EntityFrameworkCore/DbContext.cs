@@ -140,16 +140,17 @@ namespace Microsoft.EntityFrameworkCore
             {
                 _initializing = true;
 
-                var options = _options;
+                var optionsBuilder = new DbContextOptionsBuilder(_options);
 
-                if (!options.IsFrozen)
+                OnConfiguring(optionsBuilder);
+
+                if (_options.IsFrozen
+                    && !ReferenceEquals(_options, optionsBuilder.Options))
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder(options);
-
-                    OnConfiguring(optionsBuilder);
-
-                    options = optionsBuilder.Options;
+                    throw new InvalidOperationException(CoreStrings.PoolingOptionsModified);
                 }
+
+                var options = optionsBuilder.Options;
 
                 _serviceScope = GetServiceProvider(options)
                     .GetRequiredService<IServiceScopeFactory>()
