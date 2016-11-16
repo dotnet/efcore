@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     {
                         using (var context = CreateContext())
                         {
-                            (from c in context.Customers
+                            var enumerator = (from c in context.Customers
                              where c.City == "London"
                              orderby c.CustomerID
                              select (from o1 in context.Orders
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                                              where o1.CustomerID == c.CustomerID
                                              orderby o2.OrderID
                                              select o1.OrderID)))
-                                .Load();
+                                .GetEnumerator();
                         }
                     });
             }
@@ -58,14 +58,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [ConditionalFact]
         public async Task Race_when_context_disposed_before_query_termination()
         {
-            Task<Customer> task;
+            DbSet<Customer> task;
 
             using (var context = CreateContext())
             {
-                task = context.Customers.SingleAsync(c => c.CustomerID == "ALFKI");
+                task = context.Customers;
             }
 
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => task);
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
         }
 
         // TODO: Complex projection translation.
