@@ -349,6 +349,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (groupJoinClauses.Any())
             {
                 _querySourcesRequiringMaterialization.Add(queryModel.MainFromClause);
+
+                var subQueryMainFromClause = queryModel.MainFromClause.FromExpression as SubQueryExpression;
+                if (subQueryMainFromClause != null)
+                {
+                    AddQuerySourcesRequiringMaterializationForSubquery(queryModelVisitor, subQueryMainFromClause.QueryModel);
+                }
+
                 foreach (var groupJoinClause in groupJoinClauses)
                 {
                     _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
@@ -356,17 +363,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var subQueryInnerSequence = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
                     if (subQueryInnerSequence != null)
                     {
-                        var subQuerySourcesRequiringMaterialization
-                            = _requiresMaterializationExpressionVisitorFactory
-                                .Create(queryModelVisitor)
-                                .FindQuerySourcesRequiringMaterialization(subQueryInnerSequence.QueryModel);
-
-                        foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
-                        {
-                            _querySourcesRequiringMaterialization.Add(subQuerySource);
-                        }
+                        AddQuerySourcesRequiringMaterializationForSubquery(queryModelVisitor, subQueryInnerSequence.QueryModel);
                     }
                 }
+            }
+        }
+
+        private void AddQuerySourcesRequiringMaterializationForSubquery(EntityQueryModelVisitor queryModelVisitor, QueryModel subQueryModel)
+        {
+            var subQuerySourcesRequiringMaterialization
+                = _requiresMaterializationExpressionVisitorFactory
+                    .Create(queryModelVisitor)
+                    .FindQuerySourcesRequiringMaterialization(subQueryModel);
+
+            foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
+            {
+                _querySourcesRequiringMaterialization.Add(subQuerySource);
             }
         }
 

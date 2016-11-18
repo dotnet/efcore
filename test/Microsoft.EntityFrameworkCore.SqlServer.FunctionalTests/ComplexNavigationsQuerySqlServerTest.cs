@@ -2414,6 +2414,52 @@ ORDER BY [l1].[Id]",
                 Sql);
         }
 
+        public override void GroupJoin_on_left_side_being_a_subquery()
+        {
+            base.GroupJoin_on_left_side_being_a_subquery();
+
+            Assert.Contains(
+                @"SELECT [x.OneToOne_Optional_FK].[Id], [x.OneToOne_Optional_FK].[Date], [x.OneToOne_Optional_FK].[Level1_Optional_Id], [x.OneToOne_Optional_FK].[Level1_Required_Id], [x.OneToOne_Optional_FK].[Name], [x.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [x.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId], [x.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [x.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId], [x.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [x.OneToOne_Optional_FK].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [x.OneToOne_Optional_FK]",
+                Sql);
+
+            Assert.Contains(
+                @"@__p_0: 2
+
+SELECT [t].[Id], [t].[Date], [t].[Name], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_SelfId], [t].[c0], [t].[c1], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[c2], [t].[OneToMany_Optional_InverseId], [t].[c3], [t].[OneToMany_Required_InverseId], [t].[c4], [t].[OneToOne_Optional_PK_InverseId], [t].[c5]
+FROM (
+    SELECT TOP(@__p_0) [l10].[Id], [l10].[Date], [l10].[Name], [l10].[OneToMany_Optional_Self_InverseId], [l10].[OneToMany_Required_Self_InverseId], [l10].[OneToOne_Optional_SelfId], [l1.OneToOne_Optional_FK1].[Id] AS [c0], [l1.OneToOne_Optional_FK1].[Date] AS [c1], [l1.OneToOne_Optional_FK1].[Level1_Optional_Id], [l1.OneToOne_Optional_FK1].[Level1_Required_Id], [l1.OneToOne_Optional_FK1].[Name] AS [c2], [l1.OneToOne_Optional_FK1].[OneToMany_Optional_InverseId], [l1.OneToOne_Optional_FK1].[OneToMany_Optional_Self_InverseId] AS [c3], [l1.OneToOne_Optional_FK1].[OneToMany_Required_InverseId], [l1.OneToOne_Optional_FK1].[OneToMany_Required_Self_InverseId] AS [c4], [l1.OneToOne_Optional_FK1].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Optional_FK1].[OneToOne_Optional_SelfId] AS [c5]
+    FROM [Level1] AS [l10]
+    LEFT JOIN [Level2] AS [l1.OneToOne_Optional_FK1] ON [l10].[Id] = [l1.OneToOne_Optional_FK1].[Level1_Optional_Id]
+    ORDER BY [l1.OneToOne_Optional_FK1].[Name], [l10].[Id]
+) AS [t]
+ORDER BY [t].[Name], [t].[Id]",
+                Sql);
+        }
+
+        public override void GroupJoin_on_right_side_being_a_subquery()
+        {
+            base.GroupJoin_on_right_side_being_a_subquery();
+
+            Assert.Contains(
+                @"@__p_0: 2
+
+SELECT [t].[Id], [t].[Date], [t].[Name], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_SelfId], [t].[c0], [t].[c1], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[c2], [t].[OneToMany_Optional_InverseId], [t].[c3], [t].[OneToMany_Required_InverseId], [t].[c4], [t].[OneToOne_Optional_PK_InverseId], [t].[c5]
+FROM (
+    SELECT TOP(@__p_0) [x0].[Id], [x0].[Date], [x0].[Name], [x0].[OneToMany_Optional_Self_InverseId], [x0].[OneToMany_Required_Self_InverseId], [x0].[OneToOne_Optional_SelfId], [x.OneToOne_Optional_FK1].[Id] AS [c0], [x.OneToOne_Optional_FK1].[Date] AS [c1], [x.OneToOne_Optional_FK1].[Level1_Optional_Id], [x.OneToOne_Optional_FK1].[Level1_Required_Id], [x.OneToOne_Optional_FK1].[Name] AS [c2], [x.OneToOne_Optional_FK1].[OneToMany_Optional_InverseId], [x.OneToOne_Optional_FK1].[OneToMany_Optional_Self_InverseId] AS [c3], [x.OneToOne_Optional_FK1].[OneToMany_Required_InverseId], [x.OneToOne_Optional_FK1].[OneToMany_Required_Self_InverseId] AS [c4], [x.OneToOne_Optional_FK1].[OneToOne_Optional_PK_InverseId], [x.OneToOne_Optional_FK1].[OneToOne_Optional_SelfId] AS [c5]
+    FROM [Level1] AS [x0]
+    LEFT JOIN [Level2] AS [x.OneToOne_Optional_FK1] ON [x0].[Id] = [x.OneToOne_Optional_FK1].[Level1_Optional_Id]
+    ORDER BY [x.OneToOne_Optional_FK1].[Name], [x0].[Id]
+) AS [t]
+ORDER BY [t].[Name], [t].[Id]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
