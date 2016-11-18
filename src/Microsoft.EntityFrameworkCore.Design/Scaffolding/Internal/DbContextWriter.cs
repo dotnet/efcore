@@ -99,26 +99,34 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (_sb.Indent())
             {
-                _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
+                _sb.AppendLine("if (!optionsBuilder.IsConfigured)");
+                _sb.AppendLine("{");
 
-                foreach (var optionsBuilderConfig in _model.OnConfiguringConfigurations)
+                using (_sb.Indent())
                 {
-                    if (optionsBuilderConfig.FluentApiLines.Count == 0)
-                    {
-                        continue;
-                    }
+                    _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
 
-                    _sb.Append("optionsBuilder." + optionsBuilderConfig.FluentApiLines.First());
-                    using (_sb.Indent())
+                    foreach (var optionsBuilderConfig in _model.OnConfiguringConfigurations)
                     {
-                        foreach (var line in optionsBuilderConfig.FluentApiLines.Skip(1))
+                        if (optionsBuilderConfig.FluentApiLines.Count == 0)
                         {
-                            _sb.AppendLine();
-                            _sb.Append(line);
+                            continue;
                         }
+
+                        _sb.Append("optionsBuilder." + optionsBuilderConfig.FluentApiLines.First());
+                        using (_sb.Indent())
+                        {
+                            foreach (var line in optionsBuilderConfig.FluentApiLines.Skip(1))
+                            {
+                                _sb.AppendLine();
+                                _sb.Append(line);
+                            }
+                        }
+                        _sb.AppendLine(";");
                     }
-                    _sb.AppendLine(";");
                 }
+
+                _sb.AppendLine("}");
             }
             _sb.AppendLine("}");
         }
