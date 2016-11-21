@@ -131,10 +131,26 @@ select c'
             materializer: (ValueBuffer valueBuffer) => 
             {
                 var3 = new Order()
-                var3.<OrderID>k__BackingField = try { (int) object valueBuffer.get_Item(0) } catch (Exception) { ... } 
-                var3.<CustomerID>k__BackingField = try { (string) object valueBuffer.get_Item(1) } catch (Exception) { ... } 
-                var3.<EmployeeID>k__BackingField = try { (Nullable<int>) object valueBuffer.get_Item(2) } catch (Exception) { ... } 
-                var3.<OrderDate>k__BackingField = try { (Nullable<DateTime>) object valueBuffer.get_Item(3) } catch (Exception) { ... } 
+                var3.<OrderID>k__BackingField = int TryReadValue(
+                    valueBuffer: valueBuffer, 
+                    index: 0, 
+                    property: OrderID
+                )
+                var3.<CustomerID>k__BackingField = string TryReadValue(
+                    valueBuffer: valueBuffer, 
+                    index: 1, 
+                    property: CustomerID
+                )
+                var3.<EmployeeID>k__BackingField = Nullable<int> TryReadValue(
+                    valueBuffer: valueBuffer, 
+                    index: 2, 
+                    property: EmployeeID
+                )
+                var3.<OrderDate>k__BackingField = Nullable<DateTime> TryReadValue(
+                    valueBuffer: valueBuffer, 
+                    index: 3, 
+                    property: OrderDate
+                )
                 return instance
             }
         )

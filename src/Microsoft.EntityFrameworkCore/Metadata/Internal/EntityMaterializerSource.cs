@@ -29,34 +29,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression CreateReadValueExpression(
-            Expression valueBuffer,
-            Type type,
-            int index,
-            IProperty property = null)
-        {
-            var readValueExpression
-                = Expression.Convert(CreateReadValueCallExpression(valueBuffer, index), type);
+                Expression valueBuffer,
+                Type type,
+                int index,
+                IProperty property = null)
+            => Expression.Call(
+                _tryReadValueMethod.MakeGenericMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
 
-            var exceptionParameter
-                = Expression.Parameter(typeof(Exception), "e");
-
-            var catchBlock
-                = Expression
-                    .Catch(exceptionParameter,
-                        Expression.Call(
-                            _createReadValueException.MakeGenericMethod(readValueExpression.Type),
-                            exceptionParameter,
-                            CreateReadValueCallExpression(valueBuffer, index),
-                            Expression.Constant(property, typeof(IPropertyBase))));
-
-            return Expression.TryCatch(readValueExpression, catchBlock);
-        }
-
-        private static readonly MethodInfo _createReadValueException
+        private static readonly MethodInfo _tryReadValueMethod
             = typeof(EntityMaterializerSource).GetTypeInfo()
-                .GetDeclaredMethod(nameof(ThrowReadValueException));
+                .GetDeclaredMethod(nameof(TryReadValue));
 
-        private static TValue ThrowReadValueException<TValue>(
+        private static TValue TryReadValue<TValue>(
+            ValueBuffer valueBuffer, 
+            int index,
+            IPropertyBase property = null)
+        {
+            object untypedValue = null;
+
+            try
+            {
+                untypedValue = valueBuffer[index];
+
+                return (TValue)untypedValue;
+            }
+            catch (Exception e)
+            {
+                ThrowReadValueException<TValue>(e, untypedValue, property);
+            }
+
+            return default(TValue);
+        }
+        
+        private static void ThrowReadValueException<TValue>(
             Exception exception, object value, IPropertyBase property = null)
         {
             var expectedType = typeof(TValue);

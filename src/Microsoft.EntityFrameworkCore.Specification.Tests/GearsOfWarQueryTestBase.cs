@@ -45,6 +45,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void ToString_guid_property_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Select(ct => new { A = ct.GearNickName, B = ct.Id.ToString() });
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+            }
+        }
+        
+        [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
         {
             using (var context = CreateContext())
