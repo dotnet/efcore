@@ -3111,14 +3111,45 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Complex_query_with_optional_navigations_and_client_side_evaluation()
         {
             AssertQuery<Level1>(
-            l1s => l1s.Where(l1 => !l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK.OneToOne_Optional_FK.Id).All(l4 => ClientMethod(l4))),
-            l1s => l1s.Where(l1 => l1.OneToMany_Optional.Select(l2 => MaybeScalar(
-                l2.OneToOne_Optional_FK,
-                () => MaybeScalar<int>(
-                    l2.OneToOne_Optional_FK.OneToOne_Optional_FK,
-                    () => l2.OneToOne_Optional_FK.OneToOne_Optional_FK.Id))).All(a => true)),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                l1s => l1s.Where(l1 => !l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK.OneToOne_Optional_FK.Id).All(l4 => ClientMethod(l4))),
+                l1s => l1s.Where(l1 => l1.OneToMany_Optional.Select(l2 => MaybeScalar(
+                    l2.OneToOne_Optional_FK,
+                    () => MaybeScalar<int>(
+                        l2.OneToOne_Optional_FK.OneToOne_Optional_FK,
+                        () => l2.OneToOne_Optional_FK.OneToOne_Optional_FK.Id))).All(a => true)),
+                    e => e.Id,
+                    (e, a) => Assert.Equal(e.Id, a.Id));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_on_left_side_being_a_subquery()
+        {
+            AssertQuery<Level1>(
+                l1s => l1s.OrderBy(l1 => l1.OneToOne_Optional_FK.Name)
+                    .Take(2)
+                    .Select(x => new { Id = x.Id, Brand = x.OneToOne_Optional_FK.Name }),
+                l1s => l1s.OrderBy(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Name))
+                    .Take(2)
+                    .Select(x => new { Id = x.Id, Brand = Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name) }),
+                e => e.Id);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_on_right_side_being_a_subquery()
+        {
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from l2 in l2s
+                    join l1 in l1s.OrderBy(x => x.OneToOne_Optional_FK.Name).Take(2) on l2.Level1_Optional_Id equals l1.Id into grouping
+                    from l1 in grouping.DefaultIfEmpty()
+                    select new { Id = l2.Id, Nane = l1 != null ? l1.Name : null },
+                (l1s, l2s) =>
+                    from l2 in l2s
+                    join l1 in l1s.OrderBy(x => Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name)).Take(2) 
+                        on l2.Level1_Optional_Id equals l1.Id into grouping
+                    from l1 in grouping.DefaultIfEmpty()
+                    select new { Id = l2.Id, Nane = l1 != null ? l1.Name : null },
+                e => e.Id);
         }
 
         private bool ClientMethod(int? id)
