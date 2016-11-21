@@ -199,6 +199,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void From_sql_queryable_composed_after_removing_whitespaces()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(@"
+    
+
+
+SELECT
+* FROM ""Customers""")
+                    .Where(c => c.ContactName.Contains("z"))
+                    .ToArray();
+
+                Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [Fact]
         public virtual void From_sql_queryable_composed_compiled()
         {
             var query = EF.CompileQuery(

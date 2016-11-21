@@ -52,6 +52,24 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
                 Sql);
         }
 
+        public override void From_sql_queryable_composed_after_removing_whitespaces()
+        {
+            base.From_sql_queryable_composed_after_removing_whitespaces();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+
+        
+
+
+    SELECT
+    * FROM ""Customers""
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
+                Sql);
+        }
+
         public override void From_sql_queryable_composed_compiled()
         {
             base.From_sql_queryable_composed_compiled();

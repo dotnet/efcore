@@ -191,10 +191,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         tableAlias,
                         _querySource));
 
+                var trimmedSql = fromSqlAnnotation.Sql.TrimStart('\r', '\n', '\t', ' ');
+
                 var useQueryComposition
-                    = fromSqlAnnotation.Sql
-                        .TrimStart()
-                        .StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase);
+                    = trimmedSql.StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase)
+                      || trimmedSql.StartsWith("SELECT" + Environment.NewLine, StringComparison.OrdinalIgnoreCase)
+                      || trimmedSql.StartsWith("SELECT\t", StringComparison.OrdinalIgnoreCase);
 
                 var requiresClientEval = !useQueryComposition;
 
