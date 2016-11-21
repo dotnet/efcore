@@ -20,6 +20,6 @@ namespace E2E.Sqlite
         public string Other { get; set; }
 
         [InverseProperty("OneToManyDependentFk")]
-        public virtual ICollection<OneToManyDependent> OneToManyDependent { get; set; }
+        public ICollection<OneToManyDependent> OneToManyDependent { get; set; }
     }
 }

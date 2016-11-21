@@ -10,6 +10,6 @@ namespace E2E.Sqlite
         public long Id { get; set; }
 
         [InverseProperty("Principal")]
-        public virtual Dependent Dependent { get; set; }
+        public Dependent Dependent { get; set; }
     }
 }

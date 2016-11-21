@@ -17,6 +17,6 @@ namespace E2ETest.Namespace
 
         [ForeignKey("OneToOneDependentId1,OneToOneDependentId2")]
         [InverseProperty("OneToOneDependent")]
-        public virtual OneToOnePrincipal OneToOneDependentNavigation { get; set; }
+        public OneToOnePrincipal OneToOneDependentNavigation { get; set; }
     }
 }

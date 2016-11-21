@@ -20,8 +20,8 @@ namespace E2ETest.Namespace
 
         [ForeignKey("SelfReferenceFk")]
         [InverseProperty("InverseSelfReferenceFkNavigation")]
-        public virtual SelfReferencing SelfReferenceFkNavigation { get; set; }
+        public SelfReferencing SelfReferenceFkNavigation { get; set; }
         [InverseProperty("SelfReferenceFkNavigation")]
-        public virtual ICollection<SelfReferencing> InverseSelfReferenceFkNavigation { get; set; }
+        public ICollection<SelfReferencing> InverseSelfReferenceFkNavigation { get; set; }
     }
 }

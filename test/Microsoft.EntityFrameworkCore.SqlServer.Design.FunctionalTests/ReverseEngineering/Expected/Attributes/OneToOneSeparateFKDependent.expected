@@ -24,6 +24,6 @@ namespace E2ETest.Namespace
 
         [ForeignKey("OneToOneSeparateFkdependentFk1,OneToOneSeparateFkdependentFk2")]
         [InverseProperty("OneToOneSeparateFkdependent")]
-        public virtual OneToOneSeparateFkprincipal OneToOneSeparateFkdependentFk { get; set; }
+        public OneToOneSeparateFkprincipal OneToOneSeparateFkdependentFk { get; set; }
     }
 }

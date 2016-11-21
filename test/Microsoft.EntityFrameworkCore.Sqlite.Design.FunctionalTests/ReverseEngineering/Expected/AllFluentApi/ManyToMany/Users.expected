@@ -12,6 +12,6 @@ namespace E2E.Sqlite
 
         public string Id { get; set; }
 
-        public virtual ICollection<UsersGroups> UsersGroups { get; set; }
+        public ICollection<UsersGroups> UsersGroups { get; set; }
     }
 }

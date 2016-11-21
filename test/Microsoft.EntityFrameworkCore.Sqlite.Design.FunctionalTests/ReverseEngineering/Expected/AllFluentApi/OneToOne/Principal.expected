@@ -7,6 +7,6 @@ namespace E2E.Sqlite
     {
         public long Id { get; set; }
 
-        public virtual Dependent Dependent { get; set; }
+        public Dependent Dependent { get; set; }
     }
 }

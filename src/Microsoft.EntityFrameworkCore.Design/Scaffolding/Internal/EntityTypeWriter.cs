@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     else
                     {
                         AddAttributes(navProp.AttributeConfigurations);
-                        _sb.AppendLine("public virtual " + navProp.Type
+                        _sb.AppendLine("public " + navProp.Type
                                        + " " + navProp.Name + " { get; set; }");
                     }
                 }

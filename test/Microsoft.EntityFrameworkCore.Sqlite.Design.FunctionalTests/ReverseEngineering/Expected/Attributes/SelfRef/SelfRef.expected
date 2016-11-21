@@ -12,8 +12,8 @@ namespace E2E.Sqlite
 
         [ForeignKey("SelfForeignKey")]
         [InverseProperty("InverseSelfForeignKeyNavigation")]
-        public virtual SelfRef SelfForeignKeyNavigation { get; set; }
+        public SelfRef SelfForeignKeyNavigation { get; set; }
         [InverseProperty("SelfForeignKeyNavigation")]
-        public virtual ICollection<SelfRef> InverseSelfForeignKeyNavigation { get; set; }
+        public ICollection<SelfRef> InverseSelfForeignKeyNavigation { get; set; }
     }
 }
