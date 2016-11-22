@@ -29,30 +29,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression CreateReadValueExpression(
-            Expression valueBuffer,
-            Type type,
+                Expression valueBuffer,
+                Type type,
+                int index,
+                IProperty property = null)
+            => Expression.Call(
+                _tryReadValueMethod.MakeGenericMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
+
+        private static readonly MethodInfo _tryReadValueMethod
+            = typeof(EntityMaterializerSource).GetTypeInfo()
+                .GetDeclaredMethod(nameof(TryReadValue));
+
+        private static TValue TryReadValue<TValue>(
+            ValueBuffer valueBuffer, 
             int index,
-            IProperty property = null)
+            IPropertyBase property = null)
         {
-            var readValueCallExpression 
-                = CreateReadValueCallExpression(valueBuffer, index);
+            object untypedValue = null;
 
-            var convertedReadValueExpression
-                = Expression.Convert(readValueCallExpression, type);
+            try
+            {
+                untypedValue = valueBuffer[index];
 
-            var exceptionParameter
-                = Expression.Parameter(typeof(Exception), "e");
+                return (TValue)untypedValue;
+            }
+            catch (Exception e)
+            {
+                ThrowReadValueException<TValue>(e, untypedValue, property);
+            }
 
-            var catchBlock
-                = Expression
-                    .Catch(exceptionParameter,
-                        Expression.Call(
-                            ThrowReadValueExceptionMethod.MakeGenericMethod(convertedReadValueExpression.Type),
-                            exceptionParameter,
-                            readValueCallExpression,
-                            Expression.Constant(property, typeof(IPropertyBase))));
-
-            return Expression.TryCatch(convertedReadValueExpression, catchBlock);
+            return default(TValue);
         }
 
         /// <summary>

@@ -45,6 +45,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void ToString_guid_property_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Select(ct => new { A = ct.GearNickName, B = ct.Id.ToString() });
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+            }
+        }
+        
+        [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
         {
             using (var context = CreateContext())
@@ -2097,6 +2109,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         {
             return source?.Count() == 0 ? new[] { default(TElement) } : source;
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_predicate_with_AndAlso_and_nullable_bool_property()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from w in context.Weapons
+                            where w.Id != 50 && !w.Owner.HasSoulPatch
+                            select w;
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);

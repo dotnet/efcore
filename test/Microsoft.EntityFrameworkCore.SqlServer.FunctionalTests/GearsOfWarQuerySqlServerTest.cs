@@ -2077,6 +2077,18 @@ ORDER BY [t].[GearNickName]",
                 Sql);
         }
 
+        public override void Complex_predicate_with_AndAlso_and_nullable_bool_property()
+        {
+            base.Complex_predicate_with_AndAlso_and_nullable_bool_property();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [w.Owner].[Nickname], [w.Owner].[SquadId], [w.Owner].[AssignedCityName], [w.Owner].[CityOrBirthName], [w.Owner].[Discriminator], [w.Owner].[FullName], [w.Owner].[HasSoulPatch], [w.Owner].[LeaderNickname], [w.Owner].[LeaderSquadId], [w.Owner].[Rank]
+FROM [Weapon] AS [w]
+LEFT JOIN [Gear] AS [w.Owner] ON [w].[OwnerFullName] = [w.Owner].[FullName]
+WHERE ([w].[Id] <> 50) AND ([w.Owner].[HasSoulPatch] = 0)",
+                Sql);
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"
