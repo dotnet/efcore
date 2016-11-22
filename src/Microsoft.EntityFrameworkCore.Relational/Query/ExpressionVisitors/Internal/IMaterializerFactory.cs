@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IEntityType entityType,
             [NotNull] SelectExpression selectExpression,
             [NotNull] Func<IProperty, SelectExpression, int> projectionAdder,
-            [CanBeNull] IQuerySource querySource);
+            [CanBeNull] IQuerySource querySource,
+            [CanBeNull] out Dictionary<Type, int[]> typeIndexMap);
     }
 }

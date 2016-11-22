@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -1245,6 +1246,132 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        [Fact]
+        public virtual void Repro6986_can_query_base_type_when_derived_types_contain_shadow_properties()
+        {
+            using (CreateDatabase6986())
+            {
+                using (var context = new ReproContext6986(_options))
+                {
+                    var query = context.Contacts.ToList();
+
+                    Assert.Equal(4, query.Count);
+                    Assert.Equal(2, query.OfType<EmployerContact6986>().Count());
+                    Assert.Equal(1, query.OfType<ServiceOperatorContact6986>().Count());
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Repro6986_can_include_dependent_to_principal_navigation_of_derived_type_with_shadow_fk()
+        {
+            using (CreateDatabase6986())
+            {
+                using (var context = new ReproContext6986(_options))
+                {
+                    var query = context.Contacts.OfType<ServiceOperatorContact6986>().Include(e => e.ServiceOperator6986).ToList();
+
+                    Assert.Equal(1, query.Count);
+                    Assert.NotNull(query[0].ServiceOperator6986);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Repro6986_can_project_shadow_property_using_ef_property()
+        {
+            using (CreateDatabase6986())
+            {
+                using (var context = new ReproContext6986(_options))
+                {
+                    var query = context.Contacts.OfType<ServiceOperatorContact6986>().Select(c => new { c, Prop = EF.Property<int>(c, "ServiceOperator6986Id") }).ToList();
+
+                    Assert.Equal(1, query.Count);
+                    Assert.Equal(1, query[0].Prop);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase6986()
+            => CreateTestStore(() => new ReproContext6986(_options),
+                context =>
+                {
+                    context.ServiceOperators.Add(new ServiceOperator6986());
+                    context.Employers.AddRange(
+                        new Employer6986 { Name = "UWE" },
+                        new Employer6986 { Name = "Hewlett Packard" });
+
+                    context.SaveChanges();
+
+                    context.Contacts.AddRange(
+                        new ServiceOperatorContact6986
+                        {
+                            UserName = "service.operator@esoterix.co.uk",
+                            ServiceOperator6986 = context.ServiceOperators.First()
+                        },
+                        new EmployerContact6986
+                        {
+                            UserName = "uwe@esoterix.co.uk",
+                            Employer6986 = context.Employers.First(e => e.Name == "UWE")
+                        },
+                        new EmployerContact6986
+                        {
+                            UserName = "hp@esoterix.co.uk",
+                            Employer6986 = context.Employers.First(e => e.Name == "Hewlett Packard")
+                        },
+                        new Contact6986
+                        {
+                            UserName = "noroles@esoterix.co.uk",
+                        });
+                    context.SaveChanges();
+                });
+
+        public class ReproContext6986 : DbContext
+        {
+
+            public ReproContext6986(DbContextOptions options)
+                : base(options)
+            { }
+
+            public DbSet<Contact6986> Contacts { get; set; }
+            public DbSet<EmployerContact6986> EmployerContacts { get; set; }
+            public DbSet<Employer6986> Employers { get; set; }
+            public DbSet<ServiceOperatorContact6986> ServiceOperatorContacts { get; set; }
+            public DbSet<ServiceOperator6986> ServiceOperators { get; set; }
+        }
+
+        public class EmployerContact6986 : Contact6986
+        {
+            [Required]
+            public Employer6986 Employer6986 { get; set; }
+        }
+
+        public class ServiceOperatorContact6986 : Contact6986
+        {
+            [Required]
+            public ServiceOperator6986 ServiceOperator6986 { get; set; }
+        }
+
+        public class Contact6986
+        {
+            public int Id { get; set; }
+            public string UserName { get; set; }
+            public bool IsPrimary { get; set; }
+        }
+
+        public class Employer6986
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public List<EmployerContact6986> Contacts { get; set; }
+        }
+
+        public class ServiceOperator6986
+        {
+            public int Id { get; set; }
+            public List<ServiceOperatorContact6986> Contacts { get; set; }
         }
 
         [Fact]
