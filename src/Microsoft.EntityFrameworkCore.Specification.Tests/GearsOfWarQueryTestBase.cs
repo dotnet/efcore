@@ -2038,6 +2038,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Complex_predicate_with_AndAlso_and_nullable_bool_property()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from w in context.Weapons
+                            where w.Id != 50 && !w.Owner.HasSoulPatch
+                            select w;
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

@@ -1691,6 +1691,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             protected override Expression VisitBinary(BinaryExpression expression)
             {
+                Expression newLeft;
+                Expression newRight;
+
                 if (_isSearchCondition)
                 {
                     if (expression.IsComparisonOperation()
@@ -1701,19 +1704,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         _isSearchCondition = false;
 
-                        var left = Visit(expression.Left);
-                        var right = Visit(expression.Right);
+                        newLeft = AdjustExpressionType(Visit(expression.Left), expression.Left.Type);
+                        newRight = AdjustExpressionType(Visit(expression.Right), expression.Right.Type);
 
                         _isSearchCondition = parentIsSearchCondition;
 
-                        return Expression.MakeBinary(expression.NodeType, left, right);
+                        return Expression.MakeBinary(expression.NodeType, newLeft, newRight);
                     }
                 }
                 else
                 {
-                    Expression newLeft;
-                    Expression newRight;
-
                     if (expression.IsLogicalOperation()
                         || expression.NodeType == ExpressionType.Or
                         || expression.NodeType == ExpressionType.And)
@@ -1732,6 +1732,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         newRight = Visit(expression.Right);
                     }
 
+                    newLeft = AdjustExpressionType(newLeft, expression.Left.Type);
+                    newRight = AdjustExpressionType(newRight, expression.Right.Type);
+
                     var newExpression
                         = expression.Update(newLeft, expression.Conversion, newRight);
 
@@ -1746,8 +1749,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     }
                 }
 
-                return base.VisitBinary(expression);
+                newLeft = AdjustExpressionType(Visit(expression.Left), expression.Left.Type);
+                newRight = AdjustExpressionType(Visit(expression.Right), expression.Right.Type);
+
+                return expression.Update(newLeft, expression.Conversion, newRight);
             }
+
+            private static Expression AdjustExpressionType(Expression expression, Type expectedType)
+                => expression.Type != expectedType
+                    ? Expression.Convert(expression, expectedType)
+                    : expression;
 
             protected override Expression VisitConditional(ConditionalExpression expression)
             {
@@ -1806,7 +1817,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     {
                         return Expression.Equal(
                             expression.Operand,
-                            Expression.Constant(false, typeof(bool)));
+                            Expression.Constant(false, expression.Operand.Type));
                     }
 
                     if (expression.NodeType == ExpressionType.Convert

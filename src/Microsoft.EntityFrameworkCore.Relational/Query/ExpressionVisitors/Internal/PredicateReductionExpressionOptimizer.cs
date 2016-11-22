@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
