@@ -72,17 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     children, and if any of them change, should return a new copy of
         ///     itself with the modified children.
         /// </remarks>
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var newExpression = visitor.Visit(Expression);
-            var selectExpression = newExpression as SelectExpression;
-            if (selectExpression != null
-                && selectExpression.Limit == null
-                && selectExpression.Offset == null)
-            {
-                selectExpression.ClearOrderBy();
-            }
-            return new ExistsExpression(newExpression);
-        }
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
     }
 }

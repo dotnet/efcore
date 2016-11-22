@@ -116,9 +116,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             public override Expression Visit(Expression node)
             {
-                var expression = node as SelectExpression;
+                var existsExpression = node as ExistsExpression;
+                if (existsExpression != null)
+                {
+                    return VisitExistExpression(existsExpression);
+                }
 
-                return expression != null ? VisitSelectExpression(expression) : base.Visit(node);
+                var selectExpression = node as SelectExpression;
+
+                return selectExpression != null ? VisitSelectExpression(selectExpression) : base.Visit(node);
             }
 
             private static bool RequiresRowNumberPaging(SelectExpression selectExpression)
@@ -213,6 +219,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 return selectExpression;
+            }
+
+            private Expression VisitExistExpression(ExistsExpression existsExpression)
+            {
+                var newExpression = Visit(existsExpression.Expression);
+                var subSelectExpression = newExpression as SelectExpression;
+                if (subSelectExpression != null
+                    && subSelectExpression.Limit == null
+                    && subSelectExpression.Offset == null)
+                {
+                    subSelectExpression.ClearOrderBy();
+                }
+                return new ExistsExpression(newExpression);
             }
         }
     }
