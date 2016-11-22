@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public const string BeforeExecuteCommand = NamePrefix + nameof(BeforeExecuteCommand);
         public const string AfterExecuteCommand = NamePrefix + nameof(AfterExecuteCommand);
         public const string CommandExecutionError = NamePrefix + nameof(CommandExecutionError);
+
+        public const string DataReaderDisposing = NamePrefix + nameof(DataReaderDisposing);
 
         public static void WriteCommandBefore(
             this DiagnosticSource diagnosticSource,
@@ -86,6 +89,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Exception = exception,
                         IsAsync = async
                     });
+            }
+        }
+
+        public static void WriteDataReaderDisposing(this DiagnosticSource diagnosticSource, DbDataReader dataReader)
+        {
+            if (diagnosticSource.IsEnabled(DataReaderDisposing))
+            {
+                diagnosticSource.Write(DataReaderDisposing, dataReader);
             }
         }
     }

@@ -226,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                 = new RelationalDataReader(
                                     connection,
                                     dbCommand,
-                                    dbCommand.ExecuteReader());
+                                    dbCommand.ExecuteReader(),
+                                    DiagnosticSource);
                         }
                         catch
                         {
@@ -344,7 +345,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                             result = new RelationalDataReader(
                                 connection,
                                 dbCommand,
-                                await dbCommand.ExecuteReaderAsync(cancellationToken));
+                                await dbCommand.ExecuteReaderAsync(cancellationToken), 
+                                DiagnosticSource);
                         }
                         catch
                         {
