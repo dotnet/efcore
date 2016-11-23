@@ -131,26 +131,10 @@ select c'
             materializer: (ValueBuffer valueBuffer) => 
             {
                 var3 = new Order()
-                var3.<OrderID>k__BackingField = int TryReadValue(
-                    valueBuffer: valueBuffer, 
-                    index: 0, 
-                    property: OrderID
-                )
-                var3.<CustomerID>k__BackingField = string TryReadValue(
-                    valueBuffer: valueBuffer, 
-                    index: 1, 
-                    property: CustomerID
-                )
-                var3.<EmployeeID>k__BackingField = Nullable<int> TryReadValue(
-                    valueBuffer: valueBuffer, 
-                    index: 2, 
-                    property: EmployeeID
-                )
-                var3.<OrderDate>k__BackingField = Nullable<DateTime> TryReadValue(
-                    valueBuffer: valueBuffer, 
-                    index: 3, 
-                    property: OrderDate
-                )
+                var3.<OrderID>k__BackingField = int TryReadValue(valueBuffer, 0, OrderID)
+                var3.<CustomerID>k__BackingField = string TryReadValue(valueBuffer, 1, CustomerID)
+                var3.<EmployeeID>k__BackingField = Nullable<int> TryReadValue(valueBuffer, 2, EmployeeID)
+                var3.<OrderDate>k__BackingField = Nullable<DateTime> TryReadValue(valueBuffer, 3, OrderDate)
                 return instance
             }
         )
@@ -161,7 +145,7 @@ select c'
                     TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
-    
+
         private readonly NorthwindQuerySqlServerFixture _fixture;
 
         public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture fixture)

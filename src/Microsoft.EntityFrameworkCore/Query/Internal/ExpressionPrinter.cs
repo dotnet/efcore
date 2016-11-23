@@ -491,7 +491,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var simpleMethods = new List<string>
             {
-                "get_Item"
+                "get_Item",
+                "TryReadValue"
             };
 
             switch (node.Method.Name)
