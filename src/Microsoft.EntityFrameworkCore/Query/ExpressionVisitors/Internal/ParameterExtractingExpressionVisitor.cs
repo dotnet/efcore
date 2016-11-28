@@ -91,9 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             if (declaringType == typeof(Queryable)
-                || (declaringType == typeof(EntityFrameworkQueryableExtensions)
-                    && (!methodInfo.IsGenericMethod
-                        || methodInfo.GetGenericMethodDefinition() != EntityFrameworkQueryableExtensions.StringIncludeMethodInfo)))
+                || declaringType == typeof(EntityFrameworkQueryableExtensions)
+                && (!methodInfo.IsGenericMethod
+                    || methodInfo.GetGenericMethodDefinition() != EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
             {
                 return base.VisitMethodCall(methodCallExpression);
             }
@@ -261,8 +261,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (leftConstantExpression != null)
             {
                 var constantValue = (bool)leftConstantExpression.Value;
-                if ((constantValue && binaryExpression.NodeType == ExpressionType.OrElse)
-                    || (!constantValue && binaryExpression.NodeType == ExpressionType.AndAlso))
+                if (constantValue && binaryExpression.NodeType == ExpressionType.OrElse
+                    || !constantValue && binaryExpression.NodeType == ExpressionType.AndAlso)
                 {
                     return newLeftExpression;
                 }
@@ -274,8 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (rightConstantExpression != null)
             {
                 var constantValue = (bool)rightConstantExpression.Value;
-                if ((constantValue && binaryExpression.NodeType == ExpressionType.OrElse)
-                    || (!constantValue && binaryExpression.NodeType == ExpressionType.AndAlso))
+                if (constantValue && binaryExpression.NodeType == ExpressionType.OrElse
+                    || !constantValue && binaryExpression.NodeType == ExpressionType.AndAlso)
                 {
                     return newRightExpression;
                 }
