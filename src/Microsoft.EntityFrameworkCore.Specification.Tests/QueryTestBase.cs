@@ -43,6 +43,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Method_with_constant_queryable_arg()
+        {
+            using (var context = CreateContext())
+            {
+                var count = QueryableArgQuery(context, new [] { "ALFKI" }.AsQueryable()).Count();
+
+                Assert.Equal(1, count);
+
+                count = QueryableArgQuery(context, new [] { "FOO" }.AsQueryable()).Count();
+
+                Assert.Equal(0, count);
+            }
+        }
+
+        private static IQueryable<Customer> QueryableArgQuery(NorthwindContext context, IQueryable<string> ids) 
+            => context.Customers.Where(c => ids.Contains(c.CustomerID));
+
+        [ConditionalFact]
         public void Query_composition_against_ienumerable_set()
         {
             using (var context = CreateContext())

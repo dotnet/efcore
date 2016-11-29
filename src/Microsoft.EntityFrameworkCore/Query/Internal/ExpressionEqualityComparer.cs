@@ -420,6 +420,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
 
+                if (a.Value is EnumerableQuery
+                    && b.Value is EnumerableQuery)
+                {
+                    return false; // EnumerableQueries are opaque
+                }
+
                 if (a.Value is IQueryable
                     && b.Value is IQueryable
                     && a.Value.GetType() == b.Value.GetType())
