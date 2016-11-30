@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.InheritanceRelationships;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -83,8 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_reference_with_inheritance2()
         {
             using (var context = CreateContext())
@@ -144,8 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_reference_with_inheritance_with_filter2()
         {
             using (var context = CreateContext())
@@ -230,8 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_collection_with_inheritance2()
         {
             using (var context = CreateContext())
@@ -268,8 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_collection_with_inheritance_with_filter2()
         {
             using (var context = CreateContext())
@@ -365,8 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_reference_with_inheritance_on_derived3()
         {
             using (var context = CreateContext())
@@ -426,8 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_reference_with_inheritance_on_derived_with_filter3()
         {
             using (var context = CreateContext())
@@ -524,8 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_collection_with_inheritance_on_derived3()
         {
             using (var context = CreateContext())
@@ -537,8 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Include_collection_with_inheritance_on_derived4()
         {
             using (var context = CreateContext())
@@ -574,8 +567,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_reference_reference2()
         {
             using (var context = CreateContext())
@@ -599,8 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_reference_reference4()
         {
             using (var context = CreateContext())
@@ -636,8 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_reference_collection2()
         {
             using (var context = CreateContext())
@@ -661,8 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_reference_collection4()
         {
             using (var context = CreateContext())
@@ -699,8 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_collection_reference2()
         {
             using (var context = CreateContext())
@@ -712,8 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_collection_reference3()
         {
             using (var context = CreateContext())
@@ -725,8 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_collection_reference4()
         {
             using (var context = CreateContext())
@@ -763,8 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_collection_collection2()
         {
             using (var context = CreateContext())
@@ -776,8 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_collection_collection3()
         {
             using (var context = CreateContext())
@@ -789,8 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // doesn't work for now
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual void Nested_include_with_inheritance_collection_collection4()
         {
             using (var context = CreateContext())

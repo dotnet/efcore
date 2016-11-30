@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -308,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Null(context3.Database.CurrentTransaction);
         }
 
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public async Task Concurrency_test()
         {
             // This test is for measuring different pooling approaches.

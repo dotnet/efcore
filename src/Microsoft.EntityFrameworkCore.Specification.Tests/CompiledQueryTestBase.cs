@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact] TODO: #7016
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7016
         public virtual void Multiple_queries()
         {
             var query = EF.CompileQuery(

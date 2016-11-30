@@ -2184,8 +2184,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                   verifyOrdered: true);
         }
 
-        // issue #6618
-        ////[ConditionalFact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See Issue#6618
         public virtual void Optional_navigation_take_optional_navigation()
         {
             List<string> expected;
@@ -2261,7 +2260,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                   );
         }
 
-        //[ConditionalFact] TODO: See issue#6782
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#6782
         public virtual void Where_predicate_on_optional_reference_navigation()
         {
             List<string> expected;
@@ -3106,8 +3105,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        // Issue #6997
-        ////[ConditionalFact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#6997
         public virtual void Complex_query_with_optional_navigations_and_client_side_evaluation()
         {
             AssertQuery<Level1>(

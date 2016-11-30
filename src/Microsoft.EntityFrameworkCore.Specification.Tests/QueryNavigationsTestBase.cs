@@ -845,8 +845,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        // issue #6061
-        ////[ConditionalFact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue #6061
         public virtual void Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default()
         {
             AssertQuery<Customer>(
@@ -891,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        }).Take(3));
         }
 
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
         {
             AssertQuery<Customer, Order, OrderDetail, Customer>(

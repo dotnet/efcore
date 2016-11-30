@@ -1155,9 +1155,9 @@ ORDER BY [od1].[OrderID], [od1].[ProductID]",
             base.GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened();
 
             Assert.Contains(
-                @"SELECT [t].[CustomerID]
+                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
-    SELECT [c20].*
+    SELECT [c20].[CustomerID], [c20].[Address], [c20].[City], [c20].[CompanyName], [c20].[ContactName], [c20].[ContactTitle], [c20].[Country], [c20].[Fax], [c20].[Phone], [c20].[PostalCode], [c20].[Region]
     FROM [Order Details] AS [od0]
     INNER JOIN [Orders] AS [o0] ON [od0].[OrderID] = 10260
     INNER JOIN [Customers] AS [c20] ON [o0].[CustomerID] = [c20].[CustomerID]

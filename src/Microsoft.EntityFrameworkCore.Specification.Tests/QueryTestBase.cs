@@ -3479,14 +3479,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        //[ConditionalFact]
-        //public virtual void GroupBy_anonymous_subquery()
-        //{
-        //    AssertQuery<Customer>(cs =>
-        //        cs.Select(c => new { c.City, c.CustomerID })
-        //            .GroupBy(a => from c2 in cs select c2),
-        //        assertOrder: true);
-        //}
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
+        public virtual void GroupBy_anonymous_subquery()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Select(c => new { c.City, c.CustomerID })
+                    .GroupBy(a => from c2 in cs select c2),
+                assertOrder: true);
+        }
 
         [ConditionalFact]
         public virtual void GroupBy_nested_order_by_enumerable()
@@ -4131,8 +4131,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count(o => o.CustomerID != "ALFKI"));
         }
 
-        //TODO: The function translated to SQL and due to being integer represent the column number
-        //[ConditionalFact]
+        [ConditionalFact]
         public virtual void OrderBy_client_Take()
         {
             AssertQuery<Employee>(es => es.OrderBy(o => ClientEvalSelectorStateless()).Take(10), entryCount: 9);
@@ -4940,7 +4939,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact]
+        [ConditionalFact] // TODO: See issue#6803
+        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Convert.ToString(string) does not exist on .Net Core 1.0.1.")]
         public virtual void Convert_ToString()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>

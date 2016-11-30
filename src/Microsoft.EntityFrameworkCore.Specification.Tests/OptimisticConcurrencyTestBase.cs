@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -155,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        //[Fact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
         public virtual Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
         {
             return ConcurrencyTestAsync(
@@ -259,8 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 null);
         }
 
-        // TODO: Many to Many
-        //[Fact]
+        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")] // TODO: See issue#1368
         public virtual Task
             Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
@@ -276,8 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 null);
         }
 
-        // TODO: Many to Many
-        //[Fact]
+        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")] // TODO: See issue#1368
         public virtual Task
             Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
@@ -297,8 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         #region Concurrency exceptions with complex types
 
-        // TODO: Complex types
-        //[Fact]
+        [ConditionalFact(Skip = "Complex types are not supported.")] // TODO: See issue#246
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(

@@ -57,31 +57,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //        [ConditionalFact] // TODO: #6248
-        //        public virtual async Task Mixed_sync_async_query()
-        //        {
-        //            using (var context = CreateContext())
-        //            {
-        //                var results
-        //                    = (await context.Customers
-        //                        .Select(c => new
-        //                        {
-        //                            c.CustomerID,
-        //                            Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
-        //                        }).ToListAsync())
-        //                        .Select(x => new
-        //                        {
-        //                            Orders = x.Orders
-        //                                .GroupJoin(new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
-        //                                {
-        //                                    h.Customer
-        //                                })
-        //                        })
-        //                        .ToList();
-        //
-        //                Assert.Equal(546, results.SelectMany(r => r.Orders).ToList().Count);
-        //            }
-        //        }
+        [ConditionalFact] // TODO: See issue#7160
+        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Test is flaky on CoreCLR.")]
+        public virtual async Task Mixed_sync_async_query()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (await context.Customers
+                        .Select(c => new
+                        {
+                            c.CustomerID,
+                            Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
+                        }).ToListAsync())
+                        .Select(x => new
+                        {
+                            Orders = x.Orders
+                                .GroupJoin(new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
+                                {
+                                    h.Customer
+                                })
+                        })
+                        .ToList();
+
+                Assert.Equal(546, results.SelectMany(r => r.Orders).ToList().Count);
+            }
+        }
 
         [ConditionalFact]
         public virtual async Task LoadAsync_should_track_results()
@@ -3322,12 +3323,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 14);
         }
 
-        [ConditionalFact]
+        [ConditionalFact] // TODO: See issue#7160
+        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Test is flaky on CoreCLR.")]
         public virtual async Task Except_nested()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
-                entryCount: 13);
+               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
+               entryCount: 13);
         }
 
         [ConditionalFact]

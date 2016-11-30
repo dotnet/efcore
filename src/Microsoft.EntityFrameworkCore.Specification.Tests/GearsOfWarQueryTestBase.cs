@@ -1541,7 +1541,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#4978
         public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
         {
             using (var context = CreateContext())

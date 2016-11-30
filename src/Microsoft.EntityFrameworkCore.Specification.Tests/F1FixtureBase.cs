@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // TODO: Uncomment when complex types are supported
+            // TODO: Complex types are not supported. See issue#246
             //builder.ComplexType<Location>();
 
             modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     b.Property(e => e.Name).IsConcurrencyToken();
                 });
 
-            // TODO: Complex type
+            // TODO: Complex types are not supported. See issue#246
             // .Property(c => c.StorageLocation);
 
             modelBuilder.Ignore<Location>();
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Gearbox>();
 
-            // TODO: Complex type
+            // TODO: Complex types are not supported. See issue#246
             //builder
             //    .ComplexType<Location>()
             //    .Properties(ps =>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         .IsConcurrencyToken();
                 });
 
-            // TODO: Complex type
+            // TODO: Complex types are not supported. See issue#246
             //builder
             //    .ComplexType<SponsorDetails>()
             //    .Properties(ps =>
@@ -70,10 +70,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<TestDriver>();
             modelBuilder.Entity<TitleSponsor>();
 
-            // TODO: Complex type
+            // TODO: Complex types are not supported. See issue#246
             // .Property(t => t.Details);
 
-            // TODO: Sponsor * <-> * Team
+            // TODO: Sponsor * <-> * Team. Many-to-many relationships are not supported without CLR class for join table. See issue#1368
         }
     }
 }

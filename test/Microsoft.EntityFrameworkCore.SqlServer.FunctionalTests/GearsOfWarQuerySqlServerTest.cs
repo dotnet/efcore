@@ -1412,7 +1412,7 @@ WHERE CHARINDEX(N'Jacinto', [c].[Location]) > 0",
             Assert.Equal(
                 @"SELECT [c].[Name], [c].[Location]
 FROM [City] AS [c]
-WHERE [c].[Location] + 'Added' LIKE ('%' + 'Add') + '%'",
+WHERE CHARINDEX('Add', [c].[Location] + 'Added') > 0",
                 Sql);
         }
 
