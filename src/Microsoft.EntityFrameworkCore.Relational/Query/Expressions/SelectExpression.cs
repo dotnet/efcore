@@ -372,9 +372,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 {
                     var columnExpression = aliasExpression.TryGetColumnExpression();
 
-                    if (columnExpression != null
+                    if ((columnExpression != null
                         && subquery._projection.OfType<AliasExpression>()
                             .Any(ae => (ae.Alias ?? ae.TryGetColumnExpression()?.Name) == (aliasExpression.Alias ?? columnExpression.Name)))
+                        || columnExpression == null)
                     {
                         aliasExpression.Alias = "c" + columnAliasCounter++;
                     }
@@ -593,8 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             if (projectionIndex == -1)
             {
                 // Alias != null means SelectExpression in subquery which needs projections to have unique aliases
-                if (Alias != null
-                    || columnExpression == null)
+                if (Alias != null)
                 {
                     var currentAlias = alias ?? columnExpression?.Name ?? expression.NodeType.ToString();
                     var uniqueAlias = CreateUniqueProjectionAlias(currentAlias);

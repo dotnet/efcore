@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Product, OrderDetail, Product>(
                 (ps, ods) => from p in ps
-                             where p.OrderDetails.Contains(ods.FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
+                             where p.OrderDetails.Contains(ods.OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
                              select p,
                 entryCount: 1);
         }

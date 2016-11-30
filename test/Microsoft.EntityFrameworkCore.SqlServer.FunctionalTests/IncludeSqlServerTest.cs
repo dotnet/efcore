@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.Include_list(useString);
 
             Assert.Equal(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 ORDER BY [p].[ProductID]
 
@@ -188,7 +188,7 @@ LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]",
             base.Include_multiple_references_multi_level(useString);
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -201,7 +201,7 @@ INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]",
             base.Include_multiple_references_multi_level_reverse(useString);
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -266,7 +266,7 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10248
 ORDER BY [o].[OrderID]
 
-SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Order Details] AS [o0]
 INNER JOIN (
     SELECT DISTINCT TOP(2) [o].[OrderID]
@@ -992,7 +992,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]",
             base.Include_multiple_references(useString);
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]",

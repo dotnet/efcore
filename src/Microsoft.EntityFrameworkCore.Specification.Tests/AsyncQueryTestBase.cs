@@ -2542,6 +2542,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Sum_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).SumAsync(p => p.UnitPrice ?? 0));
+        }
+
+        [ConditionalFact]
         public virtual async Task Min_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).MinAsync());
@@ -2554,6 +2560,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Min_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).MinAsync(p => p.UnitPrice ?? 0));
+        }
+
+        [ConditionalFact]
         public virtual async Task Max_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).MaxAsync());
@@ -2563,6 +2575,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual async Task Max_with_arg()
         {
             await AssertQuery<Order>(os => os.MaxAsync(o => o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Max_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).MaxAsync(p => p.UnitPrice ?? 0));
         }
 
         [ConditionalFact]
@@ -3459,6 +3477,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, Task<decimal>> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
             Func<IQueryable<TItem>, Task<TItem>> query,
             bool assertOrder = false)
             where TItem : class
@@ -3587,7 +3619,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new[] { await query(NorthwindData.Set<TItem>()) },
                     new[] { await query(context.Set<TItem>()) },
                     assertOrder,
-                    (l2os, efs) => asserter(l2os.Single(), efs.Single()));
+                    asserter != null ? ((l2os, efs) => asserter(l2os.Single(), efs.Single())) : (Action<IList<object>, IList<object>>)null);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }

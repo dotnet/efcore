@@ -925,7 +925,7 @@ WHERE [o.Customer].[Country] IN (N'USA', N'Redania')",
             base.Where_subquery_on_navigation();
 
             Assert.Equal(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE EXISTS (
     SELECT 1
@@ -935,9 +935,10 @@ WHERE EXISTS (
         WHERE [p].[ProductID] = [o].[ProductID]
     ) AS [t00]
     INNER JOIN (
-        SELECT TOP(1) [orderDetail].[OrderID], [orderDetail].[ProductID]
-        FROM [Order Details] AS [orderDetail]
-        WHERE [orderDetail].[Quantity] = 1
+        SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
+        FROM [Order Details] AS [o0]
+        WHERE [o0].[Quantity] = 1
+        ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
     ) AS [t1] ON ([t00].[OrderID] = [t1].[OrderID]) AND ([t00].[ProductID] = [t1].[ProductID]))",
                 Sql);
         }
@@ -947,7 +948,7 @@ WHERE EXISTS (
             base.Where_subquery_on_navigation2();
 
             Assert.Equal(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE EXISTS (
     SELECT 1

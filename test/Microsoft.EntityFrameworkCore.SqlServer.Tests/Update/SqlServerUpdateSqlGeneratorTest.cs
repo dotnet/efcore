@@ -81,16 +81,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 stringBuilder.ToString());
         }
 
-        protected override void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
-        {
-            base.AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(stringBuilder);
-        }
-
-        protected override void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
-        {
-            base.AppendUpdateOperation_appends_select_for_computed_property_verification(stringBuilder);
-        }
-
         [Fact]
         public void AppendBulkInsertOperation_appends_insert_if_store_generated_columns_exist()
         {

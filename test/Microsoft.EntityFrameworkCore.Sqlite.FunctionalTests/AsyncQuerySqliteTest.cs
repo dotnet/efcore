@@ -13,8 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture>
     {
-        // TODO: Complex projection translation.
+        public AsyncQuerySqliteTest(NorthwindQuerySqliteFixture fixture)
+            : base(fixture)
+        {
+        }
 
+        // TODO: Complex projection translation.
         public override async Task Projection_when_arithmetic_expressions()
         {
             //base.Projection_when_arithmetic_expressions();
@@ -40,11 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             await Assert.ThrowsAsync<TaskCanceledException>(async () =>
                 await Single_Predicate_Cancellation(Fixture.CancelQuery()));
-        }
-
-        public AsyncQuerySqliteTest(NorthwindQuerySqliteFixture fixture)
-            : base(fixture)
-        {
         }
     }
 }
