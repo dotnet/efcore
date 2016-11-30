@@ -8,7 +8,7 @@ namespace E2E.Sqlite
         public long Id { get; set; }
         public long? SelfForeignKey { get; set; }
 
-        public virtual SelfRef SelfForeignKeyNavigation { get; set; }
-        public virtual ICollection<SelfRef> InverseSelfForeignKeyNavigation { get; set; }
+        public SelfRef SelfForeignKeyNavigation { get; set; }
+        public ICollection<SelfRef> InverseSelfForeignKeyNavigation { get; set; }
     }
 }

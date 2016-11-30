@@ -71,9 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                             var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
 
                             return RelationalStrings.RelationalLoggerExecutedCommand(
-                                string.Format(
-                                    CultureInfo.InvariantCulture,
-                                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", elapsedMilliseconds)),
+                                string.Format(CultureInfo.InvariantCulture, "{0:N0}", elapsedMilliseconds),
                                 state.Parameters
                                     // Interpolation okay here because value is always a string.
                                     .Select(p => $"{p.Name}={p.FormatParameter()}")

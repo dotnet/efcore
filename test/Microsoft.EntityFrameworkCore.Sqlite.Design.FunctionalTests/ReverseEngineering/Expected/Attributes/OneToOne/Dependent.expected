@@ -14,6 +14,6 @@ namespace E2E.Sqlite
 
         [ForeignKey("PrincipalId")]
         [InverseProperty("Dependent")]
-        public virtual Principal Principal { get; set; }
+        public Principal Principal { get; set; }
     }
 }

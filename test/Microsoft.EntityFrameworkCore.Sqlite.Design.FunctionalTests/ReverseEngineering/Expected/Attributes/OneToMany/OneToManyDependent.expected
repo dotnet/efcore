@@ -21,6 +21,6 @@ namespace E2E.Sqlite
 
         [ForeignKey("OneToManyDependentFk1,OneToManyDependentFk2")]
         [InverseProperty("OneToManyDependent")]
-        public virtual OneToManyPrincipal OneToManyDependentFk { get; set; }
+        public OneToManyPrincipal OneToManyDependentFk { get; set; }
     }
 }

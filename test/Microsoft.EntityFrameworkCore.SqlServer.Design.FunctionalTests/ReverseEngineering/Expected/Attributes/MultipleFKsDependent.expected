@@ -22,12 +22,12 @@ namespace E2ETest.Namespace
 
         [ForeignKey("RelationAid")]
         [InverseProperty("MultipleFksDependentRelationA")]
-        public virtual MultipleFksPrincipal RelationA { get; set; }
+        public MultipleFksPrincipal RelationA { get; set; }
         [ForeignKey("RelationBid")]
         [InverseProperty("MultipleFksDependentRelationB")]
-        public virtual MultipleFksPrincipal RelationB { get; set; }
+        public MultipleFksPrincipal RelationB { get; set; }
         [ForeignKey("RelationCid")]
         [InverseProperty("MultipleFksDependentRelationC")]
-        public virtual MultipleFksPrincipal RelationC { get; set; }
+        public MultipleFksPrincipal RelationC { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace E2ETest.Namespace
         public string Description { get; set; }
         public int? SelfReferenceFk { get; set; }
 
-        public virtual SelfReferencing SelfReferenceFkNavigation { get; set; }
-        public virtual ICollection<SelfReferencing> InverseSelfReferenceFkNavigation { get; set; }
+        public SelfReferencing SelfReferenceFkNavigation { get; set; }
+        public ICollection<SelfReferencing> InverseSelfReferenceFkNavigation { get; set; }
     }
 }

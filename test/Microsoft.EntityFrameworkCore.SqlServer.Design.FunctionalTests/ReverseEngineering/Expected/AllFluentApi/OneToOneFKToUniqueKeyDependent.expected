@@ -11,6 +11,6 @@ namespace E2ETest.Namespace
         public int? OneToOneFktoUniqueKeyDependentFk1 { get; set; }
         public int? OneToOneFktoUniqueKeyDependentFk2 { get; set; }
 
-        public virtual OneToOneFktoUniqueKeyPrincipal OneToOneFktoUniqueKeyDependentFk { get; set; }
+        public OneToOneFktoUniqueKeyPrincipal OneToOneFktoUniqueKeyDependentFk { get; set; }
     }
 }

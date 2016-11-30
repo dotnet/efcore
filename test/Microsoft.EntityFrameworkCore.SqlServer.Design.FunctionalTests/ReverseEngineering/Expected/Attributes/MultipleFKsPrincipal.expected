@@ -22,10 +22,10 @@ namespace E2ETest.Namespace
         public string SomePrincipalColumn { get; set; }
 
         [InverseProperty("RelationA")]
-        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationA { get; set; }
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationA { get; set; }
         [InverseProperty("RelationB")]
-        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationB { get; set; }
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationB { get; set; }
         [InverseProperty("RelationC")]
-        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationC { get; set; }
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationC { get; set; }
     }
 }

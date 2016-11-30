@@ -11,6 +11,6 @@ namespace E2ETest.Namespace
         public int? OneToManyDependentFk2 { get; set; }
         public int? OneToManyDependentFk1 { get; set; }
 
-        public virtual OneToManyPrincipal OneToManyDependentFk { get; set; }
+        public OneToManyPrincipal OneToManyDependentFk { get; set; }
     }
 }

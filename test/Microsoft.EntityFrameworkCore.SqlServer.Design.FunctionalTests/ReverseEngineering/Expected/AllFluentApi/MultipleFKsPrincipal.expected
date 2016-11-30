@@ -15,8 +15,8 @@ namespace E2ETest.Namespace
         public int MultipleFksPrincipalId { get; set; }
         public string SomePrincipalColumn { get; set; }
 
-        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationA { get; set; }
-        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationB { get; set; }
-        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationC { get; set; }
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationA { get; set; }
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationB { get; set; }
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationC { get; set; }
     }
 }

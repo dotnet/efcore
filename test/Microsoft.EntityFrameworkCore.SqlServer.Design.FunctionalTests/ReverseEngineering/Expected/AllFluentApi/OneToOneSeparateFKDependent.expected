@@ -11,6 +11,6 @@ namespace E2ETest.Namespace
         public int? OneToOneSeparateFkdependentFk1 { get; set; }
         public int? OneToOneSeparateFkdependentFk2 { get; set; }
 
-        public virtual OneToOneSeparateFkprincipal OneToOneSeparateFkdependentFk { get; set; }
+        public OneToOneSeparateFkprincipal OneToOneSeparateFkdependentFk { get; set; }
     }
 }

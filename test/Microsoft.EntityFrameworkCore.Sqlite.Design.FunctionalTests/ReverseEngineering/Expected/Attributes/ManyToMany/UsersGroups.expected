@@ -16,9 +16,9 @@ namespace E2E.Sqlite
 
         [ForeignKey("GroupId")]
         [InverseProperty("UsersGroups")]
-        public virtual Groups Group { get; set; }
+        public Groups Group { get; set; }
         [ForeignKey("UserId")]
         [InverseProperty("UsersGroups")]
-        public virtual Users User { get; set; }
+        public Users User { get; set; }
     }
 }

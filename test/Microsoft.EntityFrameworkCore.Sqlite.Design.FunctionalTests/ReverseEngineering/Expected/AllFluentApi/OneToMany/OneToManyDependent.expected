@@ -11,6 +11,6 @@ namespace E2E.Sqlite
         public long? OneToManyDependentFk1 { get; set; }
         public long? OneToManyDependentFk2 { get; set; }
 
-        public virtual OneToManyPrincipal OneToManyDependentFk { get; set; }
+        public OneToManyPrincipal OneToManyDependentFk { get; set; }
     }
 }

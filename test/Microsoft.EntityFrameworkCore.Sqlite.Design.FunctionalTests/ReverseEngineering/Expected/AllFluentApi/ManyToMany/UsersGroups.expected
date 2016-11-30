@@ -9,7 +9,7 @@ namespace E2E.Sqlite
         public string UserId { get; set; }
         public string GroupId { get; set; }
 
-        public virtual Groups Group { get; set; }
-        public virtual Users User { get; set; }
+        public Groups Group { get; set; }
+        public Users User { get; set; }
     }
 }
