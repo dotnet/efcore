@@ -3,7 +3,9 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -22,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly IRelationalConnection _connection;
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
+        private readonly DiagnosticSource _diagnosticSource;
 
         private bool _disposed;
 
@@ -31,17 +34,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connection"> The connection. </param>
         /// <param name="command"> The command that was executed. </param>
         /// <param name="reader"> The underlying reader for the result set. </param>
+        /// <param name="diagnosticSource"> The diagnostic source. </param>
         public RelationalDataReader(
             [CanBeNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [NotNull] DbDataReader reader)
+            [NotNull] DbDataReader reader,
+            [NotNull] DiagnosticSource diagnosticSource)
         {
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
+            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
 
             _connection = connection;
             _command = command;
             _reader = reader;
+            _diagnosticSource = diagnosticSource;
         }
 
         /// <summary>
@@ -65,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
+                _diagnosticSource.WriteDataReaderDisposing(_reader);
                 _reader.Dispose();
                 _command.Dispose();
                 _connection?.Close();
