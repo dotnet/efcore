@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,18 +44,21 @@ namespace Microsoft.EntityFrameworkCore
     ///         is discovered by convention, you can override the <see cref="OnModelCreating(ModelBuilder)" /> method.
     ///     </para>
     /// </remarks>
-    public class DbContext : IDisposable, IInfrastructure<IServiceProvider>
+    public class DbContext : IDisposable, IInfrastructure<IServiceProvider>, IDbContextPoolable
     {
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
         private IDbSetInitializer _setInitializer;
+        private IEntityFinderSource _entityFinderSource;
         private ChangeTracker _changeTracker;
+        private DatabaseFacade _database;
         private IStateManager _stateManager;
-        private IChangeDetector _changeDetector;
         private IEntityGraphAttacher _graphAttacher;
         private IModel _model;
         private ILogger _logger;
+        private IAsyncQueryProvider _queryProvider;
+        private IDbContextPool _dbContextPool;
 
         private bool _initializing;
         private IServiceScope _serviceScope;
@@ -91,26 +95,37 @@ namespace Microsoft.EntityFrameworkCore
 
             _options = options;
 
-            InitializeSets(ServiceProviderCache.Instance.GetOrAdd(options));
-        }
+            var initializer = GetServiceProvider(options).GetService<IDbSetInitializer>();
+            if (initializer == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoEfServices);
+            }
 
-        private IChangeDetector ChangeDetector
-            => _changeDetector
-               ?? (_changeDetector = InternalServiceProvider.GetRequiredService<IChangeDetector>());
+            initializer.InitializeSets(this);
+        }
 
         private IStateManager StateManager
             => _stateManager
                ?? (_stateManager = InternalServiceProvider.GetRequiredService<IStateManager>());
 
+        internal IAsyncQueryProvider QueryProvider
+            => _queryProvider ?? (_queryProvider = this.GetService<IAsyncQueryProvider>());
+
         private IServiceProvider InternalServiceProvider
         {
             get
             {
-                if (_disposed)
-                {
-                    throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
-                }
+                CheckDisposed();
+
                 return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
+            }
+        }
+
+        private void CheckDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
             }
         }
 
@@ -129,12 +144,15 @@ namespace Microsoft.EntityFrameworkCore
 
                 OnConfiguring(optionsBuilder);
 
+                if (_options.IsFrozen
+                    && !ReferenceEquals(_options, optionsBuilder.Options))
+                {
+                    throw new InvalidOperationException(CoreStrings.PoolingOptionsModified);
+                }
+
                 var options = optionsBuilder.Options;
 
-                var serviceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider
-                                      ?? ServiceProviderCache.Instance.GetOrAdd(options);
-
-                _serviceScope = serviceProvider
+                _serviceScope = GetServiceProvider(options)
                     .GetRequiredService<IServiceScopeFactory>()
                     .CreateScope();
 
@@ -159,8 +177,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void InitializeSets(IServiceProvider internalServicesProvider)
-            => internalServicesProvider.GetRequiredService<IDbSetInitializer>().InitializeSets(this);
+        private static IServiceProvider GetServiceProvider(IDbContextOptions options)
+        {
+            var coreExtension = options.FindExtension<CoreOptionsExtension>();
+            if (coreExtension?.InternalServiceProvider != null
+                && coreExtension.ReplacedServices != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidReplaceService(
+                        nameof(DbContextOptionsBuilder.ReplaceService), 
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            }
+
+            return coreExtension?.InternalServiceProvider
+                   ?? ServiceProviderCache.Instance.GetOrAdd(options);
+        }
 
         /// <summary>
         ///     <para>
@@ -182,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         In situations where an instance of <see cref="DbContextOptions" /> may or may not have been passed
         ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured" /> to determine if
         ///         the options have already been set, and skip some or all of the logic in
-        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
+        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
         /// <param name="optionsBuilder">
@@ -243,13 +274,13 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            var stateManager = StateManager;
+            CheckDisposed();
 
-            TryDetectChanges(stateManager);
+            TryDetectChanges();
 
             try
             {
-                return stateManager.SaveChanges(acceptAllChangesOnSuccess);
+                return StateManager.SaveChanges(acceptAllChangesOnSuccess);
             }
             catch (Exception exception)
             {
@@ -263,11 +294,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void TryDetectChanges(IStateManager stateManager)
+        private void TryDetectChanges()
         {
             if (ChangeTracker.AutoDetectChangesEnabled)
             {
-                ChangeDetector.DetectChanges(stateManager);
+                ChangeTracker.DetectChanges();
             }
         }
 
@@ -319,16 +350,13 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = StateManager;
+            CheckDisposed();
 
-            if (ChangeTracker.AutoDetectChangesEnabled)
-            {
-                ChangeDetector.DetectChanges(stateManager);
-            }
+            TryDetectChanges();
 
             try
             {
-                return await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+                return await StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -342,24 +370,67 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        void IDbContextPoolable.SetPool(IDbContextPool dbContextPool)
+        {
+            Check.NotNull(dbContextPool, nameof(dbContextPool));
+
+            _dbContextPool = dbContextPool;
+        }
+
+        DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()
+            => new DbContextPoolConfigurationSnapshot(
+                _changeTracker?.AutoDetectChangesEnabled,
+                _changeTracker?.QueryTrackingBehavior,
+                _database?.AutoTransactionsEnabled);
+
+        void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
+        {
+            if (configurationSnapshot.AutoDetectChangesEnabled != null)
+            {
+                ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
+            }
+
+            if (configurationSnapshot.QueryTrackingBehavior != null)
+            {
+                ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
+            }
+
+            if (configurationSnapshot.AutoTransactionsEnabled != null)
+            {
+                Database.AutoTransactionsEnabled = configurationSnapshot.AutoTransactionsEnabled.Value;
+            }
+
+            _disposed = false;
+        }
+
         /// <summary>
         ///     Releases the allocated resources for this context.
         /// </summary>
         public virtual void Dispose()
         {
-            if (!_disposed)
+            if (_dbContextPool == null
+                || !_dbContextPool.Return(this))
             {
+                if (!_disposed)
+                {
+                    _disposed = true;
+
+                    _stateManager?.Unsubscribe();
+
+                    _serviceScope?.Dispose();
+                    _setInitializer = null;
+                    _changeTracker = null;
+                    _stateManager = null;
+                    _graphAttacher = null;
+                    _model = null;
+                    _dbContextPool = null;
+                }
+            }
+            else
+            {
+                _changeTracker?.Reset();
+                _contextServices?.Reset();
                 _disposed = true;
-
-                _stateManager?.Unsubscribe();
-
-                _serviceScope?.Dispose();
-                _setInitializer = null;
-                _changeTracker = null;
-                _stateManager = null;
-                _changeDetector = null;
-                _graphAttacher = null;
-                _model = null;
             }
         }
 
@@ -374,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entity, nameof(entity));
 
-            TryDetectChanges(StateManager);
+            TryDetectChanges();
 
             return EntryWithoutDetectChanges(entity);
         }
@@ -399,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entity, nameof(entity));
 
-            TryDetectChanges(StateManager);
+            TryDetectChanges();
 
             return EntryWithoutDetectChanges(entity);
         }
@@ -436,9 +507,55 @@ namespace Microsoft.EntityFrameworkCore
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
 
         /// <summary>
-        ///     Begins tracking the given entity, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where TEntity : class
+        {
+            var entry = EntryWithoutDetectChanges(entity);
+
+            await entry.GetInfrastructure().SetEntityStateAsync(
+                EntityState.Added,
+                acceptChanges: true,
+                cancellationToken: cancellationToken);
+
+            return entry;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state 
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to attach. </param>
@@ -451,15 +568,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
+        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach{TEntity}(TEntity)" /> to begin tracking the entity in the
-        ///         <see cref="EntityState.Unchanged" /> state and then use the returned <see cref="EntityEntry{TEntity}" />
-        ///         to mark the desired properties as modified.
+        ///         <see cref="Attach{TEntity}(TEntity)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
+        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
@@ -540,9 +664,53 @@ namespace Microsoft.EntityFrameworkCore
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
 
         /// <summary>
-        ///     Begins tracking the given entity, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual async Task<EntityEntry> AddAsync(
+            [NotNull] object entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var entry = EntryWithoutDetectChanges(entity);
+
+            await entry.GetInfrastructure().SetEntityStateAsync(
+                EntityState.Added,
+                acceptChanges: true,
+                cancellationToken: cancellationToken);
+
+            return entry;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state 
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
+        ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
         /// <returns>
@@ -554,14 +722,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
+        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach(object)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
@@ -634,9 +810,37 @@ namespace Microsoft.EntityFrameworkCore
             => AddRange((IEnumerable<object>)entities);
 
         /// <summary>
-        ///     Begins tracking the given entities, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync([NotNull] params object[] entities)
+            => AddRangeAsync((IEnumerable<object>)entities);
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state 
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
+        ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] params object[] entities)
@@ -644,14 +848,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
+        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
+        ///         All properties of each entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach(object)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
@@ -698,9 +910,52 @@ namespace Microsoft.EntityFrameworkCore
             => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
 
         /// <summary>
-        ///     Begins tracking the given entities, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation.
+        /// </returns>
+        public virtual async Task AddRangeAsync(
+            [NotNull] IEnumerable<object> entities,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var stateManager = StateManager;
+
+            foreach (var entity in entities)
+            {
+                await stateManager.GetOrCreateEntry(entity).SetEntityStateAsync(
+                    EntityState.Added,
+                    acceptChanges: true,
+                    cancellationToken: cancellationToken);
+            }
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state 
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
+        ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] IEnumerable<object> entities)
@@ -708,14 +963,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
+        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
+        ///         All properties of each entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach(object)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
@@ -766,7 +1029,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Provides access to database related information and operations for this context.
         /// </summary>
-        public virtual DatabaseFacade Database => new DatabaseFacade(this);
+        public virtual DatabaseFacade Database => _database ?? (_database = new DatabaseFacade(this));
 
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.
@@ -797,5 +1060,89 @@ namespace Microsoft.EntityFrameworkCore
             return (_setInitializer
                     ?? (_setInitializer = InternalServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
         }
+
+        private IEntityFinder Finder(Type entityType)
+            => (_entityFinderSource
+                ?? (_entityFinderSource = InternalServiceProvider.GetRequiredService<IEntityFinderSource>())).Create(this, entityType);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual object Find([NotNull] Type entityType, [NotNull] params object[] keyValues)
+            => Finder(entityType).Find(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] params object[] keyValues)
+            => Finder(entityType).FindAsync(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] object[] keyValues, CancellationToken cancellationToken)
+            => Finder(entityType).FindAsync(keyValues, cancellationToken);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
+
+        /// <summary>
+        ///     Finds an entity with the given primary key values. If an entity with the given primary key values
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
+        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
+        ///     null is returned.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken) where TEntity : class
+            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
     }
 }

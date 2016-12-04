@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The object to compare this value buffer to.
         /// </param>
         /// <returns>
-        ///     True if the object is a <see cref="ValueBuffer"/> and contains the same values, otherwise false.
+        ///     True if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise false.
         /// </returns>
         public override bool Equals(object obj)
         {

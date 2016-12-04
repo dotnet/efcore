@@ -4,25 +4,27 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class NavigationRewritingExpressionVisitor : RelinqExpressionVisitor
@@ -30,9 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly List<NavigationJoin> _navigationJoins = new List<NavigationJoin>();
         private readonly NavigationRewritingQueryModelVisitor _navigationRewritingQueryModelVisitor;
-        private readonly NavigationRewritingExpressionVisitor _parentvisitor;
-
         private QueryModel _queryModel;
+        private QueryModel _parentQueryModel;
+        private IAsyncQueryProvider _entityQueryProvider;
+
+        private bool _insideInnerSequence;
+        private bool _innerKeySelectorRequiresNullRefProtection;
+        private bool _insideInnerKeySelector;
+        private bool _insideOrderBy;
 
         private class NavigationJoin
         {
@@ -53,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 INavigation navigation,
                 JoinClause joinClause,
                 IEnumerable<IBodyClause> additionalBodyClauses,
-                bool optionalNavigationInChain,
                 bool dependentToPrincipal,
                 QuerySourceReferenceExpression querySourceReferenceExpression)
                 : this(
@@ -62,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     joinClause,
                     null,
                     additionalBodyClauses,
-                    optionalNavigationInChain,
                     dependentToPrincipal,
                     querySourceReferenceExpression)
             {
@@ -73,7 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 INavigation navigation,
                 GroupJoinClause groupJoinClause,
                 IEnumerable<IBodyClause> additionalBodyClauses,
-                bool optionalNavigationInChain,
                 bool dependentToPrincipal,
                 QuerySourceReferenceExpression querySourceReferenceExpression)
                 : this(
@@ -82,7 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     null,
                     groupJoinClause,
                     additionalBodyClauses,
-                    optionalNavigationInChain,
                     dependentToPrincipal,
                     querySourceReferenceExpression)
             {
@@ -94,7 +97,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 JoinClause joinClause,
                 GroupJoinClause groupJoinClause,
                 IEnumerable<IBodyClause> additionalBodyClauses,
-                bool optionalNavigationInChain,
                 bool dependentToPrincipal,
                 QuerySourceReferenceExpression querySourceReferenceExpression)
             {
@@ -103,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 JoinClause = joinClause;
                 GroupJoinClause = groupJoinClause;
                 AdditionalBodyClauses = additionalBodyClauses;
-                OptionalNavigationInChain = optionalNavigationInChain;
                 DependentToPrincipal = dependentToPrincipal;
                 QuerySourceReferenceExpression = querySourceReferenceExpression;
             }
@@ -113,7 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public JoinClause JoinClause { get; }
             public GroupJoinClause GroupJoinClause { get; }
             public IEnumerable<IBodyClause> AdditionalBodyClauses { get; }
-            public bool OptionalNavigationInChain { get; }
             public bool DependentToPrincipal { get; }
             public QuerySourceReferenceExpression QuerySourceReferenceExpression { get; }
             public readonly List<NavigationJoin> NavigationJoins = new List<NavigationJoin>();
@@ -132,13 +132,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 => RemoveNavigationJoin(NavigationJoins, navigationJoin);
         }
 
-        private IAsyncQueryProvider _entityQueryProvider;
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool navigationExpansionSubquery = false)
+        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
+            : this(queryModelVisitor, navigationExpansionSubquery: false)
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool navigationExpansionSubquery)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
@@ -147,25 +154,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private NavigationRewritingExpressionVisitor(
-            EntityQueryModelVisitor queryModelVisitor, 
-            IAsyncQueryProvider entityQueryProvider, 
-            NavigationRewritingExpressionVisitor parentvisitor, 
+            EntityQueryModelVisitor queryModelVisitor,
+            IAsyncQueryProvider entityQueryProvider,
             bool navigationExpansionSubquery)
             : this(queryModelVisitor, navigationExpansionSubquery)
         {
             _entityQueryProvider = entityQueryProvider;
-            _parentvisitor = parentvisitor;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Rewrite([NotNull] QueryModel queryModel)
+        public virtual void Rewrite([NotNull] QueryModel queryModel, [CanBeNull] QueryModel parentQueryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
             _queryModel = queryModel;
+            _parentQueryModel = parentQueryModel;
 
             _navigationRewritingQueryModelVisitor.VisitQueryModel(_queryModel);
 
@@ -173,10 +179,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 InsertNavigationJoin(navigationJoin);
             }
+
+            if (parentQueryModel != null)
+            {
+                _queryModel = parentQueryModel;
+            }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression node)
@@ -198,8 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             if (_queryModel.MainFromClause == navigationJoin.QuerySource
-                || insertionIndex > 0
-                || _parentvisitor == null)
+                || insertionIndex > 0)
             {
                 foreach (var nj in navigationJoin.Iterate())
                 {
@@ -210,27 +220,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
             }
-            else
-            {
-                _parentvisitor.InsertNavigationJoin(navigationJoin);
-            }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            var navigationRewritingExpressionVisitor = CreateVisitorForSubQuery();
-
-            navigationRewritingExpressionVisitor.Rewrite(expression.QueryModel);
+            Rewrite(expression.QueryModel, _queryModel);
 
             return expression;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression node)
@@ -239,20 +243,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 _entityQueryProvider
                     = (node.Value as IQueryable)?.Provider as IAsyncQueryProvider;
-
-                var parent = _parentvisitor;
-                while (parent != null)
-                {
-                    parent._entityQueryProvider = _entityQueryProvider;
-                    parent = parent._parentvisitor;
-                }
             }
 
             return node;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
@@ -368,6 +365,38 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return Expression.MakeBinary(node.NodeType, newLeft, newRight, node.IsLiftedToNull, node.Method);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            var test = Visit(node.Test);
+            if (test.Type == typeof(bool?))
+            {
+                test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
+            }
+
+            var ifTrue = Visit(node.IfTrue);
+            var ifFalse = Visit(node.IfFalse);
+
+            if (ifTrue.Type.IsNullableType()
+                && !ifFalse.Type.IsNullableType())
+            {
+                ifFalse = Expression.Convert(ifFalse, ifTrue.Type);
+            }
+
+            if (ifFalse.Type.IsNullableType()
+                && !ifTrue.Type.IsNullableType())
+            {
+                ifTrue = Expression.Convert(ifTrue, ifFalse.Type);
+            }
+
+            return test != node.Test || ifTrue != node.IfTrue || ifFalse != node.IfFalse
+                ? Expression.Condition(test, ifTrue, ifFalse)
+                : node;
+        }
+
         private static NewExpression CreateNullCompositeKey(Expression otherExpression)
             => Expression.New(
                 CompositeKey.CompositeKeyCtor,
@@ -378,65 +407,152 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         ((NewArrayExpression)((NewExpression)otherExpression).Arguments.Single()).Expressions.Count)));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMember(MemberExpression node)
         {
             Check.NotNull(node, nameof(node));
 
-            return
+            var result =
                 _queryModelVisitor.BindNavigationPathPropertyExpression(
                     node,
                     (ps, qs) =>
-                    {
-                        return RewriteNavigationProperties(
-                            ps.ToList(), 
-                            qs, 
-                            node.Expression,
-                            node.Member.Name, 
-                            node.Type,
-                            e => Expression.MakeMemberAccess(e, node.Member));
-                    })
-                ?? base.VisitMember(node);
+                        {
+                            return RewriteNavigationProperties(
+                                ps.ToList(),
+                                qs,
+                                node,
+                                node.Expression,
+                                node.Member.Name,
+                                node.Type,
+                                e => Expression.MakeMemberAccess(e, node.Member),
+                                e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
+                        });
+
+            if (result != null)
+            {
+                return result;
+            }
+
+            var newEpression = Visit(node.Expression);
+
+            return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
+                ? (Expression)new NullConditionalExpression(newEpression, newEpression, Expression.MakeMemberAccess(newEpression, node.Member))
+                : Expression.MakeMemberAccess(newEpression, node.Member);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+        {
+            var newExpression = CompensateForNullabilityDifference(
+                Visit(node.Expression),
+                node.Expression.Type);
+
+            return node.Update(newExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override ElementInit VisitElementInit(ElementInit node)
+        {
+            var originalArgumentTypes = node.Arguments.Select(a => a.Type).ToList();
+            var newArguments = node.Arguments.Select(Visit).ToList();
+
+            for (var i = 0; i < newArguments.Count; i++)
+            {
+                newArguments[i] = CompensateForNullabilityDifference(newArguments[i], originalArgumentTypes[i]);
+            }
+
+            return node.Update(newArguments);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitNewArray(NewArrayExpression node)
+        {
+            var originalExpressionTypes = node.Expressions.Select(e => e.Type).ToList();
+            var newExpressions = node.Expressions.Select(Visit).ToList();
+
+            for (var i = 0; i < newExpressions.Count; i++)
+            {
+                newExpressions[i] = CompensateForNullabilityDifference(newExpressions[i], originalExpressionTypes[i]);
+            }
+
+            return node.Update(newExpressions);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Check.NotNull(node, nameof(node));
 
-            if (!EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
-                base.VisitMethodCall(node);
-            }
-
-            return
-                _queryModelVisitor.BindNavigationPathPropertyExpression(
+                var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     node,
                     (ps, qs) =>
-                    {
-                        return RewriteNavigationProperties(
-                            ps.ToList(),
-                            qs,
-                            node.Arguments[0],
-                            (string)(node.Arguments[1] as ConstantExpression).Value,
-                            node.Type,
-                            e => Expression.Call(node.Method, e, node.Arguments[1]));
-                    })
-                ?? base.VisitMethodCall(node);
+                        {
+                            return RewriteNavigationProperties(
+                                ps.ToList(),
+                                qs,
+                                node,
+                                node.Arguments[0],
+                                (string)((ConstantExpression)node.Arguments[1]).Value,
+                                node.Type,
+                                e => Expression.Call(node.Method, e, node.Arguments[1]),
+                                e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                        });
+
+                if (result != null)
+                {
+                    return result;
+                }
+
+                var propertyArguments = node.Arguments.Select(Visit).ToList();
+
+                return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
+                    ? (Expression)new NullConditionalExpression(propertyArguments[0], propertyArguments[0], Expression.Call(node.Method, propertyArguments[0], node.Arguments[1]))
+                    : Expression.Call(node.Method, propertyArguments[0], propertyArguments[1]);
+            }
+
+            var newObject = Visit(node.Object);
+            var newArguments = node.Arguments.Select(Visit);
+
+            if (newObject != node.Object)
+            {
+                var nullConditionalExpression = newObject as NullConditionalExpression;
+
+                if (nullConditionalExpression != null)
+                {
+                    var newMethodCallExpression = node.Update(nullConditionalExpression.AccessOperation, newArguments);
+
+                    return new NullConditionalExpression(newObject, node.Object, newMethodCallExpression);
+                }
+            }
+
+            return node.Update(newObject, newArguments);
         }
 
         private Expression RewriteNavigationProperties(
-            List<IPropertyBase> properties, 
+            List<IPropertyBase> properties,
             IQuerySource querySource,
+            Expression expression,
             Expression declaringExpression,
             string propertyName,
             Type propertyType,
-            Func<Expression, Expression> propertyCreator)
+            Func<Expression, Expression> propertyCreator,
+            Func<Expression, Expression> conditionalAccessPropertyCreator)
         {
             var navigations = properties.OfType<INavigation>().ToList();
 
@@ -444,29 +560,39 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var outerQuerySourceReferenceExpression = new QuerySourceReferenceExpression(querySource);
 
-                if (_navigationRewritingQueryModelVisitor.AdditionalFromClauseBeingProcessed != null
+                var additionalFromClauseBeingProcessed = _navigationRewritingQueryModelVisitor.AdditionalFromClauseBeingProcessed;
+                if (additionalFromClauseBeingProcessed != null
                     && navigations.Last().IsCollection())
                 {
+                    var fromSubqueryExpression = additionalFromClauseBeingProcessed.FromExpression as SubQueryExpression;
+                    if (fromSubqueryExpression != null)
+                    {
+                        return RewriteSelectManyInsideSubqueryIntoJoins(
+                            fromSubqueryExpression, 
+                            outerQuerySourceReferenceExpression, 
+                            navigations, 
+                            additionalFromClauseBeingProcessed);
+                    }
+
                     return RewriteSelectManyNavigationsIntoJoins(
                         outerQuerySourceReferenceExpression,
                         navigations,
-                        _navigationRewritingQueryModelVisitor.AdditionalFromClauseBeingProcessed);
+                        additionalFromClauseBeingProcessed);
                 }
 
-                if (navigations.Count == 1
-                    && navigations[0].IsDependentToPrincipal())
+                if (navigations.Count == 1 && navigations[0].IsDependentToPrincipal())
                 {
-                    var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(propertyName, declaringExpression, navigations[0]);
+                    var foreignKeyMemberAccess = TryCreateForeignKeyMemberAccess(propertyName, declaringExpression, navigations[0]);
                     if (foreignKeyMemberAccess != null)
                     {
                         return foreignKeyMemberAccess;
                     }
                 }
 
-                if (_navigationRewritingQueryModelVisitor.InsideInnerKeySelector)
+                if (_insideInnerKeySelector)
                 {
                     var translated = CreateSubqueryForNavigations(
-                        outerQuerySourceReferenceExpression, 
+                        outerQuerySourceReferenceExpression,
                         navigations,
                         propertyCreator);
 
@@ -477,7 +603,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     outerQuerySourceReferenceExpression,
                     navigations,
                     properties.Count == navigations.Count ? null : propertyType,
-                    propertyCreator);
+                    propertyCreator,
+                    conditionalAccessPropertyCreator);
+
+                var resultQsre = navigationResultExpression as QuerySourceReferenceExpression;
+                if (resultQsre != null)
+                {
+                    foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations
+                        .OfType<IncludeResultOperator>()
+                        .Where(o => o.PathFromQuerySource == expression))
+                    {
+                        includeResultOperator.QuerySource = resultQsre.ReferencedQuerySource;
+                        includeResultOperator.PathFromQuerySource = resultQsre;
+                    }
+                }
 
                 return navigationResultExpression;
             }
@@ -485,6 +624,105 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return default(Expression);
         }
 
+        private class QsreWithNavigationFindingExpressionVisitor : ExpressionVisitorBase
+        {
+            private readonly QuerySourceReferenceExpression _searchedQsre;
+            private readonly INavigation _navigation;
+            private bool _navigationFound;
+
+            public QsreWithNavigationFindingExpressionVisitor([NotNull] QuerySourceReferenceExpression searchedQsre, [NotNull] INavigation navigation)
+            {
+                _searchedQsre = searchedQsre;
+                _navigation = navigation;
+                _navigationFound = false;
+                SearchedQsreFound = false;
+            }
+
+            public bool SearchedQsreFound { get; private set; }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (!_navigationFound && node.Member.Name == _navigation.Name)
+                {
+                    _navigationFound = true;
+
+                    return base.VisitMember(node);
+                }
+
+                _navigationFound = false;
+
+                return node;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (EntityQueryModelVisitor.IsPropertyMethod(node.Method)
+                    && !_navigationFound
+                    && (string)((ConstantExpression)node.Arguments[1]).Value == _navigation.Name)
+                {
+                    _navigationFound = true;
+
+                    return base.VisitMethodCall(node);
+                }
+
+                _navigationFound = false;
+
+                return node;
+            }
+
+            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+            {
+                if (_navigationFound && expression.ReferencedQuerySource == _searchedQsre.ReferencedQuerySource)
+                {
+                    SearchedQsreFound = true;
+                }
+                else
+                {
+                    _navigationFound = false;
+                }
+
+                return expression;
+            }
+        }
+
+        private Expression TryCreateForeignKeyMemberAccess(string propertyName, Expression declaringExpression, INavigation navigation)
+        {
+            var canPerformOptimization = true;
+            if (_insideOrderBy)
+            {
+                var qsre = (declaringExpression as MemberExpression)?.Expression as QuerySourceReferenceExpression;
+                if (qsre == null)
+                {
+                    var methodCallExpression = declaringExpression as MethodCallExpression;
+                    if (methodCallExpression != null && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                    {
+                        qsre = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
+                    }
+                }
+
+                if (qsre != null)
+                {
+                    var qsreFindingVisitor = new QsreWithNavigationFindingExpressionVisitor(qsre, navigation);
+                    qsreFindingVisitor.Visit(_queryModel.SelectClause.Selector);
+
+                    if (qsreFindingVisitor.SearchedQsreFound)
+                    {
+                        canPerformOptimization = false;
+                    }
+                }
+            }
+
+            if (canPerformOptimization)
+            {
+                var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(propertyName, declaringExpression, navigation);
+                if (foreignKeyMemberAccess != null)
+                {
+                    return foreignKeyMemberAccess;
+                }
+            }
+
+            return null;
+        }
 
         private static Expression CreateForeignKeyMemberAccess(string propertyName, Expression declaringExpression, INavigation navigation)
         {
@@ -499,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var declaringMethodCallExpression = declaringExpression as MethodCallExpression;
                     var parentDeclaringExpression = declaringMethodCallExpression != null
-                        && EntityQueryModelVisitor.IsPropertyMethod(declaringMethodCallExpression.Method)
+                                                    && EntityQueryModelVisitor.IsPropertyMethod(declaringMethodCallExpression.Method)
                         ? declaringMethodCallExpression.Arguments[0]
                         : (declaringExpression as MemberExpression)?.Expression;
 
@@ -563,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (navigations.Count > 1)
             {
                 var subQueryVisitor = CreateVisitorForSubQuery(navigationExpansionSubquery: true);
-                subQueryVisitor.Rewrite(subQueryModel);
+                subQueryVisitor.Rewrite(subQueryModel, parentQueryModel: null);
             }
 
             var subQuery = new SubQueryExpression(subQueryModel);
@@ -572,11 +810,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery(bool navigationExpansionSubquery = false)
-            => new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider, this, navigationExpansionSubquery);
+        public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery(bool navigationExpansionSubquery)
+            => new NavigationRewritingExpressionVisitor(
+                _queryModelVisitor,
+                _entityQueryProvider,
+                navigationExpansionSubquery);
 
         private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
         {
@@ -604,15 +845,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             QuerySourceReferenceExpression outerQuerySourceReferenceExpression,
             IEnumerable<INavigation> navigations,
             Type propertyType,
-            Func<Expression, Expression> propertyCreator)
+            Func<Expression, Expression> propertyCreator,
+            Func<Expression, Expression> conditionalAccessPropertyCreator)
         {
             var querySourceReferenceExpression = outerQuerySourceReferenceExpression;
             var navigationJoins = _navigationJoins;
-            var optionalNavigationInChain = false;
+
+            var optionalNavigationInChain = _insideInnerKeySelector
+                                            && _innerKeySelectorRequiresNullRefProtection;
 
             foreach (var navigation in navigations)
             {
-                if (!navigation.ForeignKey.IsRequired)
+                var addNullCheckToOuterKeySelector = optionalNavigationInChain;
+
+                if (!navigation.ForeignKey.IsRequired
+                    || !navigation.IsDependentToPrincipal())
                 {
                     optionalNavigationInChain = true;
                 }
@@ -658,43 +905,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         querySourceReferenceExpression,
                         navigation,
                         targetEntityType,
-                        optionalNavigationInChain,
+                        addNullCheckToOuterKeySelector,
                         out innerQuerySourceReferenceExpression);
 
-                    var additionalBodyClauses = new List<IBodyClause>();
-                    if (optionalNavigationInChain || !navigation.ForeignKey.IsRequired)
+                    if (optionalNavigationInChain)
                     {
-                        var groupJoinClause
-                            = new GroupJoinClause(
-                                joinClause.ItemName + "_group",
-                                typeof(IEnumerable<>).MakeGenericType(targetEntityType.ClrType),
-                                joinClause);
+                        RewriteNavigationIntoGroupJoin(
+                            joinClause,
+                            navigation,
+                            targetEntityType,
+                            querySourceReferenceExpression,
+                            null,
+                            new List<IBodyClause>(),
+                            new List<ResultOperatorBase> { new DefaultIfEmptyResultOperator(null) },
+                            out navigationJoin);
 
-                        var groupReferenceExpression = new QuerySourceReferenceExpression(groupJoinClause);
-
-                        var defaultIfEmptyMainFromClause = new MainFromClause(joinClause.ItemName + "_groupItem", joinClause.ItemType, groupReferenceExpression);
-                        var newQuerySourceReferenceExpression = new QuerySourceReferenceExpression(defaultIfEmptyMainFromClause);
-
-                        var defaultIfEmptyQueryModel = new QueryModel(
-                            defaultIfEmptyMainFromClause,
-                            new SelectClause(newQuerySourceReferenceExpression));
-                        defaultIfEmptyQueryModel.ResultOperators.Add(new DefaultIfEmptyResultOperator(null));
-
-                        var defaultIfEmptySubquery = new SubQueryExpression(defaultIfEmptyQueryModel);
-                        var defaultIfEmptyAdditionalFromClause = new AdditionalFromClause(joinClause.ItemName, joinClause.ItemType, defaultIfEmptySubquery);
-
-                        additionalBodyClauses.Add(defaultIfEmptyAdditionalFromClause);
-
-                        navigationJoins.Add(
-                            navigationJoin
-                                = new NavigationJoin(
-                                    querySourceReferenceExpression.ReferencedQuerySource,
-                                    navigation,
-                                    groupJoinClause,
-                                    additionalBodyClauses,
-                                    optionalNavigationInChain,
-                                    navigation.IsDependentToPrincipal(),
-                                    new QuerySourceReferenceExpression(defaultIfEmptyAdditionalFromClause)));
+                        navigationJoins.Add(navigationJoin);
                     }
                     else
                     {
@@ -704,8 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     querySourceReferenceExpression.ReferencedQuerySource,
                                     navigation,
                                     joinClause,
-                                    additionalBodyClauses,
-                                    optionalNavigationInChain,
+                                    new List<IBodyClause>(),
                                     navigation.IsDependentToPrincipal(),
                                     innerQuerySourceReferenceExpression));
                     }
@@ -715,32 +940,75 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 navigationJoins = navigationJoin.NavigationJoins;
             }
 
+            if (_insideInnerSequence && optionalNavigationInChain)
+            {
+                _innerKeySelectorRequiresNullRefProtection = true;
+            }
+
             if (propertyType == null)
             {
                 return querySourceReferenceExpression;
             }
 
-            if (optionalNavigationInChain)
+            return optionalNavigationInChain
+                ? conditionalAccessPropertyCreator(querySourceReferenceExpression)
+                : propertyCreator(querySourceReferenceExpression);
+        }
+
+        private void RewriteNavigationIntoGroupJoin(
+            JoinClause joinClause,
+            INavigation navigation,
+            IEntityType targetEntityType,
+            QuerySourceReferenceExpression querySourceReferenceExpression,
+            MainFromClause groupJoinSubqueryMainFromClause,
+            ICollection<IBodyClause> groupJoinSubqueryBodyClauses,
+            ICollection<ResultOperatorBase> groupJoinSubqueryResultOperators,
+            out NavigationJoin navigationJoin)
+        {
+            var groupJoinClause
+                = new GroupJoinClause(
+                    joinClause.ItemName + "_group",
+                    typeof(IEnumerable<>).MakeGenericType(targetEntityType.ClrType),
+                    joinClause);
+
+            var groupReferenceExpression = new QuerySourceReferenceExpression(groupJoinClause);
+
+            var groupJoinSubqueryModelMainFromClause = new MainFromClause(joinClause.ItemName + "_groupItem", joinClause.ItemType, groupReferenceExpression);
+            var newQuerySourceReferenceExpression = new QuerySourceReferenceExpression(groupJoinSubqueryModelMainFromClause);
+
+            var groupJoinSubqueryModel = new QueryModel(
+                groupJoinSubqueryModelMainFromClause,
+                new SelectClause(newQuerySourceReferenceExpression));
+
+            foreach (var groupJoinSubqueryBodyClause in groupJoinSubqueryBodyClauses)
             {
-                Expression memberAccessExpression = propertyCreator(querySourceReferenceExpression);
-                if (!propertyType.IsNullableType())
-                {
-                    memberAccessExpression = Expression.Convert(memberAccessExpression, propertyType.MakeNullable());
-                }
-
-                var constantNullExpression = propertyType.IsNullableType()
-                    ? Expression.Constant(null, propertyType)
-                    : Expression.Constant(null, propertyType.MakeNullable());
-
-                return Expression.Condition(
-                    Expression.NotEqual(
-                        querySourceReferenceExpression,
-                        Expression.Constant(null, querySourceReferenceExpression.Type)),
-                    memberAccessExpression,
-                    constantNullExpression);
+                groupJoinSubqueryModel.BodyClauses.Add(groupJoinSubqueryBodyClause);
             }
 
-            return propertyCreator(querySourceReferenceExpression);
+            foreach (var groupJoinSubqueryResultOperator in groupJoinSubqueryResultOperators)
+            {
+                groupJoinSubqueryModel.ResultOperators.Add(groupJoinSubqueryResultOperator);
+            }
+
+            if (groupJoinSubqueryMainFromClause != null && (groupJoinSubqueryBodyClauses.Any() || groupJoinSubqueryResultOperators.Any()))
+            {
+                var querySourceMapping = new QuerySourceMapping();
+                querySourceMapping.AddMapping(groupJoinSubqueryMainFromClause, newQuerySourceReferenceExpression);
+
+                groupJoinSubqueryModel.TransformExpressions(e =>
+                    ReferenceReplacingExpressionVisitor
+                        .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+            }
+
+            var defaultIfEmptySubquery = new SubQueryExpression(groupJoinSubqueryModel);
+            var defaultIfEmptyAdditionalFromClause = new AdditionalFromClause(joinClause.ItemName, joinClause.ItemType, defaultIfEmptySubquery);
+            navigationJoin = new NavigationJoin(
+                querySourceReferenceExpression.ReferencedQuerySource,
+                navigation,
+                groupJoinClause,
+                new[] { defaultIfEmptyAdditionalFromClause },
+                navigation.IsDependentToPrincipal(),
+                new QuerySourceReferenceExpression(defaultIfEmptyAdditionalFromClause));
         }
 
         private Expression RewriteSelectManyNavigationsIntoJoins(
@@ -757,6 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var targetEntityType = navigation.GetTargetType();
 
                 QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
+
                 var joinClause = BuildJoinFromNavigation(
                     querySourceReferenceExpression,
                     navigation,
@@ -770,42 +1039,103 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             _queryModel.BodyClauses.RemoveAt(additionalJoinIndex);
+
             for (var i = 0; i < joinClauses.Count; i++)
             {
                 _queryModel.BodyClauses.Insert(additionalJoinIndex + i, joinClauses[i]);
             }
 
-            var querySourceReplacingVisitor = new QuerySourceReplacingExpressionVisitor(
-                additionalFromClauseBeingProcessed, querySourceReferenceExpression);
+            var querySourceMapping = new QuerySourceMapping();
+            querySourceMapping.AddMapping(additionalFromClauseBeingProcessed, querySourceReferenceExpression);
 
-            var queryModelVisitor = new ExpressionTransformingQueryModelVisitor(querySourceReplacingVisitor);
-            queryModelVisitor.VisitQueryModel(_queryModel);
+            _queryModel.TransformExpressions(e =>
+                ReferenceReplacingExpressionVisitor
+                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+
+            foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
+            {
+                if ((includeResultOperator.PathFromQuerySource as QuerySourceReferenceExpression)?.ReferencedQuerySource
+                    == additionalFromClauseBeingProcessed)
+                {
+                    includeResultOperator.PathFromQuerySource = querySourceReferenceExpression;
+                    includeResultOperator.QuerySource = querySourceReferenceExpression.ReferencedQuerySource;
+                }
+            }
 
             return querySourceReferenceExpression;
         }
 
-        private class QuerySourceReplacingExpressionVisitor : RelinqExpressionVisitor
+        private Expression RewriteSelectManyInsideSubqueryIntoJoins(
+            SubQueryExpression fromSubqueryExpression,
+            QuerySourceReferenceExpression outerQuerySourceReferenceExpression,
+            ICollection<INavigation> navigations,
+            AdditionalFromClause additionalFromClauseBeingProcessed)
         {
-            private readonly IQuerySource _querySourceToReplace;
-            private readonly QuerySourceReferenceExpression _targetQuerySourceReferenceExpression;
+            var collectionNavigation = navigations.Last();
+            var adddedJoinClauses = new List<IBodyClause>();
 
-            public QuerySourceReplacingExpressionVisitor(
-                IQuerySource querySourceToReplace,
-                QuerySourceReferenceExpression targetQuerySourceReferenceExpression)
+            foreach (var navigation in navigations)
             {
-                _querySourceToReplace = querySourceToReplace;
-                _targetQuerySourceReferenceExpression = targetQuerySourceReferenceExpression;
-            }
+                var targetEntityType = navigation.GetTargetType();
 
-            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
-            {
-                if (expression.ReferencedQuerySource == _querySourceToReplace)
+                QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
+                var joinClause = BuildJoinFromNavigation(
+                    outerQuerySourceReferenceExpression, 
+                    navigation, 
+                    targetEntityType, 
+                    false, 
+                    out innerQuerySourceReferenceExpression);
+
+                if (navigation == collectionNavigation)
                 {
-                    return _targetQuerySourceReferenceExpression;
+                    NavigationJoin navigationJoin;
+                    RewriteNavigationIntoGroupJoin(
+                        joinClause,
+                        navigations.Last(),
+                        targetEntityType,
+                        outerQuerySourceReferenceExpression,
+                        fromSubqueryExpression.QueryModel.MainFromClause,
+                        fromSubqueryExpression.QueryModel.BodyClauses,
+                        fromSubqueryExpression.QueryModel.ResultOperators,
+                        out navigationJoin);
+
+                    _navigationJoins.Add(navigationJoin);
+
+                    var additionalFromClauseIndex = _parentQueryModel.BodyClauses.IndexOf(additionalFromClauseBeingProcessed);
+                    _parentQueryModel.BodyClauses.Remove(additionalFromClauseBeingProcessed);
+
+                    var i = additionalFromClauseIndex;
+                    foreach (var addedJoinClause in adddedJoinClauses)
+                    {
+                        _parentQueryModel.BodyClauses.Insert(i++, addedJoinClause);
+                    }
+
+                    var querySourceMapping = new QuerySourceMapping();
+                    querySourceMapping.AddMapping(additionalFromClauseBeingProcessed, navigationJoin.QuerySourceReferenceExpression);
+
+                    _parentQueryModel.TransformExpressions(e =>
+                        ReferenceReplacingExpressionVisitor
+                            .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+
+                    foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
+                    {
+                        if ((includeResultOperator.PathFromQuerySource as QuerySourceReferenceExpression)?.ReferencedQuerySource
+                            == additionalFromClauseBeingProcessed)
+                        {
+                            includeResultOperator.PathFromQuerySource = navigationJoin.QuerySourceReferenceExpression;
+                            includeResultOperator.QuerySource = navigationJoin.QuerySourceReferenceExpression.ReferencedQuerySource;
+                        }
+                    }
+
+                    return navigationJoin.QuerySourceReferenceExpression;
                 }
 
-                return base.VisitQuerySourceReference(expression);
+                adddedJoinClauses.Add(joinClause);
+
+                outerQuerySourceReferenceExpression = innerQuerySourceReferenceExpression;
             }
+
+            return outerQuerySourceReferenceExpression;
         }
 
         private JoinClause BuildJoinFromNavigation(
@@ -865,8 +1195,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static Expression CreateKeyAccessExpression(
             Expression target, IReadOnlyList<IProperty> properties, bool addNullCheck = false)
-        {
-            return properties.Count == 1
+            => properties.Count == 1
                 ? CreatePropertyExpression(target, properties[0], addNullCheck)
                 : Expression.New(
                     CompositeKey.CompositeKeyCtor,
@@ -876,7 +1205,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             .Select(p => Expression.Convert(CreatePropertyExpression(target, p, addNullCheck), typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
-        }
 
         private static readonly MethodInfo _propertyMethodInfo
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));
@@ -936,18 +1264,30 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
             => new EntityQueryable<TResult>(entityQueryProvider);
 
-        private class NavigationRewritingQueryModelVisitor : ExpressionTransformingQueryModelVisitor
+        private static Expression CompensateForNullabilityDifference(Expression expression, Type originalType)
+        {
+            var newType = expression.Type;
+
+            var needsTypeCompensation = (originalType != newType)
+                                        && !originalType.IsNullableType()
+                                        && newType.IsNullableType()
+                                        && (originalType == newType.UnwrapNullableType());
+
+            return needsTypeCompensation
+                ? Expression.Convert(expression, originalType)
+                : expression;
+        }
+
+        private class NavigationRewritingQueryModelVisitor : ExpressionTransformingQueryModelVisitor<NavigationRewritingExpressionVisitor>
         {
             private readonly SubqueryInjector _subqueryInjector;
             private readonly bool _navigationExpansionSubquery;
 
-            public bool InsideInnerKeySelector { get; private set; }
-
             public AdditionalFromClause AdditionalFromClauseBeingProcessed { get; private set; }
 
             public NavigationRewritingQueryModelVisitor(
-                NavigationRewritingExpressionVisitor transformingVisitor, 
-                EntityQueryModelVisitor queryModelVisitor, 
+                NavigationRewritingExpressionVisitor transformingVisitor,
+                EntityQueryModelVisitor queryModelVisitor,
                 bool navigationExpansionSubquery)
                 : base(transformingVisitor)
             {
@@ -969,7 +1309,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (whereClause.Predicate.Type == typeof(bool?))
                 {
-                    whereClause.Predicate = Expression.Convert(whereClause.Predicate, typeof(bool));
+                    whereClause.Predicate = Expression.Equal(whereClause.Predicate, Expression.Constant(true, typeof(bool?)));
                 }
             }
 
@@ -977,21 +1317,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var originalTypes = orderByClause.Orderings.Select(o => o.Expression.Type).ToList();
 
+                var oldInsideOrderBy = TransformingVisitor._insideOrderBy;
+                TransformingVisitor._insideOrderBy = true;
+
                 base.VisitOrderByClause(orderByClause, queryModel, index);
 
-                var newTypes = orderByClause.Orderings.Select(o => o.Expression.Type).ToList();
+                TransformingVisitor._insideOrderBy = oldInsideOrderBy;
 
-                Debug.Assert(originalTypes.Count == newTypes.Count);
-
-                for (var i = 0; i < newTypes.Count; i++)
+                for (var i = 0; i < orderByClause.Orderings.Count; i++)
                 {
-                    if ((originalTypes[i] != newTypes[i])
-                        && !originalTypes[i].IsNullableType()
-                        && newTypes[i].IsNullableType()
-                        && (originalTypes[i].UnwrapNullableType() == newTypes[i].UnwrapNullableType()))
-                    {
-                        orderByClause.Orderings[i].Expression = Expression.Convert(orderByClause.Orderings[i].Expression, originalTypes[i]);
-                    }
+                    orderByClause.Orderings[i].Expression = CompensateForNullabilityDifference(
+                        orderByClause.Orderings[i].Expression,
+                        originalTypes[i]);
                 }
             }
 
@@ -1003,11 +1340,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             private void VisitJoinClauseInternal(JoinClause joinClause)
             {
+                var oldInsideInnerSequence = TransformingVisitor._insideInnerSequence;
+                var oldInnerKeySelectorRequiresNullRefProtection = TransformingVisitor._innerKeySelectorRequiresNullRefProtection;
+                TransformingVisitor._insideInnerSequence = true;
+                TransformingVisitor._innerKeySelectorRequiresNullRefProtection = false;
                 joinClause.InnerSequence = TransformingVisitor.Visit(joinClause.InnerSequence);
+                TransformingVisitor._insideInnerSequence = oldInsideInnerSequence;
+
                 joinClause.OuterKeySelector = TransformingVisitor.Visit(joinClause.OuterKeySelector);
 
-                var oldInsideInnerKeySelector = InsideInnerKeySelector;
-                InsideInnerKeySelector = true;
+                var oldInsideInnerKeySelector = TransformingVisitor._insideInnerKeySelector;
+                TransformingVisitor._insideInnerKeySelector = true;
                 joinClause.InnerKeySelector = TransformingVisitor.Visit(joinClause.InnerKeySelector);
 
                 if (joinClause.OuterKeySelector.Type.IsNullableType()
@@ -1022,7 +1365,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     joinClause.OuterKeySelector = Expression.Convert(joinClause.OuterKeySelector, joinClause.OuterKeySelector.Type.MakeNullable());
                 }
 
-                InsideInnerKeySelector = oldInsideInnerKeySelector;
+                TransformingVisitor._insideInnerKeySelector = oldInsideInnerKeySelector;
+                TransformingVisitor._innerKeySelectorRequiresNullRefProtection = oldInnerKeySelectorRequiresNullRefProtection;
             }
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
@@ -1039,14 +1383,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 base.VisitSelectClause(selectClause, queryModel);
 
-                var newType = selectClause.Selector.Type;
-                if ((originalType != newType)
-                    && !originalType.IsNullableType()
-                    && newType.IsNullableType()
-                    && (originalType.UnwrapNullableType() == newType.UnwrapNullableType()))
-                {
-                    selectClause.Selector = Expression.Convert(selectClause.Selector, originalType);
-                }
+                selectClause.Selector = CompensateForNullabilityDifference(selectClause.Selector, originalType);
             }
 
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
@@ -1056,7 +1393,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<AllResultOperator, Expression> expressionExtractor = o => o.Predicate;
                     Action<AllResultOperator, Expression> adjuster = (o, e) => o.Predicate = e;
-                    VisitAndAdjustResultOperatorType(allResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(allResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1066,7 +1403,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<ContainsResultOperator, Expression> expressionExtractor = o => o.Item;
                     Action<ContainsResultOperator, Expression> adjuster = (o, e) => o.Item = e;
-                    VisitAndAdjustResultOperatorType(containsResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(containsResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1076,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<SkipResultOperator, Expression> expressionExtractor = o => o.Count;
                     Action<SkipResultOperator, Expression> adjuster = (o, e) => o.Count = e;
-                    VisitAndAdjustResultOperatorType(skipResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(skipResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1086,7 +1423,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Func<TakeResultOperator, Expression> expressionExtractor = o => o.Count;
                     Action<TakeResultOperator, Expression> adjuster = (o, e) => o.Count = e;
-                    VisitAndAdjustResultOperatorType(takeResultOperator, expressionExtractor, adjuster, queryModel, index);
+                    VisitAndAdjustResultOperatorType(takeResultOperator, expressionExtractor, adjuster);
 
                     return;
                 }
@@ -1099,24 +1436,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     base.VisitResultOperator(resultOperator, queryModel, index);
 
-                    var newKeySelectorType = groupResultOperator.KeySelector.Type;
-                    var newElementSelectorType = groupResultOperator.ElementSelector.Type;
+                    groupResultOperator.KeySelector = CompensateForNullabilityDifference(
+                        groupResultOperator.KeySelector,
+                        originalKeySelectorType);
 
-                    if (originalKeySelectorType != newKeySelectorType
-                        && !originalKeySelectorType.IsNullableType()
-                        && newKeySelectorType.IsNullableType()
-                        && originalKeySelectorType.UnwrapNullableType() == newKeySelectorType.UnwrapNullableType())
-                    {
-                        groupResultOperator.KeySelector = Expression.Convert(groupResultOperator.KeySelector, originalKeySelectorType);
-                    }
-
-                    if (originalElementSelectorType != newElementSelectorType
-                        && !originalElementSelectorType.IsNullableType()
-                        && newElementSelectorType.IsNullableType()
-                        && originalElementSelectorType.UnwrapNullableType() == newElementSelectorType.UnwrapNullableType())
-                    {
-                        groupResultOperator.ElementSelector = Expression.Convert(groupResultOperator.ElementSelector, originalElementSelectorType);
-                    }
+                    groupResultOperator.ElementSelector = CompensateForNullabilityDifference(
+                        groupResultOperator.ElementSelector,
+                        originalElementSelectorType);
 
                     return;
                 }
@@ -1127,24 +1453,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             private void VisitAndAdjustResultOperatorType<TResultOperator>(
                 TResultOperator resultOperator,
                 Func<TResultOperator, Expression> expressionExtractor,
-                Action<TResultOperator, Expression> adjuster,
-                QueryModel queryModel,
-                int index)
+                Action<TResultOperator, Expression> adjuster)
                 where TResultOperator : ResultOperatorBase
             {
                 var originalExpression = expressionExtractor(resultOperator);
                 var originalType = originalExpression.Type;
 
-                var translatedExpression = TransformingVisitor.Visit(originalExpression);
-
-                var newType = translatedExpression.Type;
-                if ((originalType != newType)
-                    && !originalType.IsNullableType()
-                    && newType.IsNullableType()
-                    && (originalType.UnwrapNullableType() == newType.UnwrapNullableType()))
-                {
-                    translatedExpression = Expression.Convert(translatedExpression, originalType);
-                }
+                var translatedExpression = CompensateForNullabilityDifference(
+                    TransformingVisitor.Visit(originalExpression),
+                    originalType);
 
                 adjuster(resultOperator, translatedExpression);
             }

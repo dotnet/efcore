@@ -46,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToArray();
+                = entityType.GetConcreteTypesInHierarchy().ToList();
 
-            if (concreteEntityTypes.Length == 1)
+            if (concreteEntityTypes.Count == 1)
             {
                 return Expression.Lambda<Func<IEntityType, ValueBuffer, object>>(
                     _entityMaterializerSource

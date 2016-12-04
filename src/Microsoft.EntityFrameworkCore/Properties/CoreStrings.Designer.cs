@@ -7,11 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
     using System.Resources;
     using JetBrains.Annotations;
 
-	/// <summary>
-	///		This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    /// <summary>
+    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
-	/// </summary>
-    public static class CoreStrings
+    /// </summary>
+    public static partial class CoreStrings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).GetTypeInfo().Assembly);
@@ -89,6 +89,46 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.
+        /// </summary>
+        public static string PropertyIsNavigation([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object PropertyMethod, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyIsNavigation", "property", "entityType", "PropertyMethod", "ReferenceMethod", "CollectionMethod"), property, entityType, PropertyMethod, ReferenceMethod, CollectionMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.
+        /// </summary>
+        public static string NavigationIsProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod, [CanBeNull] object PropertyMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationIsProperty", "property", "entityType", "ReferenceMethod", "CollectionMethod", "PropertyMethod"), property, entityType, ReferenceMethod, CollectionMethod, PropertyMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.
+        /// </summary>
+        public static string ReferenceIsCollection([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object ReferenceMethod, [CanBeNull] object CollectionMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferenceIsCollection", "property", "entityType", "ReferenceMethod", "CollectionMethod"), property, entityType, ReferenceMethod, CollectionMethod);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.
+        /// </summary>
+        public static string CollectionIsReference([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object CollectionMethod, [CanBeNull] object ReferenceMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionIsReference", "property", "entityType", "CollectionMethod", "ReferenceMethod"), property, entityType, CollectionMethod, ReferenceMethod);
+        }
+
+        /// <summary>
+        /// Navigation property '{navigation}' on entity type '{entityType}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.
+        /// </summary>
+        public static string ReferenceMustBeLoaded([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferenceMustBeLoaded", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
@@ -97,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The entity type '{entityType}' requires a key to be defined.
+        /// The entity type '{entityType}' requires a primary key to be defined.
         /// </summary>
         public static string EntityRequiresKey([CanBeNull] object entityType)
         {
@@ -177,6 +217,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The value for property '{property}' of entity type '{entityType}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.
+        /// </summary>
+        public static string ValueCannotBeNull([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ValueCannotBeNull", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
+        /// <summary>
+        /// The value for property '{property}' of entity type '{entityType}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.
+        /// </summary>
+        public static string InvalidType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object valueType, [CanBeNull] object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidType", "property", "entityType", "valueType", "propertyType"), property, entityType, valueType, propertyType);
+        }
+
+        /// <summary>
+        /// The property '{property}' belongs to entity type '{entityType}' but is being used with an instance of entity type '{expectedType}'.
+        /// </summary>
+        public static string PropertyDoesNotBelong([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyDoesNotBelong", "property", "entityType", "expectedType"), property, entityType, expectedType);
+        }
+
+        /// <summary>
         /// Cannot change ObservableHashSet during a CollectionChanged event.
         /// </summary>
         public static string ObservableCollectionReentrancy
@@ -185,15 +249,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.
+        /// The specified field '{field}' could not be found for property '{property}' on entity type '{entityType}'.
         /// </summary>
-        public static string MissingBackingField([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object field)
+        public static string MissingBackingField([CanBeNull] object field, [CanBeNull] object property, [CanBeNull] object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MissingBackingField", "entityType", "property", "field"), entityType, property, field);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingBackingField", "field", "property", "entityType"), field, property, entityType);
         }
 
         /// <summary>
-        /// The annotated backing field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.
+        /// The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.
         /// </summary>
         public static string BadBackingFieldType([CanBeNull] object field, [CanBeNull] object fieldType, [CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
         {
@@ -201,11 +265,59 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{entityType}.{property}' does not have a setter and no backing field was found by convention. Either remove the property from the model, add a property setter, or configure a backing field (see http://go.microsoft.com/fwlink/?LinkId=723277).
+        /// No field was found backing property '{property}' of entity type '{entity}'. Either configure a backing field or use a different '{pam}'.
         /// </summary>
-        public static string NoFieldOrSetter([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string NoBackingField([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoFieldOrSetter", "entityType", "property"), entityType, property);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoBackingField", "property", "entity", "pam"), property, entity, pam);
+        }
+
+        /// <summary>
+        /// No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.
+        /// </summary>
+        public static string NoFieldOrSetter([CanBeNull] object property, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoFieldOrSetter", "property", "entity"), property, entity);
+        }
+
+        /// <summary>
+        /// No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.
+        /// </summary>
+        public static string NoFieldOrGetter([CanBeNull] object property, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoFieldOrGetter", "property", "entity"), property, entity);
+        }
+
+        /// <summary>
+        /// Field '{field}' of entity type '{entity}' is readonly and so cannot be set.
+        /// </summary>
+        public static string ReadonlyField([CanBeNull] object field, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReadonlyField", "field", "entity"), field, entity);
+        }
+
+        /// <summary>
+        /// No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{pam}'.
+        /// </summary>
+        public static string NoProperty([CanBeNull] object field, [CanBeNull] object entity, [CanBeNull] object pam)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoProperty", "field", "entity", "pam"), field, entity, pam);
+        }
+
+        /// <summary>
+        /// The property '{property}' of entity type '{entity}' does not have a setter. Either make the property writable or use a different '{pam}'.
+        /// </summary>
+        public static string NoSetter([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoSetter", "property", "entity", "pam"), property, entity, pam);
+        }
+
+        /// <summary>
+        /// The property '{property}' of entity type '{entity}' does not have a getter. Either make the property readable or use a different '{pam}'.
+        /// </summary>
+        public static string NoGetter([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoGetter", "property", "entity", "pam"), property, entity, pam);
         }
 
         /// <summary>
@@ -241,6 +353,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// A call was made to {replaceService}, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to {useInternalServiceProvider}, or build replacement services into the service provider before passing it to {useInternalServiceProvider}.
+        /// </summary>
+        public static string InvalidReplaceService([CanBeNull] object replaceService, [CanBeNull] object useInternalServiceProvider)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidReplaceService", "replaceService", "useInternalServiceProvider"), replaceService, useInternalServiceProvider);
+        }
+
+        /// <summary>
         /// The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
         /// </summary>
         public static string MultipleProvidersAvailable([CanBeNull] object storeNames)
@@ -254,6 +374,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NoValueGenerator([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
+        /// <summary>
+        /// The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.
+        /// </summary>
+        public static string BadValueGeneratorType([CanBeNull] object givenType, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadValueGeneratorType", "givenType", "expectedType"), givenType, expectedType);
+        }
+
+        /// <summary>
+        /// Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.
+        /// </summary>
+        public static string CannotCreateValueGenerator([CanBeNull] object generatorType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotCreateValueGenerator", "generatorType"), generatorType);
         }
 
         /// <summary>
@@ -297,15 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.
-        /// </summary>
-        public static string NoClrProperty([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrProperty", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
-        /// The property '{property}' cannot be added to entity type '{entityType}' because the property is not in shadow state and the type of the corresponding CLR property '{clrType}' does not match the specified type '{propertyType}'.
+        /// The property '{property}' cannot be added to type '{entityType}' because the type of the corresponding CLR property or field '{clrType}' does not match the specified type '{propertyType}'.
         /// </summary>
         public static string PropertyWrongClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrType, [CanBeNull] object propertyType)
         {
@@ -313,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.
+        /// The property '{property}' cannot exist on type '{entityType}' because the type is marked as shadow state while the property is not. Shadow state types can only contain shadow state properties.
         /// </summary>
         public static string ClrPropertyOnShadowEntity([CanBeNull] object property, [CanBeNull] object entityType)
         {
@@ -321,11 +449,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in an index or key. All indexes and keys must be removed or redefined before the property can be removed.
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the key {key}. All containing keys must be removed or redefined before the property can be removed.
         /// </summary>
-        public static string PropertyInUse([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyInUseKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUse", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUseKey", "property", "entityType", "key"), property, entityType, key);
         }
 
         /// <summary>
@@ -401,15 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.
-        /// </summary>
-        public static string NavigationNoGetter([CanBeNull] object navigation, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNoGetter", "navigation", "entityType"), navigation, entityType);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.
+        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.
         /// </summary>
         public static string NavigationNoSetter([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -545,27 +665,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The expression '{expression}' passed to the Include operator could not be bound.
+        /// The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.
         /// </summary>
-        public static string IncludeNonBindableExpression([CanBeNull] object expression)
+        public static string IncludeBadNavigation([CanBeNull] object property, [CanBeNull] object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IncludeNonBindableExpression", "expression"), expression);
+            return string.Format(CultureInfo.CurrentCulture, GetString("IncludeBadNavigation", "property", "entityType"), property, entityType);
         }
 
         /// <summary>
-        /// Compiling query model: '{queryModel}'
+        /// Compiling query model: {newline}'{queryModel}'
         /// </summary>
-        public static string LogCompilingQueryModel([CanBeNull] object queryModel)
+        public static string LogCompilingQueryModel([CanBeNull] object newline, [CanBeNull] object queryModel)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "queryModel"), queryModel);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "newline", "queryModel"), newline, queryModel);
         }
 
         /// <summary>
-        /// Optimized query model: '{queryModel}'
+        /// Optimized query model: {newline}'{queryModel}'
         /// </summary>
-        public static string LogOptimizedQueryModel([CanBeNull] object queryModel)
+        public static string LogOptimizedQueryModel([CanBeNull] object newline, [CanBeNull] object queryModel)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogOptimizedQueryModel", "queryModel"), queryModel);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogOptimizedQueryModel", "newline", "queryModel"), newline, queryModel);
         }
 
         /// <summary>
@@ -633,19 +753,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The key {key} contains properties in shadow state and is referenced by a relationship from '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.
+        /// The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.
         /// </summary>
-        public static string ReferencedShadowKey([CanBeNull] object key, [CanBeNull] object referencingEntityTypeWithNavigation, [CanBeNull] object referencedEntityTypeWithNavigation)
+        public static string ReferencedShadowKey([CanBeNull] object referencingEntityTypeOrNavigation, [CanBeNull] object referencedEntityTypeOrNavigation, [CanBeNull] object foreignKeyPropertiesWithTypes, [CanBeNull] object primaryKeyPropertiesWithTypes)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ReferencedShadowKey", "key", "referencingEntityTypeWithNavigation", "referencedEntityTypeWithNavigation"), key, referencingEntityTypeWithNavigation, referencedEntityTypeWithNavigation);
-        }
-
-        /// <summary>
-        /// The key {key} on entity type '{entityType}' contains properties in shadow state and is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'. Configure a non-shadow principal key for this relationship.
-        /// </summary>
-        public static string ReferencedShadowKeyWithoutNavigations([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object referencingEntityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ReferencedShadowKeyWithoutNavigations", "key", "entityType", "foreignKey", "referencingEntityType"), key, entityType, foreignKey, referencingEntityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferencedShadowKey", "referencingEntityTypeOrNavigation", "referencedEntityTypeOrNavigation", "foreignKeyPropertiesWithTypes", "primaryKeyPropertiesWithTypes"), referencingEntityTypeOrNavigation, referencedEntityTypeOrNavigation, foreignKeyPropertiesWithTypes, primaryKeyPropertiesWithTypes);
         }
 
         /// <summary>
@@ -769,11 +881,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.
+        /// The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are conflicting.
         /// </summary>
-        public static string DuplicatePropertiesOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object properties)
+        public static string DuplicatePropertiesOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object derivedPropertyType, [CanBeNull] object derivedProperty, [CanBeNull] object basePropertyType, [CanBeNull] object baseProperty)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "entityType", "baseType", "properties"), entityType, baseType, properties);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "entityType", "baseType", "derivedPropertyType", "derivedProperty", "basePropertyType", "baseProperty"), entityType, baseType, derivedPropertyType, derivedProperty, basePropertyType, baseProperty);
         }
 
         /// <summary>
@@ -889,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Data binding directly to a store query is not supported. Instead materialize the results into a collection, by calling a method such as ToList() or ToArray(), and bind to the collection. This should be done to avoid sending a query to the database each time the databound control iterates the data.
+        /// Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to DbSet.Local. For WinForms bind to DbSet.Local.ToBindingList(). For ASP.NET WebForms bind to DbSet.ToList() or use Model Binding.
         /// </summary>
         public static string DataBindingWithIListSource
         {
@@ -1025,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.
+        /// The extension method '{method}' is being used with a custom implementation of '{interfaceType}'. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from '{concreteType}' instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.
         /// </summary>
         public static string CustomMetadata([CanBeNull] object method, [CanBeNull] object interfaceType, [CanBeNull] object concreteType)
         {
@@ -1038,22 +1150,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string InvalidMemberInitBinding
         {
             get { return GetString("InvalidMemberInitBinding"); }
-        }
-
-        /// <summary>
-        /// Unhandled expression type: {expressionType}
-        /// </summary>
-        public static string UnhandledExpressionType([CanBeNull] object expressionType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "expressionType"), expressionType);
-        }
-
-        /// <summary>
-        /// Unhandled node type: {nodeType}
-        /// </summary>
-        public static string UnhandledNodeType([CanBeNull] object nodeType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledNodeType", "nodeType"), nodeType);
         }
 
         /// <summary>
@@ -1113,11 +1209,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in a key defined on a base entity type.
+        /// The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in the key {key} defined on a base entity type '{baseEntityType}'.
         /// </summary>
-        public static string ForeignKeyPropertyInKey([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string ForeignKeyPropertyInKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key, [CanBeNull] object baseEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertyInKey", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertyInKey", "property", "entityType", "key", "baseEntityType"), property, entityType, key, baseEntityType);
         }
 
         /// <summary>
@@ -1185,15 +1281,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not find setter for property {property}
-        /// </summary>
-        public static string NoClrSetter([CanBeNull] object property)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrSetter", "property"), property);
-        }
-
-        /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.
+        /// The property '{property}' cannot be added to the type '{entityType}' because there was no property type specified and there is no corresponding CLR property or field. To add a shadow state property the property type must be specified.
         /// </summary>
         public static string NoPropertyType([CanBeNull] object property, [CanBeNull] object entityType)
         {
@@ -1273,7 +1361,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
+        /// Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
         /// </summary>
         public static string ContextDisposed
         {
@@ -1286,6 +1374,142 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NoProviderConfiguredFailedToResolveService([CanBeNull] object service)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoProviderConfiguredFailedToResolveService", "service"), service);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingProperty", "entityType", "property"), entityType, property);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingPropertyInvalidCast([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType, [CanBeNull] object actualType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingPropertyInvalidCast", "entityType", "property", "expectedType", "actualType"), entityType, property, expectedType, actualType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingPropertyNullReference", "entityType", "property", "expectedType"), entityType, property, expectedType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. See the inner exception for more information.
+        /// </summary>
+        public static string ErrorMaterializingValue
+        {
+            get { return GetString("ErrorMaterializingValue"); }
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        /// </summary>
+        public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingValueInvalidCast", "expectedType", "actualType"), expectedType, actualType);
+        }
+
+        /// <summary>
+        /// An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.
+        /// </summary>
+        public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMaterializingValueNullReference", "expectedType"), expectedType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be ignored on entity type '{entityType}', because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use NotMappedAttribute or Ignore method on the base type.
+        /// </summary>
+        public static string InheritedPropertyCannotBeIgnored([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object baseEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InheritedPropertyCannotBeIgnored", "property", "entityType", "baseEntityType"), property, entityType, baseEntityType);
+        }
+
+        /// <summary>
+        /// Maximum number of retries ({retryLimit}) exceeded while executing database operations with '{strategy}'. See inner exception for the most recent failure.
+        /// </summary>
+        public static string RetryLimitExceeded([CanBeNull] object retryLimit, [CanBeNull] object strategy)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RetryLimitExceeded", "retryLimit", "strategy"), retryLimit, strategy);
+        }
+
+        /// <summary>
+        /// The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.
+        /// </summary>
+        public static string ExecutionStrategyExistingTransaction([CanBeNull] object strategy, [CanBeNull] object getExecutionStrategyMethod)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ExecutionStrategyExistingTransaction", "strategy", "getExecutionStrategyMethod"), strategy, getExecutionStrategyMethod);
+        }
+
+        /// <summary>
+        /// Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.
+        /// </summary>
+        public static string PropertyCalledOnNavigation([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyCalledOnNavigation", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
+        /// </summary>
+        public static string RowLimitingOperationWithoutOrderBy([CanBeNull] object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RowLimitingOperationWithoutOrderBy", "queryModel"), queryModel);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.
+        /// </summary>
+        public static string PropertyInUseForeignKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object foreignKeyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUseForeignKey", "property", "entityType", "foreignKey", "foreignKeyType"), property, entityType, foreignKey, foreignKeyType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.
+        /// </summary>
+        public static string PropertyInUseIndex([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object index, [CanBeNull] object indexType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUseIndex", "property", "entityType", "index", "indexType"), property, entityType, index, indexType);
+        }
+
+        /// <summary>
+        /// Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
+        /// </summary>
+        public static string FirstWithoutOrderByAndFilter([CanBeNull] object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FirstWithoutOrderByAndFilter", "queryModel"), queryModel);
+        }
+
+        /// <summary>
+        /// The specified poolSize must be greater than 0.
+        /// </summary>
+        public static string InvalidPoolSize
+        {
+            get { return GetString("InvalidPoolSize"); }
+        }
+
+        /// <summary>
+        /// The DbContext of type '{contextType}' cannot be pooled because it does not have a single public constructor accepting a single parameter of type DbContextOptions.
+        /// </summary>
+        public static string PoolingContextCtorError([CanBeNull] object contextType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PoolingContextCtorError", "contextType"), contextType);
+        }
+
+        /// <summary>
+        /// OnConfiguring cannot be used to modify DbContextOptions when DbContext pooling is enabled.
+        /// </summary>
+        public static string PoolingOptionsModified
+        {
+            get { return GetString("PoolingOptionsModified"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

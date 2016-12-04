@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    ///     In-memory specific extension methods for <see cref="IServiceCollection"/>.
+    ///     In-memory specific extension methods for <see cref="IServiceCollection" />.
     /// </summary>
     public static class InMemoryServiceCollectionExtensions
     {

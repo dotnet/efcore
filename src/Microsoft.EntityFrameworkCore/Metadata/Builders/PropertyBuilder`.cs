@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -18,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public class PropertyBuilder<TProperty> : PropertyBuilder
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyBuilder([NotNull] InternalPropertyBuilder builder)
@@ -65,6 +67,94 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.IsUnicode(unicode);
 
         /// <summary>
+        ///     <para>
+        ///         Configures the property as <see cref="ValueGeneratedOnAddOrUpdate" /> and
+        ///         <see cref="IsConcurrencyToken" />.
+        ///     </para>
+        ///     <para>
+        ///         Database providers can choose to interpret this in different way, but it is commonly used
+        ///         to indicate some form of automatic row-versioning as used for optimistic concurrency detection.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> IsRowVersion()
+            => (PropertyBuilder<TProperty>)base.IsRowVersion();
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the <see cref="ValueGenerator" /> that will generate values for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
+        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///     </para>
+        ///     <para>
+        ///         A single instance of this type will be created and used to generate values for this property in all
+        ///         instances of the entity type. The type must be instantiable and have a parameterless constructor.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
+            where TGenerator : ValueGenerator
+            => (PropertyBuilder<TProperty>)base.HasValueGenerator<TGenerator>();
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the <see cref="ValueGenerator" /> that will generate values for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
+        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///     </para>
+        ///     <para>
+        ///         A single instance of this type will be created and used to generate values for this property in all
+        ///         instances of the entity type. The type must be instantiable and have a parameterless constructor.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        ///     <para>
+        ///         Setting null does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" /> </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasValueGenerator([CanBeNull] Type valueGeneratorType)
+            => (PropertyBuilder<TProperty>)base.HasValueGenerator(valueGeneratorType);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a factory for creating a <see cref="ValueGenerator" /> to use to generate values
+        ///         for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
+        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///     </para>
+        ///     <para>
+        ///         This factory will be invoked once to create a single instance of the value generator, and
+        ///         this will be used to generate values for this property in all instances of the entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        /// </summary>
+        /// <param name="factory"> A delegate that will be used to create value generator instances. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasValueGenerator([NotNull] Func<IProperty, IEntityType, ValueGenerator> factory)
+            => (PropertyBuilder<TProperty>)base.HasValueGenerator(factory);
+
+        /// <summary>
         ///     Configures whether this property should be used as a concurrency token. When a property is configured
         ///     as a concurrency token the value in the database will be checked when an instance of this entity type
         ///     is updated or deleted during <see cref="DbContext.SaveChanges()" /> to ensure it has not changed since
@@ -106,5 +196,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate()
             => (PropertyBuilder<TProperty>)base.ValueGeneratedOnAddOrUpdate();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the backing field to use for this property.
+        ///     </para>
+        ///     <para>
+        ///         Backing fields are normally found by convention as described
+        ///         here: http://go.microsoft.com/fwlink/?LinkId=723277.
+        ///         This method is useful for setting backing fields explicitly in cases where the
+        ///         correct field is not found by convention.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses. This can be changed by calling
+        ///         <see cref="UsePropertyAccessMode" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="fieldName"> The field name. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasField([NotNull] string fieldName)
+            => (PropertyBuilder<TProperty>)base.HasField(fieldName);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for this property.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found by convention or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses.  Calling this method witll change that behavior
+        ///         for this property as described in the <see cref="PropertyAccessMode" /> enum.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method overrrides for this property any access mode that was set on the
+        ///         entity type or model.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            => (PropertyBuilder<TProperty>)base.UsePropertyAccessMode(propertyAccessMode);
     }
 }

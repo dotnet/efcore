@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = new ConcurrentDictionary<int, RelationalTypeMapping>();
 
         /// <summary>
-        ///     Initialized a new instance of the <see cref="ByteArrayRelationalTypeMapper"/> class.
+        ///     Initialized a new instance of the <see cref="ByteArrayRelationalTypeMapper" /> class.
         /// </summary>
         /// <param name="maxBoundedLength"> Maximum length of data that can be stored in a byte array property. </param>
         /// <param name="defaultMapping"> Default mapping to be used. </param>
@@ -31,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="rowVersionMapping"> Mapping to be used for properties being used as a row version. </param>
         /// <param name="createBoundedMapping"> Function to create a mapping for a property with a given length. </param>
         public ByteArrayRelationalTypeMapper(
-            int maxBoundedLength, 
-            [NotNull] RelationalTypeMapping defaultMapping, 
-            [CanBeNull] RelationalTypeMapping unboundedMapping, 
-            [CanBeNull] RelationalTypeMapping keyMapping, 
-            [CanBeNull] RelationalTypeMapping rowVersionMapping, 
+            int maxBoundedLength,
+            [NotNull] RelationalTypeMapping defaultMapping,
+            [CanBeNull] RelationalTypeMapping unboundedMapping,
+            [CanBeNull] RelationalTypeMapping keyMapping,
+            [CanBeNull] RelationalTypeMapping rowVersionMapping,
             [NotNull] Func<int, RelationalTypeMapping> createBoundedMapping)
         {
             MaxBoundedLength = maxBoundedLength;
@@ -47,32 +47,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///  Gets the maximum length of data that can be stored in a byte array property
+        ///     Gets the maximum length of data that can be stored in a byte array property
         /// </summary>
         public virtual int MaxBoundedLength { get; }
 
         /// <summary>
-        ///  Gets the default mapping to be used.
+        ///     Gets the default mapping to be used.
         /// </summary>
         public virtual RelationalTypeMapping DefaultMapping { get; }
 
         /// <summary>
-        ///  Gets the mapping to be used for properties with no length specified
+        ///     Gets the mapping to be used for properties with no length specified
         /// </summary>
         public virtual RelationalTypeMapping UnboundedMapping { get; }
 
         /// <summary>
-        ///  Gets the mapping to be used for key properties
+        ///     Gets the mapping to be used for key properties
         /// </summary>
         public virtual RelationalTypeMapping KeyMapping { get; }
 
         /// <summary>
-        ///  Gets the mapping to be used for properties being used as a row version.
+        ///     Gets the mapping to be used for properties being used as a row version.
         /// </summary>
         public virtual RelationalTypeMapping RowVersionMapping { get; }
 
         /// <summary>
-        ///  Gets a function to create a mapping for a property with a given length.
+        ///     Gets a function to create a mapping for a property with a given length.
         /// </summary>
         public virtual Func<int, RelationalTypeMapping> CreateBoundedMapping { get; }
 

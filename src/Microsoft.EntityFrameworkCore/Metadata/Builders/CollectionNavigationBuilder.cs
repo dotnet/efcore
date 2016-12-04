@@ -24,17 +24,67 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public class CollectionNavigationBuilder : IInfrastructure<InternalRelationshipBuilder>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CollectionNavigationBuilder([NotNull] InternalRelationshipBuilder builder)
+        public CollectionNavigationBuilder(
+            [NotNull] EntityType declaringEntityType,
+            [NotNull] EntityType relatedEntityType,
+            [CanBeNull] string navigationName,
+            [NotNull] InternalRelationshipBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
+            DeclaringEntityType = declaringEntityType;
+            RelatedEntityType = relatedEntityType;
+            CollectionName = navigationName;
+            Builder = builder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public CollectionNavigationBuilder(
+            [NotNull] EntityType declaringEntityType,
+            [NotNull] EntityType relatedEntityType,
+            [CanBeNull] PropertyInfo navigationProperty,
+            [NotNull] InternalRelationshipBuilder builder)
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            DeclaringEntityType = declaringEntityType;
+            RelatedEntityType = relatedEntityType;
+            CollectionProperty = navigationProperty;
+            CollectionName = navigationProperty?.Name;
             Builder = builder;
         }
 
         private InternalRelationshipBuilder Builder { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual string CollectionName { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual PropertyInfo CollectionProperty { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual EntityType RelatedEntityType { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual EntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     <para>
@@ -56,31 +106,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder(WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
+            => new ReferenceCollectionBuilder(
+                DeclaringEntityType,
+                RelatedEntityType,
+                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
-        ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="navigationName">
-        ///     The name of the reference navigation property on the other end of this relationship.
-        ///     If null, there is no navigation property on the other end of the relationship.
-        /// </param>
-        /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
             => WithOneBuilder(PropertyIdentity.Create(navigationName));
 
         /// <summary>
-        ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="navigationProperty">
-        ///     The reference navigation property on the other end of this relationship.
-        ///     If null, there is no navigation property on the other end of the relationship.
-        /// </param>
-        /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
             => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
 
-        private InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyIdentity reference)
+        private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
         {
             var foreingKey = Builder.Metadata;
             var referenceName = reference.Name;
@@ -98,6 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     foreingKey.PrincipalToDependent.Name,
                     foreingKey.DeclaringEntityType.DisplayName(),
                     foreingKey.DependentToPrincipal.Name));
+            }
+
+            if (referenceName != null
+                && RelatedEntityType != foreingKey.DeclaringEntityType)
+            {
+                return reference.Property == null && CollectionProperty == null
+                    ? Builder.Navigations(reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                    : Builder.Navigations(reference.Property, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit);
             }
 
             return reference.Property == null

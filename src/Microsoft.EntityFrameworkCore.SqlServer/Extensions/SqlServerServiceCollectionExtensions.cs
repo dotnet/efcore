@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="IServiceCollection"/>.
+    ///     SQL Server specific extension methods for <see cref="IServiceCollection" />.
     /// </summary>
     public static class SqlServerServiceCollectionExtensions
     {
@@ -41,17 +41,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             var connectionString = "connection string to database";
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
         ///
-        ///             services
-        ///                 .AddEntityFrameworkSqlServer()
-        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                     options.UseSqlServer(connectionString)
-        ///                            .UseInternalServiceProvider(serviceProvider));
-        ///         }
-        ///     </code>
+        ///              services
+        ///                  .AddEntityFrameworkSqlServer()
+        ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                      options.UseSqlServer(connectionString)
+        ///                             .UseInternalServiceProvider(serviceProvider));
+        ///          }
+        ///      </code>
         /// </example>
         /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
@@ -73,6 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<SqlServerModelSource>()
                 .AddSingleton<SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerMigrationsAnnotationProvider>()
+                .AddScoped<SqlServerModelValidator>()
                 .AddScoped<SqlServerConventionSetBuilder>()
                 .AddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                 .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
@@ -85,6 +86,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<SqlServerHistoryRepository>()
                 .AddScoped<SqlServerQueryModelVisitorFactory>()
                 .AddScoped<SqlServerCompiledQueryCacheKeyGenerator>()
+                .AddScoped<SqlServerExecutionStrategyFactory>()
                 .AddQuery());
 
             return services;

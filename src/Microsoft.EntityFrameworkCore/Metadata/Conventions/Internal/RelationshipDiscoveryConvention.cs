@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeConvention,
         IBaseTypeConvention,
         INavigationRemovedConvention,
-        IForeignKeyRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
         INavigationConvention
     {
@@ -48,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var relationshipCandidates = FindRelationshipCandidates(entityTypeBuilder);
             relationshipCandidates = RemoveIncompatibleWithExistingRelationships(relationshipCandidates, entityTypeBuilder);
             relationshipCandidates = RemoveInheritedInverseNavigations(relationshipCandidates);
+            relationshipCandidates = RemoveSingleSidedBaseNavigations(relationshipCandidates, entityTypeBuilder);
             CreateRelationships(relationshipCandidates, entityTypeBuilder);
 
             return entityTypeBuilder;
@@ -115,6 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             IReadOnlyList<RelationshipCandidate> relationshipCandidates,
             InternalEntityTypeBuilder entityTypeBuilder)
         {
+            if (relationshipCandidates.Count == 0)
+            {
+                return relationshipCandidates;
+            }
+
             var filteredRelationshipCandidates = new List<RelationshipCandidate>();
             foreach (var relationshipCandidate in relationshipCandidates)
             {
@@ -230,6 +235,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private IReadOnlyList<RelationshipCandidate> RemoveInheritedInverseNavigations(
             IReadOnlyList<RelationshipCandidate> relationshipCandidates)
         {
+            if (relationshipCandidates.Count == 0)
+            {
+                return relationshipCandidates;
+            }
+
             var relationshipCandidatesByRoot = relationshipCandidates.GroupBy(r => r.TargetTypeBuilder.Metadata.RootType())
                 .ToDictionary(g => g.Key, g => g.ToList());
             foreach (var relationshipCandidatesHierarchy in relationshipCandidatesByRoot.Values)
@@ -276,6 +286,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
             }
+        }
+
+        private IReadOnlyList<RelationshipCandidate> RemoveSingleSidedBaseNavigations(
+            IReadOnlyList<RelationshipCandidate> relationshipCandidates,
+            InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            if (relationshipCandidates.Count == 0)
+            {
+                return relationshipCandidates;
+            }
+
+            var filteredRelationshipCandidates = new List<RelationshipCandidate>();
+            foreach (var relationshipCandidate in relationshipCandidates)
+            {
+                if (relationshipCandidate.InverseProperties.Count > 0)
+                {
+                    filteredRelationshipCandidates.Add(relationshipCandidate);
+                    continue;
+                }
+
+                foreach (var navigation in relationshipCandidate.NavigationProperties.ToList())
+                {
+                    if (entityTypeBuilder.Metadata.FindDerivedNavigations(navigation.Name).Any(n => n.FindInverse() != null))
+                    {
+                        relationshipCandidate.NavigationProperties.Remove(navigation);
+                    }
+                }
+
+                if (relationshipCandidate.NavigationProperties.Count > 0)
+                {
+                    filteredRelationshipCandidates.Add(relationshipCandidate);
+                }
+            }
+
+            return filteredRelationshipCandidates;
         }
 
         private void CreateRelationships(
@@ -496,33 +541,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             return true;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
-        {
-            var principalEntityTypeBuilder = foreignKey.PrincipalEntityType.Builder;
-
-            var dependentToPrincipal = foreignKey.DependentToPrincipal;
-            var candidateDependentToPrincipal = IsCandidateNavigationProperty(
-                foreignKey.DeclaringEntityType.Builder, dependentToPrincipal?.Name, dependentToPrincipal?.PropertyInfo);
-
-            var principalToDependent = foreignKey.PrincipalToDependent;
-            var candidatePrincipalToDependent = IsCandidateNavigationProperty(
-                principalEntityTypeBuilder, principalToDependent?.Name, principalToDependent?.PropertyInfo);
-
-            if (candidateDependentToPrincipal)
-            {
-                Apply(foreignKey.DeclaringEntityType.Builder.Metadata, dependentToPrincipal.PropertyInfo, foreignKey.PrincipalEntityType.Builder.Metadata);
-            }
-
-            if (candidatePrincipalToDependent)
-            {
-                Apply(foreignKey.PrincipalEntityType.Builder.Metadata, principalToDependent.PropertyInfo, foreignKey.DeclaringEntityType.Builder.Metadata);
-            }
         }
 
         /// <summary>

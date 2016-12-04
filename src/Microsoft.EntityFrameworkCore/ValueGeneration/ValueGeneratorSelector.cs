@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            return Cache.GetOrAdd(property, entityType, Create);
+            return Cache.GetOrAdd(property, entityType, (p, e) => property.GetValueGeneratorFactory()?.Invoke(p, e) ?? Create(p, e));
         }
 
         /// <summary>

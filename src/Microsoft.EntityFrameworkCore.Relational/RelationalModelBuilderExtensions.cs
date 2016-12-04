@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="ModelBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="ModelBuilder" />.
     /// </summary>
     public static class RelationalModelBuilderExtensions
     {

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0-alpha1-*",
+  "version": "1.2.0-*",
   "description": "Shared Entity Framework Core components for relational database providers.",
   "packOptions": {
     "tags": [
@@ -25,12 +25,13 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore": "1.1.0-*"
+    "Microsoft.EntityFrameworkCore": "1.2.0-*",
+    "NETStandard.Library": "1.6.1-*"
   },
   "frameworks": {
     "net451": {
       "dependencies": {
-        "System.Diagnostics.DiagnosticSource": "4.0.0-*"
+        "System.Diagnostics.DiagnosticSource": "4.3.0-*"
       },
       "frameworkAssemblies": {
         "System.Data": "",
@@ -48,10 +49,9 @@
     },
     "netstandard1.3": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-*",
-        "System.Data.Common": "4.1.0-*",
-        "System.Diagnostics.DiagnosticSource": "4.0.0-*",
-        "System.Text.RegularExpressions": "4.1.0-*"
+        "Microsoft.CSharp": "4.3.0-*",
+        "System.Data.Common": "4.3.0-*",
+        "System.Diagnostics.DiagnosticSource": "4.3.0-*"
       }
     }
   }

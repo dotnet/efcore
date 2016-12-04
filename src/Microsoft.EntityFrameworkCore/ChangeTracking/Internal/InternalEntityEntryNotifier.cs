@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IKeyListener[] _keyListeners;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InternalEntityEntryNotifier(
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void TrackedFromQuery(
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void NavigationReferenceChanged(
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void NavigationCollectionChanged(
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void KeyPropertyChanged(
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)

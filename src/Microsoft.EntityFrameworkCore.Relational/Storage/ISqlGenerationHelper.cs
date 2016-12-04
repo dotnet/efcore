@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Writes a valid parameter name for the given candidate name.
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder"/> to write generated string to. </param>
+        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="name">
         ///     The candidate name for the parameter.
         /// </param>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Writes the SQL representation of a literal value.
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder"/> to write generated string to. </param>
+        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="value"> The literal value. </param>
         /// <param name="typeMapping"> An optional type mapping that is used for this value. </param>
         void GenerateLiteral([NotNull] StringBuilder builder, [CanBeNull] object value, [CanBeNull] RelationalTypeMapping typeMapping = null);
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Writes the escaped SQL representation of a literal value.
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder"/> to write generated string to. </param>
+        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="literal"> The value to be escaped. </param>
         void EscapeLiteral([NotNull] StringBuilder builder, [NotNull] string literal);
 
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Writes the escaped SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder"/> to write generated string to. </param>
+        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="identifier"> The identifier to be escaped. </param>
         void EscapeIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier);
 
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder"/> to write generated string to. </param>
+        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="identifier"> The identifier to delimit. </param>
         void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier);
 
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder"/> to write generated string to. </param>
+        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
         void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string schema);

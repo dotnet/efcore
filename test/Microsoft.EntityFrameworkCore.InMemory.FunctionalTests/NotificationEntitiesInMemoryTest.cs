@@ -7,8 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class NotificationEntitiesInMemoryTest
-        : NotificationEntitiesTestBase<NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>
+        : NotificationEntitiesTestBase<InMemoryTestStore, NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>
     {
+        public static readonly string DatabaseName = "NotificationEntities";
+
         public NotificationEntitiesInMemoryTest(NotificationEntitiesInMemoryFixture fixture)
             : base(fixture)
         {
@@ -28,9 +30,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 _options = new DbContextOptionsBuilder()
                     .UseInMemoryDatabase()
                     .UseInternalServiceProvider(serviceProvider).Options;
-
-                EnsureCreated();
             }
+
+            public override InMemoryTestStore CreateTestStore()
+                => InMemoryTestStore.GetOrCreateShared(DatabaseName, EnsureCreated);
 
             public override DbContext CreateContext()
                 => new DbContext(_options);

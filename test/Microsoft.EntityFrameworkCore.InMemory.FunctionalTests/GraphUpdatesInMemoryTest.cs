@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -189,44 +190,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
-
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryDatabase();
             }
 
             public override InMemoryTestStore CreateTestStore()
-            {
-                var store = new InMemoryGraphUpdatesTestStore(_serviceProvider);
-
-                using (var context = CreateContext(store))
-                {
-                    Seed(context);
-                }
-
-                return store;
-            }
+                => InMemoryTestStore.CreateScratch(() =>
+                    {
+                        using (var context = CreateContext(null))
+                        {
+                            Seed(context);
+                        }
+                    },
+                    _serviceProvider);
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new GraphUpdatesContext(new DbContextOptionsBuilder()
                     .UseInMemoryDatabase()
+                    .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                     .UseInternalServiceProvider(_serviceProvider).Options);
-
-            public class InMemoryGraphUpdatesTestStore : InMemoryTestStore
-            {
-                private readonly IServiceProvider _serviceProvider;
-
-                public InMemoryGraphUpdatesTestStore(IServiceProvider serviceProvider)
-                {
-                    _serviceProvider = serviceProvider;
-                }
-
-                public override void Dispose()
-                {
-                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
-
-                    base.Dispose();
-                }
-            }
         }
     }
 }

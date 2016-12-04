@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class CoreOptionsExtension : IDbContextOptionsExtension
@@ -24,9 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private bool _isSensitiveDataLoggingEnabled;
         private WarningsConfiguration _warningsConfiguration;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+        private IDictionary<Type, Type> _replacedServices;
+        private int? _maxPoolSize;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CoreOptionsExtension()
@@ -34,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CoreOptionsExtension([NotNull] CoreOptionsExtension copyFrom)
@@ -46,10 +49,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
+            _maxPoolSize = copyFrom.MaxPoolSize;
+
+            if (copyFrom._replacedServices != null)
+            {
+                _replacedServices = new Dictionary<Type, Type>(copyFrom._replacedServices);
+            }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsSensitiveDataLoggingEnabled
@@ -59,13 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool SensitiveDataLoggingWarned { get; set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IModel Model
@@ -75,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ILoggerFactory LoggerFactory
@@ -85,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IMemoryCache MemoryCache
@@ -95,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IServiceProvider InternalServiceProvider
@@ -105,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual WarningsConfiguration WarningsConfiguration
@@ -115,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual QueryTrackingBehavior QueryTrackingBehavior
@@ -125,7 +134,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void ReplaceService([NotNull] Type serviceType, [NotNull] Type implementationType)
+            => (_replacedServices ?? (_replacedServices = new Dictionary<Type, Type>()))[serviceType] = implementationType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyDictionary<Type, Type> ReplacedServices => (IReadOnlyDictionary<Type, Type>)_replacedServices;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual int? MaxPoolSize
+        {
+            get { return _maxPoolSize; }
+            set { _maxPoolSize = value; }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void ApplyServices(IServiceCollection builder)

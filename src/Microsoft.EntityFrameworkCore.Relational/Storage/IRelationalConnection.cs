@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string ConnectionString { get; }
 
         /// <summary>
-        ///     Gets the underlying <see cref="System.Data.Common.DbConnection"/> used to connect to the database.
+        ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
         /// </summary>
         DbConnection DbConnection { get; }
 
@@ -64,5 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets or sets the active cursor.
         /// </summary>
         IValueBufferCursor ActiveCursor { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Gets the current transaction.
+        /// </summary>
+        new IDbContextTransaction CurrentTransaction { get; }
     }
 }

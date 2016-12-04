@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.SqlClient;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
@@ -25,6 +26,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private const string DefaultConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30";
 
         public static string DefaultConnection => Config["DefaultConnection"] ?? DefaultConnectionString;
+
+        public static bool IsSqlAzure => new SqlConnectionStringBuilder(DefaultConnection).DataSource.Contains("database.windows.net");
+
+        public static string ElasticPoolName => Config["ElasticPoolName"];
 
         public static bool? GetFlag(string key)
         {

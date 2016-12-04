@@ -11,13 +11,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class WeakReferenceIdentityMapFactoryFactory : IdentityMapFactoryFactoryBase
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<IWeakReferenceIdentityMap> Create([NotNull] IKey key)

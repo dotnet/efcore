@@ -52,9 +52,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            return property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+            return property.GetValueGeneratorFactory() == null
+                   && property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
                 ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property), _connection)
-                : Cache.GetOrAdd(property, entityType, Create);
+                : base.Select(property, entityType);
         }
 
         /// <summary>

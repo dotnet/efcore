@@ -54,7 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(float), _real },
                     { typeof(Guid), _blob }
                 };
-
         }
 
         /// <summary>

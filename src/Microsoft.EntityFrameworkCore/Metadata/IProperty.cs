@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IProperty : IPropertyBase
     {
         /// <summary>
-        ///     Gets the type of value that this property holds.
+        ///     Gets the entity type that this property belongs to.
         /// </summary>
-        Type ClrType { get; }
+        new IEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets a value indicating whether this property can contain null.
@@ -60,13 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool RequiresValueGenerator { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this is a shadow property. A shadow property is one that does not have a
-        ///     corresponding property in the entity class. The current value for the property is stored in
-        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-        /// </summary>
-        bool IsShadowProperty { get; }
-
-        /// <summary>
         ///     Gets a value indicating whether this property is used as a concurrency token. When a property is configured
         ///     as a concurrency token the value in the database will be checked when an instance of this entity type
         ///     is updated or deleted during <see cref="DbContext.SaveChanges()" /> to ensure it has not changed since
@@ -74,5 +67,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     changes will not be applied to the database.
         /// </summary>
         bool IsConcurrencyToken { get; }
+
+        /// <summary>
+        ///     Gets the type of value that this property holds.
+        /// </summary>
+        new Type ClrType { get; } // Defined here to maintain binary compat with 1.0
+
+        /// <summary>
+        ///     Gets a value indicating whether this is a shadow property. A shadow property is one that does not have a
+        ///     corresponding property in the entity class. The current value for the property is stored in
+        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+        /// </summary>
+        new bool IsShadowProperty { get; } // Defined here to maintain binary compat with 1.0
     }
 }

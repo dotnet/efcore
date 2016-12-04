@@ -228,17 +228,25 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_properties_count_mismatch()
+        public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_properties_count_mismatch()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention)
+                .HasForeignKey(new[] { "ShadowCustomerId", "ShadowCustomerUnique" }, ConfigurationSource.Convention);
 
-            Assert.Equal(
-                CoreStrings.NoPropertyType("ShadowCustomerId", nameof(Order)),
-                Assert.Throws<InvalidOperationException>(() => relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId", "ShadowCustomerUnique" }, ConfigurationSource.Convention)).Message);
+            var shadowProperty1 = relationshipBuilder.Metadata.Properties.First();
+            Assert.True(shadowProperty1.IsShadowProperty);
+            Assert.Equal("ShadowCustomerId", shadowProperty1.Name);
+
+            var shadowProperty2 = relationshipBuilder.Metadata.Properties.Last();
+            Assert.True(shadowProperty2.IsShadowProperty);
+            Assert.Equal("ShadowCustomerUnique", shadowProperty2.Name);
+
+            Assert.Null(customerEntityBuilder.Metadata.FindPrimaryKey());
+            Assert.Equal(2, relationshipBuilder.Metadata.PrincipalKey.Properties.Count);
         }
 
         [Fact]
@@ -252,8 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 .HasForeignKey(new[] { "ShadowCustomerId" }, ConfigurationSource.Convention);
 
             var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
-            Assert.NotNull(shadowProperty);
-            Assert.True(((IProperty)shadowProperty).IsShadowProperty);
+            Assert.True(shadowProperty.IsShadowProperty);
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
         }
 
@@ -279,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Null(relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(
-                CoreStrings.ForeignKeyPropertyInKey(Order.IdProperty.Name, typeof(SpecialOrder).Name),
+                CoreStrings.ForeignKeyPropertyInKey(Order.IdProperty.Name, typeof(SpecialOrder).Name, "{'" + Order.IdProperty.Name + "'}", typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.Explicit)).Message);
         }
 
@@ -520,26 +527,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
 
             relationshipBuilder = relationshipBuilder.HasPrincipalKey(
-                orderEntityBuilder.Metadata.GetKeys().Single().Properties,
-                ConfigurationSource.Convention)
+                    orderEntityBuilder.Metadata.GetKeys().Single().Properties,
+                    ConfigurationSource.Convention)
                 .HasForeignKey(new[] { Customer.IdProperty }, ConfigurationSource.DataAnnotation);
 
             Assert.Null(relationshipBuilder.DependentEntityType(relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(CoreStrings.EntityTypesNotInRelationship(
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => relationshipBuilder.DependentEntityType(relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.Explicit)).Message);
 
             Assert.Null(relationshipBuilder.PrincipalEntityType(relationshipBuilder.Metadata.DeclaringEntityType, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(CoreStrings.EntityTypesNotInRelationship(
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                    relationshipBuilder.Metadata.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => relationshipBuilder.PrincipalEntityType(relationshipBuilder.Metadata.DeclaringEntityType, ConfigurationSource.Explicit)).Message);
 
             Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
@@ -587,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             specialOrderEntityBuilder.HasBaseType(orderEntityBuilder.Metadata, ConfigurationSource.Explicit);
             var relationshipBuilder = specialOrderEntityBuilder
                 .Relationship(specialOrderEntityBuilder, ConfigurationSource.Convention)
-                .PrincipalToDependent(nameof(SpecialOrder.SpecialOrder), ConfigurationSource.Convention);
+                .PrincipalToDependent(nameof(SpecialOrder.SpecialOrder), ConfigurationSource.Explicit);
 
             relationshipBuilder = relationshipBuilder.PrincipalEntityType(
                 orderEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);

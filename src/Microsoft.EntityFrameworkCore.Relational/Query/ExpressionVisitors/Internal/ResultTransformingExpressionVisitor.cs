@@ -3,16 +3,16 @@
 
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ResultTransformingExpressionVisitor<TResult> : ExpressionVisitorBase
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ResultTransformingExpressionVisitor(
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -55,6 +55,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         Expression.Call(
                             _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod,
                             queryArguments));
+            }
+
+            if (node.Method.MethodIsClosedFormOf(
+                _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
+            {
+                var sourceArgument = (MethodCallExpression)Visit(node.Arguments[1]);
+                if (sourceArgument.Method.MethodIsClosedFormOf(
+                    _relationalQueryCompilationContext.QueryMethodProvider.GetResultMethod))
+                {
+                    var getResultArgument = sourceArgument.Arguments[0];
+                    var newGetResultArgument = Expression.Call(
+                        _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(typeof(ValueBuffer)),
+                        node.Arguments[0], getResultArgument, node.Arguments[2], node.Arguments[3]);
+
+                    return Expression.Call(sourceArgument.Method, newGetResultArgument);
+                }
+
+                return sourceArgument;
             }
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery

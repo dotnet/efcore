@@ -32,15 +32,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     using (var context = new NullSemanticsContext(new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString)
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider).Options))
                     {
-                        // TODO: Delete DB if model changed
-
-                        if (context.Database.EnsureCreated())
-                        {
-                            NullSemanticsModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureCreated();
+                        NullSemanticsModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }
@@ -56,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     testStore.Connection,
                     b =>
                         {
+                            b.ApplyConfiguration();
                             if (useRelationalNulls)
                             {
                                 b.UseRelationalNulls();

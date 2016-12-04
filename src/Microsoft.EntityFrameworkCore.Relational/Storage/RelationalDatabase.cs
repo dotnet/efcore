@@ -27,12 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly IRelationalConnection _connection;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDatabase"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDatabase" /> class.
         /// </summary>
-        /// <param name="queryCompilationContextFactory"> The <see cref="IQueryCompilationContextFactory"/> to be used. </param>
-        /// <param name="batchPreparer"> The <see cref="ICommandBatchPreparer"/> to be used. </param>
-        /// <param name="batchExecutor"> The <see cref="IBatchExecutor"/> to be used. </param>
-        /// <param name="connection"> The <see cref="IRelationalConnection"/> to be used. </param>
+        /// <param name="queryCompilationContextFactory"> The <see cref="IQueryCompilationContextFactory" /> to be used. </param>
+        /// <param name="batchPreparer"> The <see cref="ICommandBatchPreparer" /> to be used. </param>
+        /// <param name="batchExecutor"> The <see cref="IBatchExecutor" /> to be used. </param>
+        /// <param name="connection"> The <see cref="IRelationalConnection" /> to be used. </param>
         public RelationalDatabase(
             [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
             [NotNull] ICommandBatchPreparer batchPreparer,

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0-*",
+  "version": "1.2.0-*",
   "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -10,22 +10,17 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.1.0-*"
+    "dotnet-test-xunit": "2.2.0-*",
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.2.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
-    "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win8"
-      ],
+    "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.1.0-*",
           "type": "platform"
-        },
-        "Microsoft.CSharp": "4.0.1-*"
+        }
       }
     },
     "net451": {

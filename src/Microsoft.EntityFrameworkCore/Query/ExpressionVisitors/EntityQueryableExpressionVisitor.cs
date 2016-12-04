@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
-                   ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
-                   : constantExpression;
+                ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
+                : constantExpression;
 
         /// <summary>
         ///     Visits entity type roots.

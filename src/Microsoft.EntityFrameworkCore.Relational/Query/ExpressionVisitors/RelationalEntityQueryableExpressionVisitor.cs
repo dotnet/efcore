@@ -191,10 +191,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         tableAlias,
                         _querySource));
 
+                var trimmedSql = fromSqlAnnotation.Sql.TrimStart('\r', '\n', '\t', ' ');
+
                 var useQueryComposition
-                    = fromSqlAnnotation.Sql
-                        .TrimStart()
-                        .StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase);
+                    = trimmedSql.StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase)
+                      || trimmedSql.StartsWith("SELECT" + Environment.NewLine, StringComparison.OrdinalIgnoreCase)
+                      || trimmedSql.StartsWith("SELECT\t", StringComparison.OrdinalIgnoreCase);
+
+                var requiresClientEval = !useQueryComposition;
 
                 if (!useQueryComposition)
                 {
@@ -215,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 if (!useQueryComposition)
                 {
-                    QueryModelVisitor.RequiresClientEval = true;
+                    QueryModelVisitor.RequiresClientEval = requiresClientEval;
 
                     querySqlGeneratorFunc = ()
                         => selectExpression.CreateFromSqlQuerySqlGenerator(
@@ -240,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Shaper shaper;
 
             if (QueryModelVisitor.QueryCompilationContext
-                .QuerySourceRequiresMaterialization(_querySource)
+                    .QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
             {
                 var materializer
@@ -281,9 +285,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             IEntityType entityType, SelectExpression selectExpression, IQuerySource querySource)
         {
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToArray();
+                = entityType.GetConcreteTypesInHierarchy().ToList();
 
-            if (concreteEntityTypes.Length == 1
+            if (concreteEntityTypes.Count == 1
                 && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
                 return;
@@ -306,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
 
-            if (concreteEntityTypes.Length == 1)
+            if (concreteEntityTypes.Count == 1)
             {
                 selectExpression.Predicate
                     = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
@@ -343,18 +347,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Func<ValueBuffer, object> materializer,
             bool useQueryBuffer)
             where TEntity : class
-            => !useQueryBuffer
-                ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
-                    querySource,
-                    entityType,
-                    trackingQuery,
-                    key,
-                    materializer)
-                : new BufferedEntityShaper<TEntity>(
-                    querySource,
-                    entityType,
-                    trackingQuery,
-                    key,
-                    materializer);
+        => !useQueryBuffer
+            ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
+                querySource,
+                entityType,
+                trackingQuery,
+                key,
+                materializer)
+            : new BufferedEntityShaper<TEntity>(
+                querySource,
+                entityType,
+                trackingQuery,
+                key,
+                materializer);
     }
 }

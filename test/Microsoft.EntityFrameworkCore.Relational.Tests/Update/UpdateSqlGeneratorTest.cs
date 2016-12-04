@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
             {
                 commandStringBuilder
-                    .Append("SELECT provider_specific_rowcount();" + Environment.NewLine);
+                    .Append("SELECT provider_specific_rowcount();" + Environment.NewLine + Environment.NewLine);
 
                 return ResultSetMapping.LastInResultSet;
             }

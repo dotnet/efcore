@@ -47,11 +47,11 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\PropertyInfoExtensions.cs">
       <Link>PropertyInfoExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MemberInfoExtensions.cs">
+      <Link>MemberInfoExtensions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>SharedTypeExtensions.cs</Link>
@@ -60,19 +60,24 @@
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
+    <Compile Include="ChangeTracking\CollectionEntry.cs" />
+    <Compile Include="ChangeTracking\CollectionEntry`.cs" />
     <Compile Include="ChangeTracking\EntityEntry.cs" />
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\EntityEntry`.cs" />
+    <Compile Include="ChangeTracking\Internal\ArrayPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeDependentValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\CompositePrincipalKeyValueFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\CurrentPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\DependentKeyValueFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\DependentsMap.cs" />
     <Compile Include="ChangeTracking\Internal\DependentsMapFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EmptyShadowValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityEntryGraphIterator.cs" />
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
+    <Compile Include="ChangeTracking\Internal\EntryPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IdentityMap.cs" />
@@ -89,6 +94,7 @@
     <Compile Include="ChangeTracking\Internal\IInternalEntityEntrySubscriber.cs" />
     <Compile Include="ChangeTracking\Internal\IKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\IKeyPropagator.cs" />
+    <Compile Include="ChangeTracking\Internal\ILocalViewListener.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationListener.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntry.cs" />
@@ -106,9 +112,12 @@
     <Compile Include="ChangeTracking\Internal\IValueGenerationManager.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagator.cs" />
     <Compile Include="ChangeTracking\Internal\KeyValueFactoryFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\LocalViewListener.cs" />
     <Compile Include="ChangeTracking\Internal\MultiSnapshot.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\NullableKeyIdentityMap.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableBackedBindingList.cs" />
+    <Compile Include="ChangeTracking\Internal\OriginalPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValues.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\RelationshipSnapshotFactoryFactory.cs" />
@@ -122,14 +131,28 @@
     <Compile Include="ChangeTracking\Internal\Snapshot.cs" />
     <Compile Include="ChangeTracking\Internal\SnapshotFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SnapshotFactoryFactory`.cs" />
+    <Compile Include="ChangeTracking\Internal\SortableBindingList.cs" />
     <Compile Include="ChangeTracking\Internal\StateData.cs" />
     <Compile Include="ChangeTracking\Internal\StateManager.cs" />
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\Internal\TrackingQueryMode.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
+    <Compile Include="ChangeTracking\LocalView.cs" />
+    <Compile Include="ChangeTracking\MemberEntry.cs" />
+    <Compile Include="ChangeTracking\NavigationEntry.cs" />
     <Compile Include="ChangeTracking\ObservableHashSet.cs" />
+    <Compile Include="ChangeTracking\ObservableCollectionListSource.cs" />
+    <Compile Include="ChangeTracking\ObservableHashSetListSource.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
+    <Compile Include="ChangeTracking\PropertyValues.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntry.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
+    <Compile Include="EF.CompileAsyncQuery.cs" />
+    <Compile Include="Query\AsyncEnumerable.cs" />
+    <Compile Include="Query\Internal\CompiledAsyncTaskQuery.cs" />
+    <Compile Include="Query\Internal\CompiledAsyncEnumerableQuery.cs" />
+    <Compile Include="Query\Internal\CompiledQuery.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
@@ -143,6 +166,7 @@
     <Compile Include="EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="Extensions\EntityTypeExtensions.cs" />
+    <Compile Include="Extensions\ExecutionStrategyExtensions.cs" />
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
@@ -155,26 +179,32 @@
     <Compile Include="Extensions\MutableKeyExtensions.cs" />
     <Compile Include="Extensions\MutableModelExtensions.cs" />
     <Compile Include="Extensions\MutableNavigationExtensions.cs" />
+    <Compile Include="Extensions\MutablePropertyBaseExtensions.cs" />
     <Compile Include="Extensions\MutablePropertyExtensions.cs" />
     <Compile Include="Extensions\NavigationExtensions.cs" />
+    <Compile Include="Extensions\ObservableCollectionExtensions.cs" />
+    <Compile Include="Extensions\PropertyBaseExtensions.cs" />
     <Compile Include="Extensions\PropertyExtensions.cs" />
+    <Compile Include="Extensions\TypeBaseExtensions.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
     <Compile Include="Infrastructure\Annotatable.cs" />
     <Compile Include="Infrastructure\AnnotatableExtensions.cs" />
     <Compile Include="Infrastructure\Annotation.cs" />
     <Compile Include="Infrastructure\CoreEventId.cs" />
+    <Compile Include="Infrastructure\CoreModelValidator.cs" />
     <Compile Include="Infrastructure\DatabaseFacade.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
     <Compile Include="Infrastructure\DbContextFactoryOptions.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServiceCollectionExtensions.cs" />
-    <Compile Include="Infrastructure\IAccessor.cs" />
+    <Compile Include="Infrastructure\IInfrastructure.cs" />
     <Compile Include="Infrastructure\IAnnotatable.cs" />
     <Compile Include="Infrastructure\IAnnotation.cs" />
     <Compile Include="Infrastructure\IDbContextFactory.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsBuilderInfrastructure.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtension.cs" />
+    <Compile Include="Infrastructure\IDesignTimeServices.cs" />
     <Compile Include="Infrastructure\IModelCacheKeyFactory.cs" />
     <Compile Include="Infrastructure\IModelCustomizer.cs" />
     <Compile Include="Infrastructure\IModelSource.cs" />
@@ -186,9 +216,19 @@
     <Compile Include="Infrastructure\ModelSource.cs" />
     <Compile Include="Infrastructure\SensitiveDataLogger.cs" />
     <Compile Include="Infrastructure\WarningsConfigurationBuilder.cs" />
+    <Compile Include="Internal\AsyncLock.cs" />
     <Compile Include="Internal\ConcurrencyDetector.cs" />
     <Compile Include="Internal\CurrentDbContext.cs" />
+    <Compile Include="Internal\DbContextPool.cs" />
+    <Compile Include="Internal\DbContextPoolConfigurationSnapshot.cs" />
+    <Compile Include="Internal\EntityFinder.cs" />
+    <Compile Include="Internal\EntityFinderSource.cs" />
     <Compile Include="Internal\ICurrentDbContext.cs" />
+    <Compile Include="Internal\IDbContextPool.cs" />
+    <Compile Include="Internal\IDbContextPoolable.cs" />
+    <Compile Include="Internal\IEntityFinder.cs" />
+    <Compile Include="Internal\IEntityFinderSource.cs" />
+    <Compile Include="Internal\IEntityFinder`.cs" />
     <Compile Include="Internal\InterceptingLogger.cs" />
     <Compile Include="Internal\CoreOptionsExtension.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />
@@ -206,20 +246,56 @@
     <Compile Include="Internal\IDbSetFinder.cs" />
     <Compile Include="Internal\IDbSetInitializer.cs" />
     <Compile Include="Internal\IDbSetSource.cs" />
-    <Compile Include="Internal\IModelValidator.cs" />
+    <Compile Include="Infrastructure\IModelValidator.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />
+    <Compile Include="Internal\IServiceInjectionSite.cs" />
     <Compile Include="Internal\LazyRef.cs" />
-    <Compile Include="Internal\LoggingModelValidator.cs" />
-    <Compile Include="Internal\ModelValidator.cs" />
+    <Compile Include="Infrastructure\ModelValidator.cs" />
     <Compile Include="Internal\Multigraph.cs" />
     <Compile Include="Internal\NonCapturingLazyInitializer.cs" />
+    <Compile Include="Internal\NoopModelValidator.cs" />
+    <Compile Include="Internal\ServiceProviderExtensions.cs" />
     <Compile Include="Internal\ProductInfo.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
+    <Compile Include="Query\Internal\CompiledQueryBase.cs" />
+    <Compile Include="Query\Internal\IDetachableContext.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IPropertyAnnotationSetConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IIndexAnnotationSetConvention.cs" />
+    <Compile Include="EF.CompileQuery.cs" />
+    <Compile Include="Storage\ExecutionResult.cs" />
+    <Compile Include="Storage\Internal\ExecutionStrategyFactory.cs" />
+    <Compile Include="Storage\Internal\NoopExecutionStrategy.cs" />
+    <Compile Include="Metadata\Conventions\Internal\BackingFieldConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\ForeignKeyIndexConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IEntityTypeAnnotationSetConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeIgnoredConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IForeignKeyUniquenessConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IgnoredMembersValidationConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IIndexConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IIndexRemovedConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IIndexUniquenessConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IPropertyFieldChangedConvention.cs" />
+    <Compile Include="Metadata\IMutablePropertyBase.cs" />
+    <Compile Include="Metadata\IMutableTypeBase.cs" />
+    <Compile Include="Metadata\Internal\AnnotatableExtensions.cs" />
+    <Compile Include="Metadata\Internal\DebugView.cs" />
+    <Compile Include="Metadata\Internal\TypeBase.cs" />
+    <Compile Include="Metadata\Internal\TypeBaseExtensions.cs" />
+    <Compile Include="Metadata\ITypeBase.cs" />
+    <Compile Include="Metadata\PropertyAccessMode.cs" />
+    <Compile Include="Query\Expressions\Internal\NullConditionalExpression.cs" />
+    <Compile Include="Query\Internal\QueryModelExtensions.cs" />
+    <Compile Include="Query\ResultOperators\Internal\StringIncludeExpressionNode.cs" />
+    <Compile Include="Storage\DatabaseProvider.cs" />
+    <Compile Include="Storage\ExecutionStrategy.cs" />
+    <Compile Include="Storage\IExecutionStrategy.cs" />
+    <Compile Include="Storage\IExecutionStrategyFactory.cs" />
+    <Compile Include="Storage\ExecutionStrategyContext.cs" />
+    <Compile Include="Storage\RetryLimitExceededException.cs" />
     <Compile Include="WarningBehavior.cs" />
     <Compile Include="Internal\WarningsConfiguration.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />
@@ -316,18 +392,14 @@
     <Compile Include="Metadata\Internal\EntityType.cs" />
     <Compile Include="Metadata\Internal\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\Internal\EntityTypeNameComparer.cs" />
-    <Compile Include="Metadata\Internal\FieldMatcher.cs" />
     <Compile Include="Metadata\Internal\ForeignKey.cs" />
     <Compile Include="Metadata\Internal\ForeignKeyComparer.cs" />
     <Compile Include="Metadata\Internal\ForeignKeyExtensions.cs" />
     <Compile Include="Metadata\Internal\IClrCollectionAccessor.cs" />
     <Compile Include="Metadata\Internal\IClrPropertyGetter.cs" />
     <Compile Include="Metadata\Internal\IClrPropertySetter.cs" />
-    <Compile Include="Metadata\Internal\ICollectionTypeFactory.cs" />
     <Compile Include="Metadata\Internal\IEntityMaterializer.cs" />
     <Compile Include="Metadata\Internal\IEntityMaterializerSource.cs" />
-    <Compile Include="Metadata\Internal\IFieldMatcher.cs" />
-    <Compile Include="Metadata\Internal\IMemberMapper.cs" />
     <Compile Include="Metadata\Internal\Index.cs" />
     <Compile Include="Metadata\Internal\InternalEntityTypeBuilder.cs" />
     <Compile Include="Metadata\Internal\InternalIndexBuilder.cs" />
@@ -340,7 +412,6 @@
     <Compile Include="Metadata\Internal\InternalRelationshipBuilder.cs" />
     <Compile Include="Metadata\Internal\Key.cs" />
     <Compile Include="Metadata\Internal\KeyExtensions.cs" />
-    <Compile Include="Metadata\Internal\MemberMapper.cs" />
     <Compile Include="Metadata\Internal\MetadataExtensions.cs" />
     <Compile Include="Metadata\Internal\Model.cs" />
     <Compile Include="Metadata\Internal\ModelExtensions.cs" />
@@ -432,6 +503,7 @@
     <Compile Include="Query\Internal\IQueryAnnotationExtractor.cs" />
     <Compile Include="Query\Internal\IQueryBuffer.cs" />
     <Compile Include="Query\Internal\IQueryCompiler.cs" />
+    <Compile Include="Query\Internal\IQueryModelPrinter.cs" />
     <Compile Include="Query\Internal\IQueryOptimizer.cs" />
     <Compile Include="Query\Internal\IRelatedEntitiesLoader.cs" />
     <Compile Include="Query\Internal\IWeakReferenceIdentityMap.cs" />
@@ -442,8 +514,8 @@
     <Compile Include="Query\Internal\QueryBuffer.cs" />
     <Compile Include="Query\Internal\QueryCompilationContextFactory.cs" />
     <Compile Include="Query\Internal\QueryCompiler.cs" />
+    <Compile Include="Query\Internal\QueryModelPrinter.cs" />
     <Compile Include="Query\Internal\QueryOptimizer.cs" />
-    <Compile Include="Query\Internal\TaskResultAsyncEnumerable.cs" />
     <Compile Include="Query\Internal\WeakReferenceIdentityMap.cs" />
     <Compile Include="Query\Internal\WeakReferenceIdentityMapFactoryFactory.cs" />
     <Compile Include="Query\IQueryCompilationContextFactory.cs" />
@@ -464,7 +536,6 @@
     <Compile Include="Storage\Database.cs" />
     <Compile Include="Storage\DatabaseErrorLogState.cs" />
     <Compile Include="Storage\DatabaseProviderServices.cs" />
-    <Compile Include="Storage\DatabaseProvider`.cs" />
     <Compile Include="Storage\IDatabase.cs" />
     <Compile Include="Storage\IDatabaseCreator.cs" />
     <Compile Include="Storage\IDatabaseProvider.cs" />
@@ -524,6 +595,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

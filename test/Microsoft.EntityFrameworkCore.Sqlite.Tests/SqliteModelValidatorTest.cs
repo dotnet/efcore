@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -17,20 +18,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         public override void Detects_duplicate_column_names()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-            modelBuilder.Entity<Product>();
-            modelBuilder.Entity<Product>().Property(b => b.Name).ForSqliteHasColumnName("Id");
+            modelBuilder.Entity<Animal>().Property(b => b.Id).ForSqliteHasColumnName("Name");
 
-            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Product).Name, "Id", typeof(Product).Name, "Name", "Id", ".Product", "INTEGER", "TEXT"), modelBuilder.Model);
+            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
+                    nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
+                modelBuilder.Model);
         }
 
         public override void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>();
-            modelBuilder.Entity<Dog>();
+            modelBuilder.Entity<Cat>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
 
-            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "TEXT", "INTEGER"), modelBuilder.Model);
+            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder.Model);
         }
 
         public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     In-memory specific extension methods for <see cref="DbContextOptionsBuilder"/>.
+    ///     In-memory specific extension methods for <see cref="DbContextOptionsBuilder" />.
     /// </summary>
     public static class InMemoryDbContextOptionsExtensions
     {
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the context to connect to an in-memory database. By default, the same in-memory database instance
-        ///     will be shared by all instances of a given context type. To change this, use the overload that takes a database name. 
+        ///     will be shared by all instances of a given context type. To change this, use the overload that takes a database name.
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the context to connect to an in-memory database. By default, the same in-memory database instance
-        ///     will be shared by all instances of a given context type. To change this, use the overload that takes a database name. 
+        ///     will be shared by all instances of a given context type. To change this, use the overload that takes a database name.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>

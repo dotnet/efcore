@@ -14,13 +14,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract class SnapshotFactoryFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return Expression.Lambda<Func<ISnapshot>>(
-                CreateConstructorExpression(entityType, null))
+                    CreateConstructorExpression(entityType, null))
                 .Compile();
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Expression CreateConstructorExpression(
@@ -107,7 +107,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var propertyBase = propertyBases[i];
 
                 var navigation = propertyBase as INavigation;
-                var property = propertyBase as IProperty;
 
                 arguments[i] =
                     navigation != null
@@ -115,15 +114,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         ? Expression.Call(
                             null,
                             _snapshotCollectionMethod,
-                            Expression.Property(
+                            Expression.MakeMemberAccess(
                                 entityVariable,
-                                propertyBase.DeclaringEntityType.ClrType.GetAnyProperty(propertyBase.Name)))
-                        : property != null
-                          && property.IsShadowProperty
-                            ? CreateReadShadowValueExpression(parameter, property)
-                            : Expression.Property(
+                                propertyBase.GetMemberInfo(forConstruction: false, forSet: false)))
+                        : propertyBase.IsShadowProperty
+                            ? CreateReadShadowValueExpression(parameter, propertyBase)
+                            : Expression.MakeMemberAccess(
                                 entityVariable,
-                                propertyBase.DeclaringEntityType.ClrType.GetAnyProperty(propertyBase.Name));
+                                propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
             }
 
             var constructorExpression = Expression.Convert(
@@ -149,30 +147,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
-            [CanBeNull] ParameterExpression parameter, [NotNull] IProperty property)
+                [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
                 Expression.Constant(property.GetShadowIndex()));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected abstract int GetPropertyIndex([NotNull] IPropertyBase propertyBase);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected abstract int GetPropertyCount([NotNull] IEntityType entityType);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual bool UseEntityVariable => true;

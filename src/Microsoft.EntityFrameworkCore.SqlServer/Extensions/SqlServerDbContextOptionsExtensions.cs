@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="DbContextOptionsBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="DbContextOptionsBuilder" />.
     /// </summary>
     public static class SqlServerDbContextOptionsExtensions
     {

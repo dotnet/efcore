@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public abstract DbContext CreateContext(DbConnection connection);
 
+        protected virtual string DatabaseName => "TransactionTest";
+
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TransactionCustomer>(ps =>
@@ -22,18 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     ps.Property(c => c.Id).ValueGeneratedNever();
                     ps.ToTable("Customers");
                 });
-        }
-
-        protected void Seed(DbContext context)
-        {
-            context.Database.EnsureCreated();
-
-            foreach (var customer in Customers)
-            {
-                context.Add(customer);
-            }
-
-            context.SaveChanges();
         }
 
         public readonly IReadOnlyList<TransactionCustomer> Customers = new List<TransactionCustomer>

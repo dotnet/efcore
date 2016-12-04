@@ -8,6 +8,6 @@ namespace E2E.Sqlite
         public long Id { get; set; }
         public long PrincipalId { get; set; }
 
-        public virtual Principal Principal { get; set; }
+        public Principal Principal { get; set; }
     }
 }

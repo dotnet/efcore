@@ -35,16 +35,16 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity to get metadata for. </param>
         /// <returns> The SQL Server specific metadata for the entity. </returns>
-        public static RelationalEntityTypeAnnotations SqlServer([NotNull] this IMutableEntityType entityType)
-            => (RelationalEntityTypeAnnotations)SqlServer((IEntityType)entityType);
+        public static SqlServerEntityTypeAnnotations SqlServer([NotNull] this IMutableEntityType entityType)
+            => (SqlServerEntityTypeAnnotations)SqlServer((IEntityType)entityType);
 
         /// <summary>
         ///     Gets the SQL Server specific metadata for an entity.
         /// </summary>
         /// <param name="entityType"> The entity to get metadata for. </param>
         /// <returns> The SQL Server specific metadata for the entity. </returns>
-        public static IRelationalEntityTypeAnnotations SqlServer([NotNull] this IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), SqlServerFullAnnotationNames.Instance);
+        public static ISqlServerEntityTypeAnnotations SqlServer([NotNull] this IEntityType entityType)
+            => new SqlServerEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)));
 
         /// <summary>
         ///     Gets the SQL Server specific metadata for a key.
@@ -85,12 +85,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The SQL Server specific metadata for the foreign key. </returns>
         public static RelationalForeignKeyAnnotations SqlServer([NotNull] this IMutableForeignKey foreignKey)
             => (RelationalForeignKeyAnnotations)SqlServer((IForeignKey)foreignKey);
+
         /// <summary>
         ///     Gets the SQL Server specific metadata for a foreign key.
         /// </summary>
         /// <param name="foreignKey"> The foreign key to get metadata for. </param>
         /// <returns> The SQL Server specific metadata for the foreign key. </returns>
-
         public static IRelationalForeignKeyAnnotations SqlServer([NotNull] this IForeignKey foreignKey)
             => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), SqlServerFullAnnotationNames.Instance);
 

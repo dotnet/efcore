@@ -12,7 +12,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-    public class SequenceEndToEndTest
+    public class SequenceEndToEndTest : IDisposable
     {
         [ConditionalFact]
         public void Can_use_sequence_end_to_end()
@@ -21,14 +21,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new BronieContext(serviceProvider, "Bronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
 
-            AddEntities(serviceProvider);
-            AddEntities(serviceProvider);
+            AddEntities(serviceProvider, TestStore.Name);
+            AddEntities(serviceProvider, TestStore.Name);
 
             // Use a different service provider so a different generator is used but with
             // the same server sequence.
@@ -36,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            AddEntities(serviceProvider);
+            AddEntities(serviceProvider, TestStore.Name);
 
-            using (var context = new BronieContext(serviceProvider, "Bronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasuses = context.Pegasuses.ToList();
 
@@ -50,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        private static void AddEntities(IServiceProvider serviceProvider)
+        private static void AddEntities(IServiceProvider serviceProvider, string name)
         {
-            using (var context = new BronieContext(serviceProvider, "Bronies"))
+            using (var context = new BronieContext(serviceProvider, name))
             {
                 for (var i = 0; i < 10; i++)
                 {
@@ -71,14 +70,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new BronieContext(serviceProvider, "BroniesAsync"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
 
-            await AddEntitiesAsync(serviceProvider, "BroniesAsync");
-            await AddEntitiesAsync(serviceProvider, "BroniesAsync");
+            await AddEntitiesAsync(serviceProvider, TestStore.Name);
+            await AddEntitiesAsync(serviceProvider, TestStore.Name);
 
             // Use a different service provider so a different generator is used but with
             // the same server sequence.
@@ -86,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            await AddEntitiesAsync(serviceProvider, "BroniesAsync");
+            await AddEntitiesAsync(serviceProvider, TestStore.Name);
 
-            using (var context = new BronieContext(serviceProvider, "BroniesAsync"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasuses = await context.Pegasuses.ToListAsync();
 
@@ -106,8 +104,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i });
+                    await context.AddAsync(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();
@@ -115,16 +113,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Mac | TestPlatform.Linux, SkipReason = "Test is flaky on OSX/Linux. See https://github.com/dotnet/corefx/issues/8701")]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new BronieContext(serviceProvider, "ManyBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
 
@@ -134,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             for (var i = 0; i < threadCount; i++)
             {
                 var closureProvider = serviceProvider;
-                tests[i] = () => AddEntitiesAsync(closureProvider, "ManyBronies");
+                tests[i] = () => AddEntitiesAsync(closureProvider, TestStore.Name);
             }
 
             var tasks = tests.Select(Task.Run).ToArray();
@@ -144,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await t;
             }
 
-            using (var context = new BronieContext(serviceProvider, "ManyBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasuses = await context.Pegasuses.ToListAsync();
 
@@ -163,14 +159,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
 
-            AddEntitiesWithIds(serviceProvider, 0);
-            AddEntitiesWithIds(serviceProvider, 2);
+            AddEntitiesWithIds(serviceProvider, 0, TestStore.Name);
+            AddEntitiesWithIds(serviceProvider, 2, TestStore.Name);
 
             // Use a different service provider so a different generator is used but with
             // the same server sequence.
@@ -178,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            AddEntitiesWithIds(serviceProvider, 4);
+            AddEntitiesWithIds(serviceProvider, 4, TestStore.Name);
 
-            using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
+            using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
                 var pegasuses = context.Pegasuses.ToList();
 
@@ -197,9 +192,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        private static void AddEntitiesWithIds(IServiceProvider serviceProvider, int idOffset)
+        private static void AddEntitiesWithIds(IServiceProvider serviceProvider, int idOffset, string name)
         {
-            using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
+            using (var context = new BronieContext(serviceProvider, name))
             {
                 for (var i = 1; i < 11; i++)
                 {
@@ -227,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -252,17 +247,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
+            using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, true))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
 
-            AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
-            AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
-            AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
+            AddEntitiesNullable(serviceProvider, TestStore.Name, true);
+            AddEntitiesNullable(serviceProvider, TestStore.Name, true);
+            AddEntitiesNullable(serviceProvider, TestStore.Name, true);
 
-            using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
+            using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, true))
             {
                 var pegasuses = context.Unicons.ToList();
 
@@ -281,17 +275,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))
+            using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, false))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
 
-            AddEntitiesNullable(serviceProvider, "IdentityBronies", false);
-            AddEntitiesNullable(serviceProvider, "IdentityBronies", false);
-            AddEntitiesNullable(serviceProvider, "IdentityBronies", false);
+            AddEntitiesNullable(serviceProvider, TestStore.Name, false);
+            AddEntitiesNullable(serviceProvider, TestStore.Name, false);
+            AddEntitiesNullable(serviceProvider, TestStore.Name, false);
 
-            using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))
+            using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, false))
             {
                 var pegasuses = context.Unicons.ToList();
 
@@ -335,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -359,5 +352,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public int? Identifier { get; set; }
             public string Name { get; set; }
         }
+
+        public SequenceEndToEndTest()
+        {
+            TestStore = SqlServerTestStore.Create("SequenceEndToEndTest");
+        }
+
+        protected SqlServerTestStore TestStore { get; }
+
+        public void Dispose() => TestStore.Dispose();
     }
 }

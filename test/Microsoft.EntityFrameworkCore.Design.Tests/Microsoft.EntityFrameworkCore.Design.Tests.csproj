@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Design.Tests</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Design.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\Microsoft.EntityFrameworkCore.Design.Tests.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.csproj">
+      <Project>{a0b496fe-1e59-4262-a5f5-101cbba42738}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj">
+      <Project>{1942c281-c12b-4818-8cc8-c42842871ff5}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Specification.Tests.csproj">
+      <Project>{07fa2b15-a6a5-4292-a096-7771fb32eeda}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Specification.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+      <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj">
+      <Project>{1a73d95e-e8b5-4f96-908c-7b040e4f7afe}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Specification.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Design\Microsoft.EntityFrameworkCore.Design.csproj">
+      <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Tests.csproj">
+      <Project>{47dcce35-c7fd-4e53-a0f9-bb8a7226978c}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Tests\Microsoft.EntityFrameworkCore.Relational.Tests.csproj">
+      <Project>{1a884122-dc9e-42b1-8821-e43340f954d1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Tests\Microsoft.EntityFrameworkCore.Tests.csproj">
+      <Project>{313f46fe-9962-4a15-805f-fcbdf5a6181e}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Design\Internal\OperationLoggerTest.cs" />
+    <Compile Include="TestUtilities\TestOperationReporter.cs" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <Compile Include="Design\Internal\StartupInvokerTest.cs" />
+    <Compile Include="Design\OperationExecutorTest.cs" />
+    <Compile Include="Design\OperationReportHandlerTest.cs" />
+    <Compile Include="Design\OperationResultHandlerTest.cs" />
+    <Compile Include="Migrations\Design\CSharpHelperTest.cs" />
+    <Compile Include="Migrations\Design\CSharpMigrationOperationGeneratorTest.cs" />
+    <Compile Include="Migrations\Design\MigrationScaffolderTest.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringConfigurationTests.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringGeneratorTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

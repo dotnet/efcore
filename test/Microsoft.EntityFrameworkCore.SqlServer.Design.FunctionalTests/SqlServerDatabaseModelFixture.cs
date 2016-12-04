@@ -15,14 +15,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
     {
         public SqlServerDatabaseModelFixture()
         {
-            TestStore = SqlServerTestStore.CreateScratch();
+            TestStore = SqlServerTestStore.Create("SqlServerDatabaseModelTest");
         }
 
         public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null, ILogger logger = null)
         {
             TestStore.ExecuteNonQuery(createSql);
 
-            return new SqlServerDatabaseModelFactory(new TestLoggerFactory(logger))
+            return new SqlServerDatabaseModelFactory(new TestLoggerFactory(logger).CreateLogger<SqlServerDatabaseModelFactory>())
                 .Create(TestStore.ConnectionString, selection ?? TableSelectionSet.All);
         }
 

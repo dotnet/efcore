@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     .UseInternalServiceProvider(serviceProvider)
                     .Options;
 
+                CreateContext().Database.EnsureClean();
                 EnsureCreated();
             }
 

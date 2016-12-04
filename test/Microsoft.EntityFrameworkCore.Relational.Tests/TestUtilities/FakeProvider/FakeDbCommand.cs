@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             }
             else
             {
-                var transaction = ((FakeDbTransaction)Transaction);
+                var transaction = (FakeDbTransaction)Transaction;
 
                 Debug.Assert(transaction.Connection == Connection);
                 Debug.Assert(transaction.DisposeCount == 0);

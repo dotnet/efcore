@@ -1,13 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -20,19 +23,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
+    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator, IServiceInjectionSite
     {
         private readonly IMigrationsModelDiffer _modelDiffer;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
         /// </summary>
-        /// <param name="model"> The <see cref="IModel"/> for the context this creator is being used with. </param>
-        /// <param name="connection"> The <see cref="IRelationalConnection"/> to be used. </param>
-        /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer"/> to be used. </param>
-        /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator"/> to be used. </param>
-        /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor"/> to be used. </param>
+        /// <param name="model"> The <see cref="IModel" /> for the context this creator is being used with. </param>
+        /// <param name="connection"> The <see cref="IRelationalConnection" /> to be used. </param>
+        /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer" /> to be used. </param>
+        /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator" /> to be used. </param>
+        /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
+        [Obsolete("Derived classes must be updated to call the new constructor with additional parameters.")]
         protected RelationalDatabaseCreator(
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
@@ -54,6 +58,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
+        /// </summary>
+        /// <param name="model"> The <see cref="IModel" /> for the context this creator is being used with. </param>
+        /// <param name="connection"> The <see cref="IRelationalConnection" /> to be used. </param>
+        /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer" /> to be used. </param>
+        /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator" /> to be used. </param>
+        /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
+        /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory" /> to be used. </param>
+        protected RelationalDatabaseCreator(
+            [NotNull] IModel model,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] IMigrationsModelDiffer modelDiffer,
+            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
+            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(modelDiffer, nameof(modelDiffer));
+            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
+            Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
+            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
+
+            Model = model;
+            Connection = connection;
+            _modelDiffer = modelDiffer;
+            _migrationsSqlGenerator = migrationsSqlGenerator;
+            MigrationCommandExecutor = migrationCommandExecutor;
+            ExecutionStrategyFactory = executionStrategyFactory;
+        }
+
+        /// <summary>
         ///     Gets the model for the context this creator is being used with.
         /// </summary>
         protected virtual IModel Model { get; }
@@ -64,28 +100,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual IRelationalConnection Connection { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IMigrationCommandExecutor"/> to be used.
+        ///     Gets the <see cref="IMigrationCommandExecutor" /> to be used.
         /// </summary>
         protected virtual IMigrationCommandExecutor MigrationCommandExecutor { get; }
 
         /// <summary>
-        /// Determines whether the physical database exists. No attempt is made to determine if the database
-        /// contains the schema for the current model.
+        ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
+        /// </summary>
+        protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; private set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        void IServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
+            => ExecutionStrategyFactory = ExecutionStrategyFactory ?? serviceProvider.GetService<IExecutionStrategyFactory>();
+
+        /// <summary>
+        ///     Determines whether the physical database exists. No attempt is made to determine if the database
+        ///     contains the schema for the current model.
         /// </summary>
         /// <returns>
-        /// True if the database exists; otherwise false.
+        ///     True if the database exists; otherwise false.
         /// </returns>
         public abstract bool Exists();
 
         /// <summary>
-        ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if 
+        ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if
         ///     the database contains the schema for the current model.
         /// </summary>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns>
-        ///     A task that represents the asynchronous operation. The task result contains 
+        ///     A task that represents the asynchronous operation. The task result contains
         ///     true if the database exists; otherwise false.
         /// </returns>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -117,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        /// Deletes the physical database.
+        ///     Deletes the physical database.
         /// </summary>
         public abstract void Delete();
 
@@ -174,9 +222,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     tables belong to the current model or not.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains 
-        ///     a value indicating whether any tables are present in the database. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains
+        ///     a value indicating whether any tables are present in the database.
         /// </returns>
         protected virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {

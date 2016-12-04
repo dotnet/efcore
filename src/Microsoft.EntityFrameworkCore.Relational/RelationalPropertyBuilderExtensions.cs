@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="PropertyBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="PropertyBuilder" />.
     /// </summary>
     public static class RelationalPropertyBuilderExtensions
     {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
-        ///     This should be the complete type name, including precision, scale, length, etc. 
+        ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
-        ///     This should be the complete type name, including precision, scale, length, etc. 
+        ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>

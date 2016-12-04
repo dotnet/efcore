@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
                 context.People.Add(new Person { Name = "Bruce" });
                 context.SaveChanges();
 
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             using (var context = new JokerContext(_options))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
             }
         }
 

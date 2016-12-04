@@ -26,9 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceProvider = new SqliteDesignTimeServices()
-                .ConfigureDesignTimeServices(
-                    new ServiceCollection().AddScaffolding().AddLogging())
+            var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging();
+            new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
+
+            var serviceProvider = serviceCollection
                 .AddSingleton<IFileService, FileSystemFileService>()
                 .BuildServiceProvider();
 
@@ -198,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Trace: " +
+            Assert.Contains("Debug: " +
                             SqliteDesignStrings.PrincipalTableNotFound(0, "Children", "Parent"),
                 _logger.FullLog);
         }
@@ -216,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Trace: " +
+            Assert.Contains("Debug: " +
                             SqliteDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent"),
                 _logger.FullLog);
         }

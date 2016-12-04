@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ServiceProviderCache
@@ -20,13 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ConcurrentDictionary<long, IServiceProvider>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options)
@@ -35,6 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             unchecked
             {
                 var key = options.Extensions.Aggregate(0, (t, e) => (t * 397) ^ e.GetType().GetHashCode());
+
+                var replacedServices = options.FindExtension<CoreOptionsExtension>()?.ReplacedServices;
+                if (replacedServices != null)
+                {
+                    key = replacedServices.Aggregate(key, (t, e) => (t * 397) ^ e.Value.GetHashCode());
+                }
 
                 return _configurations.GetOrAdd(
                     key,
@@ -46,6 +52,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             foreach (var extension in options.Extensions)
                             {
                                 extension.ApplyServices(builder);
+                            }
+
+                            if (replacedServices != null)
+                            {
+                                foreach (var descriptor in services.ToList())
+                                {
+                                    Type replacementType;
+                                    if (replacedServices.TryGetValue(descriptor.ServiceType, out replacementType))
+                                    {
+                                        services[services.IndexOf(descriptor)]
+                                            = new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime);
+                                    }
+                                }
                             }
 
                             return services.BuildServiceProvider();

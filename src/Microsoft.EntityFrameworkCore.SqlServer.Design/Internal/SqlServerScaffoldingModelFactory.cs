@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -123,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return keyBuilder;
             }
 
-            // TODO 
+            // TODO
             var property = builder.Metadata.FindProperty(GetPropertyName(pkColumns[0]));
             var propertyType = property?.ClrType?.UnwrapNullableType();
 
@@ -159,7 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (typeof(byte) == propertyBuilder.Metadata.ClrType)
                 {
                     Logger.LogWarning(
-                        SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(
+                        SqlServerDesignEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
+                        () => SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(
                             column.DisplayName, column.DataType));
                 }
                 else
@@ -260,7 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 else
                 {
                     Logger.LogWarning(
-                        SqlServerDesignStrings.CannotInterpretDefaultValue(
+                        SqlServerDesignEventId.CannotInterpretDefaultValueWarning,
+                        () => SqlServerDesignStrings.CannotInterpretDefaultValue(
                             column.DisplayName,
                             column.DefaultValue,
                             propertyBuilder.Metadata.Name,
@@ -288,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 else
                 {
                     Logger.LogWarning(
-                        SqlServerDesignStrings.CannotInterpretComputedValue(
+                        SqlServerDesignEventId.CannotInterpretComputedValueWarning,
+                        () => SqlServerDesignStrings.CannotInterpretComputedValue(
                             column.DisplayName,
                             column.ComputedValue,
                             propertyBuilder.Metadata.Name,

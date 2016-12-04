@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="ModelBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="ModelBuilder" />.
     /// </summary>
     public static class SqlServerModelBuilderExtensions
     {
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the model to use a sequence-based hi-lo pattern to generate values for properties
-        ///     marked as <see cref="ValueGenerated.OnAdd"/>, when targeting SQL Server.
+        ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the model to use the SQL Server IDENTITY feature to generate values for properties
-        ///     marked as <see cref="ValueGenerated.OnAdd"/>, when targeting SQL Server. This is the default
+        ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server. This is the default
         ///     behavior when targeting SQL Server.
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>

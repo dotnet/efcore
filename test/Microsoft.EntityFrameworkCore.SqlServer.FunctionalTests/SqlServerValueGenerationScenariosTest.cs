@@ -4,30 +4,36 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class SqlServerValueGenerationScenariosTest
     {
+        private static readonly string DatabaseName = "SqlServerValueGenerationScenariosTest";
+
         // Positive cases
 
-        public class IdentityColumn : TestBase<IdentityColumn.BlogContext>
+        [Fact]
+        public void Insert_with_Identity_column()
         {
-            [Fact]
-            public void Insert_with_Identity_column()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextIdentity(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextIdentity(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -35,26 +41,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(2, blogs[1].Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextIdentity : ContextBase
+        {
+            public BlogContextIdentity(string databaseName)
+                : base(databaseName)
             {
             }
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-        public class SequenceHiLo : TestBase<SequenceHiLo.BlogContext>
+        [ConditionalFact]
+        public void Insert_with_sequence_HiLo()
         {
-            [ConditionalFact]
-            public void Insert_with_sequence_HiLo()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextHiLo(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextHiLo(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -62,28 +74,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(2, blogs[1].Id);
                 }
             }
-
-            public class BlogContext : ContextBase
-            {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    => modelBuilder.ForSqlServerUseSequenceHiLo();
-            }
         }
 
-        public class SequenceKeyColumnWithDefaultValue : TestBase<SequenceKeyColumnWithDefaultValue.BlogContext>
+        public class BlogContextHiLo : ContextBase
         {
-            [ConditionalFact]
-            [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-            public void Insert_with_default_value_from_sequence()
+            public BlogContextHiLo(string databaseName)
+                : base(databaseName)
             {
-                using (var context = new BlogContext())
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.ForSqlServerUseSequenceHiLo();
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void Insert_with_default_value_from_sequence()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            {
+                using (var context = new BlogContextDefaultValue(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextDefaultValue(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -91,37 +110,44 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(78, blogs[1].Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextDefaultValue : ContextBase
+        {
+            public BlogContextDefaultValue(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder
-                        .HasSequence("MySequence")
-                        .StartsAt(77);
+            }
 
-                    modelBuilder
-                        .Entity<Blog>()
-                        .Property(e => e.Id)
-                        .HasDefaultValueSql("next value for MySequence");
-                }
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .HasSequence("MySequence")
+                    .StartsAt(77);
+
+                modelBuilder
+                    .Entity<Blog>()
+                    .Property(e => e.Id)
+                    .HasDefaultValueSql("next value for MySequence");
             }
         }
 
-        public class ReadOnlySequenceKeyColumnWithDefaultValue : TestBase<ReadOnlySequenceKeyColumnWithDefaultValue.BlogContext>
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void Insert_with_key_default_value_from_sequence()
         {
-            [ConditionalFact]
-            [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-            public void Insert_with_default_value_from_sequence()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -129,38 +155,45 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(78, blogs[1].Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextKeyColumnWithDefaultValue : ContextBase
+        {
+            public BlogContextKeyColumnWithDefaultValue(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder
-                        .HasSequence("MySequence")
-                        .StartsAt(77);
+            }
 
-                    // TODO: Nested closure for Metadata
-                    modelBuilder
-                        .Entity<Blog>()
-                        .Property(e => e.Id)
-                        .HasDefaultValueSql("next value for MySequence")
-                        .Metadata.IsReadOnlyBeforeSave = true;
-                }
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .HasSequence("MySequence")
+                    .StartsAt(77);
+
+                // TODO: Nested closure for Metadata
+                modelBuilder
+                    .Entity<Blog>()
+                    .Property(e => e.Id)
+                    .HasDefaultValueSql("next value for MySequence")
+                    .Metadata.IsReadOnlyBeforeSave = true;
             }
         }
 
-        public class NoKeyGeneration : TestBase<NoKeyGeneration.BlogContext>
+        [Fact]
+        public void Insert_with_explicit_non_default_keys()
         {
-            [Fact]
-            public void Insert_with_explicit_non_default_keys()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNoKeyGeneration(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 66, Name = "One Unicorn" }, new Blog { Id = 67, Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNoKeyGeneration(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -168,26 +201,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(67, blogs[1].Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextNoKeyGeneration : ContextBase
+        {
+            public BlogContextNoKeyGeneration(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder
-                        .Entity<Blog>()
-                        .Property(e => e.Id)
-                        .ValueGeneratedNever();
-                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<Blog>()
+                    .Property(e => e.Id)
+                    .ValueGeneratedNever();
             }
         }
 
-        public class NoKeyGenerationNullableKey : TestBase<NoKeyGenerationNullableKey.BlogContext>
+        [Fact]
+        public void Insert_with_explicit_with_default_keys()
         {
-            [Fact]
-            public void Insert_with_explicit_with_default_keys()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(
                         new NullableKeyBlog { Id = 0, Name = "One Unicorn" },
                         new NullableKeyBlog { Id = 1, Name = "Two Unicorns" });
@@ -195,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
                 {
                     var blogs = context.NullableKeyBlogs.OrderBy(e => e.Id).ToList();
 
@@ -203,26 +243,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(1, blogs[1].Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextNoKeyGenerationNullableKey : ContextBase
+        {
+            public BlogContextNoKeyGenerationNullableKey(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder
-                        .Entity<NullableKeyBlog>()
-                        .Property(e => e.Id)
-                        .ValueGeneratedNever();
-                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<NullableKeyBlog>()
+                    .Property(e => e.Id)
+                    .ValueGeneratedNever();
             }
         }
 
-        public class NonKeyDefaultValue : TestBase<NonKeyDefaultValue.BlogContext>
+        [Fact]
+        public void Insert_with_non_key_default_value()
         {
-            [Fact]
-            public void Insert_with_non_key_default_value()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     var blogs = new List<Blog>
                     {
                         new Blog { Name = "One Unicorn" },
@@ -237,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
 
@@ -250,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
 
@@ -258,26 +305,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[0].CreatedOn);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextNonKeyDefaultValue : ContextBase
+        {
+            public BlogContextNonKeyDefaultValue(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder.Entity<Blog>()
-                        .Property(e => e.CreatedOn)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("getdate()");
-                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>()
+                    .Property(e => e.CreatedOn)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("getdate()");
             }
         }
 
-        public class NonKeyReadOnlyDefaultValue : TestBase<NonKeyReadOnlyDefaultValue.BlogContext>
+        [Fact]
+        public void Insert_with_non_key_default_value_readonly()
         {
-            [Fact]
-            public void Insert_with_non_key_default_value()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(
                         new Blog { Name = "One Unicorn" },
                         new Blog { Name = "Two Unicorns" });
@@ -289,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 DateTime dateTime0;
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -304,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -312,26 +366,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[1].CreatedOn);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextNonKeyReadOnlyDefaultValue : ContextBase
+        {
+            public BlogContextNonKeyReadOnlyDefaultValue(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder.Entity<Blog>()
-                        .Property(e => e.CreatedOn)
-                        .HasDefaultValueSql("getdate()")
-                        .Metadata.IsReadOnlyBeforeSave = true;
-                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>()
+                    .Property(e => e.CreatedOn)
+                    .HasDefaultValueSql("getdate()")
+                    .Metadata.IsReadOnlyBeforeSave = true;
             }
         }
 
-        public class ComputedColumn : TestBase<ComputedColumn.BlogContext>
+        [Fact]
+        public void Insert_and_update_with_computed_column()
         {
-            [Fact]
-            public void Insert_and_update_with_computed_column()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
                     context.SaveChanges();
@@ -339,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal("One Unicorn", blog.FullName);
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
                     var blog = context.FullNameBlogs.Single();
 
@@ -352,27 +413,157 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal("One Pegasus", blog.FullName);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextComputedColumn : ContextBase
+        {
+            public BlogContextComputedColumn(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<FullNameBlog>()
+                    .Property(e => e.FullName)
+                    .HasComputedColumnSql("FirstName + ' ' + LastName");
+            }
+        }
+
+        // #6044
+        [Fact]
+        public void Insert_and_update_with_computed_column_with_function()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            {
+                using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
                 {
-                    modelBuilder.Entity<FullNameBlog>()
-                        .Property(e => e.FullName)
-                        .HasComputedColumnSql("FirstName + ' ' + LastName");
+                    context.Database.ExecuteSqlCommand
+                        (@"CREATE FUNCTION
+[dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
+RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
+
+                    context.GetService<IRelationalDatabaseCreator>().CreateTables();
+                }
+
+                using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
+                {
+                    var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.Equal("OneUnicorn", blog.FullName);
+                }
+
+                using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
+                {
+                    var blog = context.FullNameBlogs.Single();
+
+                    Assert.Equal("OneUnicorn", blog.FullName);
+
+                    blog.LastName = "Pegasus";
+
+                    context.SaveChanges();
+
+                    Assert.Equal("OnePegasus", blog.FullName);
                 }
             }
         }
 
-        public class ClientGuidKey : TestBase<ClientGuidKey.BlogContext>
+        public class BlogContextComputedColumnWithFunction : ContextBase
         {
-            [Fact]
-            public void Insert_with_client_generated_GUID_key()
+            public BlogContextComputedColumnWithFunction(string databaseName)
+                : base(databaseName)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<FullNameBlog>()
+                    .Property(e => e.FullName)
+                    .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])");
+            }
+        }
+
+        // #6044
+        [Fact]
+        public void Insert_and_update_with_computed_column_with_querying_function()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            {
+                using (var context = new BlogContextComputedColumn(testStore.Name))
+                {
+                    context.GetService<IRelationalDatabaseCreator>().CreateTables();
+
+                    context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+
+                    context.Database.ExecuteSqlCommand(@"CREATE FUNCTION [dbo].[GetFullName](@Id int)
+RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS
+BEGIN
+    DECLARE @FullName NVARCHAR(MAX);
+    SELECT @FullName = [FirstName] + [LastName] FROM [dbo].[FullNameBlogs] WHERE [Id] = @Id;
+    RETURN @FullName
+END");
+
+                    context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
+                }
+
+                try
+                {
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
+
+                        context.SaveChanges();
+
+                        Assert.Equal("OneUnicorn", blog.FullName);
+                    }
+
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        var blog = context.FullNameBlogs.Single();
+
+                        Assert.Equal("OneUnicorn", blog.FullName);
+
+                        blog.LastName = "Pegasus";
+
+                        context.SaveChanges();
+
+                        Assert.Equal("OnePegasus", blog.FullName);
+                    }
+
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        var blog1 = context.Add(new FullNameBlog { FirstName = "Hank", LastName = "Unicorn" }).Entity;
+                        var blog2 = context.Add(new FullNameBlog { FirstName = "Jeff", LastName = "Unicorn" }).Entity;
+
+                        context.SaveChanges();
+
+                        Assert.Equal("HankUnicorn", blog1.FullName);
+                        Assert.Equal("JeffUnicorn", blog2.FullName);
+                    }
+                }
+                finally
+                {
+                    using (var context = new BlogContextComputedColumn(testStore.Name))
+                    {
+                        context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                        context.Database.ExecuteSqlCommand("DROP FUNCTION [dbo].[GetFullName];");
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void Insert_with_client_generated_GUID_key()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
                 Guid afterSave;
-
-                using (var context = new BlogContext())
+                using (var context = new BlogContext(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
@@ -384,26 +575,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(beforeSave, afterSave);
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContext(testStore.Name))
                 {
                     Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContext : ContextBase
+        {
+            public BlogContext(string databaseName)
+                : base(databaseName)
             {
             }
         }
 
-        public class ServerGuidKey : TestBase<ServerGuidKey.BlogContext>
+        [Fact]
+        public void Insert_with_server_generated_GUID_key()
         {
-            [Fact]
-            public void Insert_with_server_generated_GUID_key()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
                 Guid afterSave;
-
-                using (var context = new BlogContext())
+                using (var context = new BlogContextServerGuidKey(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
@@ -415,55 +611,60 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.NotEqual(beforeSave, afterSave);
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextServerGuidKey(testStore.Name))
                 {
                     Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextServerGuidKey : ContextBase
+        {
+            public BlogContextServerGuidKey(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder
-                        .Entity<GuidBlog>()
-                        .Property(e => e.Id)
-                        .HasDefaultValueSql("newsequentialid()");
-                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<GuidBlog>()
+                    .Property(e => e.Id)
+                    .HasDefaultValueSql("newsequentialid()");
             }
         }
 
         // Negative cases
-
-        public class DoNothingButSpecifyKeys : TestBase<DoNothingButSpecifyKeys.BlogContext>
+        [Fact]
+        public void Insert_with_explicit_non_default_keys_by_default()
         {
-            [Fact]
-            public void Insert_with_explicit_non_default_keys()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContext(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Id = 2, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
                     // inner exception for details.
                     // SqlException : Cannot insert explicit value for identity column in table 
                     // 'Blog' when IDENTITY_INSERT is set to OFF.
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    context.Database.CreateExecutionStrategy().Execute(c =>
+                        Assert.Throws<DbUpdateException>(() => c.SaveChanges()), context);
                 }
-            }
-
-            public class BlogContext : ContextBase
-            {
             }
         }
 
-        public class DoNothingButSpecifyKeysUsingDefault : TestBase<DoNothingButSpecifyKeysUsingDefault.BlogContext>
+        [Fact]
+        public void Insert_with_explicit_default_keys()
         {
-            [Fact]
-            public void Insert_with_explicit_default_keys()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContext(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
@@ -473,25 +674,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 }
             }
-
-            public class BlogContext : ContextBase
-            {
-            }
         }
 
-        public class SpecifyKeysUsingDefault : TestBase<SpecifyKeysUsingDefault.BlogContext>
+        [Fact]
+        public void Insert_with_implicit_default_keys()
         {
-            [Fact]
-            public void Insert_with_explicit_default_keys()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -499,27 +698,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(1, blogs[1].Id);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextSpecifyKeysUsingDefault : ContextBase
+        {
+            public BlogContextSpecifyKeysUsingDefault(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder
-                        .Entity<Blog>()
-                        .Property(e => e.Id)
-                        .ValueGeneratedNever();
-                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<Blog>()
+                    .Property(e => e.Id)
+                    .ValueGeneratedNever();
             }
         }
 
-        public class ReadOnlySequenceKeyColumnWithDefaultValueThrows : TestBase<ReadOnlySequenceKeyColumnWithDefaultValueThrows.BlogContext>
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void Insert_explicit_value_throws_when_readonly_sequence_before_save()
         {
-            [ConditionalFact]
-            [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-            public void Insert_explicit_value_throws_when_readonly_before_save()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextReadOnlySequenceKeyColumnWithDefaultValue(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     // The property 'Id' on entity type 'Blog' is defined to be read-only before it is 
@@ -529,29 +735,36 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextReadOnlySequenceKeyColumnWithDefaultValue : ContextBase
+        {
+            public BlogContextReadOnlySequenceKeyColumnWithDefaultValue(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder.HasSequence("MySequence");
+            }
 
-                    modelBuilder
-                        .Entity<Blog>()
-                        .Property(e => e.Id)
-                        .HasDefaultValueSql("next value for MySequence")
-                        .Metadata.IsReadOnlyBeforeSave = true;
-                }
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.HasSequence("MySequence");
+
+                modelBuilder
+                    .Entity<Blog>()
+                    .Property(e => e.Id)
+                    .HasDefaultValueSql("next value for MySequence")
+                    .Metadata.IsReadOnlyBeforeSave = true;
             }
         }
 
-        public class NonKeyReadOnlyDefaultValueThrows : TestBase<NonKeyReadOnlyDefaultValueThrows.BlogContext>
+        [Fact]
+        public void Insert_explicit_value_throws_when_readonly_before_save()
         {
-            [Fact]
-            public void Insert_explicit_value_throws_when_readonly_before_save()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.AddRange(
                         new Blog { Name = "One Unicorn" },
                         new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) });
@@ -563,26 +776,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
-
-            public class BlogContext : ContextBase
-            {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder.Entity<Blog>()
-                        .Property(e => e.CreatedOn)
-                        .HasDefaultValueSql("getdate()")
-                        .Metadata.IsReadOnlyBeforeSave = true;
-                }
-            }
         }
 
-        public class ComputedColumnInsertValue : TestBase<ComputedColumnInsertValue.BlogContext>
+        [Fact]
+        public void Insert_explicit_value_into_computed_column()
         {
-            [Fact]
-            public void Insert_explicit_value_into_computed_column()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
 
                     // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is 
@@ -592,69 +796,52 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
-
-            public class BlogContext : ContextBase
-            {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder.Entity<FullNameBlog>()
-                        .Property(e => e.FullName)
-                        .HasComputedColumnSql("FirstName + ' ' + LastName");
-                }
-            }
         }
 
-        public class ComputedColumnUpdateValue : TestBase<ComputedColumnUpdateValue.BlogContext>
+        [Fact]
+        public void Update_explicit_value_in_computed_column()
         {
-            [Fact]
-            public void Update_explicit_value_in_computed_column()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" });
 
                     context.SaveChanges();
                 }
 
-                using (var context = new BlogContext())
+                using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
                     var blog = context.FullNameBlogs.Single();
 
                     blog.FullName = "The Gorilla";
 
-                    // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only after it has been saved, 
+                    // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only after it has been saved,
                     // but its value has been modified or marked as modified.
                     Assert.Equal(
                         CoreStrings.PropertyReadOnlyAfterSave("FullName", "FullNameBlog"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
-
-            public class BlogContext : ContextBase
-            {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder.Entity<FullNameBlog>()
-                        .Property(e => e.FullName)
-                        .HasComputedColumnSql("FirstName + ' ' + LastName");
-                }
-            }
         }
 
         // Concurrency
-
-        public class ConcurrencyWithRowversion : TestBase<ConcurrencyWithRowversion.BlogContext>
+        [Fact]
+        public void Resolve_concurreny()
         {
-            [Fact]
-            public void Resolve_concurreny()
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
-                using (var context = new BlogContext())
+                using (var context = new BlogContextConcurrencyWithRowversion(testStore.Name))
                 {
+                    context.Database.EnsureCreated();
+
                     var blog = context.Add(new ConcurrentBlog { Name = "One Unicorn" }).Entity;
 
                     context.SaveChanges();
 
-                    using (var innerContext = new BlogContext())
+                    using (var innerContext = new BlogContextConcurrencyWithRowversion(testStore.Name))
                     {
                         var updatedBlog = innerContext.ConcurrentBlogs.Single();
                         updatedBlog.Name = "One Pegasus";
@@ -681,16 +868,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     }
                 }
             }
+        }
 
-            public class BlogContext : ContextBase
+        public class BlogContextConcurrencyWithRowversion : ContextBase
+        {
+            public BlogContextConcurrencyWithRowversion(string databaseName)
+                : base(databaseName)
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    modelBuilder.Entity<ConcurrentBlog>()
-                        .Property(e => e.Timestamp)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ConcurrentBlog>()
+                    .Property(e => e.Timestamp)
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
             }
         }
 
@@ -731,34 +923,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public abstract class ContextBase : DbContext
         {
+            private readonly string _databaseName;
+
+            protected ContextBase(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
             public DbSet<Blog> Blogs { get; set; }
             public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; }
             public DbSet<FullNameBlog> FullNameBlogs { get; set; }
             public DbSet<GuidBlog> GuidBlogs { get; set; }
             public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
 
-            protected ContextBase()
-            {
-                Database.EnsureCreated();
-            }
-
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                var name = GetType().FullName.Substring((GetType().Namespace + nameof(SqlServerValueGenerationScenariosTest)).Length + 2);
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(name));
-            }
-        }
-
-        public class TestBase<TContext>
-            where TContext : ContextBase, new()
-        {
-            public TestBase()
-            {
-                using (var context = new TContext())
-                {
-                    context.Database.EnsureDeleted();
-                }
-            }
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
         }
     }
 }

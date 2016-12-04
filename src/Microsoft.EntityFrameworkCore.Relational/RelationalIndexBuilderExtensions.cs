@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="IndexBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="IndexBuilder" />.
     /// </summary>
     public static class RelationalIndexBuilderExtensions
     {
@@ -27,6 +27,21 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
 
             indexBuilder.GetInfrastructure<InternalIndexBuilder>().Relational(ConfigurationSource.Explicit).HasName(name);
+
+            return indexBuilder;
+        }
+
+        /// <summary>
+        /// Determines whether the specified index has filter expression.
+        /// </summary>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="filterExpression"> The filter expression for the index. </param>
+        /// <returns>A builder to further configure the index. </returns>
+        public static IndexBuilder HasFilter([NotNull] this IndexBuilder indexBuilder, [NotNull] string filterExpression)
+        {
+            Check.NotEmpty(filterExpression, nameof(filterExpression));
+
+            indexBuilder.Metadata.Relational().Filter = filterExpression;
 
             return indexBuilder;
         }

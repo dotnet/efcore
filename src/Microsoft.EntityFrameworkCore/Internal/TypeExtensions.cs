@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
@@ -11,7 +12,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public static class TypeExtensions
@@ -36,21 +37,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
         };
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object value)
             => (value == null) || value.Equals(type.GetDefaultValue());
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string ShortDisplayName([NotNull] this Type type)
             => type.DisplayName(fullName: false);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string DisplayName([NotNull] this Type type, bool fullName = true)
@@ -58,6 +59,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var sb = new StringBuilder();
             ProcessTypeName(type, sb, fullName);
             return sb.ToString();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static FieldInfo GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
+        {
+            var typesInHierarchy = type.GetTypesInHierarchy().ToList();
+            foreach (var typeInHierarchy in typesInHierarchy)
+            {
+                var fields = typeInHierarchy.GetRuntimeFields().ToDictionary(f => f.Name);
+                FieldInfo fieldInfo;
+                if (fields.TryGetValue(fieldName, out fieldInfo))
+                {
+                    return fieldInfo;
+                }
+            }
+            return null;
         }
 
         private static void AppendGenericArguments(Type[] args, int startIndex, int numberOfArgsToAppend, StringBuilder sb, bool fullName)

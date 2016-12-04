@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
                 Encrypt = encryptionEnabled
             };
             var options = new DbContextOptionsBuilder();
-            options.UseSqlServer(connectionStringBuilder.ConnectionString);
+            options.UseSqlServer(connectionStringBuilder.ConnectionString, b => b.ApplyConfiguration());
 
             using (var context = new AdventureWorksContext(options.Options))
             {

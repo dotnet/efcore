@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = new ConcurrentDictionary<int, RelationalTypeMapping>();
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="StringRelationalTypeMapper"/> class.
+        ///     Initializes a new instance of the <see cref="StringRelationalTypeMapper" /> class.
         /// </summary>
         /// <param name="maxBoundedAnsiLength"> The maximum length of a bounded ANSI string. </param>
         /// <param name="defaultAnsiMapping"> The default mapping of an ANSI string. </param>
@@ -41,12 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int maxBoundedAnsiLength,
             [NotNull] RelationalTypeMapping defaultAnsiMapping,
             [CanBeNull] RelationalTypeMapping unboundedAnsiMapping,
-            [CanBeNull] RelationalTypeMapping keyAnsiMapping, 
-            [NotNull] Func<int, RelationalTypeMapping> createBoundedAnsiMapping, 
+            [CanBeNull] RelationalTypeMapping keyAnsiMapping,
+            [NotNull] Func<int, RelationalTypeMapping> createBoundedAnsiMapping,
             int maxBoundedUnicodeLength,
             [NotNull] RelationalTypeMapping defaultUnicodeMapping,
-            [CanBeNull] RelationalTypeMapping unboundedUnicodeMapping, 
-            [CanBeNull] RelationalTypeMapping keyUnicodeMapping, 
+            [CanBeNull] RelationalTypeMapping unboundedUnicodeMapping,
+            [CanBeNull] RelationalTypeMapping keyUnicodeMapping,
             [NotNull] Func<int, RelationalTypeMapping> createBoundedUnicodeMapping)
         {
             MaxBoundedAnsiLength = maxBoundedAnsiLength;

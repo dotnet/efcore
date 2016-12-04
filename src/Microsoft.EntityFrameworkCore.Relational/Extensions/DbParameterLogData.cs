@@ -9,17 +9,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Logging information about the parameters of a <see cref="DbCommand"/> that is being executed.
+    ///         Logging information about the parameters of a <see cref="DbCommand" /> that is being executed.
     ///     </para>
     ///     <para>
     ///         Instances of this class are typically created by Entity Framework and passed to loggers, it is not designed
-    ///         to be directly constructed in your application code.    
+    ///         to be directly constructed in your application code.
     ///     </para>
     /// </summary>
     public class DbParameterLogData
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DbParameterLogData"/> class.
+        ///     Initializes a new instance of the <see cref="DbParameterLogData" /> class.
         /// </summary>
         /// <param name="name">
         ///     The name of the parameter.

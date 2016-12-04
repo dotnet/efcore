@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             entityTypeBuilder.Property("Property", typeof(NavigationAsProperty), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.PropertyNotMapped(
-                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
-                "Property",
-                typeof(NavigationAsProperty).ShortDisplayName()),
+                    typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                    "Property",
+                    typeof(NavigationAsProperty).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Ignore("Property", ConfigurationSource.Convention);
+            entityTypeBuilder.Ignore("Property", ConfigurationSource.DataAnnotation);
 
             CreateConvention().Apply(modelBuilder);
         }
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             var referencedEntityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
-            referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.Convention);
+            referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.DataAnnotation);
             entityTypeBuilder.Relationship(referencedEntityTypeBuilder, "Navigation", null, ConfigurationSource.Convention);
 
             CreateConvention().Apply(modelBuilder);
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Ignore("Navigation", ConfigurationSource.Convention);
+            entityTypeBuilder.Ignore("Navigation", ConfigurationSource.DataAnnotation);
 
             CreateConvention().Apply(modelBuilder);
         }
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(ExplicitNavigationEntity), ConfigurationSource.Convention);
             var referencedEntityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
-            referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.Convention);
+            referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.DataAnnotation);
             entityTypeBuilder.Relationship(referencedEntityTypeBuilder, "Navigation", null, ConfigurationSource.Convention);
 
             CreateConvention().Apply(modelBuilder);
@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(InterfaceNavigationEntity), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.InterfacePropertyNotAdded(
-                typeof(InterfaceNavigationEntity).ShortDisplayName(),
-                "Navigation",
-                typeof(IList<INavigationEntity>).ShortDisplayName()),
+                    typeof(InterfaceNavigationEntity).ShortDisplayName(),
+                    "Navigation",
+                    typeof(IList<INavigationEntity>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 

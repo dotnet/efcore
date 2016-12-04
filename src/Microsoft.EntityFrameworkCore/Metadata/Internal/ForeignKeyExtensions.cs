@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -11,34 +13,34 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public static class ForeignKeyExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsSelfReferencing([NotNull] this IForeignKey foreignKey)
             => foreignKey.DeclaringEntityType == foreignKey.PrincipalEntityType;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsIntraHierarchical([NotNull] this IForeignKey foreignKey)
             => foreignKey.DeclaringEntityType.IsSameHierarchy(foreignKey.PrincipalEntityType);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsSelfPrimaryKeyReferencing([NotNull] this IForeignKey foreignKey)
             => foreignKey.DeclaringEntityType.FindPrimaryKey() == foreignKey.PrincipalKey;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<INavigation> GetNavigations([NotNull] this IForeignKey foreignKey)
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<INavigation> FindNavigationsFrom(
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<INavigation> FindNavigationsFromInHierarchy(
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<INavigation> FindNavigationsTo([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<INavigation> FindNavigationsToInHierarchy(
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEntityType ResolveOtherEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
@@ -175,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEntityType ResolveOtherEntityTypeInHierarchy(
@@ -205,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEntityType ResolveEntityTypeInHierarchy([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
@@ -233,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory<TKey>(
@@ -241,17 +243,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (IDependentKeyValueFactory<TKey>)foreignKey.AsForeignKey().DependentKeyValueFactory;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IDependentsMap CreateDependentsMapFactory([NotNull] this IForeignKey foreignKey)
             => foreignKey.AsForeignKey().DependentsMapFactory();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string ToDebugString([NotNull] this IForeignKey foreignKey, bool singleLine = true, [NotNull] string indent = "")
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(indent);
+
+            if (singleLine)
+            {
+                builder.Append("ForeignKey: ");
+            }
+
+            builder
+                .Append(string.Join(
+                    ", ",
+                    foreignKey.Properties.Select(
+                        p => singleLine
+                            ? p.DeclaringEntityType.DisplayName() + "." + p.Name
+                            : p.Name)))
+                .Append(" -> ")
+                .Append(string.Join(
+                    ", ",
+                    foreignKey.PrincipalKey.Properties.Select(
+                        p => p.DeclaringEntityType.DisplayName() + "." + p.Name)));
+
+            if (foreignKey.IsUnique)
+            {
+                builder.Append(" Unique");
+            }
+
+            if (foreignKey.PrincipalToDependent != null)
+            {
+                builder.Append(" ToDependent: ").Append(foreignKey.PrincipalToDependent.Name);
+            }
+
+            if (foreignKey.DependentToPrincipal != null)
+            {
+                builder.Append(" ToPrincipal: ").Append(foreignKey.DependentToPrincipal.Name);
+            }
+
+            if (!singleLine)
+            {
+                builder.Append(foreignKey.AnnotationsToDebugString(indent + "  "));
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static ForeignKey AsForeignKey([NotNull] this IForeignKey foreignKey, [NotNull] [CallerMemberName] string methodName = "")
-            => foreignKey.AsConcreteMetadataType<IForeignKey, ForeignKey>(methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IForeignKey, ForeignKey>(foreignKey, methodName);
     }
 }

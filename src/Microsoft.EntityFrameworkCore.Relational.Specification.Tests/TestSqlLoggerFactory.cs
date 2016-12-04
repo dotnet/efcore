@@ -14,6 +14,8 @@ using Xunit.Abstractions;
 using System.Runtime.Remoting.Messaging;
 
 #endif
+
+#pragma warning disable 618
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public class TestSqlLoggerFactory : ILoggerFactory
@@ -66,23 +68,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 #if NET451
             [NonSerialized]
 #endif
-                public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
+            public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
 
             public readonly List<string> _sqlStatements = new List<string>();
 #if NET451
             [NonSerialized]
 #endif
-                public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
+            public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
 
 #if NET451
             [NonSerialized]
 #endif
-                public ITestOutputHelper _testOutputHelper;
+            public ITestOutputHelper _testOutputHelper;
 
 #if NET451
             [NonSerialized]
 #endif
-                public CancellationTokenSource _cancellationTokenSource;
+            public CancellationTokenSource _cancellationTokenSource;
 
             // ReSharper restore InconsistentNaming
         }
@@ -134,39 +136,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     var sqlLoggerData = SqlLoggerData;
 
-                    if (sqlLoggerData._cancellationTokenSource != null)
+                    lock (sqlLoggerData) // Concurrency tests may end up sharing this.
                     {
-                        sqlLoggerData._cancellationTokenSource.Cancel();
-                        sqlLoggerData._cancellationTokenSource = null;
-                    }
-
-                    var commandLogData = state as DbCommandLogData;
-
-                    if (commandLogData != null)
-                    {
-                        var parameters = "";
-
-                        if (commandLogData.Parameters.Any())
+                        if (sqlLoggerData._cancellationTokenSource != null)
                         {
-                            parameters
-                                = string.Join(
-                                    EOL,
-                                    commandLogData.Parameters
-                                        .Select(p => $"{p.Name}: {p.FormatParameter(quoteValues: false)}"))
-                                  + EOL + EOL;
+                            sqlLoggerData._cancellationTokenSource.Cancel();
+                            sqlLoggerData._cancellationTokenSource = null;
                         }
 
-                        sqlLoggerData._sqlStatements.Add(parameters + commandLogData.CommandText);
+                        var commandLogData = state as DbCommandLogData;
 
-                        sqlLoggerData._logData.Add(commandLogData);
+                        if (commandLogData != null)
+                        {
+                            var parameters = "";
+
+                            if (commandLogData.Parameters.Any())
+                            {
+                                parameters
+                                    = string.Join(
+                                          EOL,
+                                          commandLogData.Parameters
+                                              .Select(p => $"{p.Name}: {p.FormatParameter(quoteValues: false)}"))
+                                      + EOL + EOL;
+                            }
+
+                            sqlLoggerData._sqlStatements.Add(parameters + commandLogData.CommandText);
+
+                            sqlLoggerData._logData.Add(commandLogData);
+                        }
+
+                        else
+                        {
+                            sqlLoggerData._log.AppendLine(format);
+                        }
+
+                        sqlLoggerData._testOutputHelper?.WriteLine(format + Environment.NewLine);
                     }
-
-                    else
-                    {
-                        sqlLoggerData._log.AppendLine(format);
-                    }
-
-                    sqlLoggerData._testOutputHelper?.WriteLine(format + Environment.NewLine);
                 }
             }
 

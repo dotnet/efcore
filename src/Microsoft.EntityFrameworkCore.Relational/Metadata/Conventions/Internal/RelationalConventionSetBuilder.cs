@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -54,11 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, relationshipDiscoveryConvention);
 
+            ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, relationshipDiscoveryConvention);
 
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (ForeignKeyAttributeConvention)new RelationalForeignKeyAttributeConvention(_typeMapper));
-
-            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, relationshipDiscoveryConvention);
 
             ReplaceConvention(conventionSet.NavigationAddedConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.NavigationAddedConventions, relationshipDiscoveryConvention);
@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.ModelBuiltConventions, (PropertyMappingValidationConvention)new RelationalPropertyMappingValidationConvention(_typeMapper));
 
-            conventionSet.PropertyAddedConventions.Add(new RelationalColumnAttributeConvention());
+            var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention();
+            conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
 
@@ -75,16 +76,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.BaseEntityTypeSetConventions.Add(new TableNameFromDbSetConvention(_context, _setFinder));
 
+            conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+
             return conventionSet;
         }
 
-        private static void ReplaceConvention<T1, T2>(IList<T1> conventionsList, T2 newConvention)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ReplaceConvention<T1, T2>([NotNull] IList<T1> conventionsList, [NotNull] T2 newConvention)
             where T2 : T1
         {
             var oldConvention = conventionsList.OfType<T2>().FirstOrDefault();
             if (oldConvention == null)
             {
-                return;
+                throw new InvalidOperationException();
             }
             var index = conventionsList.IndexOf(oldConvention);
             conventionsList.RemoveAt(index);

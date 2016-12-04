@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasOne(e => e.DerivedReferenceOnDerived)
                 .WithOne()
-                .HasForeignKey(typeof(DerivedReferenceOnDerived), "DerivedInheritanceRelationshipEntityId")
+                .HasForeignKey<DerivedReferenceOnDerived>("DerivedInheritanceRelationshipEntityId")
                 .IsRequired(false);
 
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()

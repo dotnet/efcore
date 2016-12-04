@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,18 +19,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task Exists_returns_false_when_database_doesnt_exist()
         {
-            await Exists_returns_false_when_database_doesnt_exist_test(async: false);
+            await Exists_returns_false_when_database_doesnt_exist_test(async: false, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task Exists_returns_false_when_database_with_filename_doesnt_exist()
+        {
+            await Exists_returns_false_when_database_doesnt_exist_test(async: false, file: true);
         }
 
         [Fact]
         public async Task ExistsAsync_returns_false_when_database_doesnt_exist()
         {
-            await Exists_returns_false_when_database_doesnt_exist_test(async: true);
+            await Exists_returns_false_when_database_doesnt_exist_test(async: true, file: false);
         }
 
-        private static async Task Exists_returns_false_when_database_doesnt_exist_test(bool async)
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task ExistsAsync_returns_false_when_database_with_filename_doesnt_exist()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            await Exists_returns_false_when_database_doesnt_exist_test(async: true, file: true);
+        }
+
+        private static async Task Exists_returns_false_when_database_doesnt_exist_test(bool async, bool file)
+        {
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -45,18 +60,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task Exists_returns_true_when_database_exists()
         {
-            await Exists_returns_true_when_database_exists_test(async: false);
+            await Exists_returns_true_when_database_exists_test(async: false, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task Exists_returns_true_when_database_with_filename_exists()
+        {
+            await Exists_returns_true_when_database_exists_test(async: false, file: true);
         }
 
         [Fact]
         public async Task ExistsAsync_returns_true_when_database_exists()
         {
-            await Exists_returns_true_when_database_exists_test(async: true);
+            await Exists_returns_true_when_database_exists_test(async: true, file: false);
         }
 
-        private static async Task Exists_returns_true_when_database_exists_test(bool async)
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task ExistsAsync_returns_true_when_database_with_filename_exists()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
+            await Exists_returns_true_when_database_exists_test(async: true, file: true);
+        }
+
+        private static async Task Exists_returns_true_when_database_exists_test(bool async, bool file)
+        {
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -72,32 +101,60 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task EnsureDeleted_will_delete_database()
         {
-            await EnsureDeleted_will_delete_database_test(async: false, openConnection: false);
+            await EnsureDeleted_will_delete_database_test(async: false, open: false, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureDeleted_will_delete_database_with_filename()
+        {
+            await EnsureDeleted_will_delete_database_test(async: false, open: false, file: true);
         }
 
         [Fact]
         public async Task EnsureDeletedAsync_will_delete_database()
         {
-            await EnsureDeleted_will_delete_database_test(async: true, openConnection: false);
+            await EnsureDeleted_will_delete_database_test(async: true, open: false, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureDeletedAsync_will_delete_database_with_filename()
+        {
+            await EnsureDeleted_will_delete_database_test(async: true, open: false, file: true);
         }
 
         [Fact]
         public async Task EnsureDeleted_will_delete_database_with_opened_connections()
         {
-            await EnsureDeleted_will_delete_database_test(async: false, openConnection: true);
+            await EnsureDeleted_will_delete_database_test(async: false, open: true, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureDeleted_will_delete_database_with_filename_with_opened_connections()
+        {
+            await EnsureDeleted_will_delete_database_test(async: false, open: true, file: true);
         }
 
         [Fact]
         public async Task EnsureDeletedAsync_will_delete_database_with_opened_connections()
         {
-            await EnsureDeleted_will_delete_database_test(async: true, openConnection: true);
+            await EnsureDeleted_will_delete_database_test(async: true, open: true, file: false);
         }
 
-        private static async Task EnsureDeleted_will_delete_database_test(bool async, bool openConnection)
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureDeletedAsync_will_delete_database_with_filename_with_opened_connections()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
+            await EnsureDeleted_will_delete_database_test(async: true, open: true, file: true);
+        }
+
+        private static async Task EnsureDeleted_will_delete_database_test(bool async, bool open, bool file)
+        {
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true, useFileName: file))
             {
-                if (!openConnection)
+                if (!open)
                 {
                     testDatabase.Connection.Close();
                 }
@@ -129,18 +186,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task EnsuredDeleted_noop_when_database_doesnt_exist()
         {
-            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: false);
+            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: false, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsuredDeleted_noop_when_database_with_filename_doesnt_exist()
+        {
+            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: false, file: true);
         }
 
         [Fact]
         public async Task EnsuredDeletedAsync_noop_when_database_doesnt_exist()
         {
-            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: true);
+            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: true, file: false);
         }
 
-        private static async Task EnsuredDeleted_noop_when_database_doesnt_exist_test(bool async)
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsuredDeletedAsync_noop_when_database_with_filename_doesnt_exist()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: true, file: true);
+        }
+
+        private static async Task EnsuredDeleted_noop_when_database_doesnt_exist_test(bool async, bool file)
+        {
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -169,41 +240,74 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task EnsureCreated_can_create_schema_in_existing_database()
         {
-            await EnsureCreated_can_create_schema_in_existing_database_test(async: false);
+            await EnsureCreated_can_create_schema_in_existing_database_test(async: false, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureCreated_can_create_schema_in_existing_database_with_filename()
+        {
+            await EnsureCreated_can_create_schema_in_existing_database_test(async: false, file: true);
         }
 
         [Fact]
         public async Task EnsureCreatedAsync_can_create_schema_in_existing_database()
         {
-            await EnsureCreated_can_create_schema_in_existing_database_test(async: true);
+            await EnsureCreated_can_create_schema_in_existing_database_test(async: true, file: false);
         }
 
-        private static async Task EnsureCreated_can_create_schema_in_existing_database_test(bool async)
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureCreatedAsync_can_create_schema_in_existing_database_with_filename()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
+            await EnsureCreated_can_create_schema_in_existing_database_test(async: true, file: true);
+        }
+
+        private static async Task EnsureCreated_can_create_schema_in_existing_database_test(bool async, bool file)
+        {
+            using (var testDatabase = SqlServerTestStore.CreateScratch(useFileName: file))
             {
                 await RunDatabaseCreationTest(testDatabase, async);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public async Task EnsureCreated_can_create_physical_database_and_schema()
         {
-            await EnsureCreated_can_create_physical_database_and_schema_test(async: false);
+            await EnsureCreated_can_create_physical_database_and_schema_test(async: false, file: false);
         }
 
-        [Fact]
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureCreated_can_create_physical_database_with_filename_and_schema()
+        {
+            await EnsureCreated_can_create_physical_database_and_schema_test(async: false, file: true);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public async Task EnsureCreatedAsync_can_create_physical_database_and_schema()
         {
-            await EnsureCreated_can_create_physical_database_and_schema_test(async: true);
+            await EnsureCreated_can_create_physical_database_and_schema_test(async: true, file: false);
         }
 
-        private static async Task EnsureCreated_can_create_physical_database_and_schema_test(bool async)
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsureCreatedAsync_can_create_physical_database_with_filename_and_schema()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
-            {
-                await RunDatabaseCreationTest(testDatabase, async);
-            }
+            await EnsureCreated_can_create_physical_database_and_schema_test(async: true, file: true);
+        }
+
+        private static Task EnsureCreated_can_create_physical_database_and_schema_test(bool async, bool file)
+        {
+            return SqlServerTestStore.GetExecutionStrategy().ExecuteAsync(async state =>
+                {
+                    using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: state.file))
+                    {
+                        await RunDatabaseCreationTest(testDatabase, state.async);
+                    }
+                }, new { async, file });
         }
 
         private static async Task RunDatabaseCreationTest(SqlServerTestStore testStore, bool async)
@@ -264,18 +368,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema()
         {
-            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: false);
+            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: false, file: false);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsuredCreated_is_noop_when_database_with_filename_exists_and_has_schema()
+        {
+            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: false, file: true);
         }
 
         [Fact]
         public async Task EnsuredCreatedAsync_is_noop_when_database_exists_and_has_schema()
         {
-            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: true);
+            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: true, file: false);
         }
 
-        private static async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(bool async)
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
+        public async Task EnsuredCreatedAsync_is_noop_when_database_with_filename_exists_and_has_schema()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: true, file: true);
+        }
+
+        private static async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(bool async, bool file)
+        {
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -309,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(_testStore.ConnectionString)
+                    .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(CreateServiceProvider());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

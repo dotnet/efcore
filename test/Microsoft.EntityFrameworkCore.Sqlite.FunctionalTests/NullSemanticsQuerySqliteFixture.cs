@@ -37,11 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     using (var context = new NullSemanticsContext(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            NullSemanticsModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureClean();
+                        NullSemanticsModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }

@@ -11,8 +11,8 @@ namespace E2ETest.Namespace
         public int? RelationBid { get; set; }
         public int? RelationCid { get; set; }
 
-        public virtual MultipleFksPrincipal RelationA { get; set; }
-        public virtual MultipleFksPrincipal RelationB { get; set; }
-        public virtual MultipleFksPrincipal RelationC { get; set; }
+        public MultipleFksPrincipal RelationA { get; set; }
+        public MultipleFksPrincipal RelationB { get; set; }
+        public MultipleFksPrincipal RelationC { get; set; }
     }
 }

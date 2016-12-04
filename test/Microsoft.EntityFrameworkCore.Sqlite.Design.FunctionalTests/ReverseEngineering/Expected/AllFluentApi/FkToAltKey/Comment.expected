@@ -9,6 +9,6 @@ namespace E2E.Sqlite
         public long UserAltId { get; set; }
         public string Contents { get; set; }
 
-        public virtual User UserAlt { get; set; }
+        public User UserAlt { get; set; }
     }
 }

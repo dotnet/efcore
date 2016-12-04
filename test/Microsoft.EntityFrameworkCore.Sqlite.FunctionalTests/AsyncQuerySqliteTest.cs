@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
 
 #pragma warning disable 1998
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture>
@@ -29,23 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public override async Task Projection_when_arithmetic_mixed_subqueries()
         {
             //base.Projection_when_arithmetic_mixed_subqueries();
-        }
-
-        public override async Task String_Contains_Literal()
-        {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M")
-                                    || c.ContactName.Contains("m")), // case-sensitive
-                entryCount: 34);
-        }
-
-        public override async Task String_Contains_MethodCall()
-        {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
         }
 
         public async Task Skip_when_no_order_by()

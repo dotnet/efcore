@@ -9,6 +9,6 @@ namespace E2ETest.Namespace
         public int OneToOnePrincipalId2 { get; set; }
         public string SomeOneToOnePrincipalColumn { get; set; }
 
-        public virtual OneToOneDependent OneToOneDependent { get; set; }
+        public OneToOneDependent OneToOneDependent { get; set; }
     }
 }

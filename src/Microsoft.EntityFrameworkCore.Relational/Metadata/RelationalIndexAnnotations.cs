@@ -48,6 +48,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [param: CanBeNull] set { SetName(value); }
         }
 
+        public virtual string Filter
+        {
+            get
+            {
+                return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.Filter, ProviderFullAnnotationNames?.Filter);
+            }
+            [param: CanBeNull] set { SetFilter(value); }
+        }
+
+        protected virtual bool SetFilter([CanBeNull] string value)
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.Filter,
+                ProviderFullAnnotationNames?.Filter,
+                Check.NullButNotEmpty(value, nameof(value)));
+
         protected virtual bool SetName([CanBeNull] string value)
             => Annotations.SetAnnotation(
                 RelationalFullAnnotationNames.Instance.Name,

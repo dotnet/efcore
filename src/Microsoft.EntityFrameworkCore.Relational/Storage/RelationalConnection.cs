@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly ILogger _logger;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="IRelationalConnection"/> class.
+        ///     Initializes a new instance of the <see cref="IRelationalConnection" /> class.
         /// </summary>
         /// <param name="options"> The options for the context that this connection will be used with. </param>
         /// <param name="logger"> The logger to write to. </param>
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Creates a <see cref="DbConnection"/> to the database.
+        ///     Creates a <see cref="DbConnection" /> to the database.
         /// </summary>
         /// <returns> The connection. </returns>
         protected abstract DbConnection CreateDbConnection();
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual string ConnectionString => _connectionString ?? _connection.Value.ConnectionString;
 
         /// <summary>
-        ///     Gets the underlying <see cref="System.Data.Common.DbConnection"/> used to connect to the database.
+        ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
         /// </summary>
         public virtual DbConnection DbConnection => _connection.Value;
 
@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Asynchronously begins a new transaction.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -162,8 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction. 
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Specifies an existing <see cref="DbTransaction"/> to be used for database operations.
+        ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
         public virtual IDbContextTransaction UseTransaction(DbTransaction transaction)
@@ -210,8 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (CurrentTransaction != null)
                 {
                     CurrentTransaction = null;
-
-                    Close();
                 }
             }
             else
@@ -262,8 +260,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CheckForAmbientTransactions();
 
-            if ((_openedCount == 0)
-                && (_connection.Value.State != ConnectionState.Open))
+            if (_connection.Value.State == ConnectionState.Broken)
+            {
+                _connection.Value.Close();
+            }
+
+            if (_connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogDebug(
                     RelationalEventId.OpeningConnection,
@@ -278,10 +280,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.DataSource));
 
                 _connection.Value.Open();
-                _openedInternally = true;
-            }
 
-            _openedCount++;
+                if (_openedCount == 0)
+                {
+                    _openedInternally = true;
+                    _openedCount++;
+                }
+            }
+            else
+            {
+                _openedCount++;
+            }
         }
 
         /// <summary>
@@ -295,8 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CheckForAmbientTransactions();
 
-            if ((_openedCount == 0)
-                && (_connection.Value.State != ConnectionState.Open))
+            if (_connection.Value.State == ConnectionState.Broken)
+            {
+                _connection.Value.Close();
+            }
+
+            if (_connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogDebug(
                     RelationalEventId.OpeningConnection,
@@ -311,10 +324,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.DataSource));
 
                 await _connection.Value.OpenAsync(cancellationToken);
-                _openedInternally = true;
-            }
 
-            _openedCount++;
+                if (_openedCount == 0)
+                {
+                    _openedInternally = true;
+                    _openedCount++;
+                }
+            }
+            else
+            {
+                _openedCount++;
+            }
         }
 
         private void CheckForAmbientTransactions()
@@ -334,26 +354,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Close()
         {
-            // TODO: Consider how to handle open/closing to make sure that a connection that is passed in
-            // as open is never erroneously closed without placing undue burdon on users of the connection.
-
-            if ((_openedCount > 0)
-                && (--_openedCount == 0)
+            if (_openedCount > 0
+                && --_openedCount == 0
                 && _openedInternally)
             {
-                _logger.LogDebug(
-                    RelationalEventId.ClosingConnection,
-                    new
-                    {
-                        _connection.Value.Database,
-                        _connection.Value.DataSource
-                    },
-                    state =>
-                        RelationalStrings.RelationalLoggerClosingConnection(
-                            state.Database,
-                            state.DataSource));
-
-                _connection.Value.Close();
+                if (_connection.Value.State != ConnectionState.Closed)
+                {
+                    _logger.LogDebug(
+                        RelationalEventId.ClosingConnection,
+                        new
+                        {
+                            _connection.Value.Database,
+                            _connection.Value.DataSource
+                        },
+                        state =>
+                            RelationalStrings.RelationalLoggerClosingConnection(
+                                state.Database,
+                                state.DataSource));
+                    _connection.Value.Close();
+                }
                 _openedInternally = false;
             }
         }

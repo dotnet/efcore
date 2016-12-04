@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static readonly RelationalTypeMapping NullMapping = new RelationalTypeMapping("NULL");
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalTypeMapping"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="clrType"> The .NET type. </param>
@@ -38,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalTypeMapping"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="clrType"> The .NET type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType"/> to be used. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         public RelationalTypeMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
@@ -52,11 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalTypeMapping"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="clrType"> The .NET type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType"/> to be used. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <param name="hasNonDefaultUnicode"> A value indicating whether the Unicode setting has been manually configured to a non-default value. </param>
@@ -96,51 +96,51 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The newly created mapping. </returns>
         public virtual RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
             => new RelationalTypeMapping(
-                storeType, 
-                ClrType, 
-                DbType, 
-                IsUnicode, 
-                size, 
-                HasNonDefaultUnicode, 
+                storeType,
+                ClrType,
+                DbType,
+                IsUnicode,
+                size,
+                HasNonDefaultUnicode,
                 hasNonDefaultSize: size != Size);
 
         /// <summary>
-        /// Gets the name of the database type. 
+        ///     Gets the name of the database type.
         /// </summary>
         public virtual string StoreType { get; }
 
         /// <summary>
-        /// Gets the .NET type.
+        ///     Gets the .NET type.
         /// </summary>
         public virtual Type ClrType { get; }
 
         /// <summary>
-        /// Gets the <see cref="System.Data.DbType"/> to be used.
+        ///     Gets the <see cref="System.Data.DbType" /> to be used.
         /// </summary>
         public virtual DbType? DbType { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the type should handle Unicode data or not.
+        ///     Gets a value indicating whether the type should handle Unicode data or not.
         /// </summary>
         public virtual bool IsUnicode { get; }
 
         /// <summary>
-        /// Gets the size of data the property is configured to store, or null if no size is configured.
+        ///     Gets the size of data the property is configured to store, or null if no size is configured.
         /// </summary>
         public virtual int? Size { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the Unicode setting has been manually configured to a non-default value.
+        ///     Gets a value indicating whether the Unicode setting has been manually configured to a non-default value.
         /// </summary>
         public virtual bool HasNonDefaultUnicode { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the size setting has been manually configured to a non-default value.
+        ///     Gets a value indicating whether the size setting has been manually configured to a non-default value.
         /// </summary>
         public virtual bool HasNonDefaultSize { get; }
 
         /// <summary>
-        /// Creates a <see cref="DbParameter"/> with the appropriate type information configured.
+        ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
         /// </summary>
         /// <param name="command"> The command the parameter should be created on. </param>
         /// <param name="name"> The name of the parameter. </param>
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Configures type information of a <see cref="DbParameter"/>.
+        ///     Configures type information of a <see cref="DbParameter" />.
         /// </summary>
         /// <param name="parameter"> The parameter to be configured. </param>
         protected virtual void ConfigureParameter([NotNull] DbParameter parameter)

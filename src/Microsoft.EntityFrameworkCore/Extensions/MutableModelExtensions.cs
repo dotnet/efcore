@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -54,6 +55,27 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(type, nameof(type));
 
             return model.RemoveEntityType(type.DisplayName());
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
+        ///         in this model.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual entity types can override this access mode, and individual properties of
+        ///         entity types can override the access mode set on the entity type. The value set here will
+        ///         be used for any property for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="model"> The model to set the access mode for. </param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
+        public static void SetPropertyAccessMode(
+            [NotNull] this IMutableModel model, PropertyAccessMode? propertyAccessMode)
+        {
+            Check.NotNull(model, nameof(model));
+
+            model[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
         }
     }
 }

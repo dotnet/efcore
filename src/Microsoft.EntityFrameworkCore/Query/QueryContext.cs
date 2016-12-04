@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IQueryBuffer _queryBuffer;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryContext(
@@ -56,6 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The state manager.
         /// </value>
         public virtual LazyRef<IStateManager> StateManager { get; }
+
+        /// <summary>
+        ///     The query provider.
+        /// </summary>
+        /// <value>
+        ///     The query provider.
+        /// </value>
+        public virtual IQueryProvider QueryProvider => StateManager.Value.Context.QueryProvider;
 
         /// <summary>
         ///     Gets the concurrency detector.

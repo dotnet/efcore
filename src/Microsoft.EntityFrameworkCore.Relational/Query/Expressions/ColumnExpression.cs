@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             : this(name, Check.NotNull(property, nameof(property)).ClrType, tableExpression)
         {
             _property = property;
+            IsNullable = _property.IsNullable;
         }
 
         /// <summary>
@@ -92,7 +93,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public override Type Type { get; }
 
         /// <summary>
-        /// Dispatches to the specific visit method for this node type.
+        ///     Gets a value indicating whether this column expression can contain null.
+        /// </summary>
+        public virtual bool IsNullable { get; set; }
+
+        /// <summary>
+        ///     Dispatches to the specific visit method for this node type.
         /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -101,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                       ? specificVisitor.VisitColumn(this)
-                       : base.Accept(visitor);
+                ? specificVisitor.VisitColumn(this)
+                : base.Accept(visitor);
         }
 
         /// <summary>
@@ -121,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         private bool Equals([NotNull] ColumnExpression other)
-            => ((_property == null && other._property == null)
+            => ((_property == null && other._property == null && Name == other.Name)
                 || (_property != null && _property.Equals(other._property)))
                && Type == other.Type
                && _tableExpression.Equals(other._tableExpression);
@@ -165,9 +171,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of the Expression.
+        ///     Creates a <see cref="String" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="String"/> representation of the Expression.</returns>
+        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
         public override string ToString() => _tableExpression.Alias + "." + Name;
     }
 }

@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
         private string _migrationsHistoryTableSchema;
+        private Func<ExecutionStrategyContext, IExecutionStrategy> _executionStrategyFactory;
 
         protected RelationalOptionsExtension()
         {
@@ -40,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
             _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
+            _executionStrategyFactory = copyFrom._executionStrategyFactory;
         }
 
         public virtual string ConnectionString
@@ -122,6 +125,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [param: CanBeNull] set { _migrationsHistoryTableSchema = value; }
         }
 
+        public virtual Func<ExecutionStrategyContext, IExecutionStrategy> ExecutionStrategyFactory
+        {
+            get { return _executionStrategyFactory; }
+            [param: CanBeNull] set { _executionStrategyFactory = value; }
+        }
+
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
@@ -129,14 +138,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var relationalOptionsExtensions
                 = options.Extensions
                     .OfType<RelationalOptionsExtension>()
-                    .ToArray();
+                    .ToList();
 
-            if (relationalOptionsExtensions.Length == 0)
+            if (relationalOptionsExtensions.Count == 0)
             {
                 throw new InvalidOperationException(RelationalStrings.NoProviderConfigured);
             }
 
-            if (relationalOptionsExtensions.Length > 1)
+            if (relationalOptionsExtensions.Count > 1)
             {
                 throw new InvalidOperationException(RelationalStrings.MultipleProvidersConfigured);
             }

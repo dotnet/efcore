@@ -35,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Context = context;
             _queryTrackingBehavior = context
-                .GetService<IDbContextOptions>()
-                .Extensions
-                .OfType<CoreOptionsExtension>()
-                .FirstOrDefault()
-                ?.QueryTrackingBehavior
+                                         .GetService<IDbContextOptions>()
+                                         .Extensions
+                                         .OfType<CoreOptionsExtension>()
+                                         .FirstOrDefault()
+                                         ?.QueryTrackingBehavior
                                      ?? QueryTrackingBehavior.TrackAll;
         }
 
@@ -115,6 +115,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 DetectChanges();
             }
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Checks if any new, deleted, or changed entities are being tracked
+        ///         such that these changes will be sent to the database if <see cref="DbContext.SaveChanges()" />
+        ///         or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method calls <see cref="DetectChanges" /> unless
+        ///         <see cref="AutoDetectChangesEnabled" /> has been set to false.
+        ///     </para>
+        /// </summary>
+        /// <returns> True if there are changes to save, otherwise false. </returns>
+        public virtual bool HasChanges()
+        {
+            if (AutoDetectChangesEnabled)
+            {
+                DetectChanges();
+            }
+
+            return StateManager.ChangedCount > 0;
         }
 
         /// <summary>
@@ -205,5 +227,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private IEntityEntryGraphIterator GraphIterator
             => _graphIterator ?? (_graphIterator = Context.GetService<IEntityEntryGraphIterator>());
+
+        /// <summary>
+        /// Resets the internal StateManager object.
+        /// </summary>
+        public virtual void Reset() => _stateManager?.Reset();
     }
 }

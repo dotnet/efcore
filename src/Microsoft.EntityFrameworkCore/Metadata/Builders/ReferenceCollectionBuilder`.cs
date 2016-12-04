@@ -27,19 +27,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TDependentEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ReferenceCollectionBuilder([NotNull] InternalRelationshipBuilder builder)
-            : base(builder)
+        public ReferenceCollectionBuilder(
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
+            [NotNull] InternalRelationshipBuilder builder)
+            : base(principalEntityType, dependentEntityType, builder)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected ReferenceCollectionBuilder(InternalRelationshipBuilder builder,
+        protected ReferenceCollectionBuilder(
+            InternalRelationshipBuilder builder,
             ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -75,14 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-        {
-            Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
-
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.HasForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit),
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
                 this,
                 foreignKeySet: true);
-        }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -102,14 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
             [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
-        {
-            Check.NotNull(keyExpression, nameof(keyExpression));
-
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.HasPrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit),
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
                 this,
                 principalKeySet: true);
-        }
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
@@ -119,12 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
-        {
-            Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
-
-            return (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
-        }
+            => (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(
+                Check.NotEmpty(annotation, nameof(annotation)),
+                Check.NotNull(value, nameof(value)));
 
         /// <summary>
         ///     <para>
@@ -150,14 +143,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey([NotNull] params string[] foreignKeyPropertyNames)
-        {
-            Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
-
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 foreignKeySet: true);
-        }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -168,14 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey([NotNull] params string[] keyPropertyNames)
-        {
-            Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
-
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 principalKeySet: true);
-        }
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can

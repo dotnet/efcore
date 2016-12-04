@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
-                navigation?.Name,
+                navigation,
                 HasOneBuilder(relatedEntityType, navigation));
         }
 
@@ -237,18 +237,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
             where TRelatedEntity : class
-            => new CollectionNavigationBuilder<TEntity, TRelatedEntity>(HasManyBuilder(
-                Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata,
-                navigationExpression?.GetPropertyAccess()));
+        {
+            var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
+            var navigation = navigationExpression?.GetPropertyAccess();
+
+            return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
+                Builder.Metadata,
+                relatedEntityType,
+                navigation,
+                HasManyBuilder(relatedEntityType, navigation));
+        }
 
         /// <summary>
-        ///     Configures the <see cref="ChangeTrackingStrategy"/> to be used for this entity type.
+        ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
         ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
         /// </summary>
         /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
             => (EntityTypeBuilder<TEntity>)base.HasChangeTrackingStrategy(changeTrackingStrategy);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found by convention or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses.  Calling this method witll change that behavior
+        ///         for all properties of this entity type as described in the <see cref="PropertyAccessMode" /> enum.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method overrrides for all properties of this entity type any access mode that was
+        ///         set on the model.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for properties of this entity type. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual EntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            => (EntityTypeBuilder<TEntity>)base.UsePropertyAccessMode(propertyAccessMode);
 
         private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
     }

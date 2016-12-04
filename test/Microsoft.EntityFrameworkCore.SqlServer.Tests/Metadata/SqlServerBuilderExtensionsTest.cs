@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             var property = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
             Assert.Null(property.Relational().DefaultValue);
             Assert.Null(property.SqlServer().DefaultValue);
             Assert.Null(property.Relational().DefaultValueSql);
@@ -606,6 +606,46 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal("Custardizer", entityType.SqlServer().TableName);
             Assert.Equal("db0", entityType.Relational().Schema);
             Assert.Equal("dbOh", entityType.SqlServer().Schema);
+        }
+
+        [Fact]
+        public void Can_set_MemoryOptimized()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerIsMemoryOptimized();
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.True(entityType.SqlServer().IsMemoryOptimized);
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerIsMemoryOptimized(false);
+
+            Assert.False(entityType.SqlServer().IsMemoryOptimized);
+        }
+
+        [Fact]
+        public void Can_set_MemoryOptimized_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .ForSqlServerIsMemoryOptimized();
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.True(entityType.SqlServer().IsMemoryOptimized);
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .ForSqlServerIsMemoryOptimized(false);
+
+            Assert.False(entityType.SqlServer().IsMemoryOptimized);
         }
 
         [Fact]

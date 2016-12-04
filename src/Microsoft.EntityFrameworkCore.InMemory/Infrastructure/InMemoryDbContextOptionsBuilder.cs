@@ -8,18 +8,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Allows in-memory specific configuration to be performed on <see cref="DbContextOptions"/>.
+    ///         Allows in-memory specific configuration to be performed on <see cref="DbContextOptions" />.
     ///     </para>
     ///     <para>
-    ///         Instances of this class are returned from a call to 
-    ///         <see cref="InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(DbContextOptionsBuilder, System.Action{InMemoryDbContextOptionsBuilder})"/>
+    ///         Instances of this class are returned from a call to
+    ///         <see
+    ///             cref="InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(DbContextOptionsBuilder, System.Action{InMemoryDbContextOptionsBuilder})" />
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
     public class InMemoryDbContextOptionsBuilder
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="InMemoryDbContextOptionsBuilder"/> class.
+        ///     Initializes a new instance of the <see cref="InMemoryDbContextOptionsBuilder" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The options builder. </param>
         public InMemoryDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)

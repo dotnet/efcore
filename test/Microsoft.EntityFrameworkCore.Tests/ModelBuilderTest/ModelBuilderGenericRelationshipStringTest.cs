@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
@@ -41,10 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 => new GenericStringTestModelBuilder(ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
-                    buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+                        buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
 
             public override TestModelBuilder Ignore<TEntity>()
                 => new GenericStringTestModelBuilder(ModelBuilder.Ignore<TEntity>());
+
+            public override string GetDisplayName(Type entityType) => entityType.FullName;
         }
 
         private class GenericStringTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>

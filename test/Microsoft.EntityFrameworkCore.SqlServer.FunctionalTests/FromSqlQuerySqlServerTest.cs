@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -47,7 +48,70 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + N'z') + N'%'",
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
+                Sql);
+        }
+
+        public override void From_sql_queryable_composed_after_removing_whitespaces()
+        {
+            base.From_sql_queryable_composed_after_removing_whitespaces();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+
+        
+
+
+    SELECT
+    * FROM ""Customers""
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
+                Sql);
+        }
+
+        public override void From_sql_queryable_composed_compiled()
+        {
+            base.From_sql_queryable_composed_compiled();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers""
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
+                Sql);
+        }
+
+        public override void From_sql_composed_contains()
+        {
+            base.From_sql_composed_contains();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [o0].[CustomerID]
+    FROM (
+        SELECT * FROM ""Orders""
+    ) AS [o0]
+)",
+                Sql);
+        }
+
+        public override void From_sql_composed_contains2()
+        {
+            base.From_sql_composed_contains2();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IN (
+    SELECT [o0].[CustomerID]
+    FROM (
+        SELECT * FROM ""Orders""
+    ) AS [o0]
+)",
                 Sql);
         }
 
@@ -334,9 +398,83 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1",
                 Sql);
         }
 
-        public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public override void From_sql_with_db_parameters_called_multiple_times()
+        {
+            base.From_sql_with_db_parameters_called_multiple_times();
+
+            Assert.Equal(
+                @"@id: ALFKI (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id
+
+@id: ALFKI (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
+                Sql);
+        }
+
+        public override void From_sql_with_SelectMany_and_include()
+        {
+            base.From_sql_with_SelectMany_and_include();
+
+            Assert.Equal(
+                @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
+) AS [c1]
+CROSS JOIN (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'
+) AS [c2]
+ORDER BY [c2].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
+    ) AS [c1]
+    CROSS JOIN (
+        SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'
+    ) AS [c2]
+    WHERE [o].[CustomerID] = [c2].[CustomerID])
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void From_sql_with_join_and_include()
+        {
+            base.From_sql_with_join_and_include();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
+) AS [c]
+INNER JOIN (
+    SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1
+) AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
+    ) AS [c]
+    INNER JOIN (
+        SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1
+    ) AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+    WHERE [o0].[OrderID] = [o].[OrderID])
+ORDER BY [o0].[OrderID]",
+                Sql);
+        }
+
+        public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)

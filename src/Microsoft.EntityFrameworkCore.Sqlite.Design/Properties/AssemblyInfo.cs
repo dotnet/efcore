@@ -4,6 +4,12 @@
 using System.Reflection;
 using System.Resources;
 
+#if CSPROJ
+
+[assembly: AssemblyVersion("1.2.0.0")]
+
+#endif
+
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: AssemblyCompany("Microsoft Corporation.")]

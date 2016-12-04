@@ -20,31 +20,47 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerSequenceValueGeneratorTest
     {
-        [Fact]
-        public void Generates_sequential_int_values() => Generates_sequential_values<int>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_int_values(bool async) => await Generates_sequential_values<int>(async);
 
-        [Fact]
-        public void Generates_sequential_long_values() => Generates_sequential_values<long>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_long_values(bool async) => await Generates_sequential_values<long>(async);
 
-        [Fact]
-        public void Generates_sequential_short_values() => Generates_sequential_values<short>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_short_values(bool async) => await Generates_sequential_values<short>(async);
 
-        [Fact]
-        public void Generates_sequential_byte_values() => Generates_sequential_values<byte>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_byte_values(bool async) => await Generates_sequential_values<byte>(async);
 
-        [Fact]
-        public void Generates_sequential_uint_values() => Generates_sequential_values<uint>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_uint_values(bool async) => await Generates_sequential_values<uint>(async);
 
-        [Fact]
-        public void Generates_sequential_ulong_values() => Generates_sequential_values<ulong>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_ulong_values(bool async) => await Generates_sequential_values<ulong>(async);
 
-        [Fact]
-        public void Generates_sequential_ushort_values() => Generates_sequential_values<ushort>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_ushort_values(bool async) => await Generates_sequential_values<ushort>(async);
 
-        [Fact]
-        public void Generates_sequential_sbyte_values() => Generates_sequential_values<sbyte>();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Generates_sequential_sbyte_values(bool async) => await Generates_sequential_values<sbyte>(async);
 
-        public void Generates_sequential_values<TValue>()
+        public async Task Generates_sequential_values<TValue>(bool async)
         {
             const int blockSize = 4;
 
@@ -60,17 +76,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             for (var i = 1; i <= 27; i++)
             {
-                Assert.Equal(i, (int)Convert.ChangeType(generator.Next(null), typeof(int), CultureInfo.InvariantCulture));
+                var value = async
+                    ? await generator.NextAsync(null)
+                    : generator.Next(null);
+
+                Assert.Equal(i, (int)Convert.ChangeType(value, typeof(int), CultureInfo.InvariantCulture));
             }
         }
 
         [Fact]
-        public void Multiple_threads_can_use_the_same_generator_state()
+        public async Task Multiple_threads_can_use_the_same_generator_state()
         {
             const int threadCount = 50;
             const int valueCount = 35;
 
-            var generatedValues = GenerateValuesInMultipleThreads(threadCount, valueCount);
+            var generatedValues = await GenerateValuesInMultipleThreads(threadCount, valueCount);
 
             // Check that each value was generated once and only once
             var checks = new bool[threadCount * valueCount];
@@ -86,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.True(checks.All(c => c));
         }
 
-        private IEnumerable<List<long>> GenerateValuesInMultipleThreads(int threadCount, int valueCount)
+        private async Task<IEnumerable<List<long>>> GenerateValuesInMultipleThreads(int threadCount, int valueCount)
         {
             const int blockSize = 10;
 
@@ -99,25 +119,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var executor = new FakeRawSqlCommandBuilder(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper());
 
-            var tests = new Action[threadCount];
+            var tests = new Func<Task>[threadCount];
             var generatedValues = new List<long>[threadCount];
             for (var i = 0; i < tests.Length; i++)
             {
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
-                tests[testNumber] = () =>
+                tests[testNumber] = async () =>
                     {
                         for (var j = 0; j < valueCount; j++)
                         {
                             var connection = CreateConnection(serviceProvider);
                             var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection);
 
-                            generatedValues[testNumber].Add(generator.Next(null));
+                            var value = j % 2 == 0
+                                ? await generator.NextAsync(null)
+                                : generator.Next(null);
+
+                            generatedValues[testNumber].Add(value);
                         }
                     };
             }
 
-            Parallel.Invoke(tests);
+            var tasks = tests.Select(Task.Run).ToArray();
+
+            foreach (var t in tasks)
+            {
+                await t;
+            }
 
             return generatedValues;
         }
@@ -187,28 +216,58 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                     get { throw new NotImplementedException(); }
                 }
 
-                public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
+                public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
                 {
                     throw new NotImplementedException();
                 }
 
-                public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+                int IRelationalCommand.ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
                 {
                     throw new NotImplementedException();
                 }
 
-                public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
+                public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+                {
+                    throw new NotImplementedException();
+                }
+
+                Task<int> IRelationalCommand.ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
                     => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
 
-                public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
-                    => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
-
-                public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
+                object IRelationalCommand.ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
                 {
                     throw new NotImplementedException();
                 }
 
-                public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+                public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+                    => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
+
+                Task<object> IRelationalCommand.ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                {
+                    throw new NotImplementedException();
+                }
+
+                RelationalDataReader IRelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+                {
+                    throw new NotImplementedException();
+                }
+
+                Task<RelationalDataReader> IRelationalCommand.ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
                 {
                     throw new NotImplementedException();
                 }

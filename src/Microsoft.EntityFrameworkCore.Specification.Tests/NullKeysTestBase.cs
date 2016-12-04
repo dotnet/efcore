@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -216,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public WithAllNullableIntKey Principal { get; set; }
         }
 
-        public abstract class NullKeysFixtureBase : IDisposable
+        public abstract class NullKeysFixtureBase
         {
             public abstract DbContext CreateContext();
 
@@ -269,59 +268,50 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 using (var context = CreateContext())
                 {
-                    if (context.Database.EnsureCreated())
-                    {
-                        context.Add(new WithStringKey { Id = "Stereo" });
-                        context.Add(new WithStringKey { Id = "Fire" });
-                        context.Add(new WithStringKey { Id = "Empire" });
+                    context.Database.EnsureCreated();
 
-                        context.Add(new WithStringFk { Id = "Wendy", Fk = "Stereo", SelfFk = "Rodrigue" });
-                        context.Add(new WithStringFk { Id = "And", SelfFk = "By" });
-                        context.Add(new WithStringFk { Id = "Me", Fk = "Fire" });
-                        context.Add(new WithStringFk { Id = "By" });
-                        context.Add(new WithStringFk { Id = "George", Fk = "Empire" });
-                        context.Add(new WithStringFk { Id = "Rodrigue", Fk = "Stereo" });
+                    context.Add(new WithStringKey { Id = "Stereo" });
+                    context.Add(new WithStringKey { Id = "Fire" });
+                    context.Add(new WithStringKey { Id = "Empire" });
 
-                        context.Add(new WithIntKey { Id = 1 });
-                        context.Add(new WithIntKey { Id = 2 });
-                        context.Add(new WithIntKey { Id = 3 });
+                    context.Add(new WithStringFk { Id = "Wendy", Fk = "Stereo", SelfFk = "Rodrigue" });
+                    context.Add(new WithStringFk { Id = "And", SelfFk = "By" });
+                    context.Add(new WithStringFk { Id = "Me", Fk = "Fire" });
+                    context.Add(new WithStringFk { Id = "By" });
+                    context.Add(new WithStringFk { Id = "George", Fk = "Empire" });
+                    context.Add(new WithStringFk { Id = "Rodrigue", Fk = "Stereo" });
 
-                        context.Add(new WithNullableIntFk { Id = 1 });
-                        context.Add(new WithNullableIntFk { Id = 2, Fk = 1 });
-                        context.Add(new WithNullableIntFk { Id = 3 });
-                        context.Add(new WithNullableIntFk { Id = 4, Fk = 2 });
-                        context.Add(new WithNullableIntFk { Id = 5 });
-                        context.Add(new WithNullableIntFk { Id = 6 });
+                    context.Add(new WithIntKey { Id = 1 });
+                    context.Add(new WithIntKey { Id = 2 });
+                    context.Add(new WithIntKey { Id = 3 });
 
-                        context.Add(new WithNullableIntKey { Id = 1 });
-                        context.Add(new WithNullableIntKey { Id = 2 });
-                        context.Add(new WithNullableIntKey { Id = 3 });
+                    context.Add(new WithNullableIntFk { Id = 1 });
+                    context.Add(new WithNullableIntFk { Id = 2, Fk = 1 });
+                    context.Add(new WithNullableIntFk { Id = 3 });
+                    context.Add(new WithNullableIntFk { Id = 4, Fk = 2 });
+                    context.Add(new WithNullableIntFk { Id = 5 });
+                    context.Add(new WithNullableIntFk { Id = 6 });
 
-                        context.Add(new WithIntFk { Id = 1, Fk = 1 });
-                        context.Add(new WithIntFk { Id = 2, Fk = 1 });
-                        context.Add(new WithIntFk { Id = 3, Fk = 3 });
+                    context.Add(new WithNullableIntKey { Id = 1 });
+                    context.Add(new WithNullableIntKey { Id = 2 });
+                    context.Add(new WithNullableIntKey { Id = 3 });
 
-                        context.Add(new WithAllNullableIntKey { Id = 1 });
-                        context.Add(new WithAllNullableIntKey { Id = 2 });
-                        context.Add(new WithAllNullableIntKey { Id = 3 });
+                    context.Add(new WithIntFk { Id = 1, Fk = 1 });
+                    context.Add(new WithIntFk { Id = 2, Fk = 1 });
+                    context.Add(new WithIntFk { Id = 3, Fk = 3 });
 
-                        context.Add(new WithAllNullableIntFk { Id = 1 });
-                        context.Add(new WithAllNullableIntFk { Id = 2, Fk = 1 });
-                        context.Add(new WithAllNullableIntFk { Id = 3 });
-                        context.Add(new WithAllNullableIntFk { Id = 4, Fk = 2 });
-                        context.Add(new WithAllNullableIntFk { Id = 5 });
-                        context.Add(new WithAllNullableIntFk { Id = 6 });
+                    context.Add(new WithAllNullableIntKey { Id = 1 });
+                    context.Add(new WithAllNullableIntKey { Id = 2 });
+                    context.Add(new WithAllNullableIntKey { Id = 3 });
 
-                        context.SaveChanges();
-                    }
-                }
-            }
+                    context.Add(new WithAllNullableIntFk { Id = 1 });
+                    context.Add(new WithAllNullableIntFk { Id = 2, Fk = 1 });
+                    context.Add(new WithAllNullableIntFk { Id = 3 });
+                    context.Add(new WithAllNullableIntFk { Id = 4, Fk = 2 });
+                    context.Add(new WithAllNullableIntFk { Id = 5 });
+                    context.Add(new WithAllNullableIntFk { Id = 6 });
 
-            public void Dispose()
-            {
-                using (var context = CreateContext())
-                {
-                    context.Database.EnsureDeleted();
+                    context.SaveChanges();
                 }
             }
         }

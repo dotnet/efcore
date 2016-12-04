@@ -17,5 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
         public DbSet<CogTag> Tags { get; set; }
         public DbSet<Weapon> Weapons { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Mission> Missions { get; set; }
+        public DbSet<SquadMission> SquadMissions { get; set; }
     }
 }

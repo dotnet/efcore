@@ -6,21 +6,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ExpressionPrinter : ExpressionVisitor, IExpressionPrinter
+    public class ExpressionPrinter : ExpressionVisitorBase, IExpressionPrinter
     {
-        private IndentedStringBuilder _stringBuilder;
-        private List<IConstantPrinter> _constantPrinters;
-        private Dictionary<ParameterExpression, string> _parametersInScope;
+        private readonly IndentedStringBuilder _stringBuilder;
+        private readonly List<ConstantPrinterBase> _constantPrinters;
+        private readonly Dictionary<ParameterExpression, string> _parametersInScope;
 
         private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new Dictionary<ExpressionType, string>
         {
@@ -44,67 +48,122 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         };
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected static Action<IndentedStringBuilder, string> Append
+        public ExpressionPrinter()
+            : this(new List<ConstantPrinterBase>())
         {
-            get { return (sb, s) => sb.Append(s); }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected static Action<IndentedStringBuilder, string> AppendLine
-        {
-            get { return (sb, s) => sb.AppendLine(s); }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual string Print(Expression expression)
+        protected ExpressionPrinter(List<ConstantPrinterBase> constantPrinters)
         {
             _stringBuilder = new IndentedStringBuilder();
             _parametersInScope = new Dictionary<ParameterExpression, string>();
-            _constantPrinters = GetConstantPrinters();
+            _constantPrinters = new List<ConstantPrinterBase>(constantPrinters);
+            _constantPrinters.AddRange(
+                new List<ConstantPrinterBase>
+                {
+                    new EntityQueryableConstantPrinter(),
+                    new CollectionConstantPrinter(),
+                    new MetadataPropertyPrinter(),
+                    new DefaultConstantPrinter()
+                });
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IndentedStringBuilder StringBuilder => _stringBuilder;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool RemoveFormatting { get; set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual int? CharacterLimit { get; set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void Append([NotNull] string message) => _stringBuilder.Append(message);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void AppendLine([NotNull] string message = "")
+        {
+            if (RemoveFormatting)
+            {
+                _stringBuilder.Append(string.IsNullOrEmpty(message) ? " " : message);
+            }
+
+            _stringBuilder.AppendLine(message);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string Print(Expression expression, bool removeFormatting = false, int? characterLimit = null)
+        {
+            _stringBuilder.Clear();
+            _parametersInScope.Clear();
+                 
+            RemoveFormatting = removeFormatting;
+            CharacterLimit = characterLimit;
 
             Visit(expression);
 
             var queryPlan = PostProcess(_stringBuilder.ToString());
 
-            var result = "TRACKED: " + TrackedQuery + Environment.NewLine;
+            var result = "TRACKED: " + TrackedQuery + (removeFormatting ? " " : Environment.NewLine);
             result += queryPlan;
+
+            if (characterLimit != null && characterLimit.Value > 0)
+            {
+                result = result.Length > characterLimit
+                    ? result.Substring(0, characterLimit.Value) + "..."
+                    : result;
+            }
 
             return result;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual List<IConstantPrinter> GetConstantPrinters()
-            => new List<IConstantPrinter>
-            {
-                new CollectionConstantPrinter(),
-                new MetadataPropertyPrinter(),
-                new DefaultConstantPrinter()
-            };
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool TrackedQuery { get; private set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Expression Visit([NotNull] Expression node)
+        public override Expression Visit(Expression node)
         {
+            if (node == null)
+            {
+                return null;
+            }
+
+            if (CharacterLimit != null && _stringBuilder.Length > CharacterLimit.Value)
+            {
+                return node;
+            }
+
             switch (node.NodeType)
             {
                 case ExpressionType.AndAlso:
@@ -178,6 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case ExpressionType.Convert:
                 case ExpressionType.Throw:
+                case ExpressionType.Not:
                     VisitUnary((UnaryExpression)node);
                     break;
 
@@ -185,8 +245,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     VisitDefault((DefaultExpression)node);
                     break;
 
+                case ExpressionType.Try:
+                    VisitTry((TryExpression)node);
+                    break;
+
+                case ExpressionType.Extension:
+                    VisitExtension(node);
+                    break;
+
                 default:
-                    UnhandledExpressionType(node.NodeType);
+                    UnhandledExpressionType(node);
                     break;
             }
 
@@ -194,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
@@ -214,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 string operand;
                 if (!_binaryOperandMap.TryGetValue(node.NodeType, out operand))
                 {
-                    UnhandledExpressionType(node.NodeType);
+                    UnhandledExpressionType(node);
                 }
                 else
                 {
@@ -228,50 +296,46 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBlock(BlockExpression node)
         {
-            _stringBuilder.AppendLine();
-            _stringBuilder.AppendLine("{");
+            AppendLine();
+            AppendLine("{");
             _stringBuilder.IncrementIndent();
 
             foreach (var variable in node.Variables)
             {
-                string variableName;
-                if (_parametersInScope.ContainsKey(variable))
+                if (!_parametersInScope.ContainsKey(variable))
                 {
-                    variableName = _parametersInScope[variable];
+                    _parametersInScope.Add(variable, "var" + _parametersInScope.Count);
                 }
-                else
-                {
-                    variableName = "var" + _parametersInScope.Count;
-                    _parametersInScope.Add(variable, variableName);
-                }
-
-                _stringBuilder.Append("var " + variableName);
             }
 
-            if (node.Variables.Count > 0)
-            {
-                _stringBuilder.AppendLine();
-            }
+            var expressions = node.Result != null
+                ? node.Expressions.Except(new[] { node.Result })
+                : node.Expressions;
 
-            foreach (var expression in node.Expressions)
+            foreach (var expression in expressions)
             {
                 Visit(expression);
-                _stringBuilder.AppendLine();
+                AppendLine();
+            }
+
+            if (node.Result != null)
+            {
+                AppendLine("return " + node.Result);
             }
 
             _stringBuilder.DecrementIndent();
-            _stringBuilder.AppendLine("}");
+            AppendLine("}");
 
             return node;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression node)
@@ -290,14 +354,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression node)
         {
             foreach (var constantPrinter in _constantPrinters)
             {
-                if (constantPrinter.TryPrintConstant(node.Value, _stringBuilder))
+                if (constantPrinter.TryPrintConstant(node.Value, _stringBuilder, RemoveFormatting))
                 {
                     break;
                 }
@@ -307,12 +371,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitGoto(GotoExpression node)
         {
-            _stringBuilder.AppendLine("return (" + node.Target.Type.ShortDisplayName() + ")" + node.Target + " {");
+            AppendLine("return (" + node.Target.Type.ShortDisplayName() + ")" + node.Target + " {");
             _stringBuilder.IncrementIndent();
 
             Visit(node.Value);
@@ -324,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitLabel(LabelExpression node)
@@ -335,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -366,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMember(MemberExpression node)
@@ -377,6 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
             else
             {
+                // ReSharper disable once PossibleNullReferenceException
                 _stringBuilder.Append(node.Member.DeclaringType.Name);
             }
 
@@ -386,15 +451,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             _stringBuilder.Append("new " + node.Type.ShortDisplayName());
 
-            var appendAction = node.Bindings.Count > 1 ? AppendLine : Append;
-            appendAction(_stringBuilder, "{ ");
+            var appendAction = node.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
+            appendAction("{ ");
             _stringBuilder.IncrementIndent();
 
             for (var i = 0; i < node.Bindings.Count; i++)
@@ -403,48 +468,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (assignment != null)
                 {
                     _stringBuilder.Append(assignment.Member.Name + " = " + Visit(assignment.Expression));
-                    appendAction(_stringBuilder, i == node.Bindings.Count - 1 ? " " : ", ");
+                    appendAction(i == node.Bindings.Count - 1 ? " " : ", ");
                 }
                 else
                 {
                     ////throw new NotSupportedException(CoreStrings.InvalidMemberInitBinding);
-                    _stringBuilder.AppendLine(CoreStrings.InvalidMemberInitBinding);
+                    AppendLine(CoreStrings.InvalidMemberInitBinding);
                 }
             }
 
             _stringBuilder.DecrementIndent();
-            _stringBuilder.AppendLine("}");
+            AppendLine("}");
 
             return node;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var simpleMethods = new List<string>
             {
-                "get_Item"
+                "get_Item",
+                "TryReadValue"
             };
 
-            if (node.Method.Name == "_InterceptExceptions")
+            switch (node.Method.Name)
             {
-                Visit(node.Arguments[0]);
+                case "_InterceptExceptions":
+                    Visit(node.Arguments[0]);
 
-                return node;
+                    return node;
+                case "_TrackEntities":
+                    TrackedQuery = true;
+                    Visit(node.Arguments[0]);
+
+                    return node;
             }
 
-            if (node.Method.Name == "_TrackEntities")
-            {
-                TrackedQuery = true;
-                Visit(node.Arguments[0]);
-
-                return node;
-            }
-
-            if (node.Method.ReturnType != null)
+            if (!EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
                 _stringBuilder.Append(node.Method.ReturnType.ShortDisplayName() + " ");
             }
@@ -457,12 +521,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _stringBuilder.Append(node.Method.Name + "(");
 
-            var appendAction = simpleMethods.Contains(node.Method.Name) ? Append : AppendLine;
+            var appendAction = simpleMethods.Contains(node.Method.Name) || EntityQueryModelVisitor.IsPropertyMethod(node.Method)
+                ? (Action<string>)Append
+                : AppendLine;
+
             if (node.Arguments.Count > 0)
             {
-                appendAction(_stringBuilder, "");
+                appendAction("");
 
-                var showArgumentNames = !simpleMethods.Contains(node.Method.Name);
+                var showArgumentNames = !simpleMethods.Contains(node.Method.Name) && !EntityQueryModelVisitor.IsPropertyMethod(node.Method);
                 var argumentNames = showArgumentNames ? node.Method.GetParameters().Select(p => p.Name).ToList() : new List<string>();
 
                 _stringBuilder.IncrementIndent();
@@ -477,19 +544,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     Visit(argument);
 
-                    appendAction(_stringBuilder, i == node.Arguments.Count - 1 ? "" : ", ");
+                    appendAction(i == node.Arguments.Count - 1 ? "" : ", ");
                 }
 
                 _stringBuilder.DecrementIndent();
             }
 
-            appendAction(_stringBuilder, ")");
+            appendAction(")");
 
             return node;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitNew(NewExpression node)
@@ -497,14 +564,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _stringBuilder.Append("new ");
             _stringBuilder.Append(node.Type.ShortDisplayName());
 
-            var appendAction = node.Arguments.Count > 1 ? AppendLine : Append;
-            appendAction(_stringBuilder, "(");
+            var appendAction = node.Arguments.Count > 1 ? (Action<string>)AppendLine : Append;
+            appendAction("(");
             _stringBuilder.IncrementIndent();
 
             for (var i = 0; i < node.Arguments.Count; i++)
             {
                 Visit(node.Arguments[i]);
-                appendAction(_stringBuilder, i == node.Arguments.Count - 1 ? "" : ", ");
+                appendAction(i == node.Arguments.Count - 1 ? "" : ", ");
             }
 
             _stringBuilder.DecrementIndent();
@@ -514,30 +581,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
-            var appendAction = node.Expressions.Count > 1 ? AppendLine : Append;
-            appendAction(_stringBuilder, "new " + node.Type.GetElementType().ShortDisplayName() + "[]");
-            appendAction(_stringBuilder, "{ ");
+            var appendAction = node.Expressions.Count > 1 ? (Action<string>)AppendLine : Append;
+            appendAction("new " + node.Type.GetElementType().ShortDisplayName() + "[]");
+            appendAction("{ ");
             _stringBuilder.IncrementIndent();
 
             for (var i = 0; i < node.Expressions.Count; i++)
             {
                 Visit(node.Expressions[i]);
-                appendAction(_stringBuilder, i == node.Expressions.Count - 1 ? " " : ", ");
+                appendAction(i == node.Expressions.Count - 1 ? " " : ", ");
             }
 
             _stringBuilder.DecrementIndent();
-            _stringBuilder.AppendLine("}");
+            AppendLine("}");
 
             return node;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitParameter(ParameterExpression node)
@@ -555,35 +622,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Convert)
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (node.NodeType)
             {
-                _stringBuilder.Append("(" + node.Type.ShortDisplayName() + ") ");
+                case ExpressionType.Convert:
+                    _stringBuilder.Append("(" + node.Type.ShortDisplayName() + ") ");
 
-                Visit(node.Operand);
+                    Visit(node.Operand);
 
-                return node;
+                    return node;
+                case ExpressionType.Throw:
+                    _stringBuilder.Append("throw ");
+                    Visit(node.Operand);
+
+                    return node;
+                case ExpressionType.Not:
+                    _stringBuilder.Append("!(");
+                    Visit(node.Operand);
+                    _stringBuilder.Append(")");
+
+                    return node;
             }
 
-            if (node.NodeType == ExpressionType.Throw)
-            {
-                _stringBuilder.Append("throw ");
-                Visit(node.Operand);
-
-                return node;
-            }
-
-            _stringBuilder.AppendLine(CoreStrings.UnhandledNodeType(node.NodeType));
+            UnhandledExpressionType(node);
 
             return node;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitDefault(DefaultExpression node)
@@ -594,7 +666,51 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitTry(TryExpression node)
+        {
+            _stringBuilder.Append("try { ");
+            Visit(node.Body);
+            _stringBuilder.Append(" } ");
+            foreach (var handler in node.Handlers)
+            {
+                _stringBuilder.Append("catch (" + handler.Test.Name + ") { ... } ");
+            }
+
+            return node;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitExtension(Expression node)
+        {
+            var qsre = node as QuerySourceReferenceExpression;
+            if (qsre != null)
+            {
+                StringBuilder.Append(qsre.ReferencedQuerySource.ItemName);
+
+                return node;
+            }
+
+            var nullConditional = node as NullConditionalExpression;
+            if (nullConditional != null)
+            {
+                StringBuilder.Append(nullConditional.ToString());
+
+                return node;
+            }
+
+            UnhandledExpressionType(node);
+
+            return node;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual string PostProcess([NotNull] string queryPlan)
@@ -607,31 +723,59 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return processedPlan;
         }
 
-        private void UnhandledExpressionType(ExpressionType expressionType)
-            => _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
+        private void UnhandledExpressionType(Expression e)
+            => AppendLine(e.ToString());
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected interface IConstantPrinter
+        protected abstract class ConstantPrinterBase
         {
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            bool TryPrintConstant([NotNull] object value, [NotNull] IndentedStringBuilder stringBuilder);
+            public abstract bool TryPrintConstant([CanBeNull] object value, [NotNull] IndentedStringBuilder stringBuilder, bool removeFormatting);
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            protected virtual Action<IndentedStringBuilder, string> Append => (sb, s) => sb.Append(s);
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            protected virtual Action<IndentedStringBuilder, string> AppendLine => (sb, s) => sb.AppendLine(s);
         }
 
-        private class CollectionConstantPrinter : IConstantPrinter
+        private class EntityQueryableConstantPrinter : ConstantPrinterBase
         {
-            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            {
+                if (value != null
+                    && value.GetType().GetTypeInfo().IsGenericType
+                    && value.GetType().GetTypeInfo().GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+                {
+                    stringBuilder.Append($"DbSet<{value.GetType().GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        private class CollectionConstantPrinter : ConstantPrinterBase
+        {
+            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
             {
                 var enumerable = value as IEnumerable;
                 if ((enumerable != null)
                     && !(value is string))
                 {
-                    var appendAction = value is byte[] ? Append : AppendLine;
+                    var appendAction = value is byte[] || removeFormatting ? Append : AppendLine;
 
                     appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
                     appendAction(stringBuilder, "{ ");
@@ -651,9 +795,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class MetadataPropertyPrinter : IConstantPrinter
+        private class MetadataPropertyPrinter : ConstantPrinterBase
         {
-            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
             {
                 var property = value as Property;
                 if (property != null)
@@ -667,16 +811,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class DefaultConstantPrinter : IConstantPrinter
+        private class DefaultConstantPrinter : ConstantPrinterBase
         {
-            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
             {
                 var stringValue = "null";
+
                 if (value != null)
                 {
                     stringValue = value.ToString() != value.GetType().ToString()
                         ? value.ToString()
                         : value.GetType().Name;
+
+                    if (value is string)
+                    {
+                        stringValue = $@"""{stringValue}""";
+                    }
                 }
 
                 stringBuilder.Append(stringValue);

@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(CoreStrings.NullableKey(typeof(object).DisplayName(), stringProperty.Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
+                        stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void UnderlyingType_returns_correct_underlying_type()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property1 = entityType.AddProperty("Id", typeof(int?), shadow: false);
+            var property1 = entityType.AddProperty("Id", typeof(int?));
             Assert.Equal(typeof(int), property1.ClrType.UnwrapNullableType());
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void IsShadowProperty_is_set()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty(nameof(Entity.Name), typeof(string), shadow: false);
+            var property = entityType.AddProperty(nameof(Entity.Name), typeof(string));
 
             Assert.False(property.IsShadowProperty);
         }
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Property_does_not_use_ValueGenerated_by_default()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_mark_property_as_using_ValueGenerated()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Property_is_not_concurrency_token_by_default()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             Assert.False(property.IsConcurrencyToken);
         }
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_mark_property_as_concurrency_token()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             property.IsConcurrencyToken = true;
             Assert.True(property.IsConcurrencyToken);
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Can_mark_property_to_always_use_store_generated_values()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             Assert.False(property.IsStoreGeneratedAlways);
 
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Store_generated_concurrency_tokens_always_use_store_values_by_default()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             Assert.False(((IProperty)property).IsStoreGeneratedAlways);
 
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Property_is_read_write_by_default()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             Assert.False(property.IsReadOnlyAfterSave);
             Assert.False(property.IsReadOnlyBeforeSave);
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Property_can_be_marked_as_read_only_before_save()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
             property.IsReadOnlyBeforeSave = true;
 
             Assert.True(property.IsReadOnlyBeforeSave);
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Property_can_be_marked_as_read_only_after_save()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
             property.IsReadOnlyAfterSave = true;
 
             Assert.True(property.IsReadOnlyAfterSave);
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Property_can_be_marked_as_read_only_always()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
-            var property = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property = entityType.AddProperty("Name", typeof(string));
 
             Assert.False(property.IsReadOnlyBeforeSave);
             Assert.False(property.IsReadOnlyAfterSave);

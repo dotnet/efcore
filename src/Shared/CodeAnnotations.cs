@@ -6,17 +6,17 @@ using System;
 namespace JetBrains.Annotations
 {
     [AttributeUsage(
-        AttributeTargets.Method | AttributeTargets.Parameter |
-        AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field)]
+         AttributeTargets.Method | AttributeTargets.Parameter |
+         AttributeTargets.Property | AttributeTargets.Delegate |
+         AttributeTargets.Field)]
     internal sealed class NotNullAttribute : Attribute
     {
     }
 
     [AttributeUsage(
-        AttributeTargets.Method | AttributeTargets.Parameter |
-        AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field)]
+         AttributeTargets.Method | AttributeTargets.Parameter |
+         AttributeTargets.Property | AttributeTargets.Delegate |
+         AttributeTargets.Field)]
     internal sealed class CanBeNullAttribute : Attribute
     {
     }
@@ -87,7 +87,8 @@ namespace JetBrains.Annotations
             FormatParameterName = formatParameterName;
         }
 
-        [NotNull] public string FormatParameterName { get; private set; }
+        [NotNull]
+        public string FormatParameterName { get; private set; }
     }
 
     [Flags]

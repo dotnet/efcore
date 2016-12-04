@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class Multigraph<TVertex, TEdge> : Graph<TVertex>
@@ -19,13 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual string ToString([NotNull] TVertex vertex) => vertex.ToString();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<TEdge> Edges => _edges;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<TEdge> GetEdges([NotNull] TVertex from, [NotNull] TVertex to)
@@ -43,28 +49,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddVertex([NotNull] TVertex vertex)
             => _vertices.Add(vertex);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddVertices([NotNull] IEnumerable<TVertex> vertices)
             => _vertices.UnionWith(vertices);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] TEdge edge)
-            => AddEdges(@from, to, new[] { edge });
+            => AddEdges(from, to, new[] { edge });
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddEdges([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] IEnumerable<TEdge> edges)
@@ -98,13 +104,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<TVertex> TopologicalSort() => TopologicalSort(null, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
@@ -112,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => TopologicalSort(canBreakEdge, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
@@ -120,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => TopologicalSort(null, formatCycle);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
@@ -239,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.CircularDependency(
-                                    cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
+                                    cycle.Select(ToString).Join(" -> ")));
                         }
                         // Build the cycle message data
                         currentCycleVertex = cycle.First();
@@ -260,14 +266,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
             => BatchingTopologicalSort(null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
@@ -392,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.CircularDependency(
-                            cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
+                            cycle.Select(ToString).Join(" -> ")));
                 }
                 // Build the cycle message data
                 currentCycleVertex = cycle.First();
@@ -412,26 +418,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IEnumerable<TVertex> Vertices => _vertices;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IEnumerable<TVertex> GetOutgoingNeighbours(TVertex from)
         {
             Dictionary<TVertex, List<TEdge>> successorSet;
 
-            return _successorMap.TryGetValue(@from, out successorSet)
+            return _successorMap.TryGetValue(from, out successorSet)
                 ? successorSet.Keys
                 : Enumerable.Empty<TVertex>();
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -18,11 +19,65 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         where TFixture : TransactionFixtureBase<TTestStore>, new()
     {
         [Fact]
-        public virtual void SaveChanges_implicitly_starts_transaction()
+        public virtual void SaveChanges_can_be_used_with_no_transaction()
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
-                context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                context.Database.AutoTransactionsEnabled = false;
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int> { 1, 2, 77 },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [Fact]
+        public virtual async Task SaveChangesAsync_can_be_used_with_no_transaction()
+        {
+            EnsureInitialState();
+
+            using (var context = CreateContext())
+            {
+                context.Database.AutoTransactionsEnabled = false;
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                try
+                {
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                }
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int> { 1, 2, 77 },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [Fact]
+        public virtual void SaveChanges_implicitly_starts_transaction()
+        {
+            EnsureInitialState();
+
+            using (var context = CreateContext())
+            {
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                 context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
@@ -34,9 +89,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual async Task SaveChangesAsync_implicitly_starts_transaction()
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
-                context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                 context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                 try
@@ -52,10 +109,72 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
-        public virtual void SaveChanges_uses_explicit_transaction_without_committing()
+        public virtual void SaveChanges_does_not_close_connection_opened_by_user()
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                var connection = context.Database.GetDbConnection();
+                context.Database.OpenConnection();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                context.Database.AutoTransactionsEnabled = true;
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.SaveChanges();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int> { 1, 2, 77 },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [Fact]
+        public virtual async Task SaveChangesAsync_does_not_close_connection_opened_by_user()
+        {
+            EnsureInitialState();
+
+            using (var context = CreateContext())
+            {
+                var connection = context.Database.GetDbConnection();
+                context.Database.OpenConnection();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                context.Database.AutoTransactionsEnabled = true;
+
+                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                await context.SaveChangesAsync();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int> { 1, 2, 77 },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void SaveChanges_uses_explicit_transaction_without_committing(bool autoTransaction)
+        {
+            EnsureInitialState();
+
+            using (var context = CreateContext())
+            {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
@@ -70,11 +189,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertStoreInitialState();
         }
 
-        [Fact]
-        public virtual void SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
@@ -93,11 +218,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertStoreInitialState();
         }
 
-        [Fact]
-        public virtual async Task SaveChangesAsync_uses_explicit_transaction_without_committing()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChangesAsync_uses_explicit_transaction_without_committing(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
@@ -112,11 +243,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertStoreInitialState();
         }
 
-        [Fact]
-        public virtual async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
@@ -135,11 +272,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertStoreInitialState();
         }
 
-        [Fact]
-        public virtual void SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (var transaction = context.Database.BeginTransaction())
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
@@ -162,11 +305,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
@@ -189,11 +338,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual async Task RelationalTransaction_can_be_commited()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task RelationalTransaction_can_be_commited(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
@@ -208,11 +363,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual async Task RelationalTransaction_can_be_commited_from_context()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task RelationalTransaction_can_be_commited_from_context(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
@@ -227,11 +388,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual async Task RelationalTransaction_can_be_rolled_back()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task RelationalTransaction_can_be_rolled_back(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
@@ -243,11 +410,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual async Task RelationalTransaction_can_be_rolled_back_from_context()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task RelationalTransaction_can_be_rolled_back_from_context(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
@@ -259,11 +432,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual void Query_uses_explicit_transaction()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_uses_explicit_transaction(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (var transaction = context.Database.BeginTransaction())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
@@ -271,6 +450,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                     using (var innerContext = CreateContext())
                     {
+                        innerContext.Database.AutoTransactionsEnabled = autoTransaction;
+
                         if (DirtyReadsOccur)
                         {
                             using (innerContext.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
@@ -290,6 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                     using (var innerContext = CreateContext(context.Database.GetDbConnection()))
                     {
+                        innerContext.Database.AutoTransactionsEnabled = autoTransaction;
+
                         innerContext.Database.UseTransaction(transaction.GetDbTransaction());
                         Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                     }
@@ -297,11 +480,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual async Task QueryAsync_uses_explicit_transaction()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task QueryAsync_uses_explicit_transaction(bool autoTransaction)
         {
+            EnsureInitialState();
+
             using (var context = CreateContext())
             {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
                 using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
@@ -309,6 +498,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                     using (var innerContext = CreateContext())
                     {
+                        innerContext.Database.AutoTransactionsEnabled = autoTransaction;
+
                         if (DirtyReadsOccur)
                         {
                             using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
@@ -328,6 +519,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                     using (var innerContext = CreateContext(context.Database.GetDbConnection()))
                     {
+                        innerContext.Database.AutoTransactionsEnabled = autoTransaction;
+
                         innerContext.Database.UseTransaction(transaction.GetDbTransaction());
                         Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                     }
@@ -335,67 +528,139 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
-        public virtual async Task Can_use_open_connection_with_started_transaction()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Can_use_open_connection_with_started_transaction(bool autoTransaction)
         {
-            using (var transaction = TestDatabase.Connection.BeginTransaction())
-            {
-                using (var context = CreateContext(TestDatabase.Connection))
-                {
-                    context.Database.UseTransaction(transaction);
+            EnsureInitialState();
 
-                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
-                    await context.SaveChangesAsync();
+            try
+            {
+                TestDatabase.OpenConnection();
+
+                using (var transaction = TestDatabase.Connection.BeginTransaction())
+                {
+                    using (var context = CreateContext(TestDatabase.Connection))
+                    {
+                        context.Database.AutoTransactionsEnabled = autoTransaction;
+
+                        context.Database.UseTransaction(transaction);
+
+                        context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                        await context.SaveChangesAsync();
+                    }
                 }
+            }
+            finally
+            {
+                TestDatabase.Connection.Close();
             }
 
             AssertStoreInitialState();
         }
 
-        [Fact]
-        public virtual void UseTransaction_throws_if_mismatched_connection()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void UseTransaction_throws_if_mismatched_connection(bool autoTransaction)
         {
-            using (var transaction = TestDatabase.Connection.BeginTransaction())
-            {
-                using (var context = CreateContext())
-                {
-                    var ex = Assert.Throws<InvalidOperationException>(() =>
-                        context.Database.UseTransaction(transaction));
-                    Assert.Equal(RelationalStrings.TransactionAssociatedWithDifferentConnection, ex.Message);
-                }
-            }
-        }
+            EnsureInitialState();
 
-        [Fact]
-        public virtual void UseTransaction_throws_if_another_transaction_started()
-        {
-            using (var transaction = TestDatabase.Connection.BeginTransaction())
+            try
             {
-                using (var context = CreateContext())
+                TestDatabase.OpenConnection();
+
+                using (var transaction = TestDatabase.Connection.BeginTransaction())
                 {
-                    using (context.Database.BeginTransaction())
+                    using (var context = CreateContext())
                     {
+                        context.Database.AutoTransactionsEnabled = autoTransaction;
+
                         var ex = Assert.Throws<InvalidOperationException>(() =>
-                            context.Database.UseTransaction(transaction));
-                        Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
+                                context.Database.UseTransaction(transaction));
+                        Assert.Equal(RelationalStrings.TransactionAssociatedWithDifferentConnection, ex.Message);
                     }
                 }
             }
+            finally
+            {
+                TestDatabase.Connection.Close();
+            }
         }
 
-        [Fact]
-        public virtual void UseTransaction_will_not_dispose_external_transaction()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void UseTransaction_throws_if_another_transaction_started(bool autoTransaction)
         {
-            using (var transaction = TestDatabase.Connection.BeginTransaction())
+            EnsureInitialState();
+
+            try
             {
-                using (var context = CreateContext(TestDatabase.Connection))
+                TestDatabase.OpenConnection();
+
+                using (var transaction = TestDatabase.Connection.BeginTransaction())
                 {
-                    context.Database.UseTransaction(transaction);
+                    using (var context = CreateContext())
+                    {
+                        context.Database.AutoTransactionsEnabled = autoTransaction;
 
-                    context.Database.GetService<IRelationalConnection>().Dispose();
-
-                    Assert.NotNull(transaction.Connection);
+                        using (context.Database.BeginTransaction())
+                        {
+                            var ex = Assert.Throws<InvalidOperationException>(() =>
+                                    context.Database.UseTransaction(transaction));
+                            Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
+                        }
+                    }
                 }
+            }
+            finally
+            {
+                TestDatabase.Connection.Close();
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void UseTransaction_will_not_dispose_external_transaction(bool autoTransaction)
+        {
+            EnsureInitialState();
+
+            try
+            {
+                TestDatabase.OpenConnection();
+
+                using (var transaction = TestDatabase.Connection.BeginTransaction())
+                {
+                    using (var context = CreateContext(TestDatabase.Connection))
+                    {
+                        context.Database.AutoTransactionsEnabled = autoTransaction;
+
+                        context.Database.UseTransaction(transaction);
+
+                        context.Database.GetService<IRelationalConnection>().Dispose();
+
+                        Assert.NotNull(transaction.Connection);
+                    }
+                }
+            }
+            finally
+            {
+                TestDatabase.Connection.Close();
+            }
+        }
+
+        protected virtual void EnsureInitialState()
+        {
+            using (var context = CreateContext())
+            {
+                context.RemoveRange(context.Set<TransactionCustomer>().ToList());
+                context.SaveChanges();
+
+                context.AddRange(Fixture.Customers);
+                context.SaveChanges();
             }
         }
 
@@ -418,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected TTestStore TestDatabase { get; set; }
         protected TFixture Fixture { get; set; }
 
-        public void Dispose() => TestDatabase.Dispose();
+        public virtual void Dispose() => TestDatabase.Dispose();
 
         protected abstract bool SnapshotSupported { get; }
 

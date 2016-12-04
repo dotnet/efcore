@@ -48,6 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </summary>
         /// <param name="translators"> The translators. </param>
         protected virtual void AddTranslators([NotNull] IEnumerable<IExpressionFragmentTranslator> translators)
-            => _translators.AddRange(translators);
+            => _translators.InsertRange(0, translators);
     }
 }

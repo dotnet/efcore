@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                         Assert.Equal("tableWithSchema", pgtable.Relational().TableName);
                         Assert.Equal("public", pgtable.Relational().Schema);
                     }
-                );
+            );
             Assert.NotEmpty(model.Scaffolding().EntityTypeErrors.Values);
         }
 
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                         Assert.True(uniqueColumn3Column1.IsUnique);
                         Assert.Equal(new[] { "C3", "C1" }, uniqueColumn3Column1.Properties.Select(c => c.Name).ToArray());
                     }
-                );
+            );
 
             Assert.Collection(entityType.GetKeys().Where(k => !k.IsPrimaryKey()),
                 single =>
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory,
                 new TestTypeMapper(),
-                new FakeDatabaseModelFactory(), 
+                new FakeDatabaseModelFactory(),
                 new CandidateNamingService())
         {
         }

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
@@ -11,13 +12,13 @@ using Remotion.Linq.Clauses.Expressions;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class QueryAnnotationExtractor : IQueryAnnotationExtractor
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyCollection<IQueryAnnotation> ExtractQueryAnnotations(QueryModel queryModel)
@@ -32,16 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static void ExtractQueryAnnotations(
             QueryModel queryModel, ICollection<IQueryAnnotation> queryAnnotations)
         {
-            queryModel.MainFromClause
+            queryModel
                 .TransformExpressions(e =>
                     ExtractQueryAnnotations(e, queryAnnotations));
-
-            foreach (var bodyClause in queryModel.BodyClauses)
-            {
-                bodyClause
-                    .TransformExpressions(e =>
-                        ExtractQueryAnnotations(e, queryAnnotations));
-            }
 
             foreach (var resultOperator in queryModel.ResultOperators.ToList())
             {
@@ -66,14 +60,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static Expression ExtractQueryAnnotations(
             Expression expression, ICollection<IQueryAnnotation> queryAnnotations)
         {
-            var subQueryExpression = expression as SubQueryExpression;
-
-            if (subQueryExpression != null)
-            {
-                ExtractQueryAnnotations(subQueryExpression.QueryModel, queryAnnotations);
-            }
+            new QueryAnnotationExtractingVisitor(queryAnnotations).Visit(expression);
 
             return expression;
+        }
+
+        private class QueryAnnotationExtractingVisitor : ExpressionVisitorBase
+        {
+            private readonly ICollection<IQueryAnnotation> _queryAnnotations;
+
+            public QueryAnnotationExtractingVisitor(ICollection<IQueryAnnotation> queryAnnotations)
+            {
+                _queryAnnotations = queryAnnotations;
+            }
+
+            protected override Expression VisitSubQuery(SubQueryExpression expression)
+            {
+                ExtractQueryAnnotations(expression.QueryModel, _queryAnnotations);
+
+                return expression;
+            }
         }
     }
 }

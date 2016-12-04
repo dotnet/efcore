@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
-    typeName: "Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqliteDesignTimeServices",
-    assemblyName: "Microsoft.EntityFrameworkCore.Sqlite.Design, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
-    packageName: "Microsoft.EntityFrameworkCore.Sqlite.Design")]
+               typeName: "Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqliteDesignTimeServices",
+               assemblyName: "Microsoft.EntityFrameworkCore.Sqlite.Design, Version=1.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+               packageName: "Microsoft.EntityFrameworkCore.Sqlite.Design")]
 [assembly: AssemblyCompany("Microsoft Corporation.")]
 [assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
 [assembly: AssemblyProduct("Microsoft EntityFramework Core")]

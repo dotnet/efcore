@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -14,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             ServiceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
         }
     }

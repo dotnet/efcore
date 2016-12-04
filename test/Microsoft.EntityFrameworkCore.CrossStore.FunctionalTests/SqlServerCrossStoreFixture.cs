@@ -27,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
         {
             Assert.Equal(typeof(SqlServerTestStore), testStoreType);
 
-            return _sharedCrossStoreFixture.CreateTestStore(testStoreType);
+            return SqlServerTestStore.Create("SqlServerCrossStore");
         }
 
-        public override CrossStoreContext CreateContext(TestStore testStore) 
+        public override CrossStoreContext CreateContext(TestStore testStore)
             => _sharedCrossStoreFixture.CreateContext(testStore);
     }
 }

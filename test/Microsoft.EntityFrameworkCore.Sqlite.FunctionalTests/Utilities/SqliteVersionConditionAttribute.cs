@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.Utilities
                     return false;
                 }
 
-                if (_min == null && _max == null)
+                if (_min == null
+                    && _max == null)
                 {
                     return true;
                 }
@@ -81,10 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.Utilities
             get
             {
                 return _skipReason ??
-                    $"Test only runs for SQLite versions >= { Min ?? "Any"} and <= { Max ?? "Any" }"
-                    + (Skip == null ? "" : "and skipping on " + Skip);
+                       $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
+                       + (Skip == null ? "" : "and skipping on " + Skip);
             }
         }
     }
-
 }

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             var sql = CreateHistoryRepository("my").GetCreateScript();
 
             Assert.Equal(
-                "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my]');" + EOL +
+                "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');" + EOL +
                 "CREATE TABLE [my].[__EFMigrationsHistory] (" + EOL +
                 "    [MigrationId] nvarchar(150) NOT NULL," + EOL +
                 "    [ProductVersion] nvarchar(32) NOT NULL," + EOL +
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             Assert.Equal(
                 "IF OBJECT_ID(N'my.__EFMigrationsHistory') IS NULL" + EOL +
                 "BEGIN" + EOL +
-                "    IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my]');" + EOL +
+                "    IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');" + EOL +
                 "    CREATE TABLE [my].[__EFMigrationsHistory] (" + EOL +
                 "        [MigrationId] nvarchar(150) NOT NULL," + EOL +
                 "        [ProductVersion] nvarchar(32) NOT NULL," + EOL +
@@ -169,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     commandBuilderFactory,
                     new SqlServerSqlGenerationHelper(),
                     typeMapper,
-                    annotationsProvider),
+                    annotationsProvider,
+                    new SqlServerMigrationsAnnotationProvider()),
                 annotationsProvider,
                 sqlGenerator);
         }

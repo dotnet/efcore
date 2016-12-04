@@ -6,10 +6,17 @@ namespace E2E.Sqlite
 {
     public partial class ManyToManyFluentApiContext : DbContext
     {
+        public virtual DbSet<Groups> Groups { get; set; }
+        public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<UsersGroups> UsersGroups { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlite(@"Data Source=ManyToManyFluentApi.db;Cache=Private");
+            if (!optionsBuilder.IsConfigured)
+            {
+                #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlite(@"Data Source=ManyToManyFluentApi.db;Cache=Private");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,9 +44,5 @@ namespace E2E.Sqlite
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }
-
-        public virtual DbSet<Groups> Groups { get; set; }
-        public virtual DbSet<Users> Users { get; set; }
-        public virtual DbSet<UsersGroups> UsersGroups { get; set; }
     }
 }

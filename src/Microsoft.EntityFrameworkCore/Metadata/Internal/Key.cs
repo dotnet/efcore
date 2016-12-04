@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -14,10 +13,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Key : ConventionalAnnotatable, IMutableKey
     {
         private ConfigurationSource _configurationSource;
@@ -28,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private object _principalKeyValueFactory;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public Key([NotNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
@@ -43,31 +41,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyList<Property> Properties { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalKeyBuilder Builder { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
@@ -80,14 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => ReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<IIdentityMap> IdentityMapFactory
@@ -95,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ref _identityMapFactory, this, k => new IdentityMapFactoryFactory().Create(k));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<IWeakReferenceIdentityMap> WeakReferenceIdentityMapFactory
@@ -103,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ref _weakReferenceIdentityMap, this, k => new WeakReferenceIdentityMapFactoryFactory().Create(k));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
@@ -116,12 +114,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
+        // Note this is ISet because there is no suitable readonly interface in the profiles we are using
+        public virtual ISet<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
 
-        [UsedImplicitly]
-        private string DebuggerDisplay => Property.Format(Properties);
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString() => this.ToDebugString();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DebugView<Key> DebugView
+            => new DebugView<Key>(this, m => m.ToDebugString(false));
     }
 }

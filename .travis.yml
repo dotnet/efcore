@@ -1,10 +1,6 @@
 language: csharp
+sudo: required
 dist: trusty
-os:
-  - linux
-  # - osx CoreCLR does not support OS X 10.9 (yet)
-mono:
-  - beta
 addons:
   apt:
     packages:
@@ -16,14 +12,22 @@ addons:
     - zlib1g
 env:
   global:
-    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    - DOTNET_CLI_TELEMETRY_OPTOUT: 1
+mono:
+  - 4.0.5
+os:
+  - linux
+  # - osx CoreCLR tests time out too frequently on OSX to be useful.
+osx_image: xcode7.1
 branches:
   only:
     - master
     - release
     - dev
     - /^(.*\/)?ci-.*$/
+before_install:
+  - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install openssl; ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/; ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/; fi
 script:
   - ./build.sh --quiet verify
 notifications:

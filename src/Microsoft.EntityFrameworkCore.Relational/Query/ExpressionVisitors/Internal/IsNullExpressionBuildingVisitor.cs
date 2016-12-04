@@ -9,7 +9,7 @@ using Remotion.Linq.Parsing;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class IsNullExpressionBuildingVisitor : RelinqExpressionVisitor
@@ -17,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private bool _nullConstantAdded;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression ResultExpression { get; private set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression node)
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitExtension(Expression node)
@@ -95,8 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var columnExpression = node as ColumnExpression
                                    ?? node.TryGetColumnExpression();
 
-            if ((columnExpression != null)
-                && columnExpression.Property.IsNullable)
+            if (columnExpression != null
+                && columnExpression.IsNullable)
             {
                 AddToResult(new IsNullExpression(node));
 
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression node)

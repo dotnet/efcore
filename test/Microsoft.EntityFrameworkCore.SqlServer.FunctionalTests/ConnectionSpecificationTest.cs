@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class StringInOnConfiguringContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                => optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
         }
 
         [Fact]
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(_connection);
+                => optionsBuilder.UseSqlServer(_connection, b => b.ApplyConfiguration());
 
             public override void Dispose()
             {
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class StringInConfigContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer("Database=Crunchie");
+                => optionsBuilder.UseSqlServer("Database=Crunchie", b => b.ApplyConfiguration());
         }
 
         [Fact]
@@ -218,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 if (UseSqlServer)
                 {
-                    optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                    optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
                 }
                 else
                 {
@@ -285,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(_connection);
+                optionsBuilder.UseSqlServer(_connection, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -350,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -419,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }

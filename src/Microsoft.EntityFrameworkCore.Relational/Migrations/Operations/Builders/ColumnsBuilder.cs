@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [CanBeNull] bool? unicode = null,
             [CanBeNull] int? maxLength = null,
             bool rowVersion = false,
-            [CanBeNull] string name = null,            
+            [CanBeNull] string name = null,
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,

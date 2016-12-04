@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public static class Extensions
@@ -78,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             foreach (var property in sourceEntityType.GetDeclaredProperties())
             {
-                var clonedProperty = targetEntityType.AddProperty(property.Name, property.ClrType, property.IsShadowProperty);
+                var clonedProperty = targetEntityType.AddProperty(property.Name, property.ClrType);
                 clonedProperty.IsNullable = property.IsNullable;
                 clonedProperty.IsConcurrencyToken = property.IsConcurrencyToken;
                 clonedProperty.RequiresValueGenerator = property.RequiresValueGenerator;
@@ -141,11 +140,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
                 var clonedNavigation = navigation.IsDependentToPrincipal()
-                    ? (navigation.GetPropertyInfo() != null
-                        ? targetForeignKey.HasDependentToPrincipal(navigation.GetPropertyInfo())
+                    ? (navigation.PropertyInfo != null
+                        ? targetForeignKey.HasDependentToPrincipal(navigation.PropertyInfo)
                         : targetForeignKey.HasDependentToPrincipal(navigation.Name))
-                    : (navigation.GetPropertyInfo() != null
-                        ? targetForeignKey.HasPrincipalToDependent(navigation.GetPropertyInfo())
+                    : (navigation.PropertyInfo != null
+                        ? targetForeignKey.HasPrincipalToDependent(navigation.PropertyInfo)
                         : targetForeignKey.HasPrincipalToDependent(navigation.Name));
                 navigation.GetAnnotations().ForEach(annotation => clonedNavigation[annotation.Name] = annotation.Value);
             }

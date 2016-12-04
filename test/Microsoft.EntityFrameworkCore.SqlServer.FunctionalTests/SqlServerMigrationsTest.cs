@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task Empty_Migration_Creates_Database()
         {
-            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
                 using (var context = CreateContext(testDatabase))
                 {
-                    context.Database.Migrate();
+                    await context.Database.MigrateAsync();
 
                     Assert.True(context.GetService<IRelationalDatabaseCreator>().Exists());
                 }
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlServer(testStore.ConnectionString)
+                .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(serviceProvider);
 
             return new BloggingContext(optionsBuilder.Options);

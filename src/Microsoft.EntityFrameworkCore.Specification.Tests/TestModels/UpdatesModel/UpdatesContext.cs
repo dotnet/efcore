@@ -12,20 +12,5 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.UpdatesMo
             : base(options)
         {
         }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Product>().HasOne<Category>().WithOne()
-                .HasForeignKey<Product>(e => e.DependentId)
-                .HasPrincipalKey<Category>(e => e.PrincipalId);
-
-            modelBuilder.Entity<Product>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
-
-            modelBuilder.Entity<Category>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
-        }
     }
 }

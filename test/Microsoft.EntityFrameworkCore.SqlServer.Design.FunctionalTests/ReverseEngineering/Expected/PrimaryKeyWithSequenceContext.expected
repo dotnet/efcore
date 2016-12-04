@@ -6,10 +6,15 @@ namespace E2ETest.Namespace
 {
     public partial class PrimaryKeyWithSequenceContext : DbContext
     {
+        public virtual DbSet<PrimaryKeyWithSequence> PrimaryKeyWithSequence { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(@"{{connectionString}}");
+            if (!optionsBuilder.IsConfigured)
+            {
+                #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer(@"{{connectionString}}");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -21,7 +26,5 @@ namespace E2ETest.Namespace
 
             modelBuilder.HasSequence<int>("PrimaryKeyWithSequenceSequence");
         }
-
-        public virtual DbSet<PrimaryKeyWithSequence> PrimaryKeyWithSequence { get; set; }
     }
 }

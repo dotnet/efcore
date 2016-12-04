@@ -20,6 +20,6 @@ namespace E2ETest.Namespace
         [Column("OneToOneFKToUniqueKeyPrincipalUniqueKey2")]
         public int OneToOneFktoUniqueKeyPrincipalUniqueKey2 { get; set; }
 
-        public virtual OneToOneFktoUniqueKeyDependent OneToOneFktoUniqueKeyDependent { get; set; }
+        public OneToOneFktoUniqueKeyDependent OneToOneFktoUniqueKeyDependent { get; set; }
     }
 }

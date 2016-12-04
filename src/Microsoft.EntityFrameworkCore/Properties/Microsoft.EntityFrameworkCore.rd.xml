@@ -5,7 +5,7 @@
     <Assembly Name="Microsoft.EntityFrameworkCore" Dynamic="Required All" />
 
     <Assembly Name="System.Collections.NonGeneric">
-      <Type Name="System.Collections.ArrayList" Dynamic="Required All"/>
+      <Type Name="System.Collections.ArrayList" Dynamic="Required All" />
     </Assembly>
   </Library>
 </Directives>

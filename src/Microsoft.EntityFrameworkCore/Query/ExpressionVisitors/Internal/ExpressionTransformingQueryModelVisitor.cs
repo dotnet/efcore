@@ -13,19 +13,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ExpressionTransformingQueryModelVisitor : QueryModelVisitorBase
+    public class ExpressionTransformingQueryModelVisitor<TVisitor> : QueryModelVisitorBase
+        where TVisitor : RelinqExpressionVisitor
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual RelinqExpressionVisitor TransformingVisitor { get; }
+        protected virtual TVisitor TransformingVisitor { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ExpressionTransformingQueryModelVisitor([NotNull] RelinqExpressionVisitor transformingVisitor)
+        public ExpressionTransformingQueryModelVisitor([NotNull] TVisitor transformingVisitor)
         {
             Check.NotNull(transformingVisitor, nameof(transformingVisitor));
 

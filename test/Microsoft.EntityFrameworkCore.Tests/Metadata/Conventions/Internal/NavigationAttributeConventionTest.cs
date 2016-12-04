@@ -159,10 +159,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                nameof(Dependent.Principal),
-                nameof(Principal.Dependent),
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    nameof(Dependent.Principal),
+                    nameof(Principal.Dependent),
+                    ConfigurationSource.Convention)
                 .RelatedEntityTypes(principalEntityTypeBuilder.Metadata, dependentEntityTypeBuilder.Metadata, ConfigurationSource.Convention);
 
             var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
@@ -282,12 +282,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                "Principal",
-                "Dependent",
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    "Principal",
+                    "Dependent",
+                    ConfigurationSource.Convention)
                 .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
-                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -304,12 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                "Principal",
-                "Dependent",
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    "Principal",
+                    "Dependent",
+                    ConfigurationSource.Convention)
                 .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
-                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Explicit);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -326,12 +326,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                "Principal",
-                "Dependent",
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    "Principal",
+                    "Dependent",
+                    ConfigurationSource.Convention)
                 .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
-                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -348,12 +348,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                "AnotherPrincipal",
-                "Dependent",
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    "AnotherPrincipal",
+                    "Dependent",
+                    ConfigurationSource.Convention)
                 .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
-                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -370,12 +370,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                "AnotherPrincipal",
-                "Dependent",
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    "AnotherPrincipal",
+                    "Dependent",
+                    ConfigurationSource.Convention)
                 .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
-                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -386,18 +386,40 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
+        public void ForeignKeyAttribute_on_field_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentField>();
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(PrincipalField), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                    principalEntityTypeBuilder,
+                    "AnotherPrincipalField",
+                    "DependentField",
+                    ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                        new List<PropertyInfo> { DependentField.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
+
+            Assert.Equal("PrincipalFieldId", relationshipBuilder.Metadata.Properties.First().Name);
+
+            relationshipBuilder = new ForeignKeyAttributeConvention().Apply(relationshipBuilder);
+
+            Assert.Equal("_principalFieldAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
+        }
+
+        [Fact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_after_inverting_when_applied_on_property_on_principal_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Dependent), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                "Dependent",
-                "AnotherPrincipal",
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    "Dependent",
+                    "AnotherPrincipal",
+                    ConfigurationSource.Convention)
                 .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
-                    new List<PropertyInfo> { Principal.DependentIdProperty }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Principal.DependentIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("DependentId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -418,12 +440,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
-                "CompositePrincipal",
-                "Dependent",
-                ConfigurationSource.Convention)
+                    principalEntityTypeBuilder,
+                    "CompositePrincipal",
+                    "Dependent",
+                    ConfigurationSource.Convention)
                 .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
-                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -594,6 +616,33 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             [ForeignKey("PrincipalId, PrincipalFk")]
             public Principal CompositePrincipal { get; set; }
+        }
+
+        private class PrincipalField
+        {
+            public int Id { get; set; }
+
+            public int DependentFieldId { get; set; }
+
+            public DependentField DependentField { get; set; }
+        }
+
+        private class DependentField
+        {
+            public static readonly PropertyInfo PrincipalIdProperty = typeof(DependentField).GetProperty("PrincipalFieldId");
+
+            public int Id { get; set; }
+
+            public int PrincipalFieldId { get; set; }
+
+            public int PrincipalFieldFk { get; set; }
+
+            [ForeignKey(nameof(AnotherPrincipalField))]
+#pragma warning disable 169
+            private int _principalFieldAnotherFk;
+#pragma warning restore 169
+
+            public PrincipalField AnotherPrincipalField { get; set; }
         }
 
         private class SelfReferencingEntity

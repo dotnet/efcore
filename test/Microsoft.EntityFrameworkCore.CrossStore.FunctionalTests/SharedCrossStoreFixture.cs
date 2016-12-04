@@ -3,8 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 
             if (testStoreType == typeof(SqlServerTestStore))
             {
-                return SqlServerTestStore.CreateScratch();
+                return SqlServerTestStore.Create("SharedCrossStore");
             }
 
             if (testStoreType == typeof(SqliteTestStore))
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             if (sqlServerTestStore != null)
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(sqlServerTestStore.Connection);
+                optionsBuilder.UseSqlServer(sqlServerTestStore.Connection, b => b.ApplyConfiguration());
 
                 var context = new CrossStoreContext(optionsBuilder.Options);
                 context.Database.EnsureCreated();

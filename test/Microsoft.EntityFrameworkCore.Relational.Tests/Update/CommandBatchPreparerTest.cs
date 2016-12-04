@@ -308,7 +308,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         model.FindEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().First(),
                         model.FindEntityType(typeof(FakeEntity)).GetForeignKeys().First())),
                 Assert.Throws<InvalidOperationException>(
-                    () => { var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }).ToArray(); }).Message);
+                    () =>
+                        {
+                            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }).ToArray();
+                        }).Message);
         }
 
         [Fact]

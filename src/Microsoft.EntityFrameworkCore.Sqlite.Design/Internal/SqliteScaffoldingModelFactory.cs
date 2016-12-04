@@ -3,6 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -38,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (tableSelectionSet != null
                 && tableSelectionSet.Schemas.Any())
             {
-                Logger.LogWarning(SqliteDesignStrings.UsingSchemaSelectionsWarning);
+                Logger.LogWarning(
+                    SqliteDesignEventId.SchemasNotSupportedWarning,
+                    () => SqliteDesignStrings.UsingSchemaSelectionsWarning);
 
                 // we've logged a general warning above that sqlite ignores all
                 // schema selections so mark all of them as matched so that we don't

@@ -9,6 +9,6 @@ namespace E2ETest.Namespace
         public int OneToOneSeparateFkprincipalId2 { get; set; }
         public string SomeOneToOneSeparateFkprincipalColumn { get; set; }
 
-        public virtual OneToOneSeparateFkdependent OneToOneSeparateFkdependent { get; set; }
+        public OneToOneSeparateFkdependent OneToOneSeparateFkdependent { get; set; }
     }
 }

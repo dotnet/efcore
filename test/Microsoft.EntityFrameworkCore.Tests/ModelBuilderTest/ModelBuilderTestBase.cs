@@ -4,12 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -127,7 +130,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 where TEntity : class;
 
             public virtual TestModelBuilder Validate()
-                => ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate() == null ? null : this;
+            {
+                var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())).Validate(modelBuilder.Metadata);
+                return this;
+            }
+
+            public virtual string GetDisplayName(Type entityType) => entityType.Name;
+
+            public virtual ModelBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+                => ModelBuilder.UsePropertyAccessMode(propertyAccessMode);
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>
@@ -167,6 +179,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 where TRelatedEntity : class;
 
             public abstract TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
+
+            public abstract TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         }
 
         public class TestKeyBuilder
@@ -183,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => new TestKeyBuilder(KeyBuilder.HasAnnotation(annotation, value));
         }
 
-        public class TestIndexBuilder
+        public class TestIndexBuilder : IInfrastructure<IndexBuilder>
         {
             public TestIndexBuilder(IndexBuilder indexBuilder)
             {
@@ -198,6 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public virtual TestIndexBuilder IsUnique(bool isUnique = true)
                 => new TestIndexBuilder(IndexBuilder.IsUnique(isUnique));
+
+            IndexBuilder IInfrastructure<IndexBuilder>.Instance => IndexBuilder;
         }
 
         public abstract class TestPropertyBuilder<TProperty>
@@ -207,11 +223,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
             public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
             public abstract TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true);
+            public abstract TestPropertyBuilder<TProperty> IsRowVersion();
             public abstract TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true);
 
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedNever();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAdd();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate();
+
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>() where TGenerator : ValueGenerator;
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory);
+
+            public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
+            public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         }
 
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
@@ -269,16 +293,20 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 string annotation, object value);
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
-                Expression<Func<TDependentEntity, object>> foreignKeyExpression);
+                Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+                where TDependentEntity : class;
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
-                Expression<Func<TPrincipalEntity, object>> keyExpression);
+                Expression<Func<TPrincipalEntity, object>> keyExpression)
+                where TPrincipalEntity : class;
 
-            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-                Type dependentEntityType, params string[] foreignKeyPropertyNames);
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
+                params string[] foreignKeyPropertyNames)
+                where TDependentEntity : class;
 
-            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-                Type principalEntityType, params string[] keyPropertyNames);
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
+                params string[] keyPropertyNames)
+                where TPrincipalEntity : class;
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true);
 

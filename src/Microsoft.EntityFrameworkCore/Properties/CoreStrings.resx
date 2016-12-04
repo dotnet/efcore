@@ -144,11 +144,26 @@
   <data name="PropertyNotFound" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.</value>
   </data>
+  <data name="PropertyIsNavigation" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{PropertyMethod}' method, but is defined in the model as a navigation property. Use either the '{ReferenceMethod}' or '{CollectionMethod}' method to access navigation properties.</value>
+  </data>
+  <data name="NavigationIsProperty" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' or '{CollectionMethod}' method, but is defined in the model as a non-navigation property. Use the '{PropertyMethod}' method to access non-navigation properties.</value>
+  </data>
+  <data name="ReferenceIsCollection" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{ReferenceMethod}' method, but is defined in the model as a collection navigation property. Use the '{CollectionMethod}' method to access collection navigation properties.</value>
+  </data>
+  <data name="CollectionIsReference" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is being accessed using the '{CollectionMethod}' method, but is defined in the model as a non-collection, reference navigation property. Use the '{ReferenceMethod}' method to access reference navigation properties.</value>
+  </data>
+  <data name="ReferenceMustBeLoaded" xml:space="preserve">
+    <value>Navigation property '{navigation}' on entity type '{entityType}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.</value>
+  </data>
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
-    <value>The entity type '{entityType}' requires a key to be defined.</value>
+    <value>The entity type '{entityType}' requires a primary key to be defined.</value>
   </data>
   <data name="KeyPropertiesWrongEntity" xml:space="preserve">
     <value>The specified key properties {key} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
@@ -177,17 +192,44 @@
   <data name="OriginalValueNotTracked" xml:space="preserve">
     <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.</value>
   </data>
+  <data name="ValueCannotBeNull" xml:space="preserve">
+    <value>The value for property '{property}' of entity type '{entityType}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.</value>
+  </data>
+  <data name="InvalidType" xml:space="preserve">
+    <value>The value for property '{property}' of entity type '{entityType}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.</value>
+  </data>
+  <data name="PropertyDoesNotBelong" xml:space="preserve">
+    <value>The property '{property}' belongs to entity type '{entityType}' but is being used with an instance of entity type '{expectedType}'.</value>
+  </data>
   <data name="ObservableCollectionReentrancy" xml:space="preserve">
     <value>Cannot change ObservableHashSet during a CollectionChanged event.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
-    <value>The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.</value>
+    <value>The specified field '{field}' could not be found for property '{property}' on entity type '{entityType}'.</value>
   </data>
   <data name="BadBackingFieldType" xml:space="preserve">
-    <value>The annotated backing field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.</value>
+    <value>The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.</value>
+  </data>
+  <data name="NoBackingField" xml:space="preserve">
+    <value>No field was found backing property '{property}' of entity type '{entity}'. Either configure a backing field or use a different '{pam}'.</value>
   </data>
   <data name="NoFieldOrSetter" xml:space="preserve">
-    <value>The property '{entityType}.{property}' does not have a setter and no backing field was found by convention. Either remove the property from the model, add a property setter, or configure a backing field (see http://go.microsoft.com/fwlink/?LinkId=723277).</value>
+    <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.</value>
+  </data>
+  <data name="NoFieldOrGetter" xml:space="preserve">
+    <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.</value>
+  </data>
+  <data name="ReadonlyField" xml:space="preserve">
+    <value>Field '{field}' of entity type '{entity}' is readonly and so cannot be set.</value>
+  </data>
+  <data name="NoProperty" xml:space="preserve">
+    <value>No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{pam}'.</value>
+  </data>
+  <data name="NoSetter" xml:space="preserve">
+    <value>The property '{property}' of entity type '{entity}' does not have a setter. Either make the property writable or use a different '{pam}'.</value>
+  </data>
+  <data name="NoGetter" xml:space="preserve">
+    <value>The property '{property}' of entity type '{entity}' does not have a getter. Either make the property readable or use a different '{pam}'.</value>
   </data>
   <data name="NoClrType" xml:space="preserve">
     <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
@@ -201,11 +243,20 @@
   <data name="NoEfServices" xml:space="preserve">
     <value>Entity Framework services have not been added to the internal service provider. Either remove the call to UseInternalServiceProvider so that EF will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. AddEntityFrameworkSqlServer).</value>
   </data>
+  <data name="InvalidReplaceService" xml:space="preserve">
+    <value>A call was made to {replaceService}, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to {useInternalServiceProvider}, or build replacement services into the service provider before passing it to {useInternalServiceProvider}.</value>
+  </data>
   <data name="MultipleProvidersAvailable" xml:space="preserve">
     <value>The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
   <data name="NoValueGenerator" xml:space="preserve">
     <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
+  </data>
+  <data name="BadValueGeneratorType" xml:space="preserve">
+    <value>The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.</value>
+  </data>
+  <data name="CannotCreateValueGenerator" xml:space="preserve">
+    <value>Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.</value>
   </data>
   <data name="TempValuePersists" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
@@ -222,17 +273,14 @@
   <data name="DuplicateProperty" xml:space="preserve">
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
-  <data name="NoClrProperty" xml:space="preserve">
-    <value>The property '{property}' cannot be added to entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
-  </data>
   <data name="PropertyWrongClrType" xml:space="preserve">
-    <value>The property '{property}' cannot be added to entity type '{entityType}' because the property is not in shadow state and the type of the corresponding CLR property '{clrType}' does not match the specified type '{propertyType}'.</value>
+    <value>The property '{property}' cannot be added to type '{entityType}' because the type of the corresponding CLR property or field '{clrType}' does not match the specified type '{propertyType}'.</value>
   </data>
   <data name="ClrPropertyOnShadowEntity" xml:space="preserve">
-    <value>The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.</value>
+    <value>The property '{property}' cannot exist on type '{entityType}' because the type is marked as shadow state while the property is not. Shadow state types can only contain shadow state properties.</value>
   </data>
-  <data name="PropertyInUse" xml:space="preserve">
-    <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in an index or key. All indexes and keys must be removed or redefined before the property can be removed.</value>
+  <data name="PropertyInUseKey" xml:space="preserve">
+    <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the key {key}. All containing keys must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="KeyInUse" xml:space="preserve">
     <value>Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
@@ -261,11 +309,8 @@
   <data name="NavigationArray" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
   </data>
-  <data name="NavigationNoGetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.</value>
-  </data>
   <data name="NavigationNoSetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.</value>
+    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.</value>
   </data>
   <data name="NavigationCannotCreateType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
@@ -315,14 +360,14 @@
   <data name="IncludeNotImplemented" xml:space="preserve">
     <value>The Include operator is not implemented by the current database provider.</value>
   </data>
-  <data name="IncludeNonBindableExpression" xml:space="preserve">
-    <value>The expression '{expression}' passed to the Include operator could not be bound.</value>
+  <data name="IncludeBadNavigation" xml:space="preserve">
+    <value>The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.</value>
   </data>
   <data name="LogCompilingQueryModel" xml:space="preserve">
-    <value>Compiling query model: '{queryModel}'</value>
+    <value>Compiling query model: {newline}'{queryModel}'</value>
   </data>
   <data name="LogOptimizedQueryModel" xml:space="preserve">
-    <value>Optimized query model: '{queryModel}'</value>
+    <value>Optimized query model: {newline}'{queryModel}'</value>
   </data>
   <data name="LogIncludingNavigation" xml:space="preserve">
     <value>Including navigation: '{navigation}'</value>
@@ -349,10 +394,7 @@
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
-    <value>The key {key} contains properties in shadow state and is referenced by a relationship from '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.</value>
-  </data>
-  <data name="ReferencedShadowKeyWithoutNavigations" xml:space="preserve">
-    <value>The key {key} on entity type '{entityType}' contains properties in shadow state and is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'. Configure a non-shadow principal key for this relationship.</value>
+    <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
   </data>
   <data name="ShadowKey" xml:space="preserve">
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>
@@ -400,7 +442,7 @@
     <value>Options extension of type '{optionsExtension}' not found.</value>
   </data>
   <data name="DuplicatePropertiesOnBase" xml:space="preserve">
-    <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.</value>
+    <value>The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are conflicting.</value>
   </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
@@ -445,7 +487,7 @@
     <value>A relationship cannot be established from property '{property}' on type '{entityType}' to property '{referencedProperty}' on type '{referencedEntityType}'. Check the values in the InversePropertyAttribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.</value>
   </data>
   <data name="DataBindingWithIListSource" xml:space="preserve">
-    <value>Data binding directly to a store query is not supported. Instead materialize the results into a collection, by calling a method such as ToList() or ToArray(), and bind to the collection. This should be done to avoid sending a query to the database each time the databound control iterates the data.</value>
+    <value>Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to DbSet.Local. For WinForms bind to DbSet.Local.ToBindingList(). For ASP.NET WebForms bind to DbSet.ToList() or use Model Binding.</value>
   </data>
   <data name="KeyAttributeOnDerivedEntity" xml:space="preserve">
     <value>The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.</value>
@@ -496,16 +538,10 @@
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
   </data>
   <data name="CustomMetadata" xml:space="preserve">
-    <value>The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.</value>
+    <value>The extension method '{method}' is being used with a custom implementation of '{interfaceType}'. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from '{concreteType}' instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.</value>
   </data>
   <data name="InvalidMemberInitBinding" xml:space="preserve">
     <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
-  </data>
-  <data name="UnhandledExpressionType" xml:space="preserve">
-    <value>Unhandled expression type: {expressionType}</value>
-  </data>
-  <data name="UnhandledNodeType" xml:space="preserve">
-    <value>Unhandled node type: {nodeType}</value>
   </data>
   <data name="InvalidKeyValue" xml:space="preserve">
     <value>Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.</value>
@@ -529,7 +565,7 @@
     <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key targeting '{entityType}'. The foreign key must be targeting a type that is part of the relationship.</value>
   </data>
   <data name="ForeignKeyPropertyInKey" xml:space="preserve">
-    <value>The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in a key defined on a base entity type.</value>
+    <value>The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in the key {key} defined on a base entity type '{baseEntityType}'.</value>
   </data>
   <data name="KeyPropertyInForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be part of a key on '{entityType}' because it is contained in a foreign key defined on a derived entity type.</value>
@@ -555,11 +591,8 @@
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
   </data>
-  <data name="NoClrSetter" xml:space="preserve">
-    <value>Could not find setter for property {property}</value>
-  </data>
   <data name="NoPropertyType" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.</value>
+    <value>The property '{property}' cannot be added to the type '{entityType}' because there was no property type specified and there is no corresponding CLR property or field. To add a shadow state property the property type must be specified.</value>
   </data>
   <data name="TempValue" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
@@ -589,9 +622,60 @@
     <value>{message} To configure this warning use the DbContextOptionsBuilder.ConfigureWarnings API (event id '{eventId}'). ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
-    <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
+    <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
   </data>
   <data name="NoProviderConfiguredFailedToResolveService" xml:space="preserve">
     <value>Unable to resolve service for type '{service}'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.</value>
+  </data>
+  <data name="ErrorMaterializingProperty" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
+  </data>
+  <data name="ErrorMaterializingPropertyInvalidCast" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+  </data>
+  <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
+    <value>An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
+  </data>
+  <data name="ErrorMaterializingValue" xml:space="preserve">
+    <value>An exception occured while reading a database value. See the inner exception for more information.</value>
+  </data>
+  <data name="ErrorMaterializingValueInvalidCast" xml:space="preserve">
+    <value>An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
+  </data>
+  <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
+    <value>An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
+  </data>
+  <data name="InheritedPropertyCannotBeIgnored" xml:space="preserve">
+    <value>The property '{property}' cannot be ignored on entity type '{entityType}', because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use NotMappedAttribute or Ignore method on the base type.</value>
+  </data>
+  <data name="RetryLimitExceeded" xml:space="preserve">
+    <value>Maximum number of retries ({retryLimit}) exceeded while executing database operations with '{strategy}'. See inner exception for the most recent failure.</value>
+  </data>
+  <data name="ExecutionStrategyExistingTransaction" xml:space="preserve">
+    <value>The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.</value>
+  </data>
+  <data name="PropertyCalledOnNavigation" xml:space="preserve">
+    <value>Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.</value>
+  </data>
+  <data name="RowLimitingOperationWithoutOrderBy" xml:space="preserve">
+    <value>Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.</value>
+  </data>
+  <data name="PropertyInUseForeignKey" xml:space="preserve">
+    <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.</value>
+  </data>
+  <data name="PropertyInUseIndex" xml:space="preserve">
+    <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
+  </data>
+  <data name="FirstWithoutOrderByAndFilter" xml:space="preserve">
+    <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
+  </data>
+  <data name="InvalidPoolSize" xml:space="preserve">
+    <value>The specified poolSize must be greater than 0.</value>
+  </data>
+  <data name="PoolingContextCtorError" xml:space="preserve">
+    <value>The DbContext of type '{contextType}' cannot be pooled because it does not have a single public constructor accepting a single parameter of type DbContextOptions.</value>
+  </data>
+  <data name="PoolingOptionsModified" xml:space="preserve">
+    <value>OnConfiguring cannot be used to modify DbContextOptions when DbContext pooling is enabled.</value>
   </data>
 </root>

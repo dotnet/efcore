@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -13,21 +12,18 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class PropertyAccessorsFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
             => (PropertyAccessors)_genericCreate
-                .MakeGenericMethod((propertyBase as IProperty)?.ClrType
-                                   ?? (((INavigation)propertyBase).IsCollection()
-                                       ? typeof(HashSet<object>)
-                                       : typeof(object)))
+                .MakeGenericMethod(propertyBase.ClrType)
                 .Invoke(null, new object[] { propertyBase });
 
         private static readonly MethodInfo _genericCreate
@@ -38,15 +34,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var property = propertyBase as IProperty;
             return new PropertyAccessors(
-                CreateCurrentValueGetter<TProperty>(propertyBase),
+                CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: true),
+                CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: false),
                 property == null ? null : CreateOriginalValueGetter<TProperty>(property),
                 CreateRelationshipSnapshotGetter<TProperty>(propertyBase),
                 property == null ? null : CreateValueBufferGetter(property));
         }
 
-        private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(IPropertyBase propertyBase)
+        private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(
+            IPropertyBase propertyBase, bool useStoreGeneratedValues)
         {
-            var entityClrType = propertyBase.DeclaringEntityType.ClrType;
+            var entityClrType = propertyBase.DeclaringType.ClrType;
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
 
             var shadowIndex = (propertyBase as IProperty)?.GetShadowIndex() ?? -1;
@@ -60,15 +58,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                currentValueExpression = Expression.Property(
-                    Expression.Convert(
-                        Expression.Property(entryParameter, "Entity"),
-                        entityClrType),
-                    propertyBase.GetPropertyInfo());
+                var convertedExpression = Expression.Convert(
+                    Expression.Property(entryParameter, "Entity"),
+                    entityClrType);
+
+                currentValueExpression = Expression.MakeMemberAccess(
+                    convertedExpression,
+                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
-            if (storeGeneratedIndex >= 0)
+            if (useStoreGeneratedValues
+                && storeGeneratedIndex >= 0)
             {
                 currentValueExpression = Expression.Call(
                     entryParameter,
@@ -78,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                currentValueExpression,
-                entryParameter)
+                    currentValueExpression,
+                    entryParameter)
                 .Compile();
         }
 
@@ -89,18 +90,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var originalValuesIndex = property.GetOriginalValueIndex();
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                originalValuesIndex >= 0
-                    ? (Expression)Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(property),
-                        Expression.Constant(originalValuesIndex))
-                    : Expression.Block(
-                        Expression.Throw(Expression.Constant(
-                            new InvalidOperationException(
-                                CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
-                        Expression.Constant(default(TProperty), typeof(TProperty))),
-                entryParameter)
+                    originalValuesIndex >= 0
+                        ? (Expression)Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(property),
+                            Expression.Constant(originalValuesIndex))
+                        : Expression.Block(
+                            Expression.Throw(Expression.Constant(
+                                new InvalidOperationException(
+                                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
+                            Expression.Constant(default(TProperty), typeof(TProperty))),
+                    entryParameter)
                 .Compile();
         }
 
@@ -110,17 +111,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var relationshipIndex = (propertyBase as IProperty)?.GetRelationshipIndex() ?? -1;
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                relationshipIndex >= 0
-                    ? Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.ReadRelationshipSnapshotValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(propertyBase),
-                        Expression.Constant(relationshipIndex))
-                    : Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(propertyBase)),
-                entryParameter)
+                    relationshipIndex >= 0
+                        ? Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.ReadRelationshipSnapshotValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(propertyBase),
+                            Expression.Constant(relationshipIndex))
+                        : Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(propertyBase)),
+                    entryParameter)
                 .Compile();
         }
 
@@ -129,11 +130,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
             return Expression.Lambda<Func<ValueBuffer, object>>(
-                Expression.Call(
-                    valueBufferParameter,
-                    ValueBuffer.GetValueMethod,
-                    Expression.Constant(property.GetIndex())),
-                valueBufferParameter)
+                    Expression.Call(
+                        valueBufferParameter,
+                        ValueBuffer.GetValueMethod,
+                        Expression.Constant(property.GetIndex())),
+                    valueBufferParameter)
                 .Compile();
         }
     }

@@ -11,7 +11,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             : base(fixture)
         {
         }
-
-        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

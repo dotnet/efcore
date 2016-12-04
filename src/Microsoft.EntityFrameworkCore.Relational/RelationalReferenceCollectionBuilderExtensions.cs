@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="ReferenceCollectionBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="ReferenceCollectionBuilder" />.
     /// </summary>
     public static class RelationalReferenceCollectionBuilderExtensions
     {

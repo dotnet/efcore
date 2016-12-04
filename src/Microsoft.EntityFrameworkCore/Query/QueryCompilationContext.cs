@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryCompilationContext(
@@ -112,6 +112,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The query source mapping.
         /// </value>
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
+
+        /// <summary>
+        ///     Adds or updates the expression mapped to a query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="expression"> The expression mapped to the query source. </param>
+        public virtual void AddOrUpdateMapping(
+            [NotNull] IQuerySource querySource, [NotNull] Expression expression)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(expression, nameof(expression));
+
+            if (!QuerySourceMapping.ContainsMapping(querySource))
+            {
+                QuerySourceMapping.AddMapping(querySource, expression);
+            }
+            else
+            {
+                QuerySourceMapping.ReplaceMapping(querySource, expression);
+            }
+        }
 
         /// <summary>
         ///     Gets the query annotations./
@@ -324,9 +345,40 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Create(queryModelVisitor)
                     .FindQuerySourcesRequiringMaterialization(queryModel);
 
-            foreach (var groupJoinClause in queryModel.BodyClauses.OfType<GroupJoinClause>())
+            var groupJoinClauses = queryModel.BodyClauses.OfType<GroupJoinClause>().ToList();
+            if (groupJoinClauses.Any())
             {
-                _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
+                _querySourcesRequiringMaterialization.Add(queryModel.MainFromClause);
+
+                var subQueryMainFromClause = queryModel.MainFromClause.FromExpression as SubQueryExpression;
+                if (subQueryMainFromClause != null)
+                {
+                    AddQuerySourcesRequiringMaterializationForSubquery(queryModelVisitor, subQueryMainFromClause.QueryModel);
+                }
+
+                foreach (var groupJoinClause in groupJoinClauses)
+                {
+                    _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
+
+                    var subQueryInnerSequence = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
+                    if (subQueryInnerSequence != null)
+                    {
+                        AddQuerySourcesRequiringMaterializationForSubquery(queryModelVisitor, subQueryInnerSequence.QueryModel);
+                    }
+                }
+            }
+        }
+
+        private void AddQuerySourcesRequiringMaterializationForSubquery(EntityQueryModelVisitor queryModelVisitor, QueryModel subQueryModel)
+        {
+            var subQuerySourcesRequiringMaterialization
+                = _requiresMaterializationExpressionVisitorFactory
+                    .Create(queryModelVisitor)
+                    .FindQuerySourcesRequiringMaterialization(subQueryModel);
+
+            foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
+            {
+                _querySourcesRequiringMaterialization.Add(subQuerySource);
             }
         }
 

@@ -1743,22 +1743,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 modelBuilder.Entity<Parent>()
                     .HasOne(e => e.Child)
                     .WithOne(e => e.Parent)
-                    .HasForeignKey(typeof(Child), "ParentId");
+                    .HasForeignKey<Child>("ParentId");
 
                 modelBuilder.Entity<ParentPN>()
                     .HasOne(e => e.Child)
                     .WithOne()
-                    .HasForeignKey(typeof(ChildPN), "ParentId");
+                    .HasForeignKey<ChildPN>("ParentId");
 
                 modelBuilder.Entity<ChildDN>()
                     .HasOne(e => e.Parent)
                     .WithOne()
-                    .HasForeignKey(typeof(ChildDN), "ParentId");
+                    .HasForeignKey<ChildDN>("ParentId");
 
                 modelBuilder.Entity<ParentNN>()
                     .HasOne<ChildNN>()
                     .WithOne()
-                    .HasForeignKey(typeof(ChildNN), "ParentId");
+                    .HasForeignKey<ChildNN>("ParentId");
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -14,7 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private static readonly IMethodCallTranslator[] _sqliteTranslators =
         {
+            new SqliteContainsOptimizedTranslator(),
+            new SqliteEndsWithOptimizedTranslator(),
             new SqliteMathAbsTranslator(),
+            new SqliteStartsWithOptimizedTranslator(),
             new SqliteStringIsNullOrWhiteSpaceTranslator(),
             new SqliteStringToLowerTranslator(),
             new SqliteStringToUpperTranslator(),

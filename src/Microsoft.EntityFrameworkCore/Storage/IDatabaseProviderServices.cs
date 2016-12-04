@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -108,5 +107,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IProjectionExpressionVisitorFactory" /> for the database provider.
         /// </summary>
         IProjectionExpressionVisitorFactory ProjectionExpressionVisitorFactory { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="IExecutionStrategyFactory" /> for the database provider.
+        /// </summary>
+        IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+
+        /// <summary>
+        ///     Reset any stateful database provider services. Used when context pooling is enabled to allow
+        ///     re-use of provider services.
+        /// </summary>
+        void Reset();
     }
 }

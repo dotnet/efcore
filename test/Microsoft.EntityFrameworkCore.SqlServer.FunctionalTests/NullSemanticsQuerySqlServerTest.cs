@@ -778,6 +778,17 @@ WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo'
                 Sql);
         }
 
+        public override void Where_coalesce()
+        {
+            base.Where_coalesce();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE COALESCE([e].[NullableBoolA], 1) = 1",
+                Sql);
+        }
+
         public override void Where_equal_nullable_with_null_value_parameter()
         {
             base.Where_equal_nullable_with_null_value_parameter();
@@ -902,7 +913,73 @@ END) OR [e].[NullableStringC] IS NULL",
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] LIKE (N'%' + [e].[NullableStringB]) + N'%' AND ([e].[BoolA] = 1)",
+WHERE ((CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0) OR ([e].[NullableStringB] = N'')) AND ([e].[BoolA] = 1)",
+                Sql);
+        }
+
+        public override void Where_conditional_search_condition_in_result()
+        {
+            base.Where_conditional_search_condition_in_result();
+
+            Assert.Equal(
+                @"@__prm_0: True
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE CASE
+    WHEN @__prm_0 = 1
+    THEN CASE
+        WHEN [e].[StringA] IN (N'Foo', N'Bar')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END ELSE CAST(0 AS BIT)
+END = 1
+
+@__prm_0: True
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE CASE
+    WHEN @__prm_0 = 0
+    THEN CAST(1 AS BIT) ELSE CASE
+        WHEN [e].[StringA] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[StringA]) = 1)
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+END = 1",
+                Sql);
+        }
+
+        public override void Where_nested_conditional_search_condition_in_result()
+        {
+            base.Where_nested_conditional_search_condition_in_result();
+
+            Assert.Equal(
+                @"@__prm1_0: True
+@__prm2_1: False
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE CASE
+    WHEN @__prm1_0 = 1
+    THEN CASE
+        WHEN @__prm2_1 = 1
+        THEN CASE
+            WHEN [e].[BoolA] = 1
+            THEN CASE
+                WHEN [e].[StringA] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[StringA]) = 1)
+                THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            END ELSE CAST(0 AS BIT)
+        END ELSE CAST(1 AS BIT)
+    END ELSE CASE
+        WHEN [e].[BoolB] = 1
+        THEN CASE
+            WHEN [e].[StringA] IN (N'Foo', N'Bar')
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END ELSE CASE
+            WHEN [e].[StringB] IN (N'Foo', N'Bar')
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END
+    END
+END = 1",
                 Sql);
         }
 
@@ -914,6 +991,39 @@ WHERE [e].[NullableStringA] LIKE (N'%' + [e].[NullableStringB]) + N'%' AND ([e].
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
+                Sql);
+        }
+
+        public override void Where_nullable_bool()
+        {
+            base.Where_nullable_bool();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] = 1",
+                Sql);
+        }
+
+        public override void Where_nullable_bool_equal_with_constant()
+        {
+            base.Where_nullable_bool_equal_with_constant();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] = 1",
+                Sql);
+        }
+
+        public override void Where_nullable_bool_with_null_check()
+        {
+            base.Where_nullable_bool_with_null_check();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = 1)",
                 Sql);
         }
 
@@ -933,11 +1043,9 @@ WHERE [e].[NullableBoolA] IS NULL",
             base.Where_equal_using_relational_null_semantics_complex_with_parameter();
 
             Assert.Equal(
-                @"@__prm_0: False
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR (@__prm_0 = 1)",
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
                 Sql);
         }
 
@@ -968,11 +1076,9 @@ WHERE [e].[NullableBoolA] IS NOT NULL",
             base.Where_not_equal_using_relational_null_semantics_complex_with_parameter();
 
             Assert.Equal(
-                @"@__prm_0: False
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB]) OR (@__prm_0 = 1)",
+WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]",
                 Sql);
         }
 
@@ -1016,8 +1122,8 @@ WHERE 0 = 1
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]",
                 Sql);
-
         }
+
         public override void Where_comparison_null_semantics_optimization_works_with_complex_predicates()
         {
             base.Where_comparison_null_semantics_optimization_works_with_complex_predicates();
@@ -1059,7 +1165,6 @@ SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE 0 = 1",
                 Sql);
-
         }
 
         public override void From_sql_composed_with_relational_null_comparison()

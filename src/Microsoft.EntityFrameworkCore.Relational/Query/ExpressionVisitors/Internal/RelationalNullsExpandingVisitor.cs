@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore.Query.Expressions;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class RelationalNullsExpandingVisitor : RelationalNullsExpressionVisitorBase
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
@@ -110,17 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitExtension(Expression node)
-        {
-            var notNullableExpression = node as NotNullableExpression;
-
-            return notNullableExpression != null
+            => node is NotNullableExpression
                 ? node
                 : base.VisitExtension(node);
-        }
 
         private static Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)
         {
@@ -164,8 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | 0 | 0                             | 0 OR 0 = 0       |
         // N | 1 | 0                             | 0 OR 0 = 0       |
         // N | N | 1                             | 0 OR 1 = 1       |
-        private static Expression ExpandNullableEqualNullable(
-            Expression left, Expression right, Expression leftIsNull, Expression rightIsNull)
+        private static Expression ExpandNullableEqualNullable(Expression left, Expression right, Expression leftIsNull, Expression rightIsNull)
             => new NotNullableExpression(
                 Expression.OrElse(
                     Expression.AndAlso(

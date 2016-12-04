@@ -13,6 +13,6 @@ namespace E2E.Sqlite
         public long Id { get; set; }
         public long AltId { get; set; }
 
-        public virtual ICollection<Comment> Comment { get; set; }
+        public ICollection<Comment> Comment { get; set; }
     }
 }

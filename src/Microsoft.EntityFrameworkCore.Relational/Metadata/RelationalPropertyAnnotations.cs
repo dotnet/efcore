@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get
             {
                 return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.ColumnName,
-                    ProviderFullAnnotationNames?.ColumnName)
+                           RelationalFullAnnotationNames.Instance.ColumnName,
+                           ProviderFullAnnotationNames?.ColumnName)
                        ?? Property.Name;
             }
             [param: CanBeNull] set { SetColumnName(value); }
@@ -262,9 +262,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var valueType = value.GetType();
                 if (Property.ClrType.UnwrapNullableType() != valueType)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.IncorrectDefaultValueType(
-                            value, valueType, Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
+                    try
+                    {
+                        value = Convert.ChangeType(value, Property.ClrType, CultureInfo.InvariantCulture);
+                    }
+                    catch (Exception)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.IncorrectDefaultValueType(
+                                value, valueType, Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
+                    }
                 }
 
                 if (valueType.GetTypeInfo().IsEnum)

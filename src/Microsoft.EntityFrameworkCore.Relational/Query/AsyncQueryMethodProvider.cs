@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ImplicitlyCapturedClosure
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -38,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
-            => AsyncLinqOperatorProvider.
-                _Select(new AsyncQueryingEnumerable(
+            => AsyncLinqOperatorProvider
+                ._Select(new AsyncQueryingEnumerable(
                     (RelationalQueryContext)queryContext,
                     shaperCommandContext,
                     queryIndex: null),
@@ -59,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
-            => AsyncLinqOperatorProvider.
-                _Select(
+            => AsyncLinqOperatorProvider
+                ._Select(
                     new DefaultIfEmptyAsyncEnumerable(
                         new AsyncQueryingEnumerable(
                             (RelationalQueryContext)queryContext,
@@ -385,6 +384,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 private IAsyncEnumerator<ValueBuffer> _sourceEnumerator;
                 private bool _hasNext;
                 private TOuter _nextOuter;
+                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext _outerGroupJoinIncludeContext;
+                private AsyncGroupJoinInclude.AsyncGroupJoinIncludeContext _innerGroupJoinIncludeContext;
+                private Func<TOuter, object> _outerEntityAccessor;
+                private Func<TInner, object> _innerEntityAccessor;
 
                 public GroupJoinAsyncEnumerator(
                     GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> groupJoinAsyncEnumerable)
@@ -399,8 +402,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (_sourceEnumerator == null)
                     {
-                        _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
-                        _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        _outerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.CreateIncludeContext(_groupJoinAsyncEnumerable._queryContext);
+                        _innerGroupJoinIncludeContext = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.CreateIncludeContext(_groupJoinAsyncEnumerable._queryContext);
+                        _outerEntityAccessor = _groupJoinAsyncEnumerable._outerGroupJoinInclude?.EntityAccessor as Func<TOuter, object>;
+                        _innerEntityAccessor = _groupJoinAsyncEnumerable._innerGroupJoinInclude?.EntityAccessor as Func<TInner, object>;
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
                         _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
                         _nextOuter = default(TOuter);
@@ -416,9 +421,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         _nextOuter = default(TOuter);
 
-                        if (_groupJoinAsyncEnumerable._outerGroupJoinInclude != null)
+                        if (_outerGroupJoinIncludeContext != null)
                         {
-                            await _groupJoinAsyncEnumerable._outerGroupJoinInclude.IncludeAsync(outer, cancellationToken);
+                            if (_outerEntityAccessor != null)
+                            {
+                                await _outerGroupJoinIncludeContext.IncludeAsync(_outerEntityAccessor(outer), cancellationToken);
+                            }
+                            else
+                            {
+                                await _outerGroupJoinIncludeContext.IncludeAsync(outer, cancellationToken);
+                            }
                         }
 
                         var inner
@@ -431,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Current
                                 = _groupJoinAsyncEnumerable._resultSelector(
-                                    outer, AsyncLinqOperatorProvider.ToAsyncEnumerable(inners));
+                                    outer, inners.ToAsyncEnumerable());
 
                             _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
 
@@ -440,9 +452,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var currentGroupKey = _groupJoinAsyncEnumerable._innerKeySelector(inner);
 
-                        if (_groupJoinAsyncEnumerable._innerGroupJoinInclude != null)
+                        if (_innerGroupJoinIncludeContext != null)
                         {
-                            await _groupJoinAsyncEnumerable._innerGroupJoinInclude.IncludeAsync(inner, cancellationToken);
+                            if (_innerEntityAccessor != null)
+                            {
+                                await _innerGroupJoinIncludeContext.IncludeAsync(_innerEntityAccessor(inner), cancellationToken);
+                            }
+                            else
+                            {
+                                await _innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
+                            }
                         }
 
                         inners.Add(inner);
@@ -486,9 +505,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 break;
                             }
 
-                            if (_groupJoinAsyncEnumerable._innerGroupJoinInclude != null)
+                            if (_innerGroupJoinIncludeContext != null)
                             {
-                                await _groupJoinAsyncEnumerable._innerGroupJoinInclude.IncludeAsync(inner, cancellationToken);
+                                await _innerGroupJoinIncludeContext.IncludeAsync(inner, cancellationToken);
                             }
 
                             inners.Add(inner);
@@ -496,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         Current
                             = _groupJoinAsyncEnumerable._resultSelector(
-                                outer, AsyncLinqOperatorProvider.ToAsyncEnumerable(inners));
+                                outer, inners.ToAsyncEnumerable());
 
                         return true;
                     }
@@ -509,8 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 public void Dispose()
                 {
                     _sourceEnumerator?.Dispose();
-                    _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Dispose();
-                    _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Dispose();
+                    _innerGroupJoinIncludeContext?.Dispose();
+                    _outerGroupJoinIncludeContext?.Dispose();
                 }
             }
         }
@@ -800,6 +819,88 @@ namespace Microsoft.EntityFrameworkCore.Query
             public void Dispose()
             {
                 _includeCollectionIterator?.Dispose();
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
+
+        private static readonly MethodInfo _injectParametersMethodInfo
+            = typeof(AsyncQueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TElement> _InjectParameters<TElement>(
+            QueryContext queryContext,
+            IAsyncEnumerable<TElement> source,
+            string[] parameterNames,
+            object[] parameterValues)
+            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
+
+        private sealed class ParameterInjector<TElement> : IAsyncEnumerable<TElement>
+        {
+            private readonly QueryContext _queryContext;
+            private readonly IAsyncEnumerable<TElement> _innerEnumerable;
+            private readonly string[] _parameterNames;
+            private readonly object[] _parameterValues;
+
+            public ParameterInjector(
+                QueryContext queryContext,
+                IAsyncEnumerable<TElement> innerEnumerable,
+                string[] parameterNames,
+                object[] parameterValues)
+            {
+                _queryContext = queryContext;
+                _innerEnumerable = innerEnumerable;
+                _parameterNames = parameterNames;
+                _parameterValues = parameterValues;
+            }
+
+            IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetEnumerator() => new InjectParametersEnumerator(this);
+
+            private sealed class InjectParametersEnumerator : IAsyncEnumerator<TElement>
+            {
+                private readonly ParameterInjector<TElement> _parameterInjector;
+                private readonly IAsyncEnumerator<TElement> _innerEnumerator;
+                private bool _disposed;
+
+                public InjectParametersEnumerator(ParameterInjector<TElement> parameterInjector)
+                {
+                    _parameterInjector = parameterInjector;
+
+                    for (var i = 0; i < _parameterInjector._parameterNames.Length; i++)
+                    {
+                        _parameterInjector._queryContext.AddParameter(
+                            _parameterInjector._parameterNames[i],
+                            _parameterInjector._parameterValues[i]);
+                    }
+
+                    _innerEnumerator = _parameterInjector._innerEnumerable.GetEnumerator();
+                }
+
+                public TElement Current => _innerEnumerator.Current;
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                    => await _innerEnumerator.MoveNext(cancellationToken);
+
+                public void Dispose()
+                {
+                    if (!_disposed)
+                    {
+                        _innerEnumerator.Dispose();
+
+                        foreach (var parameterName in _parameterInjector._parameterNames)
+                        {
+                            _parameterInjector._queryContext.RemoveParameter(parameterName);
+                        }
+
+                        _disposed = true;
+                    }
+                }
             }
         }
     }

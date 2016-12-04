@@ -56,6 +56,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.True(entityTypeBuilder.Property(e => e.RowVersion).Metadata.IsConcurrencyToken);
         }
 
+        [Fact]
+        public void ConcurrencyCheckAttribute_on_field_sets_concurrency_token_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.True(entityTypeBuilder.Property<Guid>(nameof(F.RowVersion)).Metadata.IsConcurrencyToken);
+        }
+
         #endregion
 
         #region DatabaseGeneratedAttribute
@@ -95,6 +104,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
             Assert.Equal(ValueGenerated.OnAddOrUpdate, entityTypeBuilder.Property(e => e.Id).Metadata.ValueGenerated);
+        }
+
+        [Fact]
+        public void DatabaseGeneratedAttribute_in_field_sets_store_generated_pattern_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, entityTypeBuilder.Property<int>(nameof(F.Id)).Metadata.ValueGenerated);
         }
 
         #endregion
@@ -192,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             Assert.Equal(
                 CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
-                Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(propertyBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder)).Message);
         }
 
         [Fact]
@@ -207,6 +225,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder);
 
             Assert.Equal(2, baseEntityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
+        }
+
+        [Fact]
+        public void KeyAttribute_on_field_sets_primary_key()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+            entityTypeBuilder.Property<int>(nameof(F.MyPrimaryKey));
+
+            Assert.Equal(nameof(F.MyPrimaryKey), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
         }
 
         #endregion
@@ -242,12 +270,21 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void MaxLengthAttribute_set_max_length_with_conventional_builder()
+        public void MaxLengthAttribute_sets_max_length_with_conventional_builder()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
             Assert.Equal(10, entityTypeBuilder.Property(e => e.MaxLengthProperty).Metadata.GetMaxLength());
+        }
+
+        [Fact]
+        public void MaxLengthAttribute_on_field_sets_max_length_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal(10, entityTypeBuilder.Property<string>(nameof(F.MaxLengthProperty)).Metadata.GetMaxLength());
         }
 
         #endregion
@@ -281,6 +318,28 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<A>();
+
+            Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
+        }
+
+        [Fact]
+        public void NotMappedAttribute_on_field_does_not_ignore_property_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+            entityTypeBuilder.Property<string>(nameof(F.IgnoredProperty));
+
+            // Because brining the property in by the fluent API overrides the annotation it has no effect
+            Assert.True(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
+        }
+
+        [Fact]
+        public void NotMappedAttribute_on_field_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<F>();
+            entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Convention);
+
+            entityTypeBuilder = new NotMappedMemberAttributeConvention().Apply(entityTypeBuilder);
 
             Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
@@ -326,6 +385,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.False(entityTypeBuilder.Property(e => e.Name).Metadata.IsNullable);
         }
 
+        [Fact]
+        public void RequiredAttribute_on_field_sets_is_nullable_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.False(entityTypeBuilder.Property<string>(nameof(F.Name)).Metadata.IsNullable);
+        }
+
         #endregion
 
         #region StringLengthAttribute
@@ -359,12 +427,21 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void StringLengthAttribute_set_max_length_with_conventional_builder()
+        public void StringLengthAttribute_sets_max_length_with_conventional_builder()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
             Assert.Equal(20, entityTypeBuilder.Property(e => e.StringLengthProperty).Metadata.GetMaxLength());
+        }
+
+        [Fact]
+        public void StringLengthAttribute_on_field_sets_max_length_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal(20, entityTypeBuilder.Property<string>(nameof(F.StringLengthProperty)).Metadata.GetMaxLength());
         }
 
         #endregion
@@ -411,6 +488,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             Assert.Equal(ValueGenerated.OnAddOrUpdate, entityTypeBuilder.Property(e => e.Timestamp).Metadata.ValueGenerated);
             Assert.True(entityTypeBuilder.Property(e => e.Timestamp).Metadata.IsConcurrencyToken);
+        }
+
+        [Fact]
+        public void TimestampAttribute_on_field_sets_concurrency_token_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, entityTypeBuilder.Property<byte[]>(nameof(F.Timestamp)).Metadata.ValueGenerated);
+            Assert.True(entityTypeBuilder.Property<byte[]>(nameof(F.Timestamp)).Metadata.IsConcurrencyToken);
         }
 
         #endregion
@@ -471,6 +558,33 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             [Key]
             public int MyPrimaryKey { get; set; }
+        }
+
+        public class F
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+            public int Id;
+
+            [ConcurrencyCheck]
+            public Guid RowVersion;
+
+            [Required]
+            public string Name;
+
+            [Key]
+            public int MyPrimaryKey;
+
+            [NotMapped]
+            public string IgnoredProperty;
+
+            [MaxLength(10)]
+            public string MaxLengthProperty;
+
+            [StringLength(20)]
+            public string StringLengthProperty;
+
+            [Timestamp]
+            public byte[] Timestamp;
         }
 
         private class BaseEntity

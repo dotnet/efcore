@@ -2,210 +2,50 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
-    // TODO: Remove these once available in the product
-    internal static class TestExtensions
-    {
-        public static void SetValues(this InternalEntityEntry internalEntry, Dictionary<IProperty, object> values)
-        {
-            foreach (var value in values)
-            {
-                internalEntry[value.Key] = ConvertValue(value.Key.ClrType, value.Value);
-            }
-        }
-
-        public static void SetOriginalValues(this InternalEntityEntry internalEntry, Dictionary<IProperty, object> values)
-        {
-            foreach (var value in values)
-            {
-                internalEntry.SetOriginalValue(value.Key, ConvertValue(value.Key.ClrType, value.Value));
-            }
-        }
-
-        public static void SetValues(this EntityEntry entry, Dictionary<IProperty, object> values)
-            => entry.GetInfrastructure().SetValues(values);
-
-        public static void SetOriginalValues(this EntityEntry entry, Dictionary<IProperty, object> values)
-            => entry.GetInfrastructure().SetOriginalValues(values);
-        
-        private static object ConvertValue(Type expectedType, object valueToSet)
-        {
-            var expectedTypeInfo = expectedType.GetTypeInfo();
-            if (expectedTypeInfo.IsValueType
-                && valueToSet != null)
-            {
-                if (expectedTypeInfo.IsGenericType
-                    && expectedTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    valueToSet = Convert.ChangeType(valueToSet, Nullable.GetUnderlyingType(expectedType));
-                }
-                else
-                {
-                    valueToSet = Convert.ChangeType(valueToSet, expectedType);
-                }
-            }
-            return valueToSet;
-        }
-
-        public static void Reload(this InternalEntityEntry internalEntry, DbContext context)
-        {
-            if (internalEntry.EntityState == EntityState.Detached)
-            {
-                throw new InvalidOperationException("Can't reload an unknown entity");
-            }
-
-            if (internalEntry.EntityState == EntityState.Added)
-            {
-                throw new InvalidOperationException("Can't reload an added entity");
-            }
-
-            var storeValues = internalEntry.GetDatabaseValues(context);
-            if (storeValues == null)
-            {
-                internalEntry.SetEntityState(EntityState.Detached);
-            }
-            else
-            {
-                internalEntry.SetValues(storeValues);
-                internalEntry.SetOriginalValues(storeValues);
-                internalEntry.SetEntityState(EntityState.Unchanged);
-            }
-        }
-
-        public static void Reload(this EntityEntry entityEntry, DbContext context)
-            => entityEntry.GetInfrastructure().Reload(context);
-        
-        public static Dictionary<IProperty, object> GetDatabaseValues(this EntityEntry entry, DbContext context)
-            => entry.GetInfrastructure().GetDatabaseValues(context);
-
-        public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)
-        {
-            if (internalEntry.EntityType.ClrType == typeof(Driver))
-            {
-                var id = ((Driver)internalEntry.Entity).Id;
-                
-                return SelectDatabaseValues(context.Set<Driver>()
-                    .Where(d => d.Id == id), internalEntry.EntityType)
-                    .SingleOrDefault();
-            }
-
-            if (internalEntry.EntityType.ClrType == typeof(Engine))
-            {
-                var id = ((Engine)internalEntry.Entity).Id;
-
-                return SelectDatabaseValues(context.Set<Engine>()
-                    .Where(d => d.Id == id), internalEntry.EntityType)
-                    .SingleOrDefault();
-            }
-
-            return null;
-        }
-
-        private static readonly NewExpression _newDictionaryExpression =
-            Expression.New(typeof(Dictionary<IProperty, object>));
-
-        private static readonly MethodInfo _dictionaryAddMethod =
-            typeof(Dictionary<IProperty, object>).GetMethod(nameof(Dictionary<IProperty, object>.Add));
-
-        private static readonly MethodInfo _efPropertyMethodInfo =
-            typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
-
-        private static IQueryable<Dictionary<IProperty, object>> SelectDatabaseValues<TEntity>(
-            IQueryable<TEntity> query, IEntityType entityType)
-        {
-            var entityParameterExpression = Expression.Parameter(typeof(TEntity), "entity");
-
-            var elementInitList = entityType.GetProperties().Select(property =>
-                Expression.ElementInit(
-                    _dictionaryAddMethod,
-                    Expression.Constant(property),
-                    Expression.Convert(
-                        Expression.Call(
-                            null,
-                            _efPropertyMethodInfo.MakeGenericMethod(property.ClrType),
-                            entityParameterExpression,
-                            Expression.Constant(property.Name)),
-                        typeof(object))));
-
-            return query.Select(Expression.Lambda<Func<TEntity, Dictionary<IProperty, object>>>(
-                Expression.ListInit(_newDictionaryExpression, elementInitList),
-                entityParameterExpression));
-        }
-    }
-
     public abstract class OptimisticConcurrencyTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : F1FixtureBase<TTestStore>, new()
     {
         [Fact]
-        public virtual async Task Modifying_concurrency_token_only_is_noop()
-        {
-            byte[] firstVersion;
-            using (var context = CreateF1Context())
-            {
-                var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(1, context.Entry(driver).Property<byte[]>("Version").CurrentValue[0]);
-                driver.Podiums = StorePodiums;
-                firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                await context.SaveChangesAsync();
-            }
-
-            byte[] secondVersion;
-            using (var context = CreateF1Context())
-            {
-                var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(firstVersion, context.Entry(driver).Property<byte[]>("Version").CurrentValue);
-                Assert.Equal(StorePodiums, driver.Podiums);
-
-                secondVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                context.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
-                await context.SaveChangesAsync();
-            }
-
-            using (var validationContext = CreateF1Context())
-            {
-                var driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
-                Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
-                Assert.Equal(StorePodiums, driver.Podiums);
-            }
-        }
-
-        [Fact]
         public virtual void Nullable_client_side_concurrency_token_can_be_used()
         {
             string originalName;
             var newName = "New name";
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var sponsor = context.Sponsors.Single(s => s.Id == 1);
-                Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
-                originalName = sponsor.Name;
-                sponsor.Name = "New name";
-                context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
-                context.SaveChanges();
-            }
+                c.Database.CreateExecutionStrategy().Execute(context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
+                        {
+                            var sponsor = context.Sponsors.Single(s => s.Id == 1);
+                            Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                            originalName = sponsor.Name;
+                            sponsor.Name = "New name";
+                            context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
+                            context.SaveChanges();
 
-            using (var context = CreateF1Context())
-            {
-                var sponsor = context.Sponsors.Single(s => s.Id == 1);
-                Assert.Equal(1, context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
-                Assert.Equal(newName, sponsor.Name);
-                sponsor.Name = originalName;
-                context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
-                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                            using (var innerContext = CreateF1Context())
+                            {
+                                UseTransaction(innerContext.Database, transaction);
+                                sponsor = innerContext.Sponsors.Single(s => s.Id == 1);
+                                Assert.Equal(1, innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                                Assert.Equal(newName, sponsor.Name);
+                                sponsor.Name = originalName;
+                                innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
+                                Assert.Throws<DbUpdateConcurrencyException>(() => innerContext.SaveChanges());
+                            }
+                        }
+                    }, c);
             }
         }
 
@@ -218,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClientPodiums, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        driverEntry.SetOriginalValues(driverEntry.GetDatabaseValues(c));
+                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
                         ResolveConcurrencyTokens(driverEntry);
                     });
         }
@@ -230,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 StorePodiums, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        var storeValues = driverEntry.GetDatabaseValues(c);
-                        driverEntry.SetValues(storeValues);
-                        driverEntry.SetOriginalValues(storeValues);
+                        var storeValues = driverEntry.GetDatabaseValues();
+                        driverEntry.CurrentValues.SetValues(storeValues);
+                        driverEntry.OriginalValues.SetValues(storeValues);
                         ResolveConcurrencyTokens(driverEntry);
                     });
         }
@@ -244,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 10, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        driverEntry.SetOriginalValues(driverEntry.GetDatabaseValues(c));
+                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
                         ResolveConcurrencyTokens(driverEntry);
                         ((Driver)driverEntry.Entity).Podiums = 10;
                     });
@@ -257,9 +97,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 StorePodiums, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        var storeValues = driverEntry.GetDatabaseValues(c);
-                        driverEntry.SetValues(storeValues);
-                        driverEntry.SetOriginalValues(storeValues);
+                        var storeValues = driverEntry.GetDatabaseValues();
+                        driverEntry.CurrentValues.SetValues(storeValues);
+                        driverEntry.OriginalValues.SetValues(storeValues);
                         driverEntry.State = EntityState.Unchanged;
                     });
         }
@@ -267,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
         {
-            return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload(c));
+            return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload());
         }
 
         // TODO: Uncomment the tests below when lazy loading works
@@ -286,26 +126,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Chassis.Name = "MP4-25c";
                         team.Principal = "Jerry Seinfeld";
-                    }, (c, ex) =>
+                    },
+                (c, ex) =>
+                    {
+                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+
+                        var entry = ex.Entries.Single();
+                        Assert.IsAssignableFrom<Chassis>(entry.Entity);
+                        entry.Reload();
+
+                        try
                         {
-                            Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                            var entry = ex.Entries.Single();
-                            Assert.IsAssignableFrom<Chassis>(entry.Entity);
-                            entry.Reload(c);
-
-                            try
-                            {
-                                c.SaveChanges();
-                                Assert.True(false, "Expected second exception due to conflict in principals.");
-                            }
-                            catch (DbUpdateConcurrencyException ex2)
-                            {
-                                var entry2 = ex2.Entries.Single();
-                                Assert.IsAssignableFrom<Team>(entry2.Entity);
-                                entry2.Reload(c);
-                            }
-                        },
+                            c.SaveChanges();
+                            Assert.True(false, "Expected second exception due to conflict in principals.");
+                        }
+                        catch (DbUpdateConcurrencyException ex2)
+                        {
+                            var entry2 = ex2.Entries.Single();
+                            Assert.IsAssignableFrom<Team>(entry2.Entity);
+                            entry2.Reload();
+                        }
+                    },
                 c =>
                     {
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
@@ -329,26 +170,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 2;
                         team.Principal = "Jerry Seinfeld";
-                    }, (c, ex) =>
+                    },
+                (c, ex) =>
+                    {
+                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+
+                        var entry = ex.Entries.Single();
+                        Assert.IsAssignableFrom<Driver>(entry.Entity);
+                        entry.Reload();
+
+                        try
                         {
-                            Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                            var entry = ex.Entries.Single();
-                            Assert.IsAssignableFrom<Driver>(entry.Entity);
-                            entry.Reload(c);
-
-                            try
-                            {
-                                c.SaveChanges();
-                                Assert.True(false, "Expected second exception due to conflict in principals.");
-                            }
-                            catch (DbUpdateConcurrencyException ex2)
-                            {
-                                var entry2 = ex2.Entries.Single();
-                                Assert.IsAssignableFrom<Team>(entry2.Entity);
-                                entry2.Reload(c);
-                            }
-                        },
+                            c.SaveChanges();
+                            Assert.True(false, "Expected second exception due to conflict in principals.");
+                        }
+                        catch (DbUpdateConcurrencyException ex2)
+                        {
+                            var entry2 = ex2.Entries.Single();
+                            Assert.IsAssignableFrom<Team>(entry2.Entity);
+                            entry2.Reload();
+                        }
+                    },
                 c =>
                     {
                         var team = c.Teams.Single(t => t.Id == Team.McLaren);
@@ -357,8 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        //TODO: Uncomment when Include is implemented
-        //[Fact]
+        [Fact]
         public virtual Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
@@ -374,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c =>
                     Assert.Equal(
@@ -468,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c =>
                     Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
@@ -509,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
@@ -526,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
         }
@@ -545,9 +386,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
 
                         entry.State = EntityState.Unchanged;
-                        var storeValues = entry.GetDatabaseValues(c);
-                        entry.SetOriginalValues(storeValues);
-                        entry.SetValues(storeValues);
+                        var storeValues = entry.GetDatabaseValues();
+                        entry.OriginalValues.SetValues(storeValues);
+                        entry.CurrentValues.SetValues(storeValues);
                         ResolveConcurrencyTokens(entry);
                     },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
@@ -565,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload(c);
+                        entry.Reload();
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
@@ -582,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        var storeValues = entry.GetDatabaseValues(c);
+                        var storeValues = entry.GetDatabaseValues();
                         Assert.Null(storeValues);
                         entry.State = EntityState.Detached;
                     },
@@ -593,64 +434,154 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         #region Tests for calling Reload on an entity in various states
 
-        [Fact]
-        public virtual void Calling_Reload_on_an_Added_entity_throws()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an__Added_entity_that_is_not_in_database_is_no_op(bool async)
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var entry = context.Drivers.Add(
-                    new Driver
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
                     {
-                        Name = "Larry David",
-                        TeamId = Team.Ferrari
-                    });
+                        using (context.Database.BeginTransaction())
+                        {
+                            var entry = context.Drivers.Add(
+                                new Driver
+                                {
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                });
 
-                Assert.Equal("Can't reload an added entity",
-                    Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
+                            if (async)
+                            {
+                                await entry.ReloadAsync();
+                            }
+                            else
+                            {
+                                entry.Reload();
+                            }
+
+                            Assert.Equal(EntityState.Added, entry.State);
+                        }
+                    }, c);
             }
         }
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_detached_entity_throws()
-        {
-            using (var context = CreateF1Context())
-            {
-                var entry = context.Drivers.Add(
-                    new Driver
-                    {
-                        Name = "Larry David",
-                        TeamId = Team.Ferrari
-                    });
-                entry.State = EntityState.Detached;
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an_Unchanged_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Unchanged, async);
 
-                Assert.Equal("Can't reload an unknown entity",
-                    Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Modified_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Modified, async);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Deleted_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Deleted, async);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it(bool async)
+            => await TestReloadGone(EntityState.Detached, async);
+
+        private async Task TestReloadGone(EntityState state, bool async)
+        {
+            using (var c = CreateF1Context())
+            {
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                    {
+                        using (context.Database.BeginTransaction())
+                        {
+                            var entry = context.Drivers.Add(
+                                new Driver
+                                {
+                                    Id = 676,
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                });
+
+                            entry.State = state;
+
+                            if (async)
+                            {
+                                await entry.ReloadAsync();
+                            }
+                            else
+                            {
+                                entry.Reload();
+                            }
+
+                            Assert.Equal(EntityState.Detached, entry.State);
+                        }
+                    }, c);
             }
         }
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_Unchanged_entity_makes_the_entity_unchanged()
-            => TestReloadPositive(EntityState.Unchanged);
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Unchanged, async);
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged()
-            => TestReloadPositive(EntityState.Modified);
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Modified, async);
 
-        [Fact]
-        public virtual void Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged()
-            => TestReloadPositive(EntityState.Deleted);
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Deleted, async);
 
-        private void TestReloadPositive(EntityState state)
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Added, async);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged(bool async)
+            => await TestReloadPositive(EntityState.Detached, async);
+
+        private async Task TestReloadPositive(EntityState state, bool async)
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                var entry = context.Entry(larry);
-                entry.State = state;
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                    {
+                        using (context.Database.BeginTransaction())
+                        {
+                            var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
+                            larry.Name = "Rory Gilmore";
+                            var entry = context.Entry(larry);
+                            entry.Property(e => e.Name).CurrentValue = "Emily Gilmore";
+                            entry.State = state;
 
-                entry.Reload(context);
+                            if (async)
+                            {
+                                await entry.ReloadAsync();
+                            }
+                            else
+                            {
+                                entry.Reload();
+                            }
 
-                Assert.Equal(EntityState.Unchanged, entry.State);
+                            Assert.Equal(EntityState.Unchanged, entry.State);
+                            Assert.Equal("Jenson Button", larry.Name);
+                            Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
+                        }
+                    }, c);
             }
         }
 
@@ -658,8 +589,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         #region Helpers
 
-        private const int StorePodiums = 20;
-        private const int ClientPodiums = 30;
+        protected const int StorePodiums = 20;
+        protected const int ClientPodiums = 30;
 
         protected virtual void ResolveConcurrencyTokens(EntityEntry entry)
         {
@@ -715,38 +646,46 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         ///     again.  Finally, a new context is created and the validator is called so that the state of
         ///     the database at the end of the process can be validated.
         /// </summary>
-        private async Task ConcurrencyTestAsync(
+        protected virtual async Task ConcurrencyTestAsync(
             Action<F1Context> storeChange, Action<F1Context> clientChange,
             Action<F1Context, DbUpdateException> resolver, Action<F1Context> validator)
         {
-            using (var context = CreateF1Context())
+            using (var c = CreateF1Context())
             {
-                clientChange(context);
-
-                using (var innerContext = CreateF1Context())
-                {
-                    storeChange(innerContext);
-                    await innerContext.SaveChangesAsync();
-                }
-
-                var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
-
-                using (var resolverContext = CreateF1Context())
-                {
-                    // TODO: pass in 'context' when no tracking queries are available
-                    resolver(resolverContext, updateException);
-                }
-
-                using (var validationContext = CreateF1Context())
-                {
-                    if (validator != null)
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
                     {
-                        await context.SaveChangesAsync();
+                        using (var transaction = context.Database.BeginTransaction())
+                        {
+                            clientChange(context);
 
-                        validator(validationContext);
-                    }
-                }
+                            using (var innerContext = CreateF1Context())
+                            {
+                                UseTransaction(innerContext.Database, transaction);
+                                storeChange(innerContext);
+                                await innerContext.SaveChangesAsync();
+
+                                var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+                                resolver(context, updateException);
+
+                                using (var validationContext = CreateF1Context())
+                                {
+                                    UseTransaction(validationContext.Database, transaction);
+                                    if (validator != null)
+                                    {
+                                        await context.SaveChangesAsync();
+
+                                        validator(validationContext);
+                                    }
+                                }
+                            }
+                        }
+                    }, c);
             }
+        }
+
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        {
         }
 
         #endregion

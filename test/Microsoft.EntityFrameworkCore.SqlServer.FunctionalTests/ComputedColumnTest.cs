@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class ComputedColumnTest
+    public class ComputedColumnTest : IDisposable
     {
         [Fact]
         public void Can_use_computed_columns()
@@ -17,9 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new Context(serviceProvider, "ComputedColumns"))
+            using (var context = new Context(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
                 var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 }).Entity;
@@ -38,9 +37,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new Context(serviceProvider, "ComputedColumns"))
+            using (var context = new Context(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
                 var entity = context.Add(new Entity { P1 = 20, P2 = 30 }).Entity;
@@ -67,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -123,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -139,9 +137,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new NullableContext(serviceProvider, "NullableEnumComputedColumns"))
+            using (var context = new NullableContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
                 var entity = context.EnumItems.Add(new EnumItem { FlagEnum = FlagEnum.AValue, OptionalFlagEnum = FlagEnum.BValue }).Entity;
@@ -150,5 +147,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(FlagEnum.AValue | FlagEnum.BValue, entity.CalculatedFlagEnum);
             }
         }
+
+        public ComputedColumnTest()
+        {
+            TestStore = SqlServerTestStore.Create("ComputedColumnTest");
+        }
+
+        protected SqlServerTestStore TestStore { get; }
+
+        public virtual void Dispose() => TestStore.Dispose();
     }
 }

@@ -3,15 +3,14 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using System.Threading;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture>
@@ -30,8 +29,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 Assert.NotNull(customers);
                 Assert.StartsWith(
-                    @"    Compiling query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer])'
-    Optimized query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer])'
+                    @"    Compiling query model: 
+'from Customer <generated>_0 in DbSet<Customer>
+select <generated>_0'
+    Optimized query model: 
+'from Customer <generated>_0 in DbSet<Customer>
+select <generated>_0'
     TRACKED: True
 (QueryContext queryContext) => IEnumerable<Customer> _ShapedQuery(
     queryContext: queryContext, 
@@ -90,8 +93,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]) => Include([c].Orders)'
-    Optimized query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer])'
+                Assert.StartsWith(@"    Compiling query model: 
+'(from Customer c in DbSet<Customer>
+select c)
+.Include(""Orders"")'
+    Optimized query model: 
+'from Customer c in DbSet<Customer>
+select c'
     Including navigation: 'c.Orders'
     TRACKED: True
 (QueryContext queryContext) => IEnumerable<Customer> _Include(
@@ -108,10 +116,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     , 
     entityAccessor: default(System.Func`2[Specification.Tests.TestModels.Northwind.Customer,System.Object]), 
     navigationPath: INavigation[] { Customer.Orders, }, 
-    relatedEntitiesLoaderFactories: List<Func<QueryContext, IRelatedEntitiesLoader>> 
-    { 
-        System.Func`2[QueryContext,Internal.IRelatedEntitiesLoader], 
-    }
+    relatedEntitiesLoaderFactories: new Func<QueryContext, IRelatedEntitiesLoader>[]{ (QueryContext ) => IRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
+            queryContext: , 
+            shaperCommandContext: SelectExpression: 
+                SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                FROM [Orders] AS [o]
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM [Customers] AS [c]
+                    WHERE [o].[CustomerID] = [c].[CustomerID])
+                ORDER BY [o].[CustomerID]
+            , 
+            queryIndex: 1, 
+            materializer: (ValueBuffer valueBuffer) => 
+            {
+                var3 = new Order()
+                var3.<OrderID>k__BackingField = int TryReadValue(valueBuffer, 0, OrderID)
+                var3.<CustomerID>k__BackingField = string TryReadValue(valueBuffer, 1, CustomerID)
+                var3.<EmployeeID>k__BackingField = Nullable<int> TryReadValue(valueBuffer, 2, EmployeeID)
+                var3.<OrderDate>k__BackingField = Nullable<DateTime> TryReadValue(valueBuffer, 3, OrderDate)
+                return instance
+            }
+        )
+         }
     , 
     querySourceRequiresTracking: True
 )",

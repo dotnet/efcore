@@ -1,0 +1,27 @@
+{
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
+    "preserveCompilationContext": true
+  },
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-*",
+    "Microsoft.EntityFrameworkCore.Design": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.2.0-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.1": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.1.0-*",
+          "type": "platform"
+        }
+      }
+    },
+    "net451": {}
+  }
+}

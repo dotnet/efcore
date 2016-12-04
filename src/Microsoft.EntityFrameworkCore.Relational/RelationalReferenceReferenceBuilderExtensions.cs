@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="ReferenceReferenceBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="ReferenceReferenceBuilder" />.
     /// </summary>
     public static class RelationalReferenceReferenceBuilderExtensions
     {

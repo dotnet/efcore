@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Storage;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -645,6 +646,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new SqlServerTypeMapper().GetMapping("magic"));
             Assert.Equal(RelationalStrings.UnsupportedType("magic"), ex.Message);
+        }
+
+        [Fact]
+        public void Throws_for_unrecognized_property_types()
+        {
+            var property = new Model().AddEntityType("Entity1").AddProperty("Strange", typeof(object));
+            var ex = Assert.Throws<InvalidOperationException>(() => new SqlServerTypeMapper().GetMapping(property));
+            Assert.Equal(RelationalStrings.UnsupportedPropertyType("Entity1", "Strange", "object"), ex.Message);
         }
 
         [Theory]

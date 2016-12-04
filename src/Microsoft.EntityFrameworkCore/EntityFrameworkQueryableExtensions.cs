@@ -2127,24 +2127,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="List{T}" /> that contains elements from the input sequence.
         /// </returns>
-        public static async Task<List<TSource>> ToListAsync<TSource>(
+        public static Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(source, nameof(source));
-
-            var list = new List<TSource>();
-
-            using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
-            {
-                while (await asyncEnumerator.MoveNext(cancellationToken))
-                {
-                    list.Add(asyncEnumerator.Current);
-                }
-            }
-
-            return list;
-        }
+            => source.AsAsyncEnumerable().ToList(cancellationToken);
 
         /// <summary>
         ///     Asynchronously creates an array from an <see cref="IQueryable{T}" /> by enumerating it asynchronously.
@@ -2166,14 +2152,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous operation.
         ///     The task result contains an array that contains elements from the input sequence.
         /// </returns>
-        public static async Task<TSource[]> ToArrayAsync<TSource>(
+        public static Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(source, nameof(source));
-
-            return (await source.ToListAsync(cancellationToken)).ToArray();
-        }
+            => source.AsAsyncEnumerable().ToArray(cancellationToken);
 
         #endregion
 
@@ -2182,7 +2164,8 @@ namespace Microsoft.EntityFrameworkCore
         internal static readonly MethodInfo IncludeMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(Include))
-                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
+                .Single(mi => mi.GetParameters().Any(
+                    pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
         /// <summary>
         ///     Specifies related entities to include in the query results. The navigation property to be included is specified starting with the
@@ -2369,6 +2352,62 @@ namespace Microsoft.EntityFrameworkCore
 
             IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetEnumerator()
                 => ((IAsyncEnumerable<TEntity>)_queryable).GetEnumerator();
+        }
+
+        internal static readonly MethodInfo StringIncludeMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethods(nameof(Include))
+                .Single(mi => mi.GetParameters().Any(
+                    pi => pi.Name == "navigationPropertyPath" && pi.ParameterType == typeof(string)));
+
+        /// <summary>
+        ///     Specifies related entities to include in the query results. The navigation property to be included is
+        ///     specified starting with the type of entity being queried (<typeparamref name="TEntity" />). Further
+        ///     navigation properties to be included can be appended, separated by the '.' character.
+        /// </summary>
+        /// <example>
+        ///     <para>
+        ///         The following query shows including a single level of related entities.
+        ///         <code>
+        ///             context.Blogs.Include("Posts");
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including two levels of entities on the same branch.
+        ///         <code>
+        ///             context.Blogs.Include("Posts.Tags");
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including multiple levels and branches of related data.
+        ///         <code>
+        ///             context.Blogs
+        ///                 .Include("Posts.Tags.TagInfo')
+        ///                 .Include("Contributors");
+        ///         </code>
+        ///     </para>
+        /// </example>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <param name="navigationPropertyPath"> A string of '.' separated navigation property names to be included.  </param>
+        /// <returns> A new query with the related data included. </returns>
+        public static IQueryable<TEntity> Include<TEntity>(
+            [NotNull] this IQueryable<TEntity> source,
+            [NotNull] [NotParameterized] string navigationPropertyPath)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotEmpty(navigationPropertyPath, nameof(navigationPropertyPath));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            null,
+                            StringIncludeMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            source.Expression,
+                            Expression.Constant(navigationPropertyPath)))
+                    : source;
         }
 
         #endregion
@@ -2686,22 +2725,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public static async Task ForEachAsync<T>(
+        public static Task ForEachAsync<T>(
             [NotNull] this IQueryable<T> source,
             [NotNull] Action<T> action,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(action, nameof(action));
-
-            using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
-            {
-                while (await asyncEnumerator.MoveNext(cancellationToken))
-                {
-                    action(asyncEnumerator.Current);
-                }
-            }
-        }
+            => source.AsAsyncEnumerable().ForEachAsync(action, cancellationToken);
 
         #endregion
 

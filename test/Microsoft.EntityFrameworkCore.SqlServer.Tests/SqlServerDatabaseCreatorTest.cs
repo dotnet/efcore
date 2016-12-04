@@ -8,9 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +21,6 @@ using Xunit;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable MemberCanBePrivate.Local
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerDatabaseCreatorTest
@@ -45,6 +44,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
+        public async Task Create_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(1832, async: false);
+        }
+
+        [Fact]
+        public async Task Create_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(5120, async: false);
+        }
+
+        [Fact]
         public async Task CreateAsync_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(233, async: true);
@@ -62,11 +73,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             await Create_checks_for_existence_and_retries_until_it_passes(4060, async: true);
         }
 
+        [Fact]
+        public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(1832, async: true);
+        }
+
+        [Fact]
+        public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
+        {
+            await Create_checks_for_existence_and_retries_until_it_passes(5120, async: true);
+        }
+
         private async Task Create_checks_for_existence_and_retries_until_it_passes(int errorNumber, bool async)
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>()
+                .AddScoped<IExecutionStrategyFactory, ExecutionStrategyFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -105,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>()
+                .AddScoped<IExecutionStrategyFactory, ExecutionStrategyFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -118,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             if (async)
             {
-                await Assert.ThrowsAsync<SqlException>(async () => await creator.CreateAsync());
+                await Assert.ThrowsAsync<SqlException>(() => creator.CreateAsync());
             }
             else
             {
@@ -146,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             {
                 if (++OpenCount < FailAfter)
                 {
-                    throw CreateSqlException(ErrorNumber);
+                    throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
             }
 
@@ -154,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             {
                 if (++OpenCount < FailAfter)
                 {
-                    throw CreateSqlException(ErrorNumber);
+                    throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
 
                 return Task.FromResult(0);
@@ -166,11 +191,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
             public IRelationalCommandBuilder Create() => new FakeRelationalCommandBuilder();
-
-            public IRelationalCommandBuilder CreateDefinition()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
@@ -196,63 +216,63 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 get { throw new NotImplementedException(); }
             }
 
-            public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
+            public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
             {
                 return 0;
             }
 
-            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+            int IRelationalCommand.ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
                 => Task.FromResult(0);
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
+            Task<int> IRelationalCommand.ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+            Task<object> IRelationalCommand.ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
+            public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+            RelationalDataReader IRelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
             {
                 throw new NotImplementedException();
             }
-        }
 
-        private static SqlException CreateSqlException(int number)
-        {
-            var errorCtors = typeof(SqlError)
-                .GetTypeInfo()
-                .DeclaredConstructors;
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                throw new NotImplementedException();
+            }
 
-#if NET451
-            var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
-                .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
-#else
-    // CoreCLR internal constructor has an additional parameter
-            var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
-                .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
-#endif
-            var errors = (SqlErrorCollection)typeof(SqlErrorCollection)
-                .GetTypeInfo()
-                .DeclaredConstructors
-                .Single()
-                .Invoke(null);
+            Task<RelationalDataReader> IRelationalCommand.ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
 
-            typeof(SqlErrorCollection).GetRuntimeMethods().Single(m => m.Name == "Add").Invoke(errors, new object[] { error });
+            public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            {
+                throw new NotImplementedException();
+            }
 
-            var exceptionCtors = typeof(SqlException)
-                .GetTypeInfo()
-                .DeclaredConstructors;
+            object IRelationalCommand.ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
+            {
+                throw new NotImplementedException();
+            }
 
-            return (SqlException)exceptionCtors.First(c => c.GetParameters().Length == 4)
-                .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
+            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

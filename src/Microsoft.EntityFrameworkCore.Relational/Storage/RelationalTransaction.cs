@@ -29,13 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly ILogger _logger;
         private readonly bool _transactionOwned;
 
+        private bool _connectionClosed;
         private bool _disposed;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalTransaction"/> class.
+        ///     Initializes a new instance of the <see cref="RelationalTransaction" /> class.
         /// </summary>
         /// <param name="connection"> The connection to the database. </param>
-        /// <param name="transaction"> The underlying <see cref="DbTransaction"/>. </param>
+        /// <param name="transaction"> The underlying <see cref="DbTransaction" />. </param>
         /// <param name="logger"> The logger to write to. </param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
@@ -113,6 +114,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Debug.Assert((_relationalConnection.CurrentTransaction == null) || (_relationalConnection.CurrentTransaction == this));
 
             _relationalConnection.UseTransaction(null);
+
+            if (!_connectionClosed)
+            {
+                _connectionClosed = true;
+
+                _relationalConnection.Close();
+            }
         }
 
         DbTransaction IInfrastructure<DbTransaction>.Instance => _dbTransaction;

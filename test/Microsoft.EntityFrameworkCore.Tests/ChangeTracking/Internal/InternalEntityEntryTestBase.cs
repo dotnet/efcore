@@ -6,14 +6,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -646,10 +644,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetOriginalValue(idProperty, 3);
             entry.SetOriginalValue(nameProperty, "Franks");
 
-            Assert.Equal(3, entry.GetOriginalValue(idProperty));
+            Assert.Equal(1, entry.GetOriginalValue(idProperty));
             Assert.Equal("Franks", entry.GetOriginalValue(nameProperty));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
@@ -1068,6 +1065,39 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             return modelBuilder.Model;
         }
 
+        private static IModel BuildOneToOneCompositeModel(bool required)
+        {
+            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
+
+            modelBuilder
+                .Entity<CompositeRoot>()
+                .HasKey(e => new { e.Id1, e.Id2 });
+
+            modelBuilder
+                .Entity<CompositeFirstDependent>()
+                .HasKey(e => new { e.Id1, e.Id2 });
+
+            modelBuilder
+                .Entity<CompositeSecondDependent>()
+                .HasKey(e => new { e.Id1, e.Id2 });
+
+            modelBuilder
+                .Entity<CompositeRoot>()
+                .HasOne(e => e.First)
+                .WithOne(e => e.Root)
+                .HasForeignKey<CompositeFirstDependent>(e => new { e.RootId1, e.RootId2 })
+                .IsRequired(required);
+
+            modelBuilder
+                .Entity<CompositeFirstDependent>()
+                .HasOne(e => e.Second)
+                .WithOne(e => e.First)
+                .HasForeignKey<CompositeSecondDependent>(e => new { e.FirstId1, e.FirstId2 })
+                .IsRequired(required);
+
+            return modelBuilder.Model;
+        }
+
         [Fact]
         public void Unchanged_entity_with_conceptually_null_FK_with_cascade_delete_is_marked_Deleted()
         {
@@ -1102,6 +1132,49 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entry.HandleConceptualNulls();
 
             Assert.Equal(EntityState.Detached, entry.EntityState);
+        }
+
+        [Fact]
+        public void Entity_with_partially_null_composite_FK_with_cascade_delete_is_marked_Deleted()
+        {
+            var model = BuildOneToOneCompositeModel(required: true);
+            var entityType = model.FindEntityType(typeof(CompositeSecondDependent).FullName);
+            var fkProperty1 = entityType.FindProperty("FirstId1");
+            var fkProperty2 = entityType.FindProperty("FirstId2");
+
+            var entry = CreateInternalEntry(TestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
+
+            entry[fkProperty1] = 77;
+            entry[fkProperty2] = "Foo";
+            entry.SetEntityState(EntityState.Unchanged);
+
+            entry[fkProperty1] = null;
+            entry.HandleConceptualNulls();
+
+            Assert.Equal(EntityState.Deleted, entry.EntityState);
+        }
+
+        [Fact]
+        public void Entity_with_partially_null_composite_FK_without_cascade_delete_is_orphaned()
+        {
+            var model = BuildOneToOneCompositeModel(required: false);
+            var entityType = model.FindEntityType(typeof(CompositeSecondDependent).FullName);
+            var fkProperty1 = entityType.FindProperty("FirstId1");
+            var fkProperty2 = entityType.FindProperty("FirstId2");
+
+            var entry = CreateInternalEntry(TestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
+
+            entry[fkProperty1] = 77;
+            entry[fkProperty2] = "Foo";
+            entry.SetEntityState(EntityState.Unchanged);
+
+            entry[fkProperty1] = null;
+            entry.HandleConceptualNulls();
+
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+
+            Assert.Equal(77, entry[fkProperty1]);
+            Assert.Null(entry[fkProperty2]);
         }
 
         [Fact]
@@ -1173,6 +1246,36 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public FirstDependent First { get; set; }
         }
 
+        private class CompositeRoot
+        {
+            public int Id1 { get; set; }
+            public string Id2 { get; set; }
+
+            public CompositeFirstDependent First { get; set; }
+        }
+
+        private class CompositeFirstDependent
+        {
+            public int Id1 { get; set; }
+            public string Id2 { get; set; }
+
+            public int RootId1 { get; set; }
+            public string RootId2 { get; set; }
+            public CompositeRoot Root { get; set; }
+
+            public CompositeSecondDependent Second { get; set; }
+        }
+
+        private class CompositeSecondDependent
+        {
+            public int Id1 { get; set; }
+            public string Id2 { get; set; }
+
+            public int FirstId1 { get; set; }
+            public string FirstId2 { get; set; }
+            public CompositeFirstDependent First { get; set; }
+        }
+
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity)
         {
             var entry = new InternalEntityEntryFactory()
@@ -1196,46 +1299,46 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = new Model();
 
             var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
-            var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int), shadow: false);
+            var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int));
             simpleKeyProperty.RequiresValueGenerator = true;
             someSimpleEntityType.GetOrSetPrimaryKey(simpleKeyProperty);
 
             var someCompositeEntityType = model.AddEntityType(typeof(SomeCompositeEntityBase));
-            var compositeKeyProperty1 = someCompositeEntityType.AddProperty("Id1", typeof(int), shadow: false);
-            var compositeKeyProperty2 = someCompositeEntityType.AddProperty("Id2", typeof(string), shadow: false);
+            var compositeKeyProperty1 = someCompositeEntityType.AddProperty("Id1", typeof(int));
+            var compositeKeyProperty2 = someCompositeEntityType.AddProperty("Id2", typeof(string));
             compositeKeyProperty2.IsNullable = false;
             someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
             entityType1.HasBaseType(someSimpleEntityType);
-            var property3 = entityType1.AddProperty("Name", typeof(string), shadow: false);
+            var property3 = entityType1.AddProperty("Name", typeof(string));
             property3.IsConcurrencyToken = true;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
             entityType2.HasBaseType(someCompositeEntityType);
-            var fk = entityType2.AddProperty("SomeEntityId", typeof(int), shadow: false);
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
-            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int), shadow: false);
+            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
             justAProperty.RequiresValueGenerator = true;
 
             var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
-            var property6 = entityType3.AddProperty("Id", typeof(int), shadow: false);
+            var property6 = entityType3.AddProperty("Id", typeof(int));
             entityType3.GetOrSetPrimaryKey(property6);
-            var property7 = entityType3.AddProperty("Name", typeof(string), shadow: false);
+            var property7 = entityType3.AddProperty("Name", typeof(string));
             property7.IsConcurrencyToken = true;
             entityType3.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
             var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
-            var property8 = entityType4.AddProperty("Id", typeof(int), shadow: false);
+            var property8 = entityType4.AddProperty("Id", typeof(int));
             entityType4.GetOrSetPrimaryKey(property8);
-            var property9 = entityType4.AddProperty("Name", typeof(string), shadow: false);
+            var property9 = entityType4.AddProperty("Name", typeof(string));
             property9.IsConcurrencyToken = true;
             entityType4.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
             entityType5.HasBaseType(someSimpleEntityType);
-            var fk5a = entityType5.AddProperty("Fk1", typeof(int), shadow: false);
-            var fk5b = entityType5.AddProperty("Fk2", typeof(string), shadow: false);
+            var fk5a = entityType5.AddProperty("Fk1", typeof(int));
+            var fk5b = entityType5.AddProperty("Fk2", typeof(string));
             entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
 
             return model;
@@ -1311,10 +1414,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] string propertyName = "") 
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            private void NotifyChanging([CallerMemberName] string propertyName = "") 
+            private void NotifyChanging([CallerMemberName] string propertyName = "")
                 => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
@@ -1351,7 +1454,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] string propertyName = "") 
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

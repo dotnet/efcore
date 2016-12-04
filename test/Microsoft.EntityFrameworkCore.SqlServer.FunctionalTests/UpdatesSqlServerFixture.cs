@@ -17,39 +17,43 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
+                .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
 
         protected virtual string DatabaseName => "PartialUpdateSqlServerTest";
 
         public override SqlServerTestStore CreateTestStore()
-        {
-            return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+            => SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                        .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider);
 
                     using (var context = new UpdatesContext(optionsBuilder.Options))
                     {
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            UpdatesModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureCreated();
+                        UpdatesModelInitializer.Seed(context);
                     }
                 });
-        }
 
         public override UpdatesContext CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlServer(testStore.Connection)
+                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(_serviceProvider);
 
             var context = new UpdatesContext(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price).ForSqlServerHasColumnType("decimal(18,2)");
         }
     }
 }

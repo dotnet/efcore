@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQLite specific extension methods for <see cref="PropertyBuilder"/>.
+    ///     SQLite specific extension methods for <see cref="PropertyBuilder" />.
     /// </summary>
     public static class SqlitePropertyBuilderExtensions
     {

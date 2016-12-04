@@ -81,15 +81,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.HasBaseType(c);
 
             Assert.Equal(
-                CoreStrings.CircularInheritance(a, a),
+                CoreStrings.CircularInheritance(a.DisplayName(), a.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(a); }).Message);
 
             Assert.Equal(
-                CoreStrings.CircularInheritance(a, b),
+                CoreStrings.CircularInheritance(a.DisplayName(), b.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
 
             Assert.Equal(
-                CoreStrings.CircularInheritance(a, d),
+                CoreStrings.CircularInheritance(a.DisplayName(), d.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(d); }).Message);
         }
 
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             b.AddProperty(A.GProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(B).Name, typeof(A).Name, "G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(B).Name, typeof(A).Name, typeof(B).Name, "G", typeof(A).Name, "G"),
                 Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.AddProperty(A.GProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(D).Name, typeof(C).Name, "E, G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(D).Name, typeof(C).Name, typeof(D).Name, "E", typeof(A).Name, "E"),
                 Assert.Throws<InvalidOperationException>(() => { d.HasBaseType(c); }).Message);
         }
 
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.HasBaseType(c);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(C).Name, typeof(A).Name, "E, G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(C).Name, typeof(A).Name, typeof(D).Name, "E", typeof(A).Name, "E"),
                 Assert.Throws<InvalidOperationException>(() => { c.HasBaseType(a); }).Message);
         }
 
@@ -1611,7 +1611,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(fk1, orderType.FindForeignKey(customerFkProperty, customerKey1, customerType));
             Assert.Same(fk1, orderType.GetForeignKeys().Single());
 
-            var altKeyProperty = customerType.AddProperty(nameof(Customer.AlternateId), typeof(int), shadow: false);
+            var altKeyProperty = customerType.AddProperty(nameof(Customer.AlternateId), typeof(int));
             var customerKey2 = customerType.AddKey(altKeyProperty);
             var fk2 = orderType.AddForeignKey(customerFkProperty, customerKey2, customerType);
 
@@ -1700,14 +1700,18 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var model = new Model();
             var baseType = model.AddEntityType(typeof(BaseType));
             var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
-            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int), shadow: true);
+            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int));
             var key = baseType.GetOrAddKey(new[] { idProperty, idProperty2 });
             IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
             entityType.BaseType = baseType;
-            var fkProperty = entityType.AddProperty("fk", typeof(int), shadow: true);
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
 
             Assert.Equal(
-                CoreStrings.ForeignKeyPropertyInKey(Customer.IdProperty.Name, typeof(Customer).Name),
+                CoreStrings.ForeignKeyPropertyInKey(
+                    Customer.IdProperty.Name,
+                    typeof(Customer).Name,
+                    "{'" + Customer.IdProperty.Name + "'" + ", 'id2'}",
+                    typeof(BaseType).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType)).Message);
         }
 
@@ -1722,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var fkProperty = entityType.AddProperty("fk", typeof(int));
 
             Assert.Equal(
-                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName),
+                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'" + Customer.IdProperty.Name + "'}", nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty }, key, entityType)).Message);
         }
 
@@ -1735,7 +1739,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var idProperty = principalEntityType.GetOrAddProperty(Order.IdProperty);
 
             Assert.Equal(
-                CoreStrings.EntityTypeModelMismatch(typeof(Customer).FullName, typeof(Order).FullName),
+                CoreStrings.EntityTypeModelMismatch(nameof(Customer), nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => dependentEntityType.AddForeignKey(new[] { fkProperty }, principalEntityType.GetOrAddKey(idProperty), principalEntityType)).Message);
         }
 
@@ -1767,7 +1771,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var model = new Model();
 
             var principalType = model.AddEntityType(typeof(PrincipalEntity));
-            var property1 = principalType.AddProperty("PeeKay", typeof(int), shadow: false);
+            var property1 = principalType.AddProperty("PeeKay", typeof(int));
             principalType.GetOrSetPrimaryKey(property1);
 
             var dependentType = model.AddEntityType(typeof(DependentEntity));
@@ -2304,7 +2308,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
             Assert.Null(entityType.RemoveProperty("Id"));
 
-            var property1 = entityType.AddProperty("Id", typeof(int), shadow: false);
+            var property1 = entityType.AddProperty("Id", typeof(int));
 
             Assert.False(property1.IsShadowProperty);
             Assert.Equal("Id", property1.Name);
@@ -2312,7 +2316,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(((IProperty)property1).IsConcurrencyToken);
             Assert.Same(entityType, property1.DeclaringEntityType);
 
-            var property2 = entityType.AddProperty("Name", typeof(string), shadow: false);
+            var property2 = entityType.AddProperty("Name", typeof(string));
 
             Assert.NotNull(property1.Builder);
             Assert.NotNull(property2.Builder);
@@ -2336,7 +2340,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
 
-            var idProperty = entityType.AddProperty("Id", typeof(int), shadow: false);
+            var idProperty = entityType.AddProperty("Id", typeof(int));
 
             Assert.False(idProperty.IsShadowProperty);
             Assert.Equal("Id", idProperty.Name);
@@ -2368,17 +2372,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(CoreStrings.ClrPropertyOnShadowEntity(nameof(Customer.Name), "Customer"),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty(nameof(Customer.Name), typeof(int), shadow: false)).Message);
+                    entityType.AddProperty(Customer.NameProperty)).Message);
         }
 
         [Fact]
-        public void AddProperty_throws_if_no_clr_property()
+        public void AddProperty_throws_if_no_clr_property_or_field()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
 
-            Assert.Equal(CoreStrings.NoClrProperty("Random", nameof(Customer)),
+            Assert.Equal(CoreStrings.NoPropertyType("_foo", nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty("Random", typeof(int), shadow: false)).Message);
+                    entityType.AddProperty("_foo")).Message);
         }
 
         [Fact]
@@ -2389,7 +2393,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(CoreStrings.PropertyWrongClrType(
                 nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty(nameof(Customer.Name), typeof(int), shadow: false)).Message);
+                    entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
         }
 
         [Fact]
@@ -2402,7 +2406,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrSetPrimaryKey(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
+                CoreStrings.PropertyInUseKey("Id", typeof(Customer).Name, "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2416,7 +2420,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrAddKey(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
+                CoreStrings.PropertyInUseKey("Id", typeof(Customer).Name, "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2432,7 +2436,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             orderType.GetOrAddForeignKey(customerFk, customerPk, customerType);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("CustomerId", typeof(Order).Name),
+                CoreStrings.PropertyInUseForeignKey("CustomerId", typeof(Order).Name, "{'CustomerId'}", typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveProperty(customerFk.Name)).Message);
         }
 
@@ -2446,7 +2450,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrAddIndex(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
+                CoreStrings.PropertyInUseIndex("Id", typeof(Customer).Name, "{'Id'}", typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2549,11 +2553,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.AddProperty(Customer.IdProperty);
-            entityType.AddProperty("Mane", typeof(int), shadow: true);
+            entityType.AddProperty("Mane_", typeof(int));
 
             Assert.False(entityType.FindProperty("Name").IsShadowProperty);
             Assert.False(entityType.FindProperty("Id").IsShadowProperty);
-            Assert.True(entityType.FindProperty("Mane").IsShadowProperty);
+            Assert.True(entityType.FindProperty("Mane_").IsShadowProperty);
         }
 
         [Fact]
@@ -2615,15 +2619,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
 
             entityType.GetOrAddProperty(Customer.NameProperty);
-            entityType.AddProperty("Id", typeof(int), shadow: true);
-            entityType.AddProperty("Mane", typeof(int), shadow: true);
+            entityType.AddProperty("Id_", typeof(int));
+            entityType.AddProperty("Mane_", typeof(int));
 
-            Assert.Equal(0, entityType.FindProperty("Id").GetIndex());
-            Assert.Equal(1, entityType.FindProperty("Mane").GetIndex());
+            Assert.Equal(0, entityType.FindProperty("Id_").GetIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane_").GetIndex());
             Assert.Equal(2, entityType.FindProperty("Name").GetIndex());
 
-            Assert.Equal(0, entityType.FindProperty("Id").GetShadowIndex());
-            Assert.Equal(1, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(0, entityType.FindProperty("Id_").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane_").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
 
             Assert.Equal(2, entityType.ShadowPropertyCount());
@@ -2639,18 +2643,18 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetIndex());
             Assert.Equal(2, entityType.FindProperty("Name").GetIndex());
             Assert.Equal(3, entityType.FindProperty("Token").GetIndex());
-            Assert.Equal(4, entityType.FindNavigation("CollectionNav").GetIndex());
-            Assert.Equal(5, entityType.FindNavigation("ReferenceNav").GetIndex());
+            Assert.Equal(0, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(1, entityType.FindNavigation("ReferenceNav").GetIndex());
 
             Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Token").GetOriginalValueIndex());
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2667,14 +2671,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
 
             Assert.Equal(0, entityType.ShadowPropertyCount());
-            Assert.Equal(2, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.OriginalValueCount());
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
 
-            var gameProperty = entityType.AddProperty("Game", typeof(int), shadow: true);
+            var gameProperty = entityType.AddProperty("Game", typeof(int));
             gameProperty.IsConcurrencyToken = true;
 
-            var maneProperty = entityType.AddProperty("Mane", typeof(int), shadow: true);
+            var maneProperty = entityType.AddProperty("Mane", typeof(int));
             maneProperty.IsConcurrencyToken = true;
 
             Assert.Equal(0, entityType.FindProperty("Id").GetIndex());
@@ -2683,8 +2687,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(3, entityType.FindProperty("Mane").GetIndex());
             Assert.Equal(4, entityType.FindProperty("Name").GetIndex());
             Assert.Equal(5, entityType.FindProperty("Token").GetIndex());
-            Assert.Equal(6, entityType.FindNavigation("CollectionNav").GetIndex());
-            Assert.Equal(7, entityType.FindNavigation("ReferenceNav").GetIndex());
+            Assert.Equal(0, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(1, entityType.FindNavigation("ReferenceNav").GetIndex());
 
             Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
@@ -2693,12 +2697,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.FindProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Mane").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(4, entityType.FindProperty("Token").GetOriginalValueIndex());
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2719,7 +2723,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
 
             Assert.Equal(2, entityType.ShadowPropertyCount());
-            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(5, entityType.OriginalValueCount());
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
 
@@ -2732,8 +2736,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(3, entityType.FindProperty("Mane").GetIndex());
             Assert.Equal(4, entityType.FindProperty("Name").GetIndex());
             Assert.Equal(5, entityType.FindProperty("Token").GetIndex());
-            Assert.Equal(6, entityType.FindNavigation("CollectionNav").GetIndex());
-            Assert.Equal(7, entityType.FindNavigation("ReferenceNav").GetIndex());
+            Assert.Equal(0, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(1, entityType.FindNavigation("ReferenceNav").GetIndex());
 
             Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
@@ -2742,12 +2746,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Mane").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(4, entityType.FindProperty("Token").GetOriginalValueIndex());
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2768,9 +2772,204 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
 
             Assert.Equal(2, entityType.ShadowPropertyCount());
-            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(5, entityType.OriginalValueCount());
             Assert.Equal(3, entityType.RelationshipPropertyCount());
             Assert.Equal(2, entityType.StoreGeneratedCount());
+        }
+
+        [Fact]
+        public void Indexes_for_derived_types_are_calculated_correctly()
+        {
+            using (var context = new Levels())
+            {
+                var type = context.Model.FindEntityType(typeof(Level1));
+
+                Assert.Equal(0, type.FindProperty("Id").GetIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetIndex());
+                Assert.Equal(0, type.FindNavigation("Level1Collection").GetIndex());
+                Assert.Equal(1, type.FindNavigation("Level1Reference").GetIndex());
+
+                Assert.Equal(-1, type.FindProperty("Id").GetShadowIndex());
+                Assert.Equal(0, type.FindProperty("Level1ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetShadowIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetOriginalValueIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetOriginalValueIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetRelationshipIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetRelationshipIndex());
+                Assert.Equal(2, type.FindNavigation("Level1Collection").GetRelationshipIndex());
+                Assert.Equal(3, type.FindNavigation("Level1Reference").GetRelationshipIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetStoreGeneratedIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Reference").GetStoreGeneratedIndex());
+
+                Assert.Equal(3, type.PropertyCount());
+                Assert.Equal(2, type.NavigationCount());
+                Assert.Equal(1, type.ShadowPropertyCount());
+                Assert.Equal(3, type.OriginalValueCount());
+                Assert.Equal(4, type.RelationshipPropertyCount());
+                Assert.Equal(2, type.StoreGeneratedCount());
+
+                type = context.Model.FindEntityType(typeof(Level2));
+
+                Assert.Equal(0, type.FindProperty("Id").GetIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetIndex());
+                Assert.Equal(0, type.FindNavigation("Level1Collection").GetIndex());
+                Assert.Equal(1, type.FindNavigation("Level1Reference").GetIndex());
+                Assert.Equal(2, type.FindNavigation("Level2Collection").GetIndex());
+                Assert.Equal(3, type.FindNavigation("Level2Reference").GetIndex());
+
+                Assert.Equal(-1, type.FindProperty("Id").GetShadowIndex());
+                Assert.Equal(0, type.FindProperty("Level1ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetShadowIndex());
+                Assert.Equal(1, type.FindProperty("Level2ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetShadowIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetOriginalValueIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetOriginalValueIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetOriginalValueIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetRelationshipIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetRelationshipIndex());
+                Assert.Equal(2, type.FindNavigation("Level1Collection").GetRelationshipIndex());
+                Assert.Equal(3, type.FindNavigation("Level1Reference").GetRelationshipIndex());
+                Assert.Equal(4, type.FindProperty("Level2ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetRelationshipIndex());
+                Assert.Equal(5, type.FindNavigation("Level2Collection").GetRelationshipIndex());
+                Assert.Equal(6, type.FindNavigation("Level2Reference").GetRelationshipIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetStoreGeneratedIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetStoreGeneratedIndex());
+                Assert.Equal(2, type.FindProperty("Level2ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Reference").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Reference").GetStoreGeneratedIndex());
+
+                Assert.Equal(5, type.PropertyCount());
+                Assert.Equal(4, type.NavigationCount());
+                Assert.Equal(2, type.ShadowPropertyCount());
+                Assert.Equal(5, type.OriginalValueCount());
+                Assert.Equal(7, type.RelationshipPropertyCount());
+                Assert.Equal(3, type.StoreGeneratedCount());
+
+                type = context.Model.FindEntityType(typeof(Level3));
+
+                Assert.Equal(0, type.FindProperty("Id").GetIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetIndex());
+                Assert.Equal(5, type.FindProperty("Level3ReferenceId").GetIndex());
+                Assert.Equal(6, type.FindProperty("Prop3").GetIndex());
+                Assert.Equal(0, type.FindNavigation("Level1Collection").GetIndex());
+                Assert.Equal(1, type.FindNavigation("Level1Reference").GetIndex());
+                Assert.Equal(2, type.FindNavigation("Level2Collection").GetIndex());
+                Assert.Equal(3, type.FindNavigation("Level2Reference").GetIndex());
+                Assert.Equal(4, type.FindNavigation("Level3Collection").GetIndex());
+                Assert.Equal(5, type.FindNavigation("Level3Reference").GetIndex());
+
+                Assert.Equal(-1, type.FindProperty("Id").GetShadowIndex());
+                Assert.Equal(0, type.FindProperty("Level1ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetShadowIndex());
+                Assert.Equal(1, type.FindProperty("Level2ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetShadowIndex());
+                Assert.Equal(2, type.FindProperty("Level3ReferenceId").GetShadowIndex());
+                Assert.Equal(-1, type.FindProperty("Prop3").GetShadowIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetOriginalValueIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(2, type.FindProperty("Prop1").GetOriginalValueIndex());
+                Assert.Equal(3, type.FindProperty("Level2ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(4, type.FindProperty("Prop2").GetOriginalValueIndex());
+                Assert.Equal(5, type.FindProperty("Level3ReferenceId").GetOriginalValueIndex());
+                Assert.Equal(6, type.FindProperty("Prop3").GetOriginalValueIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetRelationshipIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetRelationshipIndex());
+                Assert.Equal(2, type.FindNavigation("Level1Collection").GetRelationshipIndex());
+                Assert.Equal(3, type.FindNavigation("Level1Reference").GetRelationshipIndex());
+                Assert.Equal(4, type.FindProperty("Level2ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetRelationshipIndex());
+                Assert.Equal(5, type.FindNavigation("Level2Collection").GetRelationshipIndex());
+                Assert.Equal(6, type.FindNavigation("Level2Reference").GetRelationshipIndex());
+                Assert.Equal(7, type.FindProperty("Level3ReferenceId").GetRelationshipIndex());
+                Assert.Equal(-1, type.FindProperty("Prop3").GetRelationshipIndex());
+                Assert.Equal(8, type.FindNavigation("Level3Collection").GetRelationshipIndex());
+                Assert.Equal(9, type.FindNavigation("Level3Reference").GetRelationshipIndex());
+
+                Assert.Equal(0, type.FindProperty("Id").GetStoreGeneratedIndex());
+                Assert.Equal(1, type.FindProperty("Level1ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop1").GetStoreGeneratedIndex());
+                Assert.Equal(2, type.FindProperty("Level2ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop2").GetStoreGeneratedIndex());
+                Assert.Equal(3, type.FindProperty("Level3ReferenceId").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindProperty("Prop3").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level1Reference").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level2Reference").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level3Collection").GetStoreGeneratedIndex());
+                Assert.Equal(-1, type.FindNavigation("Level3Reference").GetStoreGeneratedIndex());
+
+                Assert.Equal(7, type.PropertyCount());
+                Assert.Equal(6, type.NavigationCount());
+                Assert.Equal(3, type.ShadowPropertyCount());
+                Assert.Equal(7, type.OriginalValueCount());
+                Assert.Equal(10, type.RelationshipPropertyCount());
+                Assert.Equal(4, type.StoreGeneratedCount());
+            }
+        }
+
+        private class Levels : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Level1>().HasOne(e => e.Level1Reference).WithMany(e => e.Level1Collection);
+                modelBuilder.Entity<Level2>().HasOne(e => e.Level2Reference).WithMany(e => e.Level2Collection);
+                modelBuilder.Entity<Level3>().HasOne(e => e.Level3Reference).WithMany(e => e.Level3Collection);
+            }
+        }
+
+        private class Level1
+        {
+            public int Id { get; set; }
+            public int Prop1 { get; set; }
+            public Level1 Level1Reference { get; set; }
+            public ICollection<Level1> Level1Collection { get; set; }
+        }
+
+        private class Level2 : Level1
+        {
+            public int Prop2 { get; set; }
+            public Level2 Level2Reference { get; set; }
+            public ICollection<Level2> Level2Collection { get; set; }
+        }
+
+        private class Level3 : Level2
+        {
+            public int Prop3 { get; set; }
+            public Level3 Level3Reference { get; set; }
+            public ICollection<Level3> Level3Collection { get; set; }
         }
 
         [Fact]
@@ -2952,17 +3151,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Only_concurrency_and_FK_properties_have_original_value_indexes_when_using_full_notifications()
+        public void Only_concurrency_and_key_properties_have_original_value_indexes_when_using_full_notifications()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
             entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Token").GetOriginalValueIndex());
 
-            Assert.Equal(2, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.OriginalValueCount());
         }
 
         [Fact]

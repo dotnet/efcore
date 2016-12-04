@@ -27,11 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
-        protected override async Task<int> SaveChangesAsync(
-            IReadOnlyList<InternalEntityEntry> entriesToSave, CancellationToken cancellationToken = new CancellationToken())
+        protected override int SaveChanges(IReadOnlyList<InternalEntityEntry> entriesToSave)
         {
-            await base.SaveChangesAsync(entriesToSave, cancellationToken);
+            throw new Exception("Aborting.");
+        }
 
+        protected override Task<int> SaveChangesAsync(
+            IReadOnlyList<InternalEntityEntry> entriesToSave, CancellationToken cancellationToken = default(CancellationToken))
+        {
             throw new Exception("Aborting.");
         }
     }

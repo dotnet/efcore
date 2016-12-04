@@ -3,8 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(RedHook));
-            entityType.AddProperty("Long", typeof(int), shadow: false);
-            entityType.AddProperty("Hammer", typeof(string), shadow: false);
+            entityType.AddProperty("Long", typeof(int));
+            entityType.AddProperty("Hammer", typeof(string));
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(RedHook));
-            entityType.AddProperty("Long", typeof(int), shadow: false);
-            entityType.AddProperty("Hammer", typeof(string), shadow: true);
+            entityType.AddProperty("Long", typeof(int));
+            entityType.AddProperty("Spanner", typeof(string));
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();

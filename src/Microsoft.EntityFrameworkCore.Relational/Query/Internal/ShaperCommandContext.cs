@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ShaperCommandContext
@@ -62,6 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public override int GetHashCode() => 0;
+
+            public CommandCacheKey Clone() => new CommandCacheKey(
+                new Dictionary<string, object>((Dictionary<string, object>)_parameterValues));
         }
 
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
@@ -69,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private IRelationalValueBufferFactory _valueBufferFactory;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ShaperCommandContext(
@@ -81,19 +84,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<IQuerySqlGenerator> QuerySqlGeneratorFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IRelationalCommand GetRelationalCommand(
@@ -112,14 +115,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (generator.IsCacheable)
             {
-                _commandCache.TryAdd(key, relationalCommand);
+                _commandCache.TryAdd(key.Clone(), relationalCommand);
             }
 
             return relationalCommand;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)

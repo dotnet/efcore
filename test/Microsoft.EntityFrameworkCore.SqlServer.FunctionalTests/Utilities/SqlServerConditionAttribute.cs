@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit.Sdk;
@@ -32,13 +33,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
                 }
+                if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
+                {
+                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
+                }
                 if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
                 {
-                    isMet &= TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                    isMet &= TestEnvironment.IsSqlAzure;
                 }
                 if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
                 {
-                    isMet &= !TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                    isMet &= !TestEnvironment.IsSqlAzure;
+                }
+                if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
+                {
+                    var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
+                    isMet &= defaultConnection.DataSource.Contains("(localdb)")
+                             || defaultConnection.UserInstance;
                 }
                 return isMet;
             }
@@ -59,6 +70,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         SupportsSequences = 1 << 0,
         SupportsOffset = 1 << 1,
         IsSqlAzure = 1 << 2,
-        IsNotSqlAzure = 1 << 3
+        IsNotSqlAzure = 1 << 3,
+        SupportsMemoryOptimized = 1 << 4,
+        SupportsAttach = 1 << 5
     }
 }

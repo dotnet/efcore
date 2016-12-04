@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQLite specific extension methods for <see cref="ReferenceReferenceBuilder"/>.
+    ///     SQLite specific extension methods for <see cref="ReferenceReferenceBuilder" />.
     /// </summary>
     public static class SqliteReferenceReferenceBuilderExtensions
     {

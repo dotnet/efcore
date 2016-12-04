@@ -6,13 +6,13 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public static class RelationalInternalMetadataBuilderExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalModelBuilderAnnotations Relational(
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalModelBuilderAnnotations(builder, configurationSource, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalPropertyBuilderAnnotations Relational(
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalPropertyBuilderAnnotations(builder, configurationSource, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalEntityTypeBuilderAnnotations Relational(
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalKeyBuilderAnnotations Relational(
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalKeyBuilderAnnotations(builder, configurationSource, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalIndexBuilderAnnotations Relational(
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalIndexBuilderAnnotations(builder, configurationSource, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalForeignKeyBuilderAnnotations Relational(

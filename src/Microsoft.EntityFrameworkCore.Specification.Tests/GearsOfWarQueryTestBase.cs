@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable ReplaceWithSingleCallToSingle
-
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class GearsOfWarQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
@@ -45,6 +44,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void ToString_guid_property_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Select(ct => new { A = ct.GearNickName, B = ct.Id.ToString() });
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+            }
+        }
+        
         [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
         {
@@ -261,6 +272,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void String_based_Include_navigation_on_derived_type()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.OfType<Officer>().Include("Reports");
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+
+                var marcusReports = result.Where(e => e.Nickname == "Marcus").Single().Reports.ToList();
+                Assert.Equal(3, marcusReports.Count);
+                Assert.Contains("Baird", marcusReports.Select(g => g.Nickname));
+                Assert.Contains("Cole Train", marcusReports.Select(g => g.Nickname));
+                Assert.Contains("Dom", marcusReports.Select(g => g.Nickname));
+
+                var bairdReports = result.Where(e => e.Nickname == "Baird").Single().Reports.ToList();
+                Assert.Equal(1, bairdReports.Count);
+                Assert.Contains("Paduk", bairdReports.Select(g => g.Nickname));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Included()
         {
             using (var context = CreateContext())
@@ -354,6 +387,41 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var gears = context.Gears
                     .Include(g => g.Tag)
+                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id))
+                    .ToList();
+
+                Assert.Equal(5, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_where_list_contains_navigation2()
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+
+                var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
+
+                var gears = context.Gears
+                    .Include(g => g.Tag)
+                    .Where(g => g.CityOfBirth.Location != null && tags.Contains(g.Tag.Id))
+                    .ToList();
+
+                Assert.Equal(5, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_accessed_twice_outside_and_inside_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+
+                var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
+
+                var gears = context.Gears
                     .Where(g => g.Tag != null && tags.Contains(g.Tag.Id))
                     .ToList();
 
@@ -676,12 +744,121 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     {
                         BitwiseTrue = (b.Rank & MilitaryRank.Corporal) == MilitaryRank.Corporal,
                         BitwiseFalse = (b.Rank & MilitaryRank.Corporal) == MilitaryRank.Sergeant,
-                        BitwiseValue = b.Rank & MilitaryRank.Corporal,
+                        BitwiseValue = b.Rank & MilitaryRank.Corporal
                     }).First();
 
                 Assert.True(gear.BitwiseTrue);
                 Assert.False(gear.BitwiseFalse);
                 Assert.True(gear.BitwiseValue == MilitaryRank.Corporal);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_enum_has_flag()
+        {
+            using (var context = CreateContext())
+            {
+                // Constant
+                var gears = context.Gears
+                    .Where(g => g.Rank.HasFlag(MilitaryRank.Corporal))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                // Expression
+                gears = context.Gears
+                    .Where(g => g.Rank.HasFlag(MilitaryRank.Corporal | MilitaryRank.Captain))
+                    .ToList();
+
+                Assert.Equal(0, gears.Count);
+
+                // Casting
+                gears = context.Gears
+                    .Where(g => g.Rank.HasFlag((MilitaryRank)1))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                // Casting to nullable
+                gears = context.Gears
+                    .Where(g => g.Rank.HasFlag((MilitaryRank?)1))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                // QuerySource
+                gears = context.Gears
+                    .Where(g => MilitaryRank.Corporal.HasFlag(g.Rank))
+                    .ToList();
+
+                Assert.Equal(4, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_enum_has_flag_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                var gears = context.Gears
+                    .Where(g => g.Rank.HasFlag(context.Gears.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).FirstOrDefault().Rank))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                gears = context.Gears
+                    .Where(g => MilitaryRank.Corporal.HasFlag(context.Gears.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).FirstOrDefault().Rank))
+                    .ToList();
+
+                Assert.Equal(5, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_enum_has_flag_with_non_nullable_parameter()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = MilitaryRank.Corporal;
+
+                var gears = context.Gears
+                    .Where(g => g.Rank.HasFlag(parameter))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_has_flag_with_nullable_parameter()
+        {
+            using (var context = CreateContext())
+            {
+                MilitaryRank? parameter = MilitaryRank.Corporal;
+
+                var gears = context.Gears
+                    .Where(g => g.Rank.HasFlag(parameter))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_enum_has_flag()
+        {
+            using (var context = CreateContext())
+            {
+                var gear = context.Gears
+                    .Where(g => g.Rank.HasFlag(MilitaryRank.Corporal))
+                    .Select(b => new
+                    {
+                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
+                        hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
+                    }).First();
+
+                Assert.True(gear.hasFlagTrue);
+                Assert.False(gear.hasFlagFalse);
             }
         }
 
@@ -908,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Where(g => (null ==  EF.Property<string>(g, "LeaderNickname") ? (bool?)null : (bool?)(g.LeaderNickname.Length == 5)) == (bool?)true)
+                    .Where(g => (null == EF.Property<string>(g, "LeaderNickname") ? (bool?)null : (bool?)(g.LeaderNickname.Length == 5)) == (bool?)true)
                     .ToList();
 
                 var result = query.ToList();
@@ -939,12 +1116,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Null_propagation_optimization6()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .Where(g => (null != g.LeaderNickname ? (int?)EF.Property<string>(g, "LeaderNickname").Length : (int?)null) == 5 == (bool?)true)
+                    .ToList();
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+
+                var nickNames = result.Select(r => r.Nickname);
+                Assert.True(nickNames.Contains("Paduk"));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_null_propagation_negative1()
         {
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null) 
+                    .Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null)
                     .ToList();
 
                 var result = query.ToList();
@@ -985,8 +1180,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             List<KeyValuePair<Guid, Guid>> expected;
@@ -1014,8 +1208,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
             List<KeyValuePair<Guid, Guid>> expected;
@@ -1064,7 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var query = context.Gears.Where(g => g.Weapons.First().IsAutomatic).ToList();
+                var query = context.Gears.Where(g => g.Weapons.FirstOrDefault().IsAutomatic).ToList();
 
                 Assert.Equal(2, query.Count);
             }
@@ -1112,8 +1305,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        // issue 4539
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Equals_Navigation()
         {
             using (var context = CreateContext())
@@ -1168,8 +1360,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var gears
                     = (from ct in context.Set<CogTag>()
                        join g in context.Set<Gear>()
-                           on new { N = ct.GearNickName, S = ct.GearSquadId }
-                           equals new { N = g.Nickname, S = (int?)g.SquadId } into gs
+                       on new { N = ct.GearNickName, S = ct.GearSquadId }
+                       equals new { N = g.Nickname, S = (int?)g.SquadId } into gs
                        from g in gs
                        select g).ToList();
 
@@ -1217,7 +1409,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = (from t in context.Tags
                              join g in context.Gears.OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName }
-                                 equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
+                             equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
                              select g).Include(g => g.Tag);
 
                 var result = query.ToList();
@@ -1233,7 +1425,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = (from g in context.Gears.OfType<Officer>()
                              join t in context.Tags on new { id1 = (int?)g.SquadId, id2 = g.Nickname }
-                                 equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
+                             equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
                              select g).Include(g => g.Tag);
 
                 var result = query.ToList();
@@ -1370,7 +1562,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from g1 in context.Gears.Include(g => g.Weapons)
-                            join g2 in context.Gears 
+                            join g2 in context.Gears
                             on g1.LeaderNickname equals g2.Nickname into grouping
                             from g2 in grouping.DefaultIfEmpty()
                             select g2 ?? g1;
@@ -1387,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from g1 in context.Gears
-                            join g2 in context.Gears.Include(g => g.Weapons) 
+                            join g2 in context.Gears.Include(g => g.Weapons)
                             on g1.LeaderNickname equals g2.Nickname into grouping
                             from g2 in grouping.DefaultIfEmpty()
                             select g2 ?? g1;
@@ -1513,6 +1705,78 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear.HasSoulPatch);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => !t.Gear.HasSoulPatch);
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated_complex1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated_complex2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => !(!t.Gear.HasSoulPatch ? false : t.Gear.HasSoulPatch));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_conditional_expression()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear.HasSoulPatch ? true : false);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_binary_expression()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear.HasSoulPatch || t.Note.Contains("Cole"));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Optional_navigation_type_compensation_works_with_projection()
         {
             using (var context = CreateContext())
@@ -1530,6 +1794,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new { t.Gear.SquadId });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_DTOs()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new Squad { Id = t.Gear.SquadId });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_list_initializers()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new List<int> { t.Gear.SquadId, t.Gear.SquadId + 1, 42 });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_array_initializers()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new[] { t.Gear.SquadId });
                 var result = query.ToList();
 
                 Assert.Equal(5, result.Count);
@@ -1608,14 +1908,221 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_throws_rasonable_exception_for_nullable_values()
+        public virtual void Select_correlated_filtered_collection()
         {
             using (var context = CreateContext())
             {
-                var query = context.Tags.Where(t => t.Gear.HasSoulPatch);
+                var query = context.Gears
+                    .Where(g => g.CityOfBirth.Name == "Ephyra" || g.CityOfBirth.Name == "Hanover")
+                    .Select(g => g.Weapons.Where(w => w.Name != "Lancer"));
+                var result = query.ToList();
 
-                //Nullable object must have a value
-                Assert.Throws<InvalidOperationException>(() => query.ToList());
+                Assert.Equal(2, result.Count);
+
+                var resultList = result.Select(r => r.ToList()).ToList();
+                var coleWeapons = resultList.Where(l => l.All(w => w.Name.Contains("Cole's"))).Single();
+                var domWeapons = resultList.Where(l => l.All(w => w.Name.Contains("Dom's"))).Single();
+
+                Assert.Equal(2, coleWeapons.Count);
+                Assert.True(coleWeapons.Select(w => w.Name).Contains("Cole's Gnasher"));
+
+                Assert.Equal(2, domWeapons.Count);
+                Assert.True(domWeapons.Select(w => w.Name).Contains("Dom's Hammerburst"));
+                Assert.True(domWeapons.Select(w => w.Name).Contains("Dom's Gnasher"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_correlated_filtered_collection_with_composite_key()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.OfType<Officer>().Select(g => g.Reports.Where(r => r.Nickname != "Dom"));
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+
+                var resultList = result.Select(r => r.ToList()).ToList();
+                var bairdReports = resultList.Where(l => l.Count == 1).Single();
+                var marcusReports = resultList.Where(l => l.Count == 2).Single();
+
+                Assert.True(bairdReports.Select(g => g.FullName).Contains("Garron Paduk"));
+                Assert.True(marcusReports.Select(g => g.FullName).Contains("Augustus Cole"));
+                Assert.True(marcusReports.Select(g => g.FullName).Contains("Damon Baird"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_correlated_filtered_collection_works_with_caching()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Select(t => context.Gears.Where(g => g.Nickname == t.GearNickName));
+                var result = query.ToList();
+
+                var resultList = result.Select(r => r.ToList()).ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_predicate_value_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on true equals w.SynergyWithId != null
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_predicate_value()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.HasSoulPatch equals true
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(20, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_predicate_condition_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.FullName != null equals w.SynergyWithId != null
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Left_join_predicate_value_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on true equals w.SynergyWithId != null
+                            into group1
+                            from w in group1.DefaultIfEmpty()
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Left_join_predicate_value()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.HasSoulPatch equals true
+                            into group1
+                            from w in group1.DefaultIfEmpty()
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(23, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Left_join_predicate_condition_equals_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join w in context.Weapons
+                            on g.FullName != null equals w.SynergyWithId != null
+                            into group1
+                            from w in group1.DefaultIfEmpty()
+                            select g;
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_Date_works()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            where m.Timeline.Date > new DateTimeOffset().Date
+                            select m;
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_Datepart_works()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            where m.Timeline.Month == 5
+                            select m;
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from t in ctx.Tags
+                            join g in ctx.Gears on t.GearNickName equals g.Nickname into grouping
+                            from g in ClientDefaultIfEmpty(grouping)
+                            select new { Note = t.Note, Nickname = (g != null ? g.Nickname : null) };
+
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+            }
+        }
+
+        private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
+        {
+            return source?.Count() == 0 ? new[] { default(TElement) } : source;
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_predicate_with_AndAlso_and_nullable_bool_property()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from w in context.Weapons
+                            where w.Id != 50 && !w.Owner.HasSoulPatch
+                            select w;
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
             }
         }
 

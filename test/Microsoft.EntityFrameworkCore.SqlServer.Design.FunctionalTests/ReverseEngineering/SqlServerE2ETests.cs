@@ -5,30 +5,28 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class SqlServerE2ETests : E2ETestBase, IClassFixture<SqlServerE2EFixture>
     {
         protected override string ProviderName => "Microsoft.EntityFrameworkCore.SqlServer.Design";
 
-        protected override IServiceCollection ConfigureDesignTimeServices(IServiceCollection services)
+        protected override void ConfigureDesignTimeServices(IServiceCollection services)
             => new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
         public virtual string TestNamespace => "E2ETest.Namespace";
@@ -87,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "UnmappablePKColumn.expected"
         };
 
-        [ConditionalFact]
+        [Fact]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
@@ -136,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [ConditionalFact]
+        [Fact]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
@@ -188,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public void Sequences()
         {
-            using (var scratch = SqlServerTestStore.CreateScratch())
+            using (var scratch = SqlServerTestStore.Create("SqlServerE2E"))
             {
                 scratch.ExecuteNonQuery(@"
 CREATE SEQUENCE CountByTwo
@@ -259,7 +257,7 @@ CREATE SEQUENCE NumericSequence
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void PrimaryKeyWithSequence()
         {
-            using (var scratch = SqlServerTestStore.CreateScratch())
+            using (var scratch = SqlServerTestStore.Create("SqlServerE2E"))
             {
                 scratch.ExecuteNonQuery(@"
 CREATE SEQUENCE PrimaryKeyWithSequenceSequence
@@ -285,9 +283,59 @@ CREATE TABLE PrimaryKeyWithSequence (
                     Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
-                    Files = new List<string> {
+                    Files = new List<string>
+                    {
                         "PrimaryKeyWithSequenceContext.expected",
-                        "PrimaryKeyWithSequence.expected" }
+                        "PrimaryKeyWithSequence.expected"
+                    }
+                };
+
+                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+
+                var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
+                {
+                    Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
+
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void Index_with_filter()
+        {
+            using (var scratch = SqlServerTestStore.Create("SqlServerE2E"))
+            {
+                scratch.ExecuteNonQuery(@"
+CREATE TABLE FilteredIndex (
+    Id int,
+    Number int,
+    PRIMARY KEY (Id)
+);
+
+CREATE INDEX Unicorn_Filtered_Index
+    ON FilteredIndex (Number) WHERE Number > 10
+");
+
+                var configuration = new ReverseEngineeringConfiguration
+                {
+                    ConnectionString = scratch.ConnectionString,
+                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
+                    ProjectRootNamespace = TestNamespace,
+                    ContextClassName = "FilteredIndexContext",
+                    UseFluentApiOnly = true
+                };
+                var expectedFileSet = new FileSet(new FileSystemFileService(),
+                    Path.Combine("ReverseEngineering", "Expected"),
+                    contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
+                {
+                    Files = new List<string>
+                    {
+                        "FilteredIndexContext.expected",
+                        "FilteredIndex.expected",
+                    }
                 };
 
                 var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
@@ -304,7 +352,7 @@ CREATE TABLE PrimaryKeyWithSequence (
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.Data.Common"),
             BuildReference.ByName("System.Linq.Expressions"),

@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
@@ -79,6 +79,34 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
                 Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
+        public override void Can_generate_one_up_script()
+        {
+            base.Can_generate_one_up_script();
+
+            Assert.Equal(
+                @"ALTER TABLE ""Table1"" RENAME TO ""Table2"";
+
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('00000000000002_Migration2', '7.0.0-test');
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_up_script_using_names()
+        {
+            base.Can_generate_up_script_using_names();
+
+            Assert.Equal(
+                @"ALTER TABLE ""Table1"" RENAME TO ""Table2"";
+
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('00000000000002_Migration2', '7.0.0-test');
+
+",
+                Sql);
+        }
+
         public override void Can_generate_idempotent_up_scripts()
         {
             Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts());
@@ -89,10 +117,7 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"DELETE FROM ""__EFMigrationsHistory""
-WHERE ""MigrationId"" = '00000000000003_Migration3';
-
-ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
 
 DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000002_Migration2';
@@ -104,6 +129,34 @@ WHERE ""MigrationId"" = '00000000000001_Migration1';
 
 ",
                 Sql.Replace(Environment.NewLine, FileLineEnding));
+        }
+
+        public override void Can_generate_one_down_script()
+        {
+            base.Can_generate_one_down_script();
+
+            Assert.Equal(
+                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+
+DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = '00000000000002_Migration2';
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_down_script_using_names()
+        {
+            base.Can_generate_down_script_using_names();
+
+            Assert.Equal(
+                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+
+DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = '00000000000002_Migration2';
+
+",
+                Sql);
         }
 
         public override void Can_generate_idempotent_down_scripts()

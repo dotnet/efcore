@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -22,13 +23,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         where TEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name)
         {
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] IProperty property)
+            : base(internalEntry, property)
+        {
+        }
+
+        /// <summary>
+        ///     The <see cref="EntityEntry{TEntity}" /> to which this member belongs.
+        /// </summary>
+        /// <value> An entry for the entity that owns this member. </value>
+        public new virtual EntityEntry<TEntity> EntityEntry => new EntityEntry<TEntity>(InternalEntry);
 
         /// <summary>
         ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,

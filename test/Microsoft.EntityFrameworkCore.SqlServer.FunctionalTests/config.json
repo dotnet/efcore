@@ -2,8 +2,10 @@
     "Test": {
       "SqlServer": {
         "DefaultConnection": "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30",
+        "ElasticPoolName": "",
         "SupportsSequences": true,
-        "SupportsOffset": true
+        "SupportsOffset": true,
+        "SupportsMemoryOptimized": false
       }
     }
 }

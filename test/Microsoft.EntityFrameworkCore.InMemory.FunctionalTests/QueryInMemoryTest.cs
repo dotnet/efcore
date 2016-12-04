@@ -6,7 +6,6 @@ using Xunit.Abstractions;
 
 // ReSharper disable RedundantOverridenMember
 // ReSharper disable ConvertMethodToExpressionBody
-
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class QueryInMemoryTest : QueryTestBase<NorthwindQueryInMemoryFixture>

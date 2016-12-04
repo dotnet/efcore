@@ -3,12 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class PredicateNegationExpressionOptimizer : RelinqExpressionVisitor
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             };
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression node)
@@ -98,9 +99,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return Visit(innerUnary.Operand);
                 }
 
-                var innerBinary = node.Operand as BinaryExpression;
+                var notNullableExpression = node.Operand as NotNullableExpression;
+                var innerBinary = (notNullableExpression?.Operand ?? node.Operand) as BinaryExpression;
                 if (innerBinary != null)
                 {
+                    Expression result = null;
                     if ((innerBinary.NodeType == ExpressionType.Equal)
                         || (innerBinary.NodeType == ExpressionType.NotEqual))
                     {
@@ -108,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         // if user opts-out of the null semantics, we should not apply this rule
                         // !(a == b) -> a != b
                         // !(a != b) -> a == b
-                        return innerBinary.NodeType == ExpressionType.Equal
+                        result = innerBinary.NodeType == ExpressionType.Equal
                             ? Visit(Expression.NotEqual(innerBinary.Left, innerBinary.Right))
                             : Visit(Expression.Equal(innerBinary.Left, innerBinary.Right));
                     }
@@ -116,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     if (innerBinary.NodeType == ExpressionType.AndAlso)
                     {
                         // !(a && b) -> !a || !b
-                        return Visit(
+                        result = Visit(
                             Expression.MakeBinary(
                                 ExpressionType.OrElse,
                                 Expression.Not(innerBinary.Left),
@@ -126,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     if (innerBinary.NodeType == ExpressionType.OrElse)
                     {
                         // !(a || b) -> !a && !b
-                        return Visit(
+                        result = Visit(
                             Expression.MakeBinary(
                                 ExpressionType.AndAlso,
                                 Expression.Not(innerBinary.Left),
@@ -136,11 +139,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     if (_nodeTypeMapping.ContainsKey(innerBinary.NodeType))
                     {
                         // e.g. !(a > b) -> a <= b
-                        return Visit(
+                        result = Visit(
                             Expression.MakeBinary(
                                 _nodeTypeMapping[innerBinary.NodeType],
                                 innerBinary.Left,
                                 innerBinary.Right));
+                    }
+
+                    if (result != null)
+                    {
+                        return notNullableExpression != null
+                            ? new NotNullableExpression(result)
+                            : result;
                     }
                 }
             }

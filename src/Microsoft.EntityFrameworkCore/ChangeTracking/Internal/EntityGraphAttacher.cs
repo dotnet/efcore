@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class EntityGraphAttacher : IEntityGraphAttacher
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IEntityEntryGraphIterator _graphIterator;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityGraphAttacher([NotNull] IEntityEntryGraphIterator graphIterator)
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState)
@@ -43,13 +43,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            if (node.InboundNavigation != null
-                && !internalEntityEntry.IsKeySet)
-            {
-                node.NodeState = EntityState.Added;
-            }
-
-            internalEntityEntry.SetEntityState((EntityState)node.NodeState, acceptChanges: true);
+            internalEntityEntry.SetEntityState(
+                internalEntityEntry.IsKeySet
+                    ? (EntityState)node.NodeState
+                    : EntityState.Added,
+                acceptChanges: true);
 
             return true;
         }

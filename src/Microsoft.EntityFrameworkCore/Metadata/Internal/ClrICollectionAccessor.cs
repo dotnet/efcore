@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Func<TCollection> _createCollection;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type CollectionType => typeof(TCollection);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ClrICollectionAccessor(
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Add(object instance, object value)
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AddRange(object instance, IEnumerable<object> values)
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object Create(IEnumerable<object> values)
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetOrCreate(object instance) => GetOrCreateCollection(instance);
@@ -140,9 +140,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
-                        _propertyName, 
-                        typeof(TEntity).ShortDisplayName(), 
-                        enumerable.GetType().ShortDisplayName(), 
+                        _propertyName,
+                        typeof(TEntity).ShortDisplayName(),
+                        enumerable.GetType().ShortDisplayName(),
                         typeof(TElement).ShortDisplayName()));
             }
 
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Contains(object instance, object value)
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Remove(object instance, object value)

@@ -49,12 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override IDatabaseCreator Creator => GetService<SqlServerDatabaseCreator>();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public override IRelationalConnection RelationalConnection => GetService<ISqlServerConnection>();
 
         /// <summary>
@@ -62,6 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override ISqlGenerationHelper SqlGenerationHelper => GetService<SqlServerSqlGenerationHelper>();
+
+        /// <summary>
+        ///     Gets the <see cref="IModelValidator" /> for the database provider.
+        /// </summary>
+        public override IModelValidator ModelValidator => GetService<SqlServerModelValidator>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -176,5 +175,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator => GetService<SqlServerCompiledQueryCacheKeyGenerator>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override IExecutionStrategyFactory ExecutionStrategyFactory => GetService<SqlServerExecutionStrategyFactory>();
     }
 }

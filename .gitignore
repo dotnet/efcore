@@ -36,3 +36,4 @@ config.test.json
 *.sln.iml
 *.DotSettings
 .idea.*
+.cr/

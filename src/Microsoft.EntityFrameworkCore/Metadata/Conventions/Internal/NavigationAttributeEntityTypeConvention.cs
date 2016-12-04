@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public abstract class NavigationAttributeEntityTypeConvention<TAttribute> : IEntityTypeConvention, IEntityTypeIgnoredConvention, INavigationConvention, IBaseTypeConvention
+    public abstract class NavigationAttributeEntityTypeConvention<TAttribute> : IEntityTypeConvention, IEntityTypeIgnoredConvention, INavigationConvention, IBaseTypeConvention, IEntityTypeMemberIgnoredConvention
         where TAttribute : Attribute
     {
         /// <summary>
@@ -156,6 +156,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
+        {
+            var navigationPropertyInfo =
+                entityTypeBuilder.Metadata.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == ignoredMemberName);
+            if (navigationPropertyInfo == null)
+            {
+                return true;
+            }
+
+            var targetClrType = FindCandidateNavigationPropertyType(navigationPropertyInfo);
+            if (targetClrType == null)
+            {
+                return true;
+            }
+
+            var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(true);
+            if (attributes != null)
+            {
+                foreach (var attribute in attributes)
+                {
+                    if (!ApplyIgnored(entityTypeBuilder, navigationPropertyInfo, targetClrType, attribute))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
@@ -209,6 +242,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual bool Apply(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] EntityType oldBaseType,
+            [NotNull] PropertyInfo navigationPropertyInfo,
+            [NotNull] Type targetClrType,
+            [NotNull] TAttribute attribute)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool ApplyIgnored(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [NotNull] PropertyInfo navigationPropertyInfo,
             [NotNull] Type targetClrType,
             [NotNull] TAttribute attribute)

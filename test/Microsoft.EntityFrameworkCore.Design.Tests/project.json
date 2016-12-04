@@ -1,0 +1,26 @@
+{
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk"
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Design.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Relational.Design.Tests": {
+      "target": "project"
+    }
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.1": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.1.0-*",
+          "type": "platform"
+        }
+      }
+    },
+    "net451": {}
+  }
+}

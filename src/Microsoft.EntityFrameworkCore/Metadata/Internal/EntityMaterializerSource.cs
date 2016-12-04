@@ -2,18 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
@@ -22,33 +22,98 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = typeof(ValueBuffer).GetTypeInfo().DeclaredProperties
                 .Single(p => p.GetIndexParameters().Any()).GetMethod;
 
-        private readonly IMemberMapper _memberMapper;
+        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>> _materializers;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EntityMaterializerSource([NotNull] IMemberMapper memberMapper)
+        public virtual Expression CreateReadValueExpression(
+                Expression valueBuffer,
+                Type type,
+                int index,
+                IProperty property = null)
+            => Expression.Call(
+                _tryReadValueMethod.MakeGenericMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
+
+        private static readonly MethodInfo _tryReadValueMethod
+            = typeof(EntityMaterializerSource).GetTypeInfo()
+                .GetDeclaredMethod(nameof(TryReadValue));
+
+        private static TValue TryReadValue<TValue>(
+            ValueBuffer valueBuffer, 
+            int index,
+            IPropertyBase property = null)
         {
-            _memberMapper = memberMapper;
+            object untypedValue = null;
+
+            try
+            {
+                untypedValue = valueBuffer[index];
+
+                return (TValue)untypedValue;
+            }
+            catch (Exception e)
+            {
+                ThrowReadValueException<TValue>(e, untypedValue, property);
+            }
+
+            return default(TValue);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index)
-            => Expression.Convert(CreateReadValueCallExpression(valueBuffer, index), type);
+        public static readonly MethodInfo ThrowReadValueExceptionMethod
+            = typeof(EntityMaterializerSource).GetTypeInfo()
+                .GetDeclaredMethod(nameof(ThrowReadValueException));
+
+        private static TValue ThrowReadValueException<TValue>(
+            Exception exception, object value, IPropertyBase property = null)
+        {
+            var expectedType = typeof(TValue);
+            var actualType = value?.GetType();
+
+            string message;
+
+            if (property != null)
+            {
+                var entityType = property.DeclaringType.DisplayName();
+                var propertyName = property.Name;
+
+                message
+                    = exception is NullReferenceException
+                        ? CoreStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
+                        : exception is InvalidCastException
+                            ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
+                            : CoreStrings.ErrorMaterializingProperty(entityType, propertyName);
+            }
+            else
+            {
+                message
+                    = exception is NullReferenceException
+                        ? CoreStrings.ErrorMaterializingValueNullReference(expectedType)
+                        : exception is InvalidCastException
+                            ? CoreStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                            : CoreStrings.ErrorMaterializingValue;
+            }
+
+            throw new InvalidOperationException(message, exception);
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index)
             => Expression.Call(valueBuffer, _readValue, Expression.Constant(index));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression CreateMaterializeExpression(
@@ -95,23 +160,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 };
 
             blockExpressions.AddRange(
-                from mapping in _memberMapper.MapPropertiesToMembers(entityType)
-                let propertyInfo = mapping.Item2 as PropertyInfo
-                let targetMember
-                    = propertyInfo != null
-                        ? Expression.Property(instanceVariable, propertyInfo)
-                        : Expression.Field(instanceVariable, (FieldInfo)mapping.Item2)
+                from property in entityType.GetProperties().Where(p => !p.IsShadowProperty)
+                let targetMember = Expression.MakeMemberAccess(
+                    instanceVariable,
+                    property.GetMemberInfo(forConstruction: true, forSet: true))
                 select
                     Expression.Assign(
                         targetMember,
                         CreateReadValueExpression(
                             valueBufferExpression,
                             targetMember.Type,
-                            indexMap?[mapping.Item1.GetIndex()] ?? mapping.Item1.GetIndex())));
+                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
+                            property)));
 
             blockExpressions.Add(instanceVariable);
 
             return Expression.Block(new[] { instanceVariable }, blockExpressions);
         }
+
+        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>> Materializers
+            => _materializers
+               ?? (_materializers = new ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>>());
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<ValueBuffer, object> GetMaterializer(IEntityType entityType)
+            => Materializers.GetOrAdd(entityType, e =>
+                {
+                    var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "values");
+
+                    return Expression.Lambda<Func<ValueBuffer, object>>(
+                        CreateMaterializeExpression(e, valueBufferParameter),
+                        valueBufferParameter)
+                        .Compile();
+                });
     }
 }

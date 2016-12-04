@@ -12,13 +12,13 @@ using Remotion.Linq.Parsing;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class EqualityPredicateInExpressionOptimizer : RelinqExpressionVisitor
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
@@ -29,41 +29,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 case ExpressionType.OrElse:
                 {
-                    var optimized
-                        = TryOptimize(
-                            node,
-                            equalityType: ExpressionType.Equal,
-                            inExpressionFactory: (c, vs) => new InExpression(c, vs));
-
-                    if (optimized != null)
-                    {
-                        return optimized;
-                    }
-
-                    break;
+                    return Optimize(
+                        node,
+                        equalityType: ExpressionType.Equal,
+                        inExpressionFactory: (c, vs) => new InExpression(c, vs));
                 }
 
                 case ExpressionType.AndAlso:
                 {
-                    var optimized
-                        = TryOptimize(
-                            node,
-                            equalityType: ExpressionType.NotEqual,
-                            inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
-
-                    if (optimized != null)
-                    {
-                        return optimized;
-                    }
-
-                    break;
+                    return Optimize(
+                        node,
+                        equalityType: ExpressionType.NotEqual,
+                        inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
                 }
             }
 
             return base.VisitBinary(node);
         }
 
-        private Expression TryOptimize(
+        private Expression Optimize(
             BinaryExpression binaryExpression,
             ExpressionType equalityType,
             Func<AliasExpression, List<Expression>, Expression> inExpressionFactory)
@@ -89,16 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (leftAliasExpression == null)
             {
-                leftAliasExpression = equalityType == ExpressionType.Equal
+                leftAliasExpression = (equalityType == ExpressionType.Equal
                     ? MatchInExpression(leftExpression, ref leftInValues)
-                    : MatchNotInExpression(leftExpression, ref leftInValues);
+                    : MatchNotInExpression(leftExpression, ref leftInValues)) as AliasExpression;
             }
 
             if (rightAliasExpression == null)
             {
-                rightAliasExpression = equalityType == ExpressionType.Equal
+                rightAliasExpression = (equalityType == ExpressionType.Equal
                     ? MatchInExpression(rightExpression, ref rightInValues)
-                    : MatchNotInExpression(rightExpression, ref rightInValues);
+                    : MatchNotInExpression(rightExpression, ref rightInValues)) as AliasExpression;
             }
 
             if (leftAliasExpression.HasColumnExpression()
@@ -131,13 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     inArguments);
             }
 
-            if ((leftExpression != binaryExpression.Left)
-                || (rightExpression != binaryExpression.Right))
-            {
-                return binaryExpression.Update(leftExpression, binaryExpression.Conversion, rightExpression);
-            }
-
-            return null;
+            return binaryExpression.Update(leftExpression, binaryExpression.Conversion, rightExpression);
         }
 
         private static AliasExpression MatchEqualityExpression(
@@ -167,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return null;
         }
 
-        private static AliasExpression MatchInExpression(
+        private static Expression MatchInExpression(
             Expression expression,
             ref IReadOnlyList<Expression> values)
         {
@@ -183,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return null;
         }
 
-        private static AliasExpression MatchNotInExpression(
+        private static Expression MatchNotInExpression(
             Expression expression,
             ref IReadOnlyList<Expression> values)
         {

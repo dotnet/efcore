@@ -57,7 +57,7 @@ WHERE [d].[Discriminator] = N'Tea'",
             base.Can_query_all_types_when_shared_column();
 
             Assert.Equal(
-                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[SugarGrams], [d].[CaffeineGrams], [d].[HasMilk]
+                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk]
 FROM [Drink] AS [d]
 WHERE [d].[Discriminator] IN (N'Tea', N'Lilt', N'Coke', N'Drink')",
                 Sql);
@@ -105,10 +105,7 @@ WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'K
             base.Can_use_is_kiwi_in_projection();
 
             Assert.Equal(
-                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn], CASE
-    WHEN [a].[Discriminator] = N'Kiwi'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')",
                 Sql);
@@ -263,7 +260,7 @@ WHERE [a].[Discriminator] = N'Kiwi'",
 FROM [Plant] AS [p]
 WHERE [p].[Genus] = 0",
                 Sql
-                );
+            );
         }
 
         public override void Can_include_prey()
@@ -278,11 +275,14 @@ ORDER BY [e].[Species]
 
 SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND EXISTS (
-    SELECT TOP(2) 1
+INNER JOIN (
+    SELECT DISTINCT TOP(2) [e].[Species]
     FROM [Animal] AS [e]
-    WHERE ([e].[Discriminator] = N'Eagle') AND ([a].[EagleId] = [e].[Species]))
-ORDER BY [a].[EagleId]",
+    WHERE [e].[Discriminator] = N'Eagle'
+    ORDER BY [e].[Species]
+) AS [e0] ON [a].[EagleId] = [e0].[Species]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
+ORDER BY [e0].[Species]",
                 Sql);
         }
 
@@ -365,7 +365,7 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 
 SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%' + N'owenii'
+WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')
 
 @p1: Apteryx owenii (Nullable = false) (Size = 100)
 @p0: Aquila chrysaetos canadensis (Size = 100)
@@ -377,7 +377,7 @@ SELECT @@ROWCOUNT;
 
 SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%' + N'owenii'
+WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')
 
 @p0: Apteryx owenii (Nullable = false) (Size = 100)
 
@@ -388,7 +388,7 @@ SELECT @@ROWCOUNT;
 
 SELECT COUNT(*)
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%' + N'owenii'",
+WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
                 Sql);
         }
 

@@ -46,9 +46,6 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\PropertyInfoExtensions.cs">
       <Link>PropertyInfoExtensions.cs</Link>
     </Compile>
@@ -58,6 +55,8 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
+    <Compile Include="Infrastructure\SqliteDesignEventId.cs" />
+    <Compile Include="Internal\SqliteDesignLoggerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\SqliteDesignStrings.Designer.cs">
       <DependentUpon>SqliteDesignStrings.resx</DependentUpon>

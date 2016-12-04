@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Design</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\DesignStrings.resx">
+      <LogicalName>Microsoft.EntityFrameworkCore.Design.Properties.DesignStrings.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PropertyInfoExtensions.cs">
+      <Link>PropertyInfoExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Design\Internal\DatabaseOperations.cs" />
+    <Compile Include="Design\Internal\DbContextOperations.cs" />
+    <Compile Include="Design\Internal\DesignTimeServicesBuilder.cs" />
+    <Compile Include="Design\Internal\ForwardingProxy.cs" />
+    <Compile Include="Design\Internal\ForwardingProxy`.cs" />
+    <Compile Include="Design\Internal\HostingEnvironment.cs" />
+    <Compile Include="Design\Internal\LoggerProvider.cs" />
+    <Compile Include="Design\Internal\OperationLogger.cs" />
+    <Compile Include="Design\Internal\OperationReporter.cs" />
+    <Compile Include="Design\OperationReportHandler.cs" />
+    <Compile Include="Design\OperationResultHandler.cs" />
+    <Compile Include="Design\Internal\StartupInvoker.cs" />
+    <Compile Include="Design\Internal\ContextInfo.cs" />
+    <Compile Include="Design\Internal\IOperationReporter.cs" />
+    <Compile Include="Design\IOperationReportHandler.cs" />
+    <Compile Include="Design\IOperationResultHandler.cs" />
+    <Compile Include="Design\Internal\MigrationInfo.cs" />
+    <Compile Include="Design\Internal\MigrationsOperations.cs" />
+    <Compile Include="Design\OperationException.cs" />
+    <Compile Include="Design\OperationExecutor.cs" />
+    <Compile Include="Infrastructure\DesignEventId.cs" />
+    <Compile Include="Internal\DesignLoggerExtensions.cs" />
+    <Compile Include="Migrations\Design\CSharpHelper.cs" />
+    <Compile Include="Migrations\Design\CSharpMigrationOperationGenerator.cs" />
+    <Compile Include="Migrations\Design\CSharpMigrationsGenerator.cs" />
+    <Compile Include="Migrations\Design\CSharpSnapshotGenerator.cs" />
+    <Compile Include="Migrations\Design\MigrationFiles.cs" />
+    <Compile Include="Migrations\Design\MigrationsCodeGenerator.cs" />
+    <Compile Include="Migrations\Design\MigrationsScaffolder.cs" />
+    <Compile Include="Migrations\Design\ScaffoldedMigration.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\DesignStrings.Designer.cs">
+      <DependentUpon>DesignStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\AttributeConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\CustomConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\EntityConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\FluentApiConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\IAttributeConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\IFluentApiConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\IndexConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\KeyFluentApiConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\ModelConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\NavigationPropertyConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\NavigationPropertyInitializerConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\OptionsBuilderConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\PropertyConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\RelationshipConfiguration.cs" />
+    <Compile Include="Scaffolding\Configuration\Internal\SequenceConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\CodeWriter.cs" />
+    <Compile Include="Scaffolding\Internal\ConfigurationFactory.cs" />
+    <Compile Include="Scaffolding\Internal\DbContextWriter.cs" />
+    <Compile Include="Scaffolding\Internal\EntityTypeWriter.cs" />
+    <Compile Include="Scaffolding\Internal\FileSystemFileService.cs" />
+    <Compile Include="Scaffolding\Internal\IFileService.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineerFiles.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringGenerator.cs" />
+    <Compile Include="Scaffolding\Internal\ScaffoldingServiceCollectionExtensions.cs" />
+    <Compile Include="Scaffolding\Internal\ScaffoldingUtilities.cs" />
+    <Compile Include="Scaffolding\Internal\StringBuilderCodeWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj">
+      <Project>{1942c281-c12b-4818-8cc8-c42842871ff5}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+      <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

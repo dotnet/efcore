@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Country>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<Eagle>().HasMany(e => e.Prey).WithOne().HasForeignKey(e => e.EagleId).IsRequired(false);
 
-            modelBuilder.Entity<Animal>().Property(e => e.Species).HasColumnType("nvarchar(100)");
+            modelBuilder.Entity<Animal>().Property(e => e.Species).HasMaxLength(100);
 
             modelBuilder.Entity<Coke>().Property(e => e.Carbination).HasColumnName("CokeCO2");
             modelBuilder.Entity<Lilt>().Property(e => e.Carbination).HasColumnName("LiltCO2");

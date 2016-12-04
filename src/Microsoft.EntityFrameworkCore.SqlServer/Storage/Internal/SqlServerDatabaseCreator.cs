@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IModel model,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
-            : base(model, connection, modelDiffer, migrationsSqlGenerator, migrationCommandExecutor)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            : base(model, connection, modelDiffer, migrationsSqlGenerator, migrationCommandExecutor, executionStrategyFactory)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 
@@ -83,21 +84,29 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override bool HasTables()
-            => (int)CreateHasTablesCommand().ExecuteScalar(_connection) != 0;
+            => ExecutionStrategyFactory.Create().Execute(
+                connection => (int)CreateHasTablesCommand().ExecuteScalar(connection) != 0,
+                _connection);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => (int)await CreateHasTablesCommand().ExecuteScalarAsync(_connection, cancellationToken: cancellationToken) != 0;
+        protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => ExecutionStrategyFactory.Create().ExecuteAsync(
+                async (connection, ct) => (int)await CreateHasTablesCommand().ExecuteScalarAsync(connection, cancellationToken: ct) != 0,
+                _connection,
+                cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
             => _rawSqlCommandBuilder
                 .Build("IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0");
 
         private IReadOnlyList<MigrationCommand> CreateCreateOperations()
-            => _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = _connection.DbConnection.Database } });
+        {
+            var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
+            return _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } });
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -107,33 +116,36 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => Exists(retryOnNotExists: false);
 
         private bool Exists(bool retryOnNotExists)
-        {
-            var retryCount = 0;
-            var giveUp = DateTime.UtcNow + TimeSpan.FromMinutes(1);
-            while (true)
-            {
-                try
-                {
-                    _connection.Open();
-                    _connection.Close();
-                    return true;
-                }
-                catch (SqlException e)
-                {
-                    if (!retryOnNotExists
-                        && IsDoesNotExist(e))
+            => ExecutionStrategyFactory.Create().Execute(
+                giveUp =>
                     {
-                        return false;
-                    }
+                        var retryCount = 0;
+                        while (true)
+                        {
+                            try
+                            {
+                                _connection.Open();
+                                _connection.Close();
+                                return true;
+                            }
+                            catch (SqlException e)
+                            {
+                                if (!retryOnNotExists
+                                    && IsDoesNotExist(e))
+                                {
+                                    return false;
+                                }
 
-                    if (DateTime.UtcNow > giveUp
-                        || !RetryOnExistsFailure(e, ref retryCount))
-                    {
-                        throw;
-                    }
-                }
-            }
-        }
+                                if (DateTime.UtcNow > giveUp
+                                    || !RetryOnExistsFailure(e, ref retryCount))
+                                {
+                                    throw;
+                                }
+
+                                Thread.Sleep(100);
+                            }
+                        }
+                    }, DateTime.UtcNow + TimeSpan.FromMinutes(1));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -142,35 +154,45 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
             => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
-        private async Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
+        private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
         {
-            var retryCount = 0;
-            while (true)
-            {
-                try
-                {
-                    await _connection.OpenAsync(cancellationToken);
-                    _connection.Close();
-                    return true;
-                }
-                catch (SqlException e)
-                {
-                    if (!retryOnNotExists
-                        && IsDoesNotExist(e))
+            return ExecutionStrategyFactory.Create().ExecuteAsync(
+                async (giveUp, ct) =>
                     {
-                        return false;
-                    }
+                        var retryCount = 0;
+                        while (true)
+                        {
+                            try
+                            {
+                                await _connection.OpenAsync(ct);
 
-                    if (!RetryOnExistsFailure(e, ref retryCount))
-                    {
-                        throw;
-                    }
-                }
-            }
+                                _connection.Close();
+                                return true;
+                            }
+                            catch (SqlException e)
+                            {
+                                if (!retryOnNotExists
+                                    && IsDoesNotExist(e))
+                                {
+                                    return false;
+                                }
+
+                                if (DateTime.UtcNow > giveUp
+                                    || !RetryOnExistsFailure(e, ref retryCount))
+                                {
+                                    throw;
+                                }
+
+                                await Task.Delay(100, ct);
+                            }
+                        }
+                    }, DateTime.UtcNow + TimeSpan.FromMinutes(1), cancellationToken);
         }
 
         // Login failed is thrown when database does not exist (See Issue #776)
-        private static bool IsDoesNotExist(SqlException exception) => exception.Number == 4060;
+        // Unable to attach database file is thrown when file does not exist (See Issue #2810)
+        // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
+        private static bool IsDoesNotExist(SqlException exception) => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
 
         // See Issue #985
         private bool RetryOnExistsFailure(SqlException exception, ref int retryCount)
@@ -189,7 +211,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             // And (Number 4060):
             //   System.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The
             //   login failed.
-            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060)
+            // And (Number 1832)
+            //   System.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
+            // And (Number 5120)
+            //   System.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
+            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120)
                 && ++retryCount < 30)
             {
                 ClearPool();

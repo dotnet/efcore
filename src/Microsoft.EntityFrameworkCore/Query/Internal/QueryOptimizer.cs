@@ -17,7 +17,7 @@ using Remotion.Linq.Transformations;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class QueryOptimizer : SubQueryFromClauseFlattener, IQueryOptimizer
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Optimize(
@@ -64,10 +64,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+        {
+            TryFlattenJoin(joinClause, queryModel);
+
+            base.VisitJoinClause(joinClause, queryModel, index);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
+        {
+            TryFlattenJoin(joinClause, queryModel);
+
+            base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
+        }
+
+        private void TryFlattenJoin(JoinClause joinClause, QueryModel queryModel)
         {
             var subQueryExpression = joinClause.InnerSequence as SubQueryExpression;
 
@@ -90,12 +108,53 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
             }
-
-            base.VisitJoinClause(joinClause, queryModel, index);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
+        {
+            base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
+
+            // Attempts to rewrite GroupJoin/SelectMany to regular join
+
+            var additionalFromClause
+                = queryModel.BodyClauses.ElementAtOrDefault(index + 1)
+                    as AdditionalFromClause;
+
+            var querySourceReferenceExpression
+                = additionalFromClause?.FromExpression as QuerySourceReferenceExpression;
+
+            if (querySourceReferenceExpression != null
+                && querySourceReferenceExpression.ReferencedQuerySource == groupJoinClause)
+            {
+                if (queryModel.CountQuerySourceReferences(groupJoinClause) == 1)
+                {
+                    // GroupJoin/SelectMany can be rewritten to regular Join.
+
+                    queryModel.BodyClauses.RemoveAt(index + 1);
+                    queryModel.BodyClauses.RemoveAt(index);
+                    queryModel.BodyClauses.Insert(index, groupJoinClause.JoinClause);
+
+                    var querySourceMapping = new QuerySourceMapping();
+
+                    querySourceMapping.AddMapping(
+                        additionalFromClause,
+                        new QuerySourceReferenceExpression(groupJoinClause.JoinClause));
+
+                    queryModel.TransformExpressions(e =>
+                        ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
+                            e,
+                            querySourceMapping,
+                            throwOnUnmappedReferences: false));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override void FlattenSubQuery(
@@ -109,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             VisitQueryModel(subQueryModel);
 
             if ((subQueryModel.ResultOperators
-                .All(ro => ro is CastResultOperator)
+                     .All(ro => ro is CastResultOperator)
                  && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause))
                 || (queryModel.IsIdentityQuery()
                     && !queryModel.ResultOperators.Any()))
@@ -170,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)

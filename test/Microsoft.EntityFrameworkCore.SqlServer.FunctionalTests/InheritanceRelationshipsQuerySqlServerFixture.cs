@@ -32,17 +32,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString)
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider);
 
                     using (var context = new InheritanceRelationshipsContext(optionsBuilder.Options))
                     {
-                        // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            InheritanceRelationshipsModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureCreated();
+                        InheritanceRelationshipsModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }
@@ -52,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override InheritanceRelationshipsContext CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlServer(testStore.Connection)
+                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(_serviceProvider);
 
             var context = new InheritanceRelationshipsContext(optionsBuilder.Options);

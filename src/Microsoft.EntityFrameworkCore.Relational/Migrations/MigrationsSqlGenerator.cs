@@ -26,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(AddPrimaryKeyOperation), (g, o, m, b) => g.Generate((AddPrimaryKeyOperation)o, m, b) },
                 { typeof(AddUniqueConstraintOperation), (g, o, m, b) => g.Generate((AddUniqueConstraintOperation)o, m, b) },
                 { typeof(AlterColumnOperation), (g, o, m, b) => g.Generate((AlterColumnOperation)o, m, b) },
+                { typeof(AlterDatabaseOperation), (g, o, m, b) => g.Generate((AlterDatabaseOperation)o, m, b) },
                 { typeof(AlterSequenceOperation), (g, o, m, b) => g.Generate((AlterSequenceOperation)o, m, b) },
+                { typeof(AlterTableOperation), (g, o, m, b) => g.Generate((AlterTableOperation)o, m, b) },
                 { typeof(CreateIndexOperation), (g, o, m, b) => g.Generate((CreateIndexOperation)o, m, b) },
                 { typeof(CreateSequenceOperation), (g, o, m, b) => g.Generate((CreateSequenceOperation)o, m, b) },
                 { typeof(CreateTableOperation), (g, o, m, b) => g.Generate((CreateTableOperation)o, m, b) },
@@ -48,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
 
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly IRelationalAnnotationProvider _annotations;
 
         public MigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
@@ -64,11 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             _commandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             TypeMapper = typeMapper;
-            _annotations = annotations;
+            Annotations = annotations;
         }
 
         protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
+        protected virtual IRelationalAnnotationProvider Annotations { get; }
 
         public virtual IReadOnlyList<MigrationCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
@@ -107,6 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] AddColumnOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -118,15 +127,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             ColumnDefinition(operation, model, builder);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] AddForeignKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] AddForeignKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -138,15 +156,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             ForeignKeyConstraint(operation, model, builder);
 
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] AddPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] AddPrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -156,8 +183,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD ");
             PrimaryKeyConstraint(operation, model, builder);
-            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder);
+
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -186,6 +217,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected virtual void Generate(
+            [NotNull] AlterDatabaseOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+        }
+
+        protected virtual void Generate(
             [NotNull] RenameIndexOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
@@ -210,6 +248,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.AppendLine(SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder);
+        }
+
+        protected virtual void Generate(
+            [NotNull] AlterTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
         }
 
         protected virtual void Generate(
@@ -253,10 +298,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(ColumnList(operation.Columns))
                 .Append(")");
 
+            if (operation.Filter != null)
+            {
+                builder
+                    .Append(" WHERE ")
+                    .Append(operation.Filter);
+            }
+
             if (terminate)
             {
                 builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-
                 EndStatement(builder);
             }
         }
@@ -303,6 +354,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] CreateTableOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -346,17 +404,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.AppendLine();
             }
 
-            builder
-                .Append(")")
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+            builder.Append(")");
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] DropColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropColumnOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -365,16 +432,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER TABLE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP COLUMN ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
             [NotNull] DropForeignKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropForeignKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -383,10 +460,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER TABLE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -401,6 +481,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] DropPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropPrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -409,10 +496,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER TABLE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -451,16 +541,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] DropTableOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] DropTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
             builder
                 .Append("DROP TABLE ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
-                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(
@@ -533,30 +633,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void SequenceOptions(
             [NotNull] AlterSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder) =>
-                SequenceOptions(
-                    operation.Schema,
-                    operation.Name,
-                    operation.IncrementBy,
-                    operation.MinValue,
-                    operation.MaxValue,
-                    operation.IsCyclic,
-                    model,
-                    builder);
+            [NotNull] MigrationCommandListBuilder builder)
+            => SequenceOptions(
+                operation.Schema,
+                operation.Name,
+                operation.IncrementBy,
+                operation.MinValue,
+                operation.MaxValue,
+                operation.IsCyclic,
+                model,
+                builder);
 
         protected virtual void SequenceOptions(
             [NotNull] CreateSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder) =>
-                SequenceOptions(
-                    operation.Schema,
-                    operation.Name,
-                    operation.IncrementBy,
-                    operation.MinValue,
-                    operation.MaxValue,
-                    operation.IsCyclic,
-                    model,
-                    builder);
+            [NotNull] MigrationCommandListBuilder builder)
+            => SequenceOptions(
+                operation.Schema,
+                operation.Name,
+                operation.IncrementBy,
+                operation.MinValue,
+                operation.MaxValue,
+                operation.IsCyclic,
+                model,
+                builder);
 
         protected virtual void SequenceOptions(
             [CanBeNull] string schema,
@@ -605,23 +705,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void ColumnDefinition(
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder) =>
-                ColumnDefinition(
-                    operation.Schema,
-                    operation.Table,
-                    operation.Name,
-                    operation.ClrType,
-                    operation.ColumnType,
-                    operation.IsUnicode,
-                    operation.MaxLength,
-                    operation.IsRowVersion,
-                    operation.IsNullable,
-                    operation.DefaultValue,
-                    operation.DefaultValueSql,
-                    operation.ComputedColumnSql,
-                    operation,
-                    model,
-                    builder);
+            [NotNull] MigrationCommandListBuilder builder)
+            => ColumnDefinition(
+                operation.Schema,
+                operation.Table,
+                operation.Name,
+                operation.ClrType,
+                operation.ColumnType,
+                operation.IsUnicode,
+                operation.MaxLength,
+                operation.IsRowVersion,
+                operation.IsNullable,
+                operation.DefaultValue,
+                operation.DefaultValueSql,
+                operation.ComputedColumnSql,
+                operation,
+                model,
+                builder);
 
         protected virtual void ColumnDefinition(
             [CanBeNull] string schema,
@@ -674,9 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var keyOrIndex = false;
 
-            // Any property that maps to the column will work because model validator has
-            // checked that all properties result in the same type mapping.
-            var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
+            var property = FindProperty(model, schema, table, name);
             if (property != null)
             {
                 if (unicode == property.IsUnicode()
@@ -694,7 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 : clrType == typeof(byte[])
                     ? TypeMapper.ByteArrayMapper?.FindMapping(rowVersion, keyOrIndex, maxLength)?.StoreType
                     : null)
-                ?? TypeMapper.GetMapping(clrType).StoreType;
+                   ?? TypeMapper.GetMapping(clrType).StoreType;
         }
 
         protected virtual void DefaultValue(
@@ -854,15 +952,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().Where(
-                t => (_annotations.For(t).TableName == tableName) && (_annotations.For(t).Schema == schema));
+                t => (Annotations.For(t).TableName == tableName) && (Annotations.For(t).Schema == schema));
 
-        protected virtual IEnumerable<IProperty> FindProperties(
+        protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
             [NotNull] string tableName,
-            [NotNull] string columnName)
+            [NotNull] string columnName
+            // Any property that maps to the column will work because model validator has
+            // checked that all properties result in the same column definition.
+            )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .Where(p => _annotations.For(p).ColumnName == columnName);
+                .FirstOrDefault(p => Annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,
@@ -873,6 +974,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.EndCommand(suppressTransaction);
         }
 
-        private string ColumnList(string[] columns) => string.Join(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier));
+        protected virtual string ColumnList([NotNull] string[] columns)
+            => string.Join(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier));
+
+        protected virtual bool IsOldColumnSupported([CanBeNull] IModel model)
+        {
+            var versionString = model?[CoreAnnotationNames.ProductVersionAnnotation] as string;
+            if (versionString == null)
+            {
+                return false;
+            }
+
+            var prereleaseIndex = versionString.IndexOf("-", StringComparison.Ordinal);
+            if (prereleaseIndex != -1)
+            {
+                versionString = versionString.Substring(0, prereleaseIndex);
+            }
+
+            return new Version(versionString) >= new Version(1, 1, 0);
+        }
     }
 }

@@ -27,9 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new List<IEntityTypeMemberIgnoredConvention>();
 
         /// <summary>
-        ///     Conventions to run when a base entity type is configured for an inheritance hierarchy.
+        ///     Conventions to run when the base entity type is set or removed.
         /// </summary>
         public virtual IList<IBaseTypeConvention> BaseEntityTypeSetConventions { get; } = new List<IBaseTypeConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is set or removed on an entity type.
+        /// </summary>
+        public virtual IList<IEntityTypeAnnotationSetConvention> EntityTypeAnnotationSetConventions { get; }
+            = new List<IEntityTypeAnnotationSetConvention>();
 
         /// <summary>
         ///     Conventions to run when a foreign key is added.
@@ -57,6 +63,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IPrimaryKeyConvention> PrimaryKeySetConventions { get; } = new List<IPrimaryKeyConvention>();
 
         /// <summary>
+        ///     Conventions to run when an index is added.
+        /// </summary>
+        public virtual IList<IIndexConvention> IndexAddedConventions { get; } = new List<IIndexConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an index is added.
+        /// </summary>
+        public virtual IList<IIndexRemovedConvention> IndexRemovedConventions { get; } = new List<IIndexRemovedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when the uniqueness of an index is changed.
+        /// </summary>
+        public virtual IList<IIndexUniquenessConvention> IndexUniquenessConventions { get; } = new List<IIndexUniquenessConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is set or removed on an index.
+        /// </summary>
+        public virtual IList<IIndexAnnotationSetConvention> IndexAnnotationSetConventions { get; } = new List<IIndexAnnotationSetConvention>();
+
+        /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.
         /// </summary>
         public virtual IList<IPrincipalEndConvention> PrincipalEndSetConventions { get; } = new List<IPrincipalEndConvention>();
@@ -82,6 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
 
         /// <summary>
+        ///     Conventions to run when the uniqueness of a foreign key is changed.
+        /// </summary>
+        public virtual IList<IForeignKeyUniquenessConvention> ForeignKeyUniquenessConventions { get; } = new List<IForeignKeyUniquenessConvention>();
+
+        /// <summary>
         ///     Conventions to run when a property is added.
         /// </summary>
         public virtual IList<IPropertyConvention> PropertyAddedConventions { get; } = new List<IPropertyConvention>();
@@ -90,5 +121,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Conventions to run when the nullability of a property is changed.
         /// </summary>
         public virtual IList<IPropertyNullableConvention> PropertyNullableChangedConventions { get; } = new List<IPropertyNullableConvention>();
+
+        /// <summary>
+        ///     Conventions to run when the field of a property is changed.
+        /// </summary>
+        public virtual IList<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } =
+            new List<IPropertyFieldChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is set or removed on a property.
+        /// </summary>
+        public virtual IList<IPropertyAnnotationSetConvention> PropertyAnnotationSetConventions { get; } = new List<IPropertyAnnotationSetConvention>();
     }
 }

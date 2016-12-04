@@ -8,10 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     using JetBrains.Annotations;
 
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public static class RelationalDesignStrings
+    public static partial class RelationalDesignStrings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Relational.Design.Properties.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);

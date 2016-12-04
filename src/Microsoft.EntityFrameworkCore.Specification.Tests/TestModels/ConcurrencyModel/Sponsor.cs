@@ -9,10 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Concurren
 {
     public class Sponsor
     {
-        public readonly static string ClientTokenPropertyName = "ClientToken";
+        public static readonly string ClientTokenPropertyName = "ClientToken";
 
         private readonly ObservableCollection<Team> _teams = new ObservableCollection<Team>();
-        
+
         public int Id { get; set; }
         public string Name { get; set; }
 

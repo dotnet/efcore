@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -39,25 +39,22 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class EntityQueryModelVisitor : QueryModelVisitorBase
     {
         /// <summary>
-        ///     Expression to reference the <see cref="QueryContext"/> parameter for a query.
+        ///     Expression to reference the <see cref="QueryContext" /> parameter for a query.
         /// </summary>
         public static readonly ParameterExpression QueryContextParameter
             = Expression.Parameter(typeof(QueryContext), "queryContext");
 
         private static readonly string _efTypeName = typeof(EF).FullName;
 
-        private static readonly MethodInfo _efPropertyMethod
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
-
         /// <summary>
-        ///     Determines if a <see cref="MethodInfo"/> is referencing the <see cref="EF.Property{TProperty}(object, string)"/> method.
+        ///     Determines if a <see cref="MethodInfo" /> is referencing the <see cref="EF.Property{TProperty}(object, string)" /> method.
         /// </summary>
         /// <param name="methodInfo"> The method info to check. </param>
         /// <returns>
-        ///     True if <paramref name="methodInfo"/> is referencing <see cref="EF.Property{TProperty}(object, string)"/>; otherwise fale;
+        ///     True if <paramref name="methodInfo" /> is referencing <see cref="EF.Property{TProperty}(object, string)" />; otherwise fale;
         /// </returns>
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
-            ReferenceEquals(methodInfo, _efPropertyMethod)
+            ReferenceEquals(methodInfo, EF.PropertyMethod)
             ||
             (
                 // fallback to string comparison because MethodInfo.Equals is not
@@ -77,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static Expression CreatePropertyExpression([NotNull] Expression target, [NotNull] IProperty property)
             => Expression.Call(
                 null,
-                _efPropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
+                EF.PropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                 target,
                 Expression.Constant(property.Name));
 
@@ -105,23 +102,44 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _blockTaskExpressions = true;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor"/> class.
+        ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor" /> class.
         /// </summary>
-        /// <param name="queryOptimizer"> The <see cref="IQueryOptimizer"/> to be used when processing the query. </param>
-        /// <param name="navigationRewritingExpressionVisitorFactory"> The <see cref="INavigationRewritingExpressionVisitorFactory"/> to be used when processing the query. </param>
-        /// <param name="subQueryMemberPushDownExpressionVisitor"> The <see cref="ISubQueryMemberPushDownExpressionVisitor"/> to be used when processing the query. </param>
-        /// <param name="querySourceTracingExpressionVisitorFactory"> The <see cref="IQuerySourceTracingExpressionVisitorFactory"/> to be used when processing the query. </param>
-        /// <param name="entityResultFindingExpressionVisitorFactory"> The <see cref="IEntityResultFindingExpressionVisitorFactory"/> to be used when processing the query. </param>
-        /// <param name="taskBlockingExpressionVisitor"> The <see cref="ITaskBlockingExpressionVisitor"/> to be used when processing the query. </param>
-        /// <param name="memberAccessBindingExpressionVisitorFactory"> The <see cref="IMemberAccessBindingExpressionVisitorFactory"/> to be used when processing the query. </param>
-        /// <param name="orderingExpressionVisitorFactory"> The <see cref="IOrderingExpressionVisitorFactory"/> to be used when processing the query. </param>
-        /// <param name="projectionExpressionVisitorFactory"> The <see cref="IProjectionExpressionVisitorFactory"/> to be used when processing the query. </param>
-        /// <param name="entityQueryableExpressionVisitorFactory"> The <see cref="IEntityQueryableExpressionVisitorFactory"/> to be used when processing the query. </param>
-        /// <param name="queryAnnotationExtractor"> The <see cref="IQueryAnnotationExtractor"/> to be used when processing the query. </param>
-        /// <param name="resultOperatorHandler"> The <see cref="IResultOperatorHandler"/> to be used when processing the query. </param>
-        /// <param name="entityMaterializerSource"> The <see cref="IEntityMaterializerSource"/> to be used when processing the query. </param>
-        /// <param name="expressionPrinter"> The <see cref="IExpressionPrinter"/> to be used when processing the query. </param>
-        /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext"/> to be used when processing the query. </param>
+        /// <param name="queryOptimizer"> The <see cref="IQueryOptimizer" /> to be used when processing the query. </param>
+        /// <param name="navigationRewritingExpressionVisitorFactory">
+        ///     The <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when
+        ///     processing the query.
+        /// </param>
+        /// <param name="subQueryMemberPushDownExpressionVisitor">
+        ///     The <see cref="ISubQueryMemberPushDownExpressionVisitor" /> to be used when
+        ///     processing the query.
+        /// </param>
+        /// <param name="querySourceTracingExpressionVisitorFactory">
+        ///     The <see cref="IQuerySourceTracingExpressionVisitorFactory" /> to be used when
+        ///     processing the query.
+        /// </param>
+        /// <param name="entityResultFindingExpressionVisitorFactory">
+        ///     The <see cref="IEntityResultFindingExpressionVisitorFactory" /> to be used when
+        ///     processing the query.
+        /// </param>
+        /// <param name="taskBlockingExpressionVisitor"> The <see cref="ITaskBlockingExpressionVisitor" /> to be used when processing the query. </param>
+        /// <param name="memberAccessBindingExpressionVisitorFactory">
+        ///     The <see cref="IMemberAccessBindingExpressionVisitorFactory" /> to be used when
+        ///     processing the query.
+        /// </param>
+        /// <param name="orderingExpressionVisitorFactory"> The <see cref="IOrderingExpressionVisitorFactory" /> to be used when processing the query. </param>
+        /// <param name="projectionExpressionVisitorFactory">
+        ///     The <see cref="IProjectionExpressionVisitorFactory" /> to be used when processing the
+        ///     query.
+        /// </param>
+        /// <param name="entityQueryableExpressionVisitorFactory">
+        ///     The <see cref="IEntityQueryableExpressionVisitorFactory" /> to be used when
+        ///     processing the query.
+        /// </param>
+        /// <param name="queryAnnotationExtractor"> The <see cref="IQueryAnnotationExtractor" /> to be used when processing the query. </param>
+        /// <param name="resultOperatorHandler"> The <see cref="IResultOperatorHandler" /> to be used when processing the query. </param>
+        /// <param name="entityMaterializerSource"> The <see cref="IEntityMaterializerSource" /> to be used when processing the query. </param>
+        /// <param name="expressionPrinter"> The <see cref="IExpressionPrinter" /> to be used when processing the query. </param>
+        /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext" /> to be used when processing the query. </param>
         protected EntityQueryModelVisitor(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -204,12 +222,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Gets the <see cref="Query.QueryCompilationContext"/> being used for this query.
+        ///     Gets the <see cref="Query.QueryCompilationContext" /> being used for this query.
         /// </summary>
         public virtual QueryCompilationContext QueryCompilationContext => _queryCompilationContext;
 
         /// <summary>
-        ///     Gets the <see cref="ILinqOperatorProvider"/> being used for this query.
+        ///     Gets the <see cref="ILinqOperatorProvider" /> being used for this query.
         /// </summary>
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; private set; }
 
@@ -228,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryCompilationContext.Logger
                     .LogDebug(
                         CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.LogCompilingQueryModel(queryModel));
+                        () => CoreStrings.LogCompilingQueryModel(Environment.NewLine, queryModel.Print()));
 
                 _blockTaskExpressions = false;
 
@@ -268,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryCompilationContext.Logger
                     .LogDebug(
                         CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.LogCompilingQueryModel(queryModel));
+                        () => CoreStrings.LogCompilingQueryModel(Environment.NewLine, queryModel.Print()));
 
                 _blockTaskExpressions = false;
 
@@ -297,8 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Executes the query and logs any exceptions that occur.
         /// </summary>
         protected virtual void InterceptExceptions()
-        {
-            _expression
+            => _expression
                 = Expression.Call(
                     LinqOperatorProvider.InterceptExceptions
                         .MakeGenericMethod(_expression.Type.GetSequenceType()),
@@ -306,10 +323,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(QueryCompilationContext.ContextType),
                     Expression.Constant(QueryCompilationContext.Logger),
                     QueryContextParameter);
-        }
 
         /// <summary>
-        ///     Populates <see cref="QueryCompilationContext.QueryAnnotations"/> based on annotations found in the query.
+        ///     Populates <see cref="Query.QueryCompilationContext.QueryAnnotations" /> based on annotations found in the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
         protected virtual void ExtractQueryAnnotations([NotNull] QueryModel queryModel)
@@ -337,12 +353,67 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
+            new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
+                .VisitQueryModel(queryModel);
+
+            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel, parentQueryModel: null);
 
             QueryCompilationContext.Logger
                 .LogDebug(
                     CoreEventId.OptimizedQueryModel,
-                    () => CoreStrings.LogOptimizedQueryModel(queryModel));
+                    () => CoreStrings.LogOptimizedQueryModel(Environment.NewLine, queryModel.Print()));
+        }
+
+        private class NondeterministicResultCheckingVisitor : QueryModelVisitorBase
+        {
+            private const int QueryModelStringLengthLimit = 100;
+            private readonly ILogger _logger;
+
+            public NondeterministicResultCheckingVisitor([NotNull] ILogger logger)
+            {
+                _logger = logger;
+            }
+
+            public override void VisitQueryModel(QueryModel queryModel)
+            {
+                if (queryModel.ResultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
+                    && !queryModel.BodyClauses.OfType<OrderByClause>().Any())
+                {
+                    _logger.LogWarning(
+                        CoreEventId.CompilingQueryModel,
+                        () => CoreStrings.RowLimitingOperationWithoutOrderBy(
+                            queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
+                }
+
+                if (queryModel.ResultOperators.Any(o => o is FirstResultOperator)
+                    && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
+                    && !queryModel.BodyClauses.OfType<WhereClause>().Any())
+                {
+                    _logger.LogWarning(
+                        CoreEventId.CompilingQueryModel,
+                        () => CoreStrings.FirstWithoutOrderByAndFilter(
+                            queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
+                }
+
+                queryModel.TransformExpressions(new RecursiveQueryModelExpressionVisitor(this).Visit);
+            }
+
+            private class RecursiveQueryModelExpressionVisitor : ExpressionVisitorBase
+            {
+                private readonly NondeterministicResultCheckingVisitor _parentVisitor;
+
+                public RecursiveQueryModelExpressionVisitor(NondeterministicResultCheckingVisitor parentVisitor)
+                {
+                    _parentVisitor = parentVisitor;
+                }
+
+                protected override Expression VisitSubQuery(SubQueryExpression expression)
+                {
+                    _parentVisitor.VisitQueryModel(expression.QueryModel);
+
+                    return base.VisitSubQuery(expression);
+                }
+            }
         }
 
         /// <summary>
@@ -381,34 +452,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = QueryCompilationContext.QueryAnnotations
                     .OfType<IncludeResultOperator>()
                     .Select(includeResultOperator =>
-                    {
-                        var navigationPath
-                            = BindNavigationPathPropertyExpression(
-                                includeResultOperator.NavigationPropertyPath,
-                                (ps, _) =>
-                                {
-                                    var properties = ps.ToArray();
-                                    var navigations = properties.OfType<INavigation>().ToArray();
-
-                                    if (properties.Length != navigations.Length)
-                                    {
-                                        throw new InvalidOperationException(
-                                            CoreStrings.IncludeNonBindableExpression(
-                                                includeResultOperator.NavigationPropertyPath));
-                                    }
-
-                                    return BindChainedNavigations(
-                                        navigations,
-                                        includeResultOperator.ChainedNavigationProperties)
-                                        .ToArray();
-                                });
-
-                        if (navigationPath == null)
                         {
-                            throw new InvalidOperationException(
-                                CoreStrings.IncludeNonBindableExpression(
-                                    includeResultOperator.NavigationPropertyPath));
-                        }
+                            var entityType = QueryCompilationContext.Model.FindEntityType(
+                                includeResultOperator.PathFromQuerySource.Type);
+
+                            var parts = includeResultOperator.NavigationPropertyPaths.ToArray();
+                            var navigationPath = new INavigation[parts.Length];
+                            for (var i = 0; i < parts.Length; i++)
+                            {
+                                navigationPath[i] = entityType.FindNavigation(parts[i]);
+
+                                if (navigationPath[i] == null)
+                                {
+                                    throw new InvalidOperationException(
+                                        CoreStrings.IncludeBadNavigation(parts[i], entityType.DisplayName()));
+                                }
+
+                                entityType = navigationPath[i].GetTargetType();
+                            }
 
                         return new
                         {
@@ -538,30 +599,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private static IEnumerable<INavigation> BindChainedNavigations(
-            IEnumerable<INavigation> boundNavigations, IReadOnlyList<PropertyInfo> chainedNavigationProperties)
-        {
-            var boundNavigationsList = boundNavigations.ToList();
-
-            if (chainedNavigationProperties != null)
-            {
-                foreach (var propertyInfo in chainedNavigationProperties)
-                {
-                    var lastNavigation = boundNavigationsList.Last();
-                    var navigation = lastNavigation.GetTargetType().FindNavigation(propertyInfo.Name);
-
-                    if (navigation == null)
-                    {
-                        return null;
-                    }
-
-                    boundNavigationsList.Add(navigation);
-                }
-            }
-
-            return boundNavigationsList;
-        }
-
         /// <summary>
         ///     Includes a specific navigation property requested in the LINQ query.
         /// </summary>
@@ -602,27 +639,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return;
             }
 
+            var outputExpression = queryModel.SelectClause.Selector;
+
+            var resultItemType = _expression.Type.GetSequenceType();
+            var isGrouping = resultItemType.IsGrouping();
+
+            if (isGrouping)
+            {
+                var groupResultOperator
+                    = queryModel.ResultOperators.OfType<GroupResultOperator>().LastOrDefault();
+
+                if (groupResultOperator != null)
+                {
+                    outputExpression = groupResultOperator.ElementSelector;
+                }
+                else
+                {
+                    var subqueryExpression = ((queryModel.SelectClause.Selector as QuerySourceReferenceExpression)
+                        ?.ReferencedQuerySource as MainFromClause)?.FromExpression as SubQueryExpression;
+
+                    var nestedGroupResultOperator
+                        = subqueryExpression?.QueryModel?.ResultOperators
+                            ?.OfType<GroupResultOperator>()
+                            .LastOrDefault();
+
+                    if (nestedGroupResultOperator != null)
+                    {
+                        outputExpression = nestedGroupResultOperator.ElementSelector;
+                    }
+                }
+            }
+
             var entityTrackingInfos
                 = _entityResultFindingExpressionVisitorFactory.Create(QueryCompilationContext)
-                    .FindEntitiesInResult(queryModel.SelectClause.Selector);
+                    .FindEntitiesInResult(outputExpression);
 
             if (entityTrackingInfos.Any())
             {
-                var resultItemType = _expression.Type.GetSequenceType();
-                var resultItemTypeInfo = resultItemType.GetTypeInfo();
-
                 MethodInfo trackingMethod;
 
-                if (resultItemTypeInfo.IsGenericType
-                    && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                        || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
+                if (isGrouping)
+
                 {
                     trackingMethod
                         = LinqOperatorProvider.TrackGroupedEntities
                             .MakeGenericMethod(
                                 resultItemType.GenericTypeArguments[0],
-                                resultItemType.GenericTypeArguments[1],
-                                queryModel.SelectClause.Selector.Type);
+                                resultItemType.GenericTypeArguments[1]);
                 }
                 else
                 {
@@ -630,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         = LinqOperatorProvider.TrackEntities
                             .MakeGenericMethod(
                                 resultItemType,
-                                queryModel.SelectClause.Selector.Type);
+                                outputExpression.Type);
                 }
 
                 _expression
@@ -641,13 +704,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Constant(entityTrackingInfos),
                         Expression.Constant(
                             _getEntityAccessors
-                                .MakeGenericMethod(queryModel.SelectClause.Selector.Type)
+                                .MakeGenericMethod(outputExpression.Type)
                                 .Invoke(
                                     null,
                                     new object[]
                                     {
                                         entityTrackingInfos,
-                                        queryModel.SelectClause.Selector
+                                        outputExpression
                                     })));
             }
         }
@@ -662,20 +725,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression selector)
             => (from entityTrackingInfo in entityTrackingInfos
                 select
-                    (Func<TResult, object>)
-                        AccessorFindingExpressionVisitor
-                            .FindAccessorLambda(
-                                entityTrackingInfo.QuerySourceReferenceExpression,
-                                selector,
-                                Expression.Parameter(typeof(TResult), "result"))
-                            .Compile())
+                (Func<TResult, object>)
+                AccessorFindingExpressionVisitor
+                    .FindAccessorLambda(
+                        entityTrackingInfo.QuerySourceReferenceExpression,
+                        selector,
+                        Expression.Parameter(typeof(TResult), "result"))
+                    .Compile())
                 .ToList();
 
         /// <summary>
         ///     Creates an action to execute this query.
         /// </summary>
         /// <typeparam name="TResults"> The type of results that the query returns. </typeparam>
-        /// <returns> An action that returns the results of the query. </returns>>
+        /// <returns> An action that returns the results of the query. </returns>
+        /// >
         protected virtual Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
         {
             var queryExecutorExpression
@@ -698,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits the root <see cref="QueryModel"/> node.
+        ///     Visits the root <see cref="QueryModel" /> node.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
         public override void VisitQueryModel([NotNull] QueryModel queryModel)
@@ -714,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits the <see cref="MainFromClause"/> node.
+        ///     Visits the <see cref="MainFromClause" /> node.
         /// </summary>
         /// <param name="fromClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
@@ -741,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Compiles the <see cref="MainFromClause"/> node.
+        ///     Compiles the <see cref="MainFromClause" /> node.
         /// </summary>
         /// <param name="mainFromClause"> The node being compiled. </param>
         /// <param name="queryModel"> The query. </param>
@@ -756,7 +820,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits <see cref="AdditionalFromClause"/> nodes.
+        ///     Visits <see cref="AdditionalFromClause" /> nodes.
         /// </summary>
         /// <param name="fromClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
@@ -797,7 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Compiles <see cref="AdditionalFromClause"/> nodes.
+        ///     Compiles <see cref="AdditionalFromClause" /> nodes.
         /// </summary>
         /// <param name="additionalFromClause"> The node being compiled. </param>
         /// <param name="queryModel"> The query. </param>
@@ -812,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits <see cref="JoinClause"/> nodes.
+        ///     Visits <see cref="JoinClause" /> nodes.
         /// </summary>
         /// <param name="joinClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
@@ -833,11 +897,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = Expression.Parameter(
                     innerSequenceExpression.Type.GetSequenceType(), joinClause.ItemName);
 
-            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(joinClause))
-            {
-                _queryCompilationContext.QuerySourceMapping
-                    .AddMapping(joinClause, innerItemParameter);
-            }
+            AddOrUpdateMapping(joinClause, innerItemParameter);
 
             var innerKeySelectorExpression
                 = ReplaceClauseReferences(joinClause.InnerKeySelector, joinClause);
@@ -870,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Compiles <see cref="JoinClause"/> nodes.
+        ///     Compiles <see cref="JoinClause" /> nodes.
         /// </summary>
         /// <param name="joinClause"> The node being compiled. </param>
         /// <param name="queryModel"> The query. </param>
@@ -885,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits <see cref="GroupJoinClause"/> nodes
+        ///     Visits <see cref="GroupJoinClause" /> nodes
         /// </summary>
         /// <param name="groupJoinClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
@@ -907,16 +967,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     innerSequenceExpression.Type.GetSequenceType(),
                     groupJoinClause.JoinClause.ItemName);
 
-            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(groupJoinClause.JoinClause))
-            {
-                _queryCompilationContext.QuerySourceMapping
-                    .AddMapping(groupJoinClause.JoinClause, innerItemParameter);
-            }
-            else
-            {
-                _queryCompilationContext.QuerySourceMapping
-                    .ReplaceMapping(groupJoinClause.JoinClause, innerItemParameter);
-            }
+            AddOrUpdateMapping(groupJoinClause.JoinClause, innerItemParameter);
 
             var innerKeySelectorExpression
                 = ReplaceClauseReferences(groupJoinClause.JoinClause.InnerKeySelector, groupJoinClause);
@@ -954,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Compiles <see cref="GroupJoinClause"/> nodes.
+        ///     Compiles <see cref="GroupJoinClause" /> nodes.
         /// </summary>
         /// <param name="groupJoinClause"> The node being compiled. </param>
         /// <param name="queryModel"> The query. </param>
@@ -969,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits <see cref="WhereClause"/> nodes.
+        ///     Visits <see cref="WhereClause" /> nodes.
         /// </summary>
         /// <param name="whereClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
@@ -990,11 +1041,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits <see cref="Ordering"/> nodes.
+        ///     Visits <see cref="Ordering" /> nodes.
         /// </summary>
         /// <param name="ordering"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
-        /// <param name="orderByClause"> The <see cref="OrderByClause"/> for the ordering. </param>
+        /// <param name="orderByClause"> The <see cref="OrderByClause" /> for the ordering. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitOrdering(
             [NotNull] Ordering ordering,
@@ -1011,8 +1062,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             _expression
                 = Expression.Call(
                     (index == 0
-                        ? LinqOperatorProvider.OrderBy
-                        : LinqOperatorProvider.ThenBy)
+                            ? LinqOperatorProvider.OrderBy
+                            : LinqOperatorProvider.ThenBy)
                         .MakeGenericMethod(CurrentParameter.Type, expression.Type),
                     _expression,
                     Expression.Lambda(expression, CurrentParameter),
@@ -1020,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits <see cref="SelectClause"/> nodes.
+        ///     Visits <see cref="SelectClause" /> nodes.
         /// </summary>
         /// <param name="selectClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
@@ -1063,7 +1114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits <see cref="ResultOperatorBase"/> nodes.
+        ///     Visits <see cref="ResultOperatorBase" /> nodes.
         /// </summary>
         /// <param name="resultOperator"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
@@ -1132,7 +1183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             CurrentParameter
                 = Expression.Parameter(
-                    transparentIdentifierType, 
+                    transparentIdentifierType,
                     string.Format(CultureInfo.InvariantCulture, "t{0}", _transparentParameterCounter++));
 
             var outerAccessExpression
@@ -1147,6 +1198,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (querySource != null)
                 {
                     RescopeTransparentAccess(querySource, outerAccessExpression);
+
+                    var groupJoinClause = querySource as GroupJoinClause;
+
+                    if (groupJoinClause != null
+                        && QueryCompilationContext.QuerySourceMapping
+                            .ContainsMapping(groupJoinClause.JoinClause))
+                    {
+                        RescopeTransparentAccess(groupJoinClause.JoinClause, outerAccessExpression);
+                    }
                 }
             }
 
@@ -1172,9 +1232,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return targetExpression;
             }
 
-            return Expression.MakeMemberAccess(
-                ShiftMemberAccess(targetExpression, memberExpression.Expression),
-                memberExpression.Member);
+            try
+            {
+                return Expression.MakeMemberAccess(
+                    ShiftMemberAccess(targetExpression, memberExpression.Expression),
+                    memberExpression.Member);
+            }
+            catch (ArgumentException)
+            {
+                // Member is not defined on the new target expression.
+                // This is due to stale QuerySourceMappings, which we can't
+                // remove due to there not being an API on QuerySourceMapping.
+            }
+
+            return currentExpression;
         }
 
         #endregion
@@ -1214,12 +1285,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (elementType != null)
                 {
-                    return
-                        Expression.Call(
-                            AsyncLinqOperatorProvider
-                                .ToAsyncEnumerableMethod
-                                .MakeGenericMethod(elementType),
-                            expression);
+                    var asyncLinqOperatorProvider = LinqOperatorProvider as AsyncLinqOperatorProvider;
+                    if (asyncLinqOperatorProvider != null)
+                    {
+                        return
+                            Expression.Call(
+                                asyncLinqOperatorProvider
+                                    .ToAsyncEnumerable
+                                    .MakeGenericMethod(elementType),
+                                expression);
+                    }
                 }
             }
 
@@ -1237,14 +1312,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(expression, nameof(expression));
 
-            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(querySource))
-            {
-                _queryCompilationContext.QuerySourceMapping.AddMapping(querySource, expression);
-            }
-            else
-            {
-                _queryCompilationContext.QuerySourceMapping.ReplaceMapping(querySource, expression);
-            }
+            QueryCompilationContext.AddOrUpdateMapping(querySource, expression);
         }
 
         #region Binding
@@ -1374,11 +1442,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindPropertyExpressionCore(memberExpression, querySource,
                 (ps, qs) =>
                     {
-                        var property = ps.Single() as IProperty;
+                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
 
                         return property != null
-                                   ? memberBinder(property, qs)
-                                   : default(TResult);
+                            ? memberBinder(property, qs)
+                            : default(TResult);
                     });
         }
 
@@ -1403,18 +1471,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindPropertyExpressionCore(methodCallExpression, querySource,
                 (ps, qs) =>
                     {
-                        var property = ps.Single() as IProperty;
+                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
 
                         return property != null
-                                   ? methodCallBinder(property, qs)
-                                   : default(TResult);
+                            ? methodCallBinder(property, qs)
+                            : default(TResult);
                     });
         }
 
         private TResult BindPropertyExpressionCore<TResult>(
             Expression propertyExpression,
             IQuerySource querySource,
-            Func<IEnumerable<IPropertyBase>, IQuerySource, TResult> propertyBinder)
+            Func<IReadOnlyList<IPropertyBase>, IQuerySource, TResult> propertyBinder)
         {
             QuerySourceReferenceExpression querySourceReferenceExpression;
 
@@ -1440,7 +1508,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return default(TResult);
         }
 
-        private IList<IPropertyBase> IterateCompositePropertyExpression(
+        private IReadOnlyList<IPropertyBase> IterateCompositePropertyExpression(
             Expression expression, out QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             var properties = new List<IPropertyBase>();
@@ -1449,9 +1517,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             querySourceReferenceExpression = null;
 
             while (memberExpression?.Expression != null
-                   || (IsPropertyMethod(methodCallExpression?.Method) && methodCallExpression?.Arguments?[0] != null))
+                   || (IsPropertyMethod(methodCallExpression?.Method)
+                       && methodCallExpression?.Arguments[0] != null))
             {
-                var propertyName = memberExpression?.Member.Name ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
+                var propertyName = memberExpression?.Member.Name
+                                   ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
+
                 expression = memberExpression?.Expression ?? methodCallExpression.Arguments[0];
 
                 // in case of inheritance there might be convert to derived type here, so we want to check it first

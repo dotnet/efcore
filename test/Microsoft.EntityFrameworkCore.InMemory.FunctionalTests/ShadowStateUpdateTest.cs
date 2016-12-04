@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var model = new Model();
 
             var customerType = model.AddEntityType(typeof(Customer));
-            var property1 = customerType.AddProperty("Id", typeof(int), shadow: false);
+            var property1 = customerType.AddProperty("Id", typeof(int));
             customerType.GetOrSetPrimaryKey(property1);
             customerType.AddProperty("Name", typeof(string));
 

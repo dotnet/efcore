@@ -16,6 +16,6 @@ namespace E2ETest.Namespace
         public string SomeOneToOnePrincipalColumn { get; set; }
 
         [InverseProperty("OneToOneDependentNavigation")]
-        public virtual OneToOneDependent OneToOneDependent { get; set; }
+        public OneToOneDependent OneToOneDependent { get; set; }
     }
 }

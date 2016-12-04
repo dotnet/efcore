@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -205,20 +207,495 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             }
         }
 
+        [Fact]
+        public void Throws_when_accessing_navigation_as_property()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal(CoreStrings.PropertyIsNavigation("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property("Garcia").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyIsNavigation("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Property("Garcia").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyIsNavigation("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property<Cherry>("Garcia").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyIsNavigation("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property(e => e.Garcia).Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_get_reference_entry_by_name()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal("Garcia", context.Entry(entity).Reference("Garcia").Metadata.Name);
+                Assert.Equal("Garcia", context.Entry((object)entity).Reference("Garcia").Metadata.Name);
+            }
+        }
+
+        [Fact]
+        public void Can_get_generic_reference_entry_by_name()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal("Garcia", context.Entry(entity).Reference<Cherry>("Garcia").Metadata.Name);
+            }
+        }
+
+        [Fact]
+        public void Can_get_generic_reference_entry_by_lambda()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal("Garcia", context.Entry(entity).Reference(e => e.Garcia).Metadata.Name);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_wrong_reference_name_is_used_while_getting_property_entry_by_name()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Cherry>("Chimp").Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_accessing_property_as_reference()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal(CoreStrings.NavigationIsProperty("Monkey", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference("Monkey").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.NavigationIsProperty("Monkey", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Monkey").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.NavigationIsProperty("Monkey", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Monkey").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.NavigationIsProperty("Nonkey", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference(e => e.Nonkey).Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_accessing_collection_as_reference()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                Assert.Equal(CoreStrings.ReferenceIsCollection("Monkeys", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference("Monkeys").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.ReferenceIsCollection("Monkeys", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Monkeys").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.ReferenceIsCollection("Monkeys", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Monkeys").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.ReferenceIsCollection("Monkeys", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference(e => e.Monkeys).Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_get_collection_entry_by_name()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                Assert.Equal("Monkeys", context.Entry(entity).Collection("Monkeys").Metadata.Name);
+                Assert.Equal("Monkeys", context.Entry((object)entity).Collection("Monkeys").Metadata.Name);
+            }
+        }
+
+        [Fact]
+        public void Can_get_generic_collection_entry_by_name()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                Assert.Equal("Monkeys", context.Entry(entity).Collection<Chunky>("Monkeys").Metadata.Name);
+            }
+        }
+
+        [Fact]
+        public void Can_get_generic_collection_entry_by_lambda()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                Assert.Equal("Monkeys", context.Entry(entity).Collection(e => e.Monkeys).Metadata.Name);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_wrong_collection_name_is_used_while_getting_property_entry_by_name()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Collection("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection<Cherry>("Chimp").Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_accessing_property_as_collection()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                Assert.Equal(CoreStrings.NavigationIsProperty("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection("Garcia").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.NavigationIsProperty("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Collection("Garcia").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.NavigationIsProperty("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection<Random>("Garcia").Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_accessing_refernce_as_collection()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal(CoreStrings.CollectionIsReference("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Collection), nameof(EntityEntry.Reference)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection("Garcia").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.CollectionIsReference("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Collection), nameof(EntityEntry.Reference)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Collection("Garcia").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.CollectionIsReference("Garcia", entity.GetType().Name,
+                        nameof(EntityEntry.Collection), nameof(EntityEntry.Reference)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection<Cherry>("Garcia").Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_get_property_entry_by_name_using_Member()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                var entry = context.Entry(entity).Member("Monkey");
+                Assert.Equal("Monkey", entry.Metadata.Name);
+                Assert.IsType<PropertyEntry>(entry);
+
+                entry = context.Entry((object)entity).Member("Monkey");
+                Assert.Equal("Monkey", entry.Metadata.Name);
+                Assert.IsType<PropertyEntry>(entry);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_wrong_property_name_is_used_while_getting_property_entry_by_name_using_Member()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Member("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Member("Chimp").Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_get_reference_entry_by_name_using_Member()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                var entry = context.Entry(entity).Member("Garcia");
+                Assert.Equal("Garcia", entry.Metadata.Name);
+                Assert.IsType<ReferenceEntry>(entry);
+
+                entry = context.Entry((object)entity).Member("Garcia");
+                Assert.Equal("Garcia", entry.Metadata.Name);
+                Assert.IsType<ReferenceEntry>(entry);
+            }
+        }
+
+        [Fact]
+        public void Can_get_collection_entry_by_name_using_Member()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                var entry = context.Entry(entity).Member("Monkeys");
+                Assert.Equal("Monkeys", entry.Metadata.Name);
+                Assert.IsType<CollectionEntry>(entry);
+
+                entry = context.Entry((object)entity).Member("Monkeys");
+                Assert.Equal("Monkeys", entry.Metadata.Name);
+                Assert.IsType<CollectionEntry>(entry);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_wrong_property_name_is_used_while_getting_property_entry_by_name_using_Navigation()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Navigation("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Navigation("Chimp").Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_get_reference_entry_by_name_using_Navigation()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                var entry = context.Entry(entity).Navigation("Garcia");
+                Assert.Equal("Garcia", entry.Metadata.Name);
+                Assert.IsType<ReferenceEntry>(entry);
+
+                entry = context.Entry((object)entity).Navigation("Garcia");
+                Assert.Equal("Garcia", entry.Metadata.Name);
+                Assert.IsType<ReferenceEntry>(entry);
+            }
+        }
+
+        [Fact]
+        public void Can_get_collection_entry_by_name_using_Navigation()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Cherry()).Entity;
+
+                var entry = context.Entry(entity).Navigation("Monkeys");
+                Assert.Equal("Monkeys", entry.Metadata.Name);
+                Assert.IsType<CollectionEntry>(entry);
+
+                entry = context.Entry((object)entity).Navigation("Monkeys");
+                Assert.Equal("Monkeys", entry.Metadata.Name);
+                Assert.IsType<CollectionEntry>(entry);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_accessing_property_as_navigation()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+
+                Assert.Equal(CoreStrings.NavigationIsProperty("Monkey", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Navigation("Monkey").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.NavigationIsProperty("Monkey", entity.GetType().Name,
+                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Navigation("Monkey").Metadata.Name).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_modified_properties()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Attach(new Chunky()).Entity;
+
+                var modified = context.Entry(entity).Properties
+                    .Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
+
+                Assert.Empty(modified);
+
+                entity.Nonkey = "Blue";
+                entity.GarciaId = 77;
+
+                context.ChangeTracker.DetectChanges();
+
+                modified = context.Entry(entity).Properties
+                    .Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
+
+                Assert.Equal(new List<string> { "GarciaId", "Nonkey" }, modified);
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_member_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Id", "GarciaId", "Monkey", "Nonkey", "Garcia" },
+                    context.Attach(new Chunky()).Members.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Garcia", "Baked", "Monkeys" },
+                    context.Attach(new Cherry()).Members.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Baked", "GarciaId", "Garcia" },
+                    context.Attach(new Half()).Members.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_property_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Id", "GarciaId", "Monkey", "Nonkey" },
+                    context.Attach(new Chunky()).Properties.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Garcia" },
+                    context.Attach(new Cherry()).Properties.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Id", "Baked", "GarciaId" },
+                    context.Attach(new Half()).Properties.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_navigation_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Chunky()).Navigations.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Baked", "Monkeys" },
+                    context.Attach(new Cherry()).Navigations.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Half()).Navigations.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_reference_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Chunky()).References.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Baked" },
+                    context.Attach(new Cherry()).References.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Garcia" },
+                    context.Attach(new Half()).References.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_get_all_collection_entries()
+        {
+            using (var context = new FreezerContext())
+            {
+                Assert.Empty(context.Attach(new Chunky()).Collections.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Equal(
+                    new List<string> { "Monkeys" },
+                    context.Attach(new Cherry()).Collections.Select(e => e.Metadata.Name).ToList());
+
+                Assert.Empty(context.Attach(new Half()).Collections.Select(e => e.Metadata.Name).ToList());
+            }
+        }
+
         private class Chunky
         {
             public int Monkey { get; set; }
+            public string Nonkey { get; set; }
             public int Id { get; set; }
+
+            public int GarciaId { get; set; }
+            public Cherry Garcia { get; set; }
+        }
+
+        private class Cherry
+        {
+            public int Garcia { get; set; }
+            public int Id { get; set; }
+
+            public ICollection<Chunky> Monkeys { get; set; }
+
+            public Half Baked { get; set; }
+        }
+
+        private class Half
+        {
+            public int Baked { get; set; }
+            public int Id { get; set; }
+
+            public int? GarciaId { get; set; }
+            public Cherry Garcia { get; set; }
         }
 
         private class FreezerContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInMemoryDatabase()
-                    .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
+                => optionsBuilder.UseInMemoryDatabase();
 
             public DbSet<Chunky> Icecream { get; set; }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Chunky>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Cherry>().Property(e => e.Id).ValueGeneratedNever();
+            }
         }
     }
 }

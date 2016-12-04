@@ -9,16 +9,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="WarningsConfigurationBuilder"/>.
+    ///     Relational database specific extension methods for <see cref="WarningsConfigurationBuilder" />.
     /// </summary>
     public static class WarningConfigurationBuilderExtensions
     {
         /// <summary>
-        ///     Causes an exception to be thrown when the specified relational database warnings are generated.  
+        ///     Causes an exception to be thrown when the specified relational database warnings are generated.
         /// </summary>
         /// <param name="warningsConfigurationBuilder"> The builder being used to configure warnings. </param>
         /// <param name="relationalEventIds">
-        ///     The <see cref="RelationalEventId"/>(s) for the warnings.
+        ///     The <see cref="RelationalEventId" />(s) for the warnings.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static WarningsConfigurationBuilder Throw(
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="warningsConfigurationBuilder"> The builder being used to configure warnings. </param>
         /// <param name="relationalEventIds">
-        ///     The <see cref="RelationalEventId"/>(s) for the warnings.
+        ///     The <see cref="RelationalEventId" />(s) for the warnings.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static WarningsConfigurationBuilder Log(
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="warningsConfigurationBuilder"> The builder being used to configure warnings. </param>
         /// <param name="relationalEventIds">
-        ///     The <see cref="RelationalEventId"/>(s) for the warnings.
+        ///     The <see cref="RelationalEventId" />(s) for the warnings.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static WarningsConfigurationBuilder Ignore(

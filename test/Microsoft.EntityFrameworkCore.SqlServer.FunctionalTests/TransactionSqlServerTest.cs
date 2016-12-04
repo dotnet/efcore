@@ -11,8 +11,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public TransactionSqlServerTest(TransactionSqlServerFixture fixture)
             : base(fixture)
         {
+            TestSqlServerRetryingExecutionStrategy.Suspended = true;
         }
 
         protected override bool SnapshotSupported => true;
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            TestSqlServerRetryingExecutionStrategy.Suspended = false;
+        }
     }
 }

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -16,9 +18,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
+
         public abstract class GraphUpdatesSqlServerFixtureBase : GraphUpdatesFixtureBase
         {
             private readonly IServiceProvider _serviceProvider;
+            private DbContextOptions _options;
 
             protected GraphUpdatesSqlServerFixtureBase()
             {
@@ -32,33 +38,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             public override SqlServerTestStore CreateTestStore()
             {
-                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+                var testStore = SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
-                        var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
-                            .UseInternalServiceProvider(_serviceProvider);
+                        var options = new DbContextOptionsBuilder()
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
+                            .UseInternalServiceProvider(_serviceProvider)
+                            .Options;
 
-                        using (var context = new GraphUpdatesContext(optionsBuilder.Options))
+                        using (var context = new GraphUpdatesContext(options))
                         {
-                            context.Database.EnsureDeleted();
-                            if (context.Database.EnsureCreated())
-                            {
-                                Seed(context);
-                            }
+                            context.Database.EnsureCreated();
+                            Seed(context);
                         }
                     });
+
+                _options = new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .Options;
+
+                return testStore;
             }
 
             public override DbContext CreateContext(SqlServerTestStore testStore)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.Connection)
-                    .UseInternalServiceProvider(_serviceProvider);
-
-                var context = new GraphUpdatesContext(optionsBuilder.Options);
-                context.Database.UseTransaction(testStore.Transaction);
-                return context;
-            }
+                => new GraphUpdatesContext(_options);
         }
     }
 }

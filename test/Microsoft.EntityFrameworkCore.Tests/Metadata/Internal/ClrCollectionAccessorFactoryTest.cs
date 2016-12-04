@@ -8,10 +8,16 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+// ReSharper disable EmptyConstructor
+// ReSharper disable ConvertToAutoProperty
+// ReSharper disable NotAccessedField.Local
 // ReSharper disable ConvertToAutoPropertyWhenPossible
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable UnusedMember.Local
@@ -67,6 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Delegate_accessor_is_returned_when_no_backing_field_found()
+        {
+            AccessorTest("NoBackingFound", e => e.NoBackingFound);
+        }
+
+        [Fact]
         public void Delegate_accessor_is_returned_when_no_public_constructor()
         {
             AccessorTest("AsMyPrivateCollection", e => e.AsMyPrivateCollection);
@@ -82,6 +94,54 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Delegate_accessor_is_returned_when_no_parameterless_constructor()
         {
             AccessorTest("AsMyUnavailableCollection", e => e.AsMyUnavailableCollection);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_auto_prop()
+        {
+            AccessorTest("AutoProp", e => e.AutoProp);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_read_only_prop()
+        {
+            AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_read_only_auto_prop()
+        {
+            AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_read_only_field_prop()
+        {
+            AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_write_only_prop()
+        {
+            AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_prop_no_field_found()
+        {
+            AccessorTest("FullPropNoField", e => e.FullPropNoField);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_read_only_prop_no_field_found()
+        {
+            AccessorTest("ReadOnlyPropNoField", e => e.ReadOnlyPropNoField);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_with_no_setter()
+        {
+            AccessorTest("WithNoSetter", e => e.WithNoSetter, initializeCollections: false);
         }
 
         [Fact]
@@ -108,18 +168,38 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             AccessorTest("AsMyCollection", e => e.AsMyCollection, initializeCollections: false);
         }
 
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_auto_prop()
+        {
+            AccessorTest("AutoProp", e => e.AutoProp, initializeCollections: false);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_read_only_prop()
+        {
+            AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp, initializeCollections: false);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_write_only_prop()
+        {
+            AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp, initializeCollections: false);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_prop_no_field_found()
+        {
+            AccessorTest("FullPropNoField", e => e.FullPropNoField, initializeCollections: false);
+        }
+
         private static void AccessorTest(
             string navigationName, Func<MyEntity, IEnumerable<MyOtherEntity>> reader, bool initializeCollections = true)
         {
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation(navigationName));
 
-            var entity = new MyEntity();
-            var value = new MyOtherEntity();
+            var entity = new MyEntity(initializeCollections);
 
-            if (initializeCollections)
-            {
-                entity.InitializeCollections();
-            }
+            var value = new MyOtherEntity();
 
             Assert.False(accessor.Contains(entity, value));
             accessor.Remove(entity, value);
@@ -136,12 +216,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Creating_accessor_for_navigation_without_getter_throws()
+        public void Creating_accessor_for_navigation_without_getter_and_no_backing_field_throws()
         {
-            var navigation = CreateNavigation("WithNoGetter");
+            var navigation = CreateNavigation("WriteOnlyPropNoField");
 
             Assert.Equal(
-                CoreStrings.NavigationNoGetter("WithNoGetter", typeof(MyEntity).Name),
+                CoreStrings.NoFieldOrGetter("WriteOnlyPropNoField", typeof(MyEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
@@ -179,9 +259,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsIEnumerableNotCollection"));
 
-            var entity = new MyEntity();
+            var entity = new MyEntity(initialize: true);
             var value = new MyOtherEntity();
-            entity.InitializeCollections();
 
             Assert.Equal(
                 CoreStrings.NavigationBadType(
@@ -200,13 +279,43 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Initialization_for_navigation_without_setter_throws()
+        public void Initialization_for_navigation_without_backing_field_throws()
         {
-            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("WithNoSetter"));
+            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("NoBackingFound"));
 
             Assert.Equal(
-                CoreStrings.NavigationNoSetter("WithNoSetter", typeof(MyEntity).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+                CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+        }
+
+        [Fact]
+        public void Initialization_for_read_only_navigation_without_backing_field_throws()
+        {
+            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("ReadOnlyPropNoField"));
+
+            Assert.Equal(
+                CoreStrings.NavigationNoSetter("ReadOnlyPropNoField", typeof(MyEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+        }
+
+        [Fact]
+        public void Initialization_for_read_only_auto_prop_navigation()
+        {
+            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("ReadOnlyAutoProp"));
+
+            Assert.Equal(
+                CoreStrings.NavigationNoSetter("ReadOnlyAutoProp", typeof(MyEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+        }
+
+        [Fact]
+        public void Initialization_for_read_only_navigation_backed_by_readonly_field()
+        {
+            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("ReadOnlyFieldProp"));
+
+            Assert.Equal(
+                CoreStrings.NavigationNoSetter("ReadOnlyFieldProp", typeof(MyEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
         }
 
         [Fact]
@@ -216,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).Name, typeof(MyPrivateCollection).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
         }
 
         [Fact]
@@ -226,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).Name, typeof(MyInternalCollection).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
         }
 
         [Fact]
@@ -236,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
         }
 
         private static Navigation CreateNavigation(string navigationName)
@@ -248,8 +357,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
-            return foreignKey.HasPrincipalToDependent(
+            var navigation = foreignKey.HasPrincipalToDependent(
                 typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+
+            new BackingFieldConvention().Apply(foreignKey.Builder, navigation);
+
+            return navigation;
         }
 
         private class MyEntity
@@ -258,8 +371,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             private IList<MyOtherEntity> _asIList;
             private List<MyOtherEntity> _asList;
             private MyCollection _myCollection;
+            private ICollection<MyOtherEntity> _withNoBackingFieldFound;
             private ICollection<MyOtherEntity> _withNoSetter;
-            // ReSharper disable once NotAccessedField.Local
             private ICollection<MyOtherEntity> _withNoGetter;
             private IEnumerable<MyOtherEntity> _enumerable;
             private IEnumerable<MyOtherEntity> _enumerableNotCollection;
@@ -267,21 +380,39 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             private MyPrivateCollection _privateCollection;
             private MyInternalCollection _internalCollection;
             private MyUnavailableCollection _unavailableCollection;
+            private IEnumerable<MyOtherEntity> _readOnlyProp;
+            private readonly IEnumerable<MyOtherEntity> _readOnlyFieldProp;
+            private IEnumerable<MyOtherEntity> _writeOnlyProp;
+            private IEnumerable<MyOtherEntity> _fullPropNoFieldNotFound;
+            private IEnumerable<MyOtherEntity> _readOnlyPropNoFieldNotFound;
+            private IEnumerable<MyOtherEntity> _writeOnlyPropNoFieldNotFound;
 
-            public void InitializeCollections()
+            public MyEntity(bool initialize)
             {
-                _asICollection = new HashSet<MyOtherEntity>();
-                _asIList = new List<MyOtherEntity>();
-                _asList = new List<MyOtherEntity>();
-                _myCollection = new MyCollection();
-                _withNoSetter = new HashSet<MyOtherEntity>();
-                _withNoGetter = new HashSet<MyOtherEntity>();
-                _enumerable = new HashSet<MyOtherEntity>();
-                _enumerableNotCollection = new MyEnumerable();
-                _array = new MyOtherEntity[0];
-                _privateCollection = MyPrivateCollection.Create();
-                _internalCollection = new MyInternalCollection();
-                _unavailableCollection = new MyUnavailableCollection(true);
+                if (initialize)
+                {
+                    _asICollection = new HashSet<MyOtherEntity>();
+                    _asIList = new List<MyOtherEntity>();
+                    _asList = new List<MyOtherEntity>();
+                    _myCollection = new MyCollection();
+                    _withNoBackingFieldFound = new HashSet<MyOtherEntity>();
+                    _withNoSetter = new HashSet<MyOtherEntity>();
+                    _withNoGetter = new HashSet<MyOtherEntity>();
+                    _enumerable = new HashSet<MyOtherEntity>();
+                    _enumerableNotCollection = new MyEnumerable();
+                    _array = new MyOtherEntity[0];
+                    _privateCollection = MyPrivateCollection.Create();
+                    _internalCollection = new MyInternalCollection();
+                    _unavailableCollection = new MyUnavailableCollection(true);
+                    AutoProp = new HashSet<MyOtherEntity>();
+                    ReadOnlyAutoProp = new HashSet<MyOtherEntity>();
+                    _readOnlyProp = new HashSet<MyOtherEntity>();
+                    _readOnlyFieldProp = new HashSet<MyOtherEntity>();
+                    _writeOnlyProp = new HashSet<MyOtherEntity>();
+                    _fullPropNoFieldNotFound = new HashSet<MyOtherEntity>();
+                    _readOnlyPropNoFieldNotFound = new HashSet<MyOtherEntity>();
+                    _writeOnlyPropNoFieldNotFound = new HashSet<MyOtherEntity>();
+                }
             }
 
             internal ICollection<MyOtherEntity> AsICollection
@@ -309,6 +440,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
 
             internal ICollection<MyOtherEntity> WithNoSetter => _withNoSetter;
+
+            internal ICollection<MyOtherEntity> NoBackingFound => _withNoBackingFieldFound;
 
             internal ICollection<MyOtherEntity> WithNoGetter
             {
@@ -350,6 +483,36 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 get { return _unavailableCollection; }
                 set { _unavailableCollection = value; }
             }
+
+            internal IEnumerable<MyOtherEntity> AutoProp { get; set; }
+
+            internal IEnumerable<MyOtherEntity> ReadOnlyProp => _readOnlyProp;
+
+            internal IEnumerable<MyOtherEntity> ReadOnlyAutoProp { get; }
+
+            internal IEnumerable<MyOtherEntity> ReadOnlyFieldProp => _readOnlyFieldProp;
+
+            internal IEnumerable<MyOtherEntity> WriteOnlyProp
+            {
+                set { _writeOnlyProp = value; }
+            }
+
+            internal IEnumerable<MyOtherEntity> ReadWriteOnlyProp => _writeOnlyProp;
+
+            internal IEnumerable<MyOtherEntity> FullPropNoField
+            {
+                get { return _fullPropNoFieldNotFound; }
+                set { _fullPropNoFieldNotFound = value; }
+            }
+
+            internal IEnumerable<MyOtherEntity> ReadOnlyPropNoField => _readOnlyPropNoFieldNotFound;
+
+            internal IEnumerable<MyOtherEntity> WriteOnlyPropNoField
+            {
+                set { _writeOnlyPropNoFieldNotFound = value; }
+            }
+
+            internal IEnumerable<MyOtherEntity> ReadWriteOnlyPropNoField => _writeOnlyPropNoFieldNotFound;
         }
 
         private class MyOtherEntity
@@ -374,7 +537,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class MyInternalCollection : List<MyOtherEntity>
         {
-            // ReSharper disable once EmptyConstructor
             internal MyInternalCollection()
             {
             }

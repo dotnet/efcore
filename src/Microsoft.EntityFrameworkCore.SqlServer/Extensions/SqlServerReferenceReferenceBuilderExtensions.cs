@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="ReferenceReferenceBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="ReferenceReferenceBuilder" />.
     /// </summary>
     public static class SqlServerReferenceReferenceBuilderExtensions
     {

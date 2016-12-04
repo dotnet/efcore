@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,7 +20,7 @@ using Remotion.Linq.Clauses;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class IncludeExpressionVisitor : ExpressionVisitorBase
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly bool _querySourceRequiresTracking;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IncludeExpressionVisitor(
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -145,25 +144,58 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var groupJoinIncludeArgumentIndex = shaperArgumentIndex + 4;
 
+                var existingGroupJoinIncludeArgument = methodCallExpression.Arguments[groupJoinIncludeArgumentIndex];
+                var existingGroupJoinIncludeWithAccessor = existingGroupJoinIncludeArgument as MethodCallExpression;
+
+                var withAccessorMethodInfo
+                    = _queryCompilationContext.QueryMethodProvider.GroupJoinIncludeType
+                        .GetTypeInfo()
+                        .GetDeclaredMethod(nameof(GroupJoinInclude.WithEntityAccessor));
+
+                var existingGroupJoinIncludeExpression 
+                    = existingGroupJoinIncludeWithAccessor != null
+                          && existingGroupJoinIncludeWithAccessor.Method == withAccessorMethodInfo
+                    ? existingGroupJoinIncludeWithAccessor.Object
+                    : existingGroupJoinIncludeArgument;
+
+                var relatedEntitiesLoaders
+                    = Expression.Lambda<Func<object>>(
+                        (Expression)_createRelatedEntitiesLoadersMethodInfo
+                            .MakeGenericMethod(_queryCompilationContext.QueryMethodProvider.RelatedEntitiesLoaderType)
+                            .Invoke(this, new object[]
+                            {
+                                _querySource,
+                                _navigationPath
+                            }))
+                            .Compile()
+                            .Invoke();
+
                 var groupJoinInclude
                     = _queryCompilationContext.QueryMethodProvider
                         .CreateGroupJoinInclude(
                             _includeSpecification,
                             _querySourceRequiresTracking,
-                            (methodCallExpression.Arguments[groupJoinIncludeArgumentIndex] as ConstantExpression)?.Value,
-                            _createRelatedEntitiesLoadersMethodInfo
-                                .MakeGenericMethod(_queryCompilationContext.QueryMethodProvider.RelatedEntitiesLoaderType)
-                                .Invoke(this, new object[]
-                                {
-                                    _querySource,
-                                    _includeSpecification
-                                }));
+                            (existingGroupJoinIncludeExpression as ConstantExpression)?.Value,
+                            relatedEntitiesLoaders);
 
                 if (groupJoinInclude != null)
                 {
+                    var groupJoinIncludeExpression = (Expression)Expression.Constant(groupJoinInclude);
+                    var accessorLambda = shaper.GetAccessorExpression(_querySource) as LambdaExpression;
+
+                    if (accessorLambda != null
+                        && accessorLambda.Parameters.Single().Type.GetTypeInfo().IsValueType)
+                    {
+                        groupJoinIncludeExpression
+                            = Expression.Call(
+                                groupJoinIncludeExpression,
+                                withAccessorMethodInfo,
+                                shaper.GetAccessorExpression(_querySource));
+                    }
+
                     var newArguments = methodCallExpression.Arguments.ToList();
 
-                    newArguments[groupJoinIncludeArgumentIndex] = Expression.Constant(groupJoinInclude);
+                    newArguments[groupJoinIncludeArgumentIndex] = groupJoinIncludeExpression;
 
                     return methodCallExpression.Update(methodCallExpression.Object, newArguments);
                 }
@@ -177,10 +209,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 .GetDeclaredMethod(nameof(CreateRelatedEntitiesLoaders));
 
         [UsedImplicitly]
-        private Dictionary<IncludeSpecification, Func<QueryContext, TRelatedEntitiesLoader>> CreateRelatedEntitiesLoaders
-            <TRelatedEntitiesLoader>(
-            IQuerySource querySource, IncludeSpecification includeSpecification)
+        private NewArrayExpression CreateRelatedEntitiesLoaders<TRelatedEntitiesLoader>(
+            IQuerySource querySource, IEnumerable<INavigation> navigationPath)
         {
+            var queryContextParameter = Expression.Parameter(typeof(QueryContext));
+
+            var relatedEntitiesLoaders = new List<Expression<Func<QueryContext, TRelatedEntitiesLoader>>>();
+
             var selectExpression
                 = _queryCompilationContext.FindSelectExpression(querySource);
 
@@ -288,32 +323,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 targetTableExpression = joinedTableExpression;
 
-                entityLoader =
-                    qc =>
-                        (TRelatedEntitiesLoader)_queryCompilationContext.QueryMethodProvider
-                            .CreateReferenceRelatedEntitiesLoaderMethod
-                            .Invoke(
-                                null,
-                                new object[]
-                                {
-                                    valueBufferOffset,
-                                    queryIndex,
-                                    materializer.Compile() // TODO: Used cached materializer?
-                                });
-            }
-            else
-            {
-                var principalTable
-                    = selectExpression.Tables.Count == 1
-                      && selectExpression.Tables
-                          .OfType<SelectExpression>()
-                          .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
-                        // true when select is wrapped e.g. when RowNumber paging is enabled
-                        ? selectExpression.Tables[0]
-                        : selectExpression.Tables.Last(t => t.QuerySource == querySource);
+                    relatedEntitiesLoaders.Add(
+                        Expression.Lambda<Func<QueryContext, TRelatedEntitiesLoader>>(
+                            Expression.Call(
+                                _queryCompilationContext.QueryMethodProvider
+                                    .CreateReferenceRelatedEntitiesLoaderMethod,
+                                Expression.Constant(valueBufferOffset),
+                                Expression.Constant(queryIndex),
+                                materializer
+                            ),
+                            queryContextParameter));
+                }
+                else
+                {
+                    var principalTable
+                        = selectExpression.Tables.Count == 1
+                          && selectExpression.Tables
+                              .OfType<SelectExpression>()
+                              .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
+                            // true when select is wrapped e.g. when RowNumber paging is enabled
+                            ? selectExpression.Tables[0]
+                            : selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
-                var canGenerateExists =
-                    !IsOrderingOnNonPrincipalKeyProperties(selectExpression.OrderBy, navigation.ForeignKey.PrincipalKey.Properties);
+                    var canGenerateExists
+                        = selectExpression.Offset == null
+                          && selectExpression.Limit == null
+                          && !IsOrderingOnNonPrincipalKeyProperties(
+                              selectExpression.OrderBy,
+                              navigation.ForeignKey.PrincipalKey.Properties);
 
                 foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
                 {
@@ -367,8 +404,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     AddToPredicate(targetSelectExpression, existsPredicateExpression);
 
-                    AddToPredicate(subqueryExpression,
-                        BuildJoinEqualityExpression(navigation, targetTableExpression, subqueryTable, querySource));
+                        AddToPredicate(
+                            subqueryExpression,
+                            BuildJoinEqualityExpression(navigation, targetTableExpression, subqueryTable, querySource));
 
                     subqueryExpression.Predicate
                         = compositePredicateExpressionVisitor
@@ -378,27 +416,30 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         .Zip(navigation.ForeignKey.Properties, (k, v) => new {PkProperty = k, FkProperty = v})
                         .ToDictionary(x => x.PkProperty, x => x.FkProperty);
 
-                    foreach (var ordering in selectExpression.OrderBy)
-                    {
-                        // ReSharper disable once PossibleNullReferenceException
-                        var principalKeyProperty = ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression).Property;
-                        var referencedForeignKeyProperty = pkPropertiesToFkPropertiesMap[principalKeyProperty];
-                        targetSelectExpression
-                            .AddToOrderBy(
-                                _relationalAnnotationProvider.For(referencedForeignKeyProperty).ColumnName,
-                                referencedForeignKeyProperty,
-                                targetTableExpression,
-                                ordering.OrderingDirection);
+                        foreach (var ordering in selectExpression.OrderBy)
+                        {
+                            // ReSharper disable once PossibleNullReferenceException
+                            var principalKeyProperty
+                                = ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression).Property;
+
+                            var referencedForeignKeyProperty = pkPropertiesToFkPropertiesMap[principalKeyProperty];
+
+                            targetSelectExpression
+                                .AddToOrderBy(
+                                    _relationalAnnotationProvider.For(referencedForeignKeyProperty).ColumnName,
+                                    referencedForeignKeyProperty,
+                                    targetTableExpression,
+                                    ordering.OrderingDirection);
+                        }
                     }
-                }
-                else
-                {
-                    var innerJoinSelectExpression
-                        = selectExpression.Clone(
-                            selectExpression.OrderBy
-                                .Select(o => o.Expression)
-                                .Last(o => o.IsAliasWithColumnExpression())
-                                .TryGetColumnExpression().TableAlias);
+                    else
+                    {
+                        var innerJoinSelectExpression
+                            = selectExpression.Clone(
+                                selectExpression.OrderBy
+                                    .Select(o => o.Expression)
+                                    .Last(o => o.IsAliasWithColumnExpression())
+                                    .TryGetColumnExpression().TableAlias);
 
                     innerJoinSelectExpression.ClearProjection();
 
@@ -422,30 +463,39 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 selectExpression = targetSelectExpression;
 
-                entityLoader =
-                    qc =>
-                        (TRelatedEntitiesLoader)_queryCompilationContext.QueryMethodProvider
-                            .CreateCollectionRelatedEntitiesLoaderMethod
-                            .Invoke(
-                                null,
-                                new object[]
-                                {
-                                    qc,
+                    relatedEntitiesLoaders.Add(
+                        Expression.Lambda<Func<QueryContext, TRelatedEntitiesLoader>>(
+                            Expression.Call(
+                                _queryCompilationContext.QueryMethodProvider
+                                    .CreateCollectionRelatedEntitiesLoaderMethod,
+                                queryContextParameter,
+                                Expression.Constant(
                                     _shaperCommandContextFactory.Create(() =>
-                                        _querySqlGeneratorFactory.CreateDefault(targetSelectExpression)),
-                                    queryIndex,
-                                    materializer.Compile() // TODO: Used cached materializer?
-                                });
+                                            _querySqlGeneratorFactory.CreateDefault(targetSelectExpression))),
+                                Expression.Constant(queryIndex),
+                                materializer
+                            ),
+                            queryContextParameter));
+                }
             }
-            return entityLoader;
+
+            return Expression.NewArrayInit(
+                typeof(Func<QueryContext, TRelatedEntitiesLoader>),
+                relatedEntitiesLoaders);
         }
 
         private JoinExpressionBase AdjustJoinExpression(
             SelectExpression selectExpression, JoinExpressionBase joinExpression)
         {
-            var subquery = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext) { Alias = joinExpression.Alias };
+            var subquery
+                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext)
+                {
+                    Alias = joinExpression.Alias
+                };
+
             // Don't create new alias when adding tables to subquery
             subquery.AddTable(joinExpression.TableExpression, createUniqueAlias: false);
+            subquery.ProjectStarAlias = joinExpression.Alias;
             subquery.IsProjectStar = true;
             subquery.Predicate = selectExpression.Predicate;
 
@@ -467,9 +517,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var needOrderingChanges
                 = innerJoinSelectExpression.OrderBy
-                .Any(x => x.Expression is SelectExpression
-                || x.Expression.IsAliasWithColumnExpression()
-                || x.Expression.IsAliasWithSelectExpression());
+                    .Any(x => x.Expression is SelectExpression
+                              || x.Expression.IsAliasWithColumnExpression()
+                              || x.Expression.IsAliasWithSelectExpression());
 
             var orderings = innerJoinSelectExpression.OrderBy.ToList();
             if (needOrderingChanges)
@@ -496,9 +546,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                var index = orderingExpression is SelectExpression
-                    ? innerJoinSelectExpression.AddAliasToProjection(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, orderingExpression)
-                    : innerJoinSelectExpression.AddToProjection(orderingExpression);
+                var index = orderingExpression is ColumnExpression || orderingExpression.IsAliasWithColumnExpression()
+                    ? innerJoinSelectExpression.AddToProjection(orderingExpression)
+                    : innerJoinSelectExpression.AddAliasToProjection(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, orderingExpression);
 
                 var expression = innerJoinSelectExpression.Projection[index];
 
@@ -507,8 +557,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     innerJoinSelectExpression.AddToOrderBy(new Ordering(expression.TryGetColumnExpression() ?? expression, ordering.OrderingDirection));
                 }
 
-                var newExpression
-                    = targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);
+                var projectedAliasExpression = expression as AliasExpression;
+                var newExpression = projectedAliasExpression?.Alias != null
+                    ? new ColumnExpression(projectedAliasExpression.Alias, projectedAliasExpression.Type, innerJoinExpression)
+                    : targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);
 
                 targetSelectExpression.AddToOrderBy(new Ordering(newExpression, ordering.OrderingDirection));
             }
@@ -613,7 +665,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (selectExpression != null)
             {
-                return selectExpression.Projection.ToList();
+                return
+                    selectExpression.IsProjectStar
+                        ? selectExpression.Tables.SelectMany(ExtractProjections)
+                        : selectExpression.Projection.ToList();
             }
 
             var joinExpression = tableExpression as JoinExpressionBase;
@@ -623,24 +678,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 : Enumerable.Empty<Expression>();
         }
 
-        private void AddToPredicate(SelectExpression selectExpression, Expression predicateToAdd)
+        private static void AddToPredicate(SelectExpression selectExpression, Expression predicateToAdd)
             => selectExpression.Predicate
                 = selectExpression.Predicate == null
                     ? predicateToAdd
                     : Expression.AndAlso(selectExpression.Predicate, predicateToAdd);
 
-        private bool IsOrderingOnNonPrincipalKeyProperties(IReadOnlyList<Ordering> orderings, IReadOnlyList<IProperty> properties)
-        {
-            foreach (var ordering in orderings)
-            {
-                var property = ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression)?.Property;
-                if (!properties.Contains(property))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        private static bool IsOrderingOnNonPrincipalKeyProperties(
+                IEnumerable<Ordering> orderings, IReadOnlyList<IProperty> properties)
+            => orderings
+                .Select(ordering => ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression)?.Property)
+                .Any(property => !properties.Contains(property));
     }
 }

@@ -3,7 +3,9 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Moq;
@@ -23,17 +25,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var transactionMock = new Mock<IDbContextTransaction>();
 
             IDbContextTransaction currentTransaction = null;
-            mockRelationalConnection.Setup(m => m.BeginTransaction()).Returns(() => currentTransaction = transactionMock.Object);
+            mockRelationalConnection.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult(currentTransaction = transactionMock.Object));
             mockRelationalConnection.Setup(m => m.CurrentTransaction).Returns(() => currentTransaction);
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor();
+            var batchExecutor = new BatchExecutor(
+                new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)), new ExecutionStrategyFactory());
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
-            mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken));
-            mockRelationalConnection.Verify(rc => rc.Close());
+            mockRelationalConnection.Verify(rc => rc.BeginTransactionAsync(cancellationToken));
+            mockRelationalConnection.Verify(rc => rc.Close(), Times.Never);
             transactionMock.Verify(t => t.Commit());
 
             mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
@@ -53,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor();
+            var batchExecutor = new BatchExecutor(
+                new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)), new ExecutionStrategyFactory());
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 

@@ -2,8 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -16,7 +20,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
+
         [Fact]
+        public virtual ModelBuilder Default_for_key_string_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login1>().Property(l => l.UserName).HasDefaultValue("default");
+            modelBuilder.Ignore<Profile1>();
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    nameof(RelationalEventId) + "." + nameof(RelationalEventId.ModelValidationKeyDefaultValueWarning),
+                    RelationalStrings.KeyHasDefaultValue(nameof(Login1.UserName), nameof(Login1))),
+                Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+
+            return modelBuilder;
+        }
+
         public override ModelBuilder Non_public_annotations_are_enabled()
         {
             var modelBuilder = base.Non_public_annotations_are_enabled();
@@ -28,7 +51,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
+        public override ModelBuilder Field_annotations_are_enabled()
+        {
+            var modelBuilder = base.Field_annotations_are_enabled();
+
+            var relational = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
         public override ModelBuilder Key_and_column_work_together()
         {
             var modelBuilder = base.Key_and_column_work_together();
@@ -40,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Key_and_MaxLength_64_produce_nvarchar_64()
         {
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
@@ -51,7 +83,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Timestamp_takes_precedence_over_MaxLength()
         {
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
@@ -62,7 +93,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder Timestamp_takes_precedence_over_MaxLength_with_value()
         {
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
@@ -73,13 +103,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return modelBuilder;
         }
 
-        [Fact]
         public override ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
         {
             var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
 
             var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).Relational();
             Assert.Equal("A", relational.TableName);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
+        {
+            var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
+
+            var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
+            Assert.True(identity.RequiresValueGenerator);
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.SqlServer().ValueGenerationStrategy);
 
             return modelBuilder;
         }
@@ -232,38 +272,8 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
         {
             base.TimestampAttribute_throws_if_value_in_database_changed();
 
-            Assert.Equal(@"SELECT TOP(1) [r].[Id], [r].[Data], [r].[Timestamp]
-FROM [Two] AS [r]
-WHERE [r].[Id] = 1
-
-SELECT TOP(1) [r].[Id], [r].[Data], [r].[Timestamp]
-FROM [Two] AS [r]
-WHERE [r].[Id] = 1
-
-@p1: 1
-@p0: ModifiedData (Size = 16)
-@p2: 0x00000000000007D1 (Size = 8)
-
-SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p0
-OUTPUT INSERTED.[Timestamp]
-INTO @inserted0
-WHERE [Id] = @p1 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @inserted0;
-
-@p1: 1
-@p0: ChangedData (Size = 16)
-@p2: 0x00000000000007D1 (Size = 8)
-
-SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p0
-OUTPUT INSERTED.[Timestamp]
-INTO @inserted0
-WHERE [Id] = @p1 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @inserted0;",
-                Sql);
+            // Not validating SQL because not significantly different from other tests and
+            // row version value is not stable.
         }
 
         private const string FileLineEnding = @"

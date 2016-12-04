@@ -41,6 +41,7 @@
     <Compile Include="CommandConfigurationTests.cs" />
     <Compile Include="DbSetAsTableNameSqlServerTest.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilderTests.cs" />
+    <Compile Include="Metadata\Conventions\SqlServerMemoryOptimizedTablesConventionTest.cs" />
     <Compile Include="Metadata\Conventions\SqlServerValueGenerationStrategyConventionTest.cs" />
     <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\SqlServerInternalMetadataBuilderExtensionsTest.cs" />
@@ -48,6 +49,8 @@
     <Compile Include="Migrations\SqlServerHistoryRepositoryTest.cs" />
     <Compile Include="Migrations\SqlServerMigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\SqlServerModelDifferTest.cs" />
+    <Compile Include="ModelBuilderTest\SqlServerModelBuilderGenericTest.cs" />
+    <Compile Include="ModelBuilderTest\SqlServerTestModelBuilderExtensions.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
     <Compile Include="SqlServerDatabaseSourceTest.cs" />
@@ -60,6 +63,7 @@
     <Compile Include="SqlServerTypeMapperTest.cs" />
     <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
+    <Compile Include="Storage\SqlServerRetryingExecutionStrategyTests.cs" />
     <Compile Include="Storage\SqlServerSqlGeneratorTest.cs" />
     <Compile Include="Storage\SqlServerTypeMappingTest.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
@@ -67,6 +71,7 @@
     <Compile Include="Update\SqlServerUpdateSqlGeneratorTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

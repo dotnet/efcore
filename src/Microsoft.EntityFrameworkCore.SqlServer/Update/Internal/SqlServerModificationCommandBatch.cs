@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
         {
-            if (_maxBatchSize <= ModificationCommands.Count)
+            if (ModificationCommands.Count >= _maxBatchSize)
             {
                 return false;
             }
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             var stringBuilder = new StringBuilder();
-            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex - 1);
+            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count);
             for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
                 CommandResultSet[i] = resultSetMapping;

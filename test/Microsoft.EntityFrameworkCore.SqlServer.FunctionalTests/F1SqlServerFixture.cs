@@ -32,17 +32,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString)
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider);
 
                     using (var context = new F1Context(optionsBuilder.Options))
                     {
-                        // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
-                        {
-                            ConcurrencyModelInitializer.Seed(context);
-                        }
+                        context.Database.EnsureCreated();
+                        ConcurrencyModelInitializer.Seed(context);
 
                         TestSqlLoggerFactory.Reset();
                     }
@@ -52,12 +48,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override F1Context CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlServer(testStore.Connection)
+                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(_serviceProvider);
 
             var context = new F1Context(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Chassis>().Property<byte[]>("Version").IsRowVersion();
+            modelBuilder.Entity<Driver>().Property<byte[]>("Version").IsRowVersion();
+
+            modelBuilder.Entity<Team>().Property<byte[]>("Version")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
         }
     }
 }

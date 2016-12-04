@@ -27,17 +27,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
-                new DbContextOptionsBuilder()
-                    .EnableSensitiveDataLogging()
-                    .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
-                        .AddEntityFrameworkSqlServer()
-                        .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                        .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
-                        .BuildServiceProvider()))
+                    new DbContextOptionsBuilder()
+                        .EnableSensitiveDataLogging()
+                        .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
+                            .AddEntityFrameworkSqlServer()
+                            .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                            .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                            .BuildServiceProvider()))
                 .UseSqlServer(
                     _testStore.ConnectionString,
                     b =>
                         {
+                            b.ApplyConfiguration();
                             ConfigureOptions(b);
                             b.ApplyConfiguration();
                         }).Options;
@@ -49,8 +50,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
+        public override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<OrderDetail>()
+                .Property(od => od.UnitPrice).ForSqlServerHasColumnType("money");
+        }
+
         public override NorthwindContext CreateContext(
-            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+                QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
             => new SqlServerNorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();

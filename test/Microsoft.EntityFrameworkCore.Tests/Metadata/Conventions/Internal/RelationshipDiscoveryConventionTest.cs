@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
             var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
 
-            principalEntityBuilder.Relationship(dependentEntityBuilder,  OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
+            principalEntityBuilder.Relationship(dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             dependentEntityBuilder.Relationship(principalEntityBuilder, OneToOneDependent.NavigationProperty, null, ConfigurationSource.Convention)

@@ -3,14 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -235,7 +234,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
         [InlineData("varchar(max)", null)]
         public void It_reads_max_length(string type, int? length)
         {
-            var sql = @"IF OBJECT_ID('dbo.Strings', 'U') IS NOT NULL 
+            var sql = @"IF OBJECT_ID('dbo.Strings', 'U') IS NOT NULL
     DROP TABLE [dbo].[Strings];" +
                       "CREATE TABLE [dbo].[Strings] ( CharColumn " + type + ");";
             var db = CreateModel(sql, new TableSelectionSet(new List<string> { "Strings" }));
@@ -249,7 +248,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
         public void It_reads_identity(bool isIdentity)
         {
             var dbModel = CreateModel(
-                @"IF OBJECT_ID('dbo.Identities', 'U') IS NOT NULL 
+                @"IF OBJECT_ID('dbo.Identities', 'U') IS NOT NULL
     DROP TABLE [dbo].[Identities];
 CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")",
                 new TableSelectionSet(new List<string> { "Identities" }));
@@ -280,13 +279,13 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
         public void It_reads_sequences()
         {
             var sql = @"CREATE SEQUENCE DefaultValues_read;
- 
+
 CREATE SEQUENCE CustomSequence_read
     AS numeric
-    START WITH 1 
-    INCREMENT BY 2 
-    MAXVALUE 8 
-    MINVALUE -3 
+    START WITH 1
+    INCREMENT BY 2
+    MAXVALUE 8
+    MINVALUE -3
     CYCLE;";
 
             var dbModel = CreateModel(sql);
@@ -318,7 +317,7 @@ CREATE SEQUENCE CustomSequence_read
         [Fact]
         public async Task It_reads_default_schema()
         {
-            var defaultSchema = await _fixture.TestStore.ExecuteScalarAsync<string>("SELECT SCHEMA_NAME()", default(CancellationToken));
+            var defaultSchema = await _fixture.TestStore.ExecuteScalarAsync<string>("SELECT SCHEMA_NAME()");
 
             var model = _fixture.CreateModel("SELECT 1");
             Assert.Equal(defaultSchema, model.DefaultSchemaName);

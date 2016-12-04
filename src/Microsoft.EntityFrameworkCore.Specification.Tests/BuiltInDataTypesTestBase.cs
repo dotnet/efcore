@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 short? param1 = null;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.TestNullableInt16 == param1));
-                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && (long?)(int?)(e.TestNullableInt16) == param1));
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && (long?)(int?)e.TestNullableInt16 == param1));
 
                 int? param2 = null;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.TestNullableInt32 == param2));

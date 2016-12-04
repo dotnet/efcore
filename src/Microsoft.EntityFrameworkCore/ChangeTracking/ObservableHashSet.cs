@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -20,9 +21,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
     {
         private HashSet<T> _set;
+#if NET451
+        private ObservableBackedBindingList<T> _bindingList;
+#endif
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}"/> class
+        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class
         ///     that is empty and uses the default equality comparer for the set type.
         /// </summary>
         public ObservableHashSet()
@@ -31,12 +35,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}"/> class
+        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class
         ///     that is empty and uses the specified equality comparer for the set type.
         /// </summary>
         /// <param name="comparer">
-        ///     The <see cref="IEqualityComparer{T}"/> implementation to use when
-        ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}"/>
+        ///     The <see cref="IEqualityComparer{T}" /> implementation to use when
+        ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
         /// </param>
         public ObservableHashSet([NotNull] IEqualityComparer<T> comparer)
@@ -45,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}"/> class
+        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class
         ///     that uses the default equality comparer for the set type, contains elements copied
         ///     from the specified collection, and has sufficient capacity to accommodate the
         ///     number of elements copied.
@@ -57,15 +61,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}"/> class
+        ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class
         ///     that uses the specified equality comparer for the set type, contains elements
         ///     copied from the specified collection, and has sufficient capacity to accommodate
         ///     the number of elements copied.
         /// </summary>
         /// <param name="collection"> The collection whose elements are copied to the new set. </param>
         /// <param name="comparer">
-        ///     The <see cref="IEqualityComparer{T}"/> implementation to use when
-        ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}"/>
+        ///     The <see cref="IEqualityComparer{T}" /> implementation to use when
+        ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
         /// </param>
         public ObservableHashSet([NotNull] IEnumerable<T> collection, [NotNull] IEqualityComparer<T> comparer)
@@ -74,12 +78,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Occurs when a property of this hash set (such as <see cref="Count"/>) changes.
+        ///     Occurs when a property of this hash set (such as <see cref="Count" />) changes.
         /// </summary>
         public virtual event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        ///     Occurs when a property of this hash set (such as <see cref="Count"/>) is changing.
+        ///     Occurs when a property of this hash set (such as <see cref="Count" />) is changing.
         /// </summary>
         public virtual event PropertyChangingEventHandler PropertyChanging;
 
@@ -283,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Modifies the current hash set to contain only elements that are present either in that 
+        ///     Modifies the current hash set to contain only elements that are present either in that
         ///     object or in the specified collection, but not both.
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
@@ -390,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     from the hash set.
         /// </summary>
         /// <param name="match">
-        ///     The <see cref="Predicate{T}"/> delegate that defines the conditions of the elements to remove.
+        ///     The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to remove.
         /// </param>
         /// <returns> The number of elements that were removed from the hash set. </returns>
         public virtual int RemoveWhere([NotNull] Predicate<T> match)
@@ -418,25 +422,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets the <see cref="IEqualityComparer{T}"/> object that is used to determine equality for the values in the set.
+        ///     Gets the <see cref="IEqualityComparer{T}" /> object that is used to determine equality for the values in the set.
         /// </summary>
         public virtual IEqualityComparer<T> Comparer => _set.Comparer;
 
         /// <summary>
-        ///     Sets the capacity of the hash set to the actual number of elements it contains, rounded up to a nearby, 
+        ///     Sets the capacity of the hash set to the actual number of elements it contains, rounded up to a nearby,
         ///     implementation-specific value.
         /// </summary>
         public virtual void TrimExcess() => _set.TrimExcess();
 
         /// <summary>
-        ///     Raises the <see cref="PropertyChanged"/> event.
+        ///     Raises the <see cref="PropertyChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that changed. </param>
         protected virtual void OnPropertyChanged([NotNull] PropertyChangedEventArgs e)
             => PropertyChanged?.Invoke(this, e);
 
         /// <summary>
-        ///     Raises the <see cref="PropertyChanging"/> event.
+        ///     Raises the <see cref="PropertyChanging" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that is changing. </param>
         protected virtual void OnPropertyChanging([NotNull] PropertyChangingEventArgs e)
@@ -453,11 +457,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, oldItems));
 
         /// <summary>
-        ///     Raises the <see cref="CollectionChanged"/> event.
+        ///     Raises the <see cref="CollectionChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the change. </param>
         protected virtual void OnCollectionChanged([NotNull] NotifyCollectionChangedEventArgs e)
             => CollectionChanged?.Invoke(this, e);
+
+#if NET451
+        /// <summary>
+        ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
+        /// </summary>
+        /// <returns> The binding list. </returns>
+        public virtual BindingList<T> ToBindingList()
+            => _bindingList ?? (_bindingList = new ObservableBackedBindingList<T>(this));
+#endif
     }
 
     internal class ObservableHashSetSingletons

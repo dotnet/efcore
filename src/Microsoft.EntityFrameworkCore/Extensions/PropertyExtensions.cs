@@ -1,12 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -16,6 +18,18 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class PropertyExtensions
     {
+        /// <summary>
+        ///     Gets the factory that has been set to generate values for this property, if any.
+        /// </summary>
+        /// <param name="property"> The property to get the value generator factory for. </param>
+        /// <returns> The factory, or null if no factory has been set. </returns>
+        public static Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (Func<IProperty, IEntityType, ValueGenerator>)property[CoreAnnotationNames.ValueGeneratorFactoryAnnotation];
+        }
+
         /// <summary>
         ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
         ///     then this is the maximum number of characters.

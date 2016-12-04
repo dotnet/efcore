@@ -8,15 +8,17 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class Migrator : IMigrator
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly string _activeProvider;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public Migrator(
@@ -72,13 +74,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Migrate(string targetMigration = null)
         {
             var connection = _connection.DbConnection;
-            _logger.LogDebug(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.LogDebug(
+                RelationalEventId.MigrateUsingConnection,
+                () => RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!_historyRepository.Exists())
             {
@@ -100,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task MigrateAsync(
@@ -108,7 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = _connection.DbConnection;
-            _logger.LogDebug(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.LogDebug(
+                RelationalEventId.MigrateUsingConnection,
+                () => RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
@@ -150,7 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var index = i;
                 yield return () =>
                     {
-                        _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
+                        _logger.LogInformation(
+                            RelationalEventId.RevertingMigration,
+                            () => RelationalStrings.RevertingMigration(migration.GetId()));
 
                         return GenerateDownSql(
                             migration,
@@ -164,7 +172,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return () =>
                     {
-                        _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+                        _logger.LogInformation(
+                            RelationalEventId.ApplyingMigration,
+                            () => RelationalStrings.ApplyingMigration(migration.GetId()));
 
                         return GenerateUpSql(migration);
                     };
@@ -222,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GenerateScript(
@@ -230,13 +240,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             string toMigration = null,
             bool idempotent = false)
         {
-            var skippedMigrations = _migrationsAssembly.Migrations
-                .Where(t => string.Compare(t.Key, fromMigration, StringComparison.OrdinalIgnoreCase) < 0)
-                .Select(t => t.Key);
+            IEnumerable<string> appliedMigrations;
+            if (string.IsNullOrEmpty(fromMigration)
+                || fromMigration == Migration.InitialDatabase)
+            {
+                appliedMigrations = Enumerable.Empty<string>();
+            }
+            else
+            {
+                var fromMigrationId = _migrationsAssembly.GetMigrationId(fromMigration);
+                appliedMigrations = _migrationsAssembly.Migrations
+                    .Where(t => string.Compare(t.Key, fromMigrationId, StringComparison.OrdinalIgnoreCase) <= 0)
+                    .Select(t => t.Key);
+            }
 
             IReadOnlyList<Migration> migrationsToApply, migrationsToRevert;
             PopulateMigrations(
-                skippedMigrations,
+                appliedMigrations,
                 toMigration,
                 out migrationsToApply,
                 out migrationsToRevert);
@@ -257,7 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     ? migrationsToRevert[i + 1]
                     : null;
 
-                _logger.LogDebug(RelationalStrings.GeneratingDown(migration.GetId()));
+                _logger.LogDebug(
+                    RelationalEventId.GeneratingMigrationDownScript,
+                    () => RelationalStrings.GeneratingDown(migration.GetId()));
 
                 foreach (var command in GenerateDownSql(migration, previousMigration))
                 {
@@ -281,7 +303,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var migration in migrationsToApply)
             {
-                _logger.LogDebug(RelationalStrings.GeneratingUp(migration.GetId()));
+                _logger.LogDebug(
+                    RelationalEventId.GeneratingMigrationUpScript,
+                    () => RelationalStrings.GeneratingUp(migration.GetId()));
 
                 foreach (var command in GenerateUpSql(migration))
                 {
@@ -307,14 +331,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration)
         {
             Check.NotNull(migration, nameof(migration));
 
-            var insertCommand =_rawSqlCommandBuilder.Build(
+            var insertCommand = _rawSqlCommandBuilder.Build(
                 _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())));
 
             return _migrationsSqlGenerator
@@ -324,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateDownSql(
@@ -340,6 +364,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Generate(migration.DownOperations, previousMigration?.TargetModel)
                 .Concat(new[] { new MigrationCommand(deleteCommand) })
                 .ToList();
+        }
+
+        private string FormatCommandsForReporting(IEnumerable<MigrationCommand> commands)
+        {
+            var builder = new IndentedStringBuilder();
+            foreach (var command in commands)
+            {
+                builder
+                   .AppendLine(command.CommandText)
+                   .Append(_sqlGenerationHelper.BatchTerminator);
+            }
+
+            return builder.ToString();
         }
     }
 }

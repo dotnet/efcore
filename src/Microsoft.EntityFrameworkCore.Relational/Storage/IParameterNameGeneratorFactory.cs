@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Creates instances of <see cref="ParameterNameGenerator"/>.
+    ///         Creates instances of <see cref="ParameterNameGenerator" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IParameterNameGeneratorFactory
     {
         /// <summary>
-        ///     Gets a new <see cref="ParameterNameGenerator"/>.
+        ///     Gets a new <see cref="ParameterNameGenerator" />.
         /// </summary>
-        /// <returns> The newly created <see cref="ParameterNameGenerator"/>. </returns>
+        /// <returns> The newly created <see cref="ParameterNameGenerator" />. </returns>
         ParameterNameGenerator Create();
     }
 }

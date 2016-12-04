@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private readonly DbContext _context;
         private IDatabaseCreator _databaseCreator;
         private IDbContextTransactionManager _transactionManager;
+        private IExecutionStrategyFactory _executionStrategyFactory;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseFacade" /> class. Instances of this class are typically
@@ -135,6 +136,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => TransactionManager.RollbackTransaction();
 
         /// <summary>
+        ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.
+        /// </summary>
+        /// <returns>An <see cref="IExecutionStrategy" /> instance.</returns>
+        public virtual IExecutionStrategy CreateExecutionStrategy()
+            => ExecutionStrategyFactory.Create();
+
+        /// <summary>
         ///     <para>
         ///         Gets the current <see cref="IDbContextTransaction" /> being used by the context, or null
         ///         if no transaction is in use.
@@ -155,6 +163,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
+        ///         Gets or sets a value indicating whether or not a transaction will be created
+        ///         automatically by <see cref="DbContext.SaveChanges()" /> if none of the
+        ///         'BeginTransaction' or 'UseTransaction' methods have been called.
+        ///     </para>
+        ///     <para>
+        ///         Setting this value to false will also disable the <see cref="IExecutionStrategy" />
+        ///         for <see cref="DbContext.SaveChanges()" />
+        ///     </para>
+        ///     <para>
+        ///         The default value is true, meaning that SaveChanges will always use a transaction
+        ///         when saving changes.
+        ///     </para>
+        ///     <para>
+        ///         Setting this value to false should only be done with caution since the database
+        ///         could be left in a corrupted state if SaveChanges fails.
+        ///     </para>
+        /// </summary>
+        public virtual bool AutoTransactionsEnabled { get; set; } = true;
+
+        /// <summary>
+        ///     <para>
         ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
         ///     </para>
         ///     <para>
@@ -169,5 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private IDatabaseCreator DatabaseCreator
             => _databaseCreator ?? (_databaseCreator = this.GetService<IDatabaseCreator>());
+
+        private IExecutionStrategyFactory ExecutionStrategyFactory
+            => _executionStrategyFactory ?? (_executionStrategyFactory = this.GetService<IExecutionStrategyFactory>());
     }
 }

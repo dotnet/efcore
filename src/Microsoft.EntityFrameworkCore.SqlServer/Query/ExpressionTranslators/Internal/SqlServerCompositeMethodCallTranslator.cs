@@ -14,6 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private static readonly IMethodCallTranslator[] _methodCallTranslators =
         {
+            new SqlServerContainsOptimizedTranslator(),
+            new SqlServerConvertTranslator(),
+            new SqlServerDateAddTranslator(),
+            new SqlServerEndsWithOptimizedTranslator(),
             new SqlServerMathAbsTranslator(),
             new SqlServerMathCeilingTranslator(),
             new SqlServerMathFloorTranslator(),
@@ -21,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqlServerMathRoundTranslator(),
             new SqlServerMathTruncateTranslator(),
             new SqlServerNewGuidTranslator(),
+            new SqlServerStartsWithOptimizedTranslator(),
             new SqlServerStringIsNullOrWhiteSpaceTranslator(),
             new SqlServerStringReplaceTranslator(),
             new SqlServerStringSubstringTranslator(),
@@ -28,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqlServerStringToUpperTranslator(),
             new SqlServerStringTrimEndTranslator(),
             new SqlServerStringTrimStartTranslator(),
-            new SqlServerStringTrimTranslator(),
-            new SqlServerConvertTranslator()
+            new SqlServerStringTrimTranslator()
         };
 
         // ReSharper disable once SuggestBaseTypeForParameter

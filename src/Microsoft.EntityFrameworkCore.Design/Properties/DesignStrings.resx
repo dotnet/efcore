@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DuplicateMigrationName" xml:space="preserve">
+    <value>The name '{migrationName}' is used by an existing migration.</value>
+  </data>
+  <data name="MultipleContexts" xml:space="preserve">
+    <value>More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.</value>
+  </data>
+  <data name="MultipleContextsWithName" xml:space="preserve">
+    <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name.</value>
+  </data>
+  <data name="MultipleContextsWithQualifiedName" xml:space="preserve">
+    <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.</value>
+  </data>
+  <data name="NoContext" xml:space="preserve">
+    <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
+  </data>
+  <data name="NoContextWithName" xml:space="preserve">
+    <value>No DbContext named '{name}' was found.</value>
+  </data>
+  <data name="LogUseContext" xml:space="preserve">
+    <value>Using context '{name}'.</value>
+  </data>
+  <data name="LogDroppingDatabase" xml:space="preserve">
+    <value>Dropping database '{name}'.</value>
+  </data>
+  <data name="LogDatabaseDropped" xml:space="preserve">
+    <value>Successfully dropped database '{name}'.</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled.</value>
+  </data>
+  <data name="ManuallyDeleted" xml:space="preserve">
+    <value>A manual migration deletion was detected.</value>
+  </data>
+  <data name="NoMigrationFile" xml:space="preserve">
+    <value>No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.</value>
+  </data>
+  <data name="NoMigrationMetadataFile" xml:space="preserve">
+    <value>No file named '{file}' was found.</value>
+  </data>
+  <data name="NoSnapshot" xml:space="preserve">
+    <value>No ModelSnapshot was found.</value>
+  </data>
+  <data name="NoSnapshotFile" xml:space="preserve">
+    <value>No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.</value>
+  </data>
+  <data name="RemovingMigration" xml:space="preserve">
+    <value>Removing migration '{name}'.</value>
+  </data>
+  <data name="RemovingSnapshot" xml:space="preserve">
+    <value>Removing model snapshot.</value>
+  </data>
+  <data name="RevertingSnapshot" xml:space="preserve">
+    <value>Reverting model snapshot.</value>
+  </data>
+  <data name="UnapplyMigration" xml:space="preserve">
+    <value>The migration '{name}' has already been applied to the database. Unapply it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
+  </data>
+  <data name="UnknownOperation" xml:space="preserve">
+    <value>The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your services to use one that can.</value>
+  </data>
+  <data name="UnknownLiteral" xml:space="preserve">
+    <value>The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.</value>
+  </data>
+  <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
+    <value>Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
+  </data>
+  <data name="DestructiveOperation" xml:space="preserve">
+    <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
+  </data>
+  <data name="ReusingDirectory" xml:space="preserve">
+    <value>Reusing directory of file '{file}'.</value>
+  </data>
+  <data name="WritingMigration" xml:space="preserve">
+    <value>Writing migration to '{file}'.</value>
+  </data>
+  <data name="WritingSnapshot" xml:space="preserve">
+    <value>Writing model snapshot to '{file}'.</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done.</value>
+  </data>
+  <data name="ReusingNamespace" xml:space="preserve">
+    <value>Reusing namespace of type '{type}'.</value>
+  </data>
+  <data name="ReusingSnapshotName" xml:space="preserve">
+    <value>Reusing model snapshot name '{name}'.</value>
+  </data>
+  <data name="CannotFindDesignTimeProviderAssembly" xml:space="preserve">
+    <value>Unable to find design-time provider assembly. Please install the {designTimeProviderAssemblyName} NuGet package and ensure that the package is referenced by the project.</value>
+  </data>
+  <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
+    <value>Unable to find expected assembly attribute named {attributeName} in provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the class which acts as the design-time service provider factory.</value>
+  </data>
+  <data name="NonRelationalProvider" xml:space="preserve">
+    <value>{provider} is not a Relational provider and therefore cannot be use with Migrations.</value>
+  </data>
+  <data name="UnreferencedAssembly" xml:space="preserve">
+    <value>Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.</value>
+  </data>
+  <data name="LogFindingContexts" xml:space="preserve">
+    <value>Finding DbContext classes...</value>
+  </data>
+  <data name="ForeignMigrations" xml:space="preserve">
+    <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
+  </data>
+  <data name="ConnectionStringRequired" xml:space="preserve">
+    <value>ConnectionString is required to generate code.</value>
+  </data>
+  <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
+    <value>The context class name passed in, {contextClassName}, is not a valid C# identifier.</value>
+  </data>
+  <data name="ProjectPathRequired" xml:space="preserve">
+    <value>ProjectPath is required to generate code.</value>
+  </data>
+  <data name="RootNamespaceRequired" xml:space="preserve">
+    <value>Root namespace of the project is required to generate code.</value>
+  </data>
+  <data name="MigrationsAssemblyMismatch" xml:space="preserve">
+    <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
+Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
+Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list, or by executing "dotnet ef" from the directory containing the migrations project.</value>
+  </data>
+  <data name="SensitiveInformationWarning" xml:space="preserve">
+    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
+    <comment>Localize the URL if we have localized docs.</comment>
+  </data>
+  <data name="ForceRemoveMigration" xml:space="preserve">
+    <value>Removing migration '{name}' without checking the database. If this migration has been applied to the database, you will need to manually reverse the changes it made.</value>
+  </data>
+  <data name="NoParameterlessConstructor" xml:space="preserve">
+    <value>No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.</value>
+  </data>
+  <data name="LogNotExistDatabase" xml:space="preserve">
+    <value>Database '{name}' did not exist, no action was taken.</value>
+  </data>
+  <data name="InvokeStartupMethodFailed" xml:space="preserve">
+    <value>An error occurred while calling method '{method}' on startup class '{startupClass}'. Consider using IDbContextFactory to override the initialization of the DbContext at design-time. Error: {error}</value>
+  </data>
+  <data name="CouldNotSerialize" xml:space="preserve">
+    <value>Could not serialize {obj} [{name}]</value>
+  </data>
+</root>

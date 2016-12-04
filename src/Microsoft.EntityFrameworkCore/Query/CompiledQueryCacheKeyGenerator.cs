@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly DbContext _context;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CompiledQueryCacheKeyGenerator"/> class.
+        ///     Initializes a new instance of the <see cref="CompiledQueryCacheKeyGenerator" /> class.
         /// </summary>
         /// <param name="model"> The model that queries will be written against. </param>
         /// <param name="currentContext"> The context that queries will be executed for. </param>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     <para>
         ///         A key that uniquely identifies a query. This is used to store and lookup
-        ///         compiled versions of a query in a cache. 
+        ///         compiled versions of a query in a cache.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly bool _async;
 
             /// <summary>
-            ///     Initializes a new instance of the <see cref="CompiledQueryCacheKey"/> class.
+            ///     Initializes a new instance of the <see cref="CompiledQueryCacheKey" /> class.
             /// </summary>
             /// <param name="query"> The query to generate the key for. </param>
             /// <param name="model"> The model that queries is written against. </param>
@@ -107,10 +107,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     The object to compare this key to.
             /// </param>
             /// <returns>
-            ///     True if the object is a <see cref="CompiledQueryCacheKey"/> and is for the same query, otherwise false.
+            ///     True if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise false.
             /// </returns>
             public override bool Equals(object obj)
             {
+                if (ReferenceEquals(null, obj)
+                    || !(obj is CompiledQueryCacheKey))
+                {
+                    return false;
+                }
+
                 var other = (CompiledQueryCacheKey)obj;
 
                 return ReferenceEquals(_model, other._model)

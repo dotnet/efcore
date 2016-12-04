@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
@@ -13,13 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class MonsterFixupSqlServerTest : MonsterFixupTestBase
+    public class MonsterFixupSqlServerTest : MonsterFixupTestBase, IDisposable
     {
-        private static readonly HashSet<string> _createdDatabases = new HashSet<string>();
-
-        private static readonly ConcurrentDictionary<string, object> _creationLocks
-            = new ConcurrentDictionary<string, object>();
-
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
             var serviceCollection = new ServiceCollection()
@@ -36,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         protected override DbContextOptions CreateOptions(string databaseName)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(CreateConnectionString(databaseName));
+            optionsBuilder.UseSqlServer(CreateConnectionString(databaseName), b => b.ApplyConfiguration());
 
             return optionsBuilder.Options;
         }
@@ -48,24 +41,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 InitialCatalog = name
             }.ConnectionString;
 
-        protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
+        private SqlServerTestStore _testStore;
+
+        protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext, Action<MonsterContext> seed)
         {
-            var creationLock = _creationLocks.GetOrAdd(databaseName, n => new object());
-            lock (creationLock)
-            {
-                if (!_createdDatabases.Contains(databaseName))
+            _testStore = SqlServerTestStore.GetOrCreateShared(databaseName, () =>
                 {
                     using (var context = createContext())
                     {
-                        context.Database.EnsureDeleted();
                         context.Database.EnsureCreated();
-                        context.SeedUsingFKs();
-                    }
+                        seed(context);
 
-                    _createdDatabases.Add(databaseName);
-                }
-            }
+                        TestSqlLoggerFactory.Reset();
+                    }
+                });
         }
+
+        public virtual void Dispose() => _testStore?.Dispose();
 
         public override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
         {

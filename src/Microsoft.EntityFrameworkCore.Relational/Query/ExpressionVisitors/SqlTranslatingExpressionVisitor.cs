@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -211,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var leftExpression = Visit(expression.Left);
                     var rightExpression = Visit(expression.Right);
 
-                    return leftExpression != null && rightExpression != null
+                    return leftExpression != null
+                           && rightExpression != null
                         ? Expression.MakeBinary(
                             expression.NodeType,
                             leftExpression,
@@ -251,6 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var ifTrue = Visit(expression.IfTrue);
             var ifFalse = Visit(expression.IfFalse);
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (test != null
                 && ifTrue != null
                 && ifFalse != null)
@@ -293,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
-        private static Expression TryRemoveNullCheck(ConditionalExpression node)
+        private Expression TryRemoveNullCheck(ConditionalExpression node)
         {
             var binaryTest = node.Test as BinaryExpression;
 
@@ -337,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var testExpression = isLeftNullConstant ? binaryTest.Right : binaryTest.Left;
             var resultExpression = binaryTest.NodeType == ExpressionType.Equal ? node.IfFalse : node.IfTrue;
 
-            var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor();
+            var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor(_queryModelVisitor.QueryCompilationContext.Model);
 
             return nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression)
                 ? resultExpression
@@ -347,8 +350,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private class NullCheckRemovalTestingVisitor : ExpressionVisitorBase
         {
             private IQuerySource _querySource;
+            private readonly IModel _model;
             private string _propertyName;
             private bool? _canRemoveNullCheck;
+
+            public NullCheckRemovalTestingVisitor(IModel model)
+            {
+                _model = model;
+            }
 
             public bool CanRemoveNullCheck(Expression testExpression, Expression resultExpression)
             {
@@ -401,6 +410,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             _querySource = querySourceCaller.ReferencedQuerySource;
                             _propertyName = (string)propertyNameExpression.Value;
+                            if (_model.FindEntityType(_querySource.ItemType)?.FindProperty(_propertyName)?.IsPrimaryKey() ?? false)
+                            {
+                                _propertyName = null;
+                            }
                         }
                     }
                 }
@@ -501,10 +514,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private Expression ProcessComparisonExpression(BinaryExpression binaryExpression)
         {
             var leftExpression = Visit(binaryExpression.Left);
+
+            if (leftExpression == null)
+            {
+                return null;
+            }
+
             var rightExpression = Visit(binaryExpression.Right);
 
-            if (leftExpression == null
-                || rightExpression == null)
+            if (rightExpression == null)
             {
                 return null;
             }
@@ -606,18 +624,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var expression
                 = _queryModelVisitor
-                    .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
+                      .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
                   ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression);
 
             if (expression == null
                 && _bindParentQueries)
             {
                 expression
-                    = _queryModelVisitor?.ParentQueryModelVisitor
-                        .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore);
+                    = TryBindParentExpression(
+                        _queryModelVisitor.ParentQueryModelVisitor,
+                        qmv => qmv.BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore));
             }
 
-            return expression;
+            return expression
+                   ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
         /// <summary>
@@ -661,8 +681,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 && _bindParentQueries)
             {
                 aliasExpression
-                    = _queryModelVisitor?.ParentQueryModelVisitor
-                        .BindMemberExpression(expression, CreateAliasedColumnExpressionCore);
+                    = TryBindParentExpression(
+                        _queryModelVisitor.ParentQueryModelVisitor,
+                        qmv => qmv.BindMemberExpression(expression, CreateAliasedColumnExpressionCore));
             }
 
             if (aliasExpression == null)
@@ -685,7 +706,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return aliasExpression;
+            return aliasExpression
+                   ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
+        }
+
+        private static AliasExpression TryBindParentExpression(
+            RelationalQueryModelVisitor queryModelVisitor,
+            Func<RelationalQueryModelVisitor, AliasExpression> binder)
+        {
+            if (queryModelVisitor == null)
+            {
+                return null;
+            }
+
+            return binder(queryModelVisitor)
+                   ?? TryBindParentExpression(queryModelVisitor.ParentQueryModelVisitor, binder);
         }
 
         private AliasExpression CreateAliasedColumnExpression(
@@ -706,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
 
         private AliasExpression CreateAliasedColumnExpressionCore(
-            IProperty property, IQuerySource querySource, SelectExpression selectExpression)
+                IProperty property, IQuerySource querySource, SelectExpression selectExpression)
             => new AliasExpression(
                 new ColumnExpression(
                     _relationalAnnotationProvider.For(property).ColumnName,
@@ -809,8 +844,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(expression, nameof(expression));
 
             var subQueryModel = expression.QueryModel;
-
             var subQueryOutputDataInfo = subQueryModel.GetOutputDataInfo();
+
             if (subQueryModel.IsIdentityQuery()
                 && subQueryModel.ResultOperators.Count == 1
                 && subQueryModel.ResultOperators.First() is ContainsResultOperator)
@@ -823,33 +858,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     || fromExpression.NodeType == ExpressionType.ListInit
                     || fromExpression.NodeType == ExpressionType.NewArrayInit)
                 {
-                    var memberItem = contains.Item as MemberExpression;
-
-                    if (memberItem != null)
+                    var containsItem = Visit(contains.Item)?.RemoveConvert();
+                    if (containsItem != null)
                     {
-                        var aliasExpression = VisitMember(memberItem) as AliasExpression;
-
-                        return aliasExpression != null
-                            ? new InExpression(aliasExpression, new[] { fromExpression })
-                            : null;
-                    }
-
-                    var methodCallItem = contains.Item as MethodCallExpression;
-
-                    if (methodCallItem != null
-                        && EntityQueryModelVisitor.IsPropertyMethod(methodCallItem.Method))
-                    {
-                        var aliasExpression = (AliasExpression)VisitMethodCall(methodCallItem);
-
-                        return new InExpression(aliasExpression, new[] { fromExpression });
+                        return new InExpression(containsItem, new[] { fromExpression });
                     }
                 }
             }
             else if (!(subQueryOutputDataInfo is StreamedSequenceInfo))
             {
                 var streamedSingleValueInfo = subQueryOutputDataInfo as StreamedSingleValueInfo;
-                var streamedSingleValueSupportedType = streamedSingleValueInfo != null
-                                                       && _relationalTypeMapper.FindMapping(streamedSingleValueInfo.DataType.UnwrapNullableType().UnwrapEnumType()) != null;
+
+                var streamedSingleValueSupportedType
+                    = streamedSingleValueInfo != null
+                      && _relationalTypeMapper.FindMapping(
+                          streamedSingleValueInfo.DataType
+                              .UnwrapNullableType()
+                              .UnwrapEnumType()) != null;
 
                 if (_inProjection
                     && !(subQueryOutputDataInfo is StreamedScalarValueInfo)
@@ -870,8 +895,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
                             .CreateQueryModelVisitor(_queryModelVisitor);
 
-                    var queriesProjectionCountMapping = _queryModelVisitor.Queries
-                        .ToDictionary(k => k, s => s.Projection.Count);
+                    var queriesProjectionCountMapping
+                        = _queryModelVisitor.Queries
+                            .ToDictionary(k => k, s => s.Projection.Count);
 
                     queryModelVisitor.VisitSubQueryModel(subQueryModel);
 
@@ -915,6 +941,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
 
+            if (underlyingType == typeof(Enum))
+            {
+                underlyingType = expression.Value.GetType();
+            }
+
             return _relationalTypeMapper.FindMapping(underlyingType) != null
                 ? expression
                 : null;
@@ -948,6 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitExtension(Expression expression)
         {
             var stringCompare = expression as StringCompareExpression;
+
             if (stringCompare != null)
             {
                 var newLeft = Visit(stringCompare.Left);
@@ -959,12 +991,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return null;
                 }
 
-                return newLeft != stringCompare.Left || newRight != stringCompare.Right
+                return newLeft != stringCompare.Left
+                       || newRight != stringCompare.Right
                     ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
                     : expression;
             }
 
             var explicitCast = expression as ExplicitCastExpression;
+
             if (explicitCast != null)
             {
                 var newOperand = Visit(explicitCast.Operand);
@@ -972,6 +1006,29 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return newOperand != explicitCast.Operand
                     ? new ExplicitCastExpression(newOperand, explicitCast.Type)
                     : expression;
+            }
+
+            var nullConditionalExpression
+                = expression as NullConditionalExpression;
+
+            if (nullConditionalExpression != null)
+            {
+                var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
+                var columnExpression = newAccessOperation.TryGetColumnExpression();
+
+                if (columnExpression != null)
+                {
+                    columnExpression.IsNullable = true;
+                }
+
+                if (newAccessOperation != null
+                    && newAccessOperation.Type != nullConditionalExpression.Type)
+                {
+                    newAccessOperation
+                        = Expression.Convert(newAccessOperation, nullConditionalExpression.Type);
+                }
+
+                return newAccessOperation;
             }
 
             return base.VisitExtension(expression);
@@ -988,12 +1045,59 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            var selector
-                = ((expression.ReferencedQuerySource as FromClauseBase)
-                    ?.FromExpression as SubQueryExpression)
-                    ?.QueryModel.SelectClause.Selector;
+            if (!_inProjection)
+            {
+                var joinClause
+                    = expression.ReferencedQuerySource as JoinClause;
 
-            return selector != null ? Visit(selector) : null;
+                if (joinClause != null)
+                {
+                    var entityType
+                        = _queryModelVisitor.QueryCompilationContext.Model
+                            .FindEntityType(joinClause.ItemType);
+
+                    if (entityType != null)
+                    {
+                        return Visit(
+                            EntityQueryModelVisitor.CreatePropertyExpression(
+                                expression, entityType.FindPrimaryKey().Properties[0]));
+                    }
+
+                    return null;
+                }
+            }
+
+            var type = expression.ReferencedQuerySource.ItemType.UnwrapNullableType().UnwrapEnumType();
+
+            if (_relationalTypeMapper.FindMapping(type) != null)
+            {
+                var selectExpression = _queryModelVisitor.TryGetQuery(expression.ReferencedQuerySource);
+
+                if (selectExpression != null)
+                {
+                    var subquery = selectExpression.Tables.FirstOrDefault() as SelectExpression;
+
+                    var innerProjectionExpression = subquery?.Projection.FirstOrDefault() as AliasExpression;
+                    if (innerProjectionExpression != null)
+                    {
+                        if (innerProjectionExpression.Alias != null)
+                        {
+                            return new ColumnExpression(
+                                innerProjectionExpression.Alias,
+                                innerProjectionExpression.Type,
+                                subquery);
+                        }
+
+                        var newExpression = selectExpression.UpdateColumnExpression(innerProjectionExpression.Expression, subquery);
+                        return new AliasExpression(newExpression)
+                        {
+                            SourceMember = innerProjectionExpression.SourceMember
+                        };
+                    }
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1015,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="baseBehavior">The behavior exposed by <see cref="T:Remotion.Linq.Parsing.RelinqExpressionVisitor" /> for this item type.</param>
         /// <returns>An object to replace <paramref name="unhandledItem" /> in the expression tree. Alternatively, the method can throw any exception.</returns>
         protected override TResult VisitUnhandledItem<TItem, TResult>(
-            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
+                TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
             => default(TResult);
 
         /// <summary>

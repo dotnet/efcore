@@ -4,9 +4,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.NorthwindSproc;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                                 .FromSql("SelectStoredProcedure")
                                 .Include(p => p.OrderDetails)
                                 .ToArrayAsync()
-                        )).Message);
+                    )).Message);
             }
         }
 

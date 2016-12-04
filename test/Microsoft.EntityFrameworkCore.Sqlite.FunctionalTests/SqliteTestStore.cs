@@ -14,10 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         private static int _scratchCount;
 
-        public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
-            new SqliteTestStore(name).CreateShared(initializeDatabase);
+        public static SqliteTestStore GetOrCreateShared(string name, bool useTransaction, bool sharedCache, Action initializeDatabase = null) =>
+            new SqliteTestStore(name).CreateShared(initializeDatabase, useTransaction, sharedCache);
 
-#if NETCOREAPP1_0
+        public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
+            GetOrCreateShared(name, true, false, initializeDatabase);
+
+#if NETCOREAPP1_1
         private static string BaseDirectory => AppContext.BaseDirectory;
 #else
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
@@ -37,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         private SqliteConnection _connection;
-        private SqliteTransaction _transaction;
         private readonly string _name;
         private bool _deleteDatabase;
         public const int CommandTimeout = 30;
@@ -49,39 +51,43 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override string ConnectionString => Connection.ConnectionString;
 
-        private SqliteTestStore CreateShared(Action initializeDatabase)
+        private SqliteTestStore CreateShared(Action initializeDatabase, bool openConnection, bool sharedCache)
         {
             CreateShared(typeof(SqliteTestStore).Name + _name, initializeDatabase);
 
-            CreateAndOpenConnection();
+            CreateConnection(sharedCache);
 
-            _transaction = _connection.BeginTransaction();
+            if (openConnection)
+            {
+                OpenConnection();
+            }
 
             return this;
         }
 
         private SqliteTestStore CreateTransient(bool sharedCache)
         {
-            CreateAndOpenConnection(sharedCache);
+            CreateConnection(sharedCache);
+            OpenConnection();
 
-            return AsTransient();
+            _deleteDatabase = true;
+            return this;
         }
 
-        private void CreateAndOpenConnection(bool sharedCache = false)
+        private void CreateConnection(bool sharedCache = false)
         {
             _connection = new SqliteConnection(CreateConnectionString(_name, sharedCache));
 
+            OpenConnection();
+        }
+
+        public override void OpenConnection()
+        {
             _connection.Open();
 
             var command = _connection.CreateCommand();
             command.CommandText = "PRAGMA foreign_keys=ON;";
             command.ExecuteNonQuery();
-        }
-
-        public SqliteTestStore AsTransient()
-        {
-            _deleteDatabase = true;
-            return this;
         }
 
         public int ExecuteNonQuery(string sql, params object[] parameters)
@@ -96,11 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             var command = _connection.CreateCommand();
 
-            if (_transaction != null)
-            {
-                command.Transaction = _transaction;
-            }
-
             command.CommandText = commandText;
             command.CommandTimeout = CommandTimeout;
 
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         public override DbConnection Connection => _connection;
-        public override DbTransaction Transaction => _transaction;
+        public override DbTransaction Transaction => null;
 
         public override void Dispose()
         {

@@ -18,6 +18,6 @@ namespace E2ETest.Namespace
         public string SomeOneToOneSeparateFkprincipalColumn { get; set; }
 
         [InverseProperty("OneToOneSeparateFkdependentFk")]
-        public virtual OneToOneSeparateFkdependent OneToOneSeparateFkdependent { get; set; }
+        public OneToOneSeparateFkdependent OneToOneSeparateFkdependent { get; set; }
     }
 }

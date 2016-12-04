@@ -6,10 +6,31 @@ namespace E2ETest.Namespace
 {
     public partial class AttributesContext : DbContext
     {
+        public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
+        public virtual DbSet<MultipleFksDependent> MultipleFksDependent { get; set; }
+        public virtual DbSet<MultipleFksPrincipal> MultipleFksPrincipal { get; set; }
+        public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
+        public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
+        public virtual DbSet<OneToOneDependent> OneToOneDependent { get; set; }
+        public virtual DbSet<OneToOneFktoUniqueKeyDependent> OneToOneFktoUniqueKeyDependent { get; set; }
+        public virtual DbSet<OneToOneFktoUniqueKeyPrincipal> OneToOneFktoUniqueKeyPrincipal { get; set; }
+        public virtual DbSet<OneToOnePrincipal> OneToOnePrincipal { get; set; }
+        public virtual DbSet<OneToOneSeparateFkdependent> OneToOneSeparateFkdependent { get; set; }
+        public virtual DbSet<OneToOneSeparateFkprincipal> OneToOneSeparateFkprincipal { get; set; }
+        public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
+        public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
+        public virtual DbSet<TestSpacesKeywordsTable> TestSpacesKeywordsTable { get; set; }
+        public virtual DbSet<UnmappablePkcolumn> UnmappablePkcolumn { get; set; }
+
+        // Unable to generate entity type for table 'dbo.TableWithUnmappablePrimaryKeyColumn'. Please see the warning messages.
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(@"{{connectionString}}");
+            if (!optionsBuilder.IsConfigured)
+            {
+                #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer(@"{{connectionString}}");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -139,23 +160,5 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
             });
         }
-
-        public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
-        public virtual DbSet<MultipleFksDependent> MultipleFksDependent { get; set; }
-        public virtual DbSet<MultipleFksPrincipal> MultipleFksPrincipal { get; set; }
-        public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
-        public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
-        public virtual DbSet<OneToOneDependent> OneToOneDependent { get; set; }
-        public virtual DbSet<OneToOneFktoUniqueKeyDependent> OneToOneFktoUniqueKeyDependent { get; set; }
-        public virtual DbSet<OneToOneFktoUniqueKeyPrincipal> OneToOneFktoUniqueKeyPrincipal { get; set; }
-        public virtual DbSet<OneToOnePrincipal> OneToOnePrincipal { get; set; }
-        public virtual DbSet<OneToOneSeparateFkdependent> OneToOneSeparateFkdependent { get; set; }
-        public virtual DbSet<OneToOneSeparateFkprincipal> OneToOneSeparateFkprincipal { get; set; }
-        public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
-        public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
-        public virtual DbSet<TestSpacesKeywordsTable> TestSpacesKeywordsTable { get; set; }
-        public virtual DbSet<UnmappablePkcolumn> UnmappablePkcolumn { get; set; }
-
-        // Unable to generate entity type for table 'dbo.TableWithUnmappablePrimaryKeyColumn'. Please see the warning messages.
     }
 }

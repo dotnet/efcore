@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public sealed class DesignTimeProviderServicesAttribute : Attribute
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DesignTimeProviderServicesAttribute"/> class.
+        ///     Initializes a new instance of the <see cref="DesignTimeProviderServicesAttribute" /> class.
         /// </summary>
-        /// <param name="typeName"> 
-        ///     The name of the type that can be used to add the database providers design time services to a <see cref="ServiceCollection"/>. 
-        ///     This type should contain a method with the following signature 
+        /// <param name="typeName">
+        ///     The name of the type that can be used to add the database providers design time services to a <see cref="ServiceCollection" />.
+        ///     This type should contain a method with the following signature
         ///     <code>public IServiceCollection ConfigureDesignTimeServices(IServiceCollection serviceCollection)</code>.
         /// </param>
         /// <param name="assemblyName">
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the name of the type that can be used to add the database providers design time services to a <see cref="ServiceCollection"/>. 
-        ///     This type should contain a method with the following signature 
+        ///     Gets the name of the type that can be used to add the database providers design time services to a <see cref="ServiceCollection" />.
+        ///     This type should contain a method with the following signature
         ///     <code>public IServiceCollection ConfigureDesignTimeServices(IServiceCollection serviceCollection)</code>.
         /// </summary>
         public string TypeName { get; }

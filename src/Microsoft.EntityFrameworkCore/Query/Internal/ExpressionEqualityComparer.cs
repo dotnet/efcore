@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 
 // ReSharper disable SwitchStatementMissingSomeCases
 // ReSharper disable ForCanBeConvertedToForeach
@@ -13,13 +14,13 @@ using System.Reflection;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ExpressionEqualityComparer : IEqualityComparer<Expression>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int GetHashCode(Expression obj)
@@ -116,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var parameterExpression = (ParameterExpression)obj;
 
                         hashCode += hashCode * 397;
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                         if (parameterExpression.Name != null)
                         {
                             hashCode ^= parameterExpression.Name.GetHashCode();
@@ -249,7 +251,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         hashCode += (hashCode * 397) ^ obj.Type.GetHashCode();
                         break;
                     }
+                    case ExpressionType.Extension:
+                    {
+                        var nullConditionalExpression = obj as NullConditionalExpression;
 
+                        if (nullConditionalExpression == null)
+                        {
+                            goto default;
+                        }
+
+                        hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalExpression.AccessOperation);
+
+                        break;
+                    }
                     default:
                         throw new NotImplementedException();
                 }
@@ -272,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
@@ -404,6 +418,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     || b.Value == null)
                 {
                     return false;
+                }
+
+                if (a.Value is EnumerableQuery
+                    && b.Value is EnumerableQuery)
+                {
+                    return false; // EnumerableQueries are opaque
                 }
 
                 if (a.Value is IQueryable

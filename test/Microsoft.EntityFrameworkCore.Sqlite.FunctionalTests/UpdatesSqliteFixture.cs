@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
+                .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
 
@@ -32,12 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                             .UseSqlite(_connectionString)
                             .UseInternalServiceProvider(_serviceProvider).Options))
                         {
-                            // TODO: Delete DB if model changed
-                            context.Database.EnsureDeleted();
-                            if (context.Database.EnsureCreated())
-                            {
-                                UpdatesModelInitializer.Seed(context);
-                            }
+                            context.Database.EnsureClean();
+                            UpdatesModelInitializer.Seed(context);
 
                             TestSqlLoggerFactory.Reset();
                         }

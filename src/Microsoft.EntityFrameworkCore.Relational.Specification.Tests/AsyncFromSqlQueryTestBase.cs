@@ -116,8 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var actual
-                    = await (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                        city)
+                    = await (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
                              from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                                  startDate,
                                  endDate)
@@ -352,12 +351,31 @@ FROM ""Customers""")
                 ctx.Database.OpenConnection();
 
                 var query = await ctx.Customers
-                        .Include(v => v.Orders)
-                        .Where(v => v.CustomerID == "MAMRFC")
-                        .ToListAsync();
+                    .Include(v => v.Orders)
+                    .Where(v => v.CustomerID == "MAMRFC")
+                    .ToListAsync();
 
                 Assert.Empty(query);
                 Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Include_closed_connection_opened_by_it_when_buffering()
+        {
+            using (var context = CreateContext())
+            {
+                var connection = context.Database.GetDbConnection();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
+                var query = await context.Customers
+                    .Include(v => v.Orders)
+                    .Where(v => v.CustomerID == "ALFKI")
+                    .ToListAsync();
+
+                Assert.NotEmpty(query);
+                Assert.Equal(ConnectionState.Closed, connection.State);
             }
         }
 

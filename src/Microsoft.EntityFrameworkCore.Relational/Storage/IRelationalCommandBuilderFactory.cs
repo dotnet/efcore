@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Creates instances of the <see cref="IRelationalCommandBuilder"/> class.
+    ///         Creates instances of the <see cref="IRelationalCommandBuilder" /> class.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IRelationalCommandBuilderFactory
     {
         /// <summary>
-        ///     Creates a new <see cref="IRelationalCommandBuilder"/>.
+        ///     Creates a new <see cref="IRelationalCommandBuilder" />.
         /// </summary>
         /// <returns> The newly created builder. </returns>
         IRelationalCommandBuilder Create();

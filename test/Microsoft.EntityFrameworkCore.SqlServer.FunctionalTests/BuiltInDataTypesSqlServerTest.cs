@@ -6,13 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
+
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable PossibleInvalidOperationException
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
+    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerFixture>
     {
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
@@ -31,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var results 
+                var results
                     = context.Set<MappedNullableDataTypes>()
                         .Where(e => e.Time == new TimeSpan(0, 1, 2))
                         .Select(e => e.Int)
@@ -41,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(
                     @"SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
-WHERE [e].[Time] = '00:01:02'", 
+WHERE [e].[Time] = '00:01:02'",
                     Sql);
             }
         }
@@ -53,7 +56,7 @@ WHERE [e].[Time] = '00:01:02'",
             {
                 var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results 
+                var results
                     = context.Set<MappedNullableDataTypes>()
                         .Where(e => e.Time == timeSpan)
                         .Select(e => e.Int)
@@ -65,7 +68,7 @@ WHERE [e].[Time] = '00:01:02'",
 
 SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
-WHERE [e].[Time] = @__timeSpan_0", 
+WHERE [e].[Time] = @__timeSpan_0",
                     Sql);
             }
         }
@@ -358,9 +361,9 @@ WHERE [e].[Time] = @__timeSpan_0",
 
         private static string DumpParameters()
             => string.Join(
-                FileLineEnding, 
+                FileLineEnding,
                 TestSqlLoggerFactory.CommandLogData.Single().Parameters
-                .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
+                    .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {
@@ -1689,19 +1692,19 @@ WHERE [e].[Time] = @__timeSpan_0",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
             const string query
-                = @"SELECT 
-                        TABLE_NAME, 
-                        COLUMN_NAME, 
-                        DATA_TYPE, 
+                = @"SELECT
+                        TABLE_NAME,
+                        COLUMN_NAME,
+                        DATA_TYPE,
                         IS_NULLABLE,
-                        CHARACTER_MAXIMUM_LENGTH, 
-                        NUMERIC_PRECISION, 
-                        NUMERIC_SCALE, 
-                        DATETIME_PRECISION 
+                        CHARACTER_MAXIMUM_LENGTH,
+                        NUMERIC_PRECISION,
+                        NUMERIC_SCALE,
+                        DATETIME_PRECISION
                     FROM INFORMATION_SCHEMA.COLUMNS";
 
             var columns = new List<ColumnInfo>();

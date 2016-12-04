@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -13,8 +14,11 @@ namespace Microsoft.EntityFrameworkCore
     ///     referencing a shadow state property in a LINQ query.
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public static class EF
+    public static partial class EF
     {
+        internal static readonly MethodInfo PropertyMethod
+            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));
+
         /// <summary>
         ///     Addresses a given property on an entity instance. This is useful when you want to reference a shadow state property in a
         ///     LINQ query. Currently this method can only be used in LINQ queries and can not be used to access the value assigned to a

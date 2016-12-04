@@ -6,10 +6,16 @@ namespace E2E.Sqlite
 {
     public partial class OneToManyAttributesContext : DbContext
     {
+        public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
+        public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlite(@"Data Source=OneToManyAttributes.db;Cache=Private");
+            if (!optionsBuilder.IsConfigured)
+            {
+                #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlite(@"Data Source=OneToManyAttributes.db;Cache=Private");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -26,8 +32,5 @@ namespace E2E.Sqlite
                     .HasName("sqlite_autoindex_OneToManyPrincipal_1");
             });
         }
-
-        public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
-        public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
     }
 }

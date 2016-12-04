@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,10 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     Gets the <see cref="IModelValidator" /> for the database provider. By default, EF will register a default implementation
-        ///     (<see cref="LoggingModelValidator" />) which provides basic functionality but can be
-        ///     overridden if needed.
+        ///     which does no validation.
         /// </summary>
-        public virtual IModelValidator ModelValidator => GetService<LoggingModelValidator>();
+        public virtual IModelValidator ModelValidator => GetService<NoopModelValidator>();
 
         /// <summary>
         ///     Gets the <see cref="ICompiledQueryCacheKeyGenerator" /> for the database provider. By default, EF will register a default
@@ -153,5 +153,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IEntityQueryModelVisitorFactory" /> for the database provider.
         /// </summary>
         public abstract IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="IExecutionStrategyFactory" /> for the database provider.
+        /// </summary>
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory => GetService<ExecutionStrategyFactory>();
+
+        /// <summary>
+        ///     Reset any stateful database provider services. Used when context pooling is enabled to allow
+        ///     re-use of provider services.
+        /// </summary>
+        public virtual void Reset()
+        {
+        }
     }
 }

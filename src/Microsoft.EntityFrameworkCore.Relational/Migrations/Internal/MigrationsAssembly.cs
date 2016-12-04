@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class MigrationsAssembly : IMigrationsAssembly
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly LazyRef<ModelSnapshot> _modelSnapshot;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public MigrationsAssembly(
@@ -45,42 +45,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _idGenerator = idGenerator;
             _migrations = new LazyRef<IReadOnlyDictionary<string, TypeInfo>>(
                 () => (
-                    from t in Assembly.GetConstructableTypes()
-                    where t.IsSubclassOf(typeof(Migration))
-                          && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
-                    let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
-                    orderby id
-                    select new { Key = id, Element = t })
+                        from t in Assembly.GetConstructableTypes()
+                        where t.IsSubclassOf(typeof(Migration))
+                              && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
+                        let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
+                        orderby id
+                        select new { Key = id, Element = t })
                     .ToDictionary(i => i.Key, i => i.Element));
             _modelSnapshot = new LazyRef<ModelSnapshot>(
                 () => (
-                    from t in Assembly.GetConstructableTypes()
-                    where t.IsSubclassOf(typeof(ModelSnapshot))
-                          && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
-                    select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
+                        from t in Assembly.GetConstructableTypes()
+                        where t.IsSubclassOf(typeof(ModelSnapshot))
+                              && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
+                        select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
                     .FirstOrDefault());
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyDictionary<string, TypeInfo> Migrations => _migrations.Value;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ModelSnapshot ModelSnapshot => _modelSnapshot.Value;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Assembly Assembly { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string FindMigrationId(string nameOrId)
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .FirstOrDefault();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Migration CreateMigration(TypeInfo migrationClass, string activeProvider)

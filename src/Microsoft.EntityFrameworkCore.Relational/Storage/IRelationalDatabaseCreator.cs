@@ -27,14 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         bool Exists();
 
         /// <summary>
-        ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if 
+        ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if
         ///     the database contains the schema for the current model.
         /// </summary>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns>
-        ///     A task that represents the asynchronous operation. The task result contains 
+        ///     A task that represents the asynchronous operation. The task result contains
         ///     true if the database exists; otherwise false.
         /// </returns>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken));

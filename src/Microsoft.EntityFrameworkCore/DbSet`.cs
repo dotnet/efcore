@@ -46,9 +46,31 @@ namespace Microsoft.EntityFrameworkCore
         where TEntity : class
     {
         /// <summary>
+        ///     <para>
+        ///         Gets an <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
+        ///         and Modified entities in this set.
+        ///     </para>
+        ///     <para>
+        ///         This local view will stay in sync as entities are added or removed from the context. Likewise, entities
+        ///         added to or removed from the local view will automatically be added to or removed
+        ///         from the context.
+        ///     </para>
+        ///     <para>
+        ///         This property can be used for data binding by populating the set with data, for example by using the
+        ///         <see cref="EntityFrameworkQueryableExtensions.Load{TSource}" /> extension method,
+        ///         and then binding to the local data through this property.  For WPF bind to this property
+        ///         directly.  For Windows Forms bind to the result of calling ToBindingList on this property.
+        ///     </para>
+        /// </summary>
+        public virtual LocalView<TEntity> Local
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -62,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -76,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the dataabse for an entity with the given primary key values
+        ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
         ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
         ///     null is returned.
         /// </summary>
@@ -104,9 +126,46 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Begins tracking the given entity, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous Add operation. The task result contains the
+        ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
+        ///     information and operations for the entity.
+        /// </returns>
+        public virtual Task<EntityEntry<TEntity>> AddAsync(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state 
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
+        ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
         /// <returns>
@@ -146,14 +205,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that it will
+        ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
         ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach(TEntity)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
@@ -178,9 +245,39 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Begins tracking the given entities, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entities, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync([NotNull] params TEntity[] entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state 
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
+        ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] params TEntity[] entities)
@@ -212,14 +309,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
+        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
         ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
+        ///         All properties of each entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach(TEntity)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
@@ -240,9 +345,42 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Begins tracking the given entities, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entities, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         This method is async only to allow special value generators, such as the one used by
+        ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
+        ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public virtual Task AddRangeAsync(
+            [NotNull] IEnumerable<TEntity> entities,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state 
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         is called.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
+        ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] IEnumerable<TEntity> entities)
@@ -274,14 +412,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
+        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
         ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
+        ///         All properties of each entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach(TEntity)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        ///     <para>
+        ///         A recursive search of the navigation properties will be performed to find reachable entities
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         by the context. If a reachable entity has its primary key value set
+        ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
+        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>

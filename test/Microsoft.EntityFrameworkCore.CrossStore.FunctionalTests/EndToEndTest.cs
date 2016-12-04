@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             int secondId;
             using (var context = CreateContext())
             {
+                context.Database.EnsureCreated();
                 var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
                 SetPartitionId(first, context);
 

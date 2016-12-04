@@ -9,16 +9,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ConcurrencyCheckAttributeConvention : PropertyAttributeConvention<ConcurrencyCheckAttribute>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, ConcurrencyCheckAttribute attribute, PropertyInfo clrProperty)
+        public override InternalPropertyBuilder Apply(
+            InternalPropertyBuilder propertyBuilder, ConcurrencyCheckAttribute attribute, MemberInfo clrMember)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));

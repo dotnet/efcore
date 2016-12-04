@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Migrations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -64,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
     FOREIGN KEY (""FlavorId"") REFERENCES ""Flavor"" (""Id"")
 );
 ",
-            Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Fact]
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
     ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
 );
 ",
-            Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Theory]
@@ -406,5 +407,38 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
             var ex = Assert.Throws<NotSupportedException>(() => base.DropUniqueConstraintOperation());
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropUniqueConstraintOperation)), ex.Message);
         }
+
+        [Fact]
+        public virtual void CreateTableOperation_old_autoincrement_annotation()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            ["Autoincrement"] = true
+                        }
+                    },
+                    PrimaryKey = new AddPrimaryKeyOperation
+                    {
+                        Columns = new[] { "Id" }
+                    }
+                });
+
+            Assert.Equal(
+                "CREATE TABLE \"People\" (" + EOL +
+                "    \"Id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + EOL +
+                ");" + EOL,
+                Sql);
+        }
+
+        protected override ModelBuilder CreateModelBuilder() => SqliteTestHelpers.Instance.CreateConventionBuilder();
     }
 }

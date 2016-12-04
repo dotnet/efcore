@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
@@ -15,13 +15,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using System.Reflection;
 #endif
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public abstract class SqliteE2ETestBase : E2ETestBase
     {
         public const string TestProjectPath = "testout";
@@ -32,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEng
         {
         }
 
-        [ConditionalFact]
-        public async void One_to_one()
+        [Fact]
+        public async Task One_to_one()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix).AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix))
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE IF NOT EXISTS Principal (
@@ -48,7 +46,6 @@ CREATE TABLE IF NOT EXISTS Dependent (
     FOREIGN KEY (PrincipalId) REFERENCES Principal (Id)
 );
 ");
-                testStore.Transaction.Commit();
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
@@ -79,10 +76,10 @@ CREATE TABLE IF NOT EXISTS Dependent (
             }
         }
 
-        [ConditionalFact]
-        public async void One_to_many()
+        [Fact]
+        public async Task One_to_many()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix).AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix))
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE IF NOT EXISTS OneToManyPrincipal (
@@ -102,7 +99,6 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
         REFERENCES OneToManyPrincipal ( OneToManyPrincipalID1, OneToManyPrincipalID2  )
 );
 ");
-                testStore.Transaction.Commit();
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
@@ -133,10 +129,10 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
             }
         }
 
-        [ConditionalFact]
-        public async void Many_to_many()
+        [Fact]
+        public async Task Many_to_many()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany" + DbSuffix).AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany" + DbSuffix))
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE IF NOT EXISTS Users ( Id PRIMARY KEY);
@@ -150,7 +146,6 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
     FOREIGN KEY (GroupId) REFERENCES Groups (Id)
 );
 ");
-                testStore.Transaction.Commit();
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
@@ -182,17 +177,16 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [ConditionalFact]
-        public async void Self_referencing()
+        [Fact]
+        public async Task Self_referencing()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef" + DbSuffix).AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef" + DbSuffix))
             {
                 testStore.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS SelfRef (
     Id INTEGER PRIMARY KEY,
     SelfForeignKey INTEGER,
     FOREIGN KEY (SelfForeignKey) REFERENCES SelfRef (Id)
 );");
-                testStore.Transaction.Commit();
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
@@ -222,8 +216,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [ConditionalFact]
-        public async void Missing_primary_key()
+        [Fact]
+        public async Task Missing_primary_key()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
             {
@@ -251,10 +245,10 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [ConditionalFact]
-        public async void Principal_missing_primary_key()
+        [Fact]
+        public async Task Principal_missing_primary_key()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix).AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix))
             {
                 testStore.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS Dependent (
     Id PRIMARY KEY,
@@ -262,7 +256,6 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
     FOREIGN KEY (PrincipalId) REFERENCES Principal(Id)
 );
 CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
-                testStore.Transaction.Commit();
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
@@ -301,8 +294,8 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
             }
         }
 
-        [ConditionalFact]
-        public async void It_handles_unsafe_names()
+        [Fact]
+        public async Task It_handles_unsafe_names()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
             {
@@ -350,10 +343,10 @@ CREATE TABLE IF NOT EXISTS String (
             }
         }
 
-        [ConditionalFact]
-        public virtual async void Foreign_key_to_unique_index()
+        [Fact]
+        public virtual async Task Foreign_key_to_unique_index()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix).AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix))
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE IF NOT EXISTS User (
@@ -366,7 +359,6 @@ CREATE TABLE IF NOT EXISTS Comment (
     Contents TEXT,
     FOREIGN KEY (UserAltId) REFERENCES User (AltId)
 );");
-                testStore.Transaction.Commit();
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
@@ -400,7 +392,7 @@ CREATE TABLE IF NOT EXISTS Comment (
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
                 BuildReference.ByName("System.Collections"),
                 BuildReference.ByName("System.Data.Common"),
                 BuildReference.ByName("System.Linq.Expressions"),
@@ -424,7 +416,7 @@ CREATE TABLE IF NOT EXISTS Comment (
         protected abstract string ExpectedResultsParentDir { get; }
         protected abstract bool UseFluentApiOnly { get; }
 
-        protected override IServiceCollection ConfigureDesignTimeServices(IServiceCollection services)
+        protected override void ConfigureDesignTimeServices(IServiceCollection services)
             => new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
     }
 }

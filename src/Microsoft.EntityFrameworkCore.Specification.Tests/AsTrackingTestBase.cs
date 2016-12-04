@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var customers
                     = (from c in context.Set<Customer>()
                        join o in context.Set<Order>().AsTracking()
-                           on c.CustomerID equals o.CustomerID
+                       on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
                         .ToList();
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var customers
                     = (from c in context.Set<Customer>()
                        join o in context.Set<Order>().AsTracking()
-                           on c.CustomerID equals o.CustomerID
+                       on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select new { c.CustomerID, c, ocid = o.CustomerID, o })
                         .ToList();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var customers
                     = (from c in context.Set<Customer>()
                        join o in context.Set<Order>().AsTracking()
-                           on c.CustomerID equals o.CustomerID
+                       on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select new { c, o })
                         .AsTracking()

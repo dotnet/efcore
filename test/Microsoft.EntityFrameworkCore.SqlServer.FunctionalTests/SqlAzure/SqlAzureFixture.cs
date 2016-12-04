@@ -17,7 +17,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 
         public SqlAzureFixture()
         {
-            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql", nonMasterScript: true);
+            SqlServerTestStore.GetOrCreateShared(
+                "adventureworks",
+                () => SqlServerTestStore.ExecuteScript("adventureworks", "SqlAzure/adventureworks.sql"),
+                cleanDatabase: false);
 
             Services = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
@@ -26,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
             Options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(Services)
                 .EnableSensitiveDataLogging()
-                .UseSqlServer(SqlServerTestStore.CreateConnectionString("adventureworks")).Options;
+                .UseSqlServer(SqlServerTestStore.CreateConnectionString("adventureworks"), b => b.ApplyConfiguration()).Options;
         }
 
         public virtual AdventureWorksContext CreateContext() => new AdventureWorksContext(Options);

@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -17,7 +18,7 @@ using Remotion.Linq.Parsing;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class MemberAccessBindingExpressionVisitor : RelinqExpressionVisitor
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly bool _inProjection;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public MemberAccessBindingExpressionVisitor(
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitNew(NewExpression expression)
@@ -62,19 +63,52 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            var leftConstantExpression = node.Left.RemoveConvert() as ConstantExpression;
+            var isLeftNullConstant = leftConstantExpression != null && leftConstantExpression.Value == null;
+
+            var rightConstantExpression = node.Right.RemoveConvert() as ConstantExpression;
+            var isRightNullConstant = rightConstantExpression != null && rightConstantExpression.Value == null;
+
+            if (isLeftNullConstant || isRightNullConstant)
+            {
+                var nonNullExpression = isLeftNullConstant ? node.Right : node.Left;
+
+                var methodCallExpression = nonNullExpression as MethodCallExpression;
+                if (methodCallExpression != null)
+                {
+                    if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                    {
+                        var firstArgument = methodCallExpression.Arguments[0];
+                        var visitedArgument = Visit(firstArgument);
+                        if (visitedArgument.Type == typeof(ValueBuffer))
+                        {
+                            var nullCheck = ValueBufferNullComparisonCheck(visitedArgument);
+                            var propertyAccessExpression = Visit(nonNullExpression);
+
+                            return Expression.MakeBinary(
+                                node.NodeType,
+                                Expression.Condition(
+                                    nullCheck,
+                                    propertyAccessExpression,
+                                    Expression.Constant(null, propertyAccessExpression.Type)),
+                                Expression.Constant(null));
+                        }
+                    }
+                }
+            }
+
             var newLeft = Visit(node.Left);
+            var newRight = Visit(node.Right);
 
             if (newLeft.Type == typeof(ValueBuffer))
             {
                 newLeft = _queryModelVisitor.BindReadValueMethod(node.Left.Type, newLeft, 0);
             }
-
-            var newRight = Visit(node.Right);
 
             if (newRight.Type == typeof(ValueBuffer))
             {
@@ -86,8 +120,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node.Update(newLeft, newConversion, newRight);
         }
 
+        private Expression ValueBufferNullComparisonCheck(Expression valueBufferExpression) => Expression.Not(
+            Expression.MakeMemberAccess(
+                valueBufferExpression,
+                typeof(ValueBuffer).GetRuntimeProperty(nameof(ValueBuffer.IsEmpty))));
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
@@ -124,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
@@ -135,7 +174,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitExtension(Expression node)
+        {
+            var nullConditionalExpression = node as NullConditionalExpression;
+
+            if (nullConditionalExpression != null)
+            {
+                var newCaller = Visit(nullConditionalExpression.Caller);
+
+                if (newCaller != nullConditionalExpression.Caller
+                    && newCaller.Type == typeof(ValueBuffer))
+                {
+                    var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
+
+                    if (newAccessOperation != nullConditionalExpression.AccessOperation)
+                    {
+                        return newAccessOperation;
+                    }
+                }
+            }
+
+            return base.VisitExtension(node);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMember(MemberExpression node)
@@ -155,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (newExpression.Type == typeof(ValueBuffer))
                 {
                     return _queryModelVisitor
-                        .BindMemberToValueBuffer(node, newExpression)
+                               .BindMemberToValueBuffer(node, newExpression)
                            ?? node;
                 }
 
@@ -176,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -226,42 +292,44 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return _queryModelVisitor
-                .BindMethodCallExpression<Expression>(
-                    methodCallExpression,
-                    (property, _) =>
-                        {
-                            var propertyType = newExpression.Method.GetGenericArguments()[0];
+                       .BindMethodCallExpression<Expression>(
+                           methodCallExpression,
+                           (property, _) =>
+                               {
+                                   var propertyType = newExpression.Method.GetGenericArguments()[0];
 
-                            var maybeConstantExpression = newExpression.Arguments[0] as ConstantExpression;
+                                   var maybeConstantExpression = newExpression.Arguments[0] as ConstantExpression;
 
-                            if (maybeConstantExpression != null)
-                            {
-                                return Expression.Constant(
-                                    property.GetGetter().GetClrValue(maybeConstantExpression.Value),
-                                    propertyType);
-                            }
-                            
-                            var maybeMethodCallExpression= newExpression.Arguments[0] as MethodCallExpression;
+                                   if (maybeConstantExpression != null)
+                                   {
+                                       return Expression.Constant(
+                                           property.GetGetter().GetClrValue(maybeConstantExpression.Value),
+                                           propertyType);
+                                   }
 
-                            if (maybeMethodCallExpression != null
-                                && maybeMethodCallExpression.Method.IsGenericMethod
-                                && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
-                                == DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
-                            {
-                                // The target is a parameter, try and get the value from it directly.
-                                return Expression.Call(
-                                    _getValueFromEntityMethodInfo
-                                        .MakeGenericMethod(propertyType),
-                                    Expression.Constant(property.GetGetter()),
-                                    newExpression.Arguments[0]);
-                            }
-                            
-                            return Expression.Call(
-                                _getValueMethodInfo.MakeGenericMethod(propertyType),
-                                EntityQueryModelVisitor.QueryContextParameter,
-                                newExpression.Arguments[0],
-                                Expression.Constant(property));
-                        })
+                                   var maybeMethodCallExpression = newExpression.Arguments[0] as MethodCallExpression;
+
+                                   if ((maybeMethodCallExpression != null
+                                        && maybeMethodCallExpression.Method.IsGenericMethod
+                                        && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
+                                        == DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
+                                       || (newExpression.Arguments[0].NodeType == ExpressionType.Parameter
+                                           && !property.IsShadowProperty))
+                                   {
+                                       // The target is a parameter, try and get the value from it directly.
+                                       return Expression.Call(
+                                           _getValueFromEntityMethodInfo
+                                               .MakeGenericMethod(propertyType),
+                                           Expression.Constant(property.GetGetter()),
+                                           newExpression.Arguments[0]);
+                                   }
+
+                                   return Expression.Call(
+                                       _getValueMethodInfo.MakeGenericMethod(propertyType),
+                                       EntityQueryModelVisitor.QueryContextParameter,
+                                       newExpression.Arguments[0],
+                                       Expression.Constant(property));
+                               })
                    ?? newExpression;
         }
 

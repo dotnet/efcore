@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the default <see cref="ChangeTrackingStrategy"/> to be used for this model.
+        ///     Configures the default <see cref="ChangeTrackingStrategy" /> to be used for this model.
         ///     This strategy indicates how the context detects changes to properties for an instance of an entity type.
         /// </summary>
         /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
@@ -225,6 +225,28 @@ namespace Microsoft.EntityFrameworkCore
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
             Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found by convention or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses.  Calling this method witll change that behavior
+        ///         for all properties in the model as described in the <see cref="PropertyAccessMode" /> enum.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for properties of this model. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+        {
+            Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
 
             return this;
         }

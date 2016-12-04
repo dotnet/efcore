@@ -13,16 +13,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class KeyAttributeConvention : PropertyAttributeConvention<KeyAttribute>, IModelConvention
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, KeyAttribute attribute, PropertyInfo clrProperty)
+        public override InternalPropertyBuilder Apply(
+            InternalPropertyBuilder propertyBuilder, KeyAttribute attribute, MemberInfo clrMember)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
             if (entityType.BaseType != null)
             {
-                throw new InvalidOperationException(CoreStrings.KeyAttributeOnDerivedEntity(entityType.DisplayName(), propertyBuilder.Metadata.Name));
+                return propertyBuilder;
             }
 
             var entityTypeBuilder = entityType.Builder;
@@ -58,26 +59,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             var entityTypes = modelBuilder.Metadata.GetEntityTypes();
-            foreach (var entityType in entityTypes.Where(et => et.BaseType == null))
+            foreach (var entityType in entityTypes)
             {
-                var currentPrimaryKey = entityType.FindPrimaryKey();
-                if ((currentPrimaryKey != null)
-                    && (currentPrimaryKey.Properties.Count > 1))
+                if (entityType.BaseType == null)
                 {
-                    var newKey = entityType.Builder.PrimaryKey(
-                        new List<string> { currentPrimaryKey.Properties.First().Name }, ConfigurationSource.DataAnnotation);
-                    if (newKey != null)
+                    var currentPrimaryKey = entityType.FindPrimaryKey();
+                    if (currentPrimaryKey != null
+                        && currentPrimaryKey.Properties.Count > 1
+                        && entityType.GetPrimaryKeyConfigurationSource() == ConfigurationSource.DataAnnotation)
                     {
                         throw new InvalidOperationException(CoreStrings.CompositePKWithDataAnnotation(entityType.DisplayName()));
                     }
                 }
+                else
+                {
+                    foreach (var declaredProperty in entityType.GetDeclaredProperties())
+                    {
+                        var memberInfo = declaredProperty.MemberInfo;
+                        var attributes = memberInfo?.GetCustomAttributes<KeyAttribute>(true);
+                        if (attributes?.Any() == true)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.KeyAttributeOnDerivedEntity(entityType.DisplayName(), declaredProperty.Name));
+                        }
+                    }
+                }
             }
+
             return modelBuilder;
         }
     }

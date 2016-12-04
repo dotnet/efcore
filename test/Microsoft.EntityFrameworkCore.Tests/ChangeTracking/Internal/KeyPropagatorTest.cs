@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

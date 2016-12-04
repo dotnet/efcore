@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -13,6 +12,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 {
     public class RelationalMetadataExtensionsTest
     {
+        [Fact]
+        public void Can_get_and_set_index_filter()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .HasFilter("[Id] % 2 = 0")
+                .Metadata;
+
+            Assert.Equal("[Id] % 2 = 0", property.Relational().Filter);
+
+            property.Relational().Filter = "[Id] % 3 = 0";
+
+            Assert.Equal("[Id] % 3 = 0", property.Relational().Filter);
+        }
+
         [Fact]
         public void Can_get_and_set_column_name()
         {
@@ -241,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Name), firstConfiguration),
                 Assert.Throws<InvalidOperationException>(() =>
-                ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "second")).Message);
+                        ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "second")).Message);
         }
 
         protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)
@@ -346,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Null(entityType.Relational().DiscriminatorProperty);
 
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
 
             entityType.Relational().DiscriminatorProperty = property;
 
@@ -365,14 +382,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             var entityType = modelBuilder
                 .Entity<Customer>()
                 .Metadata;
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
 
             var derivedType = modelBuilder
                 .Entity<SpecialCustomer>()
                 .Metadata;
             derivedType.BaseType = entityType;
 
-            Assert.Equal(RelationalStrings.DiscriminatorPropertyMustBeOnRoot(typeof(SpecialCustomer).FullName),
+            Assert.Equal(RelationalStrings.DiscriminatorPropertyMustBeOnRoot(nameof(SpecialCustomer)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.Relational().DiscriminatorProperty = property).Message);
         }
 
@@ -389,9 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Entity<SpecialCustomer>()
                 .Metadata;
 
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
 
-            Assert.Equal(RelationalStrings.DiscriminatorPropertyNotFound("D", typeof(SpecialCustomer).FullName),
+            Assert.Equal(RelationalStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
                 Assert.Throws<InvalidOperationException>(() => otherType.Relational().DiscriminatorProperty = property).Message);
         }
 
@@ -404,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            var property = entityType.AddProperty("D", typeof(string), shadow: true);
+            var property = entityType.AddProperty("D", typeof(string));
             entityType.Relational().DiscriminatorProperty = property;
 
             Assert.Null(entityType.Relational().DiscriminatorValue);
@@ -429,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Equal(RelationalStrings.NoDiscriminatorForValue("Customer", "Customer"),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.Relational().DiscriminatorValue = "V").Message);
+                        entityType.Relational().DiscriminatorValue = "V").Message);
         }
 
         [Fact]
@@ -441,12 +458,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            var property = entityType.AddProperty("D", typeof(int), true);
+            var property = entityType.AddProperty("D", typeof(int));
             entityType.Relational().DiscriminatorProperty = property;
 
             Assert.Equal(RelationalStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() =>
-                    entityType.Relational().DiscriminatorValue = "V").Message);
+                        entityType.Relational().DiscriminatorValue = "V").Message);
 
             entityType.Relational().DiscriminatorValue = null;
         }

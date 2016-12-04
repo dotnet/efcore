@@ -14,6 +14,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
     public class RelationalBuilderExtensionsTest
     {
         [Fact]
+        public void Can_write_index_builder_extension_with_where_clauses()
+        {
+            var builder = CreateConventionModelBuilder();
+
+            var returnedBuilder = builder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .HasFilter("[Id] % 2 = 0");
+
+            Assert.IsType<IndexBuilder>(returnedBuilder);
+
+            var model = builder.Model;
+            var index = model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+            Assert.Equal("[Id] % 2 = 0", index.Relational().Filter);
+        }
+
+        [Fact]
         public void Can_set_column_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -124,6 +141,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal(stringValue, property.Relational().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_implicit_conversion()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.SomeShort)
+                .HasDefaultValue(7);
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("SomeShort");
+
+            Assert.Equal((short)7, property.Relational().DefaultValue);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -1147,6 +1180,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public short SomeShort { get; set; }
             public MyEnum EnumValue { get; set; }
 
             public IEnumerable<Order> Orders { get; set; }

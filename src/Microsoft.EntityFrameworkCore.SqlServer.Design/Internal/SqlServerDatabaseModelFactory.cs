@@ -3,11 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
@@ -20,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
+    public class SqlServerDatabaseModelFactory : IInternalDatabaseModelFactory
     {
-        private SqlConnection _connection;
+        private DbConnection _connection;
         private Version _serverVersion;
         private TableSelectionSet _tableSelectionSet;
         private DatabaseModel _databaseModel;
@@ -50,11 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerDatabaseModelFactory([NotNull] ILoggerFactory loggerFactory)
+        public SqlServerDatabaseModelFactory([NotNull] ILogger<SqlServerDatabaseModelFactory> logger)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
 
-            Logger = loggerFactory.CreateCommandsLogger();
+            Logger = logger;
         }
 
         /// <summary>
@@ -82,11 +86,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
 
+            using (var connection = new SqlConnection(connectionString))
+            {
+                return Create(connection, tableSelectionSet);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+        {
             ResetState();
 
-            using (_connection = new SqlConnection(connectionString))
+            _connection = connection;
+
+            var connectionStartedOpen = _connection.State == ConnectionState.Open;
+            if (!connectionStartedOpen)
             {
                 _connection.Open();
+            }
+            try
+            {
                 _tableSelectionSet = tableSelectionSet;
 
                 _databaseModel.DatabaseName = _connection.Database;
@@ -105,9 +127,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GetForeignKeys();
                 return _databaseModel;
             }
+            finally
+            {
+                if (!connectionStartedOpen)
+                {
+                    _connection.Close();
+                }
+            }
         }
 
         private bool SupportsSequences => _serverVersion?.Major >= 11;
+
+        private string MemoryOptimizedTableColumn =>
+            _serverVersion?.Major >= 12 ? @",
+    t.is_memory_optimized" : string.Empty;
 
         private string TemporalTableWhereClause =>
             _serverVersion?.Major >= 13 ? " AND t.temporal_type <> 1" : string.Empty;
@@ -117,7 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var command = _connection.CreateCommand();
             command.CommandText = "SELECT SCHEMA_NAME()";
             var schema = command.ExecuteScalar() as string ?? "dbo";
-            Logger.LogTrace(SqlServerDesignStrings.FoundDefaultSchema(schema));
+            Logger.LogDebug(
+                SqlServerDesignEventId.FoundDefaultSchema,
+                () => SqlServerDesignStrings.FoundDefaultSchema(schema));
             _databaseModel.DefaultSchemaName = schema;
         }
 
@@ -148,7 +183,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var alias = reader.GetValueOrDefault<string>("type_name");
                     var underlyingSystemType = reader.GetValueOrDefault<string>("underlying_system_type");
-                    Logger.LogTrace(SqlServerDesignStrings.FoundTypeAlias(alias, underlyingSystemType));
+                    Logger.LogDebug(
+                        SqlServerDesignEventId.FoundTypeAlias,
+                        () => SqlServerDesignStrings.FoundTypeAlias(alias, underlyingSystemType));
                     typeAliasMap.Add(alias, underlyingSystemType);
                 }
             }
@@ -186,13 +223,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         Max = reader.GetValueOrDefault<long?>("maximum_value")
                     };
 
-                    Logger.LogTrace(SqlServerDesignStrings.FoundSequence(
-                        sequence.SchemaName, sequence.Name, sequence.DataType, sequence.IsCyclic,
-                        sequence.IncrementBy, sequence.Start, sequence.Min, sequence.Max));
+                    Logger.LogDebug(
+                        RelationalDesignEventId.FoundSequence,
+                        () => SqlServerDesignStrings.FoundSequence(
+                            sequence.SchemaName, sequence.Name, sequence.DataType, sequence.IsCyclic,
+                            sequence.IncrementBy, sequence.Start, sequence.Min, sequence.Max));
 
                     if (string.IsNullOrEmpty(sequence.Name))
                     {
-                        Logger.LogWarning(SqlServerDesignStrings.SequenceNameEmpty(sequence.SchemaName));
+                        Logger.LogWarning(
+                            RelationalDesignEventId.SequenceMustBeNamedWarning,
+                            () => RelationalDesignStrings.SequencesRequireName);
                         continue;
                     }
 
@@ -219,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             command.CommandText =
                 @"SELECT
     schema_name(t.schema_id) AS [schema],
-    t.name
+    t.name" + MemoryOptimizedTableColumn + @"
     FROM sys.tables AS t
     WHERE t.is_ms_shipped = 0
     AND NOT EXISTS (SELECT *
@@ -228,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
       AND   minor_id = 0
       AND   class = 1
       AND   name = N'microsoft_database_tools_support') " +
-    $"AND t.name <> '{HistoryRepository.DefaultTableName}'" + TemporalTableWhereClause; // Interpolation okay; strings
+                $"AND t.name <> '{HistoryRepository.DefaultTableName}'" + TemporalTableWhereClause; // Interpolation okay; strings
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -240,7 +281,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         Name = reader.GetValueOrDefault<string>("name")
                     };
 
-                    Logger.LogTrace(SqlServerDesignStrings.FoundTable(table.SchemaName, table.Name));
+                    if (!string.IsNullOrEmpty(MemoryOptimizedTableColumn))
+                    {
+                        table[SqlServerFullAnnotationNames.Instance.MemoryOptimized] = reader.GetValueOrDefault<bool?>("is_memory_optimized");
+                    }
+
+                    Logger.LogDebug(
+                        RelationalDesignEventId.FoundTable,
+                        () => SqlServerDesignStrings.FoundTable(table.SchemaName, table.Name));
 
                     if (_tableSelectionSet.Allows(table.SchemaName, table.Name))
                     {
@@ -249,8 +297,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                     else
                     {
-                        Logger.LogTrace(
-                            SqlServerDesignStrings.TableNotInSelectionSet(table.SchemaName, table.Name));
+                        Logger.LogDebug(
+                            RelationalDesignEventId.TableSkipped,
+                            () => SqlServerDesignStrings.TableNotInSelectionSet(table.SchemaName, table.Name));
                     }
                 }
             }
@@ -261,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT DISTINCT
     schema_name(t.schema_id) AS [schema],
-    t.name AS [table], 
+    t.name AS [table],
     type_name(c.user_type_id) AS [typename],
     c.name AS [column_name],
     c.column_id AS [ordinal],
@@ -311,20 +360,25 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     var isIdentity = reader.GetValueOrDefault<bool>("is_identity");
                     var isComputed = reader.GetValueOrDefault<bool>("is_computed");
 
-                    Logger.LogTrace(SqlServerDesignStrings.FoundColumn(
-                        schemaName, tableName, columnName, dataTypeName, ordinal, nullable,
-                        primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed));
+                    Logger.LogDebug(
+                        RelationalDesignEventId.FoundColumn,
+                        () => SqlServerDesignStrings.FoundColumn(
+                            schemaName, tableName, columnName, dataTypeName, ordinal, nullable,
+                            primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed));
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
-                        Logger.LogTrace(
-                            SqlServerDesignStrings.ColumnNotInSelectionSet(columnName, schemaName, tableName));
+                        Logger.LogDebug(
+                            RelationalDesignEventId.ColumnSkipped,
+                            () => SqlServerDesignStrings.ColumnNotInSelectionSet(columnName, schemaName, tableName));
                         continue;
                     }
 
                     if (string.IsNullOrEmpty(columnName))
                     {
-                        Logger.LogWarning(SqlServerDesignStrings.ColumnNameEmptyOnTable(schemaName, tableName));
+                        Logger.LogWarning(
+                            SqlServerDesignEventId.ColumnMustBeNamedWarning,
+                            () => SqlServerDesignStrings.ColumnNameEmptyOnTable(schemaName, tableName));
                         continue;
                     }
 
@@ -332,7 +386,8 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     if (!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
                     {
                         Logger.LogWarning(
-                            SqlServerDesignStrings.UnableToFindTableForColumn(columnName, schemaName, tableName));
+                            RelationalDesignEventId.MissingTableWarning,
+                            () => SqlServerDesignStrings.UnableToFindTableForColumn(columnName, schemaName, tableName));
                         continue;
                     }
 
@@ -394,7 +449,9 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
     i.is_unique,
     c.name AS [column_name],
     i.type_desc,
-    ic.key_ordinal
+    ic.key_ordinal,
+    i.has_filter,
+    i.filter_definition
 FROM sys.indexes i
     INNER JOIN sys.index_columns ic  ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     INNER JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
@@ -416,20 +473,28 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     var typeDesc = reader.GetValueOrDefault<string>("type_desc");
                     var columnName = reader.GetValueOrDefault<string>("column_name");
                     var indexOrdinal = reader.GetValueOrDefault<byte>("key_ordinal");
+                    var hasFilter = reader.GetValueOrDefault<bool>("has_filter");
+                    var filterDefinition = reader.GetValueOrDefault<string>("filter_definition");
 
-                    Logger.LogTrace(SqlServerDesignStrings.FoundIndexColumn(
-                        schemaName, tableName, indexName, isUnique, typeDesc, columnName, indexOrdinal));
+                    Logger.LogDebug(
+                        RelationalDesignEventId.FoundIndexColumn,
+                        () => SqlServerDesignStrings.FoundIndexColumn(
+                            schemaName, tableName, indexName, isUnique, typeDesc, columnName, indexOrdinal));
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
-                        Logger.LogTrace(SqlServerDesignStrings.IndexColumnNotInSelectionSet(
-                            columnName, indexName, schemaName, tableName));
+                        Logger.LogDebug(
+                            RelationalDesignEventId.IndexColumnSkipped,
+                            () => SqlServerDesignStrings.IndexColumnNotInSelectionSet(
+                                columnName, indexName, schemaName, tableName));
                         continue;
                     }
 
                     if (string.IsNullOrEmpty(indexName))
                     {
-                        Logger.LogWarning(SqlServerDesignStrings.IndexNameEmpty(schemaName, tableName));
+                        Logger.LogWarning(
+                            SqlServerDesignEventId.IndexMustBeNamedWarning,
+                            () => SqlServerDesignStrings.IndexNameEmpty(schemaName, tableName));
                         continue;
                     }
 
@@ -443,7 +508,8 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         if (!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
                         {
                             Logger.LogWarning(
-                                SqlServerDesignStrings.UnableToFindTableForIndex(indexName, schemaName, tableName));
+                                SqlServerDesignEventId.IndexTableMissingWarning,
+                                () => SqlServerDesignStrings.UnableToFindTableForIndex(indexName, schemaName, tableName));
                             continue;
                         }
 
@@ -451,7 +517,8 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         {
                             Table = table,
                             Name = indexName,
-                            IsUnique = isUnique
+                            IsUnique = isUnique,
+                            Filter = hasFilter ? filterDefinition : null
                         };
                         index.SqlServer().IsClustered = typeDesc == "CLUSTERED";
 
@@ -462,13 +529,15 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     if (string.IsNullOrEmpty(columnName))
                     {
                         Logger.LogWarning(
-                            SqlServerDesignStrings.ColumnNameEmptyOnIndex(
+                            SqlServerDesignEventId.IndexColumnMustBeNamedWarning,
+                            () => SqlServerDesignStrings.ColumnNameEmptyOnIndex(
                                 schemaName, tableName, indexName));
                     }
                     else if (!_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out column))
                     {
                         Logger.LogWarning(
-                            SqlServerDesignStrings.UnableToFindColumnForIndex(
+                            RelationalDesignEventId.IndexColumnsNotMappedWarning,
+                            () => SqlServerDesignStrings.UnableToFindColumnForIndex(
                                 indexName, columnName, schemaName, tableName));
                     }
                     else
@@ -489,7 +558,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
         private void GetForeignKeys()
         {
             var command = _connection.CreateCommand();
-            command.CommandText = @"SELECT 
+            command.CommandText = @"SELECT
     schema_name(f.schema_id) AS [schema_name],
     object_name(f.parent_object_id) AS table_name,
     f.name AS foreign_key_name,
@@ -523,20 +592,26 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                     var deleteAction = reader.GetValueOrDefault<string>("delete_referential_action_desc");
                     var ordinal = reader.GetValueOrDefault<int>("constraint_column_id");
 
-                    Logger.LogTrace(SqlServerDesignStrings.FoundForeignKeyColumn(
-                        schemaName, tableName, fkName, principalTableSchemaName, principalTableName,
-                        fromColumnName, toColumnName, updateAction, deleteAction, ordinal));
+                    Logger.LogDebug(
+                        RelationalDesignEventId.FoundForeignKeyColumn,
+                        () => SqlServerDesignStrings.FoundForeignKeyColumn(
+                            schemaName, tableName, fkName, principalTableSchemaName, principalTableName,
+                            fromColumnName, toColumnName, updateAction, deleteAction, ordinal));
 
                     if (string.IsNullOrEmpty(fkName))
                     {
-                        Logger.LogWarning(SqlServerDesignStrings.ForeignKeyNameEmpty(schemaName, tableName));
+                        Logger.LogWarning(
+                            SqlServerDesignEventId.ForeignKeyMustBeNamedWarning,
+                            () => SqlServerDesignStrings.ForeignKeyNameEmpty(schemaName, tableName));
                         continue;
                     }
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
-                        Logger.LogTrace(SqlServerDesignStrings.ForeignKeyColumnNotInSelectionSet(
-                            fromColumnName, fkName, schemaName, tableName));
+                        Logger.LogDebug(
+                            SqlServerDesignEventId.ForeignKeyColumnSkipped,
+                            () => SqlServerDesignStrings.ForeignKeyColumnNotInSelectionSet(
+                                fromColumnName, fkName, schemaName, tableName));
                         continue;
                     }
 
@@ -559,8 +634,10 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
 
                         if (principalTable == null)
                         {
-                            Logger.LogTrace(SqlServerDesignStrings.PrincipalTableNotInSelectionSet(
-                                fkName, schemaName, tableName, principalTableSchemaName, principalTableName));
+                            Logger.LogDebug(
+                                RelationalDesignEventId.ForeignKeyReferencesMissingTable,
+                                () => SqlServerDesignStrings.PrincipalTableNotInSelectionSet(
+                                    fkName, schemaName, tableName, principalTableSchemaName, principalTableName));
                         }
 
                         fkInfo = new ForeignKeyModel
@@ -606,7 +683,8 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
             if (string.IsNullOrEmpty(columnName))
             {
                 Logger.LogWarning(
-                    SqlServerDesignStrings.ColumnNameEmptyOnForeignKey(
+                    SqlServerDesignEventId.ColumnNameEmptyOnForeignKey,
+                    () => SqlServerDesignStrings.ColumnNameEmptyOnForeignKey(
                         table.SchemaName, table.Name, fkName));
                 return null;
             }
@@ -615,7 +693,8 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                 ColumnKey(table, columnName), out column))
             {
                 Logger.LogWarning(
-                    SqlServerDesignStrings.UnableToFindColumnForForeignKey(
+                    RelationalDesignEventId.ForeignKeyColumnsNotMappedWarning,
+                    () => SqlServerDesignStrings.UnableToFindColumnForForeignKey(
                         fkName, columnName, table.SchemaName, table.Name));
                 return null;
             }

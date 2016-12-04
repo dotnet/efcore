@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -22,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.IsType<TemporaryIntValueGenerator>(selector.Select(entityType.FindProperty("Id"), entityType));
+            Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
             Assert.IsType<TemporaryLongValueGenerator>(selector.Select(entityType.FindProperty("Long"), entityType));
             Assert.IsType<TemporaryShortValueGenerator>(selector.Select(entityType.FindProperty("Short"), entityType));
             Assert.IsType<TemporaryByteValueGenerator>(selector.Select(entityType.FindProperty("Byte"), entityType));
@@ -31,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.IsType<TemporaryShortValueGenerator>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
             Assert.IsType<TemporaryByteValueGenerator>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
             Assert.IsType<TemporaryCharValueGenerator>(selector.Select(entityType.FindProperty("NullableChar"), entityType));
+            Assert.IsType<TemporaryDecimalValueGenerator>(selector.Select(entityType.FindProperty("Decimal"), entityType));
             Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
             Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
             Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
@@ -67,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<int>>(selector.Select(entityType.FindProperty("Id"), entityType));
+            Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<long>>(selector.Select(entityType.FindProperty("Long"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<short>>(selector.Select(entityType.FindProperty("Short"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<byte>>(selector.Select(entityType.FindProperty("Byte"), entityType));
@@ -76,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<short>>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<byte>>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<char>>(selector.Select(entityType.FindProperty("NullableChar"), entityType));
+            Assert.IsType<TemporaryDecimalValueGenerator>(selector.Select(entityType.FindProperty("Decimal"), entityType));
             Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
             Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
             Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
@@ -112,12 +117,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         private static IMutableModel BuildModel(bool generateValues = true)
         {
             var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+
             builder.Ignore<Random>();
-            builder.Entity<AnEntity>();
+            builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
+
             var model = builder.Model;
             model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
+
             var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random), shadow: false);
+            entityType.AddProperty("Random", typeof(Random));
 
             foreach (var property in entityType.GetProperties())
             {
@@ -137,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         private class AnEntity
         {
             public int Id { get; set; }
+            public int Custom { get; set; }
             public long Long { get; set; }
             public short Short { get; set; }
             public byte Byte { get; set; }
@@ -150,9 +159,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public Guid Guid { get; set; }
             public byte[] Binary { get; set; }
             public float Float { get; set; }
+            public decimal Decimal { get; set; }
             public int AlwaysIdentity { get; set; }
             public int AlwaysSequence { get; set; }
             public Random Random { get; set; }
+        }
+
+        private class CustomValueGenerator : ValueGenerator<int>
+        {
+            public override int Next(EntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool GeneratesTemporaryValues => false;
         }
     }
 }

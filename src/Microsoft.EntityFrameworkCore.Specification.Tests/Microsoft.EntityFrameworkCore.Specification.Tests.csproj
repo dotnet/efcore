@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
     <Compile Include="AsTrackingTestBase.cs" />
+    <Compile Include="AsyncQueryNavigationsTestBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />
@@ -47,8 +48,12 @@
     <Compile Include="ComplexNavigationsQueryTestBase.cs" />
     <Compile Include="DataAnnotationFixtureBase.cs" />
     <Compile Include="DataAnnotationTestBase.cs" />
+    <Compile Include="DatabindingTestBase.cs" />
     <Compile Include="F1FixtureBase.cs" />
+    <Compile Include="FieldMappingTestBase.cs" />
     <Compile Include="FindTestBase.cs" />
+    <Compile Include="FunkyDataQueryFixtureBase.cs" />
+    <Compile Include="FunkyDataQueryTestBase.cs" />
     <Compile Include="GearsOfWarQueryFixtureBase.cs" />
     <Compile Include="GearsOfWarQueryTestBase.cs" />
     <Compile Include="GraphUpdatesTestBase.cs" />
@@ -59,6 +64,7 @@
     <Compile Include="InheritanceRelationshipsQueryFixtureBase.cs" />
     <Compile Include="InheritanceRelationshipsQueryTestBase.cs" />
     <Compile Include="InheritanceTestBase.cs" />
+    <Compile Include="LoadTestBase.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="NotificationEntitiesTestBase.cs" />
@@ -66,14 +72,21 @@
     <Compile Include="OneToOneQueryFixtureBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyValuesTestBase.cs" />
     <Compile Include="QueryNavigationsTestBase.cs" />
+    <Compile Include="CompiledQueryTestBase.cs" />
     <Compile Include="QueryTestBase.cs" />
+    <Compile Include="StoreGeneratedFixupTestBase.cs" />
     <Compile Include="StoreGeneratedTestBase.cs" />
     <Compile Include="TestFileLogger.cs" />
     <Compile Include="TestHelpers.cs" />
     <Compile Include="TestModelSource.cs" />
     <Compile Include="TestModels\ChangedChangingMonsterContext.cs" />
     <Compile Include="TestModels\ChangedOnlyMonsterContext.cs" />
+    <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationsData.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\Mission.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\SquadMission.cs" />
+    <Compile Include="TestModels\Northwind\NorthwindData.Objects.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationField.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationGlobalization.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationLanguage.cs" />
@@ -97,6 +110,9 @@
     <Compile Include="TestModels\ConcurrencyModel\Team.cs" />
     <Compile Include="TestModels\ConcurrencyModel\TestDriver.cs" />
     <Compile Include="TestModels\ConcurrencyModel\TitleSponsor.cs" />
+    <Compile Include="TestModels\FunkyDataModel\FunkyDataContext.cs" />
+    <Compile Include="TestModels\FunkyDataModel\FunkyCustomer.cs" />
+    <Compile Include="TestModels\FunkyDataModel\FunkyDataModelInitializer.cs" />
     <Compile Include="TestModels\GearsOfWarModel\AmmunitionType.cs" />
     <Compile Include="TestModels\GearsOfWarModel\City.cs" />
     <Compile Include="TestModels\GearsOfWarModel\CogTag.cs" />
@@ -169,12 +185,14 @@
     <Compile Include="TestModels\UpdatesModel\UpdatesModelInitializer.cs" />
     <Compile Include="TestStore.cs" />
     <Compile Include="TestUtilities\AnnotationComparer.cs" />
+    <Compile Include="TestUtilities\DbContextHelpers.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
     <Compile Include="TestUtilities\ForeignKeyStrictComparer.cs" />
     <Compile Include="TestUtilities\IndexComparer.cs" />
     <Compile Include="TestUtilities\KeyComparer.cs" />
     <Compile Include="TestUtilities\NavigationComparer.cs" />
     <Compile Include="TestUtilities\PropertyComparer.cs" />
+    <Compile Include="TestUtilities\TestInMemoryTransactionManager.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTestFramework.cs" />
@@ -206,6 +224,7 @@
       <Name>Microsoft.EntityFrameworkCore</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

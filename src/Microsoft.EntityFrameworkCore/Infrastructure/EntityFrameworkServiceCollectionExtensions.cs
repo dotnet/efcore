@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,50 +77,53 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<INavigationListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IQueryTrackingListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
-                .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>()));
+                .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>())
+                .AddScoped<IEntityStateListener, ILocalViewListener>(p => p.GetService<ILocalViewListener>()));
 
             serviceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetInitializer, DbSetInitializer>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
-                .AddSingleton<ICollectionTypeFactory, CollectionTypeFactory>()
+                .AddSingleton<IEntityFinderSource, EntityFinderSource>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<IMemberMapper, MemberMapper>()
-                .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<ICoreConventionSetBuilder, CoreConventionSetBuilder>()
                 .AddSingleton<IModelCustomizer, ModelCustomizer>()
                 .AddSingleton<IModelCacheKeyFactory, ModelCacheKeyFactory>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .AddScoped<LoggingModelValidator>()
+                .AddSingleton<IInternalEntityEntryFactory, InternalEntityEntryFactory>()
+                .AddSingleton<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>()
+                .AddSingleton<IEntityEntryGraphIterator, EntityEntryGraphIterator>()
+                .AddSingleton<IEntityGraphAttacher, EntityGraphAttacher>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()
+                .AddScoped<ILocalViewListener, LocalViewListener>()
                 .AddScoped<IStateManager, StateManager>()
                 .AddScoped<IConcurrencyDetector, ConcurrencyDetector>()
-                .AddScoped<IInternalEntityEntryFactory, InternalEntityEntryFactory>()
                 .AddScoped<IInternalEntityEntryNotifier, InternalEntityEntryNotifier>()
-                .AddScoped<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>()
                 .AddScoped<IValueGenerationManager, ValueGenerationManager>()
                 .AddScoped<IChangeTrackerFactory, ChangeTrackerFactory>()
                 .AddScoped<IChangeDetector, ChangeDetector>()
-                .AddScoped<IEntityEntryGraphIterator, EntityEntryGraphIterator>()
                 .AddScoped<IDbContextServices, DbContextServices>()
                 .AddScoped<IDatabaseProviderSelector, DatabaseProviderSelector>()
-                .AddScoped<IEntityGraphAttacher, EntityGraphAttacher>()
-                .AddScoped<ValueGeneratorSelector>()
                 .AddScoped(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>))
                 .AddScoped(typeof(ILogger<>), typeof(InterceptingLogger<>))
                 .AddScoped(p => GetContextServices(p).Model)
                 .AddScoped(p => GetContextServices(p).CurrentContext)
                 .AddScoped(p => GetContextServices(p).ContextOptions)
                 .AddScoped(p => GetContextServices(p).DatabaseProviderServices)
-                .AddScoped(p => GetProviderServices(p).Database)
-                .AddScoped(p => GetProviderServices(p).TransactionManager)
-                .AddScoped(p => GetProviderServices(p).ValueGeneratorSelector)
-                .AddScoped(p => GetProviderServices(p).Creator)
-                .AddScoped(p => GetProviderServices(p).ConventionSetBuilder)
-                .AddScoped(p => GetProviderServices(p).ValueGeneratorCache)
-                .AddScoped(p => GetProviderServices(p).ModelSource)
-                .AddScoped(p => GetProviderServices(p).ModelValidator)
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).Database))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).TransactionManager))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ValueGeneratorSelector))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).Creator))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ConventionSetBuilder))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ValueGeneratorCache))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ModelSource))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ModelValidator))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ExecutionStrategyFactory))
+                .AddSingleton<NoopModelValidator>()
+                .AddSingleton<ExecutionStrategyFactory>()
+                .AddScoped<ValueGeneratorSelector>()
+                .AddScoped<CoreModelValidator>()
                 .AddQuery());
 
             return serviceCollection;
@@ -149,14 +152,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<ResultOperatorHandler>()
                 .AddScoped<QueryCompilationContextFactory>()
                 .AddScoped<ProjectionExpressionVisitorFactory>()
-                .AddScoped(p => GetProviderServices(p).QueryContextFactory)
-                .AddScoped(p => GetProviderServices(p).QueryCompilationContextFactory)
-                .AddScoped(p => GetProviderServices(p).CompiledQueryCacheKeyGenerator)
-                .AddScoped(p => GetProviderServices(p).EntityQueryModelVisitorFactory)
-                .AddScoped(p => GetProviderServices(p).EntityQueryableExpressionVisitorFactory)
-                .AddScoped(p => GetProviderServices(p).ExpressionPrinter)
-                .AddScoped(p => GetProviderServices(p).ResultOperatorHandler)
-                .AddScoped(p => GetProviderServices(p).ProjectionExpressionVisitorFactory);
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).QueryContextFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).QueryCompilationContextFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).CompiledQueryCacheKeyGenerator))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).EntityQueryModelVisitorFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).EntityQueryableExpressionVisitorFactory))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ExpressionPrinter))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ResultOperatorHandler))
+                .AddScoped(p => p.InjectAdditionalServices(GetProviderServices(p).ProjectionExpressionVisitorFactory));
 
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
             => serviceProvider.GetRequiredService<IDbContextServices>();

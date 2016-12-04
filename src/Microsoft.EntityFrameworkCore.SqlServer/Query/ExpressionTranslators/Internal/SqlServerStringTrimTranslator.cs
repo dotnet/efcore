@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         new SqlFunctionExpression(
                             "RTRIM",
                             methodCallExpression.Type,
-                            sqlArguments),
+                            sqlArguments)
                     });
             }
 

@@ -3,6 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
@@ -10,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     {
         private Action _deleteDatabase;
 
-        public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase) 
+        public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase)
             => new InMemoryTestStore().CreateShared(name, initializeDatabase);
 
         private new InMemoryTestStore CreateShared(string name, Action initializeDatabase)
@@ -19,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             return this;
         }
+
+        public static InMemoryTestStore CreateScratch(Action initializeDatabase, IServiceProvider serviceProvider)
+            => CreateScratch(initializeDatabase, () => serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear());
 
         public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action deleteDatabase)
             => new InMemoryTestStore().CreateTransient(initializeDatabase, deleteDatabase);

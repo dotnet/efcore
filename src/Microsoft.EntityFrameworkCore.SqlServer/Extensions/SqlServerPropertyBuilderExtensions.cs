@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     SQL Server specific extension methods for <see cref="PropertyBuilder"/>.
+    ///     SQL Server specific extension methods for <see cref="PropertyBuilder" />.
     /// </summary>
     public static class SqlServerPropertyBuilderExtensions
     {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            propertyBuilder.Metadata.SqlServer().ColumnName = name;
+            GetSqlServerInternalBuilder(propertyBuilder).ColumnName(name);
 
             return propertyBuilder;
         }
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting SQL Server.
-        ///     This should be the complete type name, including precision, scale, length, etc. 
+        ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
@@ -60,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(typeName, nameof(typeName));
 
-            propertyBuilder.Metadata.SqlServer().ColumnType = typeName;
+            GetSqlServerInternalBuilder(propertyBuilder).ColumnType(typeName);
 
             return propertyBuilder;
         }
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting SQL Server.
-        ///     This should be the complete type name, including precision, scale, length, etc. 
+        ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -91,8 +91,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
-            internalPropertyBuilder.SqlServer(ConfigurationSource.Explicit).DefaultValueSql(sql);
+            GetSqlServerInternalBuilder(propertyBuilder).DefaultValueSql(sql);
 
             return propertyBuilder;
         }
@@ -121,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
-            internalPropertyBuilder.SqlServer(ConfigurationSource.Explicit).DefaultValue(value);
+            GetSqlServerInternalBuilder(propertyBuilder).DefaultValue(value);
 
             return propertyBuilder;
         }
@@ -152,8 +150,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
-            internalPropertyBuilder.SqlServer(ConfigurationSource.Explicit).ComputedColumnSql(sql);
+            GetSqlServerInternalBuilder(propertyBuilder).ComputedColumnSql(sql);
 
             return propertyBuilder;
         }
@@ -171,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore
             => (PropertyBuilder<TProperty>)ForSqlServerHasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
-        ///     Configures the property to use a sequence-based hi-lo pattern to generate values for new entities, 
-        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd"/>.
+        ///     Configures the property to use a sequence-based hi-lo pattern to generate values for new entities,
+        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -198,9 +195,8 @@ namespace Microsoft.EntityFrameworkCore
                 model.SqlServer().GetOrAddSequence(name, schema).IncrementBy = 10;
             }
 
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
-            property.ValueGenerated = ValueGenerated.OnAdd;
-            property.RequiresValueGenerator = true;
+            GetSqlServerInternalBuilder(propertyBuilder).ValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
+
             property.SqlServer().HiLoSequenceName = name;
             property.SqlServer().HiLoSequenceSchema = schema;
 
@@ -208,8 +204,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the property to use a sequence-based hi-lo pattern to generate values for new entities, 
-        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd"/>.
+        ///     Configures the property to use a sequence-based hi-lo pattern to generate values for new entities,
+        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -223,8 +219,8 @@ namespace Microsoft.EntityFrameworkCore
             => (PropertyBuilder<TProperty>)ForSqlServerUseSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
 
         /// <summary>
-        ///     Configures the property to use the SQL Server IDENTITY feature to generate values for new entities, 
-        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd"/>.
+        ///     Configures the property to use the SQL Server IDENTITY feature to generate values for new entities,
+        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -233,20 +229,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var property = propertyBuilder.Metadata;
-
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
-            property.ValueGenerated = ValueGenerated.OnAdd;
-            property.RequiresValueGenerator = true;
-            property.SqlServer().HiLoSequenceName = null;
-            property.SqlServer().HiLoSequenceSchema = null;
+            GetSqlServerInternalBuilder(propertyBuilder).ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
 
             return propertyBuilder;
         }
 
         /// <summary>
-        ///     Configures the property to use the SQL Server IDENTITY feature to generate values for new entities, 
-        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd"/>.
+        ///     Configures the property to use the SQL Server IDENTITY feature to generate values for new entities,
+        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -254,5 +244,8 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyBuilder<TProperty> UseSqlServerIdentityColumn<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
             => (PropertyBuilder<TProperty>)UseSqlServerIdentityColumn((PropertyBuilder)propertyBuilder);
+
+        private static SqlServerPropertyBuilderAnnotations GetSqlServerInternalBuilder(PropertyBuilder propertyBuilder)
+            => propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().SqlServer(ConfigurationSource.Explicit);
     }
 }

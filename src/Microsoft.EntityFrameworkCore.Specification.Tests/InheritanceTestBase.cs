@@ -99,6 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var animals = context.Set<Animal>().Select(a => a is Kiwi).ToList();
 
                 Assert.Equal(2, animals.Count);
+                Assert.Equal(1, animals.Count(a => a));
+                Assert.Equal(1, animals.Count(a => !a));
             }
         }
 

@@ -8,7 +8,7 @@
     <ProjectGuid>{313F46FE-9962-4A15-805F-FCBDF5A6181E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Tests</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -36,6 +36,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -57,8 +58,10 @@
     <Compile Include="ApiConsistencyTestBase.cs" />
     <Compile Include="ChangeTracking\AggregatesTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
+    <Compile Include="ChangeTracking\CollectionEntryTest.cs" />
     <Compile Include="ChangeTracking\EntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
+    <Compile Include="ChangeTracking\Internal\FixupCompositeTest.cs" />
     <Compile Include="ChangeTracking\Internal\FixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryFactoryTest.cs" />
@@ -68,12 +71,19 @@
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableBackedBindingListTest.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableCollectionListSourceTest.cs" />
+    <Compile Include="ChangeTracking\Internal\ObservableHashSetListSourceTest.cs" />
     <Compile Include="ChangeTracking\Internal\QueryFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\ShadowFkFixupTest.cs" />
+    <Compile Include="ChangeTracking\Internal\SortableBindingListTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
+    <Compile Include="ChangeTracking\MemberEntryTest.cs" />
+    <Compile Include="ChangeTracking\NavigationEntryTest.cs" />
     <Compile Include="ChangeTracking\ObservableHashSetTest.cs" />
     <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
+    <Compile Include="ChangeTracking\ReferenceEntryTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />
     <Compile Include="DatabaseFacadeTest.cs" />
     <Compile Include="DbContextOptionsTest.cs" />
@@ -90,11 +100,10 @@
     <Compile Include="Infrastructure\AnnotatableTest.cs" />
     <Compile Include="Infrastructure\AnnotationTest.cs" />
     <Compile Include="Infrastructure\DbContextAttributeTest.cs" />
-    <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
+    <Compile Include="Infrastructure\CoreModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ModelValidatorTest.cs" />
-    <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
-    <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
     <Compile Include="Metadata\Conventions\ConventionSetBuilderTests.cs" />
+    <Compile Include="Metadata\Conventions\Internal\BackingFieldConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\BaseTypeDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\CascadeDeleteConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\ConventionDispatcherTest.cs" />
@@ -117,7 +126,6 @@
     <Compile Include="Metadata\Internal\ConfigurationSourceExtensionsTest.cs" />
     <Compile Include="Metadata\Internal\EntityMaterializerSourceTest.cs" />
     <Compile Include="Metadata\Internal\EntityTypeTest.cs" />
-    <Compile Include="Metadata\Internal\FieldMatcherTest.cs" />
     <Compile Include="Metadata\Internal\ForeignKeyTest.cs" />
     <Compile Include="Metadata\Internal\IndexTest.cs" />
     <Compile Include="Metadata\Internal\InternalEntityTypeBuilderTest.cs" />
@@ -127,9 +135,9 @@
     <Compile Include="Metadata\Internal\InternalPropertyBuilderTest.cs" />
     <Compile Include="Metadata\Internal\InternalRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\Internal\KeyTest.cs" />
-    <Compile Include="Metadata\Internal\MemberMapperTest.cs" />
     <Compile Include="Metadata\Internal\ModelTest.cs" />
     <Compile Include="Metadata\Internal\NavigationTest.cs" />
+    <Compile Include="Metadata\Internal\PropertyBaseTest.cs" />
     <Compile Include="Metadata\Internal\PropertyTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
@@ -141,19 +149,21 @@
     <Compile Include="ModelBuilderTest\InheritanceTestBase.cs" />
     <Compile Include="ModelBuilderTest\ManyToOneTestBase.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipStringTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipTypeStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipTypeTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderNonGenericStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderNonGenericTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderNonGenericUnqualifiedStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderTestBase.cs" />
     <Compile Include="ModelBuilderTest\NonRelationshipTestBase.cs" />
     <Compile Include="ModelBuilderTest\OneToManyTestBase.cs" />
     <Compile Include="ModelBuilderTest\OneToOneTestBase.cs" />
     <Compile Include="ModelBuilderTest\TestModel.cs" />
     <Compile Include="ModelSourceTest.cs" />
-    <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="Storage\DatabaseProviderSelectorTest.cs" />
+    <Compile Include="Storage\ExecutionStrategyTests.cs" />
     <Compile Include="TestUtilities\ListLogger.cs" />
     <Compile Include="TestUtilities\ListLoggerFactory.cs" />
     <Compile Include="TestUtilities\ListLogger`.cs" />

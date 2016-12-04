@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public BuiltInDataTypesSqlServerFixture()
         {
-            _testStore = SqlServerTestStore.CreateScratch();
+            _testStore = SqlServerTestStore.Create("BuiltInDataTypes");
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
-                .UseSqlServer(_testStore.Connection)
+                .UseSqlServer(_testStore.Connection, b => b.ApplyConfiguration())
                 .EnableSensitiveDataLogging()
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     b.Ignore(dt => dt.TestUnsignedInt64);
                     b.Ignore(dt => dt.TestCharacter);
                     b.Ignore(dt => dt.TestSignedByte);
+                    b.Property(dt => dt.TestDecimal).ForSqlServerHasColumnType("decimal(18,2)");
                 });
 
             modelBuilder.Entity<BuiltInNullableDataTypes>(b =>

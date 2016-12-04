@@ -7,11 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
     using System.Resources;
     using JetBrains.Annotations;
 
-	/// <summary>
-	///		This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    /// <summary>
+    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
-	/// </summary>
-    public static class SqlServerStrings
+    /// </summary>
+    public static partial class SqlServerStrings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerStrings).GetTypeInfo().Assembly);
@@ -38,6 +38,46 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string SequenceBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadType", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
+        /// <summary>
+        /// SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to MigrationBuilder.RenameIndex.
+        /// </summary>
+        public static string IndexTableRequired
+        {
+            get { return GetString("IndexTableRequired"); }
+        }
+
+        /// <summary>
+        /// To set memory-optimized on a table on or off the table needs to be dropped and recreated.
+        /// </summary>
+        public static string AlterMemoryOptimizedTable
+        {
+            get { return GetString("AlterMemoryOptimizedTable"); }
+        }
+
+        /// <summary>
+        /// To change the IDENTITY property of a column, the column needs to be dropped and recreated.
+        /// </summary>
+        public static string AlterIdentityColumn
+        {
+            get { return GetString("AlterIdentityColumn"); }
+        }
+
+        /// <summary>
+        /// An exception has been raised that is likely due to a transient failure. If you are connecting to a SQL Azure database consider using SqlAzureExecutionStrategy.
+        /// </summary>
+        public static string TransientExceptionDetected
+        {
+            get { return GetString("TransientExceptionDetected"); }
+        }
+
+        /// <summary>
+        /// No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForSqlServerHasColumnType()'.
+        /// </summary>
+        public static string DefaultDecimalTypeColumn([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DefaultDecimalTypeColumn", "property", "entityType"), property, entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

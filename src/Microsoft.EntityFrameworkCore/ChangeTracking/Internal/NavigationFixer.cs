@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class NavigationFixer : INavigationFixer
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private bool _inFixup;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public NavigationFixer(
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
@@ -160,6 +159,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                     }
                 }
+
+                if (newValue == null)
+                {
+                    entry.SetIsLoaded(navigation, loaded: false);
+                }
             }
             finally
             {
@@ -176,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void NavigationCollectionChanged(
@@ -237,8 +241,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         // For a dependent added to the collection, remove it from the collection of
                         // the principal entity that it was previously part of
-                        var oldPrincipalEntry = stateManager.GetPrincipal(newTargetEntry, foreignKey);
-                        if (oldPrincipalEntry != null)
+                        var oldPrincipalEntry = stateManager.GetPrincipalUsingRelationshipSnapshot(newTargetEntry, foreignKey);
+                        if (oldPrincipalEntry != null
+                            && oldPrincipalEntry != entry)
                         {
                             RemoveFromCollection(oldPrincipalEntry, navigation, collectionAccessor, newValue);
                         }
@@ -265,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void KeyPropertyChanged(
@@ -289,7 +294,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var foreignKey in containingForeignKeys)
                 {
-                    var newPrincipalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                    var newPrincipalEntry = stateManager.GetPrincipal(entry, foreignKey)
+                                            ?? stateManager.GetPrincipalUsingPreStoreGeneratedValues(entry, foreignKey);
                     var oldPrincipalEntry = stateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
 
                     var principalToDependent = foreignKey.PrincipalToDependent;
@@ -380,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
@@ -388,11 +394,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void TrackedFromQuery(
-            InternalEntityEntry entry, 
+            InternalEntityEntry entry,
             ISet<IForeignKey> handledForeignKeys)
         {
             try
@@ -408,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void StateChanged(
@@ -489,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void InitialFixup(
             InternalEntityEntry entry,
-            ISet<IForeignKey> handledForeignKeys, 
+            ISet<IForeignKey> handledForeignKeys,
             bool fromQuery)
         {
             var entityType = entry.EntityType;
@@ -510,6 +516,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var principalToDependent = foreignKey.PrincipalToDependent;
                         if (principalToDependent != null)
                         {
+                            if (!principalToDependent.IsCollection())
+                            {
+                                var oldDependent = principalEntry[principalToDependent];
+                                if (oldDependent != null
+                                    && !ReferenceEquals(entry.Entity, oldDependent))
+                                {
+                                    var oldDependentEntry = stateManager.TryGetEntry(oldDependent);
+                                    if (oldDependentEntry != null
+                                        && oldDependentEntry.EntityState != EntityState.Detached)
+                                    {
+                                        ConditionallyNullForeignKeyProperties(oldDependentEntry, null, foreignKey);
+                                        SetNavigation(principalEntry, principalToDependent, null);
+                                    }
+                                }
+                            }
+
                             SetReferenceOrAddToCollection(
                                 principalEntry,
                                 principalToDependent,
@@ -713,9 +735,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 var principalValue = principalEntry[principalProperties[i]];
-                dependentEntry.SetProperty(dependentProperties[i], principalValue, setModified);
-                dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
-                dependentEntry.SetRelationshipSnapshotValue(dependentProperties[i], principalValue);
+                var dependentProperty = dependentProperties[i];
+
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(
+                    dependentEntry[dependentProperty],
+                    principalValue)
+                    || (dependentEntry.IsConceptualNull(dependentProperty)
+                        && principalValue != null))
+                {
+                    dependentEntry.SetProperty(dependentProperty, principalValue, setModified);
+                    dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
+                    dependentEntry.SetRelationshipSnapshotValue(dependentProperty, principalValue);
+                }
             }
         }
 
@@ -726,6 +757,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var principalProperties = foreignKey.PrincipalKey.Properties;
             var dependentProperties = foreignKey.Properties;
+            var hasNonKeyProperties = false;
 
             if (principalEntry != null
                 && principalEntry.EntityState != EntityState.Detached)
@@ -738,14 +770,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         return;
                     }
+
+                    if (!dependentProperties[i].IsKey())
+                    {
+                        hasNonKeyProperties = true;
+                    }
                 }
             }
 
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                dependentEntry[dependentProperties[i]] = null;
-                dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
-                dependentEntry.SetRelationshipSnapshotValue(dependentProperties[i], null);
+                if (!hasNonKeyProperties
+                    || !dependentProperties[i].IsKey())
+                {
+                    dependentEntry[dependentProperties[i]] = null;
+                    dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
+                    dependentEntry.SetRelationshipSnapshotValue(dependentProperties[i], null);
+                }
             }
         }
 

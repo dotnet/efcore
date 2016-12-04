@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IEntityType" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableEntityType : IEntityType, IMutableAnnotatable
+    public interface IMutableEntityType : IEntityType, IMutableTypeBase
     {
         /// <summary>
         ///     Gets the model this entity belongs to.
@@ -162,9 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property to add. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
-        /// <param name="shadow"> Whether the property is in shadow-state. </param>
         /// <returns> The newly created property. </returns>
-        IMutableProperty AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadow);
+        IMutableProperty AddProperty([NotNull] string name, [CanBeNull] Type propertyType);
 
         /// <summary>
         ///     <para>

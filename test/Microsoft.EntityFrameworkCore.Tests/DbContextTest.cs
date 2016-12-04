@@ -3,22 +3,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -224,6 +226,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
             }
 
+            public void Reset()
+            {
+            }
+
             public void Unsubscribe()
             {
             }
@@ -306,6 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public IEnumerable<InternalEntityEntry> Entries => Entries ?? Enumerable.Empty<InternalEntityEntry>();
 
+            public int ChangedCount { get; set; }
+
             public IInternalEntityEntryNotifier Notify
             {
                 get { throw new NotImplementedException(); }
@@ -337,6 +345,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey)
+            {
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry GetPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry entityEntry, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();
             }
@@ -383,32 +396,46 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_existing_entities_to_context_to_be_deleted()
+        public async Task Can_add_existing_entities_to_context_to_be_deleted()
         {
-            TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+            await TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
         }
 
         [Fact]
-        public void Can_add_new_entities_to_context_with_graph_method()
+        public async Task Can_add_new_entities_to_context_with_graph_method()
         {
-            TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+            await TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_to_context_to_be_attached_with_graph_method()
+        public async Task Can_add_new_entities_to_context_with_graph_method_async()
         {
-            TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            await TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_to_context_to_be_updated_with_graph_method()
+        public async Task Can_add_existing_entities_to_context_to_be_attached_with_graph_method()
         {
-            TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            await TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
-        private static void TrackEntitiesTest(
+        [Fact]
+        public async Task Can_add_existing_entities_to_context_to_be_updated_with_graph_method()
+        {
+            await TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+        }
+
+        private static Task TrackEntitiesTest(
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
             Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            => TrackEntitiesTest(
+                (c, e) => Task.FromResult(categoryAdder(c, e)),
+                (c, e) => Task.FromResult(productAdder(c, e)),
+                expectedState);
+
+        private static async Task TrackEntitiesTest(
+            Func<DbContext, Category, Task<EntityEntry<Category>>> categoryAdder,
+            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
@@ -417,10 +444,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
                 var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
 
-                var categoryEntry1 = categoryAdder(context, category1);
-                var categoryEntry2 = categoryAdder(context, category2);
-                var productEntry1 = productAdder(context, product1);
-                var productEntry2 = productAdder(context, product2);
+                var categoryEntry1 = await categoryAdder(context, category1);
+                var categoryEntry2 = await categoryAdder(context, category2);
+                var productEntry1 = await productAdder(context, product1);
+                var productEntry2 = await productAdder(context, product2);
 
                 Assert.Same(category1, categoryEntry1.Entity);
                 Assert.Same(category2, categoryEntry2.Entity);
@@ -445,32 +472,54 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_multiple_new_entities_to_context()
+        public async Task Can_add_multiple_new_entities_to_context()
         {
-            TrackMultipleEntitiesTest((c, e) => c.AddRange(e[0], e[1]), (c, e) => c.AddRange(e[0], e[1]), EntityState.Added);
+            await TrackMultipleEntitiesTest((c, e) => c.AddRange(e[0], e[1]), (c, e) => c.AddRange(e[0], e[1]), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_attached()
+        public async Task Can_add_multiple_new_entities_to_context_async()
         {
-            TrackMultipleEntitiesTest((c, e) => c.AttachRange(e[0], e[1]), (c, e) => c.AttachRange(e[0], e[1]), EntityState.Unchanged);
+            await TrackMultipleEntitiesTest((c, e) => c.AddRangeAsync(e[0], e[1]), (c, e) => c.AddRangeAsync(e[0], e[1]), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_updated()
+        public async Task Can_add_multiple_existing_entities_to_context_to_be_attached()
         {
-            TrackMultipleEntitiesTest((c, e) => c.UpdateRange(e[0], e[1]), (c, e) => c.UpdateRange(e[0], e[1]), EntityState.Modified);
+            await TrackMultipleEntitiesTest((c, e) => c.AttachRange(e[0], e[1]), (c, e) => c.AttachRange(e[0], e[1]), EntityState.Unchanged);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_deleted()
+        public async Task Can_add_multiple_existing_entities_to_context_to_be_updated()
         {
-            TrackMultipleEntitiesTest((c, e) => c.RemoveRange(e[0], e[1]), (c, e) => c.RemoveRange(e[0], e[1]), EntityState.Deleted);
+            await TrackMultipleEntitiesTest((c, e) => c.UpdateRange(e[0], e[1]), (c, e) => c.UpdateRange(e[0], e[1]), EntityState.Modified);
         }
 
-        private static void TrackMultipleEntitiesTest(
+        [Fact]
+        public async Task Can_add_multiple_existing_entities_to_context_to_be_deleted()
+        {
+            await TrackMultipleEntitiesTest((c, e) => c.RemoveRange(e[0], e[1]), (c, e) => c.RemoveRange(e[0], e[1]), EntityState.Deleted);
+        }
+
+        private static Task TrackMultipleEntitiesTest(
             Action<DbContext, object[]> categoryAdder,
             Action<DbContext, object[]> productAdder, EntityState expectedState)
+            => TrackMultipleEntitiesTest(
+                (c, e) =>
+                    {
+                        categoryAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                (c, e) =>
+                    {
+                        productAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                expectedState);
+
+        private static async Task TrackMultipleEntitiesTest(
+            Func<DbContext, object[], Task> categoryAdder,
+            Func<DbContext, object[], Task> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
@@ -479,8 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
                 var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
 
-                categoryAdder(context, new[] { category1, category2 });
-                productAdder(context, new[] { product1, product2 });
+                await categoryAdder(context, new[] { category1, category2 });
+                await productAdder(context, new[] { product1, product2 });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(category2, context.Entry(category2).Entity);
@@ -500,41 +549,55 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_existing_entities_with_default_value_to_context_to_be_deleted()
+        public async Task Can_add_existing_entities_with_default_value_to_context_to_be_deleted()
         {
-            TrackEntitiesDefaultValueTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+            await TrackEntitiesDefaultValueTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
         }
 
         [Fact]
-        public void Can_add_new_entities_with_default_value_to_context_with_graph_method()
+        public async Task Can_add_new_entities_with_default_value_to_context_with_graph_method()
         {
-            TrackEntitiesDefaultValueTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+            await TrackEntitiesDefaultValueTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_with_default_value_to_context_to_be_attached_with_graph_method()
+        public async Task Can_add_new_entities_with_default_value_to_context_with_graph_method_async()
         {
-            TrackEntitiesDefaultValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            await TrackEntitiesDefaultValueTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_with_default_value_to_context_to_be_updated_with_graph_method()
+        public async Task Can_add_existing_entities_with_default_value_to_context_to_be_attached_with_graph_method()
         {
-            TrackEntitiesDefaultValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            await TrackEntitiesDefaultValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
         }
 
-        // Issue #3890
-        private static void TrackEntitiesDefaultValueTest(
+        [Fact]
+        public async Task Can_add_existing_entities_with_default_value_to_context_to_be_updated_with_graph_method()
+        {
+            await TrackEntitiesDefaultValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
+        }
+
+        private static Task TrackEntitiesDefaultValueTest(
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
             Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            => TrackEntitiesDefaultValueTest(
+                (c, e) => Task.FromResult(categoryAdder(c, e)),
+                (c, e) => Task.FromResult(productAdder(c, e)),
+                expectedState);
+
+        // Issue #3890
+        private static async Task TrackEntitiesDefaultValueTest(
+            Func<DbContext, Category, Task<EntityEntry<Category>>> categoryAdder,
+            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
                 var category1 = new Category { Id = 0, Name = "Beverages" };
                 var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
-                var categoryEntry1 = categoryAdder(context, category1);
-                var productEntry1 = productAdder(context, product1);
+                var categoryEntry1 = await categoryAdder(context, category1);
+                var productEntry1 = await productAdder(context, product1);
 
                 Assert.Same(category1, categoryEntry1.Entity);
                 Assert.Same(product1, productEntry1.Entity);
@@ -551,41 +614,63 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_multiple_new_entities_with_default_values_to_context()
+        public async Task Can_add_multiple_new_entities_with_default_values_to_context()
         {
-            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRange(e[0]), (c, e) => c.AddRange(e[0]), EntityState.Added);
+            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRange(e[0]), (c, e) => c.AddRange(e[0]), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached()
+        public async Task Can_add_multiple_new_entities_with_default_values_to_context_async()
         {
-            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AttachRange(e[0]), (c, e) => c.AttachRange(e[0]), EntityState.Unchanged);
+            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRangeAsync(e[0]), (c, e) => c.AddRangeAsync(e[0]), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated()
+        public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached()
         {
-            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.UpdateRange(e[0]), (c, e) => c.UpdateRange(e[0]), EntityState.Modified);
+            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AttachRange(e[0]), (c, e) => c.AttachRange(e[0]), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted()
+        public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated()
         {
-            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.RemoveRange(e[0]), (c, e) => c.RemoveRange(e[0]), EntityState.Deleted);
+            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.UpdateRange(e[0]), (c, e) => c.UpdateRange(e[0]), EntityState.Added);
         }
 
-        // Issue #3890
-        private static void TrackMultipleEntitiesDefaultValuesTest(
+        [Fact]
+        public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted()
+        {
+            await TrackMultipleEntitiesDefaultValuesTest((c, e) => c.RemoveRange(e[0]), (c, e) => c.RemoveRange(e[0]), EntityState.Deleted);
+        }
+
+        private static Task TrackMultipleEntitiesDefaultValuesTest(
             Action<DbContext, object[]> categoryAdder,
             Action<DbContext, object[]> productAdder, EntityState expectedState)
+            => TrackMultipleEntitiesDefaultValuesTest(
+                (c, e) =>
+                    {
+                        categoryAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                (c, e) =>
+                    {
+                        productAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                expectedState);
+
+        // Issue #3890
+        private static async Task TrackMultipleEntitiesDefaultValuesTest(
+            Func<DbContext, object[], Task> categoryAdder,
+            Func<DbContext, object[], Task> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
                 var category1 = new Category { Id = 0, Name = "Beverages" };
                 var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
-                categoryAdder(context, new[] { category1 });
-                productAdder(context, new[] { product1 });
+                await categoryAdder(context, new[] { category1 });
+                await productAdder(context, new[] { product1 });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(product1, context.Entry(product1).Entity);
@@ -602,6 +687,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_no_new_entities_to_context()
         {
             TrackNoEntitiesTest(c => c.AddRange(), c => c.AddRange());
+        }
+
+        [Fact]
+        public async Task Can_add_no_new_entities_to_context_async()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
+            {
+                await context.AddRangeAsync();
+                await context.AddRangeAsync();
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
         }
 
         [Fact]
@@ -633,32 +729,46 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_existing_entities_to_context_to_be_deleted_non_generic()
+        public async Task Can_add_existing_entities_to_context_to_be_deleted_non_generic()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+            await TrackEntitiesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
         }
 
         [Fact]
-        public void Can_add_new_entities_to_context_non_generic_graph()
+        public async Task Can_add_new_entities_to_context_non_generic_graph()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+            await TrackEntitiesTestNonGeneric((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_to_context_to_be_attached_non_generic_graph()
+        public async Task Can_add_new_entities_to_context_non_generic_graph_async()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            await TrackEntitiesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_to_context_to_be_updated_non_generic_graph()
+        public async Task Can_add_existing_entities_to_context_to_be_attached_non_generic_graph()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            await TrackEntitiesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
-        private static void TrackEntitiesTestNonGeneric(
+        [Fact]
+        public async Task Can_add_existing_entities_to_context_to_be_updated_non_generic_graph()
+        {
+            await TrackEntitiesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+        }
+
+        private static Task TrackEntitiesTestNonGeneric(
             Func<DbContext, object, EntityEntry> categoryAdder,
             Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
+            => TrackEntitiesTestNonGeneric(
+                (c, e) => Task.FromResult(categoryAdder(c, e)),
+                (c, e) => Task.FromResult(productAdder(c, e)),
+                expectedState);
+
+        private static async Task TrackEntitiesTestNonGeneric(
+            Func<DbContext, object, Task<EntityEntry>> categoryAdder,
+            Func<DbContext, object, Task<EntityEntry>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
@@ -667,10 +777,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
                 var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
 
-                var categoryEntry1 = categoryAdder(context, category1);
-                var categoryEntry2 = categoryAdder(context, category2);
-                var productEntry1 = productAdder(context, product1);
-                var productEntry2 = productAdder(context, product2);
+                var categoryEntry1 = await categoryAdder(context, category1);
+                var categoryEntry2 = await categoryAdder(context, category2);
+                var productEntry1 = await productAdder(context, product1);
+                var productEntry2 = await productAdder(context, product2);
 
                 Assert.Same(category1, categoryEntry1.Entity);
                 Assert.Same(category2, categoryEntry2.Entity);
@@ -695,32 +805,54 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_deleted_Enumerable()
+        public async Task Can_add_multiple_existing_entities_to_context_to_be_deleted_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
         }
 
         [Fact]
-        public void Can_add_multiple_new_entities_to_context_Enumerable_graph()
+        public async Task Can_add_multiple_new_entities_to_context_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable_graph()
+        public async Task Can_add_multiple_new_entities_to_context_Enumerable_graph_async()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Unchanged);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRangeAsync(e), (c, e) => c.AddRangeAsync(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_updated_Enumerable_graph()
+        public async Task Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Modified);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Unchanged);
         }
 
-        private static void TrackMultipleEntitiesTestEnumerable(
+        [Fact]
+        public async Task Can_add_multiple_existing_entities_to_context_to_be_updated_Enumerable_graph()
+        {
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Modified);
+        }
+
+        private static Task TrackMultipleEntitiesTestEnumerable(
             Action<DbContext, IEnumerable<object>> categoryAdder,
             Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
+            => TrackMultipleEntitiesTestEnumerable(
+                (c, e) =>
+                    {
+                        categoryAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                (c, e) =>
+                    {
+                        productAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                expectedState);
+
+        private static async Task TrackMultipleEntitiesTestEnumerable(
+            Func<DbContext, IEnumerable<object>, Task> categoryAdder,
+            Func<DbContext, IEnumerable<object>, Task> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
@@ -729,8 +861,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
                 var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
 
-                categoryAdder(context, new List<Category> { category1, category2 });
-                productAdder(context, new List<Product> { product1, product2 });
+                await categoryAdder(context, new List<Category> { category1, category2 });
+                await productAdder(context, new List<Product> { product1, product2 });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(category2, context.Entry(category2).Entity);
@@ -750,41 +882,55 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_existing_entities_with_default_value_to_context_to_be_deleted_non_generic()
+        public async Task Can_add_existing_entities_with_default_value_to_context_to_be_deleted_non_generic()
         {
-            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
         }
 
         [Fact]
-        public void Can_add_new_entities_with_default_value_to_context_non_generic_graph()
+        public async Task Can_add_new_entities_with_default_value_to_context_non_generic_graph()
         {
-            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_with_default_value_to_context_to_be_attached_non_generic_graph()
+        public async Task Can_add_new_entities_with_default_value_to_context_non_generic_graph_async()
         {
-            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_existing_entities_with_default_value_to_context_to_be_updated_non_generic_graph()
+        public async Task Can_add_existing_entities_with_default_value_to_context_to_be_attached_non_generic_graph()
         {
-            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
         }
 
-        // Issue #3890
-        private static void TrackEntitiesDefaultValuesTestNonGeneric(
+        [Fact]
+        public async Task Can_add_existing_entities_with_default_value_to_context_to_be_updated_non_generic_graph()
+        {
+            await TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
+        }
+
+        private static Task TrackEntitiesDefaultValuesTestNonGeneric(
             Func<DbContext, object, EntityEntry> categoryAdder,
             Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
+            => TrackEntitiesDefaultValuesTestNonGeneric(
+                (c, e) => Task.FromResult(categoryAdder(c, e)),
+                (c, e) => Task.FromResult(productAdder(c, e)),
+                expectedState);
+
+        // Issue #3890
+        private static async Task TrackEntitiesDefaultValuesTestNonGeneric(
+            Func<DbContext, object, Task<EntityEntry>> categoryAdder,
+            Func<DbContext, object, Task<EntityEntry>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
                 var category1 = new Category { Id = 0, Name = "Beverages" };
                 var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
-                var categoryEntry1 = categoryAdder(context, category1);
-                var productEntry1 = productAdder(context, product1);
+                var categoryEntry1 = await categoryAdder(context, category1);
+                var productEntry1 = await productAdder(context, product1);
 
                 Assert.Same(category1, categoryEntry1.Entity);
                 Assert.Same(product1, productEntry1.Entity);
@@ -801,41 +947,63 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted_Enumerable()
+        public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted_Enumerable()
         {
-            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
+            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
         }
 
         [Fact]
-        public void Can_add_multiple_new_entities_with_default_values_to_context_Enumerable_graph()
+        public async Task Can_add_multiple_new_entities_with_default_values_to_context_Enumerable_graph()
         {
-            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
+            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached_Enumerable_graph()
+        public async Task Can_add_multiple_new_entities_with_default_values_to_context_Enumerable_graph_async()
         {
-            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Unchanged);
+            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AddRangeAsync(e), (c, e) => c.AddRangeAsync(e), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated_Enumerable_graph()
+        public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached_Enumerable_graph()
         {
-            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Modified);
+            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Added);
         }
 
-        // Issue #3890
-        private static void TrackMultipleEntitiesDefaultValueTestEnumerable(
+        [Fact]
+        public async Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated_Enumerable_graph()
+        {
+            await TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Added);
+        }
+
+        private static Task TrackMultipleEntitiesDefaultValueTestEnumerable(
             Action<DbContext, IEnumerable<object>> categoryAdder,
             Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
+            => TrackMultipleEntitiesDefaultValueTestEnumerable(
+                (c, e) =>
+                    {
+                        categoryAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                (c, e) =>
+                    {
+                        productAdder(c, e);
+                        return Task.FromResult(0);
+                    },
+                expectedState);
+
+        // Issue #3890
+        private static async Task TrackMultipleEntitiesDefaultValueTestEnumerable(
+            Func<DbContext, IEnumerable<object>, Task> categoryAdder,
+            Func<DbContext, IEnumerable<object>, Task> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
                 var category1 = new Category { Id = 0, Name = "Beverages" };
                 var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
-                categoryAdder(context, new List<Category> { category1 });
-                productAdder(context, new List<Product> { product1 });
+                await categoryAdder(context, new List<Category> { category1 });
+                await productAdder(context, new List<Product> { product1 });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(product1, context.Entry(product1).Entity);
@@ -858,6 +1026,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_no_new_entities_to_context_Enumerable_graph()
         {
             TrackNoEntitiesTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e));
+        }
+
+        [Fact]
+        public async Task Can_add_no_new_entities_to_context_Enumerable_graph_async()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
+            {
+                await context.AddRangeAsync(new HashSet<Category>());
+                await context.AddRangeAsync(new HashSet<Product>());
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
         }
 
         [Fact]
@@ -884,21 +1063,27 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-        [Fact]
-        public void Can_add_new_entities_to_context_with_key_generation_graph()
-        {
-            TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e).Entity);
-        }
-
-        private static void TrackEntitiesWithKeyGenerationTest(Func<DbContext, TheGu, TheGu> adder)
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Can_add_new_entities_to_context_with_key_generation_graph(bool async)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
                 var gu1 = new TheGu { ShirtColor = "Red" };
                 var gu2 = new TheGu { ShirtColor = "Still Red" };
 
-                Assert.Same(gu1, adder(context, gu1));
-                Assert.Same(gu2, adder(context, gu2));
+                if (async)
+                {
+                    Assert.Same(gu1, (await context.AddAsync(gu1)).Entity);
+                    Assert.Same(gu2, (await context.AddAsync(gu2)).Entity);
+                }
+                else
+                {
+                    Assert.Same(gu1, context.Add(gu1).Entity);
+                    Assert.Same(gu2, context.Add(gu2).Entity);
+                }
+
                 Assert.NotEqual(default(Guid), gu1.Id);
                 Assert.NotEqual(default(Guid), gu2.Id);
                 Assert.NotEqual(gu1.Id, gu2.Id);
@@ -914,46 +1099,71 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Can_use_Remove_to_change_entity_state()
+        public async Task Can_use_Remove_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Detached, EntityState.Deleted);
-            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Unchanged, EntityState.Deleted);
-            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Deleted, EntityState.Deleted);
-            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Modified, EntityState.Deleted);
-            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Added, EntityState.Detached);
+            await ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Detached, EntityState.Deleted);
+            await ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Unchanged, EntityState.Deleted);
+            await ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Deleted, EntityState.Deleted);
+            await ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Modified, EntityState.Deleted);
+            await ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Added, EntityState.Detached);
         }
 
         [Fact]
-        public void Can_use_graph_Add_to_change_entity_state()
+        public async Task Can_use_graph_Add_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Detached, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Unchanged, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Deleted, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Modified, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Added, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Detached, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Unchanged, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Deleted, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Modified, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Added, EntityState.Added);
         }
 
         [Fact]
-        public void Can_use_graph_Attach_to_change_entity_state()
+        public async Task Can_use_graph_Add_to_change_entity_state_async()
         {
-            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Detached, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Deleted, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Modified, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Added, EntityState.Unchanged);
+            await ChangeStateWithMethod((c, e) => c.AddAsync(e), EntityState.Detached, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.AddAsync(e), EntityState.Unchanged, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.AddAsync(e), EntityState.Deleted, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.AddAsync(e), EntityState.Modified, EntityState.Added);
+            await ChangeStateWithMethod((c, e) => c.AddAsync(e), EntityState.Added, EntityState.Added);
         }
 
         [Fact]
-        public void Can_use_graph_Update_to_change_entity_state()
+        public async Task Can_use_graph_Attach_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Detached, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Unchanged, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Deleted, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Modified, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Added, EntityState.Modified);
+            await ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Detached, EntityState.Unchanged);
+            await ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
+            await ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Deleted, EntityState.Unchanged);
+            await ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Modified, EntityState.Unchanged);
+            await ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Added, EntityState.Unchanged);
         }
 
-        private void ChangeStateWithMethod(Action<DbContext, object> action, EntityState initialState, EntityState expectedState)
+        [Fact]
+        public async Task Can_use_graph_Update_to_change_entity_state()
+        {
+            await ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Detached, EntityState.Modified);
+            await ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Unchanged, EntityState.Modified);
+            await ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Deleted, EntityState.Modified);
+            await ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Modified, EntityState.Modified);
+            await ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Added, EntityState.Modified);
+        }
+
+        private Task ChangeStateWithMethod(
+            Action<DbContext, object> action,
+            EntityState initialState,
+            EntityState expectedState)
+            => ChangeStateWithMethod((c, e) =>
+                {
+                    action(c, e);
+                    return Task.FromResult(0);
+                },
+                initialState,
+                expectedState);
+
+        private async Task ChangeStateWithMethod(
+            Func<DbContext, object, Task> action,
+            EntityState initialState,
+            EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
@@ -962,7 +1172,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 entry.State = initialState;
 
-                action(context, entity);
+                await action(context, entity);
 
                 Assert.Equal(expectedState, entry.State);
             }
@@ -1743,11 +1953,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(
+                new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
-                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                .Returns(new NoopModelValidator());
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
@@ -1787,11 +1999,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
-                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                .Returns(new NoopModelValidator());
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
@@ -1835,11 +2048,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
+                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
-                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                .Returns(new NoopModelValidator());
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
@@ -1904,8 +2118,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<IMemberMapper, MemberMapper>()
-                .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<DatabaseProviderSelector>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
@@ -2134,10 +2346,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class FakeEntityMaterializerSource : EntityMaterializerSource
         {
-            public FakeEntityMaterializerSource(IMemberMapper memberMapper)
-                : base(memberMapper)
-            {
-            }
         }
 
         private class FakeLoggerFactory : ILoggerFactory
@@ -4125,12 +4333,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
                 .Options;
 
-            using (var context = new ConstructorTestContextWithSets(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(() => new ConstructorTestContextWithSets(options)).Message);
         }
 
         [Fact]
@@ -4145,11 +4350,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>();
-
                 Assert.Equal(
                     CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>()).Message);
             }
         }
 
@@ -4160,12 +4364,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
                 .Options;
 
-            using (var context = new ConstructorTestContext1A(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(() => new ConstructorTestContext1A(options)).Message);
         }
 
         [Fact]
@@ -4180,11 +4381,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
-
                 Assert.Equal(
                     CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
             }
         }
 
@@ -4317,6 +4517,199 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Can_replace_services_in_OnConfiguring()
+        {
+            object replacedSingleton;
+            object replacedScoped;
+            object replacedProviderService;
+
+            using (var context = new ReplaceServiceContext1())
+            {
+                Assert.NotNull(replacedSingleton = context.GetService<IModelCustomizer>());
+                Assert.IsType<CustomModelCustomizer>(replacedSingleton);
+
+                Assert.NotNull(replacedScoped = context.GetService<IValueGeneratorSelector>());
+                Assert.IsType<CustomInMemoryValueGeneratorSelector>(replacedScoped);
+
+                Assert.NotNull(replacedProviderService = context.GetService<IInMemoryTableFactory>());
+                Assert.IsType<CustomInMemoryTableFactory>(replacedProviderService);
+            }
+
+            using (var context = new ReplaceServiceContext1())
+            {
+                Assert.Same(replacedSingleton, context.GetService<IModelCustomizer>());
+                Assert.NotSame(replacedScoped, context.GetService<IValueGeneratorSelector>());
+                Assert.Same(replacedProviderService, context.GetService<IInMemoryTableFactory>());
+            }
+        }
+
+        private class ReplaceServiceContext1 : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                    .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
+                    .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                    .UseInMemoryDatabase();
+        }
+
+        private class CustomModelCustomizer : ModelCustomizer
+        {
+        }
+
+        private class CustomInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
+        {
+            public CustomInMemoryValueGeneratorSelector(IValueGeneratorCache cache)
+                : base(cache)
+            {
+            }
+        }
+
+        private class CustomInMemoryTableFactory : InMemoryTableFactory
+        {
+        }
+
+        [Fact]
+        public void Can_replace_services_in_passed_options()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
+                .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                .Options;
+
+            object replacedSingleton;
+            object replacedScoped;
+            object replacedProviderService;
+
+            using (var context = new ConstructorTestContextWithOC3A(options))
+            {
+                Assert.NotNull(replacedSingleton = context.GetService<IModelCustomizer>());
+                Assert.IsType<CustomModelCustomizer>(replacedSingleton);
+
+                Assert.NotNull(replacedScoped = context.GetService<IValueGeneratorSelector>());
+                Assert.IsType<CustomInMemoryValueGeneratorSelector>(replacedScoped);
+
+                Assert.NotNull(replacedProviderService = context.GetService<IInMemoryTableFactory>());
+                Assert.IsType<CustomInMemoryTableFactory>(replacedProviderService);
+            }
+
+            using (var context = new ConstructorTestContextWithOC3A(options))
+            {
+                Assert.Same(replacedSingleton, context.GetService<IModelCustomizer>());
+                Assert.NotSame(replacedScoped, context.GetService<IValueGeneratorSelector>());
+                Assert.Same(replacedProviderService, context.GetService<IInMemoryTableFactory>());
+            }
+        }
+
+        [Fact]
+        public void Can_replace_services_using_AddDbContext()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    b => b.ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                        .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
+                        .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                        .UseInMemoryDatabase())
+                .BuildServiceProvider();
+
+            object replacedSingleton;
+            object replacedScoped;
+            object replacedProviderService;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.NotNull(replacedSingleton = context.GetService<IModelCustomizer>());
+                Assert.IsType<CustomModelCustomizer>(replacedSingleton);
+
+                Assert.NotNull(replacedScoped = context.GetService<IValueGeneratorSelector>());
+                Assert.IsType<CustomInMemoryValueGeneratorSelector>(replacedScoped);
+
+                Assert.NotNull(replacedProviderService = context.GetService<IInMemoryTableFactory>());
+                Assert.IsType<CustomInMemoryTableFactory>(replacedProviderService);
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.Same(replacedSingleton, context.GetService<IModelCustomizer>());
+                Assert.NotSame(replacedScoped, context.GetService<IValueGeneratorSelector>());
+                Assert.Same(replacedProviderService, context.GetService<IInMemoryTableFactory>());
+            }
+        }
+
+        [Fact]
+        public void Throws_replacing_services_in_OnConfiguring_when_UseInternalServiceProvider()
+        {
+            using (var context = new ReplaceServiceContext2())
+            {
+                Assert.Equal(
+                    CoreStrings.InvalidReplaceService(
+                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        private class ReplaceServiceContext2 : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
+                    .UseInternalServiceProvider(new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .BuildServiceProvider())
+                    .UseInMemoryDatabase();
+        }
+
+        [Fact]
+        public void Throws_replacing_services_in_options_when_UseInternalServiceProvider()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(new ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .BuildServiceProvider())
+                .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                .Options;
+
+            Assert.Equal(
+                CoreStrings.InvalidReplaceService(
+                    nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                Assert.Throws<InvalidOperationException>(() => new ConstructorTestContextWithOC3A(options)).Message);
+        }
+
+        [Fact]
+        public void Throws_replacing_services_with_AddDbContext_when_UseInternalServiceProvider()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    (p, b) => b.ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
+                        .UseInMemoryDatabase()
+                        .UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                Assert.Equal(
+                    CoreStrings.InvalidReplaceService(
+                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
             }
         }
 
@@ -4536,9 +4929,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             Assert.Equal(3, services.GetServices<DbContextOptions>().Count());
             Assert.Equal(2, services.GetServices<DbContextOptions>()
-                            .Select(o => o.ContextType)
-                            .Distinct()
-                            .Count());
+                .Select(o => o.ContextType)
+                .Distinct()
+                .Count());
         }
 
         [Fact]
@@ -4813,7 +5206,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Add_Attach_Remove_Update_do_not_call_DetectChanges()
+        public async Task Add_Attach_Remove_Update_do_not_call_DetectChanges()
         {
             var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new ButTheHedgehogContext(provider))
@@ -4830,6 +5223,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 context.AddRange(new Product { Id = id++, Name = "Little Hedgehogs" });
                 context.AddRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
                 context.AddRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                await context.AddAsync(new Product { Id = id++, Name = "Little Hedgehogs" });
+                await context.AddAsync((object)new Product { Id = id++, Name = "Little Hedgehogs" });
+                await context.AddRangeAsync(new Product { Id = id++, Name = "Little Hedgehogs" });
+                await context.AddRangeAsync(new Product { Id = id++, Name = "Little Hedgehogs" });
+                await context.AddRangeAsync(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                await context.AddRangeAsync(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
                 context.Attach(new Product { Id = id++, Name = "Little Hedgehogs" });
                 context.Attach((object)new Product { Id = id++, Name = "Little Hedgehogs" });
                 context.AttachRange(new Product { Id = id++, Name = "Little Hedgehogs" });
@@ -4896,14 +5295,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             // methods (tests all paths)
             Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
+            Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77));
             Assert.Throws<ObjectDisposedException>(() => context.Attach(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.Update(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.Remove(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.SaveChanges());
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77));
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 27;
+            var expectedMethodCount = 37;
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
@@ -5047,8 +5449,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class TestAssembly
         {
-            [System.ComponentModel.DataAnnotations.Key]
+            [Key]
             public string Name { get; set; }
+
             public ICollection<TestClass> Classes { get; } = new List<TestClass>();
         }
 
@@ -5078,21 +5481,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 modelBuilder.Entity<TestClass>(
                     x =>
-                    {
-                        x.Property<string>("AssemblyName");
-                        x.HasKey("AssemblyName", nameof(TestClass.Name));
-                        x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
-                            .HasForeignKey("AssemblyName");
-                    });
+                        {
+                            x.Property<string>("AssemblyName");
+                            x.HasKey("AssemblyName", nameof(TestClass.Name));
+                            x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
+                                .HasForeignKey("AssemblyName");
+                        });
 
                 modelBuilder.Entity<Test>(
                     x =>
-                    {
-                        x.Property<string>("AssemblyName");
-                        x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
-                        x.HasOne(t => t.Class).WithMany(c => c.Tests)
-                            .HasForeignKey("AssemblyName", "ClassName");
-                    });
+                        {
+                            x.Property<string>("AssemblyName");
+                            x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
+                            x.HasOne(t => t.Class).WithMany(c => c.Tests)
+                                .HasForeignKey("AssemblyName", "ClassName");
+                        });
             }
         }
     }

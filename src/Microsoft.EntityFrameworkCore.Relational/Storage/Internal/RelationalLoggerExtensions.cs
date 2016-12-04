@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
@@ -38,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     = command.Parameters.Count > 0
                       && logger.LogSensitiveData;
 
+#pragma warning disable 618
                 var logData = new DbCommandLogData(
+#pragma warning restore 618
                     command.CommandText.TrimEnd(),
                     command.CommandType,
                     command.CommandTimeout,
@@ -68,9 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                             var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
 
                             return RelationalStrings.RelationalLoggerExecutedCommand(
-                                string.Format(
-                                    CultureInfo.InvariantCulture,
-                                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", elapsedMilliseconds)),
+                                string.Format(CultureInfo.InvariantCulture, "{0:N0}", elapsedMilliseconds),
                                 state.Parameters
                                     // Interpolation okay here because value is always a string.
                                     .Select(p => $"{p.Name}={p.FormatParameter()}")
@@ -128,7 +129,24 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void LogInformation(
+            [NotNull] this ILogger logger,
+            RelationalEventId eventId,
+            [NotNull] Func<string> formatter)
+        {
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.Log<object>(LogLevel.Information, (int)eventId, null, null, (_, __) => formatter());
+            }
+        }
+
+        private static readonly double TimestampToMilliseconds = (double)TimeSpan.TicksPerSecond / (Stopwatch.Frequency * TimeSpan.TicksPerMillisecond);
+
         private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
-            => (currentTimestamp - startTimestamp) / TimeSpan.TicksPerMillisecond;
+            => (long)((currentTimestamp - startTimestamp) * TimestampToMilliseconds);
     }
 }

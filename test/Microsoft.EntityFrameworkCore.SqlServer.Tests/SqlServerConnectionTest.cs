@@ -34,6 +34,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
+        public void Master_connection_string_contains_filename()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;AttachDBFilename=C:\Narf.mdf");
+
+            using (var connection = new SqlServerConnection(optionsBuilder.Options, new Logger<SqlServerConnection>(new LoggerFactory())))
+            {
+                using (var master = connection.CreateMasterConnection())
+                {
+                    Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
+                }
+            }
+        }
+
+        [Fact]
         public void Master_connection_string_none_default_command_timeout()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

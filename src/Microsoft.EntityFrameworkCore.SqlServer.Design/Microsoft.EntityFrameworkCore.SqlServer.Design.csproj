@@ -49,9 +49,6 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\PropertyInfoExtensions.cs">
       <Link>PropertyInfoExtensions.cs</Link>
     </Compile>
@@ -61,6 +58,8 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
+    <Compile Include="Infrastructure\SqlServerDesignEventId.cs" />
+    <Compile Include="Internal\SqlServerDesignLoggerExtensions.cs" />
     <Compile Include="Metadata\Internal\SqlServerColumnModelAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerDatabaseModelAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\SqlServerDatabaseModelAnnotations.cs" />

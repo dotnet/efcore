@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual IDbContextTransaction CurrentTransaction => null;
 
-        private void LogWarning()
+        protected virtual void LogWarning()
         {
             _logger.LogWarning(
                 InMemoryEventId.TransactionIgnoredWarning,

@@ -11,6 +11,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryNavigationsSqlServerTest : QueryNavigationsTestBase<NorthwindQuerySqlServerFixture>
     {
+        public QueryNavigationsSqlServerTest(
+            NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+            : base(fixture)
+        {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
         public override void Select_Where_Navigation()
         {
             base.Select_Where_Navigation();
@@ -19,20 +26,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE [o.Customer].[City] = N'Seattle'",
                 Sql);
+        }
+
+        public override void Select_Where_Navigation_Contains()
+        {
+            base.Select_Where_Navigation_Contains();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE CHARINDEX(N'Sea', [o.Customer].[City]) > 0",
+            Sql);
         }
 
         public override void Select_Where_Navigation_Deep()
         {
             base.Select_Where_Navigation_Deep();
 
-            Assert.StartsWith(
-                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order].[OrderID], [od.Order].[CustomerID], [od.Order].[EmployeeID], [od.Order].[OrderDate], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
+            Assert.Equal(
+                @"@__p_0: 1
+
+SELECT TOP(@__p_0) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
-ORDER BY [od].[OrderID], [od].[ProductID], [od.Order].[CustomerID]",
+WHERE [od.Order.Customer].[City] = N'Seattle'
+ORDER BY [od].[OrderID], [od].[ProductID]",
                 Sql);
         }
 
@@ -40,18 +62,28 @@ ORDER BY [od].[OrderID], [od].[ProductID], [od.Order].[CustomerID]",
         {
             base.Take_Select_Navigation();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__p_0: 2
 
 SELECT [t].[CustomerID]
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]
+ORDER BY [t].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-",
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -70,7 +102,9 @@ SELECT (
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
-) AS [t]",
+    ORDER BY [c0].[CustomerID]
+) AS [t]
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -89,7 +123,9 @@ SELECT (
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
-) AS [t]",
+    ORDER BY [c0].[CustomerID]
+) AS [t]
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -97,20 +133,28 @@ FROM (
         {
             base.Select_collection_FirstOrDefault_project_anonymous_type();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__p_0: 2
 
 SELECT [t].[CustomerID]
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]
+ORDER BY [t].[CustomerID]
 
-SELECT [o].[CustomerID], [o].[OrderID]
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
 
-SELECT [o].[CustomerID], [o].[OrderID]
-FROM [Orders] AS [o]",
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -118,20 +162,28 @@ FROM [Orders] AS [o]",
         {
             base.Select_collection_FirstOrDefault_project_entity();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__p_0: 2
 
 SELECT [t].[CustomerID]
 FROM (
     SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
+    ORDER BY [c0].[CustomerID]
 ) AS [t]
+ORDER BY [t].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -166,7 +218,22 @@ ORDER BY [o].[OrderID]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE [o.Customer].[City] = N'Seattle'",
+                Sql);
+        }
+
+        public override void Include_with_multiple_optional_navigations()
+        {
+            base.Include_with_multiple_optional_navigations();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [od.Order.Customer].[City] = N'London'",
                 Sql);
         }
 
@@ -177,8 +244,7 @@ ORDER BY [o].[CustomerID]",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
                 Sql);
         }
 
@@ -189,8 +255,7 @@ ORDER BY [o].[CustomerID]",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
                 Sql);
         }
 
@@ -202,7 +267,7 @@ ORDER BY [o].[CustomerID]",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE (([o.Customer].[City] = N'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> N'555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -214,7 +279,7 @@ ORDER BY [o].[CustomerID]",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE (([o.Customer].[City] = N'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> N'555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -225,8 +290,7 @@ ORDER BY [o].[CustomerID]",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
                 Sql);
         }
 
@@ -238,7 +302,7 @@ ORDER BY [o].[CustomerID]",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE (([o.Customer].[City] = N'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> N'555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -246,7 +310,7 @@ ORDER BY [o].[CustomerID]",
         {
             base.Select_count_plus_sum();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT (
     SELECT SUM([od0].[Quantity])
     FROM [Order Details] AS [od0]
@@ -268,7 +332,7 @@ FROM [Orders] AS [o]",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE (([o.Customer].[City] = N'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> N'555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -276,8 +340,13 @@ ORDER BY [o].[CustomerID]",
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();
 
-            Assert.StartsWith(
-                @"",
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+CROSS JOIN [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]
+WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].[City] = [o.Customer1].[City]) OR ([o.Customer].[City] IS NULL AND [o.Customer1].[City] IS NULL))",
                 Sql);
         }
 
@@ -285,8 +354,13 @@ ORDER BY [o].[CustomerID]",
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
 
-            Assert.StartsWith(
-                @"",
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region], [o0].[CustomerID]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+CROSS JOIN [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]
+WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].[City] = [o.Customer1].[City]) OR ([o.Customer].[City] IS NULL AND [o.Customer1].[City] IS NULL))",
                 Sql);
         }
 
@@ -321,7 +395,7 @@ WHERE [e].[ReportsTo] IS NULL",
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [e.Manager].[EmployeeID], [e.Manager].[City], [e.Manager].[Country], [e.Manager].[FirstName], [e.Manager].[ReportsTo], [e.Manager].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e.Manager] ON [e].[ReportsTo] = [e.Manager].[EmployeeID]
-ORDER BY [e].[ReportsTo]",
+WHERE [e.Manager].[ReportsTo] IS NULL",
                 Sql);
         }
 
@@ -343,19 +417,32 @@ WHERE [e].[ReportsTo] IS NULL",
             Assert.Equal(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%'
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANTON (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: AROUT (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -368,7 +455,6 @@ FROM [Orders] AS [o]",
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'
-ORDER BY [o].[CustomerID]
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
@@ -463,7 +549,7 @@ WHERE EXISTS (
         WHEN NOT EXISTS (
             SELECT 1
             FROM [Orders] AS [o0]
-            WHERE (([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) AND NOT (([o0].[CustomerID] = N'ALFKI') AND [o0].[CustomerID] IS NOT NULL))
+            WHERE (([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) AND (([o0].[CustomerID] <> N'ALFKI') OR [o0].[CustomerID] IS NULL))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -478,9 +564,19 @@ FROM [Customers] AS [c]",
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]",
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]",
                 Sql);
         }
 
@@ -494,7 +590,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND NOT (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL))",
+    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND (([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL))",
                 Sql);
         }
 
@@ -505,9 +601,19 @@ WHERE NOT EXISTS (
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -618,7 +724,7 @@ END, [o].[OrderID], (
     WHERE [o].[OrderID] = [o3].[OrderID]
 )
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] LIKE N'A' + N'%'",
+WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1)",
                 Sql);
         }
 
@@ -655,13 +761,22 @@ WHERE (
         {
             base.Collection_select_nav_prop_first_or_default();
 
-            // TODO: Projection sub-query lifting
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -669,23 +784,25 @@ FROM [Orders] AS [o]",
         {
             base.Collection_select_nav_prop_first_or_default_then_nav_prop();
 
-            // TODO: Projection sub-query lifting
             Assert.StartsWith(
                 @"SELECT [e].[CustomerID]
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%'
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)
+ORDER BY [e].[CustomerID]
 
-SELECT [e0].[OrderID], [e0].[CustomerID], [e0].[EmployeeID], [e0].[OrderDate], [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
 LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
-WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
-ORDER BY [e0].[CustomerID]
+WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_CustomerID = [e0].[CustomerID])
 
-SELECT [e0].[OrderID], [e0].[CustomerID], [e0].[EmployeeID], [e0].[OrderDate], [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
 LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
-WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
-ORDER BY [e0].[CustomerID]",
+WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_CustomerID = [e0].[CustomerID])",
                 Sql);
         }
 
@@ -696,19 +813,12 @@ ORDER BY [e0].[CustomerID]",
             Assert.StartsWith(
                 @"SELECT 1
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%'
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+SELECT TOP(1) [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE [o].[CustomerID] = N'ALFKI'
-ORDER BY [o].[CustomerID]
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE [o].[CustomerID] = N'ALFKI'
-ORDER BY [o].[CustomerID]",
+WHERE [o].[CustomerID] = N'ALFKI'",
                 Sql);
         }
 
@@ -719,19 +829,12 @@ ORDER BY [o].[CustomerID]",
             Assert.StartsWith(
                 @"SELECT 1
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%'
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+SELECT TOP(2) [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE [o].[OrderID] = 10643
-ORDER BY [o].[CustomerID]
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE [o].[OrderID] = 10643
-ORDER BY [o].[CustomerID]",
+WHERE [o].[OrderID] = 10643",
                 Sql);
         }
 
@@ -742,19 +845,12 @@ ORDER BY [o].[CustomerID]",
             Assert.StartsWith(
                 @"SELECT 1
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%'
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)
 
-SELECT [oo].[OrderID], [oo].[CustomerID], [oo].[EmployeeID], [oo].[OrderDate], [oo.Customer].[CustomerID], [oo.Customer].[Address], [oo.Customer].[City], [oo.Customer].[CompanyName], [oo.Customer].[ContactName], [oo.Customer].[ContactTitle], [oo.Customer].[Country], [oo.Customer].[Fax], [oo.Customer].[Phone], [oo.Customer].[PostalCode], [oo.Customer].[Region]
+SELECT TOP(1) [oo.Customer].[CustomerID], [oo.Customer].[Address], [oo.Customer].[City], [oo.Customer].[CompanyName], [oo.Customer].[ContactName], [oo.Customer].[ContactTitle], [oo.Customer].[Country], [oo.Customer].[Fax], [oo.Customer].[Phone], [oo.Customer].[PostalCode], [oo.Customer].[Region]
 FROM [Orders] AS [oo]
 LEFT JOIN [Customers] AS [oo.Customer] ON [oo].[CustomerID] = [oo.Customer].[CustomerID]
-WHERE [oo].[CustomerID] = N'ALFKI'
-ORDER BY [oo].[CustomerID]
-
-SELECT [oo].[OrderID], [oo].[CustomerID], [oo].[EmployeeID], [oo].[OrderDate], [oo.Customer].[CustomerID], [oo.Customer].[Address], [oo.Customer].[City], [oo.Customer].[CompanyName], [oo.Customer].[ContactName], [oo.Customer].[ContactTitle], [oo.Customer].[Country], [oo.Customer].[Fax], [oo.Customer].[Phone], [oo.Customer].[PostalCode], [oo.Customer].[Region]
-FROM [Orders] AS [oo]
-LEFT JOIN [Customers] AS [oo.Customer] ON [oo].[CustomerID] = [oo.Customer].[CustomerID]
-WHERE [oo].[CustomerID] = N'ALFKI'
-ORDER BY [oo].[CustomerID]",
+WHERE [oo].[CustomerID] = N'ALFKI'",
                 Sql);
         }
 
@@ -762,8 +858,16 @@ ORDER BY [oo].[CustomerID]",
         {
             base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby();
 
-            Assert.Equal(
-                @"",
+            Assert.StartsWith(
+                @"SELECT 1
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)
+
+SELECT TOP(1) [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -786,7 +890,7 @@ WHERE [o].[CustomerID] IN (N'ALFKI')",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE [o.Customer].[City] IN (N'Novigrad', N'Seattle')",
                 Sql);
         }
 
@@ -795,11 +899,11 @@ ORDER BY [o].[CustomerID]",
             base.Navigation_inside_contains_nested();
 
             Assert.Equal(
-                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order].[OrderID], [od.Order].[CustomerID], [od.Order].[EmployeeID], [od.Order].[OrderDate], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
-ORDER BY [od.Order].[CustomerID]",
+WHERE [od.Order.Customer].[City] IN (N'Novigrad', N'Seattle')",
                 Sql);
         }
 
@@ -808,11 +912,11 @@ ORDER BY [od.Order].[CustomerID]",
             base.Navigation_from_join_clause_inside_contains();
 
             Assert.Equal(
-                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+WHERE [o.Customer].[Country] IN (N'USA', N'Redania')",
                 Sql);
         }
 
@@ -867,17 +971,29 @@ WHERE EXISTS (
             Assert.StartsWith(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 
-SELECT [o3].[OrderID]
-FROM [Orders] AS [o3]
+SELECT [o4].[OrderID]
+FROM [Orders] AS [o4]
 
-SELECT [o2].[CustomerID], [o2].[OrderID]
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [o2].[OrderID]
 FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID = [o2].[CustomerID]
 
-SELECT [o3].[OrderID]
-FROM [Orders] AS [o3]",
+SELECT [o4].[OrderID]
+FROM [Orders] AS [o4]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT [o2].[OrderID]
+FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID = [o2].[CustomerID]
+
+SELECT [o4].[OrderID]
+FROM [Orders] AS [o4]",
                 Sql);
-
         }
 
         public override void Navigation_in_subquery_referencing_outer_query()
@@ -885,14 +1001,14 @@ FROM [Orders] AS [o3]",
             base.Navigation_in_subquery_referencing_outer_query();
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[Country]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
-INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE (
     SELECT COUNT(*)
     FROM [Order Details] AS [od]
     INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
-    INNER JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+    LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
     WHERE ([o.Customer].[Country] = [od.Order.Customer].[Country]) OR ([o.Customer].[Country] IS NULL AND [od.Order.Customer].[Country] IS NULL)
 ) > 0",
                 Sql);
@@ -906,7 +1022,7 @@ WHERE (
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o].[CustomerID]",
+ORDER BY [o.Customer].[City]",
                 Sql);
         }
 
@@ -928,7 +1044,129 @@ ORDER BY [od].[Quantity]",
             base.Let_group_by_nav_prop();
 
             Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order].[CustomerID]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+ORDER BY [od.Order].[CustomerID]",
+                Sql);
+        }
+
+        public override void Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default()
+        {
+            base.Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default();
+
+            Assert.Equal(
                 @"",
+                Sql);
+        }
+
+        public override void Project_single_scalar_value_subquery_is_properly_inlined()
+        {
+            base.Project_single_scalar_value_subquery_is_properly_inlined();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Project_single_entity_value_subquery_works()
+        {
+            base.Project_single_entity_value_subquery_works();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+ORDER BY [c].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_CustomerID: ANATR (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_CustomerID: ANTON (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_CustomerID: AROUT (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
+                Sql);
+        }
+
+        public override void Project_single_scalar_value_subquery_in_query_with_optional_navigation_works()
+        {
+            base.Project_single_scalar_value_subquery_in_query_with_optional_navigation_works();
+
+            Assert.Equal(
+                @"@__p_0: 3
+
+SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_OrderID: 10248
+
+SELECT TOP(1) [od1].[OrderID]
+FROM [Order Details] AS [od1]
+WHERE @_outer_OrderID = [od1].[OrderID]
+ORDER BY [od1].[OrderID], [od1].[ProductID]
+
+@_outer_OrderID: 10249
+
+SELECT TOP(1) [od1].[OrderID]
+FROM [Order Details] AS [od1]
+WHERE @_outer_OrderID = [od1].[OrderID]
+ORDER BY [od1].[OrderID], [od1].[ProductID]
+
+@_outer_OrderID: 10250
+
+SELECT TOP(1) [od1].[OrderID]
+FROM [Order Details] AS [od1]
+WHERE @_outer_OrderID = [od1].[OrderID]
+ORDER BY [od1].[OrderID], [od1].[ProductID]",
+                Sql);
+        }
+
+        public override void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
+        {
+            base.GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened();
+
+            Assert.Contains(
+                @"SELECT [t].[CustomerID]
+FROM (
+    SELECT [c20].*
+    FROM [Order Details] AS [od0]
+    INNER JOIN [Orders] AS [o0] ON [od0].[OrderID] = 10260
+    INNER JOIN [Customers] AS [c20] ON [o0].[CustomerID] = [c20].[CustomerID]
+) AS [t]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -938,11 +1176,5 @@ ORDER BY [od].[Quantity]",
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
-
-        public QueryNavigationsSqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
-        }
     }
 }

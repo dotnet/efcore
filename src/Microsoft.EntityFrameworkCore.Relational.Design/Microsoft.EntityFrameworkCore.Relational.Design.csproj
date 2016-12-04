@@ -48,9 +48,6 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\PropertyInfoExtensions.cs">
       <Link>PropertyInfoExtensions.cs</Link>
     </Compile>
@@ -66,6 +63,9 @@
     <Compile Include="Internal\CSharpUniqueNamer.cs" />
     <Compile Include="Internal\CSharpUtilities.cs" />
     <Compile Include="Internal\DbDataReaderExtension.cs" />
+    <Compile Include="Internal\IInternalDatabaseModelFactory.cs" />
+    <Compile Include="Infrastructure\RelationalDesignEventId.cs" />
+    <Compile Include="Internal\RelationalDesignLoggerExtensions.cs" />
     <Compile Include="IScaffoldingModelFactory.cs" />
     <Compile Include="Metadata\ColumnModel.cs" />
     <Compile Include="Metadata\DatabaseModel.cs" />

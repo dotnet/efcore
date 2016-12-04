@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal;
@@ -95,6 +98,103 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("People", addTableOperation.Name);
                     });
         }
+
+        [Fact]
+        public void Alter_table_to_MemoryOptimized()
+        {
+            Execute(
+                source => source.Entity(
+                    "Person",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").ForSqlServerIsClustered(false);
+                        }),
+                target => target.Entity(
+                    "Person",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").ForSqlServerIsClustered(false);
+                            x.ForSqlServerIsMemoryOptimized();
+                        }),
+                operations =>
+                    {
+                        var alterDatabaseOperation = operations.OfType<AlterDatabaseOperation>().Single();
+                        Assert.True(IsMemoryOptimized(alterDatabaseOperation));
+                        Assert.Null(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+
+                        var alterTableOperation = operations.OfType<AlterTableOperation>().Single();
+                        Assert.Equal("Person", alterTableOperation.Name);
+                        Assert.True(IsMemoryOptimized(alterTableOperation));
+                        Assert.Null(IsMemoryOptimized(alterTableOperation.OldTable));
+                    });
+        }
+
+        [Fact]
+        public void Alter_table_from_MemoryOptimized()
+        {
+            Execute(
+                source => source.Entity(
+                    "Person",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").ForSqlServerIsClustered(false);
+                            x.ForSqlServerIsMemoryOptimized();
+                        }),
+                target => target.Entity(
+                    "Person",
+                    x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").ForSqlServerIsClustered(false);
+                        }),
+                operations =>
+                    {
+                        var alterDatabaseOperation = operations.OfType<AlterDatabaseOperation>().Single();
+                        Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
+                        Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+
+                        var alterTableOperation = operations.OfType<AlterTableOperation>().Single();
+                        Assert.Equal("Person", alterTableOperation.Name);
+                        Assert.Null(IsMemoryOptimized(alterTableOperation));
+                        Assert.True(IsMemoryOptimized(alterTableOperation.OldTable));
+                    });
+        }
+
+        [Fact]
+        public void Add_column_with_dependencies()
+        {
+            Execute(
+                source => source.Entity(
+                    "Person",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").ForSqlServerHasName("PK_People");
+                        x.ForSqlServerToTable("People", "dbo");
+                    }),
+                modelBuilder => modelBuilder.Entity(
+                    "Person",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").ForSqlServerHasName("PK_People");
+                        x.ForSqlServerToTable("People", "dbo");
+                        x.Property<string>("FirstName");
+                        x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + [LastName]");
+                        x.Property<string>("LastName");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+
+                    var columnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
+                    Assert.Equal("[FirstName] + [LastName]", columnOperation.ComputedColumnSql);
+                });
+        }
+
 
         [Fact]
         public void Rename_column_overridden()
@@ -318,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("bah", addOperation.Schema);
                         Assert.Equal("Ram", addOperation.Table);
                         Assert.Equal("PK_Ram", addOperation.Name);
-                        Assert.True((bool)addOperation["SqlServer:Clustered"]);
+                        Assert.True((bool)addOperation[SqlServerFullAnnotationNames.Instance.Clustered]);
                     });
         }
 
@@ -359,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("bah", addOperation.Schema);
                         Assert.Equal("Ewe", addOperation.Table);
                         Assert.Equal("AK_Ewe_AlternateId", addOperation.Name);
-                        Assert.True((bool)addOperation["SqlServer:Clustered"]);
+                        Assert.True((bool)addOperation[SqlServerFullAnnotationNames.Instance.Clustered]);
                     });
         }
 
@@ -546,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("bah", createOperation.Schema);
                         Assert.Equal("Mutton", createOperation.Table);
                         Assert.Equal("IX_Mutton_Value", createOperation.Name);
-                        Assert.True((bool)createOperation["SqlServer:Clustered"]);
+                        Assert.True((bool)createOperation[SqlServerFullAnnotationNames.Instance.Clustered]);
                     });
         }
 
@@ -632,7 +732,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("Value");
-                            x.HasIndex("Value").ForSqlServerHasName("IX_HorseVal");
+                            x.ForSqlServerIsMemoryOptimized();
+                            x.HasIndex("Value").ForSqlServerHasName("IX_HorseVal").ForSqlServerIsClustered(true);
                         }),
                 target => target.Entity(
                     "Horse",
@@ -642,6 +743,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("Value");
+                            x.ForSqlServerIsMemoryOptimized();
                         }),
                 operations =>
                     {
@@ -651,6 +753,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Horse", operation.Table);
                         Assert.Equal("IX_HorseVal", operation.Name);
+                        Assert.True(IsMemoryOptimized(operation));
+                        Assert.Null(operation[SqlServerFullAnnotationNames.Instance.Clustered]);
                     });
         }
 
@@ -711,29 +815,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 source => source.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<byte[]>("Version");
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<byte[]>("Version");
+                        }),
                 target => target.Entity(
                     "Toad",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<byte[]>("Version")
-                            .ValueGeneratedOnAddOrUpdate()
-                            .IsConcurrencyToken();
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.Property<byte[]>("Version")
+                                .ValueGeneratedOnAddOrUpdate()
+                                .IsConcurrencyToken();
+                        }),
                 operations =>
-                {
-                    Assert.Equal(1, operations.Count);
+                    {
+                        Assert.Equal(1, operations.Count);
 
-                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
-                    Assert.Equal("Toad", operation.Table);
-                    Assert.Equal("Version", operation.Name);
-                    Assert.True(operation.IsRowVersion);
-                    Assert.True(operation.IsDestructiveChange);
-                });
+                        var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                        Assert.Equal("Toad", operation.Table);
+                        Assert.Equal("Version", operation.Name);
+                        Assert.True(operation.IsRowVersion);
+                        Assert.True(operation.IsDestructiveChange);
+                    });
         }
 
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -743,5 +847,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 new SqlServerTypeMapper(),
                 new SqlServerAnnotationProvider(),
                 new SqlServerMigrationsAnnotationProvider());
+
+        private bool? IsMemoryOptimized(Annotatable annotatable)
+            => annotatable[SqlServerFullAnnotationNames.Instance.MemoryOptimized] as bool?;
     }
 }

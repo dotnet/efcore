@@ -139,9 +139,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 if (sqlExpression == null)
                 {
-                    if (!(node is QuerySourceReferenceExpression))
+                    var qsre = node as QuerySourceReferenceExpression;
+                    if (qsre == null)
                     {
                         QueryModelVisitor.RequiresClientProjection = true;
+                    }
+                    else
+                    {
+                        if (QueryModelVisitor.ParentQueryModelVisitor != null)
+                        {
+                            selectExpression.ProjectStarAlias = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource).Alias;
+                        }
                     }
                 }
                 else
@@ -175,21 +183,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         if (!(sqlExpression is ConstantExpression))
                         {
-                            index = selectExpression.AddToProjection(sqlExpression);
-
-                            aliasExpression = selectExpression.Projection[index] as AliasExpression;
-
-                            if (aliasExpression != null)
-                            {
-                                aliasExpression.SourceExpression = node;
-                            }
-
                             var targetExpression
                                 = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
                                     .GetExpression(_querySource);
 
                             if (targetExpression.Type == typeof(ValueBuffer))
                             {
+                                index = selectExpression.AddToProjection(sqlExpression);
+
+                                aliasExpression = selectExpression.Projection[index] as AliasExpression;
+
+                                if (aliasExpression != null)
+                                {
+                                    aliasExpression.SourceExpression = node;
+                                }
+
                                 var readValueExpression
                                     = _entityMaterializerSource
                                         .CreateReadValueCallExpression(targetExpression, index);
@@ -209,6 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                                 return Expression.Convert(readValueExpression, node.Type);
                             }
+
                             return node;
                         }
                     }

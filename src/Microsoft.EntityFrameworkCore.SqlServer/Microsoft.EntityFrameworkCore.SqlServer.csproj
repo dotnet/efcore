@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
@@ -47,9 +48,6 @@
     </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>CodeAnnotations.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\PropertyInfoExtensions.cs">
       <Link>PropertyInfoExtensions.cs</Link>
@@ -73,20 +71,27 @@
     <Compile Include="Infrastructure\Internal\SqlServerModelSource.cs" />
     <Compile Include="Infrastructure\Internal\SqlServerOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqlServerDbContextOptionsBuilder.cs" />
+    <Compile Include="Infrastructure\SqlServerEventId.cs" />
+    <Compile Include="Infrastructure\SqlServerModelValidator.cs" />
+    <Compile Include="Metadata\Conventions\Internal\SqlServerIndexConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\SqlServerMemoryOptimizedTablesConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilder.cs" />
     <Compile Include="Metadata\Internal\SqlServerAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\SqlServerEntityTypeBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerFullAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\SqlServerIndexBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerInternalMetadataBuilderExtensions.cs" />
     <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerModelBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerPropertyBuilderAnnotations.cs" />
+    <Compile Include="Metadata\ISqlServerEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerIndexAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerKeyAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerModelAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerPropertyAnnotations.cs" />
     <Compile Include="Metadata\SqlServerAnnotationProvider.cs" />
+    <Compile Include="Metadata\SqlServerEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\SqlServerIndexAnnotations.cs" />
     <Compile Include="Metadata\SqlServerKeyAnnotations.cs" />
     <Compile Include="Metadata\SqlServerModelAnnotations.cs" />
@@ -102,13 +107,15 @@
       <DependentUpon>SqlServerStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="Query\Expressions\Internal\DatePartExpression.cs" />
     <Compile Include="Query\Expressions\Internal\RowNumberExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMethodCallTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerContainsOptimizedTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateAddTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerConvertTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeDateComponentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeNowTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerEndsWithOptimizedTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathAbsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathCeilingTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathFloorTranslator.cs" />
@@ -116,6 +123,7 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathRoundTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathTruncateTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerNewGuidTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStartsWithOptimizedTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringLengthTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringReplaceTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringTrimEndTranslator.cs" />
@@ -134,13 +142,19 @@
     <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGeneratorFactory.cs" />
     <Compile Include="Query\Sql\Internal\ISqlServerExpressionVisitor.cs" />
+    <Compile Include="SqlServerRetryingExecutionStrategy.cs" />
     <Compile Include="Storage\Internal\ISqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerDatabaseCreator.cs" />
     <Compile Include="Storage\Internal\SqlServerDatabaseProviderServices.cs" />
+    <Compile Include="Storage\Internal\SqlServerExecutionStrategy.cs" />
+    <Compile Include="Storage\Internal\SqlServerExecutionStrategyFactoryContext.cs" />
+    <Compile Include="Storage\Internal\SqlServerLoggerExtensions.cs" />
     <Compile Include="Storage\Internal\SqlServerMaxLengthMapping.cs" />
     <Compile Include="Storage\Internal\SqlServerSqlGenerationHelper.cs" />
     <Compile Include="Storage\Internal\SqlServerTypeMapper.cs" />
+    <Compile Include="Storage\Internal\SqlServerExecutionStrategyFactory.cs" />
+    <Compile Include="Storage\Internal\SqlServerTransientExceptionDetector.cs" />
     <Compile Include="Update\Internal\ISqlServerUpdateSqlGenerator.cs" />
     <Compile Include="Update\Internal\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Update\Internal\SqlServerModificationCommandBatchFactory.cs" />

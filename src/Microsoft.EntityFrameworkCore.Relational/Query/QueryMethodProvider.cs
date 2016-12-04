@@ -270,10 +270,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             GroupJoinInclude outerGroupJoinInclude,
             GroupJoinInclude innerGroupJoinInclude)
         {
-            outerGroupJoinInclude?.Initialize(queryContext);
-            innerGroupJoinInclude?.Initialize(queryContext);
-
-            var hasOuters = (innerShaper as EntityShaper)?.ValueBufferOffset > 0;
+            var outerGroupJoinIncludeContext = outerGroupJoinInclude?.CreateIncludeContext(queryContext);
+            var innerGroupJoinIncludeContext = innerGroupJoinInclude?.CreateIncludeContext(queryContext);
+            var outerAccessor = outerGroupJoinInclude?.EntityAccessor as Func<TOuter, object>;
+            var innerAccessor = innerGroupJoinInclude?.EntityAccessor as Func<TInner, object>;
 
             try
             {
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         nextOuter = default(TOuter);
 
-                        outerGroupJoinInclude?.Include(outer);
+                        outerGroupJoinIncludeContext?.Include(outerAccessor != null ? outerAccessor(outer) : outer);
 
                         var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
                         var inners = new List<TInner>();
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             var currentGroupKey = innerKeySelector(inner);
 
-                            innerGroupJoinInclude?.Include(inner);
+                            innerGroupJoinIncludeContext?.Include(innerAccessor != null ? innerAccessor(inner) : inner);
 
                             inners.Add(inner);
 
@@ -320,17 +320,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
 
-                                if (hasOuters)
+                                nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
+
+                                if (!Equals(outer, nextOuter))
                                 {
-                                    nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
-
-                                    if (!Equals(outer, nextOuter))
-                                    {
-                                        break;
-                                    }
-
-                                    nextOuter = default(TOuter);
+                                    break;
                                 }
+
+                                nextOuter = default(TOuter);
 
                                 inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
 
@@ -346,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
 
-                                innerGroupJoinInclude?.Include(inner);
+                                innerGroupJoinIncludeContext?.Include(inner);
 
                                 inners.Add(inner);
                             }
@@ -358,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally
             {
-                innerGroupJoinInclude?.Dispose();
-                outerGroupJoinInclude?.Dispose();
+                innerGroupJoinIncludeContext?.Dispose();
+                outerGroupJoinIncludeContext?.Dispose();
             }
         }
 
@@ -523,7 +520,49 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
+                => _includeCollectionIterator
+                    .GetRelatedValues(keyComparer)
+                    .Select(vr => new EntityLoadInfo(vr, _materializer));
+
+            public void Dispose() => _includeCollectionIterator?.Dispose();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
+
+        private static readonly MethodInfo _injectParametersMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IEnumerable<TElement> _InjectParameters<TElement>(
+            QueryContext queryContext,
+            IEnumerable<TElement> source,
+            string[] parameterNames,
+            object[] parameterValues)
+            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
+
+        private sealed class ParameterInjector<TElement> : IEnumerable<TElement>
+        {
+            private readonly QueryContext _queryContext;
+            private readonly IEnumerable<TElement> _innerEnumerable;
+            private readonly string[] _parameterNames;
+            private readonly object[] _parameterValues;
+
+            public ParameterInjector(
+                QueryContext queryContext,
+                IEnumerable<TElement> innerEnumerable,
+                string[] parameterNames,
+                object[] parameterValues)
             {
+                _queryContext = queryContext;
+                _innerEnumerable = innerEnumerable;
+                _parameterNames = parameterNames;
+                _parameterValues = parameterValues;
                 var results = _includeCollectionIterator
                     .GetRelatedValues(keyComparer)
                     .Select(vr => new EntityLoadInfo(vr, _materializer));
@@ -536,9 +575,52 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return results;
             }
 
-            public void Dispose()
+            public IEnumerator<TElement> GetEnumerator() => new InjectParametersEnumerator(this);
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            private sealed class InjectParametersEnumerator : IEnumerator<TElement>
             {
-                _includeCollectionIterator?.Dispose();
+                private readonly ParameterInjector<TElement> _parameterInjector;
+                private readonly IEnumerator<TElement> _innerEnumerator;
+                private bool _disposed;
+
+                public InjectParametersEnumerator(ParameterInjector<TElement> parameterInjector)
+                {
+                    _parameterInjector = parameterInjector;
+
+                    for (var i = 0; i < _parameterInjector._parameterNames.Length; i++)
+                    {
+                        _parameterInjector._queryContext.AddParameter(
+                            _parameterInjector._parameterNames[i],
+                            _parameterInjector._parameterValues[i]);
+                    }
+
+                    _innerEnumerator = _parameterInjector._innerEnumerable.GetEnumerator();
+                }
+
+                public TElement Current => _innerEnumerator.Current;
+
+                object IEnumerator.Current => _innerEnumerator.Current;
+
+                public bool MoveNext() => _innerEnumerator.MoveNext();
+
+                public void Reset() => _innerEnumerator.Reset();
+
+                public void Dispose()
+                {
+                    if (!_disposed)
+                    {
+                        _innerEnumerator.Dispose();
+
+                        foreach (var parameterName in _parameterInjector._parameterNames)
+                        {
+                            _parameterInjector._queryContext.RemoveParameter(parameterName);
+                        }
+
+                        _disposed = true;
+                    }
+                }
             }
         }
     }

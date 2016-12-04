@@ -17,7 +17,7 @@ using Remotion.Linq.Clauses;
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class MaterializerFactory : IMaterializerFactory
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public MaterializerFactory(
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression<Func<ValueBuffer, object>> CreateMaterializer(
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToArray();
+                = entityType.GetConcreteTypesInHierarchy().ToList();
 
             var indexMap = new int[concreteEntityTypes[0].PropertyCount()];
             var propertyIndex = 0;
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     .CreateMaterializeExpression(
                         concreteEntityTypes[0], valueBufferParameter, indexMap);
 
-            if (concreteEntityTypes.Length == 1
+            if (concreteEntityTypes.Count == 1
                 && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
                 return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
 
-            if (concreteEntityTypes.Length == 1)
+            if (concreteEntityTypes.Count == 1)
             {
                 selectExpression.Predicate
                     = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);

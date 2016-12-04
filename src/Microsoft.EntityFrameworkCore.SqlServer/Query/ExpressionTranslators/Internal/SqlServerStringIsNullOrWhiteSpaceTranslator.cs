@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                 new SqlFunctionExpression(
                                     "RTRIM",
                                     typeof(string),
-                                    new [] { argument})
+                                    new[] { argument })
                             }),
                         Expression.Constant("", typeof(string))));
             }

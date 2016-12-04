@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -38,7 +37,8 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[__RowNumber__] > @__p_0",
+WHERE [t].[__RowNumber__] > @__p_0
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -71,7 +71,8 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
+ORDER BY [t].[ContactName]",
                 Sql);
         }
 
@@ -89,7 +90,8 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
+ORDER BY [t].[OrderID]",
                 Sql);
         }
 
@@ -107,7 +109,28 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
+ORDER BY [t].[OrderID]",
+                Sql);
+        }
+
+        public override void Join_Customers_Orders_Orders_Skip_Take_Same_Properties()
+        {
+            base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties();
+
+            Assert.Equal(
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[c0] AS [c0], [t].[ContactName], [t].[c1] AS [c1]
+FROM (
+    SELECT [o].[OrderID], [ca].[CustomerID], [cb].[CustomerID] AS [c0], [ca].[ContactName], [cb].[ContactName] AS [c1], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    FROM [Orders] AS [o]
+    INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
+    INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]
+) AS [t]
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
+ORDER BY [t].[OrderID]",
                 Sql);
         }
 
@@ -127,7 +150,8 @@ FROM (
         ORDER BY [c].[ContactName]
     ) AS [t]
 ) AS [t0]
-WHERE [t0].[__RowNumber__] > @__p_1",
+WHERE [t0].[__RowNumber__] > @__p_1
+ORDER BY [t0].[ContactName]",
                 Sql);
         }
 
@@ -187,14 +211,15 @@ FROM (
 
 SELECT [t0].*
 FROM (
-    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [Coalesce]) AS [__RowNumber__]
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[Coalesce]) AS [__RowNumber__]
     FROM (
         SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Coalesce]
         FROM [Customers] AS [c]
         ORDER BY [Coalesce]
     ) AS [t]
 ) AS [t0]
-WHERE [t0].[__RowNumber__] > @__p_1",
+WHERE [t0].[__RowNumber__] > @__p_1
+ORDER BY [t0].[Coalesce]",
                 Sql);
         }
 
@@ -208,7 +233,7 @@ WHERE [t0].[__RowNumber__] > @__p_1",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
+WHERE CHARINDEX(N'M', [c].[ContactName]) > 0",
                 Sql);
         }
 
@@ -224,7 +249,143 @@ WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + @__LocalMethod1_0) + N'%'",
+WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')",
+                Sql);
+        }
+
+        public override void OrderBy_skip_take_level_1()
+        {
+            base.OrderBy_skip_take_level_1();
+
+            Assert.Equal(
+                @"@__p_0: 5
+@__p_1: 8
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+    FROM [Customers] AS [c]
+) AS [t]
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
+ORDER BY [t].[ContactTitle], [t].[ContactName]",
+                Sql);
+        }
+
+        public override void OrderBy_skip_take_level_2()
+        {
+            base.OrderBy_skip_take_level_2();
+
+            Assert.Equal(
+                @"@__p_2: 3
+@__p_0: 5
+@__p_1: 8
+
+SELECT TOP(@__p_2) [t].*
+FROM (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
+) AS [t]
+ORDER BY [t].[ContactTitle], [t].[ContactName]",
+                Sql);
+        }
+
+        public override void OrderBy_skip_take_distinct()
+        {
+            base.OrderBy_skip_take_distinct();
+
+            Assert.Equal(
+                @"@__p_2: 8
+@__p_0: 5
+@__p_1: 15
+
+SELECT DISTINCT TOP(@__p_2) [t].*
+FROM (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
+) AS [t]",
+                Sql);
+        }
+
+        public override void OrderBy_skip_take_level_3()
+        {
+            base.OrderBy_skip_take_level_3();
+
+            Assert.Equal(
+                @"@__p_4: 5
+@__p_3: 8
+@__p_2: 10
+@__p_0: 5
+@__p_1: 15
+
+SELECT TOP(@__p_4) [t1].*
+FROM (
+    SELECT TOP(@__p_3) [t0].*
+    FROM (
+        SELECT TOP(@__p_2) [t].*
+        FROM (
+            SELECT [t2].[CustomerID], [t2].[Address], [t2].[City], [t2].[CompanyName], [t2].[ContactName], [t2].[ContactTitle], [t2].[Country], [t2].[Fax], [t2].[Phone], [t2].[PostalCode], [t2].[Region]
+            FROM (
+                SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+                FROM [Customers] AS [c]
+            ) AS [t2]
+            WHERE ([t2].[__RowNumber__] > @__p_0) AND ([t2].[__RowNumber__] <= (@__p_0 + @__p_1))
+        ) AS [t]
+        ORDER BY [t].[ContactTitle], [t].[ContactName]
+    ) AS [t0]
+    ORDER BY [t0].[ContactTitle], [t0].[ContactName]
+) AS [t1]
+ORDER BY [t1].[ContactTitle], [t1].[ContactName]",
+                Sql);
+        }
+
+        public override void Skip_Take_Any()
+        {
+            base.Skip_Take_Any();
+
+            Assert.Equal(
+                @"@__p_0: 5
+@__p_1: 10
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT [t].[c0]
+        FROM (
+            SELECT 1 AS [c0], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
+            FROM [Customers] AS [c]
+        ) AS [t]
+        WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        public override void Skip_Take_All()
+        {
+            base.Skip_Take_All();
+
+            Assert.Equal(
+                @"@__p_0: 5
+@__p_1: 10
+
+SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT [t].[c0]
+        FROM (
+            SELECT 1 AS [c0], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
+            FROM [Customers] AS [c]
+            WHERE LEN([c].[CustomerID]) <> 5
+        ) AS [t]
+        WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
                 Sql);
         }
 

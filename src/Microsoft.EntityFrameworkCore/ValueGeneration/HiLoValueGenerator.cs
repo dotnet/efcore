@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -43,9 +45,25 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         public override TValue Next(EntityEntry entry) => _generatorState.Next<TValue>(GetNewLowValue);
 
         /// <summary>
+        ///     Gets a value to be assigned to a property.
+        /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <returns> The value to be assigned to a property. </returns>
+        public override Task<TValue> NextAsync(
+            EntityEntry entry, CancellationToken cancellationToken = default(CancellationToken))
+            => _generatorState.NextAsync<TValue>(GetNewLowValueAsync);
+
+        /// <summary>
         ///     Gets the low value for the next block of values to be used.
         /// </summary>
         /// <returns> The low value for the next block of values to be used. </returns>
         protected abstract long GetNewLowValue();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Task<long> GetNewLowValueAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult(GetNewLowValue());
     }
 }

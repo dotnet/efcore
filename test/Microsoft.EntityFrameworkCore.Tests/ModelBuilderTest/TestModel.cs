@@ -9,7 +9,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -96,9 +95,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public CustomerDetails Details { get; set; }
         }
 
+        [NotMapped]
         protected class SpecialCustomer : Customer
         {
             public ICollection<SpecialOrder> SpecialOrders { get; set; }
+        }
+
+        protected class OtherCustomer : Customer
+        {
         }
 
         protected class CustomerDetails
@@ -124,8 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public OrderDetails Details { get; set; }
         }
 
+        [NotMapped]
         protected class SpecialOrder : Order
         {
+            public int? SpecialCustomerId { get; set; }
+            public SpecialCustomer SpecialCustomer { get; set; }
             public BackOrder BackOrder { get; set; }
             public OrderCombination SpecialOrderCombination { get; set; }
         }
@@ -159,10 +166,25 @@ namespace Microsoft.EntityFrameworkCore.Tests
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
         private class Quarks : INotifyPropertyChanging, INotifyPropertyChanged
         {
+            private int _forUp;
+            private string _forDown;
+
             public int Id { get; set; }
 
-            public int Up { get; set; }
-            public string Down { get; set; }
+            // ReSharper disable once ConvertToAutoProperty
+            public int Up
+            {
+                get { return _forUp; }
+                set { _forUp = value; }
+            }
+
+            // ReSharper disable once ConvertToAutoProperty
+            public string Down
+            {
+                get { return _forDown; }
+                set { _forDown = value; }
+            }
+
 #pragma warning disable 67
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
@@ -450,6 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             [Key]
             public int MyPrimaryKey { get; set; }
+
             public int AnotherKey { get; set; }
 
             public int ForeignKeyProperty { get; set; }
@@ -458,11 +481,49 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public PrincipalTypeWithKeyAnnotation Navigation { get; set; }
         }
 
-        protected class DerivedTypeWithKeyAnnotation : BaseTypeWithKeyAnnotation { }
+        protected class DerivedTypeWithKeyAnnotation : BaseTypeWithKeyAnnotation
+        {
+        }
 
         protected class PrincipalTypeWithKeyAnnotation
         {
             public int Id { get; set; }
+        }
+
+        protected class CityViewModel
+        {
+            public int Id { get; set; }
+
+            public virtual ICollection<CitizenViewModel> People { get; set; }
+
+            public virtual ICollection<PoliceViewModel> Police { get; set; }
+
+            public virtual ICollection<DoctorViewModel> Medics { get; set; }
+        }
+
+        protected abstract class PersonBaseViewModel
+        {
+            public int Id { get; set; }
+
+            public int CityVMId { get; set; }
+
+            public virtual CityViewModel CityVM { get; set; }
+        }
+
+        protected class CitizenViewModel : PersonBaseViewModel
+        {
+        }
+
+        protected abstract class ServicePersonViewModel : PersonBaseViewModel
+        {
+        }
+
+        protected class DoctorViewModel : ServicePersonViewModel
+        {
+        }
+
+        protected class PoliceViewModel : ServicePersonViewModel
+        {
         }
     }
 }
