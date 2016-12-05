@@ -21,7 +21,7 @@
     ]
   },
   "dependencies": {
-    "NETStandard.Library": "1.6.1-*",
+    "NETStandard.Library": "1.6.2-*",
     "SQLite": "3.12.3",
     "StyleCop.Analyzers": {
       "version": "1.0.0",
@@ -36,7 +36,7 @@
     },
     "netstandard1.3": {
       "dependencies": {
-        "System.Data.Common": "4.3.0-*"
+        "System.Data.Common": "4.4.0-*"
       }
     }
   }
