@@ -27,14 +27,14 @@
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational": "1.2.0-*",
-    "NETStandard.Library": "1.6.1-*"
+    "NETStandard.Library": "1.6.2-*"
   },
   "frameworks": {
     "net451": {},
     "netstandard1.3": {
       "dependencies": {
-        "System.Data.SqlClient": "4.3.0-*",
-        "System.Threading.Thread": "4.3.0-*"
+        "System.Data.SqlClient": "4.4.0-*",
+        "System.Threading.Thread": "4.4.0-*"
       }
     }
   }

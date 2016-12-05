@@ -25,9 +25,9 @@
     "Microsoft.Extensions.Caching.Memory": "1.2.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.2.0-*",
     "Microsoft.Extensions.Logging": "1.2.0-*",
-    "NETStandard.Library": "1.6.1-*",
+    "NETStandard.Library": "1.6.2-*",
     "Remotion.Linq": "2.1.1",
-    "System.Collections.Immutable": "1.3.0-*",
+    "System.Collections.Immutable": "1.4.0-*",
     "System.Interactive.Async": "3.1.0"
   },
   "frameworks": {
@@ -41,8 +41,8 @@
     },
     "netstandard1.3": {
       "dependencies": {
-        "System.ComponentModel.Annotations": "4.3.0-*",
-        "System.Linq.Queryable": "4.3.0-*"
+        "System.ComponentModel.Annotations": "4.4.0-*",
+        "System.Linq.Queryable": "4.4.0-*"
       }
     }
   }

@@ -24,13 +24,13 @@
   "dependencies": {
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.2.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.2.0-*",
-    "NETStandard.Library": "1.6.1-*"
+    "NETStandard.Library": "1.6.2-*"
   },
   "frameworks": {
     "net451": {},
     "netstandard1.3": {
       "dependencies": {
-        "System.Collections.NonGeneric": "4.3.0-*"
+        "System.Collections.NonGeneric": "4.4.0-*"
       }
     }
   }

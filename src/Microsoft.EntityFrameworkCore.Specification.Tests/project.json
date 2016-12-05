@@ -24,13 +24,13 @@
       "version": "1.2.0-*",
       "type": "build"
     },
-    "NETStandard.Library": "1.6.1-*",
+    "NETStandard.Library": "1.6.2-*",
     "xunit": "2.2.0-*"
   },
   "frameworks": {
     "netstandard1.3": {
       "dependencies": {
-        "Microsoft.CSharp": "4.3.0-*"
+        "Microsoft.CSharp": "4.4.0-*"
       }
     },
     "net451": {
