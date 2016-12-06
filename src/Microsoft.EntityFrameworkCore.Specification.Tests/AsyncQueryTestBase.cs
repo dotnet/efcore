@@ -3341,13 +3341,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 14);
         }
 
-        [ConditionalFact] // TODO: See issue#7160
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Test is flaky on CoreCLR.")]
+        [ConditionalFact(Skip = "The test is flaky.")] // TODO: See issue#7160
         public virtual async Task Except_nested()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
-               entryCount: 13);
+                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
+                entryCount: 13);
         }
 
         [ConditionalFact]
