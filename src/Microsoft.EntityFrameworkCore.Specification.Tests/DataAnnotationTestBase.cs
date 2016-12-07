@@ -790,6 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             var identity = entity.FindProperty(nameof(GeneratedEntity.Identity));
             Assert.Equal(ValueGenerated.OnAdd, identity.ValueGenerated);
+            Assert.False(identity.RequiresValueGenerator);
 
             var version = entity.FindProperty(nameof(GeneratedEntity.Version));
             Assert.Equal(ValueGenerated.OnAddOrUpdate, version.ValueGenerated);

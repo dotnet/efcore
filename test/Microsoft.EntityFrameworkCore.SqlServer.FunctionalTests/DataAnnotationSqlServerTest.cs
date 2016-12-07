@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -91,17 +90,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).Relational();
             Assert.Equal("A", relational.TableName);
-
-            return modelBuilder;
-        }
-
-        public override ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
-        {
-            var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
-
-            var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
-            Assert.True(identity.RequiresValueGenerator);
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.SqlServer().ValueGenerationStrategy);
 
             return modelBuilder;
         }

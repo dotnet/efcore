@@ -29,16 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention();
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
 
-            ReplaceConvention(conventionSet.PropertyAddedConventions, (DatabaseGeneratedAttributeConvention)valueGenerationStrategyConvention);
-
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention();
             conventionSet.EntityTypeAnnotationSetConventions.Add(sqlServerInMemoryTablesConvention);
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
 
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
-
-            ReplaceConvention(conventionSet.PropertyFieldChangedConventions, (DatabaseGeneratedAttributeConvention)valueGenerationStrategyConvention);
 
             return conventionSet;
         }
