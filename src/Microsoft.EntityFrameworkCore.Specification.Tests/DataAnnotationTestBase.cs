@@ -753,6 +753,29 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual ModelBuilder Key_specified_on_multiple_properties_can_be_overriden()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<CompositeKeyAttribute>().HasKey(c => new {c.IdRow, c.Name});
+
+            Validate(modelBuilder);
+
+            Assert.Equal(2, modelBuilder.Model.FindEntityType(typeof(CompositeKeyAttribute)).GetKeys().Single().Properties.Count);
+
+            return modelBuilder;
+        }
+
+        private class CompositeKeyAttribute
+        {
+            [Key]
+            public int IdRow { get; set; }
+
+            [Key]
+            public string Name { get; set; }
+        }
+
+        [Fact]
         public virtual ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
         {
             var modelBuilder = CreateModelBuilder();
