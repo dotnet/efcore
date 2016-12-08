@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -1440,9 +1441,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<SpecialBookLabel>().HasBaseType((Type)null);
 
-            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book))?.FindInverse());
-            Assert.Null(model.FindEntityType(typeof(BookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)));
             Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)));
+            Assert.Null(model.FindEntityType(typeof(BookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
         }
 
         [Fact]
@@ -1469,9 +1472,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<SpecialBookLabel>();
             modelBuilder.Ignore<BookLabel>();
 
-            Assert.Null(model.FindEntityType(typeof(BookLabel)));
-            Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(AnotherBookLabel.Book)).FindInverse());
-            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)).FindInverse());
+            Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(AnotherBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
             Assert.Equal(0, model.FindEntityType(typeof(Book)).GetNavigations().Count());
         }
 
@@ -1543,6 +1545,48 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private class AnotherBookLabel : BookLabel
         {
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity_with_base_type_bidirectional()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var qEntity = modelBuilder.Entity<Q>().Metadata;
+
+            Assert.Equal(nameof(P.QRef), qEntity.FindNavigation(nameof(Q.PRef)).FindInverse().Name);
+            Assert.Equal(nameof(E.QRefDerived), qEntity.FindNavigation(nameof(Q.ERef)).FindInverse().Name);
+            Assert.Equal(qEntity.GetDeclaredForeignKeys().Count(), qEntity.GetDeclaredIndexes().Count());
+
+            var pEntity = modelBuilder.Model.FindEntityType(typeof(P));
+            Assert.Equal(pEntity.GetDeclaredForeignKeys().Count(), pEntity.GetDeclaredIndexes().Count());
+
+            var eEntity = modelBuilder.Model.FindEntityType(typeof(E));
+            Assert.Equal(eEntity.GetDeclaredForeignKeys().Count(), eEntity.GetDeclaredIndexes().Count());
+        }
+
+        public class Q
+        {
+            public int Id { get; set; }
+
+            [InverseProperty(nameof(E.QRefDerived))]
+            public virtual E ERef { get; set; }
+
+            [InverseProperty(nameof(P.QRef))]
+            public virtual P PRef { get; set; }
+        }
+
+        public class P
+        {
+            public int Id { get; set; }
+
+            [InverseProperty(nameof(Q.PRef))]
+            public virtual Q QRef { get; set; }
+        }
+
+        public class E : P
+        {
+            [InverseProperty(nameof(Q.ERef))]
+            public virtual Q QRefDerived { get; set; }
         }
 
         [Fact]

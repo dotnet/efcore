@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -97,27 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         targetEntityTypeBuilder.Metadata.DisplayName()));
             }
 
-            var inverseNavigationsList = AddInverseNavigation(
-                targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo, entityType.ClrType, navigationPropertyInfo);
+            var referencingNavigationsWithAttribute =
+                AddInverseNavigation(entityType, navigationPropertyInfo, targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo);
 
-            if (IsAmbiguousInverse(navigationPropertyInfo, entityType, inverseNavigationsList))
+            if (IsAmbiguousInverse(entityType, navigationPropertyInfo, referencingNavigationsWithAttribute))
             {
                 var existingInverse = targetEntityTypeBuilder.Metadata.FindNavigation(inverseNavigationPropertyInfo)?.FindInverse();
-
-                if (existingInverse != null)
-                {
-                    Debug.Assert(!existingInverse.DeclaringEntityType.IsAssignableFrom(entityType)
-                                 == IsAmbiguousInverse(
-                                     existingInverse.PropertyInfo,
-                                     existingInverse.DeclaringEntityType,
-                                     inverseNavigationsList));
-                }
-
                 if (existingInverse != null
-                    && IsAmbiguousInverse(
-                        existingInverse.PropertyInfo,
-                        existingInverse.DeclaringEntityType,
-                        inverseNavigationsList))
+                    && IsAmbiguousInverse(existingInverse.DeclaringEntityType, existingInverse.PropertyInfo, referencingNavigationsWithAttribute))
                 {
                     var fk = existingInverse.ForeignKey;
                     if (fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation)
@@ -185,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Type targetClrType,
             InversePropertyAttribute attribute)
         {
-            if (navigationPropertyInfo.DeclaringType != entityTypeBuilder.Metadata.ClrType)
+            var entityClrType = entityTypeBuilder.Metadata.ClrType;
+            if (navigationPropertyInfo.DeclaringType != entityClrType)
             {
                 var newBaseType = entityTypeBuilder.Metadata.BaseType;
                 if (newBaseType == null)
@@ -194,11 +183,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
                 else
                 {
-                    Apply(
-                        newBaseType.Builder,
-                        newBaseType.ClrType.GetRuntimeProperties().First(p => p.Name == navigationPropertyInfo.Name),
-                        targetClrType,
-                        attribute);
+                    var targetEntityType = entityTypeBuilder.Metadata.Model.FindEntityType(targetClrType);
+                    if (targetEntityType == null)
+                    {
+                        return true;
+                    }
+
+                    RemoveInverseNavigation(entityTypeBuilder.Metadata, navigationPropertyInfo, targetEntityType);
                 }
             }
 
@@ -215,75 +206,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Type targetClrType,
             InversePropertyAttribute attribute)
         {
-            var entityType = entityTypeBuilder.Metadata;
-            var targetType = entityType.Model.FindEntityType(targetClrType);
-            var inverseNavigationPropertyInfo = targetClrType.GetRuntimeProperties()
-                .FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
-            if (targetType == null
-                || inverseNavigationPropertyInfo == null)
+            var targetEntityType = entityTypeBuilder.Metadata.Model.FindEntityType(targetClrType);
+            if (targetEntityType == null)
             {
                 return true;
             }
 
-            List<Tuple<PropertyInfo, Type>> navigationTuples;
-            var inverseNavigations = GetInverseNavigations(targetType);
-            if (inverseNavigations == null
-                || !inverseNavigations.TryGetValue(inverseNavigationPropertyInfo, out navigationTuples))
-            {
-                return true;
-            }
-
-            var inverseWasAmbiguous = false;
-            for (var index = 0; index < navigationTuples.Count; index++)
-            {
-                var inverseTuple = navigationTuples[index];
-                if (inverseTuple.Item1 == navigationPropertyInfo
-                    && inverseTuple.Item2 == entityType.ClrType)
-                {
-                    navigationTuples.RemoveAt(index);
-                    if (!navigationTuples.Any())
-                    {
-                        inverseNavigations.Remove(inverseNavigationPropertyInfo);
-                    }
-                    inverseWasAmbiguous = true;
-                    break;
-                }
-            }
-
-            if (!inverseWasAmbiguous
-                || navigationTuples.Count > 1)
-            {
-                return true;
-            }
-
-            var otherEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(navigationTuples[0].Item2, ConfigurationSource.DataAnnotation);
-            targetType.Builder.Relationship(
-                otherEntityTypeBuilder,
-                inverseNavigationPropertyInfo,
-                navigationTuples[0].Item1,
-                ConfigurationSource.DataAnnotation);
-
+            RemoveInverseNavigation(entityTypeBuilder.Metadata, navigationPropertyInfo, targetEntityType);
             return true;
         }
 
-        private static bool IsAmbiguousInverse(
-            PropertyInfo navigationPropertyInfo, EntityType entityType, List<Tuple<PropertyInfo, Type>> inverseNavigationsList)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsAmbiguous(
+            [NotNull] EntityType entityType, [NotNull] PropertyInfo navigation, [NotNull] EntityType targetEntityType)
         {
-            foreach (var inverseNavigationTuple in inverseNavigationsList)
+            var inverseNavigations = GetInverseNavigations(targetEntityType);
+            if (inverseNavigations == null)
             {
-                var inverseTargetEntityType = entityType.Model.FindEntityType(inverseNavigationTuple.Item2);
+                return false;
+            }
+
+            foreach (var inverseNavigationPair in inverseNavigations)
+            {
+                if (IsAmbiguousInverse(entityType, navigation, inverseNavigationPair.Value))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsAmbiguousInverse(
+            EntityType entityType, PropertyInfo navigation, List<Tuple<PropertyInfo, Type>> referencingNavigationsWithAttribute)
+        {
+            foreach (var referencingTuple in referencingNavigationsWithAttribute)
+            {
+                var inverseTargetEntityType = entityType.Model.FindEntityType(referencingTuple.Item2);
                 if (inverseTargetEntityType == null
-                    || inverseTargetEntityType.Builder.IsIgnored(inverseNavigationTuple.Item1.Name, ConfigurationSource.DataAnnotation))
+                    || inverseTargetEntityType.Builder.IsIgnored(referencingTuple.Item1.Name, ConfigurationSource.DataAnnotation))
                 {
                     continue;
                 }
 
-                if (inverseNavigationTuple.Item1.Name != navigationPropertyInfo.Name)
+                if (referencingTuple.Item1.Name != navigation.Name)
                 {
                     return true;
                 }
 
-                if (!entityType.IsAssignableFrom(inverseTargetEntityType))
+                if (!entityType.IsSameHierarchy(inverseTargetEntityType))
                 {
                     return true;
                 }
@@ -293,37 +267,81 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private List<Tuple<PropertyInfo, Type>> AddInverseNavigation(
-            EntityType entityType, PropertyInfo navigation, Type inverseEntityClrType, PropertyInfo inverseNavigation)
+            EntityType entityType, PropertyInfo navigation, EntityType targetEntityType, PropertyInfo inverseNavigation)
         {
-            var referencingNavigationsWithAttribute = GetInverseNavigations(entityType);
-            if (referencingNavigationsWithAttribute == null)
+            var inverseNavigations = GetInverseNavigations(targetEntityType);
+            if (inverseNavigations == null)
             {
-                referencingNavigationsWithAttribute = new Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>>();
-                SetInverseNavigations(entityType.Builder, referencingNavigationsWithAttribute);
+                inverseNavigations = new Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>>();
+                SetInverseNavigations(targetEntityType.Builder, inverseNavigations);
             }
 
-            List<Tuple<PropertyInfo, Type>> inverseNavigationsList;
-            if (!referencingNavigationsWithAttribute.TryGetValue(navigation, out inverseNavigationsList))
+            List<Tuple<PropertyInfo, Type>> referencingNavigationsWithAttribute;
+            if (!inverseNavigations.TryGetValue(inverseNavigation, out referencingNavigationsWithAttribute))
             {
-                inverseNavigationsList = new List<Tuple<PropertyInfo, Type>>();
-                referencingNavigationsWithAttribute[navigation] = inverseNavigationsList;
+                referencingNavigationsWithAttribute = new List<Tuple<PropertyInfo, Type>>();
+                inverseNavigations[inverseNavigation] = referencingNavigationsWithAttribute;
             }
 
-            foreach (var inverseTuple in inverseNavigationsList)
+            foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
-                if (inverseTuple.Item1 == inverseNavigation
-                    && inverseTuple.Item2 == inverseEntityClrType)
+                if (referencingTuple.Item1 == navigation
+                    && referencingTuple.Item2 == entityType.ClrType)
                 {
-                    return inverseNavigationsList;
+                    return referencingNavigationsWithAttribute;
                 }
             }
 
-            inverseNavigationsList.Add(Tuple.Create(inverseNavigation, inverseEntityClrType));
+            referencingNavigationsWithAttribute.Add(Tuple.Create(navigation, entityType.ClrType));
 
-            return inverseNavigationsList;
+            return referencingNavigationsWithAttribute;
         }
 
-        private Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>> GetInverseNavigations(EntityType entityType)
+        private static bool RemoveInverseNavigation(
+            EntityType entityType, PropertyInfo navigation, EntityType targetEntityType)
+        {
+            var inverseNavigations = GetInverseNavigations(targetEntityType);
+            if (inverseNavigations == null)
+            {
+                return false;
+            }
+
+            foreach (var inverseNavigationPair in inverseNavigations)
+            {
+                var inverseNavigation = inverseNavigationPair.Key;
+                var referencingNavigationsWithAttribute = inverseNavigationPair.Value;
+
+                for (var index = 0; index < referencingNavigationsWithAttribute.Count; index++)
+                {
+                    var referencingTuple = referencingNavigationsWithAttribute[index];
+                    if (referencingTuple.Item1 == navigation
+                        && referencingTuple.Item2 == entityType.ClrType)
+                    {
+                        referencingNavigationsWithAttribute.RemoveAt(index);
+                        if (!referencingNavigationsWithAttribute.Any())
+                        {
+                            inverseNavigations.Remove(inverseNavigation);
+                        }
+                        if (referencingNavigationsWithAttribute.Count == 1)
+                        {
+                            var otherEntityTypeBuilder = entityType.Model.Builder.Entity(
+                                referencingNavigationsWithAttribute[0].Item2, ConfigurationSource.DataAnnotation);
+                            targetEntityType.Builder.Relationship(
+                                otherEntityTypeBuilder,
+                                inverseNavigation,
+                                referencingNavigationsWithAttribute[0].Item1,
+                                ConfigurationSource.DataAnnotation);
+                        }
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>> GetInverseNavigations(EntityType entityType)
             => entityType.FindAnnotation(InverseNavigationsAnnotationName)?.Value
                 as Dictionary<PropertyInfo, List<Tuple<PropertyInfo, Type>>>;
 

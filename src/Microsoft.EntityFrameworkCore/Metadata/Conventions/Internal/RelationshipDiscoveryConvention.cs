@@ -371,12 +371,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
                     if (inverse == null)
                     {
-                        entityTypeBuilder.Navigation(
-                            relationshipCandidate.TargetTypeBuilder,
-                            navigation,
-                            ConfigurationSource.Convention);
+                        if (!InversePropertyAttributeConvention.IsAmbiguous(
+                            entityTypeBuilder.Metadata, navigation, relationshipCandidate.TargetTypeBuilder.Metadata))
+                        {
+                            entityTypeBuilder.Navigation(
+                                relationshipCandidate.TargetTypeBuilder,
+                                navigation,
+                                ConfigurationSource.Convention);
+                        }
                     }
-                    else
+                    else if (!InversePropertyAttributeConvention.IsAmbiguous(
+                        relationshipCandidate.TargetTypeBuilder.Metadata, inverse, entityTypeBuilder.Metadata))
                     {
                         entityTypeBuilder.Relationship(
                             relationshipCandidate.TargetTypeBuilder,
