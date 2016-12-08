@@ -6400,18 +6400,40 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                  os => os.Where(o => o.OrderDate != null && o.EmployeeID.Value.ToString().Contains("10"))
                     .Select(o => new Order
                     {
-                       CustomerID  = o.CustomerID
+                        CustomerID = o.CustomerID
                     }));
         }
 
         [ConditionalFact]
-        public virtual void Select_expression_to_string()
+        public virtual void Select_expression_other_to_string()
         {
             AssertQuery<Order>(
                  os => os.Where(o => o.OrderDate != null)
                     .Select(o => new Order
                     {
-                        ShipName = o.EmployeeID.Value.ToString()
+                        ShipName = o.OrderDate.Value.ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_long_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = ((long)o.OrderID).ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_int_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderID.ToString()
                     }));
         }
 
