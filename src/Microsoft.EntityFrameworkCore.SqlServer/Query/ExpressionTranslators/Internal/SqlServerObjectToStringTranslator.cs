@@ -3,7 +3,7 @@
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
     using System;
-    using System.Linq;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Microsoft.EntityFrameworkCore.Query.Expressions;
 
@@ -13,6 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// <seealso cref="Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator" />
     public class SqlServerObjectToStringTranslator : IMethodCallTranslator
     {
+        private static readonly Dictionary<string, string> _typeMapping = new Dictionary<string, string>
+        {
+            [nameof(Int64)] = "VARCHAR(20)",
+            [nameof(Int32)] = "VARCHAR(10)",
+            [nameof(Int16)] = "VARCHAR(5)"
+        };
+
         /// <summary>
         ///     Translates the given method call expression.
         /// </summary>
@@ -29,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     returnType: methodCallExpression.Type,
                     arguments: new[]
                     {
-                        new SqlFragmentExpression(GetConvertBase(methodCallExpression.Object?.Type.Name)),
+                        new SqlFragmentExpression(GetConvertBase(methodCallExpression.Object?.Type.UnwrapEnumType().Name)),
                         methodCallExpression.Object
                     });
             }
@@ -37,18 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         }
 
         private string GetConvertBase(string typeName)
-        {
-            switch (typeName)
-            {
-                case nameof(Int64):
-                    return "VARCHAR(20)";
-                case nameof(Int32):
-                    return "VARCHAR(10)";
-                case nameof(Int16):
-                    return "VARCHAR(5)";
-                default:
-                    return "VARCHAR(MAX)";
-            }
-        }
+           => _typeMapping.ContainsKey(typeName) ? _typeMapping[typeName] : "VARCHAR(MAX)";
     }
 }
