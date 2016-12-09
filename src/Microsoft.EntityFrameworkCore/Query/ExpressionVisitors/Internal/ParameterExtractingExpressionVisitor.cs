@@ -94,17 +94,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var methodInfo = methodCallExpression.Method;
             var declaringType = methodInfo.DeclaringType;
 
-            if (declaringType == typeof(DbContext))
-            {
-                return methodCallExpression;
-            }
-
             if (declaringType == typeof(Queryable)
                 || declaringType == typeof(EntityFrameworkQueryableExtensions)
                 && (!methodInfo.IsGenericMethod
-                    || methodInfo.GetGenericMethodDefinition() != EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
+                    || methodInfo.GetGenericMethodDefinition() 
+                        != EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
             {
                 return base.VisitMethodCall(methodCallExpression);
+            }
+
+            var returnTypeInfo = methodInfo.ReturnType.GetTypeInfo();
+
+            if (returnTypeInfo.IsGenericType
+                && returnTypeInfo.GetGenericTypeDefinition() == typeof(DbSet<>))
+            {
+                string _;
+                var queryable = (IQueryable)Evaluate(methodCallExpression, out _);
+
+                return ExtractParameters(queryable.Expression);
             }
 
             if (_partialEvaluationInfo.IsEvaluatableExpression(methodCallExpression))
