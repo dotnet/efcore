@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [ConditionalFact]
-        public virtual void Cache_key_expressions_are_detached()
+        public virtual void Cache_key_contexts_are_detached()
         {
             WeakReference wr;
             MakeGarbage(CreateContext(), out wr);
@@ -37,9 +37,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static void MakeGarbage(NorthwindContext context, out WeakReference wr)
         {
+            wr = new WeakReference(context);
+
             using (context)
             {
-                wr = new WeakReference(context.Customers.First());
+                var orderDetails = context.OrderDetails;
+                
+                Func<NorthwindContext, Customer> query
+                    = param
+                        => (from c in context.Customers
+                            from o in context.Set<Order>()
+                            from od in orderDetails
+                            from e1 in param.Employees
+                            from e2 in param.Set<Order>()
+                            select c).First();
+
+                query(context);
 
                 Assert.True(wr.IsAlive);
             }
