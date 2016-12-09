@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -39,7 +40,35 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     logger,
                     parameterize);
 
-            return visitor.ExtractParameters(expression);
+            var newExpression = visitor.ExtractParameters(expression);
+
+            Debug.Assert(IsDetached(newExpression));
+
+            return newExpression;
+        }
+
+        private static bool IsDetached(Expression query)
+        {
+            var detachedChecker = new DetachedChecker();
+
+            detachedChecker.Visit(query);
+
+            return detachedChecker.IsDetached;
+        }
+
+        private class DetachedChecker : ExpressionVisitor
+        {
+            protected override Expression VisitConstant(ConstantExpression node)
+            {
+                IsDetached 
+                    = IsDetached 
+                        && ((node.Value as IDetachableContext)?.IsDetached ?? true)
+                        && !(node.Value is DbContext);
+
+                return node;
+            }
+
+            public bool IsDetached { get; private set; } = true;
         }
 
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
