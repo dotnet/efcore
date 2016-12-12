@@ -406,6 +406,39 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Can_get_and_set_index_filter()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var index = modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .Metadata;
+
+            Assert.Null(index.Relational().Filter);
+            Assert.Null(index.SqlServer().Filter);
+            Assert.Null(((IIndex)index).SqlServer().Filter);
+
+            index.Relational().Name = "Generic expression";
+
+            Assert.Equal("Generic expression", index.Relational().Name);
+            Assert.Equal("Generic expression", index.SqlServer().Name);
+            Assert.Equal("Generic expression", ((IIndex)index).SqlServer().Name);
+
+            index.SqlServer().Name = "SqlServer-specific expression";
+
+            Assert.Equal("Generic expression", index.Relational().Name);
+            Assert.Equal("SqlServer-specific expression", index.SqlServer().Name);
+            Assert.Equal("SqlServer-specific expression", ((IIndex)index).SqlServer().Name);
+
+            index.SqlServer().Name = null;
+
+            Assert.Null(index.Relational().Filter);
+            Assert.Null(index.SqlServer().Filter);
+            Assert.Null(((IIndex)index).SqlServer().Filter);
+        }
+
+        [Fact]
         public void Can_get_and_set_index_clustering()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

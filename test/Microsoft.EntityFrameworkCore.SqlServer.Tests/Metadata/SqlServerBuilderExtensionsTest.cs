@@ -537,6 +537,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Can_set_index_filter()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .HasFilter("Generic expression")
+                .ForSqlServerHasFilter("SqlServer-specific expression");
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal("Generic expression", index.Relational().Filter);
+            Assert.Equal("SqlServer-specific expression", index.SqlServer().Filter);
+        }
+
+        [Fact]
         public void Can_set_table_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
