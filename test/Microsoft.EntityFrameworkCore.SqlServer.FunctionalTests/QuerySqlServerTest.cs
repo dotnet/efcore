@@ -6322,6 +6322,49 @@ WHERE [c0].[CustomerID] = @_outer_CustomerID",
                 Sql);
         }
 
+        public override void Query_expression_with_to_string_and_contains()
+        {
+            base.Query_expression_with_to_string_and_contains();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(10), [o].[EmployeeID])) > 0)",
+                Sql);
+        }
+
+        public override void Select_expression_long_to_string()
+        {
+            base.Select_expression_long_to_string();
+
+            Assert.Equal(
+                @"SELECT CONVERT(VARCHAR(20), [o].[OrderID])
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
+                Sql);
+        }
+        public override void Select_expression_int_to_string()
+        {
+            base.Select_expression_int_to_string();
+
+            Assert.Equal(
+                @"SELECT CONVERT(VARCHAR(10), [o].[OrderID])
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
+                Sql);
+        }
+
+        public override void Select_expression_other_to_string()
+        {
+            base.Select_expression_other_to_string();
+
+            Assert.Equal(
+                @"SELECT CONVERT(VARCHAR(MAX), [o].[OrderDate])
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
+                Sql);
+        }
+
         public override void Select_expression_date_add_year()
         {
             base.Select_expression_date_add_year();

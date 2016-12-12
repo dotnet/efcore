@@ -6394,6 +6394,50 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Query_expression_with_to_string_and_contains()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null && o.EmployeeID.Value.ToString().Contains("10"))
+                    .Select(o => new Order
+                    {
+                        CustomerID = o.CustomerID
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_other_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderDate.Value.ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_long_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = ((long)o.OrderID).ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_int_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderID.ToString()
+                    }));
+        }
+
+        [ConditionalFact]
         public virtual void Select_expression_date_add_year()
         {
             AssertQuery<Order>(
