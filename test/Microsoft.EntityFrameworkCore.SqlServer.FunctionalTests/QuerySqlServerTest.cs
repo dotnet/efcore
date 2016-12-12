@@ -6329,7 +6329,7 @@ WHERE [c0].[CustomerID] = @_outer_CustomerID",
             Assert.Equal(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(10), [o].[EmployeeID])) > 0)",
+WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(11), [o].[EmployeeID])) > 0)",
                 Sql);
         }
 
@@ -6343,12 +6343,13 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL",
                 Sql);
         }
+
         public override void Select_expression_int_to_string()
         {
             base.Select_expression_int_to_string();
 
             Assert.Equal(
-                @"SELECT CONVERT(VARCHAR(10), [o].[OrderID])
+                @"SELECT CONVERT(VARCHAR(11), [o].[OrderID])
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL",
                 Sql);
@@ -6359,7 +6360,7 @@ WHERE [o].[OrderDate] IS NOT NULL",
             base.Select_expression_other_to_string();
 
             Assert.Equal(
-                @"SELECT CONVERT(VARCHAR(MAX), [o].[OrderDate])
+                @"SELECT CONVERT(VARCHAR(100), [o].[OrderDate])
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL",
                 Sql);

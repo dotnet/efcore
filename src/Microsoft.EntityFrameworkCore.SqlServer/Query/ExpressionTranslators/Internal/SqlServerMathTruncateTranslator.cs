@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqlServerMathTruncateTranslator : IMethodCallTranslator
     {
-        private static readonly IEnumerable<MethodInfo> _methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods(nameof(Math.Truncate));
+        private static readonly IEnumerable<MethodInfo> _methodInfos 
+            = typeof(Math).GetTypeInfo().GetDeclaredMethods(nameof(Math.Truncate));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -1,49 +1,71 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
-    using Microsoft.EntityFrameworkCore.Query.Expressions;
-
     /// <summary>
-    /// 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    /// <seealso cref="Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator" />
     public class SqlServerObjectToStringTranslator : IMethodCallTranslator
     {
-        private static readonly Dictionary<string, string> _typeMapping = new Dictionary<string, string>
-        {
-            [nameof(Int64)] = "VARCHAR(20)",
-            [nameof(Int32)] = "VARCHAR(10)",
-            [nameof(Int16)] = "VARCHAR(5)"
-        };
+        private const int DefaultLength = 100;
+
+        private static readonly Dictionary<Type, string> _typeMapping
+            = new Dictionary<Type, string>
+            {
+                { typeof(int), "VARCHAR(11)" },
+                { typeof(long), "VARCHAR(20)" },
+                { typeof(DateTime), $"VARCHAR({DefaultLength})" },
+                { typeof(Guid), "VARCHAR(36)" },
+                { typeof(bool), "VARCHAR(5)" },
+                { typeof(byte), "VARCHAR(3)" },
+                { typeof(byte[]), $"VARCHAR({DefaultLength})" },
+                { typeof(double), $"VARCHAR({DefaultLength})" },
+                { typeof(DateTimeOffset), $"VARCHAR({DefaultLength})" },
+                { typeof(char), "VARCHAR(1)" },
+                { typeof(short), "VARCHAR(6)" },
+                { typeof(float), $"VARCHAR({DefaultLength})" },
+                { typeof(decimal), $"VARCHAR({DefaultLength})" },
+                { typeof(TimeSpan), $"VARCHAR({DefaultLength})" },
+                { typeof(uint), "VARCHAR(10)" },
+                { typeof(ushort), "VARCHAR(5)" },
+                { typeof(ulong), "VARCHAR(19)" },
+                { typeof(sbyte), "VARCHAR(4)" }
+            };
 
         /// <summary>
-        ///     Translates the given method call expression.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="methodCallExpression">The method call expression.</param>
-        /// <returns>
-        ///     A SQL expression representing the translated MethodCallExpression.
-        /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.Name == nameof(ToString))
+            string storeType;
+
+            if (methodCallExpression.Method.Name == nameof(ToString)
+                && methodCallExpression.Object != null
+                && _typeMapping.TryGetValue(
+                    methodCallExpression.Object.Type
+                        .UnwrapNullableType()
+                        .UnwrapEnumType(),
+                    out storeType))
             {
                 return new SqlFunctionExpression(
                     functionName: "CONVERT",
                     returnType: methodCallExpression.Type,
                     arguments: new[]
                     {
-                        new SqlFragmentExpression(GetConvertBase(methodCallExpression.Object?.Type.UnwrapEnumType().Name)),
+                        new SqlFragmentExpression(storeType),
                         methodCallExpression.Object
                     });
             }
+
             return null;
         }
-
-        private string GetConvertBase(string typeName)
-           => _typeMapping.ContainsKey(typeName) ? _typeMapping[typeName] : "VARCHAR(MAX)";
     }
 }
