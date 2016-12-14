@@ -31,6 +31,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Gets a value indicating whether this property requires a <see cref="ValueGenerator" /> to generate
+        ///     values when new entities are added to the context.
+        /// </summary>
+        public static bool RequiresValueGenerator([NotNull] this IProperty property)
+            => (property.ValueGenerated != ValueGenerated.Never
+                && !property.IsForeignKey()
+                && property.IsKey())
+               || property.GetValueGeneratorFactory() != null;
+
+        /// <summary>
         ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
         ///     then this is the maximum number of characters.
         /// </summary>

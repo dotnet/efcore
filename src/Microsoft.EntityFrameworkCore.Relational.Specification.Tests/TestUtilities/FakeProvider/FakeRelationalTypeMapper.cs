@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider

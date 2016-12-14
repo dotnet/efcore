@@ -17,52 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public class CustomValueGeneratorTest
     {
         [Fact]
-        public void Can_use_custom_value_generators()
-        {
-            using (var context = new CustomValueGeneratorContext())
-            {
-                var entities = new List<SomeEntity>();
-                for (var i = 0; i < CustomGuidValueGenerator.SpecialGuids.Length; i++)
-                {
-                    entities.Add(context.Add(new SomeEntity { Name = _names[i] }).Entity);
-                }
-
-                Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
-
-                Assert.Equal(CustomGuidValueGenerator.SpecialGuids, entities.Select(e => e.SpecialId));
-
-                Assert.Equal(_names.Select((n, i) => n + " - " + (i + 1)), entities.Select(e => e.SpecialString));
-            }
-        }
-
-        private class CustomValueGeneratorContext : DbContext
-        {
-            private static readonly IServiceProvider _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddScoped<InMemoryValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
-                    .BuildServiceProvider();
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInternalServiceProvider(_serviceProvider)
-                    .UseInMemoryDatabase();
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder
-                    .Entity<SomeEntity>(
-                        b =>
-                            {
-                                b.Property(e => e.SpecialId)
-                                    .HasAnnotation("SpecialGuid", true)
-                                    .Metadata.RequiresValueGenerator = true;
-
-                                b.Property(e => e.SpecialString)
-                                    .Metadata.RequiresValueGenerator = true;
-                            });
-        }
-
-        [Fact]
         public void Can_use_custom_value_generator_from_annotated_type()
         {
             using (var context = new CustomValueGeneratorContextAnnotateType())
@@ -149,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                                 b.Property(e => e.SpecialId)
                                     .HasAnnotation("SpecialGuid", true)
-                                    .Metadata.RequiresValueGenerator = true;
+                                    .ValueGeneratedOnAdd();
 
                                 b.Property(e => e.SpecialString).HasValueGenerator((p, e) => factory.Create(p));
                             });

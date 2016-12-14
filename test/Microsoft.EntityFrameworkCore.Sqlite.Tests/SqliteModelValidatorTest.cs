@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
 
         public override void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().Property(c => c.Type);

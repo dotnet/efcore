@@ -33,11 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
 
             var foreignKeyIndexConvention = new ForeignKeyIndexConvention();
+            var valueGeneratorConvention = new ValueGeneratorConvention();
             conventionSet.BaseEntityTypeSetConventions.Add(propertyDiscoveryConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(keyDiscoveryConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(inversePropertyAttributeConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(foreignKeyIndexConvention);
+            conventionSet.BaseEntityTypeSetConventions.Add(valueGeneratorConvention);
 
             // An ambiguity might have been resolved
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
@@ -63,8 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
 
-            var keyConvention = new KeyConvention();
-            conventionSet.PrimaryKeySetConventions.Add(keyConvention);
+            conventionSet.PrimaryKeySetConventions.Add(valueGeneratorConvention);
 
             conventionSet.KeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.KeyAddedConventions.Add(foreignKeyIndexConvention);
@@ -75,11 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var cascadeDeleteConvention = new CascadeDeleteConvention();
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention());
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            conventionSet.ForeignKeyAddedConventions.Add(keyConvention);
+            conventionSet.ForeignKeyAddedConventions.Add(valueGeneratorConvention);
             conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyIndexConvention);
 
-            conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);
+            conventionSet.ForeignKeyRemovedConventions.Add(valueGeneratorConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyUniquenessConventions.Add(foreignKeyPropertyDiscoveryConvention);

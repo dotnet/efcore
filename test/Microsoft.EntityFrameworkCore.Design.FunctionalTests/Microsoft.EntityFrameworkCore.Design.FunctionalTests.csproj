@@ -57,6 +57,10 @@
       <Project>{A0B496FE-1E59-4262-A5F5-101CBBA42738}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Specification.Tests.csproj">
+      <Project>{07FA2B15-A6A5-4292-A096-7771FB32EEDA}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Specification.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
       <Project>{6A25DF99-2615-46D8-9532-821764647EE1}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational</Name>

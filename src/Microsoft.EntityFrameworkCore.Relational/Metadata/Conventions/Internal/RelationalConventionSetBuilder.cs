@@ -27,15 +27,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         protected RelationalConventionSetBuilder(
             [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalAnnotationProvider annotationProvider,
             [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             _typeMapper = typeMapper;
+            AnnotationProvider = annotationProvider;
             _context = currentContext?.Context;
             _setFinder = setFinder;
         }
+
+        protected virtual IRelationalAnnotationProvider AnnotationProvider { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -52,13 +56,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.EntityTypeIgnoredConventions, inversePropertyAttributeConvention);
 
+            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(AnnotationProvider);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, relationshipDiscoveryConvention);
+            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
 
             ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, relationshipDiscoveryConvention);
 
+            ReplaceConvention(conventionSet.PrimaryKeySetConventions, valueGeneratorConvention);
+
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (ForeignKeyAttributeConvention)new RelationalForeignKeyAttributeConvention(_typeMapper));
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
             ReplaceConvention(conventionSet.NavigationAddedConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.NavigationAddedConventions, relationshipDiscoveryConvention);
@@ -77,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.BaseEntityTypeSetConventions.Add(new TableNameFromDbSetConvention(_context, _setFinder));
 
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyAnnotationSetConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
 
             return conventionSet;
         }

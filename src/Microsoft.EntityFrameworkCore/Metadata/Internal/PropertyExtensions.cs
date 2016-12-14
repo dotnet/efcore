@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var currentProperty = traversalList[index];
 
-                if (currentProperty.RequiresValueGenerator)
+                if (currentProperty.RequiresValueGenerator())
                 {
                     return currentProperty;
                 }
@@ -210,11 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (property.IsReadOnlyBeforeSave)
             {
                 builder.Append(" ReadOnlyBeforeSave");
-            }
-
-            if (property.RequiresValueGenerator)
-            {
-                builder.Append(" RequiresValueGenerator");
             }
 
             if (property.ValueGenerated != ValueGenerated.Never)

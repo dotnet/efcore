@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             base.Validate(model);
             EnsureNoDefaultDecimalMapping(model);
+            EnsureNoNonKeyValueGeneration(model);
         }
 
         protected virtual void EnsureNoDefaultDecimalMapping([NotNull] IModel model)
@@ -35,6 +36,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 ShowWarning(SqlServerEventId.DefaultDecimalTypeWarning,
                     SqlServerStrings.DefaultDecimalTypeColumn(property.Name, property.DeclaringEntityType.DisplayName()));
+            }
+        }
+
+        protected virtual void EnsureNoNonKeyValueGeneration([NotNull] IModel model)
+        {
+            foreach (var property in model.GetEntityTypes().SelectMany(t => t.GetDeclaredProperties())
+                .Where(p => (p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+                             || p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
+                            && !p.IsKey()))
+            {
+                ShowError(SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
             }
         }
 

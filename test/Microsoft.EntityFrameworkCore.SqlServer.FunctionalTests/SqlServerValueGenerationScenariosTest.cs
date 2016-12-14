@@ -71,7 +71,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
                     Assert.Equal(1, blogs[0].Id);
-                    Assert.Equal(2, blogs[1].Id);
+                    Assert.Equal(2, blogs[0].OtherId);
+                    Assert.Equal(3, blogs[1].Id);
+                    Assert.Equal(4, blogs[1].OtherId);
                 }
             }
         }
@@ -84,7 +86,43 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.ForSqlServerUseSequenceHiLo();
+            {
+                modelBuilder.ForSqlServerUseSequenceHiLo();
+
+                modelBuilder.Entity<Blog>(eb =>
+                    {
+                        eb.HasAlternateKey(b => new { b.OtherId });
+                        eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+                    });
+            }
+        }
+
+        [Fact]
+        public void Insert_with_sequence_HiLo_for_nonkey_throws()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            {
+                using (var context = new BlogContextHiLoNonKey(testStore.Name))
+                {
+                    Assert.Equal(SqlServerStrings.NonKeyValueGeneration(nameof(Blog.OtherId), nameof(Blog)),
+                        Assert.Throws<InvalidOperationException>(() => context.Database.EnsureCreated()).Message);
+                }
+            }
+        }
+
+        public class BlogContextHiLoNonKey : ContextBase
+        {
+            public BlogContextHiLoNonKey(string databaseName)
+                : base(databaseName)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.ForSqlServerUseSequenceHiLo();
+
+                modelBuilder.Entity<Blog>().Property(b => b.OtherId).ValueGeneratedOnAdd();
+            }
         }
 
         [ConditionalFact]
@@ -560,34 +598,77 @@ END");
             using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
                 Guid afterSave;
-                using (var context = new BlogContext(testStore.Name))
+                using (var context = new BlogContextClientGuidKey(testStore.Name))
                 {
                     context.Database.EnsureCreated();
 
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
+                    var beforeSaveNotId = blog.NotId;
+
+                    Assert.NotEqual(default(Guid), beforeSave);
+                    Assert.NotEqual(default(Guid), beforeSaveNotId);
 
                     context.SaveChanges();
 
                     afterSave = blog.Id;
+                    var afterSaveNotId = blog.NotId;
 
                     Assert.Equal(beforeSave, afterSave);
+                    Assert.Equal(beforeSaveNotId, afterSaveNotId);
                 }
 
-                using (var context = new BlogContext(testStore.Name))
+                using (var context = new BlogContextClientGuidKey(testStore.Name))
                 {
                     Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
                 }
             }
         }
 
-        public class BlogContext : ContextBase
+        public class BlogContextClientGuidKey : ContextBase
         {
-            public BlogContext(string databaseName)
+            public BlogContextClientGuidKey(string databaseName)
                 : base(databaseName)
             {
             }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<GuidBlog>(eb =>
+                    {
+                        eb.HasAlternateKey(e => e.NotId);
+                        eb.Property(e => e.NotId).ValueGeneratedOnAdd();
+                    });
+        }
+
+        [Fact]
+        public void Insert_with_client_generated_GUID_nonkey_throws()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            {
+                using (var context = new BlogContextClientGuidNonKey(testStore.Name))
+                {
+                    context.Database.EnsureCreated();
+
+                    var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
+
+                    Assert.Equal(default(Guid), blog.NotId);
+
+                    // No value set on a required column
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                }
+            }
+        }
+
+        public class BlogContextClientGuidNonKey : ContextBase
+        {
+            public BlogContextClientGuidNonKey(string databaseName)
+                : base(databaseName)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<GuidBlog>().Property(e => e.NotId).ValueGeneratedOnAdd();
         }
 
         [Fact]
@@ -603,12 +684,20 @@ END");
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
+                    var beforeSaveNotId = blog.NotId;
+
+                    Assert.NotEqual(default(Guid), beforeSave);
+                    Assert.Equal(default(Guid), beforeSaveNotId);
 
                     context.SaveChanges();
 
                     afterSave = blog.Id;
+                    var afterSaveNotId = blog.NotId;
 
+                    Assert.NotEqual(default(Guid), afterSave);
+                    Assert.NotEqual(default(Guid), afterSaveNotId);
                     Assert.NotEqual(beforeSave, afterSave);
+                    Assert.NotEqual(beforeSaveNotId, afterSaveNotId);
                 }
 
                 using (var context = new BlogContextServerGuidKey(testStore.Name))
@@ -628,9 +717,13 @@ END");
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder
-                    .Entity<GuidBlog>()
-                    .Property(e => e.Id)
-                    .HasDefaultValueSql("newsequentialid()");
+                    .Entity<GuidBlog>(eb =>
+                        {
+                            eb.Property(e => e.Id)
+                                .HasDefaultValueSql("newsequentialid()");
+                            eb.Property(e => e.NotId)
+                                .HasDefaultValueSql("newsequentialid()");
+                        });
             }
         }
 
@@ -673,6 +766,14 @@ END");
                     // 'Blog' when IDENTITY_INSERT is set to OFF.
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 }
+            }
+        }
+
+        public class BlogContext : ContextBase
+        {
+            public BlogContext(string databaseName)
+                : base(databaseName)
+            {
             }
         }
 
@@ -891,6 +992,7 @@ END");
             public int Id { get; set; }
             public string Name { get; set; }
             public DateTime CreatedOn { get; set; }
+            public int OtherId { get; set; }
         }
 
         public class NullableKeyBlog
@@ -912,6 +1014,7 @@ END");
         {
             public Guid Id { get; set; }
             public string Name { get; set; }
+            public Guid NotId { get; set; }
         }
 
         public class ConcurrentBlog

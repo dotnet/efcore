@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         protected const string DefaultDbContextName = "Model" + DbContextSuffix;
 
         private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
-        private static readonly KeyConvention _keyConvention = new KeyConvention();
+        private readonly ValueGeneratorConvention _valueGeneratorConvention;
 
         private readonly ConfigurationFactory _configurationFactory;
         private List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
@@ -70,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             AnnotationProvider = annotationProvider;
             CSharpUtilities = cSharpUtilities;
             ScaffoldingUtilities = scaffoldingUtilities;
+            _valueGeneratorConvention = new RelationalValueGeneratorConvention(annotationProvider);
         }
 
         /// <summary>
@@ -536,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                 case ValueGenerated.OnAdd:
                     // If this property is the single integer primary key on the EntityType then
                     // KeyConvention assumes ValueGeneratedOnAdd() so there is no need to add it.
-                    if (_keyConvention.FindValueGeneratedOnAddProperty(
+                    if (_valueGeneratorConvention.FindValueGeneratedOnAddProperty(
                             new List<Property> { (Property)propertyConfiguration.Property },
                             (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null
                         && AnnotationProvider.For(propertyConfiguration.Property).DefaultValueSql == null)

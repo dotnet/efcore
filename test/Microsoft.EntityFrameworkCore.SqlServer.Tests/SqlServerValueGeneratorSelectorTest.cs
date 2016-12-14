@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Returns_built_in_generators_for_types_setup_for_value_generation()
         {
-            var model = BuildModel();
+            var model = BuildModel(generateValues: false);
             var entityType = model.FindEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -61,11 +61,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
             model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
-
-            foreach (var property in entityType.GetProperties())
-            {
-                property.ValueGenerated = ValueGenerated.OnAdd;
-            }
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
@@ -129,8 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             foreach (var property in entityType.GetProperties())
             {
-                property.RequiresValueGenerator = generateValues;
-                property.ValueGenerated = ValueGenerated.OnAdd;
+                property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
             entityType.FindProperty("AlwaysIdentity").ValueGenerated = ValueGenerated.OnAdd;

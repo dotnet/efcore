@@ -189,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             public string Id { get; set; }
             public string TheWalrus { get; set; }
+            public virtual int NumericId { get; set; }
         }
 
         private class EnNum

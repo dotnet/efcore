@@ -1294,11 +1294,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(principalProperty, primaryPrincipalKey.Properties.Single());
                 Assert.Equal(2, principalType.GetKeys().Count());
                 Assert.True(principalType.GetKeys().Contains(nonPrimaryPrincipalKey));
-                var oldKeyProperty = (IProperty)principalType.FindProperty(nameof(BigMak.Id));
-                var newKeyProperty = (IProperty)principalType.FindProperty(nameof(BigMak.AlternateKey));
-                Assert.False(oldKeyProperty.RequiresValueGenerator);
+                var oldKeyProperty = principalType.FindProperty(nameof(BigMak.Id));
+                var newKeyProperty = principalType.FindProperty(nameof(BigMak.AlternateKey));
+                Assert.False(oldKeyProperty.RequiresValueGenerator());
                 Assert.Equal(ValueGenerated.Never, oldKeyProperty.ValueGenerated);
-                Assert.True(newKeyProperty.RequiresValueGenerator);
+                Assert.True(newKeyProperty.RequiresValueGenerator());
                 Assert.Equal(ValueGenerated.OnAdd, newKeyProperty.ValueGenerated);
                 Assert.Same(dependentKey, dependentType.GetKeys().SingleOrDefault());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
@@ -1976,7 +1976,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Epsilon>().HasOne<Alpha>().WithMany(b => b.Epsilons);
 
                 var property = modelBuilder.Model.FindEntityType(typeof(Epsilon)).FindProperty("Id");
-                Assert.False(property.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
 
