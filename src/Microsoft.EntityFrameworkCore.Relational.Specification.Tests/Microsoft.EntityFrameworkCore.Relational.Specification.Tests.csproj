@@ -39,6 +39,7 @@
     <Compile Include="AsyncFromSqlQueryTestBase.cs" />
     <Compile Include="AsyncFromSqlSprocQueryTestBase.cs" />
     <Compile Include="ComplexNavigationsQueryRelationalFixture.cs" />
+    <Compile Include="MigrationSqlGeneratorTestBase.cs" />
     <Compile Include="RelationalDatabaseCleaner.cs" />
     <Compile Include="F1RelationalFixture.cs" />
     <Compile Include="FromSqlQueryTestBase.cs" />

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
+namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
 {
     public abstract class MigrationSqlGeneratorTestBase
     {

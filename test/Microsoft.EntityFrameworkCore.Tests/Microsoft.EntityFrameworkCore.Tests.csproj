@@ -92,7 +92,6 @@
     <Compile Include="DbSetSourceTest.cs" />
     <Compile Include="DbSetTest.cs" />
     <Compile Include="EFTest.cs" />
-    <Compile Include="EntityFrameworkServiceCollectionExtensionsTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
     <Compile Include="Extensions\PropertyExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />
