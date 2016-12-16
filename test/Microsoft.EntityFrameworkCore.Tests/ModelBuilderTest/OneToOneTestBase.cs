@@ -272,6 +272,42 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Creates_both_navigations_and_new_FK_over_PK_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<OrderDetails>().Ignore(d => d.Id);
+                modelBuilder.Entity<Order>().Ignore(o => o.Details);
+
+                var dependentType = model.FindEntityType(typeof(OrderDetails));
+                var principalType = model.FindEntityType(typeof(Order));
+
+                var fkProperty = dependentType.FindProperty(nameof(OrderDetails.OrderId));
+
+                modelBuilder.Entity<OrderDetails>().HasKey(d => d.OrderId);
+                modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
+
+                var fk = dependentType.GetForeignKeys().Single();
+                var principalKey = principalType.GetKeys().Single();
+                var dependentKey = dependentType.GetKeys().Single();
+                Assert.Equal(nameof(OrderDetails.Order), dependentType.GetNavigations().Single().Name);
+                Assert.Empty(principalType.GetNavigations());
+                Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
+                AssertEqual(new[] { "AnotherCustomerId", "CustomerId", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(new[] { dependentKey.Properties.Single().Name, fkProperty.Name }, dependentType.GetProperties().Select(p => p.Name));
+                Assert.Same(fkProperty, fk.Properties.Single());
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Same(principalKey, principalType.GetKeys().Single());
+                Assert.Same(dependentKey, dependentType.GetKeys().Single());
+                Assert.Same(principalKey, principalType.FindPrimaryKey());
+                Assert.Same(dependentKey, dependentType.FindPrimaryKey());
+                Assert.Empty(dependentType.GetIndexes());
+                Assert.Empty(principalType.GetIndexes());
+            }
+
+            [Fact]
             public virtual void Creates_relationship_with_navigation_to_dependent_and_new_FK_from_principal()
             {
                 var modelBuilder = CreateModelBuilder();

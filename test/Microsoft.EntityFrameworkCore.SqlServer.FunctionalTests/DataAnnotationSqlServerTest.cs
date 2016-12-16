@@ -113,17 +113,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return modelBuilder;
         }
 
-        public override ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
-        {
-            var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
-
-            var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
-            Assert.True(identity.RequiresValueGenerator);
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.SqlServer().ValueGenerationStrategy);
-
-            return modelBuilder;
-        }
-
         public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
