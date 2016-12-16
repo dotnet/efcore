@@ -295,8 +295,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(OrderDetails.Order), dependentType.GetNavigations().Single().Name);
                 Assert.Empty(principalType.GetNavigations());
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AnotherCustomerId", "CustomerId", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { dependentKey.Properties.Single().Name, fkProperty.Name }, dependentType.GetProperties().Select(p => p.Name));
                 Assert.Same(fkProperty, fk.Properties.Single());
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
