@@ -1,0 +1,125 @@
+[
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCache : Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorCache",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCache : Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorCache",
+    "OldMemberId": "protected .ctor()",
+    "NewMemberId": "public .ctor()",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public class Microsoft.EntityFrameworkCore.Storage.DatabaseProvider<T0, T1> : Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider where T0 : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices, class where T1 : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension, class",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.Storage.DatabaseProvider<T0> : Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider where T0 : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension, class",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
+    "OldMemberId": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices GetProviderServices(System.IServiceProvider serviceProvider)",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
+    "NewTypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
+    "NewMemberId": "System.String get_InvariantName()",
+    "Kind": "Addition"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDbContextTransactionManager",
+    "NewTypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDbContextTransactionManager : Microsoft.EntityFrameworkCore.Infrastructure.IResettableService",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+    "OldMemberId": "System.Boolean get_RequiresValueGenerator()",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+    "OldMemberId": "System.Void set_RequiresValueGenerator(System.Boolean value)",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IProperty : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
+    "OldMemberId": "System.Boolean get_RequiresValueGenerator()",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId",
+    "NewTypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId",
+    "OldMemberId": "ModelValidationWarning = 8",
+    "NewMemberId": "ModelValidationShadowKeyWarning = 8",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public static class Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServiceCollectionExtensions",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.Extensions.DependencyInjection.IServiceCollection>",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "OldMemberId": "System.Void ApplyServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "NewTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "NewMemberId": "System.Boolean ApplyServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "Kind": "Addition"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "OldMemberId": "Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Internal.IModelValidator validator)",
+    "Kind": "Removal"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "NewTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "NewMemberId": "Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator)",
+    "Kind": "Addition"
+  },
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "OldMemberId": "public Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Internal.IModelValidator validator)",
+    "NewMemberId": "public Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator)",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "OldMemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IModel CreateModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Internal.IModelValidator validator)",
+    "NewMemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IModel CreateModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator)",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "OldMemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Internal.IDbSetFinder setFinder, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ICoreConventionSetBuilder coreConventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer modelCustomizer, Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory modelCacheKeyFactory)",
+    "NewMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Internal.IDbSetFinder setFinder, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ICoreConventionSetBuilder coreConventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer modelCustomizer, Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory modelCacheKeyFactory)",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public struct Microsoft.EntityFrameworkCore.Storage.ValueBuffer",
+    "NewTypeId": "public struct Microsoft.EntityFrameworkCore.Storage.ValueBuffer",
+    "OldMemberId": "public .ctor(System.Collections.Generic.IList<System.Object> values)",
+    "NewMemberId": "public .ctor(System.Object[] values)",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public struct Microsoft.EntityFrameworkCore.Storage.ValueBuffer",
+    "NewTypeId": "public struct Microsoft.EntityFrameworkCore.Storage.ValueBuffer",
+    "OldMemberId": "public .ctor(System.Collections.Generic.IList<System.Object> values, System.Int32 offset)",
+    "NewMemberId": "public .ctor(System.Object[] values, System.Int32 offset)",
+    "Kind": "Modification"
+  }
+]

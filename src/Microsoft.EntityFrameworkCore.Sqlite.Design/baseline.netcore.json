@@ -1,0 +1,490 @@
+{
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Sqlite.Design, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "Types": [
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Internal.SqliteDesignLoggerExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "LogWarning",
+          "Parameters": [
+            {
+              "Name": "logger",
+              "Type": "Microsoft.Extensions.Logging.ILogger"
+            },
+            {
+              "Name": "eventId",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.SqliteDesignEventId"
+            },
+            {
+              "Name": "formatter",
+              "Type": "System.Func<System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "LogDebug",
+          "Parameters": [
+            {
+              "Name": "logger",
+              "Type": "Microsoft.Extensions.Logging.ILogger"
+            },
+            {
+              "Name": "eventId",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.SqliteDesignEventId"
+            },
+            {
+              "Name": "formatter",
+              "Type": "System.Func<System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Internal.SqliteDesignStrings",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ColumnNameEmptyOnIndex",
+          "Parameters": [
+            {
+              "Name": "indexName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FoundColumn",
+          "Parameters": [
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "columnName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "dataType",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "ordinal",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "isNotNullable",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "primaryKeyOrdinal",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "defaultValue",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FoundForeignKeyColumn",
+          "Parameters": [
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "id",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "principalTableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "columnName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "principalColumnName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "deleteAction",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "ordinal",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FoundIndex",
+          "Parameters": [
+            {
+              "Name": "indexName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "isUnique",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FoundIndexColumn",
+          "Parameters": [
+            {
+              "Name": "indexName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "columnName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "ordinal",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FoundTable",
+          "Parameters": [
+            {
+              "Name": "name",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "PrincipalColumnNotFound",
+          "Parameters": [
+            {
+              "Name": "id",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "principalColumnName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "principalTableName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "PrincipalTableNotFound",
+          "Parameters": [
+            {
+              "Name": "id",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "principalTableName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "TableNotInSelectionSet",
+          "Parameters": [
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_UsingSchemaSelectionsWarning",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqliteDatabaseModelFactory",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IInternalDatabaseModelFactory"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Logger",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.ILogger",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Create",
+          "Parameters": [
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Create",
+          "Parameters": [
+            {
+              "Name": "connection",
+              "Type": "System.Data.Common.DbConnection"
+            },
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IInternalDatabaseModelFactory",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "logger",
+              "Type": "Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqliteDatabaseModelFactory>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqliteDesignTimeServices",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Infrastructure.IDesignTimeServices"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ConfigureDesignTimeServices",
+          "Parameters": [
+            {
+              "Name": "serviceCollection",
+              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDesignTimeServices",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqliteScaffoldingModelFactory",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Scaffolding.RelationalScaffoldingModelFactory",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Create",
+          "Parameters": [
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
+          "Virtual": true,
+          "Override": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "loggerFactory",
+              "Type": "Microsoft.Extensions.Logging.ILoggerFactory"
+            },
+            {
+              "Name": "typeMapper",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper"
+            },
+            {
+              "Name": "databaseModelFactory",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory"
+            },
+            {
+              "Name": "candidateNamingService",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CandidateNamingService"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.SqliteDesignEventId",
+      "Visibility": "Public",
+      "Kind": "Enumeration",
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Field",
+          "Name": "IndexMissingColumnNameWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "1"
+        },
+        {
+          "Kind": "Field",
+          "Name": "ForeignKeyReferencesMissingColumn",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "2"
+        },
+        {
+          "Kind": "Field",
+          "Name": "SchemasNotSupportedWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "3"
+        }
+      ],
+      "GenericParameters": []
+    }
+  ]
+}

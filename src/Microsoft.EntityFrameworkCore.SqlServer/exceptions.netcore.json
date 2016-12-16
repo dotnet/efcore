@@ -1,0 +1,16 @@
+[
+  {
+    "OldTypeId": "public static class Microsoft.Extensions.DependencyInjection.SqlServerServiceCollectionExtensions",
+    "NewTypeId": "public static class Microsoft.Extensions.DependencyInjection.SqlServerServiceCollectionExtensions",
+    "OldMemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServer(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "NewMemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServer(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection)",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqlServerConventionSetBuilder : Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.RelationalConventionSetBuilder",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqlServerConventionSetBuilder : Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.RelationalConventionSetBuilder",
+    "OldMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Internal.IDbSetFinder setFinder)",
+    "NewMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Internal.IDbSetFinder setFinder, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
+    "Kind": "Modification"
+  }
+]
