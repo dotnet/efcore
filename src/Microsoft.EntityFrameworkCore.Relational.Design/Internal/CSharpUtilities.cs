@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -361,33 +362,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GetTypeName([NotNull] Type propertyType)
+        public virtual string GetTypeName([NotNull] Type type)
         {
-            Check.NotNull(propertyType, nameof(propertyType));
+            Check.NotNull(type, nameof(type));
 
-            if (propertyType.IsArray)
+            if (type.IsArray)
             {
-                return GetTypeName(propertyType.GetElementType()) + "[]";
+                return GetTypeName(type.GetElementType()) + "[]";
             }
 
-            var isNullableType = propertyType.GetTypeInfo().IsGenericType
-                                 && typeof(Nullable<>) == propertyType.GetGenericTypeDefinition();
-            var type = isNullableType
-                ? Nullable.GetUnderlyingType(propertyType)
-                : propertyType;
+            if (type.GetTypeInfo().IsGenericType)
+            {
+                if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    return GetTypeName(Nullable.GetUnderlyingType(type)) + '?';
+                }
+
+                var genericTypeDefName = type.Name.Substring(0, type.Name.IndexOf('`'));
+                var genericTypeArguments = string.Join(", ", type.GenericTypeArguments.Select(GetTypeName));
+                return $"{genericTypeDefName}<{genericTypeArguments}>";
+            }
 
             string typeName;
-            if (!_primitiveTypeNames.TryGetValue(type, out typeName))
-            {
-                typeName = type.Name;
-            }
-
-            if (isNullableType)
-            {
-                typeName += "?";
-            }
-
-            return typeName;
+            return _primitiveTypeNames.TryGetValue(type, out typeName)
+                ? typeName
+                : type.Name;
         }
 
         /// <summary>
