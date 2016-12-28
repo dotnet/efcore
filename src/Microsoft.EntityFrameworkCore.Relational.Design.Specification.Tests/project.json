@@ -35,7 +35,7 @@
     "NETStandard.Library": "1.6.2-*"
   },
   "frameworks": {
-    "netstandard1.6": {
+    "netstandard1.7": {
       "dependencies": {
         "System.Threading.Tasks.Parallel": "4.4.0-*"
       }
