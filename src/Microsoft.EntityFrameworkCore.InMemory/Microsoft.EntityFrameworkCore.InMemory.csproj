@@ -66,6 +66,7 @@
       <DependentUpon>InMemoryStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\ByteArrayEqualityRewritingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\InMemoryEntityQueryableExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\InMemoryEntityQueryableExpressionVisitorFactory.cs" />
     <Compile Include="Query\Internal\IMaterializerFactory.cs" />
