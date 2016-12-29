@@ -237,11 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
             connection.Open();
 
-#if NET451
-            // On CoreCLR, DbConnection.Dispose() calls DbConnection.Close()
             connection.Close();
-#endif
-
             connection.Dispose();
 
             Assert.Equal(1, dbConnection.OpenCount);
@@ -254,10 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
             connection.Open();
 
-#if NET451
             connection.Close();
-#endif
-
             connection.Dispose();
 
             Assert.Equal(1, dbConnection.OpenCount);
