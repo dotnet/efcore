@@ -4452,6 +4452,94 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void Where_binary_or_with_logical_and()
+        {
+            base.Where_binary_or_with_logical_and();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ((CASE
+    WHEN [o].[OrderID] > 54321
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END | CASE
+    WHEN [o].[OrderID] > 98765
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1) AND ([o].[OrderID] > 1234567)",
+                Sql);
+        }
+
+        public override void Where_binary_and_with_logical_and()
+        {
+            base.Where_binary_and_with_logical_and();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ((CASE
+    WHEN [o].[OrderID] > 54321
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END & CASE
+    WHEN [o].[OrderID] > 98765
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1) AND ([o].[OrderID] > 1234567)",
+                Sql);
+        }
+
+        public override void Where_binary_or_with_logical_or()
+        {
+            base.Where_binary_or_with_logical_or();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ((CASE
+    WHEN [o].[OrderID] > 54321
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END | CASE
+    WHEN [o].[OrderID] > 98765
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1) OR ([o].[OrderID] > 1234567)",
+                Sql);
+        }
+
+        public override void Where_binary_and_with_logical_or()
+        {
+            base.Where_binary_and_with_logical_or();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ((CASE
+    WHEN [o].[OrderID] > 54321
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END & CASE
+    WHEN [o].[OrderID] > 98765
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1) OR ([o].[OrderID] > 1234567)",
+                Sql);
+        }
+
+        public override void Where_binary_or_with_binary_or()
+        {
+            base.Where_binary_or_with_binary_or();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ((CASE
+    WHEN [o].[OrderID] > 54321
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END | CASE
+    WHEN [o].[OrderID] > 98765
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) | CASE
+    WHEN [o].[OrderID] > 1234567
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1",
+                Sql);
+        }
+
         public override void Single_Predicate()
         {
             base.Single_Predicate();
