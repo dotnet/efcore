@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{05C2D434-A153-48BC-9404-8B66276B64F9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.MongoDB</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\Microsoft.EntityFrameworkCore.MongoDB.xml</DocumentationFile>
+    <NoWarn>1591;8002</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PropertyInfoExtensions.cs">
+      <Link>PropertyInfoExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MemberInfoExtensions.cs">
+      <Link>MemberInfoExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Annotations\DerivedTypeAttribute.cs" />
+    <Compile Include="Annotations\IEntityTypeAttribute.cs" />
+    <Compile Include="Annotations\IModelAttribute.cs" />
+    <Compile Include="Annotations\MongoDatabaseAttribute.cs" />
+    <Compile Include="DbContextOptionsExtensions.cs" />
+    <Compile Include="DependencyInjection\MongoDbContextOptionsBuilder.cs" />
+    <Compile Include="DependencyInjection\MongoDbContextOptionsBuilderExtensions.cs" />
+    <Compile Include="DependencyInjection\MongoDbServiceCollectionExtensions.cs" />
+    <Compile Include="Infrastructure\IMongoDbDatabaseProviderServices.cs" />
+    <Compile Include="Metadata\Conventions\MongoDbDatabaseGeneratedAttributeConvention.cs" />
+    <Compile Include="Storage\MongoDbDatabase.cs" />
+    <Compile Include="Storage\MongoDbDatabaseCreator.cs" />
+    <Compile Include="Infrastructure\MongoDbDatabaseProviderServices.cs" />
+    <Compile Include="Infrastructure\MongoDbModelSource.cs" />
+    <Compile Include="Infrastructure\MongoDbOptionsExtension.cs" />
+    <Compile Include="MongoDB.Adapter\AbstractClassMapConvention.cs" />
+    <Compile Include="MongoDB.Adapter\BsonClassMapAttributeConvention.cs" />
+    <Compile Include="MongoDB.Adapter\BsonMemberMapAttributeConvention.cs" />
+    <Compile Include="MongoDB.Adapter\EntityFrameworkConventionPack.cs" />
+    <Compile Include="MongoDB.Adapter\IgnoreEmptyEnumerablesConvention.cs" />
+    <Compile Include="MongoDB.Adapter\IgnoreNullOrEmptyStringsConvention.cs" />
+    <Compile Include="MongoDB.Adapter\KeyAttributeConvention.cs" />
+    <Compile Include="Metadata\Builders\ListExtensions.cs" />
+    <Compile Include="Metadata\Builders\MongoDbBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\MongoDbConventionSetBuilder.cs" />
+    <Compile Include="Metadata\Builders\MongoDbDocumentBuilder.cs" />
+    <Compile Include="Metadata\Builders\MongoDbModelBuilder.cs" />
+    <Compile Include="Metadata\Conventions\MongoDatabaseAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\MongoDbDerivedTypeAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\MongoDbModelAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\MongoDbPropertyDiscoveryConvention.cs" />
+    <Compile Include="Metadata\Conventions\MongoDbPropertyMappingValidationConvention.cs" />
+    <Compile Include="Metadata\Conventions\MongoDbRelationshipDiscoveryConvention.cs" />
+    <Compile Include="Metadata\MongoDbAnnotableExtensions.cs" />
+    <Compile Include="Metadata\MongoDbAnnotationNames.cs" />
+    <Compile Include="Metadata\MongoDbEntityTypeAnnotations.cs" />
+    <Compile Include="Metadata\MongoDbModelAnnotations.cs" />
+    <Compile Include="Metadata\MongoDbModelExtensions.cs" />
+    <Compile Include="Infrastructure\MongoDbModelValidator.cs" />
+    <Compile Include="MongoDbUtilities.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\MongoDbEntityQueryableExpressionVisitor.cs" />
+    <Compile Include="Query\MongoDbEntityQueryableExpressionVisitorFactory.cs" />
+    <Compile Include="Query\MongoDbEntityQueryModelVisitor.cs" />
+    <Compile Include="Query\MongoDbEntityQueryModelVisitorFactory.cs" />
+    <Compile Include="Query\MongoDbQueryContext.cs" />
+    <Compile Include="Query\MongoDbQueryContextFactory.cs" />
+    <Compile Include="Storage\IMongoDbConnection.cs" />
+    <Compile Include="Storage\MongoDbConnection.cs" />
+    <Compile Include="Update\MongoDbUpdateEntryExtensions.cs" />
+    <Compile Include="ValueGeneration\MongoDbValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\MongoDbValueGeneratorSelector.cs" />
+    <Compile Include="ValueGeneration\ObjectIdValueGenerator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Properties\Microsoft.EntityFrameworkCore.MongoDB.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

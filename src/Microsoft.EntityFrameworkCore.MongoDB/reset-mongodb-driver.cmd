@@ -1,0 +1,1 @@
+if "%1"=="net451" powershell.exe -File .\Reset-MongoDB-Driver-Net451.ps1

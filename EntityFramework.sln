@@ -65,6 +65,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Design.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Design.FunctionalTests\Microsoft.EntityFrameworkCore.Design.FunctionalTests.csproj", "{93F36377-39C6-48A2-8C01-FD72373A34A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.MongoDB", "src\Microsoft.EntityFrameworkCore.MongoDB\Microsoft.EntityFrameworkCore.MongoDB.csproj", "{05C2D434-A153-48BC-9404-8B66276B64F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.MongoDB.Tests", "test\Microsoft.EntityFrameworkCore.MongoDB.Tests\Microsoft.EntityFrameworkCore.MongoDB.Tests.csproj", "{40652DB9-1AD5-4DAD-9541-4C77D512D68F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +191,14 @@ Global
 		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05C2D434-A153-48BC-9404-8B66276B64F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05C2D434-A153-48BC-9404-8B66276B64F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05C2D434-A153-48BC-9404-8B66276B64F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05C2D434-A153-48BC-9404-8B66276B64F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40652DB9-1AD5-4DAD-9541-4C77D512D68F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40652DB9-1AD5-4DAD-9541-4C77D512D68F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40652DB9-1AD5-4DAD-9541-4C77D512D68F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40652DB9-1AD5-4DAD-9541-4C77D512D68F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -221,5 +233,7 @@ Global
 		{D3D0A8E8-EC2F-4E01-8650-8554E186A66F} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{93F36377-39C6-48A2-8C01-FD72373A34A9} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{05C2D434-A153-48BC-9404-8B66276B64F9} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
+		{40652DB9-1AD5-4DAD-9541-4C77D512D68F} = {258D5057-81B9-40EC-A872-D21E27452749}
 	EndGlobalSection
 EndGlobal

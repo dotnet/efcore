@@ -1,0 +1,1 @@
+if "%1"=="net451" powershell.exe -File .\StrongName-MongoDB-Driver-Net451.ps1

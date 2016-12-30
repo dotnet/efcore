@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{40652DB9-1AD5-4DAD-9541-4C77D512D68F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore.MongoDB.Tests</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.MongoDB.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591;8002</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.MongoDB\Microsoft.EntityFrameworkCore.MongoDB.csproj">
+      <Project>{05c2d434-a153-48bc-9404-8b66276b64f9}</Project>
+      <Name>Microsoft.EntityFrameworkCore.MongoDB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Tests\Microsoft.EntityFrameworkCore.Tests.csproj">
+      <Project>{313f46fe-9962-4a15-805f-fcbdf5a6181e}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="MongoDB.Adapter\AbstractClassMapConventionTest.cs" />
+    <Compile Include="MongoDB.Adapter\BsonClassMapAttributeConventionTests.cs" />
+    <Compile Include="MongoDB.Adapter\EntityFrameworkConventionPackTests.cs" />
+    <Compile Include="MongoDB.Adapter\IgnoreNullOrEmptyStringsConventionTests.cs" />
+    <Compile Include="MongoDB.Adapter\IgnoreEmptyEnumerablesConventionTests.cs" />
+    <Compile Include="MongoDB.Adapter\KeyAttributeConventionTests.cs" />
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Metadata\MongoDbEntityTypeAnnotationsTests.cs" />
+    <Compile Include="Metadata\MongoDbModelAnnotationsTests.cs" />
+    <Compile Include="MongoDbContextTests.cs" />
+    <Compile Include="MongoDbFixture.cs" />
+    <Compile Include="MongoDbUtilitiesTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Storage\MongoDbConnectionTests.cs" />
+    <Compile Include="Storage\MongoDbDatabaseCreatorTests.cs" />
+    <Compile Include="Storage\MongoDbDatabaseTests.cs" />
+    <Compile Include="TestDomain\ComplexRecord.cs" />
+    <Compile Include="TestDomain\ComplexType.cs" />
+    <Compile Include="TestDomain\DerivedType1.cs" />
+    <Compile Include="TestDomain\MongoDbContextFixture.cs" />
+    <Compile Include="TestDomain\RootType.cs" />
+    <Compile Include="TestDomain\SimpleRecord.cs" />
+    <Compile Include="TestDomain\SubDerivedType1.cs" />
+    <Compile Include="TestDomain\SubDerivedType2.cs" />
+    <Compile Include="TestDomain\ComplexSubDocument.cs" />
+    <Compile Include="TestDomain\SubRootType1.cs" />
+    <Compile Include="TestDomain\TestMongoDbContext.cs" />
+    <Compile Include="Update\MongoDbUpdateEntryExtensionsTests.cs" />
+    <Compile Include="ValueGeneration\MongoDbValueGeneratorSelectorTests.cs" />
+    <Compile Include="ValueGeneration\TemporaryObjectIdValueGeneratorTests.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

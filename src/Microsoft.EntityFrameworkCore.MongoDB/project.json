@@ -1,0 +1,42 @@
+{
+  "version": "1.2.0-*",
+  "description": "Microsoft MongoDB database provider for Entity Framework Core.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework Core",
+      "entity-framework-core",
+      "EF",
+      "Data",
+      "O/RM",
+      "MongoDB"
+    ]
+  },
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
+    "nowarn": [
+      "CS1591",
+      "CS8002"
+    ],
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    },
+    "embed": {
+      "includeFiles": "Properties/Microsoft.EntityFrameworkCore.MongoDB.rd.xml"
+    }
+  },
+  "scripts": {
+    "precompile": [ "cmd /c echo before restoring packages", "reset-mongodb-driver.cmd %compile:TargetFramework%" ]
+  },
+  "dependencies": {
+    "NETStandard.Library": "1.6.2-*",
+    "Microsoft.EntityFrameworkCore": "1.2.0-*",
+    "Newtonsoft.Json": "9.0.1",
+    "MongoDB.Driver": "2.4.0"
+  },
+  "frameworks": {
+    "netstandard1.5": {},
+    "net451": {}
+  }
+}
