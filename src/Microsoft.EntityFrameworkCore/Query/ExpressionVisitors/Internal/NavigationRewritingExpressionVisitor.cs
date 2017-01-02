@@ -45,8 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
-            : this(queryModelVisitor, navigationExpansionSubquery: false)
+        public NavigationRewritingExpressionVisitor(
+            [NotNull] EntityQueryModelVisitor queryModelVisitor,
+            [NotNull] IAsyncQueryProvider entityQueryProvider)
+            : this(queryModelVisitor, entityQueryProvider, navigationExpansionSubquery: false)
         {
         }
 
@@ -54,21 +56,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool navigationExpansionSubquery)
+        public NavigationRewritingExpressionVisitor(
+            [NotNull] EntityQueryModelVisitor queryModelVisitor, 
+            [NotNull] IAsyncQueryProvider entityQueryProvider,
+            bool navigationExpansionSubquery)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
+            Check.NotNull(entityQueryProvider, nameof(entityQueryProvider));
 
             _queryModelVisitor = queryModelVisitor;
-            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor, navigationExpansionSubquery);
-        }
-
-        private NavigationRewritingExpressionVisitor(
-            EntityQueryModelVisitor queryModelVisitor,
-            IAsyncQueryProvider entityQueryProvider,
-            bool navigationExpansionSubquery)
-            : this(queryModelVisitor, navigationExpansionSubquery)
-        {
             _entityQueryProvider = entityQueryProvider;
+            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor, navigationExpansionSubquery);
         }
 
         /// <summary>
@@ -127,21 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Rewrite(expression.QueryModel, _queryModel);
 
             return expression;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override Expression VisitConstant(ConstantExpression node)
-        {
-            if (_entityQueryProvider == null)
-            {
-                _entityQueryProvider
-                    = (node.Value as IQueryable)?.Provider as IAsyncQueryProvider;
-            }
-
-            return node;
         }
 
         /// <summary>
