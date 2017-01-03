@@ -304,11 +304,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return result;
             }
 
-            var newEpression = Visit(node.Expression);
+            var newExpression = Visit(node.Expression);
+            var memberAccessExpression = Expression.MakeMemberAccess(newExpression, node.Member);
 
-            return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
-                ? (Expression)new NullConditionalExpression(newEpression, newEpression, Expression.MakeMemberAccess(newEpression, node.Member))
-                : Expression.MakeMemberAccess(newEpression, node.Member);
+            if (_insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection)
+            {
+                return new NullConditionalExpression(
+                    newExpression,
+                    newExpression,
+                    memberAccessExpression);
+            }
+
+            return memberAccessExpression;
         }
 
         /// <summary>
@@ -388,10 +395,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 var propertyArguments = node.Arguments.Select(Visit).ToList();
+                var callExpression = Expression.Call(node.Method, propertyArguments[0], propertyArguments[1]);
 
-                return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
-                    ? (Expression)new NullConditionalExpression(propertyArguments[0], propertyArguments[0], Expression.Call(node.Method, propertyArguments[0], node.Arguments[1]))
-                    : Expression.Call(node.Method, propertyArguments[0], propertyArguments[1]);
+                if (_insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection)
+                {
+                    return new NullConditionalExpression(
+                        propertyArguments[0],
+                        propertyArguments[0],
+                        callExpression);
+                }
+
+                return callExpression;
             }
 
             var newObject = Visit(node.Object);
