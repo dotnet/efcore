@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private QueryModel _queryModel;
         private QueryModel _parentQueryModel;
         private IAsyncQueryProvider _entityQueryProvider;
-
-        private bool _insideInnerSequence;
+        
         private bool _innerKeySelectorRequiresNullRefProtection;
         private bool _insideInnerKeySelector;
         private bool _insideOrderBy;
@@ -426,7 +425,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node.Update(newObject, newArguments);
         }
 
-        private Expression RewriteNavigationProperties(
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Expression RewriteNavigationProperties(
             List<IPropertyBase> properties,
             IQuerySource querySource,
             Expression expression,
@@ -718,11 +721,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 querySourceReferenceExpression = navigationJoin.QuerySourceReferenceExpression;
                 navigationJoins = navigationJoin.NavigationJoins;
-            }
-
-            if (_insideInnerSequence && optionalNavigationInChain)
-            {
-                _innerKeySelectorRequiresNullRefProtection = true;
             }
 
             if (propertyType == null)
@@ -1215,6 +1213,48 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 => RemoveNavigationJoin(NavigationJoins, navigationJoin);
         }
 
+        private class InnerSequenceNavigationRewritingExpressionVisitor : NavigationRewritingExpressionVisitor
+        {
+            public bool EncounteredOptionalNavigation { get; private set; }
+
+            public InnerSequenceNavigationRewritingExpressionVisitor(
+                EntityQueryModelVisitor queryModelVisitor,
+                IAsyncQueryProvider entityQueryProvider) 
+                : base(queryModelVisitor, entityQueryProvider)
+            {
+            }
+
+            protected override Expression RewriteNavigationProperties(
+                List<IPropertyBase> properties, 
+                IQuerySource querySource, 
+                Expression expression, 
+                Expression declaringExpression, 
+                string propertyName, 
+                Type propertyType, 
+                Func<Expression, Expression> propertyCreator)
+            {
+                var optionalNavigations =
+                    from navigation in properties.OfType<INavigation>()
+                    where !navigation.IsDependentToPrincipal() ||
+                        !navigation.ForeignKey.IsRequired
+                    select navigation;
+
+                if (optionalNavigations.Any())
+                {
+                    EncounteredOptionalNavigation = true;
+                }
+
+                return base.RewriteNavigationProperties(
+                    properties, 
+                    querySource, 
+                    expression, 
+                    declaringExpression, 
+                    propertyName, 
+                    propertyType, 
+                    propertyCreator);
+            }
+        }
+
         private class QsreWithNavigationFindingExpressionVisitor : ExpressionVisitorBase
         {
             private readonly QuerySourceReferenceExpression _searchedQsre;
@@ -1338,32 +1378,39 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             private void VisitJoinClauseInternal(JoinClause joinClause)
             {
-                var oldInsideInnerSequence = TransformingVisitor._insideInnerSequence;
                 var oldInnerKeySelectorRequiresNullRefProtection = TransformingVisitor._innerKeySelectorRequiresNullRefProtection;
-                TransformingVisitor._insideInnerSequence = true;
                 TransformingVisitor._innerKeySelectorRequiresNullRefProtection = false;
-                joinClause.InnerSequence = TransformingVisitor.Visit(joinClause.InnerSequence);
-                TransformingVisitor._insideInnerSequence = oldInsideInnerSequence;
+
+                var innerSequenceVisitor = new InnerSequenceNavigationRewritingExpressionVisitor(
+                    TransformingVisitor._queryModelVisitor,
+                    TransformingVisitor._entityQueryProvider);
+                joinClause.InnerSequence = innerSequenceVisitor.Visit(joinClause.InnerSequence);
+
+                TransformingVisitor._innerKeySelectorRequiresNullRefProtection = innerSequenceVisitor.EncounteredOptionalNavigation;
 
                 joinClause.OuterKeySelector = TransformingVisitor.Visit(joinClause.OuterKeySelector);
 
                 var oldInsideInnerKeySelector = TransformingVisitor._insideInnerKeySelector;
                 TransformingVisitor._insideInnerKeySelector = true;
                 joinClause.InnerKeySelector = TransformingVisitor.Visit(joinClause.InnerKeySelector);
+                TransformingVisitor._insideInnerKeySelector = oldInsideInnerKeySelector;
 
                 if (joinClause.OuterKeySelector.Type.IsNullableType()
                     && !joinClause.InnerKeySelector.Type.IsNullableType())
                 {
-                    joinClause.InnerKeySelector = Expression.Convert(joinClause.InnerKeySelector, joinClause.InnerKeySelector.Type.MakeNullable());
+                    joinClause.InnerKeySelector = Expression.Convert(
+                        joinClause.InnerKeySelector, 
+                        joinClause.InnerKeySelector.Type.MakeNullable());
                 }
 
                 if (joinClause.InnerKeySelector.Type.IsNullableType()
                     && !joinClause.OuterKeySelector.Type.IsNullableType())
                 {
-                    joinClause.OuterKeySelector = Expression.Convert(joinClause.OuterKeySelector, joinClause.OuterKeySelector.Type.MakeNullable());
+                    joinClause.OuterKeySelector = Expression.Convert(
+                        joinClause.OuterKeySelector, 
+                        joinClause.OuterKeySelector.Type.MakeNullable());
                 }
 
-                TransformingVisitor._insideInnerKeySelector = oldInsideInnerKeySelector;
                 TransformingVisitor._innerKeySelectorRequiresNullRefProtection = oldInnerKeySelectorRequiresNullRefProtection;
             }
 
