@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
                 .VisitQueryModel(queryModel);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel, parentQueryModel: null);
+            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
 
             QueryCompilationContext.Logger
                 .LogDebug(
