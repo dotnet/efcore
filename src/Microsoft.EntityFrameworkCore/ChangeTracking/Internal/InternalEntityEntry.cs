@@ -295,8 +295,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            if (currentState != EntityState.Modified
-                && currentState != EntityState.Unchanged)
+            if (currentState == EntityState.Added
+                || currentState == EntityState.Deleted)
             {
                 return;
             }
@@ -312,6 +312,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (changeState)
             {
                 if (!isModified
+                    && currentState != EntityState.Detached
                     && property.GetOriginalValueIndex() != -1)
                 {
                     SetProperty(property, GetOriginalValue(property), setModified: false);
@@ -319,9 +320,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _stateData.FlagProperty(propertyIndex, PropertyFlag.TemporaryOrModified, isModified);
             }
 
-            // Don't change entity state if it is Added or Deleted
             if (isModified
-                && currentState == EntityState.Unchanged)
+                && (currentState == EntityState.Unchanged
+                    || currentState == EntityState.Detached))
             {
                 if (changeState)
                 {
@@ -337,7 +338,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
                 }
             }
-            else if (changeState
+            else if (currentState != EntityState.Detached
+                     && changeState
                      && !isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
             {
