@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         protected EntityQueryModelVisitorFactory(
             [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
+            [NotNull] INavigationRewritingQueryModelVisitorFactory navigationRewritingQueryModelVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
             [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IExpressionPrinter expressionPrinter)
         {
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
-            Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
+            Check.NotNull(navigationRewritingQueryModelVisitorFactory, nameof(navigationRewritingQueryModelVisitorFactory));
             Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
             Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
             Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
             QueryOptimizer = queryOptimizer;
-            NavigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
+            NavigationRewritingQueryModelVisitorFactory = navigationRewritingQueryModelVisitorFactory;
             SubQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
             QuerySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
             EntityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
@@ -78,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual IQueryOptimizer QueryOptimizer { get; }
 
         /// <summary>
-        ///     Gets the <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when processing a query.
+        ///     Gets the <see cref="INavigationRewritingQueryModelVisitorFactory" /> to be used when processing a query.
         /// </summary>
-        protected virtual INavigationRewritingExpressionVisitorFactory NavigationRewritingExpressionVisitorFactory { get; }
+        protected virtual INavigationRewritingQueryModelVisitorFactory NavigationRewritingQueryModelVisitorFactory { get; }
 
         /// <summary>
         ///     Gets the <see cref="ISubQueryMemberPushDownExpressionVisitor" /> to be used when processing a query.

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public RelationalQueryModelVisitorFactory(
             [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
+            [NotNull] INavigationRewritingQueryModelVisitorFactory navigationRewritingQueryModelVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
             [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IDbContextOptions contextOptions)
             : base(
                 queryOptimizer,
-                navigationRewritingExpressionVisitorFactory,
+                navigationRewritingQueryModelVisitorFactory,
                 subQueryMemberPushDownExpressionVisitor,
                 querySourceTracingExpressionVisitorFactory,
                 entityResultFindingExpressionVisitorFactory,
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new RelationalQueryModelVisitor(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
+                NavigationRewritingQueryModelVisitorFactory,
                 SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
