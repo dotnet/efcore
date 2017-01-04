@@ -6358,7 +6358,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void Select_expression_references_are_updated_correctly_with_subquery()
         {
-            var nextYear = DateTime.UtcNow.AddYears(1).Year;
+            var nextYear = 2017;
             AssertQuery<Order>(
                 os => os.Where(o => o.OrderDate != null)
                     .Select(o => o.OrderDate.Value.Year)
