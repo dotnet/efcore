@@ -85,36 +85,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             //base.Projection_when_arithmetic_mixed_subqueries();
         }
 
-        public override async Task String_Contains_Literal()
-        {
+        public override async Task String_Contains_Literal() => 
             await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M")
-                                    || c.ContactName.Contains("m")), // case-sensitive
+                cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
-        }
 
         public override async Task String_Contains_MethodCall()
-        {
-            await AssertQuery<Customer>(
+            => await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c =>
-                    c.ContactName.Contains(LocalMethod1().ToLower())
-                    || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
+                cs => cs.Where(c =>c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
                 entryCount: 34);
-        }
 
         public async Task Skip_when_no_order_by()
-        {
-            await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
-        }
+            => await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
 
         [Fact]
         public async Task Single_Predicate_Cancellation()
-        {
-            await Assert.ThrowsAsync<TaskCanceledException>(async () =>
+            => await Assert.ThrowsAsync<TaskCanceledException>(async () =>
                 await Single_Predicate_Cancellation(Fixture.CancelQuery()));
-        }
 
         [Fact]
         public async Task Concurrent_async_queries_are_serialized()
@@ -132,5 +121,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(4, tasks[2].Count);
             }
         }
+
+        [Fact]
+        public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
+            => await AssertQuery<Order>(
+                os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }));
     }
 }
