@@ -1027,6 +1027,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 new SomeEntity { Id = 1, Name = "Kool" },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
+            entry.SetEntityState(EntityState.Added);
+
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
 

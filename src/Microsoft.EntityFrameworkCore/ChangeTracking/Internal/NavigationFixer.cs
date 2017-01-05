@@ -583,6 +583,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             // truth and not attempt to ascertain relationships from navigation properties
             if (!fromQuery)
             {
+                var setModified = entry.EntityState != EntityState.Unchanged
+                                  && entry.EntityState != EntityState.Modified;
+
                 foreach (var foreignKey in entityType.GetReferencingForeignKeys())
                 {
                     var principalToDependent = foreignKey.PrincipalToDependent;
@@ -591,7 +594,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var navigationValue = entry[principalToDependent];
                         if (navigationValue != null)
                         {
-                            var setModified = entry.EntityState != EntityState.Unchanged;
 
                             if (principalToDependent.IsCollection())
                             {
@@ -649,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                             else
                             {
-                                FixupToPrincipal(entry, principalEntry, foreignKey, entry.EntityState != EntityState.Unchanged);
+                                FixupToPrincipal(entry, principalEntry, foreignKey, setModified);
                             }
                         }
                     }
@@ -670,7 +672,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (navigationValue != null)
             {
-                var setModified = referencedEntry.EntityState != EntityState.Unchanged;
+                var setModified = referencedEntry.EntityState != EntityState.Unchanged
+                                  && referencedEntry.EntityState != EntityState.Modified;
 
                 if (!navigation.IsDependentToPrincipal())
                 {

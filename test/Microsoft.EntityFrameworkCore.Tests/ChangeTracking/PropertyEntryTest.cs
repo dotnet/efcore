@@ -98,26 +98,53 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_set_and_clear_modified()
+        public void Can_set_and_clear_modified_on_Modified_entity()
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
-                BuildModel(),
-                EntityState.Unchanged,
-                entity);
-
-            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-
-            new PropertyEntry(entry, "Primate").IsModified = true;
-
+            var entry = TestHelpers.Instance.CreateInternalEntry(BuildModel(), EntityState.Modified, entity);
             Assert.True(new PropertyEntry(entry, "Primate").IsModified);
 
             new PropertyEntry(entry, "Primate").IsModified = false;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
 
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
+        public void Can_set_and_clear_modified_on_Added_or_Deleted_entity(EntityState initialState)
+        {
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+
+            var entry = TestHelpers.Instance.CreateInternalEntry(BuildModel(), initialState, entity);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = false;
             Assert.False(new PropertyEntry(entry, "Primate").IsModified);
         }
 
+        [Theory]
+        [InlineData(EntityState.Detached)]
+        [InlineData(EntityState.Unchanged)]
+        public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity(EntityState initialState)
+        {
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+
+            var entry = TestHelpers.Instance.CreateInternalEntry(BuildModel(), initialState, entity);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = false;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+        }
         [Fact]
         public void Can_reject_changes_when_clearing_modified_flag()
         {
