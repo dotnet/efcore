@@ -2244,21 +2244,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         internal static readonly MethodInfo ThenIncludeAfterEnumerableMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-                .Single(mi =>
-                    {
-                        var typeArgument = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
-                        return typeArgument.IsGenericType && typeArgument.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-                    });
+            = GetThenIncludeMethodInfo(typeof(IEnumerable<>));
 
         internal static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions)
+            = GetThenIncludeMethodInfo(typeof(ICollection<>));
+
+        private static MethodInfo GetThenIncludeMethodInfo(Type navType)
+            => typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
                 .Single(mi =>
                     {
-                        var typeArgument = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
-                        return typeArgument.IsGenericType && typeArgument.GetGenericTypeDefinition() == typeof(ICollection<>);
+                        var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].GetTypeInfo();
+                        return typeInfo.IsGenericType
+                               && typeInfo.GetGenericTypeDefinition() == navType;
                     });
 
         internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
