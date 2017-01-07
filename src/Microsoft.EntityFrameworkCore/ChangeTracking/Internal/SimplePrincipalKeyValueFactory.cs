@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -17,15 +18,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TKey>
     {
+        private readonly IProperty _property;
         private readonly PropertyAccessors _propertyAccessors;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SimplePrincipalKeyValueFactory([NotNull] PropertyAccessors propertyAccessors)
+        public SimplePrincipalKeyValueFactory([NotNull] IProperty property)
         {
-            _propertyAccessors = propertyAccessors;
+            _property = property;
+            _propertyAccessors = _property.GetPropertyAccessors();
             EqualityComparer = typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(typeof(TKey).GetTypeInfo())
                 ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
                 : new NoNullsEqualityComparer();
@@ -49,8 +52,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual IProperty FindNullPropertyInValueBuffer(ValueBuffer valueBuffer)
+            => _property;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual TKey CreateFromCurrentValues(InternalEntityEntry entry)
             => ((Func<InternalEntityEntry, TKey>)_propertyAccessors.CurrentValueGetter)(entry);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IProperty FindNullPropertyInCurrentValues(InternalEntityEntry entry)
+            => _property;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string BuildKeyValuesString(InternalEntityEntry entry)
+            => _property.Name + ":" + entry.GetCurrentValue(_property);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

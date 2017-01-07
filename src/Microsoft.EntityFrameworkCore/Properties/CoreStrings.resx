@@ -133,7 +133,10 @@
     <value>The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
-    <value>The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. When adding new entities, for most key types a unique temporary key value will be created if no key is set (i.e. if the key property is assigned the default value for its type). If you are explicitly setting key values for new entities, ensure they do not collide with existing entities or temporary values generated for other new entities. When attaching existing entities, ensure that only one entity instance with a given key value is attached to the context.</value>
+    <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for '{keyProperties}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
+  </data>
+  <data name="IdentityConflictSensitive" xml:space="preserve">
+    <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached.</value>
   </data>
   <data name="WrongStateManager" xml:space="preserve">
     <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because it was created by a different StateManager instance.</value>
@@ -547,7 +550,10 @@
     <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
   </data>
   <data name="InvalidKeyValue" xml:space="preserve">
-    <value>Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.</value>
+    <value>Unable to track an entity of type '{entityType}' because primary key property '{keyProperty}' is null.</value>
+  </data>
+  <data name="InvalidAlternateKeyValue" xml:space="preserve">
+    <value>Unable to track an entity of type '{entityType}' because alternate key property '{keyProperty}' is null. If the alternate key is not used in a relationship, then consider using a unique index instead. Unique indexes may contain nulls, while alternate keys must not.</value>
   </data>
   <data name="SensitiveDataLoggingEnabled" xml:space="preserve">
     <value>Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.</value>

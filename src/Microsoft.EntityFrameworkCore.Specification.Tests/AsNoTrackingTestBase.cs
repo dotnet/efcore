@@ -48,8 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 IModel model,
                 IDatabase database,
                 IConcurrencyDetector concurrencyDetector,
-                ICurrentDbContext currentContext)
-                : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext)
+                ICurrentDbContext currentContext,
+                IDbContextOptions contextOptions)
+                : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext, contextOptions)
             {
                 IsInitialized = true;
             }

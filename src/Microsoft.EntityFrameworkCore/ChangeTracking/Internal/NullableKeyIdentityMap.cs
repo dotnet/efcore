@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public NullableKeyIdentityMap(
             [NotNull] IKey key,
-            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
-            : base(key, principalKeyValueFactory)
+            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
+            bool sensitiveLoggingEnabled)
+            : base(key, principalKeyValueFactory, sensitiveLoggingEnabled)
         {
         }
 
@@ -36,7 +37,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (key == null)
             {
-                throw new InvalidOperationException(CoreStrings.InvalidKeyValue(entry.EntityType.DisplayName()));
+                if (Key.IsPrimaryKey())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidKeyValue(
+                            entry.EntityType.DisplayName(),
+                            PrincipalKeyValueFactory.FindNullPropertyInCurrentValues(entry).Name));
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidAlternateKeyValue(
+                        entry.EntityType.DisplayName(),
+                        PrincipalKeyValueFactory.FindNullPropertyInCurrentValues(entry).Name));
             }
 
             Add(key, entry);

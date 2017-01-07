@@ -236,7 +236,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 using (var context = new NullKeyContext(testStore.ConnectionString))
                 {
                     Assert.Equal(
-                        CoreStrings.InvalidKeyValue("ZeroKey"),
+                        CoreStrings.InvalidKeyValue("ZeroKey", "Id"),
                         Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
                 }
             }

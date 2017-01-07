@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -22,8 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             IModel model,
             IDatabase database,
             IConcurrencyDetector concurrencyDetector,
-            ICurrentDbContext currentContext)
-            : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext)
+            ICurrentDbContext currentContext,
+            IDbContextOptions contextOptions)
+            : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext, contextOptions)
         {
         }
 

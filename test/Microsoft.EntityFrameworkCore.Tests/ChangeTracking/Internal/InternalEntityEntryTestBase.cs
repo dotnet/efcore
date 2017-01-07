@@ -490,6 +490,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
+            entry[entityType.FindProperty("Id1")] = 66;
+            entry[entityType.FindProperty("Id2")] = "Bar";
             entry.SetEntityState(EntityState.Added);
             entry[fkProperty] = 77;
             entry.SetRelationshipSnapshotValue(fkProperty, 78);
@@ -1148,6 +1150,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
 
+            entry[entityType.FindProperty("Id1")] = 66;
+            entry[entityType.FindProperty("Id2")] = "Bar";
             entry[fkProperty1] = 77;
             entry[fkProperty2] = "Foo";
             entry.SetEntityState(EntityState.Unchanged);
@@ -1168,6 +1172,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
 
+            entry[entityType.FindProperty("Id1")] = 66;
+            entry[entityType.FindProperty("Id2")] = "Bar";
             entry[fkProperty1] = 77;
             entry[fkProperty2] = "Foo";
             entry.SetEntityState(EntityState.Unchanged);

@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class IdentityMap<TKey> : IIdentityMap
     {
+        private readonly bool _sensitiveLoggingEnabled;
         private readonly Dictionary<TKey, InternalEntityEntry> _identityMap;
         private readonly IForeignKey[] _foreignKeys;
         private Dictionary<IForeignKey, IDependentsMap> _dependentMaps;
@@ -28,8 +29,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public IdentityMap(
             [NotNull] IKey key,
-            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
+            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
+            bool sensitiveLoggingEnabled)
         {
+            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             Key = key;
             PrincipalKeyValueFactory = principalKeyValueFactory;
             _identityMap = new Dictionary<TKey, InternalEntityEntry>(principalKeyValueFactory.EqualityComparer);
@@ -99,7 +102,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (key == null
                 && throwOnNullKey)
             {
-                throw new InvalidOperationException(CoreStrings.InvalidKeyValue(Key.DeclaringEntityType.DisplayName()));
+                if (Key.IsPrimaryKey())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidKeyValue(
+                            Key.DeclaringEntityType.DisplayName(),
+                            PrincipalKeyValueFactory.FindNullPropertyInValueBuffer(valueBuffer).Name));
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidAlternateKeyValue(
+                        Key.DeclaringEntityType.DisplayName(),
+                        PrincipalKeyValueFactory.FindNullPropertyInValueBuffer(valueBuffer).Name));
             }
 
             try
@@ -187,7 +201,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (existingEntry != entry)
                 {
-                    throw new InvalidOperationException(CoreStrings.IdentityConflict(entry.EntityType.DisplayName()));
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.IdentityConflictSensitive(
+                                entry.EntityType.DisplayName(),
+                                PrincipalKeyValueFactory.BuildKeyValuesString(entry)));
+
+                    }
+
+                    throw new InvalidOperationException(
+                        CoreStrings.IdentityConflict(
+                            entry.EntityType.DisplayName(),
+                            string.Join(", ", Key.Properties.Select(p => p.Name))));
                 }
             }
             else

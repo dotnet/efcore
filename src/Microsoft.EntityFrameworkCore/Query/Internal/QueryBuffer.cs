@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -65,13 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var identityMap = GetOrCreateIdentityMap(key);
 
             bool hasNullKey;
-            var weakReference = identityMap.TryGetEntity(entityLoadInfo.ValueBuffer, out hasNullKey);
+            var weakReference = identityMap.TryGetEntity(entityLoadInfo.ValueBuffer, throwOnNullKey, out hasNullKey);
             if (hasNullKey)
             {
-                if (throwOnNullKey)
-                {
-                    throw new InvalidOperationException(CoreStrings.InvalidKeyValue(key.DeclaringEntityType.DisplayName()));
-                }
                 return null;
             }
 
