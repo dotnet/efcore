@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -99,14 +100,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public void Constructor_validation()
+        public void Throws_when_used_with_parameterless_constructor_context()
         {
-            var serviceProvider = BuildServiceProvider<BadCtorContext>();
+            var serviceCollection = new ServiceCollection();
 
-            var serviceScope1 = serviceProvider.CreateScope();
+            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
+                Assert.Throws<ArgumentException>(
+                    () => serviceCollection.AddDbContextPool<BadCtorContext>(
+                        _ => { })).Message);
 
-            Assert.Throws<InvalidOperationException>(
-                () => serviceScope1.ServiceProvider.GetService<BadCtorContext>());
+            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
+                Assert.Throws<ArgumentException>(
+                    () => serviceCollection.AddDbContextPool<BadCtorContext>(
+                        (_, __) => { })).Message);
         }
 
         [Fact]

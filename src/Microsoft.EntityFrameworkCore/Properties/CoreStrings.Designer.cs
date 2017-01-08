@@ -337,6 +337,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// AddDbContext was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to AddDbContext will never be used. If configuration is passed to AddDbContext, then ‘{contextType}’ should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.
+        /// </summary>
+        public static string DbContextMissingConstructor([CanBeNull] object contextType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DbContextMissingConstructor", "contextType"), contextType);
+        }
+
+        /// <summary>
         /// No database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.
         /// </summary>
         public static string NoProviderConfigured

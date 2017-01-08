@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +29,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             var connectionString = "connection string to database";
-        ///
-        ///             services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
-        ///         }
-        ///     </code>
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
+        /// 
+        ///              services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
+        ///          }
+        ///      </code>
         /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
@@ -63,7 +64,11 @@ namespace Microsoft.Extensions.DependencyInjection
             [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
-            => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
+            => AddDbContext<TContext>(
+                serviceCollection,
+                optionsAction == null
+                    ? (Action<IServiceProvider, DbContextOptionsBuilder>)null
+                    : (p, b) => optionsAction.Invoke(b), contextLifetime);
 
         /// <summary>
         ///     Registers the given context as a service in the <see cref="IServiceCollection" /> and enables DbContext pooling.
@@ -87,12 +92,16 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
-         public static IServiceCollection AddDbContextPool<TContext>(
+        public static IServiceCollection AddDbContextPool<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
             [NotNull] Action<DbContextOptionsBuilder> optionsAction,
             int poolSize = 128)
             where TContext : DbContext
-            => AddDbContextPool<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
+        {
+            Check.NotNull(optionsAction, nameof(optionsAction));
+
+            return AddDbContextPool<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
+        }
 
         /// <summary>
         ///     <para>
@@ -140,6 +149,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentOutOfRangeException(nameof(poolSize), CoreStrings.InvalidPoolSize);
             }
 
+            CheckContextConstructors<TContext>();
+
             AddCoreServices<TContext>(serviceCollection,
                 (sp, ob) =>
                     {
@@ -170,13 +181,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             var connectionString = "connection string to database";
-        ///
-        ///             services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
-        ///         }
-        ///     </code>
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
+        /// 
+        ///              services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
+        ///          }
+        ///      </code>
         /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
@@ -207,17 +218,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             var connectionString = "connection string to database";
-        ///
-        ///             services
-        ///                 .AddEntityFrameworkSqlServer()
-        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                     options.UseSqlServer(connectionString)
-        ///                            .UseInternalServiceProvider(serviceProvider));
-        ///         }
-        ///     </code>
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
+        /// 
+        ///              services
+        ///                  .AddEntityFrameworkSqlServer()
+        ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                      options.UseSqlServer(connectionString)
+        ///                             .UseInternalServiceProvider(serviceProvider));
+        ///          }
+        ///      </code>
         /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
@@ -249,6 +260,11 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
+            if (optionsAction != null)
+            {
+                CheckContextConstructors<TContext>();
+            }
+
             AddCoreServices<TContext>(serviceCollection, optionsAction);
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContext), typeof(TContext), contextLifetime));
@@ -257,8 +273,8 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private static void AddCoreServices<TContext>(
-            IServiceCollection serviceCollection, 
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction) 
+            IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
             serviceCollection
@@ -282,6 +298,16 @@ namespace Microsoft.Extensions.DependencyInjection
             optionsAction?.Invoke(applicationServiceProvider, builder);
 
             return builder.Options;
+        }
+
+        private static void CheckContextConstructors<TContext>() where TContext : DbContext
+        {
+            var declaredConstructors = typeof(TContext).GetTypeInfo().DeclaredConstructors.ToList();
+            if (declaredConstructors.Count == 1
+                && declaredConstructors[0].GetParameters().Length == 0)
+            {
+                throw new ArgumentException(CoreStrings.DbContextMissingConstructor(typeof(TContext).ShortDisplayName()));
+            }
         }
     }
 }

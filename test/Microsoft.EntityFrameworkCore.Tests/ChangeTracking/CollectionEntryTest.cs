@@ -342,8 +342,60 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             }
         }
 
-        [Fact]
-        public void IsModified_can_set_fk_to_modified_principal()
+        [Theory]
+        [InlineData(EntityState.Detached, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Deleted, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Detached, EntityState.Deleted)]
+        [InlineData(EntityState.Added, EntityState.Deleted)]
+        [InlineData(EntityState.Modified, EntityState.Deleted)]
+        [InlineData(EntityState.Deleted, EntityState.Deleted)]
+        [InlineData(EntityState.Unchanged, EntityState.Deleted)]
+        public void IsModified_can_set_fk_to_modified_principal_with_Added_or_Deleted_dependents(
+            EntityState principalState, EntityState dependentState)
+        {
+            using (var context = new FreezerContext())
+            {
+                var cherry = new Cherry();
+                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
+                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
+
+                cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+
+                context.Entry(cherry).State = principalState;
+                context.Entry(chunky1).State = dependentState;
+                context.Entry(chunky2).State = dependentState;
+
+                var collection = context.Entry(cherry).Collection(e => e.Monkeys);
+
+                Assert.False(collection.IsModified);
+
+                collection.IsModified = true;
+
+                Assert.False(collection.IsModified);
+                Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+                Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+
+                collection.IsModified = false;
+
+                Assert.False(collection.IsModified);
+                Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+                Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+                Assert.Equal(dependentState, context.Entry(chunky1).State);
+                Assert.Equal(dependentState, context.Entry(chunky2).State);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Detached, EntityState.Unchanged)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Deleted, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Unchanged)]
+        public void IsModified_can_set_fk_to_modified_principal_with_Unchanged_dependents(
+            EntityState principalState, EntityState dependentState)
         {
             using (var context = new FreezerContext())
             {
@@ -351,7 +403,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 var chunky1 = new Chunky { Id = 1, Garcia = cherry };
                 var chunky2 = new Chunky { Id = 2, Garcia = cherry };
                 cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
-                context.AttachRange(cherry, chunky1, chunky2);
+
+                context.Entry(cherry).State = principalState;
+                context.Entry(chunky1).State = dependentState;
+                context.Entry(chunky2).State = dependentState;
 
                 var collection = context.Entry(cherry).Collection(e => e.Monkeys);
 
@@ -368,8 +423,48 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.False(collection.IsModified);
                 Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
                 Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
-                Assert.Equal(EntityState.Unchanged, context.Entry(chunky1).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(chunky2).State);
+                Assert.Equal(dependentState, context.Entry(chunky1).State);
+                Assert.Equal(dependentState, context.Entry(chunky2).State);
+            }
+        }
+        
+        [Theory]
+        [InlineData(EntityState.Detached, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Deleted, EntityState.Modified)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void IsModified_can_set_fk_to_modified_principal_with_Modified_dependents(
+            EntityState principalState, EntityState dependentState)
+        {
+            using (var context = new FreezerContext())
+            {
+                var cherry = new Cherry();
+                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
+                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
+                cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+
+                context.Entry(cherry).State = principalState;
+                context.Entry(chunky1).State = dependentState;
+                context.Entry(chunky2).State = dependentState;
+
+                var collection = context.Entry(cherry).Collection(e => e.Monkeys);
+
+                Assert.True(collection.IsModified);
+
+                collection.IsModified = false;
+
+                Assert.False(collection.IsModified);
+                Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+                Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+
+                collection.IsModified = true;
+
+                Assert.True(collection.IsModified);
+                Assert.True(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+                Assert.True(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+                Assert.Equal(dependentState, context.Entry(chunky1).State);
+                Assert.Equal(dependentState, context.Entry(chunky2).State);
             }
         }
 

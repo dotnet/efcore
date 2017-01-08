@@ -3791,6 +3791,22 @@ namespace Microsoft.EntityFrameworkCore.Tests
             Assert.Same(context1.Model, context2.Model);
         }
 
+        [Fact]
+        public void Throws_when_used_with_parameterless_constructor_context()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(ConstructorTestContextWithOC1A)),
+                Assert.Throws<ArgumentException>(
+                    () => serviceCollection.AddDbContext<ConstructorTestContextWithOC1A>(
+                        _ => { })).Message);
+
+            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(ConstructorTestContextWithOC1A)),
+                Assert.Throws<ArgumentException>(
+                    () => serviceCollection.AddDbContext<ConstructorTestContextWithOC1A>(
+                        (_, __) => { })).Message);
+        }
+
         [Theory]
         [InlineData(true, false)]
         [InlineData(false, false)]
@@ -3799,20 +3815,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var appServiceProivder = useDbContext
                 ? new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC1A>(
-                        (p, b) => b.UseInternalServiceProvider(p),
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .AddDbContext<ConstructorTestContextWithOC3A>(
+                        (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(),
                         ServiceLifetime.Singleton)
                     .BuildServiceProvider()
                 : (addSingletonFirst
                     ? new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddSingleton<ConstructorTestContextWithOC1A>()
-                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                        .AddSingleton<ConstructorTestContextWithOC3A>()
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase())
                         .BuildServiceProvider()
                     : new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
-                        .AddSingleton<ConstructorTestContextWithOC1A>()
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase())
+                        .AddSingleton<ConstructorTestContextWithOC3A>()
                         .BuildServiceProvider());
 
             var singleton = new object[3];
@@ -3823,7 +3840,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
@@ -3838,7 +3855,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context2.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
@@ -3917,20 +3934,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var appServiceProivder = useDbContext
                 ? new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC1A>(
-                        (p, b) => b.UseInternalServiceProvider(p),
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .AddDbContext<ConstructorTestContextWithOC3A>(
+                        (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(),
                         ServiceLifetime.Transient)
                     .BuildServiceProvider()
                 : (addTransientFirst
                     ? new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddTransient<ConstructorTestContextWithOC1A>()
-                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                        .AddTransient<ConstructorTestContextWithOC3A>()
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase())
                         .BuildServiceProvider()
                     : new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
-                        .AddTransient<ConstructorTestContextWithOC1A>()
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase())
+                        .AddTransient<ConstructorTestContextWithOC3A>()
                         .BuildServiceProvider());
 
             var singleton = new object[3];
@@ -3939,8 +3957,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
-                var context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                var context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotSame(context1, context2);
 
@@ -3962,7 +3980,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
