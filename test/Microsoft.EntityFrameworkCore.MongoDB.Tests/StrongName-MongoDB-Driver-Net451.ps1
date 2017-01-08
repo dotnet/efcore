@@ -9,6 +9,14 @@
  to their own needs.
 #>
 
+Param(
+    [Parameter(Mandatory=$true, Position=1)][string]$Platform
+)
+
+if ($Platform -ne "net451") {
+    exit
+}
+
 #TODO: verify that these exist, which is probably moot given that this is a build-chain script
 $ildasm = "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\ildasm.exe"
 $ilasm = "${env:windir}\Microsoft.NET\Framework\v4.0.30319\ilasm.exe"
@@ -42,37 +50,37 @@ Function Rewrite-References([string]$ilContent) {
 
 Function Rewrite-Assembly([string]$assembly) {
     Write-Host -NoNewline "Strong-naming ${assembly}..."
+
     #disassemble the dlls to IL
     &"$ildasm" /nobar /all /out="${assembly}.il" "$assembly"
 
     Set-Content "${assembly}.il" (Rewrite-References(Get-Content "${assembly}.il" -Raw))
 
     #re-assemble the modified IL, overwriting the original dll and signing it using our SNK
-    &"$ilasm" /dll /debug /quiet /key="..\..\tools\Key.snk" /out="${assembly}" "${assembly}.il"
+    &"$ilasm" /dll /debug /quiet /key="..\..\tools\Key.snk" /out="${assembly}.strongname" "${assembly}.il"
+    Copy-Item -Force $assembly "$assembly.original"
 
     #good citizenship: cleanup
-    #del "$assembly.il"
+    del "$assembly.il"
     Write-Host "done!"
 }
 
-Function Check-Driver-Dll([string]$package) {
-    $assembly = "${env:UserProfile}\.nuget\packages\${package}\2.4.0\lib\net45\${package}.dll"
+Function Check-Dll([string]$package, [string]$assembly) {
+    Write-Host "Checking library ${package}..."
 
-    Write-Host "Checking MongoDB driver package ${package}..."
-
-    &"$sn" -q -Tp "$assembly"
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Package ${package} not strong-named..."
-        Rewrite-Assembly $assembly
+    if (Test-Path("$assembly.strongname")) {
+        Write-Host "Skipping ${package}: already strong-named..."
     } else {
-        Write-Host "Skipping ${package}: already signed..."
+        Write-Host "Library ${package} not strong-named..."
+        Rewrite-Assembly $assembly
     }
+
+    Write-Host "Replacing ${assembly} with strong-named version..."
+    Copy-Item -Force "$assembly.strongname" $assembly
 }
 
 #check all MongoDB driver dlls
-Check-Driver-Dll "MongoDB.Bson"
-Check-Driver-Dll "MongoDB.Driver"
-Check-Driver-Dll "MongoDB.Driver.Core"
+"MongoDB.Bson", "MongoDB.Driver", "MongoDB.Driver.Core" | % { Check-Dll $_ "${env:UserProfile}\.nuget\packages\$_\2.4.0\lib\net45\$_.dll"}
 
 #rewrite MongoDB EF provider library so that it references the newly strong-named driver dlls
-Rewrite-Assembly "..\..\src\Microsoft.EntityFrameworkCore.MongoDB\bin\Debug\net451\Microsoft.EntityFrameworkCore.MongoDB.dll"
+Check-Dll "Microsoft.EntityFrameworkCore.MongoDB" "..\..\src\Microsoft.EntityFrameworkCore.MongoDB\bin\Debug\net451\Microsoft.EntityFrameworkCore.MongoDB.dll"

@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "precompile": [ "cmd /c echo before restoring packages", "reset-mongodb-driver.cmd %compile:TargetFramework%" ]
+    "precompile": [ "powershell -file reset-mongodb-driver-net451.ps1 \"%compile:TargetFramework%\"" ]
   },
   "dependencies": {
     "NETStandard.Library": "1.6.2-*",

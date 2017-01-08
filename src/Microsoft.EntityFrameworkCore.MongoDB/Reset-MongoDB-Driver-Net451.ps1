@@ -8,28 +8,27 @@
  re-built with the correct references so that it can be correctly packaged.
 #>
 
+Param(
+    [Parameter(Mandatory=$true, Position=1)][string]$Platform
+)
+
+if ($Platform -ne "net451") {
+    exit
+}
+
 $sn = "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\sn.exe"
 
-Function Check-Package([string]$package) {
-    $assembly = "${env:UserProfile}\.nuget\packages\${package}\2.4.0\lib\net45\${package}.dll"
-
-    &"$sn" -q -Tp "$assembly"
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Skipping ${package}: not signed..."
+Function Restore-Dll([string]$package, [string]$assembly) {
+    if (Test-Path("$assembly.original")) {
+        Write-Host "Restoring library: ${package}..."
+        Copy-Item -Force "$assembly.original" $assembly
     } else {
-        Write-Host "Deleting NuGet package: ${package}..."
-        Remove-Item -Recurse "${env:UserProfile}\.nuget\packages\${package}\2.4.0"
+        Write-Host "Skipping ${package}: not strong-named..."
     }
 }
 
 #the .MongoDB.Tests project signs the MongoDB driver libraries in order for the net451 tests to pass
 #so we need to delete the files and restore the NuGet dependencies in order to bring back the
-Check-Package "MongoDB.Bson"
-Check-Package "MongoDB.Driver"
-Check-Package "MongoDB.Driver.Core"
+"MongoDB.Bson", "MongoDB.Driver", "MongoDB.Driver.Core" | % { Restore-Dll $_ "${env:UserProfile}\.nuget\packages\$_\2.4.0\lib\net45\$_.dll" }
 
-if (Test-Path "..\..\src\Microsoft.EntityFrameworkCore.MongoDB\bin\Debug\net451\Microsoft.EntityFrameworkCore.MongoDB.dll") {
-    Remove-Item "..\..\src\Microsoft.EntityFrameworkCore.MongoDB\bin\Debug\net451\Microsoft.EntityFrameworkCore.MongoDB.dll"
-}
-
-&dotnet.exe restore
+del "..\..\src\Microsoft.EntityFrameworkCore.MongoDB\bin\Debug\net451\Microsoft.EntityFrameworkCore.MongoDB.dll*"
