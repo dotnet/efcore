@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -9,33 +10,23 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
 {
     public class MongoDbFixture : IDisposable
     {
-        private const int MongodPort = 27081;
-        private static readonly string _mongodExe = Environment.ExpandEnvironmentVariables(name: @"%PROGRAMFILES%\MongoDB\Server\3.2\bin\mongod.exe");
-        private static readonly string _mongoExe = Environment.ExpandEnvironmentVariables(name: @"%PROGRAMFILES%\MongoDB\Server\3.2\bin\mongo.exe");
-        private static readonly string _dataFolder = $@".data\Port-{MongodPort}";
-        private static readonly string _mongoUrl = $"mongodb://localhost:{MongodPort}";
-
         private Process _mongodProcess;
 
         public MongoDbFixture()
         {
-            if (!File.Exists(_mongodExe))
-            {
-                throw new Exception(message: "MongoDB is not installed on the local system. Please install version 3.2 to run these tests.");
-            }
-            Directory.CreateDirectory(_dataFolder);
+            Directory.CreateDirectory(MongoDbConstants.DataFolder);
             _mongodProcess = Process.Start(
                 new ProcessStartInfo
                 {
-                    FileName = Environment.ExpandEnvironmentVariables(name: _mongodExe),
-                    Arguments = $@"-vvvvv --port {MongodPort} --logpath "".data\{MongodPort}.log"" --dbpath ""{_dataFolder}""",
+                    FileName = Environment.ExpandEnvironmentVariables(name: MongoDbConstants.MongodExe),
+                    Arguments = $@"-vvvvv --port {MongoDbConstants.MongodPort} --logpath "".data\{MongoDbConstants.MongodPort}.log"" --dbpath ""{MongoDbConstants.DataFolder}""",
                     CreateNoWindow = true,
                     UseShellExecute = false
                 });
         }
 
         public TestMongoDbContext TestMongoDbContext => new ServiceCollection()
-                .AddDbContext<TestMongoDbContext>(options => options.UseMongoDb(connectionString: _mongoUrl))
+                .AddDbContext<TestMongoDbContext>(options => options.UseMongoDb(connectionString: MongoDbConstants.MongoUrl))
                 .BuildServiceProvider()
                 .GetService<TestMongoDbContext>();
 
@@ -46,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
                 Process.Start(
                     new ProcessStartInfo
                     {
-                        FileName = _mongoExe,
-                        Arguments = $@"""{_mongoUrl}/admin"" --eval ""db.shutdownServer();""",
+                        FileName = MongoDbConstants.MongoExe,
+                        Arguments = $@"""{MongoDbConstants.MongoUrl}/admin"" --eval ""db.shutdownServer();""",
                         CreateNoWindow = true,
                         UseShellExecute = false
                     });
@@ -58,3 +49,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

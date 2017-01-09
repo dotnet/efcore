@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.ValueGeneration;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using MongoDB.Bson;
 using Xunit;
 
@@ -41,3 +42,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.ValueGeneration
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

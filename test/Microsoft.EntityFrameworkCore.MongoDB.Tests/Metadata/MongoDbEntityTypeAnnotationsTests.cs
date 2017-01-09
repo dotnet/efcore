@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,3 +59,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.Metadata
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

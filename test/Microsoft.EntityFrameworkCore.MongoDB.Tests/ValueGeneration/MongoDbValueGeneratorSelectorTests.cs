@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -23,3 +24,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.ValueGeneration
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.MongoDB.Adapter;
 using Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain;
@@ -27,3 +28,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.MongoDB.Adapter
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

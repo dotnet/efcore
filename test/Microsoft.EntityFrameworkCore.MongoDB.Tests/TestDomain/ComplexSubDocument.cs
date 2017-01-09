@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -29,3 +30,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain
                (ComplexValueList?.All(complexValue => other?.ComplexValueList?.Contains(complexValue) ?? false) ?? false);
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

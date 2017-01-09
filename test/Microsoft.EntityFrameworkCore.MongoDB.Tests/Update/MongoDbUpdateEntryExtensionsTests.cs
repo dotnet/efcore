@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -70,3 +71,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.Update
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

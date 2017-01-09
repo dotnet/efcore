@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using MongoDB.Bson;
@@ -24,3 +25,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain
                Equals(ComplexSubDocument, other?.ComplexSubDocument);
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

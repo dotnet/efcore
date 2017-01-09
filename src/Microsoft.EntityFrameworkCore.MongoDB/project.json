@@ -26,9 +26,6 @@
       "includeFiles": "Properties/Microsoft.EntityFrameworkCore.MongoDB.rd.xml"
     }
   },
-  "scripts": {
-    "precompile": [ "powershell -file reset-mongodb-driver-net451.ps1 \"%compile:TargetFramework%\"" ]
-  },
   "dependencies": {
     "NETStandard.Library": "1.6.2-*",
     "Microsoft.EntityFrameworkCore": "1.2.0-*",

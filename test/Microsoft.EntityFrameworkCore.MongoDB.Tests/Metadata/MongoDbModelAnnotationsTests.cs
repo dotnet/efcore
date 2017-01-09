@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain;
 using Xunit;
@@ -45,3 +46,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.Metadata
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System;
 using Microsoft.EntityFrameworkCore.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain
@@ -17,3 +18,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain
                ByteProperty == other?.ByteProperty;
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

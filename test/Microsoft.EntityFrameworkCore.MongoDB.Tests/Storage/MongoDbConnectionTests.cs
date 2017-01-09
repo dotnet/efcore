@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -110,3 +111,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.Storage
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

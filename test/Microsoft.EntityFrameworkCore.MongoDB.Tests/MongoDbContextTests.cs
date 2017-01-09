@@ -1,14 +1,17 @@
-﻿using System;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
 {
+    [MongoDbInstalledTestConditionAttribute]
     public class MongoDbContextTests : IClassFixture<MongoDbFixture>, IDisposable
     {
         private TestMongoDbContext _testMongoDbContext;
@@ -19,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
             _testMongoDbContext.Database.EnsureCreated();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_query_from_mongodb()
         {
             Assert.Empty(_testMongoDbContext.SimpleRecords.ToList());
@@ -27,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
             Assert.Empty(_testMongoDbContext.RootTypes.ToList());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_simple_record()
         {
             var simpleRecord = new SimpleRecord();
@@ -36,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
             Assert.Equal(simpleRecord, _testMongoDbContext.SimpleRecords.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_complex_record()
         {
             var complexRecord = new ComplexRecord();
@@ -45,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
             Assert.Equal(complexRecord, _testMongoDbContext.ComplexRecords.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_polymorphic_records()
         {
             IList<RootType> insertedEntities = new RootType[]
@@ -68,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_query_polymorphic_sub_types()
         {
             IList<RootType> insertedEntities = new RootType[]
@@ -116,3 +119,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

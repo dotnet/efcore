@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.MongoDB.Adapter;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using Microsoft.EntityFrameworkCore.MongoDB.Adapter;
 using Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -39,3 +40,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.MongoDB.Adapter
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

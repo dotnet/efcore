@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -67,3 +68,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.Storage
         }
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !(NET451 && DRIVER_NOT_SIGNED)
+using System;
 
 namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain
 {
@@ -14,3 +15,4 @@ namespace Microsoft.EntityFrameworkCore.MongoDB.Tests.TestDomain
                CharProperty == other?.CharProperty;
     }
 }
+#endif //!(NET451 && DRIVER_NOT_SIGNED)
