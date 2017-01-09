@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <Summary>SQLite implementation of the System.Data.Common provider model.</Summary>
+    <Description>$(Summary)
+
+Commonly Used Types:
+Microsoft.Data.Sqlite.SqliteCommand
+Microsoft.Data.Sqlite.SqliteConnection
+Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+Microsoft.Data.Sqlite.SqliteDataReader
+Microsoft.Data.Sqlite.SqliteException
+Microsoft.Data.Sqlite.SqliteFactory
+Microsoft.Data.Sqlite.SqliteParameter
+Microsoft.Data.Sqlite.SqliteTransaction</Description>
+    <TargetFrameworks>net451;netstandard1.3</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>SQLite;Data;ADO.NET</PackageTags>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)$(MSBuildProjectName).ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+    <EmbeddedResource Include="Properties\Microsoft.Data.Sqlite.rd.xml" />
+    <EmbeddedResource Include="**\*.resx" />
+    <AdditionalFiles Include="stylecop.json" />
+    <None Include="$(CodeAnalysisRuleSet)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NETStandard.Library" Version="1.6.2-*" />
+    <PackageReference Include="SQLite" Version="3.12.3" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="System.Data.Common" Version="4.4.0-*" />
+  </ItemGroup>
+
+</Project>
