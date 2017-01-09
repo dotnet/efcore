@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var currentProperty = traversalList[index];
 
-                if (currentProperty.RequiresValueGenerator)
+                if (currentProperty.RequiresValueGenerator())
                 {
                     return currentProperty;
                 }
@@ -66,6 +67,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             return null;
         }
+
+        /// <summary>
+        ///     Gets a value indicating whether this property requires a <see cref="ValueGenerator" /> to generate
+        ///     values when new entities are added to the context.
+        /// </summary>
+        public static bool RequiresValueGenerator([NotNull] this IProperty property)
+            => (property.ValueGenerated != ValueGenerated.Never
+                && !property.IsForeignKey()
+                && property.IsKey())
+               || property.GetValueGeneratorFactory() != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -210,11 +221,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (property.IsReadOnlyBeforeSave)
             {
                 builder.Append(" ReadOnlyBeforeSave");
-            }
-
-            if (property.RequiresValueGenerator)
-            {
-                builder.Append(" RequiresValueGenerator");
             }
 
             if (property.ValueGenerated != ValueGenerated.Never)

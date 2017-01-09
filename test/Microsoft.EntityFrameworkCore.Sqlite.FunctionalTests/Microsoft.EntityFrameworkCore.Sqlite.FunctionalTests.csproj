@@ -90,6 +90,8 @@
     <Compile Include="SqliteDatabaseCreatorTest.cs" />
     <Compile Include="SqliteDatabaseFacadeExtensions.cs" />
     <Compile Include="SqliteForeignKeyTest.cs" />
+    <Compile Include="SqliteMigrationSqlGeneratorTest.cs" />
+    <Compile Include="SqliteServiceCollectionExtensionsTest.cs" />
     <Compile Include="SqliteTestHelpers.cs" />
     <Compile Include="SqliteTestStore.cs" />
     <Compile Include="StoreGeneratedFixupSqliteTest.cs" />

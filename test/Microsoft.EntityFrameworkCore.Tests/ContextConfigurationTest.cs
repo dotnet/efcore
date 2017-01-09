@@ -5,8 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Requesting_a_singleton_always_returns_same_instance()
         {
-            var provider = TestHelpers.Instance.CreateServiceProvider();
-            var contextServices1 = TestHelpers.Instance.CreateContextServices(provider);
-            var contextServices2 = TestHelpers.Instance.CreateContextServices(provider);
+            var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
+            var contextServices1 = InMemoryTestHelpers.Instance.CreateContextServices(provider);
+            var contextServices2 = InMemoryTestHelpers.Instance.CreateContextServices(provider);
 
             Assert.Same(contextServices1.GetRequiredService<IDbSetSource>(), contextServices2.GetRequiredService<IDbSetSource>());
         }
@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Requesting_a_scoped_service_always_returns_same_instance_in_scope()
         {
-            var provider = TestHelpers.Instance.CreateServiceProvider();
-            var contextServices = TestHelpers.Instance.CreateContextServices(provider);
+            var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(provider);
 
             Assert.Same(contextServices.GetRequiredService<IStateManager>(), contextServices.GetRequiredService<IStateManager>());
         }
@@ -37,9 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Requesting_a_scoped_service_always_returns_a_different_instance_in_a_different_scope()
         {
-            var provider = TestHelpers.Instance.CreateServiceProvider();
-            var contextServices1 = TestHelpers.Instance.CreateContextServices(provider);
-            var contextServices2 = TestHelpers.Instance.CreateContextServices(provider);
+            var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
+            var contextServices1 = InMemoryTestHelpers.Instance.CreateContextServices(provider);
+            var contextServices2 = InMemoryTestHelpers.Instance.CreateContextServices(provider);
 
             Assert.NotSame(contextServices1.GetRequiredService<IStateManager>(), contextServices2.GetRequiredService<IStateManager>());
         }
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Scoped_provider_services_can_be_obtained_from_configuration()
         {
-            var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
             IDatabase database;
             IDatabaseCreator creator;

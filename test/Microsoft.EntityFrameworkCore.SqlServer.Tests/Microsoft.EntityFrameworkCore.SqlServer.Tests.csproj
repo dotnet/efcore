@@ -47,7 +47,6 @@
     <Compile Include="Metadata\SqlServerInternalMetadataBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepositoryTest.cs" />
-    <Compile Include="Migrations\SqlServerMigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\SqlServerModelDifferTest.cs" />
     <Compile Include="ModelBuilderTest\SqlServerModelBuilderGenericTest.cs" />
     <Compile Include="ModelBuilderTest\SqlServerTestModelBuilderExtensions.cs" />
@@ -55,11 +54,9 @@
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
     <Compile Include="SqlServerDatabaseSourceTest.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
-    <Compile Include="SqlServerServiceCollectionExtensionsTest.cs" />
     <Compile Include="SqlServerModelValidatorTest.cs" />
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
-    <Compile Include="SqlServerTestHelpers.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
     <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />

@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 .AddSingleton(listeners[1].Object)
                 .AddSingleton(listeners[2].Object);
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(services, BuildModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(services, BuildModel());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>(),
                 BuildModel());
 
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
 
         private static IStateManager CreateStateManager(IModel model)
-            => TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
+            => InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
         public class Widget
         {

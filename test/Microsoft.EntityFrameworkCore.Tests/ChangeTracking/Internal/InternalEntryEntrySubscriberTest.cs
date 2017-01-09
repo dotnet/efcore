@@ -11,9 +11,9 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         public void Original_and_relationship_values_recorded_when_no_changing_notifications(
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
                 BuildModel(changeTrackingStrategy));
 
             entry.SetEntityState(EntityState.Unchanged);
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         public void Original_and_relationship_values_not_recorded_when_full_notifications(
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
                 BuildModel(changeTrackingStrategy));
 
             entry.SetEntityState(EntityState.Unchanged);
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Notifying_collections_are_not_created_when_snapshot_tracking()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
                 BuildModel(ChangeTrackingStrategy.Snapshot));
 
             entry.SetEntityState(EntityState.Unchanged);
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         public void Notifying_collections_are_created_when_notification_tracking(
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
                 BuildModel(changeTrackingStrategy));
 
             entry.SetEntityState(EntityState.Unchanged);
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Non_notifying_collection_acceptable_when_snapshot_tracking()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
                 BuildModel(ChangeTrackingStrategy.Snapshot));
 
             var collection = new List<ChangedOnlyNotificationEntity>();
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         public void Non_notifying_collections_not_acceotable_when_noitification_tracking(
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
                 BuildModel(changeTrackingStrategy));
 
             ((FullNotificationEntity)entry.Entity).RelatedCollection = new List<ChangedOnlyNotificationEntity>();
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         private static TestNavigationListener SetupTestCollectionListener(
             ICollection<ChangedOnlyNotificationEntity> collection)
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<INavigationListener, TestNavigationListener>(),
                 BuildModel());
 
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_properties()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Entry_handles_null_or_empty_string_in_INotifyPropertyChanging_and_INotifyPropertyChanged()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_navigations()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Subscriptions_to_INotifyPropertyChanging_and_INotifyPropertyChanged_ignore_unmapped_properties()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Entry_unsubscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Entry_unsubscribes_to_INotifyCollectionChanged()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<INavigationListener, TestNavigationListener>(),
                 BuildModel());
 
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Entries_are_unsubscribed_when_context_is_disposed()
         {
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         private static IModel BuildModel(
             ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications)
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<FullNotificationEntity>(b =>
                 {

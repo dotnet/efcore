@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
         }
 
-        public new static InMemoryTestHelpers Instance { get; } = new InMemoryTestHelpers();
+        public static InMemoryTestHelpers Instance { get; } = new InMemoryTestHelpers();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkInMemoryDatabase();

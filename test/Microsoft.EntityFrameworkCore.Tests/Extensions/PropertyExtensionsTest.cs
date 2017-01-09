@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Extensions
@@ -30,8 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
 
             var entityType = model.AddEntityType("Entity");
             var property = entityType.AddProperty("Property", typeof(int));
+            entityType.AddKey(property);
 
-            property.RequiresValueGenerator = true;
+            property.ValueGenerated = ValueGenerated.OnAdd;
 
             Assert.Equal(property, property.GetGenerationProperty());
         }
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
             var thirdProperty = thirdType.AddProperty("ID", typeof(int));
             thirdType.AddForeignKey(thirdProperty, secondKey, secondType);
 
-            firstProperty.RequiresValueGenerator = true;
+            firstProperty.ValueGenerated = ValueGenerated.OnAdd;
 
             Assert.Equal(firstProperty, thirdProperty.GetGenerationProperty());
         }
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
 
             endType.AddForeignKey(endProperty, middleKey1, middleType);
 
-            rightId2.RequiresValueGenerator = true;
+            rightId2.ValueGenerated = ValueGenerated.OnAdd;
 
             Assert.Equal(rightId2, endProperty.GetGenerationProperty());
         }
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
             secondType.AddForeignKey(secondId1, firstKey, firstType);
             secondType.AddForeignKey(new[] { secondId1, secondId2 }, leafKey, leafType);
 
-            leafId1.RequiresValueGenerator = true;
+            leafId1.ValueGenerated = ValueGenerated.OnAdd;
 
             Assert.Equal(leafId1, secondId1.GetGenerationProperty());
         }
@@ -220,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
 
         private IModel BuildModel()
         {
-            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder
                 .Entity<Category>()

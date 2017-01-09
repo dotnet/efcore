@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -60,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var batch = _modificationCommandBatchFactory.Create();
                 foreach (var modificationCommand in independentCommandSet)
                 {
+                    Validate(modificationCommand);
+
                     if (!batch.AddCommand(modificationCommand))
                     {
                         yield return batch;
@@ -281,6 +284,22 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     if (predecessor != command)
                     {
                         commandGraph.AddEdge(predecessor, command, foreignKey);
+                    }
+                }
+            }
+        }
+
+        private void Validate(ModificationCommand modificationCommand)
+        {
+            if (modificationCommand.EntityState == EntityState.Added)
+            {
+                foreach (var columnModification in modificationCommand.ColumnModifications)
+                {
+                    if (!columnModification.IsRead
+                        && columnModification.Entry.HasTemporaryValue(columnModification.Property))
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.TempValue(columnModification.Property.Name, columnModification.Entry.EntityType.DisplayName()));
                     }
                 }
             }

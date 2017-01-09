@@ -13,6 +13,7 @@
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.2.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.2.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.2.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": {
       "target": "project"

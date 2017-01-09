@@ -7,8 +7,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInMemoryDatabase()
-                    .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
+                    .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
         }
     }
 }

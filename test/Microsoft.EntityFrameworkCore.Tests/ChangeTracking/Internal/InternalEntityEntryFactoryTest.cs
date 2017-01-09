@@ -3,8 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Spanner", typeof(string));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 

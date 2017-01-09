@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -287,6 +288,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             modificationCommandBatchFactoryMock.Verify(
                 mcb => mcb.Create(),
                 Times.Exactly(2));
+        }
+
+        [Fact]
+        public void BatchCommands_throws_on_non_store_generated_temporary_values()
+        {
+            var configuration = CreateContextServices(CreateTwoLevelFKModel());
+            var stateManager = configuration.GetRequiredService<IStateManager>();
+
+            var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 1, Value = "Test" });
+            entry.SetEntityState(EntityState.Added);
+            entry.MarkAsTemporary(entry.EntityType.FindProperty(nameof(FakeEntity.Value)));
+
+            Assert.Equal(
+                CoreStrings.TempValue(nameof(FakeEntity.Value), nameof(FakeEntity)),
+                Assert.Throws<InvalidOperationException>(() => CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToList()).Message);
         }
 
         [Fact]

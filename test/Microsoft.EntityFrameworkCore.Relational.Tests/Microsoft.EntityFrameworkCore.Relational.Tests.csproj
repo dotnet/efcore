@@ -57,7 +57,6 @@
     <Compile Include="RelationalConnectionTest.cs" />
     <Compile Include="RelationalDatabaseFacadeExtensionsTest.cs" />
     <Compile Include="RelationalDatabaseTest.cs" />
-    <Compile Include="RelationalServiceCollectionExtensionsTest.cs" />
     <Compile Include="RelationalModelValidatorTest.cs" />
     <Compile Include="RelationalOptionsExtensionTest.cs" />
     <Compile Include="Migrations\MigrationCommandListBuilderTest.cs" />
@@ -72,10 +71,6 @@
     <Compile Include="Storage\RelationalTypeMappingTest.cs" />
     <Compile Include="Storage\SqlGeneratorTestBase.cs" />
     <Compile Include="Storage\TypedRelationalValueBufferFactoryFactoryTest.cs" />
-    <Compile Include="TestAnnotationProvider.cs" />
-    <Compile Include="TestConventionalSetBuilder.cs" />
-    <Compile Include="TestRelationalMetadataExtensions.cs" />
-    <Compile Include="TestRelationalTypeMapper.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeCommandExecutor.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeDbCommand.cs">
       <SubType>Component</SubType>
@@ -92,6 +87,19 @@
     <Compile Include="TestUtilities\FakeProvider\FakeRelationalTypeMapper.cs" />
     <Compile Include="TestUtilities\FakeSensitiveDataLogger`.cs" />
     <Compile Include="TestUtilities\ListDiagnosticSource.cs" />
+    <Compile Include="TestUtilities\RelationalTestHelpers.cs" />
+    <Compile Include="TestUtilities\TestAnnotationProvider.cs" />
+    <Compile Include="TestUtilities\TestQuerySqlGenerator.cs" />
+    <Compile Include="TestUtilities\TestQuerySqlGeneratorFactory.cs" />
+    <Compile Include="TestUtilities\TestRelationalCompositeMemberTranslator.cs" />
+    <Compile Include="TestUtilities\TestRelationalCompositeMethodCallTranslator.cs" />
+    <Compile Include="TestUtilities\TestRelationalConventionSetBuilder.cs" />
+    <Compile Include="TestUtilities\TestRelationalDatabaseProviderServices.cs" />
+    <Compile Include="TestUtilities\TestRelationalMetadataExtensions.cs" />
+    <Compile Include="TestUtilities\TestRelationalMigrationSqlGenerator.cs" />
+    <Compile Include="TestUtilities\TestRelationalModelSource.cs" />
+    <Compile Include="TestUtilities\TestRelationalTypeMapper.cs" />
+    <Compile Include="TestUtilities\TestRelationalValueGeneratorCache.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />

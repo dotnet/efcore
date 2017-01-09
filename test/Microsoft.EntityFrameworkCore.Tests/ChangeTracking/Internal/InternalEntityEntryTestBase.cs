@@ -6,10 +6,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var keyProperty = entityType.FindProperty("Id");
             keyProperty.ValueGenerated = ValueGenerated.OnAdd;
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(contextServices, entityType, new SomeEntity());
             entry.SetEntityState(EntityState.Added);
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var nonKeyProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var nonKeyProperty = entityType.FindProperty("Name");
             nonKeyProperty.IsReadOnlyBeforeSave = true;
             keyProperty.IsReadOnlyBeforeSave = true;
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var nonKeyProperty = entityType.FindProperty("Name");
             nonKeyProperty.IsReadOnlyAfterSave = true;
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var nonKeyProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -373,21 +373,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var baseEntityType = model.FindEntityType(typeof(SomeSimpleEntityBase).FullName);
-            var nonKeyProperty = baseEntityType.AddProperty("NonId", typeof(int));
-            nonKeyProperty.RequiresValueGenerator = true;
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var altKeyProperty = baseEntityType.AddProperty("NonId", typeof(int));
+            altKeyProperty.ValueGenerated = ValueGenerated.OnAdd;
+            baseEntityType.AddKey(altKeyProperty);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
             Assert.Equal(0, entry[keyProperty]);
 
-            Assert.Equal(0, entry[nonKeyProperty]);
+            Assert.Equal(0, entry[altKeyProperty]);
 
             entry.SetEntityState(EntityState.Added);
 
             Assert.NotNull(entry[keyProperty]);
             Assert.NotEqual(0, entry[keyProperty]);
-            Assert.Equal(entry[keyProperty], entry[nonKeyProperty]);
+            Assert.Equal(entry[keyProperty], entry[altKeyProperty]);
 
             var baseEntry = CreateInternalEntry(configuration, baseEntityType, new SomeSimpleEntityBase());
 
@@ -395,8 +396,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             Assert.NotNull(baseEntry[keyProperty]);
             Assert.NotEqual(0, baseEntry[keyProperty]);
+            Assert.Equal(baseEntry[keyProperty], baseEntry[altKeyProperty]);
             Assert.NotEqual(entry[keyProperty], baseEntry[keyProperty]);
-            Assert.Equal(entry[nonKeyProperty], baseEntry[nonKeyProperty]);
+            Assert.NotEqual(entry[altKeyProperty], baseEntry[altKeyProperty]);
         }
 
         [Fact]
@@ -405,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -422,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -443,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var property = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
             entry[entityType.FindProperty("Id")] = 1;
@@ -464,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var keyProperties = new[] { entityType.FindProperty("Id1"), entityType.FindProperty("Id2") };
             var fkProperty = entityType.FindProperty("SomeEntityId");
             var property = entityType.FindProperty("JustAProperty");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[keyProperties[0]] = 77;
@@ -485,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
             var fkProperty = entityType.FindProperty("SomeEntityId");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry.SetEntityState(EntityState.Added);
@@ -504,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
             var fkProperty = entityType.FindProperty("SomeEntityId");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
@@ -522,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -539,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -559,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var nonKeyProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -577,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var nonKeyProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -595,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var nonKeyProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
@@ -622,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var idProperty = entityType.FindProperty("Id");
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -676,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         protected void OriginalValuesTest(IModel model, IEntityType entityType, object entity)
         {
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -719,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         protected void GenericOriginalValuesTest(IModel model, IEntityType entityType, object entity)
         {
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -762,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         protected void NullOriginalValuesTest(IModel model, IEntityType entityType, object entity)
         {
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, null }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -810,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         protected void GenericNullOriginalValuesTest(IModel model, IEntityType entityType, object entity)
         {
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, null }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -848,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var idProperty = entityType.FindProperty("Id");
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -877,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(TEntity));
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -916,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -948,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -974,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var nameProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -998,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -1022,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var nameProperty = entityType.FindProperty("Name");
 
             var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
+                InMemoryTestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new SomeEntity { Id = 1, Name = "Kool" },
                 new ValueBuffer(new object[] { 1, "Kool" }));
@@ -1045,7 +1047,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildOneToOneModel()
         {
-            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder
                 .Entity<FirstDependent>()
@@ -1069,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildOneToOneCompositeModel(bool required)
         {
-            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder
                 .Entity<CompositeRoot>()
@@ -1107,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SecondDependent).FullName);
             var fkProperty = entityType.FindProperty("Id");
 
-            var entry = CreateInternalEntry(TestHelpers.Instance.CreateContextServices(model), entityType, new SecondDependent());
+            var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new SecondDependent());
 
             entry[fkProperty] = 77;
             entry.SetEntityState(EntityState.Unchanged);
@@ -1125,7 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SecondDependent).FullName);
             var fkProperty = entityType.FindProperty("Id");
 
-            var entry = CreateInternalEntry(TestHelpers.Instance.CreateContextServices(model), entityType, new SecondDependent());
+            var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new SecondDependent());
 
             entry[fkProperty] = 77;
             entry.SetEntityState(EntityState.Added);
@@ -1144,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var fkProperty1 = entityType.FindProperty("FirstId1");
             var fkProperty2 = entityType.FindProperty("FirstId2");
 
-            var entry = CreateInternalEntry(TestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
+            var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
 
             entry[fkProperty1] = 77;
             entry[fkProperty2] = "Foo";
@@ -1164,7 +1166,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var fkProperty1 = entityType.FindProperty("FirstId1");
             var fkProperty2 = entityType.FindProperty("FirstId2");
 
-            var entry = CreateInternalEntry(TestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
+            var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
 
             entry[fkProperty1] = 77;
             entry[fkProperty2] = "Foo";
@@ -1186,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
             var keyProperties = new[] { entityType.FindProperty("Id1"), entityType.FindProperty("Id2") };
             var fkProperty = entityType.FindProperty("SomeEntityId");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[keyProperties[0]] = 77;
@@ -1210,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
             var keyProperties = new[] { entityType.FindProperty("Id1"), entityType.FindProperty("Id2") };
             var property = entityType.FindProperty("JustAProperty");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[keyProperties[0]] = 77;
@@ -1302,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
             var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int));
-            simpleKeyProperty.RequiresValueGenerator = true;
+            simpleKeyProperty.ValueGenerated = ValueGenerated.OnAdd;
             someSimpleEntityType.GetOrSetPrimaryKey(simpleKeyProperty);
 
             var someCompositeEntityType = model.AddEntityType(typeof(SomeCompositeEntityBase));
@@ -1320,8 +1322,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entityType2.HasBaseType(someCompositeEntityType);
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
-            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
-            justAProperty.RequiresValueGenerator = true;
+            // TODO: declare this on the derived type
+            // #2611
+            var justAProperty = someCompositeEntityType.AddProperty("JustAProperty", typeof(int));
+            justAProperty.ValueGenerated = ValueGenerated.OnAdd;
+            someCompositeEntityType.AddKey(justAProperty);
 
             var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
             var property6 = entityType3.AddProperty("Id", typeof(int));

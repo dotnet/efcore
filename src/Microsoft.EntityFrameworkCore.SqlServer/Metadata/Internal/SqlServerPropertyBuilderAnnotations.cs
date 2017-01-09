@@ -94,21 +94,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (value == null)
             {
                 PropertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
-                PropertyBuilder.RequiresValueGenerator(false, ConfigurationSource.Convention);
                 HiLoSequenceName(null);
                 HiLoSequenceSchema(null);
             }
             else if (value.Value == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-                PropertyBuilder.RequiresValueGenerator(true, ConfigurationSource.Convention);
                 HiLoSequenceName(null);
                 HiLoSequenceSchema(null);
             }
             else if (value.Value == SqlServerValueGenerationStrategy.SequenceHiLo)
             {
                 PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-                PropertyBuilder.RequiresValueGenerator(true, ConfigurationSource.Convention);
             }
 
             return SetValueGenerationStrategy(value);

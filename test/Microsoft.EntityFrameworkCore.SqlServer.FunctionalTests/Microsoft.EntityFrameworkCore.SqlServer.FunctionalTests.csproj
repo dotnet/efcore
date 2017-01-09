@@ -129,6 +129,9 @@
     <Compile Include="SqlAzure\SqlAzureFundamentalsTest.cs" />
     <Compile Include="SqlExecutorSqlServerTest.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
+    <Compile Include="SqlServerMigrationSqlGeneratorTest.cs" />
+    <Compile Include="SqlServerServiceCollectionExtensionsTest.cs" />
+    <Compile Include="SqlServerTestHelpers.cs" />
     <Compile Include="Utilities\CollectionExtensions.cs" />
     <Compile Include="Utilities\SqlExceptionFactory.cs" />
     <Compile Include="Utilities\SqlServerDatabaseCleaner.cs" />

@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Migrations\ModelSnapshotTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DesignTimeProviderServicesTest.cs" />
     <Compile Include="ReverseEngineering\E2ETestBase.cs" />

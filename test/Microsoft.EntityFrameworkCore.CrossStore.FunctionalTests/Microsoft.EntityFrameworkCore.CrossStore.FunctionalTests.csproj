@@ -78,6 +78,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationPatternsTest.cs" />
     <Compile Include="CrossStoreFixture.cs" />
     <Compile Include="DiscriminatorTest.cs" />
     <Compile Include="EndToEndTest.cs" />

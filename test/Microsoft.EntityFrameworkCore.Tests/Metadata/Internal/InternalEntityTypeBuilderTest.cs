@@ -1293,7 +1293,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var derivedEntityBuilder2 = modelBuilder.Entity(typeof(BackOrder), ConfigurationSource.Convention);
             derivedEntityBuilder2.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
             var derivedProperty2 = derivedEntityBuilder2.Property("byte", typeof(byte), ConfigurationSource.Convention);
-            derivedProperty2.RequiresValueGenerator(true, ConfigurationSource.Convention);
             derivedProperty2.HasMaxLength(2, ConfigurationSource.Convention);
 
             var propertyBuilder = entityBuilder.Property("byte", typeof(int), ConfigurationSource.Convention);
@@ -1303,7 +1302,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Empty(derivedEntityBuilder2.Metadata.GetDeclaredProperties());
             Assert.Equal(typeof(int), propertyBuilder.Metadata.ClrType);
             Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
-            Assert.True(propertyBuilder.Metadata.RequiresValueGenerator);
             Assert.Equal(1, propertyBuilder.Metadata.GetMaxLength());
         }
 

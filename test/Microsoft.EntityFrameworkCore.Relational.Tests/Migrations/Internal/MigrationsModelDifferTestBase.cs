@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 {
-    public class MigrationsModelDifferTestBase
+    public abstract class MigrationsModelDifferTestBase
     {
         protected void Execute(
             Action<ModelBuilder> buildSourceAction,
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
             assertAction(operations);
         }
 
-        protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.Instance.CreateConventionBuilder();
+        protected abstract ModelBuilder CreateModelBuilder();
 
         protected virtual MigrationsModelDiffer CreateModelDiffer()
             => new MigrationsModelDiffer(

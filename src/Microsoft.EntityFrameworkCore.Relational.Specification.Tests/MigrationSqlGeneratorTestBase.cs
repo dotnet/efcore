@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
@@ -13,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
     public abstract class MigrationSqlGeneratorTestBase
     {
         protected static string EOL => Environment.NewLine;
-
-        protected abstract IMigrationsSqlGenerator SqlGenerator { get; }
 
         protected virtual string Sql { get; set; }
 
@@ -563,17 +562,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                     Sql = "-- I <3 DDL"
                 });
 
+        private readonly TestHelpers _testHelpers;
+
+        protected MigrationSqlGeneratorTestBase(TestHelpers testHelpers)
+        {
+            _testHelpers = testHelpers;
+        }
+
         protected virtual void Generate(params MigrationOperation[] operation)
             => Generate(_ => { }, operation);
 
-        protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.Instance.CreateConventionBuilder();
-
         protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = _testHelpers.CreateConventionBuilder();
             buildAction(modelBuilder);
 
-            var batch = SqlGenerator.Generate(operation, modelBuilder.Model);
+            var batch = _testHelpers.CreateContextServices().GetRequiredService<IMigrationsSqlGenerator>()
+                .Generate(operation, modelBuilder.Model);
 
             Sql = string.Join(
                 "GO" + EOL + EOL,

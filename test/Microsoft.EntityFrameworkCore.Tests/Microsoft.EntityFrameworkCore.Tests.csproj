@@ -52,6 +52,10 @@
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.InMemory.FunctionalTests\Microsoft.EntityFrameworkCore.InMemory.FunctionalTests.csproj">
+      <Project>{305B30D3-0E30-46E9-BA9D-060E0B79BE98}</Project>
+      <Name>Microsoft.EntityFrameworkCore.InMemory.FunctionalTests</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
@@ -167,6 +171,7 @@
     <Compile Include="TestUtilities\ListLoggerFactory.cs" />
     <Compile Include="TestUtilities\ListLogger`.cs" />
     <Compile Include="TestUtilities\MockAssembly.cs" />
+    <Compile Include="TestUtilities\TestInMemoryTransactionManager.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
