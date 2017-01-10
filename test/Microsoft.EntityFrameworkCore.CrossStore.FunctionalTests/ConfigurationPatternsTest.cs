@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +12,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 {
+    [SqlServerConfiguredCondition]
     public class ConfigurationPatternsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_register_multiple_context_types()
         {
             var serviceProvider = new ServiceCollection()
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_multiple_context_types_with_default_service_provider()
         {
             using (SqlServerNorthwindContext.GetSharedStore())
@@ -92,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_select_appropriate_provider_when_multiple_registered()
         {
             var serviceProvider
@@ -145,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
             using (SqlServerNorthwindContext.GetSharedStore())
@@ -223,9 +225,10 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             public MultipleProvidersContext Context { get; }
         }
 
+        [SqlServerConfiguredCondition]
         public class NestedContextDifferentStores
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
                 using (SqlServerNorthwindContext.GetSharedStore())
@@ -239,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                 }
             }
 
-            [Fact]
+            [ConditionalFact]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
             {
                 using (SqlServerNorthwindContext.GetSharedStore())

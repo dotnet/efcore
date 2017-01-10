@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
       <Link>Properties\Resources.cs</Link>
       <AutoGen>True</AutoGen>

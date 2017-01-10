@@ -1,6 +1,11 @@
 {
   "buildOptions": {
-    "warningsAsErrors": true
+    "warningsAsErrors": true,
+    "copyToOutput": {
+      "mappings": {
+        "Northwind.sql": "../Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests/Northwind.sql"
+      }
+    }
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": {
