@@ -6368,6 +6368,21 @@ WHERE [o].[OrderDate] IS NOT NULL",
                 Sql);
         }
 
+        public override void ToString_with_formatter_is_evaluated_on_the_client()
+        {
+            base.ToString_with_formatter_is_evaluated_on_the_client();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL
+
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
+                Sql);
+        }
+
         public override void Select_expression_other_to_string()
         {
             base.Select_expression_other_to_string();

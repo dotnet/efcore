@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -6434,6 +6435,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Select(o => new Order
                     {
                         ShipName = o.OrderID.ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void ToString_with_formatter_is_evaluated_on_the_client()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderID.ToString("X")
+                    }));
+
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderID.ToString(new CultureInfo("en-US"))
                     }));
         }
 

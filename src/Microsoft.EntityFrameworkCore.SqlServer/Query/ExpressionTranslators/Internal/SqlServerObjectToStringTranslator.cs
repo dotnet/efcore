@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
@@ -48,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             string storeType;
 
             if (methodCallExpression.Method.Name == nameof(ToString)
+                && methodCallExpression.Arguments.Count == 0
                 && methodCallExpression.Object != null
                 && _typeMapping.TryGetValue(
                     methodCallExpression.Object.Type
