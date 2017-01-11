@@ -196,15 +196,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var newParent = stateManager.GetOrCreateEntry(new FakeEntity { Id = 3, Value = "Test" });
             newParent.SetEntityState(EntityState.Added);
 
-            var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 3 });
-            relatedentry.SetEntityState(EntityState.Modified);
-            relatedentry.SetOriginalValue(relatedentry.EntityType.FindProperty("RelatedId"), 42);
-            relatedentry.SetPropertyModified(relatedentry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
+            var relatedEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 3 });
+            relatedEntry.SetEntityState(EntityState.Modified);
+            relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId"), 42);
+            relatedEntry.SetPropertyModified(relatedEntry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, previousParent, newParent }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, previousParent, newParent }).ToArray();
 
             Assert.Equal(
-                new[] { newParent, relatedentry, previousParent },
+                new[] { newParent, relatedEntry, previousParent },
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
@@ -251,11 +251,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var newChildEntity = stateManager.GetOrCreateEntry(new AnotherFakeEntity { Id = 5, AnotherId = 4 });
             newChildEntity.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { newEntity, newChildEntity, oldEntity, oldChildEntity }).ToArray();
+            var sortedEntities = CreateCommandBatchPreparer()
+                .BatchCommands(new[] { newEntity, newChildEntity, oldEntity, oldChildEntity })
+                .Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()).ToArray();
 
             Assert.Equal(
                 new[] { oldChildEntity, oldEntity, newEntity, newChildEntity },
-                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
+                sortedEntities);
         }
 
         [Fact]
@@ -288,6 +290,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             modificationCommandBatchFactoryMock.Verify(
                 mcb => mcb.Create(),
                 Times.Exactly(2));
+        }
+
+        [Fact]
+        public void Batch_command_does_not_order_non_unique_index_values()
+        {
+            var model = CreateCyclicFKModel();
+            var configuration = CreateContextServices(model);
+            var stateManager = configuration.GetRequiredService<IStateManager>();
+
+            var fakeEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
+            fakeEntry.SetEntityState(EntityState.Added);
+
+            var relatedFakeEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 42 });
+            relatedFakeEntry.SetEntityState(EntityState.Added);
+
+            var fakeEntry2 = stateManager.GetOrCreateEntry(new FakeEntity { Id = 2, RelatedId = 1, Value = "Test2" });
+            fakeEntry2.SetEntityState(EntityState.Modified);
+            fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test");
+            fakeEntry2.SetPropertyModified(fakeEntry2.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
+
+            var sortedEntities = CreateCommandBatchPreparer()
+                .BatchCommands(new[] { fakeEntry, fakeEntry2, relatedFakeEntry })
+                .Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()).ToArray();
+
+            Assert.Equal(
+                new[] { fakeEntry, relatedFakeEntry, fakeEntry2 },
+                sortedEntities);
         }
 
         [Fact]
@@ -324,10 +353,36 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         model.FindEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().First(),
                         model.FindEntityType(typeof(FakeEntity)).GetForeignKeys().First())),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        {
-                            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }).ToArray();
-                        }).Message);
+                    () => CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }).ToArray()).Message);
+        }
+
+        [Fact]
+        public void Batch_command_throws_on_commands_with_circular_dependencies_including_indexes()
+        {
+            var model = CreateCyclicFKModel();
+            var configuration = CreateContextServices(model);
+            var stateManager = configuration.GetRequiredService<IStateManager>();
+
+            var fakeEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, UniqueValue = "Test" });
+            fakeEntry.SetEntityState(EntityState.Added);
+
+            var relatedFakeEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 42 });
+            relatedFakeEntry.SetEntityState(EntityState.Added);
+
+            var fakeEntry2 = stateManager.GetOrCreateEntry(new FakeEntity { Id = 2, RelatedId = 1, UniqueValue = "Test2" });
+            fakeEntry2.SetEntityState(EntityState.Modified);
+            fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
+            fakeEntry2.SetPropertyModified(fakeEntry2.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
+
+            Assert.Equal(
+                CoreStrings.CircularDependency(
+                    string.Join(", ",
+                        model.FindEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().Single(),
+                        model.FindEntityType(typeof(FakeEntity)).GetForeignKeys().Single(),
+                        model.FindEntityType(typeof(FakeEntity)).GetIndexes().
+                            Single(i => i.Properties.Any(p => p.Name == nameof(FakeEntity.UniqueValue))))),
+                Assert.Throws<InvalidOperationException>(
+                    () => CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry, fakeEntry2 }).ToArray()).Message);
         }
 
         [Fact]
@@ -352,12 +407,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         model.FindEntityType(typeof(FakeEntity)).GetForeignKeys().First(),
                         model.FindEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().First())),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        {
-                            var commandBatches = CreateCommandBatchPreparer().BatchCommands(
-                                // Order is important for this test. Entry which is not part of cycle but tail should come first.
-                                new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray();
-                        }).Message);
+                    () => CreateCommandBatchPreparer().BatchCommands(
+                        // Order is important for this test. Entry which is not part of cycle but tail should come first.
+                        new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray()).Message);
         }
 
         private static IServiceProvider CreateContextServices(IModel model)
@@ -387,21 +439,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         private static IModel CreateSimpleFKModel()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.Value);
+                    b.Ignore(c => c.UniqueValue);
+                    b.Ignore(c => c.RelatedId);
                 });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
-                    b.HasKey(c => c.Id);
                     b.HasOne<FakeEntity>()
                         .WithOne()
                         .HasForeignKey<RelatedFakeEntity>(c => c.Id);
-                    b.Property(c => c.RelatedId);
                 });
 
             return modelBuilder.Model;
@@ -409,17 +459,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         private static IModel CreateCyclicFKModel()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<FakeEntity>(b =>
-                {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.Value);
-                });
+            {
+                b.HasIndex(c => c.Value);
+                b.HasIndex(c => c.UniqueValue).IsUnique();
+            });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
-                    b.HasKey(c => c.Id);
                     b.HasOne<FakeEntity>()
                         .WithOne()
                         .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
@@ -436,17 +485,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         private static IModel CreateCyclicFkWithTailModel()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.Value);
+                    b.HasIndex(c => c.Value);
+                    b.HasIndex(c => c.UniqueValue).IsUnique();
                 });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
-                    b.HasKey(c => c.Id);
                     b.HasOne<FakeEntity>()
                         .WithOne()
                         .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
@@ -460,7 +508,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             modelBuilder.Entity<AnotherFakeEntity>(b =>
                 {
-                    b.HasKey(e => e.Id);
                     b.HasOne<RelatedFakeEntity>()
                         .WithOne()
                         .HasForeignKey<AnotherFakeEntity>(e => e.AnotherId);
@@ -471,17 +518,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         private static IModel CreateTwoLevelFKModel()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
 
-            modelBuilder.Entity<FakeEntity>(b =>
-                {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.Value);
-                });
+            modelBuilder.Entity<FakeEntity>();
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
-                    b.HasKey(c => c.Id);
                     b.HasOne<FakeEntity>()
                         .WithOne()
                         .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
@@ -489,7 +531,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             modelBuilder.Entity<AnotherFakeEntity>(b =>
                 {
-                    b.HasKey(c => c.Id);
                     b.HasOne<RelatedFakeEntity>()
                         .WithOne()
                         .HasForeignKey<AnotherFakeEntity>(c => c.AnotherId);
@@ -502,6 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             public int Id { get; set; }
             public string Value { get; set; }
+            public string UniqueValue { get; set; }
             public int? RelatedId { get; set; }
         }
 
@@ -514,7 +556,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         private class AnotherFakeEntity
         {
             public int Id { get; set; }
-
             public int? AnotherId { get; set; }
         }
 

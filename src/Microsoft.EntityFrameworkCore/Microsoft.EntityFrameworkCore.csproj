@@ -68,8 +68,9 @@
     <Compile Include="ChangeTracking\Internal\ArrayPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
-    <Compile Include="ChangeTracking\Internal\CompositeDependentValueFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\CompositeNullableValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\CompositePrincipalKeyValueFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\CompositeValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\CurrentPropertyValues.cs" />
     <Compile Include="ChangeTracking\Internal\DependentKeyValueFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\DependentsMap.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="ChangeTracking\Internal\InternalEntityEntrySubscriber.cs" />
     <Compile Include="ChangeTracking\Internal\InternalMixedEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntry.cs" />
+    <Compile Include="ChangeTracking\Internal\INullableValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IPrincipalKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IPropertyListener.cs" />
     <Compile Include="ChangeTracking\Internal\IQueryTrackingListener.cs" />
@@ -149,6 +151,7 @@
     <Compile Include="ChangeTracking\ReferenceEntry.cs" />
     <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
     <Compile Include="EF.CompileAsyncQuery.cs" />
+    <Compile Include="Metadata\Internal\IndexExtensions.cs" />
     <Compile Include="Query\AsyncEnumerable.cs" />
     <Compile Include="Query\Internal\CompiledAsyncTaskQuery.cs" />
     <Compile Include="Query\Internal\CompiledAsyncEnumerableQuery.cs" />

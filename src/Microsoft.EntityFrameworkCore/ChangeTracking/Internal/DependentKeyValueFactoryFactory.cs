@@ -62,6 +62,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IDependentKeyValueFactory<object[]> CreateComposite([NotNull] IForeignKey foreignKey)
-            => new CompositeDependentValueFactory(foreignKey);
+            => new CompositeValueFactory(foreignKey.Properties);
     }
 }
