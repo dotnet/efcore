@@ -52,6 +52,20 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
+        public virtual void Throws_when_keyless_type_property_is_not_added_or_ignored()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveReferenceTypePropertyEntity), ConfigurationSource.Convention);
+
+            Assert.Equal(
+                CoreStrings.PropertyNotAdded(
+                    typeof(NonPrimitiveReferenceTypePropertyEntity).ShortDisplayName(),
+                    nameof(NonPrimitiveReferenceTypePropertyEntity.Property),
+                    typeof(ICollection<Uri>).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+        }
+
+        [Fact]
         public virtual void Does_not_throw_when_primitive_type_property_is_added()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
@@ -76,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
             Assert.Equal(
                 CoreStrings.NavigationNotAdded(typeof(NavigationEntity).ShortDisplayName(), "Navigation", typeof(PrimitivePropertyEntity).Name),
@@ -167,6 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         protected class NonPrimitiveValueTypePropertyEntity
         {
             public CancellationToken Property { get; set; }
+        }
+
+        protected class NonPrimitiveReferenceTypePropertyEntity
+        {
+            public ICollection<Uri> Property { get; set; }
         }
 
         protected class NavigationEntity

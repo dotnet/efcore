@@ -57,21 +57,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             var actualProperty = entityType.ClrType.GetRuntimeProperties().First(p => p.Name == clrProperty);
                             var propertyType = actualProperty.PropertyType;
                             var targetSequenceType = propertyType.TryGetSequenceType();
-                            var targetType = FindCandidateNavigationPropertyType(actualProperty);
-                            if (targetType != null)
+                            if (modelBuilder.IsIgnored(propertyType.DisplayName(), ConfigurationSource.Convention)
+                                || (targetSequenceType != null
+                                    && modelBuilder.IsIgnored(targetSequenceType.DisplayName(), ConfigurationSource.Convention)))
                             {
-                                if (!modelBuilder.IsIgnored(targetType.DisplayName(), ConfigurationSource.Convention))
-                                {
-                                    throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
-                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
-                                }
+                                continue;
+                            }
+
+                            var targetType = FindCandidateNavigationPropertyType(actualProperty);
+                            if (targetType != null
+                                && modelBuilder.Metadata.FindEntityType(targetType) != null)
+                            {
+                                throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
+                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                             }
                             else if (propertyType.IsPrimitive())
                             {
                                 throw new InvalidOperationException(CoreStrings.PropertyNotMapped(
                                     entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                             }
-                            else if (propertyType.GetTypeInfo().IsInterface
+                            else if ((targetSequenceType == null && propertyType.GetTypeInfo().IsInterface)
                                      || (targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface))
                             {
                                 throw new InvalidOperationException(CoreStrings.InterfacePropertyNotAdded(
@@ -109,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(clrType => clrType.IsPrimitive());
+            return propertyInfo.FindCandidateNavigationPropertyType(SharedTypeExtensions.IsPrimitive);
         }
     }
 }

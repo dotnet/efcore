@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(clrType => clrType.IsPrimitive());
+            return propertyInfo.FindCandidateNavigationPropertyType(SharedTypeExtensions.IsPrimitive);
         }
 
         /// <summary>
