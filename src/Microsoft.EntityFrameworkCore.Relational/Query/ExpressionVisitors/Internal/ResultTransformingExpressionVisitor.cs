@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(typeof(ValueBuffer)),
                         node.Arguments[0], getResultArgument, node.Arguments[2], node.Arguments[3]);
 
-                    return Expression.Call(sourceArgument.Method, newGetResultArgument);
+                    return ResultOperatorHandler.CallWithPossibleCancellationToken(sourceArgument.Method, newGetResultArgument);
                 }
 
                 return sourceArgument;
