@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientProjection;
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
+        private bool _requiresClientSingleColumnResultOperator;
 
         private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
 
@@ -214,6 +215,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             get { return _requiresClientResultOperator || RequiresClientEval; }
             set { _requiresClientResultOperator = value; }
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client evaluation for result operators potentially apply to a subset of columns rather than entire row.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client single column result operator, false if not.
+        /// </value>
+        internal virtual bool RequiresClientSingleColumnResultOperator
+        {
+            get { return _requiresClientSingleColumnResultOperator || _requiresClientResultOperator || RequiresClientEval; }
+            set { _requiresClientSingleColumnResultOperator = value; }
         }
 
         /// <summary>
@@ -628,6 +641,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => base.VisitGroupJoinClause(groupJoinClause, queryModel, index),
                 LinqOperatorProvider.GroupJoin,
                 groupJoin: true);
+
+            // Workaround until #6647 is addressed - GroupJoin requires materialization of entire entity which results in all columns of that entity being projected
+            // this in turn causes result operators to be applied on all of those columns, even if the query specifies a subset of columns to perform the operation on
+            // this could lead to incorrect results (e.g. for Distinct)
+            // This however is safe to do for some operators, e.g. FirstOrDefault, Count(), Take() because their result is the same whether they are applied on single column or entire row
+            RequiresClientSingleColumnResultOperator = true;
         }
 
         /// <summary>

@@ -2089,6 +2089,100 @@ WHERE ([w].[Id] <> 50) AND ([w.Owner].[HasSoulPatch] = 0)",
                 Sql);
         }
 
+        public override void Distinct_with_optional_navigation_is_evaluated_on_client()
+        {
+            base.Distinct_with_optional_navigation_is_evaluated_on_client();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]
+FROM [Gear] AS [g]
+LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g.Tag].[Note] <> N'Foo') OR [g.Tag].[Note] IS NULL)
+ORDER BY [g].[Nickname], [g].[SquadId]",
+                Sql);
+        }
+
+        public override void Sum_with_optional_navigation_is_evaluated_on_client()
+        {
+            base.Sum_with_optional_navigation_is_evaluated_on_client();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]
+FROM [Gear] AS [g]
+LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g.Tag].[Note] <> N'Foo') OR [g.Tag].[Note] IS NULL)
+ORDER BY [g].[Nickname], [g].[SquadId]",
+                Sql);
+        }
+
+        public override void Count_with_optional_navigation_is_translated_to_sql()
+        {
+            base.Count_with_optional_navigation_is_translated_to_sql();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Gear] AS [g]
+LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g.Tag].[Note] <> N'Foo') OR [g.Tag].[Note] IS NULL)",
+                Sql);
+        }
+
+        public override void FirstOrDefault_with_manually_created_groupjoin_is_translated_to_sql()
+        {
+            base.FirstOrDefault_with_manually_created_groupjoin_is_translated_to_sql();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [s].[Id], [s].[InternalNumber], [s].[Name], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Squad] AS [s]
+LEFT JOIN [Gear] AS [g] ON [s].[Id] = [g].[SquadId]
+WHERE [s].[Name] = N'Kilo'
+ORDER BY [s].[Id]",
+                Sql);
+        }
+
+        public override void Any_with_optional_navigation_as_subquery_predicate_is_translated_to_sql()
+        {
+            base.Any_with_optional_navigation_as_subquery_predicate_is_translated_to_sql();
+
+            Assert.Equal(
+                @"SELECT [s].[Name]
+FROM [Squad] AS [s]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [Gear] AS [m]
+    LEFT JOIN [CogTag] AS [m.Tag] ON ([m].[Nickname] = [m.Tag].[GearNickName]) AND ([m].[SquadId] = [m.Tag].[GearSquadId])
+    WHERE ((([m].[Discriminator] = N'Officer') OR ([m].[Discriminator] = N'Gear')) AND ([m.Tag].[Note] = N'Dom''s Tag')) AND ([s].[Id] = [m].[SquadId]))",
+                Sql);
+        }
+
+        public override void All_with_optional_navigation_is_translated_to_sql()
+        {
+            base.All_with_optional_navigation_is_translated_to_sql();
+
+            Assert.Equal(
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Gear] AS [g]
+        LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+        WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND (([g.Tag].[Note] = N'Foo') AND [g.Tag].[Note] IS NOT NULL))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        public override void Non_flattened_GroupJoin_with_result_operator_evaluates_on_the_client()
+        {
+            base.Non_flattened_GroupJoin_with_result_operator_evaluates_on_the_client();
+
+            Assert.Equal(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [CogTag] AS [t]
+LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+ORDER BY [t].[GearNickName], [t].[GearSquadId]",
+                Sql);
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"

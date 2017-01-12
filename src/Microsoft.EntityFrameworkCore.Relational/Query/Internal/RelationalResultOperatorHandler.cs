@@ -168,6 +168,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return handlerContext.EvalOnClient();
             }
 
+            if (relationalQueryModelVisitor.RequiresClientSingleColumnResultOperator
+                && !(resultOperator is SkipResultOperator
+                    || resultOperator is TakeResultOperator 
+                    || resultOperator is FirstResultOperator
+                    || resultOperator is SingleResultOperator
+                    || resultOperator is CountResultOperator 
+                    || resultOperator is AllResultOperator 
+                    || resultOperator is AnyResultOperator
+                    || resultOperator is GroupResultOperator))
+            {
+                return handlerContext.EvalOnClient();
+            }
+
             return resultHandler(handlerContext);
         }
 

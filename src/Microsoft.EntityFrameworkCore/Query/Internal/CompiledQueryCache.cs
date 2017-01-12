@@ -65,12 +65,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     goto retry;
                 }
 
-                compiledQuery = compiler();
+                try
+                {
+                    compiledQuery = compiler();
 
-                _memoryCache.Set(cacheKey, compiledQuery);
-
-                object _;
-                _querySyncObjects.TryRemove(cacheKey, out _);
+                    _memoryCache.Set(cacheKey, compiledQuery);
+                }
+                finally
+                {
+                    object _;
+                    _querySyncObjects.TryRemove(cacheKey, out _);
+                }
             }
 
             return compiledQuery;
