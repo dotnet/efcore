@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -15,6 +16,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class DbSetTest
     {
+        [Fact]
+        public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
+        {
+            using (var context = new IgnoredCntext())
+            {
+                Assert.Equal(
+                    CoreStrings.InvalidSetType(nameof(IgnoredEntity)),
+                    Assert.Throws<InvalidOperationException>(() => context.Ignored.ToList()).Message);
+            }
+        }
+
+        private class IgnoredCntext : DbContext
+        {
+            public DbSet<IgnoredEntity> Ignored { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder) 
+                => modelBuilder.Ignore<IgnoredEntity>();
+        }
+
+        private class IgnoredEntity
+        {
+            public int Id { get; set; }
+        }
+
         [Fact]
         public async Task Can_add_existing_entities_to_context_to_be_deleted()
         {

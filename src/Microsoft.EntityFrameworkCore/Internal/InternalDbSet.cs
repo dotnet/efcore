@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         where TEntity : class
     {
         private readonly DbContext _context;
-        private readonly LazyRef<EntityQueryable<TEntity>> _entityQueryable;
+        private EntityQueryable<TEntity> _entityQueryable;
         private LocalView<TEntity> _localView;
 
         /// <summary>
@@ -37,12 +37,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Check.NotNull(context, nameof(context));
 
             _context = context;
+        }
 
-            // Using context/service locator here so that the context will be initialized the first time the
-            // set is used and services will be obtained from the correctly scoped container when this happens.
-            _entityQueryable
-                = new LazyRef<EntityQueryable<TEntity>>(
-                    () => new EntityQueryable<TEntity>(_context.QueryProvider));
+        // Using context/service locator here so that the context will be initialized the first time the
+        // set is used and services will be obtained from the correctly scoped container when this happens.
+        private EntityQueryable<TEntity> EntityQueryable
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _entityQueryable, 
+                this, 
+                internalSet => internalSet.CreateEntityQueryable());
+
+        private EntityQueryable<TEntity> CreateEntityQueryable()
+        {
+            if (_context.Model.FindEntityType(typeof(TEntity)) == null)
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+            }
+
+            return new EntityQueryable<TEntity>(_context.QueryProvider);
         }
 
         /// <summary>
@@ -187,18 +199,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public override void UpdateRange(IEnumerable<TEntity> entities)
             => _context.UpdateRange(entities);
 
-        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => _entityQueryable.Value.GetEnumerator();
+        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => EntityQueryable.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => _entityQueryable.Value.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => EntityQueryable.GetEnumerator();
 
-        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable => _entityQueryable.Value;
+        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable => EntityQueryable;
 
-        Type IQueryable.ElementType => _entityQueryable.Value.ElementType;
+        Type IQueryable.ElementType => EntityQueryable.ElementType;
 
-        Expression IQueryable.Expression => _entityQueryable.Value.Expression;
+        Expression IQueryable.Expression => EntityQueryable.Expression;
 
-        IQueryProvider IQueryable.Provider => _entityQueryable.Value.Provider;
+        IQueryProvider IQueryable.Provider => EntityQueryable.Provider;
 
-        IServiceProvider IInfrastructure<IServiceProvider>.Instance => ((IInfrastructure<IServiceProvider>)_context).Instance;
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance 
+            => ((IInfrastructure<IServiceProvider>)_context).Instance;
     }
 }
