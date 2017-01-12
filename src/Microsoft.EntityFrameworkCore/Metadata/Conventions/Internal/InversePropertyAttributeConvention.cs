@@ -243,6 +243,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static bool IsAmbiguousInverse(
             EntityType entityType, PropertyInfo navigation, List<Tuple<PropertyInfo, Type>> referencingNavigationsWithAttribute)
         {
+            if (referencingNavigationsWithAttribute.Count == 1)
+            {
+                return false;
+            }
+
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
                 var inverseTargetEntityType = entityType.Model.FindEntityType(referencingTuple.Item2);
