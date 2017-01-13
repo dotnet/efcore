@@ -1534,6 +1534,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)));
         }
 
+        [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity_from_the_ambiguous_end()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Ignore<BookLabel>();
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Entity<Book>().Ignore(e => e.AlternateLabel);
+            modelBuilder.Entity<ExtraSpecialBookLabel>();
+
+            Assert.Null(model.FindEntityType(typeof(BookLabel)));
+            Assert.Equal(nameof(Book.Label), model.FindEntityType(typeof(ExtraSpecialBookLabel))
+                .FindNavigation(nameof(ExtraSpecialBookLabel.Book)).FindInverse()?.Name);
+            Assert.Null(model.FindEntityType(typeof(ExtraSpecialBookLabel))
+                .FindNavigation(nameof(ExtraSpecialBookLabel.ExtraSpecialBook)).FindInverse());
+        }
+
         private class Book
         {
             public static readonly PropertyInfo BookdDetailsNavigation = typeof(Book).GetTypeInfo().GetDeclaredProperty("Details");
@@ -1583,6 +1601,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private class ExtraSpecialBookLabel : SpecialBookLabel
         {
+            public Book ExtraSpecialBook { get; set; }
         }
 
         private class AnotherBookLabel : BookLabel
