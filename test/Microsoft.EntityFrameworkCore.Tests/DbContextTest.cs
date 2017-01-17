@@ -423,7 +423,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private static Task TrackEntitiesTest(
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
-            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            Func<DbContext, Product, EntityEntry<Product>> productAdder, 
+            EntityState expectedState)
             => TrackEntitiesTest(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
@@ -431,116 +432,118 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private static async Task TrackEntitiesTest(
             Func<DbContext, Category, Task<EntityEntry<Category>>> categoryAdder,
-            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, 
+            EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var categoryEntry1 = await categoryAdder(context, category1);
-                var categoryEntry2 = await categoryAdder(context, category2);
-                var productEntry1 = await productAdder(context, product1);
-                var productEntry2 = await productAdder(context, product2);
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Same(category2, categoryEntry2.Entity);
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Same(product2, productEntry2.Entity);
+                var principalEntry = await categoryAdder(context, principal);
+                var dependentEntry = await productAdder(context, dependent);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Equal(expectedState, categoryEntry1.State);
-                Assert.Same(category2, categoryEntry2.Entity);
-                Assert.Equal(expectedState, categoryEntry2.State);
+                var relatedPrincipalEntry = context.Entry(relatedPrincipal);
+                var relatedDependentEntry = context.Entry(relatedDependent);
 
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Equal(expectedState, productEntry1.State);
-                Assert.Same(product2, productEntry2.Entity);
-                Assert.Equal(expectedState, productEntry2.State);
+                Assert.Same(principal, principalEntry.Entity);
+                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+                Assert.Same(dependent, dependentEntry.Entity);
 
-                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
-                Assert.Same(categoryEntry2.GetInfrastructure(), context.Entry(category2).GetInfrastructure());
-                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
-                Assert.Same(productEntry2.GetInfrastructure(), context.Entry(product2).GetInfrastructure());
+                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
+
+                Assert.Same(principal, principalEntry.Entity);
+                Assert.Equal(expectedState, principalEntry.State);
+                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+                Assert.Equal(expectedRelatedState, relatedPrincipalEntry.State);
+
+                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+                Assert.Equal(expectedRelatedState, relatedDependentEntry.State);
+                Assert.Same(dependent, dependentEntry.Entity);
+                Assert.Equal(expectedState, dependentEntry.State);
+
+                Assert.Same(principalEntry.GetInfrastructure(), context.Entry(principal).GetInfrastructure());
+                Assert.Same(relatedPrincipalEntry.GetInfrastructure(), context.Entry(relatedPrincipal).GetInfrastructure());
+                Assert.Same(relatedDependentEntry.GetInfrastructure(), context.Entry(relatedDependent).GetInfrastructure());
+                Assert.Same(dependentEntry.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
             }
         }
 
         [Fact]
         public async Task Can_add_multiple_new_entities_to_context()
         {
-            await TrackMultipleEntitiesTest((c, e) => c.AddRange(e[0], e[1]), (c, e) => c.AddRange(e[0], e[1]), EntityState.Added);
+            await TrackMultipleEntitiesTest((c, e) => c.AddRange(e[0], e[1]), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_multiple_new_entities_to_context_async()
         {
-            await TrackMultipleEntitiesTest((c, e) => c.AddRangeAsync(e[0], e[1]), (c, e) => c.AddRangeAsync(e[0], e[1]), EntityState.Added);
+            await TrackMultipleEntitiesTest((c, e) => c.AddRangeAsync(e[0], e[1]), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_to_context_to_be_attached()
         {
-            await TrackMultipleEntitiesTest((c, e) => c.AttachRange(e[0], e[1]), (c, e) => c.AttachRange(e[0], e[1]), EntityState.Unchanged);
+            await TrackMultipleEntitiesTest((c, e) => c.AttachRange(e[0], e[1]), EntityState.Unchanged);
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_to_context_to_be_updated()
         {
-            await TrackMultipleEntitiesTest((c, e) => c.UpdateRange(e[0], e[1]), (c, e) => c.UpdateRange(e[0], e[1]), EntityState.Modified);
+            await TrackMultipleEntitiesTest((c, e) => c.UpdateRange(e[0], e[1]), EntityState.Modified);
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_to_context_to_be_deleted()
         {
-            await TrackMultipleEntitiesTest((c, e) => c.RemoveRange(e[0], e[1]), (c, e) => c.RemoveRange(e[0], e[1]), EntityState.Deleted);
+            await TrackMultipleEntitiesTest((c, e) => c.RemoveRange(e[0], e[1]), EntityState.Deleted);
         }
 
         private static Task TrackMultipleEntitiesTest(
-            Action<DbContext, object[]> categoryAdder,
-            Action<DbContext, object[]> productAdder, EntityState expectedState)
+            Action<DbContext, object[]> adder,
+            EntityState expectedState)
             => TrackMultipleEntitiesTest(
                 (c, e) =>
                     {
-                        categoryAdder(c, e);
-                        return Task.FromResult(0);
-                    },
-                (c, e) =>
-                    {
-                        productAdder(c, e);
+                        adder(c, e);
                         return Task.FromResult(0);
                     },
                 expectedState);
 
         private static async Task TrackMultipleEntitiesTest(
-            Func<DbContext, object[], Task> categoryAdder,
-            Func<DbContext, object[], Task> productAdder, EntityState expectedState)
+            Func<DbContext, object[], Task> adder,
+            EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                await categoryAdder(context, new[] { category1, category2 });
-                await productAdder(context, new[] { product1, product2 });
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Same(product2, context.Entry(product2).Entity);
+                await adder(context, new object[] { principal, dependent });
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Equal(expectedState, context.Entry(category1).State);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Equal(expectedState, context.Entry(category2).State);
+                Assert.Same(principal, context.Entry(principal).Entity);
+                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+                Assert.Same(dependent, context.Entry(dependent).Entity);
 
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Equal(expectedState, context.Entry(product1).State);
-                Assert.Same(product2, context.Entry(product2).Entity);
-                Assert.Equal(expectedState, context.Entry(product2).State);
+                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
+
+                Assert.Same(principal, context.Entry(principal).Entity);
+                Assert.Equal(expectedState, context.Entry(principal).State);
+                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+                Assert.Equal(expectedRelatedState, context.Entry(relatedPrincipal).State);
+
+                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+                Assert.Equal(expectedRelatedState, context.Entry(relatedDependent).State);
+                Assert.Same(dependent, context.Entry(dependent).Entity);
+                Assert.Equal(expectedState, context.Entry(dependent).State);
             }
         }
 
@@ -768,112 +771,113 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var categoryEntry1 = await categoryAdder(context, category1);
-                var categoryEntry2 = await categoryAdder(context, category2);
-                var productEntry1 = await productAdder(context, product1);
-                var productEntry2 = await productAdder(context, product2);
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Same(category2, categoryEntry2.Entity);
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Same(product2, productEntry2.Entity);
+                var principalEntry = await categoryAdder(context, principal);
+                var dependentEntry = await productAdder(context, dependent);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Equal(expectedState, categoryEntry1.State);
-                Assert.Same(category2, categoryEntry2.Entity);
-                Assert.Equal(expectedState, categoryEntry2.State);
+                var relatedPrincipalEntry = context.Entry(relatedPrincipal);
+                var relatedDependentEntry = context.Entry(relatedDependent);
 
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Equal(expectedState, productEntry1.State);
-                Assert.Same(product2, productEntry2.Entity);
-                Assert.Equal(expectedState, productEntry2.State);
+                Assert.Same(principal, principalEntry.Entity);
+                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+                Assert.Same(dependent, dependentEntry.Entity);
 
-                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
-                Assert.Same(categoryEntry2.GetInfrastructure(), context.Entry(category2).GetInfrastructure());
-                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
-                Assert.Same(productEntry2.GetInfrastructure(), context.Entry(product2).GetInfrastructure());
+                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
+
+                Assert.Same(principal, principalEntry.Entity);
+                Assert.Equal(expectedState, principalEntry.State);
+                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+                Assert.Equal(expectedRelatedState, relatedPrincipalEntry.State);
+
+                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+                Assert.Equal(expectedRelatedState, relatedDependentEntry.State);
+                Assert.Same(dependent, dependentEntry.Entity);
+                Assert.Equal(expectedState, dependentEntry.State);
+
+                Assert.Same(principalEntry.GetInfrastructure(), context.Entry(principal).GetInfrastructure());
+                Assert.Same(relatedPrincipalEntry.GetInfrastructure(), context.Entry(relatedPrincipal).GetInfrastructure());
+                Assert.Same(relatedDependentEntry.GetInfrastructure(), context.Entry(relatedDependent).GetInfrastructure());
+                Assert.Same(dependentEntry.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
             }
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_to_context_to_be_deleted_Enumerable()
         {
-            await TrackMultipleEntitiesTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.RemoveRange(e), EntityState.Deleted);
         }
 
         [Fact]
         public async Task Can_add_multiple_new_entities_to_context_Enumerable_graph()
         {
-            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_multiple_new_entities_to_context_Enumerable_graph_async()
         {
-            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRangeAsync(e), (c, e) => c.AddRangeAsync(e), EntityState.Added);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRangeAsync(e), EntityState.Added);
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable_graph()
         {
-            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Unchanged);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e), EntityState.Unchanged);
         }
 
         [Fact]
         public async Task Can_add_multiple_existing_entities_to_context_to_be_updated_Enumerable_graph()
         {
-            await TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Modified);
+            await TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e), EntityState.Modified);
         }
 
         private static Task TrackMultipleEntitiesTestEnumerable(
-            Action<DbContext, IEnumerable<object>> categoryAdder,
-            Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
+            Action<DbContext, IEnumerable<object>> adder,
+            EntityState expectedState)
             => TrackMultipleEntitiesTestEnumerable(
                 (c, e) =>
                     {
-                        categoryAdder(c, e);
-                        return Task.FromResult(0);
-                    },
-                (c, e) =>
-                    {
-                        productAdder(c, e);
+                        adder(c, e);
                         return Task.FromResult(0);
                     },
                 expectedState);
 
         private static async Task TrackMultipleEntitiesTestEnumerable(
-            Func<DbContext, IEnumerable<object>, Task> categoryAdder,
-            Func<DbContext, IEnumerable<object>, Task> productAdder, EntityState expectedState)
+            Func<DbContext, IEnumerable<object>, Task> adder,
+            EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                await categoryAdder(context, new List<Category> { category1, category2 });
-                await productAdder(context, new List<Product> { product1, product2 });
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Same(product2, context.Entry(product2).Entity);
+                await adder(context, new object[] { principal, dependent });
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Equal(expectedState, context.Entry(category1).State);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Equal(expectedState, context.Entry(category2).State);
+                Assert.Same(principal, context.Entry(principal).Entity);
+                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+                Assert.Same(dependent, context.Entry(dependent).Entity);
 
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Equal(expectedState, context.Entry(product1).State);
-                Assert.Same(product2, context.Entry(product2).Entity);
-                Assert.Equal(expectedState, context.Entry(product2).State);
+                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
+
+                Assert.Same(principal, context.Entry(principal).Entity);
+                Assert.Equal(expectedState, context.Entry(principal).State);
+                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+                Assert.Equal(expectedRelatedState, context.Entry(relatedPrincipal).State);
+
+                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+                Assert.Equal(expectedRelatedState, context.Entry(relatedDependent).State);
+                Assert.Same(dependent, context.Entry(dependent).Entity);
+                Assert.Equal(expectedState, context.Entry(dependent).State);
             }
         }
 
