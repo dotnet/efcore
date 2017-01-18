@@ -470,20 +470,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
+        public virtual Task<EntityEntry<TEntity>> AddAsync<TEntity>(
             [NotNull] TEntity entity,
             CancellationToken cancellationToken = default(CancellationToken))
             where TEntity : class
-        {
-            var entry = EntryWithoutDetectChanges(entity);
-
-            await entry.GetInfrastructure().SetEntityStateAsync(
-                EntityState.Added,
-                acceptChanges: true,
-                cancellationToken: cancellationToken);
-
-            return entry;
-        }
+            => Task.FromResult(Add(entity));
 
         /// <summary>
         ///     <para>
@@ -626,19 +617,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        public virtual async Task<EntityEntry> AddAsync(
+        public virtual Task<EntityEntry> AddAsync(
             [NotNull] object entity,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var entry = EntryWithoutDetectChanges(entity);
-
-            await entry.GetInfrastructure().SetEntityStateAsync(
-                EntityState.Added,
-                acceptChanges: true,
-                cancellationToken: cancellationToken);
-
-            return entry;
-        }
+            => Task.FromResult(Add(entity));
 
         /// <summary>
         ///     <para>
@@ -870,19 +852,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
-        public virtual async Task AddRangeAsync(
+        public virtual Task AddRangeAsync(
             [NotNull] IEnumerable<object> entities,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = StateManager;
+            AddRange(entities);
 
-            foreach (var entity in entities)
-            {
-                await stateManager.GetOrCreateEntry(entity).SetEntityStateAsync(
-                    EntityState.Added,
-                    acceptChanges: true,
-                    cancellationToken: cancellationToken);
-            }
+            return Task.FromResult(true);
         }
 
         /// <summary>
