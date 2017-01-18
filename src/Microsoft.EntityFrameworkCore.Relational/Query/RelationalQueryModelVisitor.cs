@@ -830,10 +830,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (QueryCompilationContext.QuerySourceMapping.ContainsMapping(querySource))
                 {
-                    previousMapping.Add(
-                        querySource,
-                        QueryCompilationContext.QuerySourceMapping
-                            .GetExpression(querySource));
+                    previousMapping[querySource] 
+                        = QueryCompilationContext.QuerySourceMapping
+                            .GetExpression(querySource);
 
                     var groupJoinClause = querySource as GroupJoinClause;
 
