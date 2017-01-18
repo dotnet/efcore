@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -15,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     public class SqlServerStringTrimStartTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _trimStart = typeof(string).GetTypeInfo()
-            .GetDeclaredMethod(nameof(string.TrimStart));
+            .GetDeclaredMethods(nameof(string.TrimStart))
+            .Single(m => m.GetParameters().Count() == 1 && m.GetParameters()[0].ParameterType == typeof(char[]));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
