@@ -101,7 +101,6 @@
     <Compile Include="StoreGeneratedFixupSqliteTest.cs" />
     <Compile Include="StoreGeneratedSqliteTest.cs" />
     <Compile Include="TestModels\SqliteNorthwindContext.cs" />
-    <Compile Include="TestSqliteModelSource.cs" />
     <Compile Include="TransactionSqliteFixture.cs" />
     <Compile Include="TransactionSqliteTest.cs" />
     <Compile Include="UpdatesSqliteFixture.cs" />

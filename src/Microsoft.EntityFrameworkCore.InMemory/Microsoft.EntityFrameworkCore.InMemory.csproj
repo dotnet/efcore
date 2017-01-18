@@ -59,7 +59,6 @@
     <Compile Include="Extensions\Internal\InMemoryLoggerExtensions.cs" />
     <Compile Include="Infrastructure\InMemoryDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\InMemoryEventId.cs" />
-    <Compile Include="Infrastructure\Internal\InMemoryModelSource.cs" />
     <Compile Include="Infrastructure\Internal\InMemoryOptionsExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InMemoryStrings.Designer.cs">
@@ -83,7 +82,6 @@
     <Compile Include="Storage\Internal\IInMemoryTableFactory.cs" />
     <Compile Include="Storage\Internal\InMemoryDatabase.cs" />
     <Compile Include="Storage\Internal\InMemoryDatabaseCreator.cs" />
-    <Compile Include="Storage\Internal\InMemoryDatabaseProviderServices.cs" />
     <Compile Include="Storage\Internal\InMemoryStore.cs" />
     <Compile Include="Storage\Internal\InMemoryStoreSource.cs" />
     <Compile Include="Storage\Internal\InMemoryStoreSourceExtensions.cs" />
@@ -92,7 +90,6 @@
     <Compile Include="Storage\Internal\InMemoryTableSnapshot.cs" />
     <Compile Include="ValueGeneration\Internal\InMemoryIntegerValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\InMemoryIntegerValueGeneratorFactory.cs" />
-    <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorSelector.cs" />
     <Compile Include="WarningConfigurationBuilderExtensions.cs" />
   </ItemGroup>

@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate();
 
         /// <summary>
         ///     Gets all the migrations that are defined in the configured migrations assembly.
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The list of migrations.</returns>
         public static IEnumerable<string> GetMigrations([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrationsAssembly>().Migrations.Keys;
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrationsAssembly>().Migrations.Keys;
 
         /// <summary>
         ///     Gets all migrations that have been applied to the target database.
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The list of migrations. </returns>
         public static IEnumerable<string> GetAppliedMigrations([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IHistoryRepository>()
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IHistoryRepository>()
                 .GetAppliedMigrations().Select(hr => hr.MigrationId);
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
-            => (await Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IHistoryRepository>()
+            => (await Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IHistoryRepository>()
                 .GetAppliedMigrationsAsync(cancellationToken)).Select(hr => hr.MigrationId);
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task MigrateAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>()
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>()
                 .MigrateAsync(cancellationToken: cancellationToken);
 
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
@@ -114,13 +115,13 @@ namespace Microsoft.EntityFrameworkCore
             using (concurrencyDetector.EnterCriticalSection())
             {
                 var rawSqlCommand = databaseFacade
-                    .GetService<IRawSqlCommandBuilder>()
+                    .GetRelationalService<IRawSqlCommandBuilder>()
                     .Build(sql, parameters);
 
                 return rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQuery(
-                        GetRelationalConnection(databaseFacade),
+                        databaseFacade.GetRelationalService<IRelationalConnection>(),
                         parameterValues: rawSqlCommand.ParameterValues);
             }
         }
@@ -139,33 +140,33 @@ namespace Microsoft.EntityFrameworkCore
             using (concurrencyDetector.EnterCriticalSection())
             {
                 var rawSqlCommand = databaseFacade
-                    .GetService<IRawSqlCommandBuilder>()
+                    .GetRelationalService<IRawSqlCommandBuilder>()
                     .Build(sql, parameters);
 
                 return await rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalConnection(),
+                        databaseFacade.GetRelationalService<IRelationalConnection>(),
                         rawSqlCommand.ParameterValues,
                         cancellationToken: cancellationToken);
             }
         }
 
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
-            => GetRelationalConnection(databaseFacade).DbConnection;
+            => databaseFacade.GetRelationalService<IRelationalConnection>().DbConnection;
 
         public static void OpenConnection([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.CreateExecutionStrategy().Execute(
-                database => database.GetRelationalConnection().Open(), databaseFacade);
+                database => database.GetRelationalService<IRelationalConnection>().Open(), databaseFacade);
 
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync((database, ct) =>
-                database.GetRelationalConnection().OpenAsync(cancellationToken), databaseFacade, cancellationToken);
+                database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), databaseFacade, cancellationToken);
 
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
-            => GetRelationalConnection(databaseFacade).Close();
+            => databaseFacade.GetRelationalService<IRelationalConnection>().Close();
 
         public static IDbContextTransaction BeginTransaction([NotNull] this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
             => databaseFacade.CreateExecutionStrategy().Execute(database =>
@@ -210,25 +211,38 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, int? timeout)
-            => GetRelationalConnection(databaseFacade).CommandTimeout = timeout;
+            => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout = timeout;
+
         public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, TimeSpan timeout)
         {
             if (timeout < TimeSpan.Zero)
             {
                 throw new ArgumentException($"Timeout must be greater than or equal to zero.  Provided: {timeout.TotalSeconds} seconds.");
             }
-            if (timeout.TotalSeconds > Int32.MaxValue)
+
+            if (timeout.TotalSeconds > int.MaxValue)
             {
                 throw new ArgumentException($"Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds.  Provided: {timeout.Seconds} seconds.");
             }
+
             SetCommandTimeout(databaseFacade, Convert.ToInt32(timeout.TotalSeconds));
         }
 
         public static int? GetCommandTimeout([NotNull] this DatabaseFacade databaseFacade)
-            => GetRelationalConnection(databaseFacade).CommandTimeout;
+            => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout;
 
-        private static IRelationalConnection GetRelationalConnection([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IRelationalConnection>();
+        private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
+        {
+            Check.NotNull(databaseFacade, nameof(databaseFacade));
+
+            var service = databaseFacade.Instance.GetService<TService>();
+            if (service == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+            }
+
+            return service;
+        }
 
         private static IDbContextTransactionManager GetTransactionManager([NotNull] this DatabaseFacade databaseFacade)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IDbContextTransactionManager>();

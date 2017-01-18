@@ -46,11 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void ApplyServices(IServiceCollection services)
+        public virtual bool ApplyServices(IServiceCollection services)
         {
             Check.NotNull(services, nameof(services));
 
             services.AddEntityFrameworkInMemoryDatabase();
+
+            return true;
         }
     }
 }

@@ -207,6 +207,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public void Throws_on_attempt_to_use_store_with_no_store_services()
             {
+                var serviceCollection = new ServiceCollection();
+                ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+                var serviceProvider = serviceCollection.BuildServiceProvider();
+
                 using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     Assert.Equal(
@@ -215,9 +219,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             {
                                 using (var context = new NorthwindContext(
                                     new DbContextOptionsBuilder()
-                                        .UseInternalServiceProvider(new ServiceCollection()
-                                            .AddEntityFramework()
-                                            .BuildServiceProvider()).Options))
+                                        .UseInternalServiceProvider(serviceProvider).Options))
                                 {
                                     Assert.Equal(91, context.Customers.Count());
                                 }

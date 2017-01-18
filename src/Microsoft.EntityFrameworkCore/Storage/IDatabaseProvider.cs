@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -20,11 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IDatabaseProvider
     {
         /// <summary>
-        ///     Gets the base set of services required by EF for the database provider to function.
+        ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
+        ///     for the providers runtime.
         /// </summary>
-        /// <param name="serviceProvider"> The service provider to resolve services from. </param>
-        /// <returns> The services for this database provider. </returns>
-        IDatabaseProviderServices GetProviderServices([NotNull] IServiceProvider serviceProvider);
+        string InvariantName { get; }
 
         /// <summary>
         ///     Gets a value indicating whether this database provider has been selected for a given context.

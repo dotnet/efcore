@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] MigrationsCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] ILogger<MigrationsScaffolder> logger,
-            [NotNull] IDatabaseProviderServices providerServices)
+            [NotNull] IDatabaseProvider databaseProvider)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(model, nameof(model));
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(migrationCodeGenerator, nameof(migrationCodeGenerator));
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(providerServices, nameof(providerServices));
+            Check.NotNull(databaseProvider, nameof(databaseProvider));
 
             _contextType = currentContext.Context.GetType();
             _model = model;
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             _migrationCodeGenerator = migrationCodeGenerator;
             _historyRepository = historyRepository;
             _logger = logger;
-            _activeProvider = providerServices.InvariantName;
+            _activeProvider = databaseProvider.InvariantName;
         }
 
         public virtual ScaffoldedMigration ScaffoldMigration(

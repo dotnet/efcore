@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public override void Validate(IModel model)
         {
             base.Validate(model);
+
             EnsureNoDefaultDecimalMapping(model);
             EnsureNoNonKeyValueGeneration(model);
         }

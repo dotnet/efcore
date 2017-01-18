@@ -103,12 +103,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         The service provider must contain all the services required by Entity Framework (and the database being
-        ///         used). The Entity Framework services can be registered using the
-        ///         <see
-        ///             cref="Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServiceCollectionExtensions.AddEntityFramework(IServiceCollection)" />
-        ///         method. Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
-        ///         services required. For example, the Microsoft SQL Server provider includes an AddEntityFrameworkSqlServer() method
-        ///         to add the required services.
+        ///         used). The Entity Framework services can be registered using an extension method on <see cref="IServiceCollection" />. 
+        ///         For example, the Microsoft SQL Server provider includes an AddEntityFrameworkSqlServer() method to add 
+        ///         the required services.
         ///     </para>
         ///     <para>
         ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or

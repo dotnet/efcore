@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => InMemoryTestHelpers.Instance.CreateContext(
                 InMemoryTestHelpers.Instance.CreateServiceProvider(
                     new ServiceCollection()
-                        .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()),
+                        .AddScoped<IDbContextTransactionManager, TestInMemoryTransactionManager>()),
                 InMemoryTestHelpers.Instance.CreateOptions());
     }
 }

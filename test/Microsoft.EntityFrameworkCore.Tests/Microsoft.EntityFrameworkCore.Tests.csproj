@@ -166,7 +166,6 @@
     <Compile Include="ModelBuilderTest\TestModel.cs" />
     <Compile Include="ModelSourceTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
-    <Compile Include="Storage\DatabaseProviderSelectorTest.cs" />
     <Compile Include="Storage\ExecutionStrategyTests.cs" />
     <Compile Include="TestUtilities\ListLogger.cs" />
     <Compile Include="TestUtilities\ListLoggerFactory.cs" />

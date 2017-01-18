@@ -94,12 +94,9 @@
     <Compile Include="TestUtilities\TestRelationalCompositeMemberTranslator.cs" />
     <Compile Include="TestUtilities\TestRelationalCompositeMethodCallTranslator.cs" />
     <Compile Include="TestUtilities\TestRelationalConventionSetBuilder.cs" />
-    <Compile Include="TestUtilities\TestRelationalDatabaseProviderServices.cs" />
     <Compile Include="TestUtilities\TestRelationalMetadataExtensions.cs" />
     <Compile Include="TestUtilities\TestRelationalMigrationSqlGenerator.cs" />
-    <Compile Include="TestUtilities\TestRelationalModelSource.cs" />
     <Compile Include="TestUtilities\TestRelationalTypeMapper.cs" />
-    <Compile Include="TestUtilities\TestRelationalValueGeneratorCache.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />

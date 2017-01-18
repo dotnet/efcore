@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             private static readonly IServiceProvider _serviceProvider
                 = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
-                    .AddScoped<InMemoryValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
+                    .AddScoped<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
                     .BuildServiceProvider();
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

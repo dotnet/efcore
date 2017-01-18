@@ -3,7 +3,6 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             Assert.Equal(
                 typeof(SqlServerConnection).GetTypeInfo().Assembly.GetName().Name,
-                new SqlServerDatabaseProviderServices(SqlServerTestHelpers.Instance.CreateServiceProvider()).InvariantName);
+                new DatabaseProvider<SqlServerOptionsExtension>().InvariantName);
         }
 
         [Fact]
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            Assert.True(new DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>().IsConfigured(optionsBuilder.Options));
+            Assert.True(new DatabaseProvider<SqlServerOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
 
         [Fact]
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            Assert.False(new DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>().IsConfigured(optionsBuilder.Options));
+            Assert.False(new DatabaseProvider<SqlServerOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
     }
 }

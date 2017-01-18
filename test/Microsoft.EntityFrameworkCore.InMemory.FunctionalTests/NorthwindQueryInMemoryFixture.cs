@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .UseInternalServiceProvider(
                     (serviceCollection ?? new ServiceCollection())
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                         .AddSingleton<ILoggerFactory>(_testLoggerFactory)
                         .BuildServiceProvider()).Options;
 

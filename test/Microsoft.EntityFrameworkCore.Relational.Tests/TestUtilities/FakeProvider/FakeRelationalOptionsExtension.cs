@@ -2,7 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -19,31 +25,35 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         {
         }
 
-        public override void ApplyServices(IServiceCollection services)
-            => AddEntityFrameworkRelationalDatabase(services);
-
-        public static IServiceCollection AddEntityFrameworkRelationalDatabase(IServiceCollection services)
+        public override bool ApplyServices(IServiceCollection services)
         {
-            services.AddRelational();
+            AddEntityFrameworkRelationalDatabase(services);
 
-            services.TryAddEnumerable(ServiceDescriptor
-                .Singleton<IDatabaseProvider, DatabaseProvider<TestRelationalDatabaseProviderServices, FakeRelationalOptionsExtension>>());
+            return true;
+        }
+        public static IServiceCollection AddEntityFrameworkRelationalDatabase(IServiceCollection serviceCollection)
+        {
+            serviceCollection.TryAddEnumerable(
+                ServiceDescriptor.Singleton<IDatabaseProvider, DatabaseProvider<FakeRelationalOptionsExtension>>());
 
-            services.TryAdd(new ServiceCollection()
-                .AddSingleton<TestRelationalModelSource>()
-                .AddSingleton<TestRelationalValueGeneratorCache>()
-                .AddSingleton<RelationalSqlGenerationHelper>()
-                .AddSingleton<TestRelationalTypeMapper>()
-                .AddSingleton<TestAnnotationProvider>()
-                .AddScoped<TestRelationalDatabaseProviderServices>()
-                .AddScoped<TestRelationalMigrationSqlGenerator>()
-                .AddScoped<TestRelationalConventionSetBuilder>()
-                .AddScoped<TestRelationalCompositeMemberTranslator>()
-                .AddScoped<TestRelationalCompositeMethodCallTranslator>()
-                .AddScoped<TestQuerySqlGeneratorFactory>()
-                .AddScoped<FakeRelationalConnection>());
+            serviceCollection.TryAdd(new ServiceCollection()
+                .AddSingleton<ISqlGenerationHelper, RelationalSqlGenerationHelper>()
+                .AddSingleton<IRelationalTypeMapper, TestRelationalTypeMapper>()
+                .AddSingleton<IRelationalAnnotationProvider, TestAnnotationProvider>()
+                .AddScoped<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
+                .AddScoped<IConventionSetBuilder, TestRelationalConventionSetBuilder>()
+                .AddScoped<IMemberTranslator, TestRelationalCompositeMemberTranslator>()
+                .AddScoped<IMethodCallTranslator, TestRelationalCompositeMethodCallTranslator>()
+                .AddScoped<IQuerySqlGeneratorFactory, TestQuerySqlGeneratorFactory>()
+                .AddScoped<IRelationalConnection, FakeRelationalConnection>()
+                .AddScoped<IHistoryRepository>(_ => null)
+                .AddScoped<IUpdateSqlGenerator>(_ => null)
+                .AddScoped<IModificationCommandBatchFactory>(_ => null)
+                .AddScoped<IRelationalDatabaseCreator>(_ => null));
 
-            return services;
+            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(serviceCollection);
+
+            return serviceCollection;
         }
     }
 }

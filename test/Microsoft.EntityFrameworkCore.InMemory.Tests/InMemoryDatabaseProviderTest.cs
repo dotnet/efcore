@@ -3,7 +3,6 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             Assert.Equal(
                 typeof(InMemoryDatabase).GetTypeInfo().Assembly.GetName().Name,
-                new InMemoryDatabaseProviderServices(InMemoryTestHelpers.Instance.CreateServiceProvider()).InvariantName);
+                new DatabaseProvider<InMemoryOptionsExtension>().InvariantName);
         }
 
         [Fact]
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase();
 
-            Assert.True(new DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
+            Assert.True(new DatabaseProvider<InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
 
         [Fact]
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            Assert.False(new DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
+            Assert.False(new DatabaseProvider<InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
     }
 }

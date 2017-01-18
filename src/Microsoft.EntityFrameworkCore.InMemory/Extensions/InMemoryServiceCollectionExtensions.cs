@@ -4,11 +4,14 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -45,39 +48,33 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         }
         ///     </code>
         /// </example>
-        /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
-        public static IServiceCollection AddEntityFrameworkInMemoryDatabase([NotNull] this IServiceCollection services)
+        public static IServiceCollection AddEntityFrameworkInMemoryDatabase([NotNull] this IServiceCollection serviceCollection)
         {
-            Check.NotNull(services, nameof(services));
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            services.AddEntityFramework();
+            serviceCollection.TryAddEnumerable(ServiceDescriptor
+                .Singleton<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>());
 
-            services.TryAddEnumerable(ServiceDescriptor
-                .Singleton<IDatabaseProvider, DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>>());
-
-            services.TryAdd(new ServiceCollection()
-                .AddSingleton<InMemoryValueGeneratorCache>()
+            serviceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<IInMemoryStoreSource, InMemoryStoreSource>()
                 .AddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
-                .AddSingleton<InMemoryModelSource>()
-                .AddScoped<InMemoryValueGeneratorSelector>()
-                .AddScoped<InMemoryDatabaseProviderServices>()
+                .AddScoped<IValueGeneratorSelector, InMemoryValueGeneratorSelector>()
                 .AddScoped<IInMemoryDatabase, InMemoryDatabase>()
-                .AddScoped<InMemoryTransactionManager>()
-                .AddScoped<InMemoryDatabaseCreator>()
-                .AddQuery());
-
-            return services;
-        }
-
-        private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-            => serviceCollection
+                .AddScoped<IDatabase>(p => p.GetService<IInMemoryDatabase>())
+                .AddScoped<IDbContextTransactionManager, InMemoryTransactionManager>()
+                .AddScoped<IDatabaseCreator, InMemoryDatabaseCreator>()
                 .AddScoped<IMaterializerFactory, MaterializerFactory>()
-                .AddScoped<InMemoryQueryContextFactory>()
-                .AddScoped<InMemoryQueryModelVisitorFactory>()
-                .AddScoped<InMemoryEntityQueryableExpressionVisitorFactory>();
+                .AddScoped<IQueryContextFactory, InMemoryQueryContextFactory>()
+                .AddScoped<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
+                .AddScoped<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>());
+
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+
+            return serviceCollection;
+        }
     }
 }

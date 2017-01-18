@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(
-                    RelationalTestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddEntityFrameworkInMemoryDatabase()))
+                    new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider())
                 .UseInMemoryDatabase();
             var context = new DbContext(optionsBuilder.Options);
 

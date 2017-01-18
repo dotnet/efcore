@@ -104,16 +104,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             public string Something { get; set; }
 
-            public virtual void ApplyServices(IServiceCollection services)
-            {
-            }
+            public virtual bool ApplyServices(IServiceCollection services)
+                => false;
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual void ApplyServices(IServiceCollection services)
-            {
-            }
+            public virtual bool ApplyServices(IServiceCollection services)
+                => false;
         }
 
         [Fact]

@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The database providers {storeNames}are configured. A context can only be configured to use a single database provider.
+        /// Services for database providers {storeNames} have been registered in the service provider. Only a single database provider can be registered in a service provider. If possible, ensure that Entity Framework is managing its service provider by removing the call to UseInternalServiceProvider. Otherwise, consider conditionally registering the database provider, or maintaining one service provider per database provider.
         /// </summary>
         public static string MultipleProvidersConfigured([CanBeNull] object storeNames)
         {
@@ -374,14 +374,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string InvalidReplaceService([CanBeNull] object replaceService, [CanBeNull] object useInternalServiceProvider)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidReplaceService", "replaceService", "useInternalServiceProvider"), replaceService, useInternalServiceProvider);
-        }
-
-        /// <summary>
-        /// The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
-        /// </summary>
-        public static string MultipleProvidersAvailable([CanBeNull] object storeNames)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleProvidersAvailable", "storeNames"), storeNames);
         }
 
         /// <summary>

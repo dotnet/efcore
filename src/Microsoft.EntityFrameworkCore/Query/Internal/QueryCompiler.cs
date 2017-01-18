@@ -13,7 +13,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
@@ -22,7 +21,6 @@ using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
-using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -44,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
         private readonly ISensitiveDataLogger _logger;
-        private readonly MethodInfoBasedNodeTypeRegistry _methodInfoBasedNodeTypeRegistry;
+        private readonly INodeTypeProviderFactory _nodeTypeProviderFactory;
         private readonly Type _contextType;
 
         private INodeTypeProvider _nodeTypeProvider;
@@ -59,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
             [NotNull] IDatabase database,
             [NotNull] ISensitiveDataLogger<QueryCompiler> logger,
-            [NotNull] MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry,
+            [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
             [NotNull] ICurrentDbContext currentContext)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
@@ -74,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _compiledQueryCacheKeyGenerator = compiledQueryCacheKeyGenerator;
             _database = database;
             _logger = logger;
-            _methodInfoBasedNodeTypeRegistry = methodInfoBasedNodeTypeRegistry;
+            _nodeTypeProviderFactory = nodeTypeProviderFactory;
             _contextType = currentContext.Context.GetType();
         }
 
@@ -348,32 +346,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private INodeTypeProvider NodeTypeProvider
             => _nodeTypeProvider
-               ?? (_nodeTypeProvider
-                   = CreateNodeTypeProvider(_methodInfoBasedNodeTypeRegistry));
-
-        private static INodeTypeProvider CreateNodeTypeProvider(
-            MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry)
-        {
-            methodInfoBasedNodeTypeRegistry
-                .Register(TrackingExpressionNode.SupportedMethods, typeof(TrackingExpressionNode));
-
-            methodInfoBasedNodeTypeRegistry
-                .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));
-
-            methodInfoBasedNodeTypeRegistry
-                .Register(StringIncludeExpressionNode.SupportedMethods, typeof(StringIncludeExpressionNode));
-
-            methodInfoBasedNodeTypeRegistry
-                .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
-
-            var innerProviders
-                = new INodeTypeProvider[]
-                {
-                    methodInfoBasedNodeTypeRegistry,
-                    MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
-                };
-
-            return new CompoundNodeTypeProvider(innerProviders);
-        }
+               ?? (_nodeTypeProvider = _nodeTypeProviderFactory.Create());
     }
 }

@@ -101,7 +101,6 @@
     <Compile Include="QueryNavigationsInMemoryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
     <Compile Include="StoreGeneratedInMemoryTest.cs" />
-    <Compile Include="TestInMemoryModelSource.cs" />
     <Compile Include="UpdatesInMemoryFixture.cs" />
     <Compile Include="UpdatesInMemoryTest.cs" />
   </ItemGroup>

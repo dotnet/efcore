@@ -58,7 +58,6 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\Internal\SqliteModelSource.cs" />
     <Compile Include="Infrastructure\Internal\SqliteOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqliteDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\SqliteServiceCollectionExtensions.cs" />
@@ -98,14 +97,13 @@
     <Compile Include="Query\Sql\Internal\SqliteQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\Internal\SqliteQuerySqlGeneratorFactory.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
+    <Compile Include="Storage\Internal\ISqliteRelationalConnection.cs" />
     <Compile Include="Storage\Internal\SqliteDatabaseCreator.cs" />
     <Compile Include="Storage\Internal\SqliteRelationalConnection.cs" />
     <Compile Include="Storage\Internal\SqliteSqlGenerationHelper.cs" />
     <Compile Include="Storage\Internal\SqliteTypeMapper.cs" />
-    <Compile Include="Storage\Internal\SqliteDatabaseProviderServices.cs" />
     <Compile Include="Update\Internal\SqliteModificationCommandBatchFactory.cs" />
     <Compile Include="Update\Internal\SqliteUpdateSqlGenerator.cs" />
-    <Compile Include="ValueGeneration\Internal\SqliteValueGeneratorCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\SqliteStrings.resx">

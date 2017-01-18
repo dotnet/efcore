@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .UseSqlServer(connectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(new ServiceCollection()
                         .AddEntityFrameworkSqlServer()
-                        .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                         .BuildServiceProvider())
                     .Options;
 

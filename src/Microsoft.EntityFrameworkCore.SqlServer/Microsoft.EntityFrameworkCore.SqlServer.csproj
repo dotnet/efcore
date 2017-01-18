@@ -68,7 +68,6 @@
     <Compile Include="Extensions\SqlServerPropertyBuilderExtensions.cs" />
     <Compile Include="Extensions\SqlServerReferenceCollectionBuilderExtensions.cs" />
     <Compile Include="Extensions\SqlServerReferenceReferenceBuilderExtensions.cs" />
-    <Compile Include="Infrastructure\Internal\SqlServerModelSource.cs" />
     <Compile Include="Infrastructure\Internal\SqlServerOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqlServerDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\SqlServerEventId.cs" />
@@ -147,7 +146,6 @@
     <Compile Include="Storage\Internal\ISqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerDatabaseCreator.cs" />
-    <Compile Include="Storage\Internal\SqlServerDatabaseProviderServices.cs" />
     <Compile Include="Storage\Internal\SqlServerExecutionStrategy.cs" />
     <Compile Include="Storage\Internal\SqlServerExecutionStrategyFactoryContext.cs" />
     <Compile Include="Storage\Internal\SqlServerLoggerExtensions.cs" />

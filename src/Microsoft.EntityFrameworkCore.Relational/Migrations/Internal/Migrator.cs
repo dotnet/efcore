@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] ILogger<Migrator> logger,
-            [NotNull] IDatabaseProviderServices providerServices)
+            [NotNull] IDatabaseProvider databaseProvider)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(providerServices, nameof(providerServices));
+            Check.NotNull(databaseProvider, nameof(databaseProvider));
 
             _migrationsAssembly = migrationsAssembly;
             _historyRepository = historyRepository;
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _connection = connection;
             _sqlGenerationHelper = sqlGenerationHelper;
             _logger = logger;
-            _activeProvider = providerServices.InvariantName;
+            _activeProvider = databaseProvider.InvariantName;
         }
 
         /// <summary>

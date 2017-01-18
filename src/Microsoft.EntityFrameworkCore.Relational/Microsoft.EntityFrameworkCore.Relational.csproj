@@ -74,7 +74,7 @@
     <Compile Include="Migrations\Internal\MigrationCommandExecutor.cs" />
     <Compile Include="Migrations\MigrationCommandListBuilder.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
-    <Compile Include="Infrastructure\RelationalServiceCollectionExtensions.cs" />
+    <Compile Include="Infrastructure\ServiceCollectionRelationalProviderInfrastructure.cs" />
     <Compile Include="Infrastructure\RelationalEventId.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
     <Compile Include="Internal\RelationalDiagnostics.cs" />
@@ -276,6 +276,7 @@
     <Compile Include="Query\Internal\ShaperCommandContext.cs" />
     <Compile Include="Query\Internal\ShaperCommandContextFactory.cs" />
     <Compile Include="Query\IQueryMethodProvider.cs" />
+    <Compile Include="Query\IRelationalResultOperatorHandler.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />
     <Compile Include="Query\RelationalQueryCompilationContext.cs" />
     <Compile Include="Query\RelationalQueryCompilationContextFactory.cs" />
@@ -325,7 +326,6 @@
     <Compile Include="Storage\IRelationalCommandBuilderFactory.cs" />
     <Compile Include="Storage\IRelationalConnection.cs" />
     <Compile Include="Storage\IRelationalDatabaseCreator.cs" />
-    <Compile Include="Storage\IRelationalDatabaseProviderServices.cs" />
     <Compile Include="Storage\IRelationalParameter.cs" />
     <Compile Include="Storage\IRelationalParameterBuilder.cs" />
     <Compile Include="Storage\IRelationalTransactionManager.cs" />
@@ -341,7 +341,6 @@
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
-    <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
     <Compile Include="Storage\RelationalDataReader.cs" />
     <Compile Include="Storage\RelationalSqlGenerationHelper.cs" />
     <Compile Include="Storage\RelationalTransaction.cs" />

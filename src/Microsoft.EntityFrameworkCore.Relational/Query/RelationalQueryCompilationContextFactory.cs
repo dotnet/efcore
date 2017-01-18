@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,17 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] ISensitiveDataLogger<RelationalQueryCompilationContextFactory> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry,
+            [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
             [NotNull] ICurrentDbContext currentContext)
-            : base(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(logger, nameof(logger)),
-                Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
-                Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
-                Check.NotNull(currentContext, nameof(currentContext)))
+            : base(model, logger, entityQueryModelVisitorFactory, requiresMaterializationExpressionVisitorFactory, currentContext)
         {
-            methodInfoBasedNodeTypeRegistry
-                .Register(FromSqlExpressionNode.SupportedMethods, typeof(FromSqlExpressionNode));
+            nodeTypeProviderFactory
+                .RegisterMethods(FromSqlExpressionNode.SupportedMethods, typeof(FromSqlExpressionNode));
         }
 
         /// <summary>

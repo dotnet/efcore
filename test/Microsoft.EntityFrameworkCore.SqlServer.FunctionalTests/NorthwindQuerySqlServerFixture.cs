@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         .EnableSensitiveDataLogging()
                         .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
                             .AddEntityFrameworkSqlServer()
-                            .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                            .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                             .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
                             .BuildServiceProvider()))
                 .UseSqlServer(

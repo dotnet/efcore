@@ -233,12 +233,17 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             {
                 using (SqlServerNorthwindContext.GetSharedStore())
                 {
-                    var serviceProvider = new ServiceCollection()
-                        .AddEntityFrameworkSqlServer()
+                    var inMemoryServiceProvider = new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider();
 
-                    await NestedContextTest(() => new BlogContext(serviceProvider), () => new NorthwindContext(serviceProvider));
+                    var sqlServerServiceProvider = new ServiceCollection()
+                        .AddEntityFrameworkSqlServer()
+                        .BuildServiceProvider();
+
+                    await NestedContextTest(
+                        () => new BlogContext(inMemoryServiceProvider), 
+                        () => new NorthwindContext(sqlServerServiceProvider));
                 }
             }
 

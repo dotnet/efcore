@@ -282,9 +282,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var generator = services.GetRequiredService<IMigrationsSqlGenerator>();
             var executor = services.GetRequiredService<IMigrationCommandExecutor>();
             var connection = services.GetRequiredService<IRelationalConnection>();
-            var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
+            var databaseProvider = services.GetRequiredService<IDatabaseProvider>();
 
-            var migrationBuilder = new MigrationBuilder(providerServices.InvariantName);
+            var migrationBuilder = new MigrationBuilder(databaseProvider.InvariantName);
             buildMigration(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 

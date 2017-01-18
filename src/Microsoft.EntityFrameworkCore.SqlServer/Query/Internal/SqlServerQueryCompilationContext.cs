@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -30,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Type contextType,
             bool trackQueryResults)
             : base(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(logger, nameof(logger)),
-                Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
-                Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
-                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
-                Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
-                Check.NotNull(contextType, nameof(contextType)),
+                model,
+                logger,
+                entityQueryModelVisitorFactory,
+                requiresMaterializationExpressionVisitorFactory,
+                linqOperatorProvider,
+                queryMethodProvider,
+                contextType,
                 trackQueryResults)
         {
         }

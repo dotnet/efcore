@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
-            var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
+            var selector = new ValueGeneratorSelector(new ValueGeneratorCache());
 
             Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
 
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
-            var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
+            var selector = contextServices.GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
                 CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),

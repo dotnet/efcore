@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         // ReSharper disable once InconsistentNaming
         private const int SQLITE_CANTOPEN = 14;
 
-        private readonly SqliteRelationalConnection _connection;
+        private readonly ISqliteRelationalConnection _connection;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqliteDatabaseCreator(
-            [NotNull] SqliteRelationalConnection connection,
+            [NotNull] ISqliteRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,

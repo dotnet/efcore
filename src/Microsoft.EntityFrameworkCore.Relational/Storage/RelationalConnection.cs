@@ -387,6 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual IValueBufferCursor ActiveCursor { get; set; }
 
+        void IResettableService.Reset() => Dispose();
+        
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>

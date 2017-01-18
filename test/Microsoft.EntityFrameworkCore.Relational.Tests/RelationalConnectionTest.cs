@@ -50,14 +50,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_with_new_when_no_provider_use_Database()
         {
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
-                .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -65,8 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_with_add_when_no_provider_use_Database()
         {
-            var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+
+            var appServiceProivder = serviceCollection
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -78,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -89,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             using (var context = new ConstructorTestContextNoConfiguration())
             {
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -108,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
 
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }

@@ -5,6 +5,7 @@
     "preserveCompilationContext": true
   },
   "dependencies": {
+    "Microsoft.EntityFrameworkCore.InMemory": "1.2.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.2.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design.Tests": {
       "target": "project"

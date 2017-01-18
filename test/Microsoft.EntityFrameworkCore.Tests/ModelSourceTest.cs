@@ -15,6 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class ModelSourceTest
     {
+        private readonly CoreModelValidator _coreModelValidator
+            = new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory()));
+
+        private readonly NullConventionSetBuilder _nullConventionSetBuilder
+            = new NullConventionSetBuilder();
+
         [Fact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
@@ -28,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 });
 
             var model = CreateDefaultModelSource(setFinderMock.Object)
-                .GetModel(new Mock<DbContext>().Object, null, new NoopModelValidator());
+                .GetModel(new Mock<DbContext>().Object, _nullConventionSetBuilder, _coreModelValidator);
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -58,12 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1(), null, new NoopModelValidator());
-            var model2 = modelSource.GetModel(new Context2(), null, new NoopModelValidator());
+            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
+            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator);
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), null, new NoopModelValidator()));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), null, new NoopModelValidator()));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator));
         }
 
         [Fact]
@@ -71,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model = modelSource.GetModel(new Context1(), null, new NoopModelValidator());
+            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
 
             Assert.StartsWith("1.2.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
@@ -87,11 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)
             => new ConcreteModelSource(setFinder);
 
+
         private class ConcreteModelSource : ModelSource
         {
             public ConcreteModelSource(IDbSetFinder setFinder)
-                : base(setFinder, new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
-                    new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
+                : base(setFinder, new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
             {
             }
         }

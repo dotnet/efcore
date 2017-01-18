@@ -161,7 +161,6 @@
     <Compile Include="Utilities\TestRelationalTransaction.cs" />
     <Compile Include="Utilities\TestSqlServerConnection.cs" />
     <Compile Include="Utilities\TestSqlServerRetryingExecutionStrategy.cs" />
-    <Compile Include="Utilities\TestSqlServerModelSource.cs" />
     <Compile Include="WarningsSqlServerFixture.cs" />
     <Compile Include="WarningsSqlServerTest.cs" />
   </ItemGroup>

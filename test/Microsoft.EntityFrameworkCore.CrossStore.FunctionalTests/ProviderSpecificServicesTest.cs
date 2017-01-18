@@ -11,12 +11,11 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
     public class ProviderSpecificServicesTest
     {
         [Fact]
-        public void Throws_with_new_when_non_relational_provider_in_use1110938893()
+        public void Throws_with_new_when_non_relational_provider_in_use()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
                 .UseInternalServiceProvider(
                     new ServiceCollection()
-                        .AddEntityFrameworkSqlServer()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider())
                 .UseInMemoryDatabase()
@@ -31,10 +30,9 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
         }
 
         [Fact]
-        public void Throws_with_add_when_non_relational_provider_in_use547424486()
+        public void Throws_with_add_when_non_relational_provider_in_use()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))

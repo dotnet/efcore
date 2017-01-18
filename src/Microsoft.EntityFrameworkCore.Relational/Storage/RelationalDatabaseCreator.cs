@@ -1,16 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -23,39 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator, IServiceInjectionSite
+    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         private readonly IMigrationsModelDiffer _modelDiffer;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
-        /// </summary>
-        /// <param name="model"> The <see cref="IModel" /> for the context this creator is being used with. </param>
-        /// <param name="connection"> The <see cref="IRelationalConnection" /> to be used. </param>
-        /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer" /> to be used. </param>
-        /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator" /> to be used. </param>
-        /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
-        [Obsolete("Derived classes must be updated to call the new constructor with additional parameters.")]
-        protected RelationalDatabaseCreator(
-            [NotNull] IModel model,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IMigrationCommandExecutor migrationCommandExecutor)
-        {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(modelDiffer, nameof(modelDiffer));
-            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
-
-            Model = model;
-            Connection = connection;
-            _modelDiffer = modelDiffer;
-            _migrationsSqlGenerator = migrationsSqlGenerator;
-            MigrationCommandExecutor = migrationCommandExecutor;
-        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
@@ -108,13 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
         /// </summary>
         protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; private set; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        void IServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
-            => ExecutionStrategyFactory = ExecutionStrategyFactory ?? serviceProvider.GetService<IExecutionStrategyFactory>();
 
         /// <summary>
         ///     Determines whether the physical database exists. No attempt is made to determine if the database

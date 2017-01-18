@@ -238,7 +238,7 @@
     <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
-    <value>The database providers {storeNames}are configured. A context can only be configured to use a single database provider.</value>
+    <value>Services for database providers {storeNames} have been registered in the service provider. Only a single database provider can be registered in a service provider. If possible, ensure that Entity Framework is managing its service provider by removing the call to UseInternalServiceProvider. Otherwise, consider conditionally registering the database provider, or maintaining one service provider per database provider.</value>
   </data>
   <data name="DbContextMissingConstructor" xml:space="preserve">
     <value>AddDbContext was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to AddDbContext will never be used. If configuration is passed to AddDbContext, then ‘{contextType}’ should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.</value>
@@ -251,9 +251,6 @@
   </data>
   <data name="InvalidReplaceService" xml:space="preserve">
     <value>A call was made to {replaceService}, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to {useInternalServiceProvider}, or build replacement services into the service provider before passing it to {useInternalServiceProvider}.</value>
-  </data>
-  <data name="MultipleProvidersAvailable" xml:space="preserve">
-    <value>The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
   <data name="NoValueGenerator" xml:space="preserve">
     <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>

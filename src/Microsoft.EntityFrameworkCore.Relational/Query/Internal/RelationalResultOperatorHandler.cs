@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class RelationalResultOperatorHandler : IResultOperatorHandler
+    public class RelationalResultOperatorHandler : IRelationalResultOperatorHandler
     {
         private sealed class HandlerContext
         {
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
-        private readonly ResultOperatorHandler _resultOperatorHandler;
+        private readonly IResultOperatorHandler _resultOperatorHandler;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
-            [NotNull] ResultOperatorHandler resultOperatorHandler)
+            [NotNull] IResultOperatorHandler resultOperatorHandler)
         {
             _model = model;
             _relationalAnnotationProvider = relationalAnnotationProvider;

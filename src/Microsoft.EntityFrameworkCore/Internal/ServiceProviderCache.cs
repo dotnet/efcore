@@ -47,11 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     k =>
                         {
                             var services = new ServiceCollection();
-                            var builder = services.AddEntityFramework();
+                            var coreServicesAdded = false;
 
                             foreach (var extension in options.Extensions)
                             {
-                                extension.ApplyServices(builder);
+                                if (extension.ApplyServices(services))
+                                {
+                                    coreServicesAdded = true;
+                                }
+                            }
+
+                            if (!coreServicesAdded)
+                            {
+                                ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(services);
                             }
 
                             if (replacedServices != null)

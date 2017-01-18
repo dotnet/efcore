@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual ModelBuilder CreateModelBuilder()
         {
             var context = CreateContext();
-            var conventionSetBuilder = context.GetService<IDatabaseProviderServices>().ConventionSetBuilder;
+            var conventionSetBuilder = context.GetService<IConventionSetBuilder>();
             var conventionSet = context.GetService<ICoreConventionSetBuilder>().CreateConventionSet();
             conventionSet = conventionSetBuilder == null
                 ? conventionSet
@@ -59,7 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             modelBuilder.GetInfrastructure().Validate();
             var context = CreateContext();
-            context.GetService<CoreModelValidator>().Validate(modelBuilder.Model);
             context.GetService<IModelValidator>().Validate(modelBuilder.Model);
         }
 

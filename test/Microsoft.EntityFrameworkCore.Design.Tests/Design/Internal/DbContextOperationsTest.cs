@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private class Startup
         {
             public void ConfigureServices(IServiceCollection services)
-                => services.AddDbContext<TestContext>();
+                => services.AddDbContext<TestContext>(b => b.UseInMemoryDatabase());
         }
 
         private class TestContext : DbContext

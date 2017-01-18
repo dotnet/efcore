@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
         /// <returns> The model to be used. </returns>
-        IModel GetModel([NotNull] DbContext context, [CanBeNull] IConventionSetBuilder conventionSetBuilder, [NotNull] IModelValidator validator);
+        IModel GetModel(
+            [NotNull] DbContext context, 
+            [NotNull] IConventionSetBuilder conventionSetBuilder, 
+            [NotNull] IModelValidator validator);
     }
 }

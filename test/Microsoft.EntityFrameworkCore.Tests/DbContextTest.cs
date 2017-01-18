@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.Caching.Memory;
@@ -65,27 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void Each_context_gets_new_scoped_services_with_implicit_services()
-        {
-            IServiceProvider contextServices;
-            using (var context = new Mock<DbContext> { CallBase = true }.Object)
-            {
-                contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
-                Assert.Same(contextServices, ((IInfrastructure<IServiceProvider>)context).Instance);
-            }
-
-            using (var context = new Mock<DbContext> { CallBase = true }.Object)
-            {
-                Assert.NotSame(contextServices, ((IInfrastructure<IServiceProvider>)context).Instance);
-            }
-        }
-
-        [Fact]
         public void Each_context_gets_new_scoped_services_with_explicit_config()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
-            var options = new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options;
+            var options = new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseInMemoryDatabase().Options;
 
             IServiceProvider contextServices;
             using (var context = new DbContext(options))
@@ -103,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Each_context_gets_new_scoped_services_with_implicit_services_and_explicit_config()
         {
-            var options = new DbContextOptionsBuilder().Options;
+            var options = new DbContextOptionsBuilder().UseInMemoryDatabase().Options;
 
             IServiceProvider contextServices;
             using (var context = new DbContext(options))
@@ -127,7 +110,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
+            using (var context = new DbContext(
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(serviceProvider)
+                    .UseInMemoryDatabase()
+                    .Options))
             {
                 var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
 
@@ -149,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
             using (var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
+                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseInMemoryDatabase().Options))
             {
                 var stateManager = (FakeStateManager)context.GetService<IStateManager>();
 
@@ -175,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
             using (var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
+                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseInMemoryDatabase().Options))
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
@@ -1949,142 +1936,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void SaveChanges_doesnt_call_Database_when_nothing_is_dirty()
-        {
-            var database = new Mock<IDatabase>();
-
-            var servicesMock = new Mock<IDatabaseProviderServices>();
-            servicesMock.Setup(m => m.Database).Returns(database.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(
-                new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
-                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
-            { CallBase = true }.Object);
-            servicesMock
-                .Setup(m => m.ModelValidator)
-                .Returns(new NoopModelValidator());
-
-            var sourceMock = new Mock<IDatabaseProvider>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
-            sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
-
-            var services = new ServiceCollection();
-            services.AddEntityFramework();
-            services.AddSingleton(sourceMock.Object);
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
-            {
-                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
-
-                context.SaveChanges();
-            }
-
-            database.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()),
-                Times.Never);
-        }
-
-        [Fact]
-        public void SaveChanges_only_passes_dirty_entries_to_Database()
-        {
-            var passedEntries = new List<IUpdateEntry>();
-            var database = new Mock<IDatabase>();
-            database.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<IUpdateEntry>>()))
-                .Callback<IEnumerable<IUpdateEntry>>(passedEntries.AddRange)
-                .Returns(3);
-
-            var valueGenMock = new Mock<IValueGeneratorSelector>();
-            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>(), It.IsAny<IEntityType>())).Returns(Mock.Of<ValueGenerator>());
-
-            var servicesMock = new Mock<IDatabaseProviderServices>();
-            servicesMock.Setup(m => m.Database).Returns(database.Object);
-            servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
-                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
-            { CallBase = true }.Object);
-            servicesMock
-                .Setup(m => m.ModelValidator)
-                .Returns(new NoopModelValidator());
-
-            var sourceMock = new Mock<IDatabaseProvider>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
-            sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
-
-            var services = new ServiceCollection();
-            services.AddEntityFramework();
-            services.AddSingleton(sourceMock.Object);
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
-            {
-                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
-                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
-                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
-                Assert.Equal(4, context.ChangeTracker.Entries().Count());
-
-                context.SaveChanges();
-            }
-
-            Assert.Equal(3, passedEntries.Count);
-
-            database.Verify(
-                s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task SaveChangesAsync_only_passes_dirty_entries_to_Database()
-        {
-            var passedEntries = new List<IUpdateEntry>();
-            var database = new Mock<IDatabase>();
-            database.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<IUpdateEntry>>(), It.IsAny<CancellationToken>()))
-                .Callback<IEnumerable<IUpdateEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
-                .Returns(Task.FromResult(3));
-
-            var valueGenMock = new Mock<IValueGeneratorSelector>();
-            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>(), It.IsAny<IEntityType>())).Returns(Mock.Of<ValueGenerator>());
-
-            var servicesMock = new Mock<IDatabaseProviderServices>();
-            servicesMock.Setup(m => m.Database).Returns(database.Object);
-            servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory(),
-                new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory())))
-            { CallBase = true }.Object);
-            servicesMock
-                .Setup(m => m.ModelValidator)
-                .Returns(new NoopModelValidator());
-
-            var sourceMock = new Mock<IDatabaseProvider>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
-            sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
-
-            var services = new ServiceCollection();
-            services.AddEntityFramework();
-            services.AddSingleton(sourceMock.Object);
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
-            {
-                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
-                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
-                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
-                Assert.Equal(4, context.ChangeTracker.Entries().Count());
-
-                await context.SaveChangesAsync();
-            }
-
-            Assert.Equal(3, passedEntries.Count);
-
-            database.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
-
-        [Fact]
         public void Default_services_are_registered_when_parameterless_constructor_used()
         {
             using (var context = new EarlyLearningCenter())
@@ -2117,14 +1968,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var factory = Mock.Of<INavigationFixer>();
 
             var provider = new ServiceCollection()
-                .AddSingleton<IDbSetFinder, DbSetFinder>()
-                .AddSingleton<IDbSetSource, DbSetSource>()
-                .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<DatabaseProviderSelector>()
-                .AddScoped<IDbSetInitializer, DbSetInitializer>()
-                .AddScoped<IDbContextServices, DbContextServices>()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(factory)
-                .AddLogging().BuildServiceProvider();
+                .BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -2136,7 +1982,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Required_low_level_services_are_added_if_needed()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -2147,12 +1993,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Required_low_level_services_are_not_added_if_already_present()
         {
             var serviceCollection = new ServiceCollection();
-
             var loggerFactory = new FakeLoggerFactory();
 
-            serviceCollection
-                .AddSingleton<ILoggerFactory>(loggerFactory)
-                .AddEntityFramework();
+            serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -2163,14 +2007,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Low_level_services_can_be_replaced_after_being_added()
         {
             var serviceCollection = new ServiceCollection();
-
             var loggerFactory = new FakeLoggerFactory();
 
-            serviceCollection
-                .AddEntityFramework();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
 
-            serviceCollection
-                .AddSingleton<ILoggerFactory>(loggerFactory);
+            serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -2181,11 +2022,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_replace_already_registered_service_with_new_service()
         {
             var factory = Mock.Of<INavigationFixer>();
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework();
-            serviceCollection.AddSingleton(factory);
-
-            var provider = serviceCollection.BuildServiceProvider();
+            var provider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton(factory)
+                .BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -2240,13 +2080,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Replaced_services_are_scoped_appropriately()
         {
-            var services = new ServiceCollection();
-            services
-                .AddEntityFramework()
+            var provider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<IModelSource, FakeModelSource>()
-                .AddScoped<IStateManager, FakeStateManager>();
-
-            var provider = services.BuildServiceProvider();
+                .AddScoped<IStateManager, FakeStateManager>()
+                .BuildServiceProvider();
 
             var context = new EarlyLearningCenter(provider);
 
@@ -2277,7 +2115,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_get_replaced_singleton_service_from_scoped_configuration()
         {
             var provider = new ServiceCollection()
-                .AddEntityFramework()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<IEntityMaterializerSource, FakeEntityMaterializerSource>()
                 .BuildServiceProvider();
 
@@ -4411,8 +4249,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Throws_with_new_when_no_provider()
         {
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithSets>()
-                .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new ConstructorTestContextWithSets(options))
@@ -4426,8 +4268,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Throws_with_add_when_no_provider()
         {
-            var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+
+            var appServiceProivder = serviceCollection
                 .AddDbContext<ConstructorTestContextWithSets>(
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -4447,8 +4291,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Throws_with_new_when_no_provider_and_no_sets()
         {
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
-                .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new ConstructorTestContext1A(options))
@@ -4462,8 +4310,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Throws_with_add_when_no_provider_and_no_sets()
         {
-            var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+
+            var appServiceProivder = serviceCollection
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -5364,7 +5214,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var fakeServiceProvider = new FakeServiceProvider();
             var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).Options);
+                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).UseInMemoryDatabase().Options);
 
             var scopeService = Assert.IsType<FakeServiceProvider.FakeServiceScope>(context.GetService<IServiceScopeFactory>().CreateScope());
 
@@ -5383,15 +5233,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public FakeServiceProvider()
             {
-                _realProvider = new ServiceCollection().AddEntityFramework().BuildServiceProvider();
+                _realProvider = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
             }
 
             public bool Disposed { get; set; }
 
-            public void Dispose()
-            {
-                Disposed = true;
-            }
+            public void Dispose() => Disposed = true;
 
             public object GetService(Type serviceType)
             {
@@ -5399,28 +5246,29 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 {
                     return this;
                 }
+
                 if (serviceType == typeof(IServiceScopeFactory))
                 {
                     return new FakeServiceScopeFactory();
                 }
+
                 return _realProvider.GetService(serviceType);
             }
 
             public class FakeServiceScopeFactory : IServiceScopeFactory
             {
                 public static FakeServiceScope Scope { get; } = new FakeServiceScope();
+
                 public IServiceScope CreateScope() => Scope;
             }
 
             public class FakeServiceScope : IServiceScope
             {
                 public bool Disposed { get; set; }
+
                 public IServiceProvider ServiceProvider { get; set; } = new FakeServiceProvider();
 
-                public void Dispose()
-                {
-                    Disposed = true;
-                }
+                public void Dispose() => Disposed = true;
             }
         }
 

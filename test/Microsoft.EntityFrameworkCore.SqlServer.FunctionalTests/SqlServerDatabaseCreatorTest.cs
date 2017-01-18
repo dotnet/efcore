@@ -376,8 +376,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(new ServiceCollection()
                             .AddEntityFrameworkSqlServer()
-                            .AddScoped<SqlServerExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
-                            .AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>().BuildServiceProvider()).Options))
+                            .AddScoped<IExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
+                            .AddScoped<IRelationalDatabaseCreator, TestDatabaseCreator>().BuildServiceProvider()).Options))
                 .Instance;
 
         private static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
