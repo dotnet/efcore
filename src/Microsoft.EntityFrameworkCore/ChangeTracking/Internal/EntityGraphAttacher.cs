@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -35,6 +37,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 },
                 PaintAction);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Task AttachGraphAsync(
+            InternalEntityEntry rootEntry,
+            EntityState entityState,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => _graphIterator.TraverseGraphAsync(
+                new EntityEntryGraphNode(rootEntry, null)
+                {
+                    NodeState = entityState
+                },
+                PaintActionAsync,
+                cancellationToken);
+
         private static bool PaintAction(EntityEntryGraphNode node)
         {
             var internalEntityEntry = node.GetInfrastructure();
@@ -44,10 +62,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             internalEntityEntry.SetEntityState(
-                internalEntityEntry.IsKeySet
-                    ? (EntityState)node.NodeState
-                    : EntityState.Added,
+                internalEntityEntry.IsKeySet ? (EntityState)node.NodeState : EntityState.Added,
                 acceptChanges: true);
+
+            return true;
+        }
+
+        private static async Task<bool> PaintActionAsync(EntityEntryGraphNode node, CancellationToken cancellationToken)
+        {
+            var internalEntityEntry = node.GetInfrastructure();
+            if (internalEntityEntry.EntityState != EntityState.Detached)
+            {
+                return false;
+            }
+
+            await internalEntityEntry.SetEntityStateAsync(
+                internalEntityEntry.IsKeySet ? (EntityState)node.NodeState : EntityState.Added,
+                acceptChanges: true,
+                cancellationToken: cancellationToken);
 
             return true;
         }

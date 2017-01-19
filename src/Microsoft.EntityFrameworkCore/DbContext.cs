@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidReplaceService(
-                        nameof(DbContextOptionsBuilder.ReplaceService), 
+                        nameof(DbContextOptionsBuilder.ReplaceService),
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
 
@@ -492,6 +492,23 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private async Task SetEntityStateAsync(
+            InternalEntityEntry entry,
+            EntityState entityState,
+            CancellationToken cancellationToken)
+        {
+            if (entry.EntityState == EntityState.Detached)
+            {
+                await (_graphAttacher
+                       ?? (_graphAttacher = InternalServiceProvider.GetRequiredService<IEntityGraphAttacher>()))
+                    .AttachGraphAsync(entry, entityState, cancellationToken);
+            }
+            else
+            {
+                await entry.SetEntityStateAsync(entityState, acceptChanges: true, cancellationToken: cancellationToken);
+            }
+        }
+
         /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that
@@ -526,25 +543,31 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        public virtual Task<EntityEntry<TEntity>> AddAsync<TEntity>(
+        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
             [NotNull] TEntity entity,
             CancellationToken cancellationToken = default(CancellationToken))
             where TEntity : class
-            => Task.FromResult(Add(entity));
+        {
+            var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+
+            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
+
+            return entry;
+        }
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state 
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
         ///         is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
@@ -569,11 +592,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
@@ -673,24 +696,30 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        public virtual Task<EntityEntry> AddAsync(
+        public virtual async Task<EntityEntry> AddAsync(
             [NotNull] object entity,
             CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult(Add(entity));
+        {
+            var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+
+            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
+
+            return entry;
+        }
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state 
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
         ///         is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
@@ -714,11 +743,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
@@ -810,17 +839,17 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state 
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
         ///         is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
@@ -840,11 +869,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
@@ -908,28 +937,34 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
-        public virtual Task AddRangeAsync(
+        public virtual async Task AddRangeAsync(
             [NotNull] IEnumerable<object> entities,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            AddRange(entities);
+            var stateManager = StateManager;
 
-            return Task.FromResult(true);
+            foreach (var entity in entities)
+            {
+                await SetEntityStateAsync(
+                    stateManager.GetOrCreateEntry(entity),
+                    EntityState.Added,
+                    cancellationToken);
+            }
         }
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state 
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" /> 
+        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state
+        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
         ///         is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
@@ -949,11 +984,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked 
+        ///         that are not already being tracked by the context. These entities will also begin to be tracked
         ///         by the context. If a reachable entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
-        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state. 
-        ///         An entity is considered to have its primary key value set if the primary key property is set 
+        ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         /// </summary>
