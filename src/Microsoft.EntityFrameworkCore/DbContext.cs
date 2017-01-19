@@ -436,6 +436,23 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private async Task SetEntityStateAsync(
+            InternalEntityEntry entry, 
+            EntityState entityState, 
+            CancellationToken cancellationToken)
+        {
+            if (entry.EntityState == EntityState.Detached)
+            {
+                await (_graphAttacher
+                 ?? (_graphAttacher = InternalServiceProvider.GetRequiredService<IEntityGraphAttacher>()))
+                    .AttachGraphAsync(entry, entityState, cancellationToken);
+            }
+            else
+            {
+                await entry.SetEntityStateAsync(entityState, acceptChanges: true, cancellationToken: cancellationToken);
+            }
+        }
+
         /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that
@@ -475,12 +492,9 @@ namespace Microsoft.EntityFrameworkCore
             CancellationToken cancellationToken = default(CancellationToken))
             where TEntity : class
         {
-            var entry = EntryWithoutDetectChanges(entity);
+            var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
 
-            await entry.GetInfrastructure().SetEntityStateAsync(
-                EntityState.Added,
-                acceptChanges: true,
-                cancellationToken: cancellationToken);
+            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
 
             return entry;
         }
@@ -630,12 +644,9 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] object entity,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var entry = EntryWithoutDetectChanges(entity);
+            var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
 
-            await entry.GetInfrastructure().SetEntityStateAsync(
-                EntityState.Added,
-                acceptChanges: true,
-                cancellationToken: cancellationToken);
+            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
 
             return entry;
         }
@@ -878,10 +889,10 @@ namespace Microsoft.EntityFrameworkCore
 
             foreach (var entity in entities)
             {
-                await stateManager.GetOrCreateEntry(entity).SetEntityStateAsync(
-                    EntityState.Added,
-                    acceptChanges: true,
-                    cancellationToken: cancellationToken);
+                await SetEntityStateAsync(
+                    stateManager.GetOrCreateEntry(entity), 
+                    EntityState.Added, 
+                    cancellationToken);
             }
         }
 

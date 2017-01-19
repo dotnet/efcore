@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1755,6 +1757,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState)
             {
                 Attached = Tuple.Create(rootEntry, entityState);
+            }
+
+            public Task AttachGraphAsync(
+                InternalEntityEntry rootEntry, 
+                EntityState entityState, 
+                CancellationToken cancellationToken = new CancellationToken())
+            {
+                throw new NotImplementedException();
             }
         }
 
