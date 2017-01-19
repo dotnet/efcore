@@ -549,7 +549,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             // If setting the original value results in the current value being different from the
             // original value, then mark the property as modified.
-            if (!IsModified(property))
+            if (EntityState == EntityState.Unchanged
+                || (EntityState == EntityState.Modified
+                    && !IsModified(property)))
             {
                 var currentValue = this[propertyBase];
                 var propertyIndex = property.GetIndex();

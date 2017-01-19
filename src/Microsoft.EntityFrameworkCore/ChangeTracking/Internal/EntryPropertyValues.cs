@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var values = new object[Properties.Count];
             for (var i = 0; i < values.Length; i++)
             {
-                values[i] = InternalEntry[Properties[i]];
+                values[i] = GetValueInternal(Properties[i]);
             }
 
             return new ArrayPropertyValues(InternalEntry, values);

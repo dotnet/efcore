@@ -442,6 +442,127 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
+        #region #7293
+
+        [Fact]
+        public void GroupJoin_expansion_when_optional_nav_in_projection()
+        {
+            using (CreateDatabase7293())
+            {
+                using (var context = new Context7293(_options))
+                {
+                    //TestSqlLoggerFactory.CaptureOutput(_testOutputHelper);
+
+                    var query = from p in context.Project
+                                select new ProjectView
+                                {
+                                    Permissions
+                                        = from u in p.User
+                                          select new PermissionView
+                                          {
+                                              UserName = u.User.Name
+                                          }
+                                };
+
+                    var target = context.ProjectUser.First();
+
+                    query.SingleOrDefault(item => item.Id == target.ProjectId);
+                }
+            }
+        }
+
+        private interface IHasKey
+        {
+            Guid Id { get; set; }
+        }
+
+        private class Project : IHasKey
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            public ISet<ProjectUser> User { get; set; }
+        }
+
+        private class ProjectUser : IHasKey
+        {
+            public Guid Id { get; set; }
+            public Guid ProjectId { get; set; }
+            public Project Project { get; set; }
+            public Guid UserId { get; set; }
+            public User User { get; set; }
+        }
+
+        private class User : IHasKey
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class ProjectView : IHasKey
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            public IEnumerable<PermissionView> Permissions { get; set; }
+        }
+
+        private class PermissionView : IHasKey
+        {
+            public Guid Id { get; set; }
+            public Guid UserId { get; set; }
+            public string UserName { get; set; }
+
+        }
+
+        private class Context7293 : DbContext
+        {
+            public Context7293(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Project> Project { get; set; }
+            public DbSet<ProjectUser> ProjectUser { get; set; }
+            public DbSet<User> User { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase7293()
+            => CreateTestStore(() => new Context7293(_options),
+                context =>
+                    {
+                        var projects = new[]
+                        {
+                            new Project { Name = "Project 1" },
+                            new Project { Name = "Project 2" },
+                            new Project { Name = "Project 3" }
+                        };
+
+                        context.Project.AddRange(projects);
+
+                        var users = new[]
+                        {
+                            new User { Name = "User 1" },
+                            new User { Name = "User 2" },
+                            new User { Name = "User 3" }
+                        };
+
+                        context.User.AddRange(users);
+
+                        var permissions = (from project in projects
+                                           from user in users
+                                           select new ProjectUser
+                                           {
+                                               ProjectId = project.Id,
+                                               Project = project,
+                                               UserId = user.Id,
+                                               User = user
+                                           }).ToList();
+
+                        context.ProjectUser.AddRange(permissions);
+                        context.SaveChanges();
+                    });
+
+        #endregion
+
         [Fact]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
