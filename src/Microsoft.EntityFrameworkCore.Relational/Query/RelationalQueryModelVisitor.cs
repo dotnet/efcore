@@ -1336,7 +1336,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Select(concreteEntityType =>
                                 Expression.Equal(
                                     discriminatorPropertyExpression,
-                                    Expression.Constant(_relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue)))
+                                    Expression.Constant(_relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue, discriminatorPropertyExpression.Type)))
                             .Aggregate((current, next) => Expression.OrElse(next, current));
 
                     return discriminatorPredicate;

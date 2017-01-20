@@ -33,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
+        #region Bug6901
+
         [Fact]
         public void Left_outer_join_bug_6091()
         {
@@ -124,6 +126,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
         }
 
+        #endregion
+
+        #region Bug5481
         [Fact]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
@@ -224,6 +229,8 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
         }
 
+        #endregion
+
         [Fact]
         public void Query_when_null_key_in_database_should_throw()
         {
@@ -264,6 +271,8 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 public int Id { get; set; }
             }
         }
+
+        #region Bug603
 
         [Fact]
         public async Task First_FirstOrDefault_ix_async_bug_603()
@@ -328,6 +337,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         private SqlServerTestStore CreateDatabase603()
             => CreateTestStore(() => new MyContext603(_options), null);
 
+        #endregion
+
+        #region Bugs925_926
         [Fact]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
@@ -442,7 +454,9 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        #region #7293
+        #endregion
+
+        #region Bug7293
 
         [Fact]
         public void GroupJoin_expansion_when_optional_nav_in_projection()
@@ -562,6 +576,8 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
                     });
 
         #endregion
+
+        #region Bug963
 
         [Fact]
         public void Include_on_optional_navigation_One_To_Many_963()
@@ -701,6 +717,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
+        #endregion
+
+        #region Bug1742
         [Fact]
         public void Compiler_generated_local_closure_produces_valid_parameter_name_1742()
             => Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
@@ -733,6 +752,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public string FirstName { get; set; }
             public string LastName { get; set; }
         }
+
+        #endregion
+
+        #region Bug3758
 
         [Fact]
         public void Customer_collections_materialize_properly_3758()
@@ -884,7 +907,9 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                         context.SaveChanges();
                     });
+        #endregion
 
+        #region Bug3409
         [Fact]
         public void ThenInclude_with_interface_navigations_3409()
         {
@@ -994,6 +1019,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                         context.SaveChanges();
                     });
+
+        #endregion
+
+        #region Bug3101
 
         [Fact]
         public virtual void Repro3101_simple_coalesce1()
@@ -1176,14 +1205,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 }
             }
         }
-
-        private const string FileLineEnding = @"
-";
-
-        protected virtual void ClearLog() => TestSqlLoggerFactory.Reset();
-
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
-
+        
         private SqlServerTestStore CreateDatabase3101()
             => CreateTestStore(() => new MyContext3101(_options),
                 context =>
@@ -1246,6 +1268,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public int Id { get; set; }
             public string Name { get; set; }
         }
+
+#endregion
+
+        #region Bug5456
 
         [Fact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
@@ -1414,6 +1440,72 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public Post5456 Blog { get; set; }
         }
 
+        #endregion
+
+        #region Bug7359
+
+        [Fact]
+        public virtual void Discriminator_type_is_handled_correctly_in_materialization_bug_7359()
+        {
+            using (CreateDatabase7359())
+            {
+                using (var ctx = new MyContext7359(_options))
+                {
+                    var query = ctx.Products.OfType<SpecialProduct>().ToList();
+
+                    Assert.Equal(1, query.Count);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Discriminator_type_is_handled_correctly_with_is_operator_bug_7359()
+        {
+            using (CreateDatabase7359())
+            {
+                using (var ctx = new MyContext7359(_options))
+                {
+                    var query = ctx.Products.Where(p => p is SpecialProduct).ToList();
+
+                    Assert.Equal(1, query.Count);
+                }
+            }
+        }
+
+        private class SpecialProduct : Product
+        {
+        }
+
+        private class MyContext7359 : DbContext
+        {
+            public MyContext7359(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<SpecialProduct>();
+                modelBuilder.Entity<Product>()
+                    .HasDiscriminator<int?>("Discriminator")
+                    .HasValue(0)
+                    .HasValue<SpecialProduct>(1);
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase7359()
+            => CreateTestStore(() => new MyContext7359(_options),
+                context =>
+                    {
+                        context.Add(new Product { Name = "Product1" });
+                        context.Add(new SpecialProduct { Name = "SpecialProduct" });
+                        context.SaveChanges();
+                    });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
@@ -1438,5 +1530,12 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             TestSqlLoggerFactory.Reset();
             return testStore;
         }
+
+        private const string FileLineEnding = @"
+";
+
+        protected virtual void ClearLog() => TestSqlLoggerFactory.Reset();
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

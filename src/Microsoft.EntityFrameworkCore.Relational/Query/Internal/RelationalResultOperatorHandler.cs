@@ -673,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         .Select(concreteEntityType =>
                             Expression.Equal(
                                 discriminatorColumn,
-                                Expression.Constant(relationalMetadataExtensionProvider.For(concreteEntityType).DiscriminatorValue)))
+                                Expression.Constant(relationalMetadataExtensionProvider.For(concreteEntityType).DiscriminatorValue, discriminatorColumn.Type)))
                         .Aggregate((current, next) => Expression.OrElse(next, current));
 
                 handlerContext.SelectExpression.Predicate

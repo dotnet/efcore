@@ -305,7 +305,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue);
+                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue,
+                    discriminatorColumn.Type);
 
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
@@ -324,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .Select(concreteEntityType
                         => Expression.Constant(
                             _relationalAnnotationProvider
-                                .For(concreteEntityType).DiscriminatorValue))
+                                .For(concreteEntityType).DiscriminatorValue,
+                            discriminatorColumn.Type))
                     .Aggregate(discriminatorPredicate, (current, discriminatorValue) =>
                         Expression.OrElse(
                             Expression.Equal(discriminatorColumn, discriminatorValue),

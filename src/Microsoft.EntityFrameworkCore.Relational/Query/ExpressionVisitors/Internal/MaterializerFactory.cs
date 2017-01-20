@@ -89,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue);
+                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue,
+                    discriminatorColumn.Type);
 
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
@@ -142,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var discriminatorValue
                     = Expression.Constant(
-                        _relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue);
+                        _relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue,
+                        discriminatorColumn.Type);
 
                 materializer
                     = _entityMaterializerSource
