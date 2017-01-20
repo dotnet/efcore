@@ -3780,6 +3780,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Where_on_multilevel_reference_in_subquery_with_outer_projection()
+        {
+            AssertQuery<Level3>(
+                l3s => l3s
+                    .Where(l3 => l3.OneToMany_Required_Inverse.OneToOne_Required_FK_Inverse.Name == "L1 03")
+                    .OrderBy(l3 => l3.Level2_Required_Id)
+                    .Skip(0)
+                    .Take(10)
+                    .Select(l3 => l3.Name));
+        }
 
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
