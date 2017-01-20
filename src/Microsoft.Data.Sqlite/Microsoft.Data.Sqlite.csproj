@@ -21,15 +21,12 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.cs" />
     <EmbeddedResource Include="Properties\Microsoft.Data.Sqlite.rd.xml" />
-    <EmbeddedResource Include="**\*.resx" />
     <AdditionalFiles Include="stylecop.json" />
     <None Include="$(CodeAnalysisRuleSet)" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NETStandard.Library" Version="1.6.2-*" />
     <PackageReference Include="SQLite" Version="3.12.3" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
