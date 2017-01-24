@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        private static IQueryable<Customer> QueryableArgQuery(NorthwindContext context, IQueryable<string> ids) 
+        private static IQueryable<Customer> QueryableArgQuery(NorthwindContext context, IQueryable<string> ids)
             => context.Customers.Where(c => ids.Contains(c.CustomerID));
 
         [ConditionalFact]
@@ -2181,6 +2181,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         Assert.Equal(l2oObjects, efObjects);
                     });
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Orders = c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Take(3)
+                            .Select(o => new { Date = o.OrderDate })
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.All(customers, t => Assert.True(t.Orders.Count() <= 3));
+            }
         }
 
         [ConditionalFact]

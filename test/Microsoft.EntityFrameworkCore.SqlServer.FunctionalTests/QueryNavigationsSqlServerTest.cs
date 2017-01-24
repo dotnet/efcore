@@ -576,17 +576,17 @@ FROM [Customers] AS [c]",
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 
-@_outer_CustomerID: ALFKI (Size = 450)
+@_outer_CustomerID1: ALFKI (Size = 450)
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Orders] AS [o1]
-WHERE @_outer_CustomerID = [o1].[CustomerID]
+WHERE @_outer_CustomerID1 = [o1].[CustomerID]
 
-@_outer_CustomerID: ANATR (Size = 450)
+@_outer_CustomerID1: ANATR (Size = 450)
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Orders] AS [o1]
-WHERE @_outer_CustomerID = [o1].[CustomerID]",
+WHERE @_outer_CustomerID1 = [o1].[CustomerID]",
                 Sql);
         }
 
