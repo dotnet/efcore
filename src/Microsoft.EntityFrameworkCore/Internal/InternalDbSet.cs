@@ -42,10 +42,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         // Using context/service locator here so that the context will be initialized the first time the
         // set is used and services will be obtained from the correctly scoped container when this happens.
         private EntityQueryable<TEntity> EntityQueryable
-            => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _entityQueryable, 
-                this, 
-                internalSet => internalSet.CreateEntityQueryable());
+        {
+            get
+            {
+                _context.CheckDisposed();
+
+                return NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _entityQueryable,
+                    this,
+                    internalSet => internalSet.CreateEntityQueryable());
+            }
+        }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
         {
@@ -62,7 +69,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override LocalView<TEntity> Local
-            => _localView ?? (_localView = new LocalView<TEntity>(this));
+        {
+            get
+            {
+                _context.CheckDisposed();
+
+                return _localView ?? (_localView = new LocalView<TEntity>(this));
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

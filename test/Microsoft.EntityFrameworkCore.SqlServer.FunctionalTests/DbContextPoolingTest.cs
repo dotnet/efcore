@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Null(context3.Database.CurrentTransaction);
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
+        [ConditionalFact]
         public async Task Concurrency_test()
         {
             // This test is for measuring different pooling approaches.
@@ -380,15 +380,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 var currentElapsed = elapsed - lastElapsed;
                 lastElapsed = elapsed;
 
-                _testOutputHelper
+                _testOutputHelper?
                     .WriteLine(
                         $"[{DateTime.Now:HH:mm:ss.fff}] Requests: {_requests}, "
                         + $"RPS: {Math.Round(currentRequests / currentElapsed.TotalSeconds)}");
 
                 if (elapsed > _duration)
                 {
-                    _testOutputHelper.WriteLine("");
-                    _testOutputHelper.WriteLine($"Average RPS: {Math.Round(_requests / elapsed.TotalSeconds)}");
+                    _testOutputHelper?.WriteLine("");
+                    _testOutputHelper?.WriteLine($"Average RPS: {Math.Round(_requests / elapsed.TotalSeconds)}");
 
                     _stopwatch.Stop();
                 }
@@ -396,11 +396,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             // ReSharper disable once FunctionNeverReturns
         }
 
-        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly ITestOutputHelper _testOutputHelper = null;
 
+        // ReSharper disable once UnusedParameter.Local
         public DbContextPoolingTest(ITestOutputHelper testOutputHelper)
         {
-            _testOutputHelper = testOutputHelper;
+            //_testOutputHelper = testOutputHelper;
         }
     }
 }

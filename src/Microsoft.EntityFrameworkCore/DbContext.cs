@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void CheckDisposed()
+        internal void CheckDisposed()
         {
             if (_disposed)
             {
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore
                 contextServices.Initialize(scopedServiceProvider, options, this);
 
                 _logger = scopedServiceProvider.GetRequiredService<ILogger<DbContext>>();
-
+                
                 return contextServices;
             }
             finally
@@ -385,6 +385,8 @@ namespace Microsoft.EntityFrameworkCore
 
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
+            _disposed = false;
+
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
@@ -399,8 +401,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Database.AutoTransactionsEnabled = configurationSnapshot.AutoTransactionsEnabled.Value;
             }
+        }
 
-            _disposed = false;
+        void IDbContextPoolable.ResetState()
+        {
+            _changeTracker?.Reset();
+            _contextServices?.Reset();
+            _disposed = true;
         }
 
         /// <summary>
@@ -426,12 +433,6 @@ namespace Microsoft.EntityFrameworkCore
                     _dbContextPool = null;
                 }
             }
-            else
-            {
-                _changeTracker?.Reset();
-                _contextServices?.Reset();
-                _disposed = true;
-            }
         }
 
         /// <summary>
@@ -444,6 +445,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
 
             TryDetectChanges();
 
@@ -469,6 +471,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual EntityEntry Entry([NotNull] object entity)
         {
             Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
 
             TryDetectChanges();
 
@@ -521,7 +524,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        {
+            CheckDisposed();
+
+            return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        }
 
         /// <summary>
         ///     <para>
@@ -548,6 +555,8 @@ namespace Microsoft.EntityFrameworkCore
             CancellationToken cancellationToken = default(CancellationToken))
             where TEntity : class
         {
+            CheckDisposed();
+
             var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
 
             await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
@@ -578,7 +587,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        {
+            CheckDisposed();
+
+            return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        }
 
         /// <summary>
         ///     <para>
@@ -607,7 +620,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        {
+            CheckDisposed();
+
+            return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        }
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -634,6 +651,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
 
             var entry = EntryWithoutDetectChanges(entity);
 
@@ -675,7 +693,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry Add([NotNull] object entity)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        {
+            CheckDisposed();
+
+            return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        }
 
         /// <summary>
         ///     <para>
@@ -700,6 +722,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] object entity,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            CheckDisposed();
+
             var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
 
             await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
@@ -729,7 +753,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry Attach([NotNull] object entity)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        {
+            CheckDisposed();
+
+            return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        }
 
         /// <summary>
         ///     <para>
@@ -757,7 +785,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry Update([NotNull] object entity)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        {
+            CheckDisposed();
+
+            return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        }
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -783,6 +815,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual EntityEntry Remove([NotNull] object entity)
         {
             Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
 
             var entry = EntryWithoutDetectChanges(entity);
 
@@ -818,7 +851,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] params object[] entities)
-            => AddRange((IEnumerable<object>)entities);
+        {
+            CheckDisposed();
+
+            AddRange((IEnumerable<object>)entities);
+        }
 
         /// <summary>
         ///     <para>
@@ -835,7 +872,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entities"> The entities to add. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         public virtual Task AddRangeAsync([NotNull] params object[] entities)
-            => AddRangeAsync((IEnumerable<object>)entities);
+        {
+            CheckDisposed();
+
+            return AddRangeAsync((IEnumerable<object>)entities);
+        }
 
         /// <summary>
         ///     <para>
@@ -855,7 +896,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] params object[] entities)
-            => AttachRange((IEnumerable<object>)entities);
+        {
+            CheckDisposed();
+
+            AttachRange((IEnumerable<object>)entities);
+        }
 
         /// <summary>
         ///     <para>
@@ -879,7 +924,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
         public virtual void UpdateRange([NotNull] params object[] entities)
-            => UpdateRange((IEnumerable<object>)entities);
+        {
+            CheckDisposed();
+
+            UpdateRange((IEnumerable<object>)entities);
+        }
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -899,7 +948,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange([NotNull] params object[] entities)
-            => RemoveRange((IEnumerable<object>)entities);
+        {
+            CheckDisposed();
+
+            RemoveRange((IEnumerable<object>)entities);
+        }
 
         private void SetEntityStates(IEnumerable<object> entities, EntityState entityState)
         {
@@ -918,7 +971,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] IEnumerable<object> entities)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+        {
+            CheckDisposed();
+
+            SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+        }
 
         /// <summary>
         ///     <para>
@@ -941,6 +998,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] IEnumerable<object> entities,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            CheckDisposed();
+
             var stateManager = StateManager;
 
             foreach (var entity in entities)
@@ -970,7 +1029,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] IEnumerable<object> entities)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged);
+        {
+            CheckDisposed();
+
+            SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged);
+        }
 
         /// <summary>
         ///     <para>
@@ -994,7 +1057,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
         public virtual void UpdateRange([NotNull] IEnumerable<object> entities)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+        {
+            CheckDisposed();
+
+            SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+        }
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -1016,7 +1083,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void RemoveRange([NotNull] IEnumerable<object> entities)
         {
             Check.NotNull(entities, nameof(entities));
-
+            CheckDisposed();
+            
             var stateManager = StateManager;
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
@@ -1040,21 +1108,43 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Provides access to database related information and operations for this context.
         /// </summary>
-        public virtual DatabaseFacade Database => _database ?? (_database = new DatabaseFacade(this));
+        public virtual DatabaseFacade Database
+        {
+            get
+            {
+                CheckDisposed();
+
+                return _database ?? (_database = new DatabaseFacade(this));
+            }
+        }
 
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
         public virtual ChangeTracker ChangeTracker
-            => _changeTracker
-               ?? (_changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
+        {
+            get
+            {
+                CheckDisposed();
+
+                return _changeTracker
+                       ?? (_changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
+            }
+        }
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
         /// </summary>
         public virtual IModel Model
-            => _model
-               ?? (_model = InternalServiceProvider.GetRequiredService<IModel>());
+        {
+            get
+            {
+                CheckDisposed();
+
+                return _model
+                       ?? (_model = InternalServiceProvider.GetRequiredService<IModel>());
+            }
+        }
 
         /// <summary>
         ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
@@ -1063,6 +1153,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A set for the given entity type. </returns>
         public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class
         {
+            CheckDisposed();
+
             if (Model.FindEntityType(typeof(TEntity)) == null)
             {
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
@@ -1087,7 +1179,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual object Find([NotNull] Type entityType, [NotNull] params object[] keyValues)
-            => Finder(entityType).Find(keyValues);
+        {
+            CheckDisposed();
+
+            return Finder(entityType).Find(keyValues);
+        }
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -1100,7 +1196,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] params object[] keyValues)
-            => Finder(entityType).FindAsync(keyValues);
+        {
+            CheckDisposed();
+
+            return Finder(entityType).FindAsync(keyValues);
+        }
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -1114,7 +1214,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] object[] keyValues, CancellationToken cancellationToken)
-            => Finder(entityType).FindAsync(keyValues, cancellationToken);
+        {
+            CheckDisposed();
+
+            return Finder(entityType).FindAsync(keyValues, cancellationToken);
+        }
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -1127,7 +1231,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues) where TEntity : class
-            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
+        {
+            CheckDisposed();
+
+            return ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
+        }
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -1140,7 +1248,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues) where TEntity : class
-            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
+        {
+            CheckDisposed();
+
+            return ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
+        }
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -1154,6 +1266,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
         public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken) where TEntity : class
-            => ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
+        {
+            CheckDisposed();
+
+            return ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
+        }
     }
 }
