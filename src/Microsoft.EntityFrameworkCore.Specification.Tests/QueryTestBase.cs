@@ -4024,6 +4024,56 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Average_with_no_arg()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Average_with_binary_expression()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID * 2).Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Average_with_arg()
+        {
+            AssertQuery<Order>(os => os.Average(o => o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual void Average_with_arg_expression()
+        {
+            AssertQuery<Order>(os => os.Average(o => o.OrderID + o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual void Average_with_division_on_decimal()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Average(od => od.Quantity / 2.09m),
+                asserter: (l2o, ef)
+                    => Assert.InRange((decimal)l2o - (decimal)ef, -0.1m, 0.1m));
+        }
+
+        [ConditionalFact]
+        public virtual void Average_with_division_on_decimal_no_significant_digits()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Average(od => od.Quantity / 2m),
+                asserter: (l2o, ef)
+                    => Assert.InRange((decimal)l2o - (decimal)ef, -0.1m, 0.1m));
+        }
+
+        [ConditionalFact]
+        public virtual void Average_with_coalesce()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).Average(p => p.UnitPrice ?? 0),
+                asserter: (l2o, ef)
+                    => Assert.InRange((decimal)l2o - (decimal)ef, -0.1m, 0.1m));
+        }
+
+        [ConditionalFact]
         public virtual void Min_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Min());

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             using (context)
             {
                 var orderDetails = context.OrderDetails;
-                
+
                 Func<NorthwindContext, Customer> query
                     = param
                         => (from c in context.Customers
@@ -1263,6 +1263,70 @@ FROM [Order Details] AS [od]", Sql);
 
             Assert.Equal(
                 @"SELECT SUM(COALESCE([p].[UnitPrice], 0.0))
+FROM [Products] AS [p]
+WHERE [p].[ProductID] < 40",
+                Sql);
+        }
+
+        public override void Average_with_no_arg()
+        {
+            base.Average_with_no_arg();
+
+            Assert.Equal(@"SELECT AVG(CAST([o].[OrderID] AS float))
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Average_with_binary_expression()
+        {
+            base.Average_with_binary_expression();
+
+            Assert.Equal(@"SELECT AVG(CAST([o].[OrderID] * 2 AS float))
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Average_with_arg()
+        {
+            base.Average_with_arg();
+
+            Assert.Equal(@"SELECT AVG(CAST([o].[OrderID] AS float))
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Average_with_arg_expression()
+        {
+            base.Average_with_arg_expression();
+
+            Assert.Equal(@"SELECT AVG(CAST([o].[OrderID] + [o].[OrderID] AS float))
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Average_with_division_on_decimal()
+        {
+            base.Average_with_division_on_decimal();
+
+            Assert.Equal(@"SELECT AVG(CAST([od].[Quantity] / 2.09 AS decimal(18, 2)))
+FROM [Order Details] AS [od]",
+                Sql);
+        }
+
+        public override void Average_with_division_on_decimal_no_significant_digits()
+        {
+            base.Average_with_division_on_decimal_no_significant_digits();
+
+            Assert.Equal(@"SELECT AVG(CAST([od].[Quantity] / 2.0 AS decimal(18, 2)))
+FROM [Order Details] AS [od]",
+                Sql);
+        }
+
+        public override void Average_with_coalesce()
+        {
+            base.Average_with_coalesce();
+
+            Assert.Equal(@"SELECT AVG(CAST(COALESCE([p].[UnitPrice], 0.0) AS decimal(18, 2)))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40",
                 Sql);

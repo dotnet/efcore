@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+// ReSharper disable ConvertToExpressionBodyWhenPossible
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -2548,6 +2549,38 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Average_with_no_arg()
+        {
+            await AssertQuery<Order>(os => os.Select(o => o.OrderID).AverageAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_binary_expression()
+        {
+            await AssertQuery<Order>(os => os.Select(o => o.OrderID * 2).AverageAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_arg()
+        {
+            await AssertQuery<Order>(os => os.AverageAsync(o => o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_arg_expression()
+        {
+            await AssertQuery<Order>(os => os.AverageAsync(o => o.OrderID + o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).AverageAsync(p => p.UnitPrice ?? 0),
+                asserter: (l2o, ef)
+                    => Assert.InRange((decimal)l2o - (decimal)ef, -0.1m, 0.1m));
+        }
+
+        [ConditionalFact]
         public virtual async Task Min_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).MinAsync());
@@ -3477,6 +3510,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private async Task AssertQuery<TItem>(
             Func<IQueryable<TItem>, Task<decimal>> query,
+            bool assertOrder = false,
+            Action<decimal, decimal> asserter = null)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
+                    assertOrder,
+                    asserter != null ? ((l2os, efs) => asserter(l2os.Single(), efs.Single())) : (Action<IList<decimal>, IList<decimal>>)null);
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, Task<double>> query,
             bool assertOrder = false)
             where TItem : class
         {

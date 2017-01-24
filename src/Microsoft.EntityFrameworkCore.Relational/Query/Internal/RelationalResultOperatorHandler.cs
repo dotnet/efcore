@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 { typeof(AllResultOperator), HandleAll },
                 { typeof(AnyResultOperator), HandleAny },
+                { typeof(AverageResultOperator), HandleAverage },
                 { typeof(CastResultOperator), HandleCast },
                 { typeof(ContainsResultOperator), HandleContains },
                 { typeof(CountResultOperator), HandleCount },
@@ -254,6 +255,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     typeof(bool)));
 
             return TransformClientExpression<bool>(handlerContext);
+        }
+
+        private static Expression HandleAverage(HandlerContext handlerContext)
+        {
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection
+                && handlerContext.SelectExpression.Projection.Count == 1)
+            {
+                var expression = handlerContext.SelectExpression.Projection.First();
+
+                var inputType = expression.Type;
+                var outputType = expression.Type;
+
+                var nonNullableInputType = inputType.UnwrapNullableType();
+                if (nonNullableInputType == typeof(int)
+                    || nonNullableInputType == typeof(long))
+                {
+                    outputType = inputType.IsNullableType() ? typeof(double?) : typeof(double);
+                }
+
+                expression = new ExplicitCastExpression(expression, outputType);
+                var averageExpression = new SqlFunctionExpression("AVG", expression.Type, new[] { expression });
+
+                handlerContext.SelectExpression.SetProjectionExpression(averageExpression);
+
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(averageExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleCast(HandlerContext handlerContext)
