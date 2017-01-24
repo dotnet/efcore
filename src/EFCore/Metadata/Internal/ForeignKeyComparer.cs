@@ -28,13 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual int Compare(IForeignKey x, IForeignKey y)
         {
-            var result = StringComparer.Ordinal.Compare(x.DeclaringEntityType.Name, y.DeclaringEntityType.Name);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+            var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
             if (result != 0)
             {
                 return result;
@@ -46,7 +40,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-            return StringComparer.Ordinal.Compare(x.PrincipalEntityType.Name, y.PrincipalEntityType.Name);
+            result = EntityTypePathComparer.Instance.Compare(x.PrincipalEntityType, y.PrincipalEntityType);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            return EntityTypePathComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             unchecked(
                 ((((PropertyListComparer.Instance.GetHashCode(obj.PrincipalKey.Properties) * 397)
                    ^ PropertyListComparer.Instance.GetHashCode(obj.Properties)) * 397)
-                 ^ StringComparer.Ordinal.GetHashCode(obj.PrincipalEntityType.Name)) * 397)
-            ^ StringComparer.Ordinal.GetHashCode(obj.DeclaringEntityType.Name);
+                 ^ EntityTypePathComparer.Instance.GetHashCode(obj.PrincipalEntityType)) * 397)
+            ^ EntityTypePathComparer.Instance.GetHashCode(obj.DeclaringEntityType);
     }
 }

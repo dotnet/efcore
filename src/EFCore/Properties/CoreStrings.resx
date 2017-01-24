@@ -379,7 +379,7 @@
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
   </data>
   <data name="DuplicateEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>
+    <value>The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
   </data>
   <data name="DuplicateAnnotation" xml:space="preserve">
     <value>The annotation '{annotation}' cannot be added because an annotation with the same name already exists.</value>
@@ -411,7 +411,7 @@
   <data name="RecursiveOnConfiguring" xml:space="preserve">
     <value>An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.</value>
   </data>
-  <data name="EntityTypeInUseByForeignKey" xml:space="preserve">
+  <data name="EntityTypeInUseByReferencingForeignKey" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be removed because it is being referenced by foreign key {foreignKey} on '{referencingEntityType}'. All referencing foreign keys must be removed or redefined before the entity type can be removed.</value>
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
@@ -710,6 +710,24 @@
   </data>
   <data name="PoolingOptionsModified" xml:space="preserve">
     <value>OnConfiguring cannot be used to modify DbContextOptions when DbContext pooling is enabled.</value>
+  </data>
+  <data name="ForeignKeySelfReferencingDelegatedIdentity" xml:space="preserve">
+    <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has delegated identity.</value>
+  </data>
+  <data name="EntityTypeInUseByForeignKey" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be removed because it is referencing '{referencedEntityType}' by foreign key {foreignKey}. All foreign keys must be removed before the entity type can be removed.</value>
+  </data>
+  <data name="ClashingDelegatedIdentityEntityType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be added to the model because a delegated identity entity type with the same name already exists.</value>
+  </data>
+  <data name="ClashingNonDelegatedIdentityEntityType" xml:space="preserve">
+    <value>The delegated identity entity type '{entityType}' cannot be added to the model because a entity type with the same name already exists.</value>
+  </data>
+  <data name="DelegatedIdentityBaseType" xml:space="preserve">
+    <value>The type '{entityType}' cannot have delegated identity entity type '{baseType}' as the base type.</value>
+  </data>
+  <data name="DelegatedIdentityDerivedType" xml:space="preserve">
+    <value>The delegated identity entity type '{entityType}' cannot have a base type.</value>
   </data>
   <data name="DuplicatePropertyInList" xml:space="preserve">
     <value>The property list {propertyList} cannot be used, because it contains a duplicate - '{property}'.</value>

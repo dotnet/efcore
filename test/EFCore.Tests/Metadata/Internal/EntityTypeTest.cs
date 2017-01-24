@@ -3035,6 +3035,40 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Adding_delegated_inheritance_to_delegated_identity_definition_entity_types_throws()
+        {
+            IMutableModel model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var baseType = model.AddDelegatedIdentityEntityType(typeof(BaseType), nameof(Customer.Orders), customerType);
+            var orderType = model.AddDelegatedIdentityEntityType(typeof(Order), nameof(Customer.Orders), customerType);
+            var derivedType = model.AddDelegatedIdentityEntityType(typeof(SpecialOrder), nameof(Customer.Orders), customerType);
+
+            Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
+                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
+            Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
+                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(SpecialOrder)),
+                Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
+        }
+
+        [Fact]
+        public void Adding_non_delegated_inheritance_to_delegated_identity_definition_entity_types_throws()
+        {
+            IMutableModel model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var orderType = model.AddDelegatedIdentityEntityType(typeof(Order), nameof(Customer.Orders), customerType);
+            var derivedType = model.AddEntityType(typeof(SpecialOrder));
+
+            Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
+                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
+            Assert.Equal(CoreStrings.DelegatedIdentityBaseType(
+                typeof(SpecialOrder).DisplayName(fullName: false), nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
+        }
+
+        [Fact]
         public void Change_tracking_from_model_is_used_by_default_regardless_of_CLR_type()
         {
             var model = BuildFullNotificationEntityModel();

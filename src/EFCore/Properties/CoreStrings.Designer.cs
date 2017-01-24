@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, dependentType, principalType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.
+        ///     The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
         /// </summary>
         public static string DuplicateEntityType([CanBeNull] object entityType)
             => string.Format(
@@ -780,9 +780,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The entity type '{entityType}' cannot be removed because it is being referenced by foreign key {foreignKey} on '{referencingEntityType}'. All referencing foreign keys must be removed or redefined before the entity type can be removed.
         /// </summary>
-        public static string EntityTypeInUseByForeignKey([CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object referencingEntityType)
+        public static string EntityTypeInUseByReferencingForeignKey([CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object referencingEntityType)
             => string.Format(
-                GetString("EntityTypeInUseByForeignKey", nameof(entityType), nameof(foreignKey), nameof(referencingEntityType)),
+                GetString("EntityTypeInUseByReferencingForeignKey", nameof(entityType), nameof(foreignKey), nameof(referencingEntityType)),
                 entityType, foreignKey, referencingEntityType);
 
         /// <summary>
@@ -1550,6 +1550,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string PoolingOptionsModified
             => GetString("PoolingOptionsModified");
+
+        /// <summary>
+        ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has delegated identity.
+        /// </summary>
+        public static string ForeignKeySelfReferencingDelegatedIdentity([CanBeNull] object dependentType)
+            => string.Format(
+                GetString("ForeignKeySelfReferencingDelegatedIdentity", nameof(dependentType)),
+                dependentType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be removed because it is referencing '{referencedEntityType}' by foreign key {foreignKey}. All foreign keys must be removed before the entity type can be removed.
+        /// </summary>
+        public static string EntityTypeInUseByForeignKey([CanBeNull] object entityType, [CanBeNull] object referencedEntityType, [CanBeNull] object foreignKey)
+            => string.Format(
+                GetString("EntityTypeInUseByForeignKey", nameof(entityType), nameof(referencedEntityType), nameof(foreignKey)),
+                entityType, referencedEntityType, foreignKey);
+
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be added to the model because a delegated identity entity type with the same name already exists.
+        /// </summary>
+        public static string ClashingDelegatedIdentityEntityType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingDelegatedIdentityEntityType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The delegated identity entity type '{entityType}' cannot be added to the model because a entity type with the same name already exists.
+        /// </summary>
+        public static string ClashingNonDelegatedIdentityEntityType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingNonDelegatedIdentityEntityType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The type '{entityType}' cannot have delegated identity entity type '{baseType}' as the base type.
+        /// </summary>
+        public static string DelegatedIdentityBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
+            => string.Format(
+                GetString("DelegatedIdentityBaseType", nameof(entityType), nameof(baseType)),
+                entityType, baseType);
+
+        /// <summary>
+        ///     The delegated identity entity type '{entityType}' cannot have a base type.
+        /// </summary>
+        public static string DelegatedIdentityDerivedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("DelegatedIdentityDerivedType", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     The property list {propertyList} cannot be used, because it contains a duplicate - '{property}'.

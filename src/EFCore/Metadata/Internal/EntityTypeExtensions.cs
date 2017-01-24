@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -27,9 +28,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Obsolete("Call TypeBaseExtensions.DisplayName() instead.")]
-        public static string DisplayName([NotNull] IEntityType entityType)
-            => entityType.DisplayName();
+        [DebuggerStepThrough]
+        public static string DisplayName([NotNull] this IEntityType type)
+        {
+            if (type.ClrType == null)
+            {
+                return type.Name;
+            }
+
+            if (!type.HasDelegatedIdentity())
+            {
+                return ((ITypeBase)type).DisplayName();
+            }
+
+            var builder = new StringBuilder();
+            var path = new Stack<string>();
+            var root = type;
+            while (true)
+            {
+                var definingNavigationName = root.DefiningNavigationName;
+                if (definingNavigationName == null)
+                {
+                    break;
+                }
+                root = root.DefiningEntityType;
+                path.Push("->");
+                path.Push(definingNavigationName);
+                path.Push(".");
+                path.Push(((ITypeBase)root).DisplayName());
+            }
+
+            if (root != type)
+            {
+                builder.AppendJoin(path, "");
+            }
+
+            builder.Append(((ITypeBase)type).DisplayName());
+            return builder.ToString();
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -73,6 +109,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<IEntityType> GetDerivedTypesInclusive([NotNull] this IEntityType entityType)
             => new[] { entityType }.Concat(entityType.GetDerivedTypes());
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static INavigation FindDefiningNavigation([NotNull] this IEntityType entityType)
+            => entityType.HasDelegatedIdentity() ? entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName) : null;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static Navigation FindDefiningNavigation([NotNull] this EntityType entityType)
+            => (Navigation)((IEntityType)entityType).FindDefiningNavigation();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsInDefinitionPath([NotNull] this IEntityType type, [NotNull] Type targetType)
+        {
+            var root = type;
+            while (root != null)
+            {
+                if (root.ClrType == targetType)
+                {
+                    return true;
+                }
+                root = root.DefiningEntityType;
+            }
+
+            return false;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

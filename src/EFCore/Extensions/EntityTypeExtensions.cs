@@ -99,6 +99,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Gets a value indicating whether this entity type has delegated identity.
+        /// </summary>
+        /// <returns> True if this entity type has delegated identity. </returns>
+        public static bool HasDelegatedIdentity([NotNull] this IEntityType entityType)
+            => entityType.DefiningEntityType != null;
+
+        /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns null if no key is defined
         ///     for the given property.
         /// </summary>

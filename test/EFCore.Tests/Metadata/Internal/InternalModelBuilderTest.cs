@@ -154,6 +154,24 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Can_ignore_entity_type_referencing_higher_or_equal_source_foreign_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var customerEntityTypeBuilder = modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Explicit)
+                .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+
+            Assert.NotNull(orderEntityTypeBuilder
+                .HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+
+            Assert.True(modelBuilder.Ignore(typeof(Order), ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(typeof(Customer), modelBuilder.Metadata.GetEntityTypes().Single().ClrType);
+            Assert.Empty(customerEntityTypeBuilder.Metadata.GetReferencingForeignKeys());
+        }
+
+        [Fact]
         public void Can_ignore_entity_type_with_base_and_derived_types()
         {
             var modelBuilder = CreateModelBuilder();

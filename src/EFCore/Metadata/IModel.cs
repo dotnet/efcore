@@ -26,5 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or null if none are found. </returns>
         IEntityType FindEntityType([NotNull] string name);
+
+        /// <summary>
+        ///     Gets the entity type with delegated identity for the given name, defining navigation name
+        ///     and the defining entity type. Returns null if no matching entity type is found.
+        /// </summary>
+        /// <param name="name"> The name of the entity type to find. </param>
+        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
+        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
+        /// <returns> The entity type, or null if none are found. </returns>
+        IEntityType FindDelegatedIdentityEntityType(
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] IEntityType definingEntityType);
     }
 }

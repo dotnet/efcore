@@ -78,6 +78,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public EntityType(
+            [NotNull] string name,
+            [NotNull] Model model,
+            [NotNull] string definingNavigationName,
+            [NotNull] EntityType definingEntityType,
+            ConfigurationSource configurationSource)
+            : this(name, model, configurationSource)
+        {
+            DefiningNavigationName = definingNavigationName;
+            DefiningEntityType = definingEntityType;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public EntityType(
+            [NotNull] Type clrType,
+            [NotNull] Model model,
+            [NotNull] string definingNavigationName,
+            [NotNull] EntityType definingEntityType,
+            ConfigurationSource configurationSource)
+            : this(clrType, model, configurationSource)
+        {
+            DefiningNavigationName = definingNavigationName;
+            DefiningEntityType = definingEntityType;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
 
         /// <summary>
@@ -85,6 +117,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType BaseType => _baseType;
+
+        /// <summary>
+        ///     Gets the name of the defining navigation for this entity type with delegated identity.
+        /// </summary>
+        public virtual string DefiningNavigationName { get; }
+
+        /// <summary>
+        ///     Gets the defining entity type for this entity type with delegated identity.
+        /// </summary>
+        public virtual EntityType DefiningEntityType { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -99,6 +141,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 UpdateBaseTypeConfigurationSource(configurationSource);
                 entityType?.UpdateConfigurationSource(configurationSource);
                 return;
+            }
+
+            if (this.HasDelegatedIdentity())
+            {
+                throw new InvalidOperationException(CoreStrings.DelegatedIdentityDerivedType(this.DisplayName()));
             }
 
             var originalBaseType = _baseType;
@@ -116,6 +163,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (!entityType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                     {
                         throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this.DisplayName(), entityType.DisplayName(), ClrType.ShortDisplayName(), entityType.ClrType.ShortDisplayName()));
+                    }
+
+                    if (entityType.HasDelegatedIdentity())
+                    {
+                        throw new InvalidOperationException(CoreStrings.DelegatedIdentityBaseType(this.DisplayName(), entityType.DisplayName()));
                     }
                 }
 
@@ -187,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
             => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
 
-        private readonly SortedSet<EntityType> _directlyDerivedTypes = new SortedSet<EntityType>(EntityTypeNameComparer.Instance);
+        private readonly SortedSet<EntityType> _directlyDerivedTypes = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -556,14 +608,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Key FindDeclaredKey([NotNull] IReadOnlyList<IProperty> properties)
-        {
-            Check.NotEmpty(properties, nameof(properties));
-
-            Key key;
-            return _keys.TryGetValue(properties, out key)
+            => _keys.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out Key key)
                 ? key
                 : null;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -733,7 +780,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                principalKey.ReferencingForeignKeys.Add(foreignKey);
+                var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
+                Debug.Assert(added);
             }
 
             if (principalEntityType.DeclaredReferencingForeignKeys == null)
@@ -742,7 +790,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
+                var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
+                Debug.Assert(added);
             }
 
             PropertyMetadataChanged();
@@ -1118,14 +1167,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation FindDeclaredNavigation([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            Navigation navigation;
-            return _navigations.TryGetValue(name, out navigation)
+            => _navigations.TryGetValue(Check.NotEmpty(name, nameof(name)), out Navigation navigation)
                 ? navigation
                 : null;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1315,14 +1359,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Index FindDeclaredIndex([NotNull] IReadOnlyList<IProperty> properties)
-        {
-            Check.NotEmpty(properties, nameof(properties));
-
-            Index index;
-            return _indexes.TryGetValue(properties, out index)
+            => _indexes.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out Index index)
                 ? index
                 : null;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1485,12 +1524,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = new Property(name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, configurationSource, typeConfigurationSource);
 
             _properties.Add(property.Name, property);
-
             PropertyMetadataChanged();
 
-            property = Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
-
-            return property;
+            return Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -1525,15 +1561,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Property FindDeclaredProperty([NotNull] string propertyName)
-        {
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            Property property;
-            return _properties.TryGetValue(propertyName, out property)
+        public virtual Property FindDeclaredProperty([NotNull] string name)
+            => _properties.TryGetValue(Check.NotEmpty(name, nameof(name)), out Property property)
                 ? property
                 : null;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1712,7 +1743,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         #region Explicit interface implementations
 
         IModel ITypeBase.Model => Model;
-        IModel IEntityType.Model => Model;
         IMutableModel IMutableTypeBase.Model => Model;
         IMutableModel IMutableEntityType.Model => Model;
         IEntityType IEntityType.BaseType => _baseType;
@@ -1722,6 +1752,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get { return _baseType; }
             set { HasBaseType((EntityType)value); }
         }
+
+        IEntityType IEntityType.DefiningEntityType => DefiningEntityType;
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
             => SetPrimaryKey(properties?.Cast<Property>().ToList());

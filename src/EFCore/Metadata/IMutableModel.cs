@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="clrType"> The CLR class that is used to represent instances of this entity type. </param>
         /// <returns> The new entity type. </returns>
-        IMutableEntityType AddEntityType([CanBeNull] Type clrType);
+        IMutableEntityType AddEntityType([NotNull] Type clrType);
 
         /// <summary>
         ///     Gets the entity with the given name. Returns null if no entity type with the given name is found.
@@ -53,6 +53,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
         IMutableEntityType RemoveEntityType([NotNull] string name);
+
+        /// <summary>
+        ///     Adds an entity type with delegated identity to the model.
+        /// </summary>
+        /// <param name="name"> The name of the entity to be added. </param>
+        /// <param name="definingNavigationName"> The defining navigation. </param>
+        /// <param name="definingEntityType"> The defining entity type. </param>
+        /// <returns> The new entity type. </returns>
+        IMutableEntityType AddDelegatedIdentityEntityType(
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] IMutableEntityType definingEntityType);
+
+        /// <summary>
+        ///     Adds an entity type with delegated identity to the model.
+        /// </summary>
+        /// <param name="clrType"> The CLR class that is used to represent instances of this entity type. </param>
+        /// <param name="definingNavigationName"> The defining navigation. </param>
+        /// <param name="definingEntityType"> The defining entity type. </param>
+        /// <returns> The new entity type. </returns>
+        IMutableEntityType AddDelegatedIdentityEntityType(
+            [NotNull] Type clrType,
+            [NotNull] string definingNavigationName,
+            [NotNull] IMutableEntityType definingEntityType);
+
+        /// <summary>
+        ///     Gets the entity type with delegated identity for the given name, defining navigation name
+        ///     and the defining entity type. Returns null if no matching entity type is found.
+        /// </summary>
+        /// <param name="name"> The name of the entity type to find. </param>
+        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
+        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
+        /// <returns> The entity type, or null if none are found. </returns>
+        IMutableEntityType FindDelegatedIdentityEntityType(
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] IMutableEntityType definingEntityType);
+
+        /// <summary>
+        ///     Removes an entity type with delegated identity from the model.
+        /// </summary>
+        /// <param name="name"> The name of the entity to be removed. </param>
+        /// <param name="definingNavigationName"> The defining navigation. </param>
+        /// <param name="definingEntityType"> The defining entity type. </param>
+        /// <returns> The entity type that was removed. </returns>
+        IMutableEntityType RemoveDelegatedIdentityEntityType(
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] IMutableEntityType definingEntityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.

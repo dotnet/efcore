@@ -573,6 +573,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
+            if (principalEntityType.HasDelegatedIdentity()
+                && principalEntityType.ClrType == dependentEntityType.ClrType)
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ForeignKeySelfReferencingDelegatedIdentity(dependentEntityType.DisplayName()));
+                }
+                return false;
+            }
+
             if (navigationToPrincipal != null
                 && !Internal.Navigation.IsCompatible(
                     navigationToPrincipal,

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the entity that maps the given entity class. Returns null if no entity type with the given name is found.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
-        /// <param name="type"> The type of the entity class to find the type for. </param>
+        /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or null if none if found. </returns>
         public static IMutableEntityType FindEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
             => (IMutableEntityType)((IModel)model).FindEntityType(type);
@@ -35,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(model, nameof(model)).FindEntityType(name) ?? model.AddEntityType(name);
 
         /// <summary>
-        ///     Gets the entity type with the given .NET type or adds a new entity type if none is found.
+        ///     Gets the entity type with the given CLR class or adds a new entity type if none is found.
         /// </summary>
         /// <param name="model"> The model to find or add the entity type to. </param>
-        /// <param name="type"> The .NET type of the entity type. </param>
+        /// <param name="type"> The CLR class of the entity type. </param>
         /// <returns> The existing or newly created entity type. </returns>
         public static IMutableEntityType GetOrAddEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).FindEntityType(type) ?? model.AddEntityType(type);
@@ -56,6 +56,52 @@ namespace Microsoft.EntityFrameworkCore
 
             return model.RemoveEntityType(type.DisplayName());
         }
+
+        /// <summary>
+        ///     Gets the entity type with delegated identity for the given name, defining navigation name
+        ///     and the defining entity type. Returns null if no matching entity type is found.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="type"> The type of the entity type to find. </param>
+        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
+        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
+        /// <returns> The entity type, or null if none are found. </returns>
+        public static IMutableEntityType FindDelegatedIdentityEntityType(
+            [NotNull] this IMutableModel model,
+            [NotNull] Type type,
+            [NotNull] string definingNavigationName,
+            [NotNull] IMutableEntityType definingEntityType)
+            => (IMutableEntityType)((IModel)model).FindDelegatedIdentityEntityType(type, definingNavigationName, definingEntityType);
+
+        /// <summary>
+        ///     Removes an entity type with delegated identity from the model.
+        /// </summary>
+        /// <param name="model"> The model to remove the entity type from. </param>
+        /// <param name="type"> The CLR class that is used to represent instances of this entity type. </param>
+        /// <param name="definingNavigationName"> The defining navigation. </param>
+        /// <param name="definingEntityType"> The defining entity type. </param>
+        /// <returns> The entity type that was removed. </returns>
+        public static IMutableEntityType RemoveDelegatedIdentityEntityType(
+            [NotNull] this IMutableModel model,
+            [NotNull] Type type,
+            [NotNull] string definingNavigationName,
+            [NotNull] IMutableEntityType definingEntityType)
+            => Check.NotNull(model, nameof(model)).AsModel().RemoveDelegatedIdentityEntityType(
+                Check.NotNull(type, nameof(type)),
+                Check.NotNull(definingNavigationName, nameof(definingNavigationName)),
+                (EntityType)Check.NotNull(definingEntityType, nameof(definingEntityType)));
+
+        /// <summary>
+        ///     Removes an entity type with delegated identity from the model.
+        /// </summary>
+        /// <param name="model"> The model to remove the entity type from. </param>
+        /// <param name="entityType"> The entity type to be removed. </param>
+        /// <returns> The entity type that was removed. </returns>
+        public static IMutableEntityType RemoveDelegatedIdentityEntityType(
+            [NotNull] this IMutableModel model,
+            [NotNull] IMutableEntityType entityType)
+            => Check.NotNull(model, nameof(model)).AsModel().RemoveDelegatedIdentityEntityType(
+                (EntityType)Check.NotNull(entityType, nameof(entityType)));
 
         /// <summary>
         ///     <para>
