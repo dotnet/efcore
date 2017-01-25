@@ -64,6 +64,7 @@
     <Compile Include="Storage\SqlServerRetryingExecutionStrategyTests.cs" />
     <Compile Include="Storage\SqlServerSqlGeneratorTest.cs" />
     <Compile Include="Storage\SqlServerTypeMappingTest.cs" />
+    <Compile Include="TestSqlServerAnnotationProvider.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchTest.cs" />
     <Compile Include="Update\SqlServerUpdateSqlGeneratorTest.cs" />
