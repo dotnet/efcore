@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var parameter = CreateDbParameter("@CustomerID", "ALFKI");
 
-                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistorySproc, default(CancellationToken), parameter));
+                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistorySproc, parameter));
             }
         }
 
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistoryWithGeneratedParameterSproc, default(CancellationToken), "ALFKI"));
+                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistoryWithGeneratedParameterSproc, "ALFKI"));
             }
         }
 

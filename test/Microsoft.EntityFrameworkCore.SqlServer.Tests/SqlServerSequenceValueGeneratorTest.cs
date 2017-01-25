@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             public IRelationalCommand Build(string sql) => new FakeRelationalCommand(this);
 
-            public RawSqlCommand Build(string sql, IReadOnlyList<object> parameters)
+            public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
                 => new RawSqlCommand(
                     new FakeRelationalCommand(this),
                     new Dictionary<string, object>());

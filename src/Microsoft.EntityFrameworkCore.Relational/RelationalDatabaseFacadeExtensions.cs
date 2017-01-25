@@ -107,8 +107,17 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] string sql,
             [NotNull] params object[] parameters)
+            => ExecuteSqlCommand(databaseFacade, sql, (IEnumerable<object>)parameters);
+
+        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        public static int ExecuteSqlCommand(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [NotNull] string sql,
+            [NotNull] IEnumerable<object> parameters)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
+            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(parameters, nameof(parameters));
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
 
@@ -122,18 +131,34 @@ namespace Microsoft.EntityFrameworkCore
                     .RelationalCommand
                     .ExecuteNonQuery(
                         databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        parameterValues: rawSqlCommand.ParameterValues);
+                        rawSqlCommand.ParameterValues);
             }
         }
+
+        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        public static Task<int> ExecuteSqlCommandAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [NotNull] string sql,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => ExecuteSqlCommandAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
+
+        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        public static Task<int> ExecuteSqlCommandAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [NotNull] string sql,
+            [NotNull] params object[] parameters)
+            => ExecuteSqlCommandAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
 
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
         public static async Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] string sql,
-            CancellationToken cancellationToken = default(CancellationToken),
-            [NotNull] params object[] parameters)
+            [NotNull] IEnumerable<object> parameters,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
+            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(parameters, nameof(parameters));
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
 
@@ -148,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ExecuteNonQueryAsync(
                         databaseFacade.GetRelationalService<IRelationalConnection>(),
                         rawSqlCommand.ParameterValues,
-                        cancellationToken: cancellationToken);
+                        cancellationToken);
             }
         }
 
