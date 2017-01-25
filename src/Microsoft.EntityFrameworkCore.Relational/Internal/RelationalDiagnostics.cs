@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public const string AfterExecuteCommand = NamePrefix + nameof(AfterExecuteCommand);
         public const string CommandExecutionError = NamePrefix + nameof(CommandExecutionError);
 
+        public const string ConnectionOpened = NamePrefix + nameof(ConnectionOpened);
+        public const string ConnectionClosed = NamePrefix + nameof(ConnectionClosed);
+
         public const string DataReaderDisposing = NamePrefix + nameof(DataReaderDisposing);
 
         public static void WriteCommandBefore(
@@ -89,6 +92,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Exception = exception,
                         IsAsync = async
                     });
+            }
+        }
+
+        public static void WriteConnectionOpened(this DiagnosticSource diagnosticSource, DbConnection connection)
+        {
+            if (diagnosticSource.IsEnabled(ConnectionOpened))
+            {
+                diagnosticSource.Write(ConnectionOpened, connection);
+            }
+        }
+
+        public static void WriteConnectionClosed(this DiagnosticSource diagnosticSource, DbConnection connection)
+        {
+            if (diagnosticSource.IsEnabled(ConnectionClosed))
+            {
+                diagnosticSource.Write(ConnectionClosed, connection);
             }
         }
 

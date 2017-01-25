@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -49,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Dependencies = dependencies;
 
             var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
-
+            
             _commandTimeout = relationalOptions.CommandTimeout;
 
             if (relationalOptions.Connection != null)
@@ -89,6 +90,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the logger to write to.
         /// </summary>
         protected virtual ILogger Logger => Dependencies.Logger;
+
+        /// <summary>
+        ///     Gets the diagnostic source.
+        /// </summary>
+        protected virtual DiagnosticSource DiagnosticSource=> Dependencies.DiagnosticSource;
 
         /// <summary>
         ///     Gets the connection string for the database.
@@ -281,6 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 _connection.Value.Open();
 
+                DiagnosticSource.WriteConnectionOpened(_connection.Value);
+
                 if (_openedCount == 0)
                 {
                     _openedInternally = true;
@@ -324,6 +332,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.DataSource));
 
                 await _connection.Value.OpenAsync(cancellationToken);
+
+                DiagnosticSource.WriteConnectionOpened(_connection.Value);
 
                 if (_openedCount == 0)
                 {
@@ -372,6 +382,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 state.Database,
                                 state.DataSource));
                     _connection.Value.Close();
+
+                    DiagnosticSource.WriteConnectionClosed(_connection.Value);
                 }
                 _openedInternally = false;
             }
