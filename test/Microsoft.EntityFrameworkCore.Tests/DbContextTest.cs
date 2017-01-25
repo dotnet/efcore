@@ -382,6 +382,95 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Can_change_navigation_while_attaching_entities(bool async)
+        {
+            using (var context = new ActiveAddContext())
+            {
+                context.Database.EnsureDeleted();
+
+                context.AddRange(new User { Id = 3 }, new User { Id = 4 });
+                context.SaveChanges();
+            }
+
+            using (var context = new ActiveAddContext())
+            {
+                var questions = new List<Question>
+                {
+                    new Question
+                    {
+                        Author = context.Users.First(),
+                        Answers = new List<Answer>
+                        {
+                            new Answer
+                            {
+                                Author = context.Users.Last(),
+                            }
+                        }
+                    },
+                };
+
+                if (async)
+                {
+                    await context.AddRangeAsync(questions);
+                }
+                else
+                {
+                    context.AddRange(questions);
+                }
+            }
+        }
+
+        public class Question
+        {
+            public int Id { get; set; }
+            public int AuthorId { get; set; }
+            public virtual User Author { get; set; }
+            public virtual ICollection<Answer> Answers { get; set; }
+        }
+
+        public class Answer
+        {
+            public int Id { get; set; }
+            public int QuestionId { get; set; }
+            public int AuthorId { get; set; }
+            public virtual Question Question { get; set; }
+            public virtual User Author { get; set; }
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
+            public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+        }
+
+        public class ActiveAddContext : DbContext
+        {
+            public DbSet<User> Users { get; set; }
+            public DbSet<Answer> Answers { get; set; }
+            public DbSet<Question> Questions { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Question>(b =>
+                {
+                    b.HasOne(x => x.Author).WithMany(x => x.Questions).HasForeignKey(x => x.AuthorId);
+                });
+
+                modelBuilder.Entity<Answer>(b =>
+                {
+                    b.HasOne(x => x.Author).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
+                    b.HasOne(x => x.Question).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
+                });
+            }
+        }
+
         [Fact]
         public async Task Can_add_existing_entities_to_context_to_be_deleted()
         {

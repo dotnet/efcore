@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (navigation.IsCollection())
                     {
-                        foreach (var relatedEntity in (IEnumerable)navigationValue)
+                        foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
                             TraverseGraph(
                                 node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
@@ -81,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (navigation.IsCollection())
                     {
-                        foreach (var relatedEntity in (IEnumerable)navigationValue)
+                        foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
                             await TraverseGraphAsync(
                                 node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
