@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public InMemoryQueryModelVisitorFactory(
             [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
+            [NotNull] INavigationRewritingQueryModelVisitorFactory navigationRewritingQueryModelVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
             [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IMaterializerFactory materializerFactory)
             : base(
                 queryOptimizer,
-                navigationRewritingExpressionVisitorFactory,
+                navigationRewritingQueryModelVisitorFactory,
                 subQueryMemberPushDownExpressionVisitor,
                 querySourceTracingExpressionVisitorFactory,
                 entityResultFindingExpressionVisitorFactory,
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryCompilationContext queryCompilationContext, EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new InMemoryQueryModelVisitor(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
+                NavigationRewritingQueryModelVisitorFactory,
                 SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,

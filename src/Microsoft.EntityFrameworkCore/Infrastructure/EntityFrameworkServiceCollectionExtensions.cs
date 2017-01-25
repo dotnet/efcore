@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<ITaskBlockingExpressionVisitor, TaskBlockingExpressionVisitor>()
                 .AddScoped<IEntityResultFindingExpressionVisitorFactory, EntityResultFindingExpressionVisitorFactory>()
                 .AddScoped<IMemberAccessBindingExpressionVisitorFactory, MemberAccessBindingExpressionVisitorFactory>()
-                .AddScoped<INavigationRewritingExpressionVisitorFactory, NavigationRewritingExpressionVisitorFactory>()
+                .AddScoped<INavigationRewritingQueryModelVisitorFactory, NavigationRewritingQueryModelVisitorFactory>()
                 .AddScoped<IOrderingExpressionVisitorFactory, OrderingExpressionVisitorFactory>()
                 .AddScoped<IQuerySourceTracingExpressionVisitorFactory, QuerySourceTracingExpressionVisitorFactory>()
                 .AddScoped<IRequiresMaterializationExpressionVisitorFactory, RequiresMaterializationExpressionVisitorFactory>()

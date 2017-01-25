@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(property.Name));
 
         private readonly IQueryOptimizer _queryOptimizer;
-        private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
+        private readonly INavigationRewritingQueryModelVisitorFactory _navigationRewritingQueryModelVisitorFactory;
         private readonly ISubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
         private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
         private readonly IEntityResultFindingExpressionVisitorFactory _entityResultFindingExpressionVisitorFactory;
@@ -105,8 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor" /> class.
         /// </summary>
         /// <param name="queryOptimizer"> The <see cref="IQueryOptimizer" /> to be used when processing the query. </param>
-        /// <param name="navigationRewritingExpressionVisitorFactory">
-        ///     The <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when
+        /// <param name="navigationRewritingQueryModelVisitorFactory">
+        ///     The <see cref="INavigationRewritingQueryModelVisitorFactory" /> to be used when
         ///     processing the query.
         /// </param>
         /// <param name="subQueryMemberPushDownExpressionVisitor">
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext" /> to be used when processing the query. </param>
         protected EntityQueryModelVisitor(
             [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
+            [NotNull] INavigationRewritingQueryModelVisitorFactory navigationRewritingQueryModelVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
             [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
-            Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
+            Check.NotNull(navigationRewritingQueryModelVisitorFactory, nameof(navigationRewritingQueryModelVisitorFactory));
             Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
             Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
             Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             _queryOptimizer = queryOptimizer;
-            _navigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
+            _navigationRewritingQueryModelVisitorFactory = navigationRewritingQueryModelVisitorFactory;
             _subQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
             _querySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
             _entityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
@@ -356,7 +356,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
                 .VisitQueryModel(queryModel);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel, parentQueryModel: null);
+            var navigationRewritingQueryModelVisitor
+                = _navigationRewritingQueryModelVisitorFactory.Create(this);
+            
+            navigationRewritingQueryModelVisitor.VisitQueryModel(queryModel);
 
             QueryCompilationContext.Logger
                 .LogDebug(

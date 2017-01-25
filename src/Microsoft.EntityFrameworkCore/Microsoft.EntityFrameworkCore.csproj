@@ -455,7 +455,7 @@
     <Compile Include="Query\ExpressionVisitors\IEntityQueryableExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\IEntityResultFindingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\IMemberAccessBindingExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\Internal\INavigationRewritingExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\INavigationRewritingQueryModelVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\CompositeKey.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\EntityEqualityRewritingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\DefaultQueryExpressionVisitor.cs" />
@@ -463,8 +463,8 @@
     <Compile Include="Query\ExpressionVisitors\Internal\EntityResultFindingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\MemberAccessBindingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\MemberAccessBindingExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\Internal\NavigationRewritingExpressionVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\Internal\NavigationRewritingExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\NavigationRewritingQueryModelVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\NavigationRewritingQueryModelVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\OrderingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\ParameterExtractingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\ProjectionExpressionVisitorFactory.cs" />
