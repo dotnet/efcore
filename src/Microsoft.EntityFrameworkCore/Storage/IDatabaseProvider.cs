@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string InvariantName { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this database provider has been selected for a given context.
+        ///     Gets a value indicating whether this database provider has been configured for a given context.
         /// </summary>
         /// <param name="options"> The options for the context. </param>
-        /// <returns> True if the database provider has been selected, otherwise false. </returns>
+        /// <returns> True if the database provider has been configured, otherwise false. </returns>
         bool IsConfigured([NotNull] IDbContextOptions options);
     }
 }
