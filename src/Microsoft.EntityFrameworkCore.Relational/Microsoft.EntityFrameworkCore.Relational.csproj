@@ -339,6 +339,7 @@
     <Compile Include="Storage\RawSqlCommand.cs" />
     <Compile Include="Storage\RelationalCommandBuilderExtensions.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
+    <Compile Include="Storage\RelationalConnectionDependencies.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
     <Compile Include="Storage\RelationalDataReader.cs" />

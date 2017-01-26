@@ -37,21 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private int _openedCount;
         private bool _openedInternally;
         private int? _commandTimeout;
-        private readonly ILogger _logger;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="IRelationalConnection" /> class.
+        ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
         /// </summary>
-        /// <param name="options"> The options for the context that this connection will be used with. </param>
-        /// <param name="logger"> The logger to write to. </param>
-        protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILogger logger)
+        /// <param name="dependencies">Parameter object containing dependencies for this service. </param>
+        protected RelationalConnection([NotNull] RelationalConnectionDependencies dependencies)
         {
-            Check.NotNull(options, nameof(options));
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _logger = logger;
+            Dependencies = dependencies;
 
-            var relationalOptions = RelationalOptionsExtension.Extract(options);
+            var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
 
             _commandTimeout = relationalOptions.CommandTimeout;
 
@@ -78,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected virtual RelationalConnectionDependencies Dependencies { get; }
+
+        /// <summary>
         ///     Creates a <see cref="DbConnection" /> to the database.
         /// </summary>
         /// <returns> The connection. </returns>
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the logger to write to.
         /// </summary>
-        protected virtual ILogger Logger => _logger;
+        protected virtual ILogger Logger => Dependencies.Logger;
 
         /// <summary>
         ///     Gets the connection string for the database.
@@ -112,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             set
             {
                 if (value.HasValue
-                    && (value < 0))
+                    && value < 0)
                 {
                     throw new ArgumentException(RelationalStrings.InvalidCommandTimeout);
                 }
@@ -182,9 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private IDbContextTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            Check.NotNull(_logger, nameof(_logger));
-
-            _logger.LogDebug(
+            Logger.LogDebug(
                 RelationalEventId.BeginningTransaction,
                 isolationLevel,
                 il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 = new RelationalTransaction(
                     this,
                     DbConnection.BeginTransaction(isolationLevel),
-                    _logger,
+                    Logger,
                     transactionOwned: true);
 
             return CurrentTransaction;
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Open();
 
-                CurrentTransaction = new RelationalTransaction(this, transaction, _logger, transactionOwned: false);
+                CurrentTransaction = new RelationalTransaction(this, transaction, Logger, transactionOwned: false);
             }
 
             return CurrentTransaction;
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                _logger.LogDebug(
+                Logger.LogDebug(
                     RelationalEventId.OpeningConnection,
                     new
                     {
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                _logger.LogDebug(
+                Logger.LogDebug(
                     RelationalEventId.OpeningConnection,
                     new
                     {
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (_connection.Value.State != ConnectionState.Closed)
                 {
-                    _logger.LogDebug(
+                    Logger.LogDebug(
                         RelationalEventId.ClosingConnection,
                         new
                         {
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual IValueBufferCursor ActiveCursor { get; set; }
 
         void IResettableService.Reset() => Dispose();
-        
+
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>

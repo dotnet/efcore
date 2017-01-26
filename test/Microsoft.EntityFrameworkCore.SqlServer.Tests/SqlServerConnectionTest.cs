@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Creates_SQL_Server_connection_string()
         {
-            using (var connection = new SqlServerConnection(CreateOptions(), new Logger<SqlServerConnection>(new LoggerFactory())))
+            using (var connection = new SqlServerConnection(CreateDependencies()))
             {
                 Assert.IsType<SqlConnection>(connection.DbConnection);
             }
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Can_create_master_connection()
         {
-            using (var connection = new SqlServerConnection(CreateOptions(), new Logger<SqlServerConnection>(new LoggerFactory())))
+            using (var connection = new SqlServerConnection(CreateDependencies()))
             {
                 using (var master = connection.CreateMasterConnection())
                 {
@@ -36,10 +36,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Master_connection_string_contains_filename()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;AttachDBFilename=C:\Narf.mdf");
+            var options = new DbContextOptionsBuilder()
+                .UseSqlServer(
+                    @"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;AttachDBFilename=C:\Narf.mdf",
+                    b => b.CommandTimeout(55))
+                .Options;
 
-            using (var connection = new SqlServerConnection(optionsBuilder.Options, new Logger<SqlServerConnection>(new LoggerFactory())))
+            using (var connection = new SqlServerConnection(CreateDependencies(options)))
             {
                 using (var master = connection.CreateMasterConnection())
                 {
@@ -51,12 +54,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Master_connection_string_none_default_command_timeout()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(
-                @"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest",
-                b => b.CommandTimeout(55));
+            var options = new DbContextOptionsBuilder()
+                .UseSqlServer(
+                    @"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest",
+                    b => b.CommandTimeout(55))
+                .Options;
 
-            using (var connection = new SqlServerConnection(optionsBuilder.Options, new Logger<SqlServerConnection>(new LoggerFactory())))
+            using (var connection = new SqlServerConnection(CreateDependencies(options)))
             {
                 using (var master = connection.CreateMasterConnection())
                 {
@@ -65,12 +69,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             }
         }
 
-        public static IDbContextOptions CreateOptions()
+        public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest");
+            options = options
+                      ?? new DbContextOptionsBuilder()
+                          .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
+                          .Options;
 
-            return optionsBuilder.Options;
+            return new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(new LoggerFactory()));
         }
     }
 }

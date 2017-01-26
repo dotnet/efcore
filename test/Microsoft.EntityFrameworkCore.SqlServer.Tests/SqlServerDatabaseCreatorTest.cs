@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             private readonly ILoggerFactory _loggerFactory;
 
             public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory)
-                : base(options, new Logger<SqlServerConnection>(loggerFactory))
+                : base(new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(loggerFactory)))
             {
                 _options = options;
                 _loggerFactory = loggerFactory;

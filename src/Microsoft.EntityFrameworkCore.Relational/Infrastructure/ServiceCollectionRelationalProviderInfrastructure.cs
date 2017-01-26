@@ -87,6 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .AddScoped<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>()
                     .AddScoped<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>());
 
+            // Add service dependencies parameter classes.
+            // These are added as concrete types because the classes are sealed and the registrations should
+            // not be changed by provider or application code.
+            serviceCollection
+                .TryAdd(new ServiceCollection()
+                    .AddScoped<RelationalConnectionDependencies>());
+
             ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
         }
     }
