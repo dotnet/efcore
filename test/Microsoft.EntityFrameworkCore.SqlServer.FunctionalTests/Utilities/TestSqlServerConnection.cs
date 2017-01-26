@@ -7,11 +7,9 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
@@ -19,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         private readonly ISqlServerConnection _realConnection;
 
-        public TestSqlServerConnection(IDbContextOptions options, ILogger<SqlServerConnection> logger)
-            : this(new SqlServerConnection(options, logger))
+        public TestSqlServerConnection(RelationalConnectionDependencies dependencies)
+            : this(new SqlServerConnection(dependencies))
         {
         }
 
