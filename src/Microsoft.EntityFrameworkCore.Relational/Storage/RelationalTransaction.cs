@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly IRelationalConnection _relationalConnection;
         private readonly DbTransaction _dbTransaction;
         private readonly ILogger _logger;
+        private readonly DiagnosticSource _diagnosticSource;
         private readonly bool _transactionOwned;
 
         private bool _connectionClosed;
@@ -38,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connection"> The connection to the database. </param>
         /// <param name="transaction"> The underlying <see cref="DbTransaction" />. </param>
         /// <param name="logger"> The logger to write to. </param>
+        /// <param name="diagnosticSource"> The diagnostic source to write to. </param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
         /// </param>
@@ -45,11 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             [NotNull] ILogger logger,
+            [NotNull] DiagnosticSource diagnosticSource,
             bool transactionOwned)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(transaction, nameof(transaction));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
 
             if (connection.DbConnection != transaction.Connection)
             {
@@ -60,7 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             _dbTransaction = transaction;
             _logger = logger;
+            _diagnosticSource = diagnosticSource;
             _transactionOwned = transactionOwned;
+
+            _diagnosticSource.WriteTransactionStarted(_dbTransaction);
         }
 
         /// <summary>
@@ -73,6 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 () => RelationalStrings.RelationalLoggerCommittingTransaction);
 
             _dbTransaction.Commit();
+
+            _diagnosticSource.WriteTransactionCommit(_dbTransaction);
 
             ClearTransaction();
         }
@@ -87,6 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 () => RelationalStrings.RelationalLoggerRollingbackTransaction);
 
             _dbTransaction.Rollback();
+
+            _diagnosticSource.WriteTransactionRollback(_dbTransaction);
 
             ClearTransaction();
         }
@@ -103,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (_transactionOwned)
                 {
                     _dbTransaction.Dispose();
+                    _diagnosticSource.WriteTransactionDisposed(_dbTransaction);
                 }
 
                 ClearTransaction();

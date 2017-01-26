@@ -19,6 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public const string ConnectionOpened = NamePrefix + nameof(ConnectionOpened);
         public const string ConnectionClosed = NamePrefix + nameof(ConnectionClosed);
 
+        public const string TransactionStarted = NamePrefix + nameof(TransactionStarted);
+        public const string TransactionCommitted = NamePrefix + nameof(TransactionCommitted);
+        public const string TransactionRolledback = NamePrefix + nameof(TransactionRolledback);
+        public const string TransactionDisposed = NamePrefix + nameof(TransactionDisposed);
+
         public const string DataReaderDisposing = NamePrefix + nameof(DataReaderDisposing);
 
         public static void WriteCommandBefore(
@@ -108,6 +113,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (diagnosticSource.IsEnabled(ConnectionClosed))
             {
                 diagnosticSource.Write(ConnectionClosed, connection);
+            }
+        }
+
+        public static void WriteTransactionStarted(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        {
+            if (diagnosticSource.IsEnabled(TransactionStarted))
+            {
+                diagnosticSource.Write(TransactionStarted, transaction);
+            }
+        }
+
+        public static void WriteTransactionCommit(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        {
+            if (diagnosticSource.IsEnabled(TransactionCommitted))
+            {
+                diagnosticSource.Write(TransactionCommitted, transaction);
+            }
+        }
+
+        public static void WriteTransactionRollback(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        {
+            if (diagnosticSource.IsEnabled(TransactionRolledback))
+            {
+                diagnosticSource.Write(TransactionRolledback, transaction);
+            }
+        }
+
+        public static void WriteTransactionDisposed(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        {
+            if (diagnosticSource.IsEnabled(TransactionDisposed))
+            {
+                diagnosticSource.Write(TransactionDisposed, transaction);
             }
         }
 

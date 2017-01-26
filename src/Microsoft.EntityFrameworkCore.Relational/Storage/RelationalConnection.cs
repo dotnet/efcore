@@ -200,6 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     this,
                     DbConnection.BeginTransaction(isolationLevel),
                     Logger,
+                    DiagnosticSource,
                     transactionOwned: true);
 
             return CurrentTransaction;
@@ -227,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Open();
 
-                CurrentTransaction = new RelationalTransaction(this, transaction, Logger, transactionOwned: false);
+                CurrentTransaction = new RelationalTransaction(this, transaction, Logger, DiagnosticSource, transactionOwned: false);
             }
 
             return CurrentTransaction;

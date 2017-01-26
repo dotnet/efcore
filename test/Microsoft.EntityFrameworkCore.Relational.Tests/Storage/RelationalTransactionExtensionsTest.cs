@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 connection,
                 dbTransaction,
                 new ListLogger(new List<Tuple<LogLevel, string>>()),
+                new DiagnosticListener("Fake"), 
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());
