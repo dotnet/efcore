@@ -288,9 +288,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.Database,
                             state.DataSource));
 
-                _connection.Value.Open();
+                try
+                {
+                    _connection.Value.Open();
 
-                DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
+                    DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
+                }
+                catch (Exception e)
+                {
+                    DiagnosticSource.WriteError(_connection.Value, ConnectionId, e);
+                    throw;
+                }
 
                 if (_openedCount == 0)
                 {
@@ -334,9 +342,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.Database,
                             state.DataSource));
 
-                await _connection.Value.OpenAsync(cancellationToken);
+                try
+                {
+                    await _connection.Value.OpenAsync(cancellationToken);
 
-                DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
+                    DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
+                }
+                catch (Exception e)
+                {
+                    DiagnosticSource.WriteError(_connection.Value, ConnectionId, e);
+                    throw;
+                }
 
                 if (_openedCount == 0)
                 {
@@ -384,9 +400,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             RelationalStrings.RelationalLoggerClosingConnection(
                                 state.Database,
                                 state.DataSource));
-                    _connection.Value.Close();
-
+                   
+                    try
+                    {
+                        _connection.Value.Close();
                     DiagnosticSource.WriteConnectionClosed(_connection.Value, ConnectionId);
+                    }
+                    catch (Exception e)
+                    {
+                        DiagnosticSource.WriteError(_connection.Value, ConnectionId, e);
+                        throw;
+                    }
                 }
                 _openedInternally = false;
             }

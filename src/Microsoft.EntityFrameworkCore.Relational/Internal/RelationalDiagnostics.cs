@@ -18,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public const string ConnectionOpened = NamePrefix + nameof(ConnectionOpened);
         public const string ConnectionClosed = NamePrefix + nameof(ConnectionClosed);
 
+        public const string Error = NamePrefix + nameof(Error);
+
         public const string TransactionStarted = NamePrefix + nameof(TransactionStarted);
         public const string TransactionCommitted = NamePrefix + nameof(TransactionCommitted);
         public const string TransactionRolledback = NamePrefix + nameof(TransactionRolledback);
@@ -126,6 +128,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     Connection = connection,
                     ConnectionId = connectionId
+                });
+            }
+        }
+
+        public static void WriteError(this DiagnosticSource diagnosticSource, DbConnection connection, Guid connectionId, Exception exception)
+        {
+            if (diagnosticSource.IsEnabled(Error))
+            {
+                diagnosticSource.Write(Error, new
+                {
+                    Connection = connection,
+                    ConnectionId = connectionId,
+                    Exception = exception
                 });
             }
         }
