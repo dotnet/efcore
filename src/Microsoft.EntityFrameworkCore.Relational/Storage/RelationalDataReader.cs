@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                _diagnosticSource.WriteDataReaderDisposing(_reader);
+                _diagnosticSource.WriteDataReaderDisposing(_reader, _connection.ConnectionId);
                 _reader.Dispose();
                 _command.Dispose();
                 _connection?.Close();

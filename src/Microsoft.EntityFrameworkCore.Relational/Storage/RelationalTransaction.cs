@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _diagnosticSource = diagnosticSource;
             _transactionOwned = transactionOwned;
 
-            _diagnosticSource.WriteTransactionStarted(_dbTransaction);
+            _diagnosticSource.WriteTransactionStarted(_dbTransaction, _relationalConnection.ConnectionId);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             _dbTransaction.Commit();
 
-            _diagnosticSource.WriteTransactionCommit(_dbTransaction);
+            _diagnosticSource.WriteTransactionCommit(_dbTransaction, _relationalConnection.ConnectionId);
 
             ClearTransaction();
         }
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             _dbTransaction.Rollback();
 
-            _diagnosticSource.WriteTransactionRollback(_dbTransaction);
+            _diagnosticSource.WriteTransactionRollback(_dbTransaction, _relationalConnection.ConnectionId);
 
             ClearTransaction();
         }
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (_transactionOwned)
                 {
                     _dbTransaction.Dispose();
-                    _diagnosticSource.WriteTransactionDisposed(_dbTransaction);
+                    _diagnosticSource.WriteTransactionDisposed(_dbTransaction, _relationalConnection.ConnectionId);
                 }
 
                 ClearTransaction();

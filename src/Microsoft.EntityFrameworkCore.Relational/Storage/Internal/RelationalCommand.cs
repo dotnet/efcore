@@ -189,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var instanceId = Guid.NewGuid();
 
             DiagnosticSource.WriteCommandBefore(
+                connection.ConnectionId,
                 dbCommand,
                 executeMethod,
                 instanceId,
@@ -249,6 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandAfter(
+                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
                     instanceId,
@@ -267,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandError(
+                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
                     instanceId,
@@ -309,6 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var instanceId = Guid.NewGuid();
 
             DiagnosticSource.WriteCommandBefore(
+                connection.ConnectionId,
                 dbCommand,
                 executeMethod,
                 instanceId,
@@ -368,6 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandAfter(
+                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
                     instanceId,
@@ -387,6 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandError(
+                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
                     instanceId,

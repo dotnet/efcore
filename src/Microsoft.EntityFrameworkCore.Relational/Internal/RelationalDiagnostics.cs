@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -28,7 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public static void WriteCommandBefore(
             this DiagnosticSource diagnosticSource,
-            DbCommand command, string executeMethod,
+            Guid connectionId,
+            DbCommand command,
+            string executeMethod,
             Guid instanceId,
             long startTimestamp,
             bool async)
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     BeforeExecuteCommand,
                     new RelationalDiagnosticSourceBeforeMessage
                     {
+                        ConnectionId = connectionId,
                         Command = command,
                         ExecuteMethod = executeMethod,
                         InstanceId = instanceId,
@@ -50,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public static void WriteCommandAfter(
             this DiagnosticSource diagnosticSource,
+            Guid connectionId,
             DbCommand command,
             string executeMethod,
             Guid instanceId,
@@ -63,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     AfterExecuteCommand,
                     new RelationalDiagnosticSourceAfterMessage
                     {
+                        ConnectionId = connectionId,
                         Command = command,
                         ExecuteMethod = executeMethod,
                         InstanceId = instanceId,
@@ -75,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public static void WriteCommandError(
             this DiagnosticSource diagnosticSource,
+            Guid connectionId,
             DbCommand command,
             string executeMethod,
             Guid instanceId,
@@ -89,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     CommandExecutionError,
                     new RelationalDiagnosticSourceAfterMessage
                     {
+                        ConnectionId = connectionId,
                         Command = command,
                         ExecuteMethod = executeMethod,
                         InstanceId = instanceId,
@@ -100,59 +106,87 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        public static void WriteConnectionOpened(this DiagnosticSource diagnosticSource, DbConnection connection)
+        public static void WriteConnectionOpened(this DiagnosticSource diagnosticSource, DbConnection connection, Guid connectionId)
         {
             if (diagnosticSource.IsEnabled(ConnectionOpened))
             {
-                diagnosticSource.Write(ConnectionOpened, connection);
+                diagnosticSource.Write(ConnectionOpened, new
+                {
+                    Connection = connection,
+                    ConnectionId = connectionId
+                });
             }
         }
 
-        public static void WriteConnectionClosed(this DiagnosticSource diagnosticSource, DbConnection connection)
+        public static void WriteConnectionClosed(this DiagnosticSource diagnosticSource, DbConnection connection, Guid connectionId)
         {
             if (diagnosticSource.IsEnabled(ConnectionClosed))
             {
-                diagnosticSource.Write(ConnectionClosed, connection);
+                diagnosticSource.Write(ConnectionClosed, new
+                {
+                    Connection = connection,
+                    ConnectionId = connectionId
+                });
             }
         }
 
-        public static void WriteTransactionStarted(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        public static void WriteTransactionStarted(this DiagnosticSource diagnosticSource, DbTransaction transaction, Guid connectionId)
         {
             if (diagnosticSource.IsEnabled(TransactionStarted))
             {
-                diagnosticSource.Write(TransactionStarted, transaction);
+                diagnosticSource.Write(TransactionStarted, new
+                {
+                    Transaction = transaction,
+                    ConnectionId = connectionId
+                });
             }
         }
 
-        public static void WriteTransactionCommit(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        public static void WriteTransactionCommit(this DiagnosticSource diagnosticSource, DbTransaction transaction, Guid connectionId)
         {
             if (diagnosticSource.IsEnabled(TransactionCommitted))
             {
-                diagnosticSource.Write(TransactionCommitted, transaction);
+                diagnosticSource.Write(TransactionCommitted, new
+                {
+                    Transaction = transaction,
+                    ConnectionId = connectionId
+                });
             }
         }
 
-        public static void WriteTransactionRollback(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        public static void WriteTransactionRollback(this DiagnosticSource diagnosticSource, DbTransaction transaction, Guid connectionId)
         {
             if (diagnosticSource.IsEnabled(TransactionRolledback))
             {
-                diagnosticSource.Write(TransactionRolledback, transaction);
+                diagnosticSource.Write(TransactionRolledback, new
+                {
+                    Transaction = transaction,
+                    ConnectionId = connectionId
+                });
             }
         }
 
-        public static void WriteTransactionDisposed(this DiagnosticSource diagnosticSource, DbTransaction transaction)
+        public static void WriteTransactionDisposed(this DiagnosticSource diagnosticSource, DbTransaction transaction, Guid connectionId)
         {
             if (diagnosticSource.IsEnabled(TransactionDisposed))
             {
-                diagnosticSource.Write(TransactionDisposed, transaction);
+                diagnosticSource.Write(TransactionDisposed, new
+                {
+                    Transaction = transaction,
+                    ConnectionId = connectionId
+                });
             }
         }
 
-        public static void WriteDataReaderDisposing(this DiagnosticSource diagnosticSource, DbDataReader dataReader)
+        public static void WriteDataReaderDisposing(this DiagnosticSource diagnosticSource, DbDataReader dataReader, Guid connectionId)
         {
             if (diagnosticSource.IsEnabled(DataReaderDisposing))
             {
-                diagnosticSource.Write(DataReaderDisposing, dataReader);
+                diagnosticSource.Write(DataReaderDisposing, new
+                {
+                    DataReader = dataReader,
+                    ConnectionId = connectionId
+                });
             }
         }
     }

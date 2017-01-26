@@ -75,6 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
+        public Guid ConnectionId { get; } = Guid.NewGuid();
+
         /// <summary>
         ///     Parameter object containing service dependencies.
         /// </summary>
@@ -288,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 _connection.Value.Open();
 
-                DiagnosticSource.WriteConnectionOpened(_connection.Value);
+                DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
 
                 if (_openedCount == 0)
                 {
@@ -334,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 await _connection.Value.OpenAsync(cancellationToken);
 
-                DiagnosticSource.WriteConnectionOpened(_connection.Value);
+                DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
 
                 if (_openedCount == 0)
                 {
@@ -384,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 state.DataSource));
                     _connection.Value.Close();
 
-                    DiagnosticSource.WriteConnectionClosed(_connection.Value);
+                    DiagnosticSource.WriteConnectionClosed(_connection.Value, ConnectionId);
                 }
                 _openedInternally = false;
             }
