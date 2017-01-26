@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             this DiagnosticSource diagnosticSource,
             DbCommand command,
             string executeMethod,
+            object result,
             Guid instanceId,
             long startTimestamp,
             long currentTimestamp,
@@ -57,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,
+                        Result = result,
                         InstanceId = instanceId,
                         Timestamp = currentTimestamp,
                         Duration = currentTimestamp - startTimestamp,
