@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,6 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class ServiceCollectionProviderInfrastructure
     {
+        private static readonly HashSet<Type> _servicesToInject 
+            = new HashSet<Type> { typeof(IValueGeneratorSelector) };
+
         /// <summary>
         ///     Do not call this method from application code. This method must be called by database providers
         ///     after registering provider-specific services to fill-in the remaining services with Entity
@@ -109,61 +112,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<IResultOperatorHandler, ResultOperatorHandler>()
                 .AddScoped<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>());
 
-
-
             foreach (var descriptor in serviceCollection.ToList())
             {
                 var serviceType = descriptor.ServiceType;
 
-                if (serviceType.GetTypeInfo().IsAssignableFrom(typeof(IServiceInjectionSite)))
+                if (_servicesToInject.Contains(serviceType))
                 {
-                    if (descriptor.ImplementationType != null)
-                    {
-                        
-                    }
+                    var concreteType = descriptor.ImplementationType;
+
+                    serviceCollection.Add(
+                        new ServiceDescriptor(concreteType, concreteType, descriptor.Lifetime));
 
                     serviceCollection[serviceCollection.IndexOf(descriptor)]
-                        = new ServiceDescriptor(serviceType, p => InjectAdditionalServices(p, serviceType), descriptor.Lifetime);
-                }
-                
-
-                Type replacementType;
-                if (replacedServices.TryGetValue(serviceType, out replacementType))
-                {
-                    services[services.IndexOf(descriptor)]
-                        = new ServiceDescriptor(serviceType, replacementType, descriptor.Lifetime);
+                        = new ServiceDescriptor(serviceType, p => InjectAdditionalServices(p, concreteType), descriptor.Lifetime);
                 }
             }
-
         }
 
-        private static object InjectAdditionalServices(IServiceProvider serviceProvider, Type serviceType)
+        private static object InjectAdditionalServices(IServiceProvider serviceProvider, Type concreteType)
         {
-            var service = serviceProvider.GetService(serviceType);
+            var service = serviceProvider.GetService(concreteType);
 
             (service as IServiceInjectionSite)?.InjectServices(serviceProvider);
 
             return service;
         }
 
-
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
             => serviceProvider.GetRequiredService<IDbContextServices>();
     }
-
-    public interface I
-
-    /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
-    public interface IServiceInjectionSite
-    {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        void InjectServices([NotNull] IServiceProvider serviceProvider);
-    }
-
 }
