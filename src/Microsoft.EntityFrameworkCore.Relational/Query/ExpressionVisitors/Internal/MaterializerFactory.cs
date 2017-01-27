@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -53,6 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(projectionAdder, nameof(projectionAdder));
+
+            TypeIndexMap = null;
 
             var valueBufferParameter
                 = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
@@ -133,11 +136,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 indexMap = new int[concreteEntityType.PropertyCount()];
                 propertyIndex = 0;
+                var shadowPropertyExists = false;
 
                 foreach (var property in concreteEntityType.GetProperties())
                 {
                     indexMap[propertyIndex++]
                         = projectionAdder(property, selectExpression);
+
+                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty;
+                }
+
+                if (shadowPropertyExists)
+                {
+                    if (TypeIndexMap == null)
+                    {
+                        TypeIndexMap = new Dictionary<Type, int[]>();
+                    }
+
+                    TypeIndexMap[concreteEntityType.ClrType] = indexMap;
                 }
 
                 var discriminatorValue
@@ -167,6 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 Expression.Block(new[] { discriminatorValueVariable }, blockExpressions),
                 valueBufferParameter);
         }
+
+        public virtual Dictionary<Type, int[]> TypeIndexMap { get; private set; }
 
         private static readonly MethodInfo _createUnableToDiscriminateException
             = typeof(MaterializerFactory).GetTypeInfo()

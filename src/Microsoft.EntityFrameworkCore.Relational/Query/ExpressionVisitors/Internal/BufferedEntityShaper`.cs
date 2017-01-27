@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -17,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class BufferedEntityShaper<TEntity> : EntityShaper, IShaper<TEntity>
         where TEntity : class
     {
+        private Dictionary<Type, int []> _typeIndexMap;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -49,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = (TEntity)queryContext.QueryBuffer
                     .GetEntity(
                         Key,
-                        new EntityLoadInfo(valueBuffer, Materializer),
+                        new EntityLoadInfo(valueBuffer, Materializer).WithIndexMap(_typeIndexMap),
                         queryStateManager: IsTrackingQuery,
                         throwOnNullKey: !AllowNullResult);
 
@@ -66,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 EntityType,
                 IsTrackingQuery,
                 Key,
-                Materializer);
+                Materializer)
+                .WithIndexMap(_typeIndexMap);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -79,7 +83,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     IsTrackingQuery,
                     Key,
                     Materializer)
+                .WithIndexMap(_typeIndexMap)
                 .SetOffset(offset);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual BufferedEntityShaper<TEntity> WithIndexMap([CanBeNull] Dictionary<Type, int []> typeIndexMap)
+        {
+            _typeIndexMap = typeIndexMap;
+
+            return this;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
