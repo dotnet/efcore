@@ -25,14 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public static readonly ValueBuffer Empty = new ValueBuffer();
 
-        private readonly IList<object> _values;
+        private readonly object[] _values;
         private readonly int _offset;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueBuffer" /> class.
         /// </summary>
         /// <param name="values"> The list of values for this buffer. </param>
-        public ValueBuffer([NotNull] IList<object> values)
+        public ValueBuffer([NotNull] object[] values)
             : this(values, 0)
         {
         }
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="offset">
         ///     The starting slot in <paramref name="values" /> for this buffer.
         /// </param>
-        public ValueBuffer([NotNull] IList<object> values, int offset)
+        public ValueBuffer([NotNull] object[] values, int offset)
         {
             Debug.Assert(values != null);
             Debug.Assert(offset >= 0);
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the number of values in this buffer.
         /// </summary>
-        public int Count => _values.Count - _offset;
+        public int Count => _values.Length - _offset;
 
         /// <summary>
         ///     Creates a new buffer with data starting at the given index in the current buffer.
