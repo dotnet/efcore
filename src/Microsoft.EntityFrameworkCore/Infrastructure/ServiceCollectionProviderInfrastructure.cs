@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -106,9 +108,62 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<ICompiledQueryCacheKeyGenerator, CompiledQueryCacheKeyGenerator>()
                 .AddScoped<IResultOperatorHandler, ResultOperatorHandler>()
                 .AddScoped<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>());
+
+
+
+            foreach (var descriptor in serviceCollection.ToList())
+            {
+                var serviceType = descriptor.ServiceType;
+
+                if (serviceType.GetTypeInfo().IsAssignableFrom(typeof(IServiceInjectionSite)))
+                {
+                    if (descriptor.ImplementationType != null)
+                    {
+                        
+                    }
+
+                    serviceCollection[serviceCollection.IndexOf(descriptor)]
+                        = new ServiceDescriptor(serviceType, p => InjectAdditionalServices(p, serviceType), descriptor.Lifetime);
+                }
+                
+
+                Type replacementType;
+                if (replacedServices.TryGetValue(serviceType, out replacementType))
+                {
+                    services[services.IndexOf(descriptor)]
+                        = new ServiceDescriptor(serviceType, replacementType, descriptor.Lifetime);
+                }
+            }
+
         }
+
+        private static object InjectAdditionalServices(IServiceProvider serviceProvider, Type serviceType)
+        {
+            var service = serviceProvider.GetService(serviceType);
+
+            (service as IServiceInjectionSite)?.InjectServices(serviceProvider);
+
+            return service;
+        }
+
 
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
             => serviceProvider.GetRequiredService<IDbContextServices>();
     }
+
+    public interface I
+
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public interface IServiceInjectionSite
+    {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        void InjectServices([NotNull] IServiceProvider serviceProvider);
+    }
+
 }
