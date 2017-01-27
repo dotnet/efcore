@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class ValueGeneratorSelector : IValueGeneratorSelector
+    public class ValueGeneratorSelector : IValueGeneratorSelector, IServiceInjectionSite
     {
         /// <summary>
         ///     The cache being used to store value generator instances.
@@ -37,6 +38,13 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             Cache = cache;
         }
+
+        /// <summary>
+        /// </summary>
+        public virtual DbContext Context { get; private set; }
+
+        void IServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
+            => Context = serviceProvider.GetService<ICurrentDbContext>().Context;
 
         /// <summary>
         ///     Selects the appropriate value generator for a given property.
