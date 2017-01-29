@@ -288,15 +288,36 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.Database,
                             state.DataSource));
 
+                var startTimestamp = Stopwatch.GetTimestamp();
+                var instanceId = Guid.NewGuid();
+                DiagnosticSource.WriteConnectionOpening(_connection.Value,
+                    ConnectionId,
+                    instanceId,
+                    startTimestamp,
+                    async: false);
+
                 try
                 {
                     _connection.Value.Open();
 
-                    DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionOpened(_connection.Value, 
+                        ConnectionId,
+                        instanceId,
+                        startTimestamp, 
+                        currentTimestamp,
+                        async: false);
                 }
                 catch (Exception e)
                 {
-                    DiagnosticSource.WriteError(_connection.Value, ConnectionId, e);
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionError(_connection.Value, 
+                        ConnectionId, 
+                        e,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        async: false);
                     throw;
                 }
 
@@ -342,15 +363,36 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.Database,
                             state.DataSource));
 
+                var startTimestamp = Stopwatch.GetTimestamp();
+                var instanceId = Guid.NewGuid();
+                DiagnosticSource.WriteConnectionOpening(_connection.Value,
+                    ConnectionId,
+                    instanceId,
+                    startTimestamp,
+                    async: true);
+
                 try
                 {
                     await _connection.Value.OpenAsync(cancellationToken);
 
-                    DiagnosticSource.WriteConnectionOpened(_connection.Value, ConnectionId);
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionOpened(_connection.Value,
+                        ConnectionId,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        async: true);
                 }
                 catch (Exception e)
                 {
-                    DiagnosticSource.WriteError(_connection.Value, ConnectionId, e);
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionError(_connection.Value,
+                        ConnectionId,
+                        e,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        async: true);
                     throw;
                 }
 
@@ -400,15 +442,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             RelationalStrings.RelationalLoggerClosingConnection(
                                 state.Database,
                                 state.DataSource));
-                   
+
+                    var startTimestamp = Stopwatch.GetTimestamp();
+                    var instanceId = Guid.NewGuid();
+                    DiagnosticSource.WriteConnectionClosing(_connection.Value,
+                        ConnectionId,
+                        instanceId,
+                        startTimestamp,
+                        async: false);
+
                     try
                     {
                         _connection.Value.Close();
-                    DiagnosticSource.WriteConnectionClosed(_connection.Value, ConnectionId);
+
+                        var currentTimestamp = Stopwatch.GetTimestamp();
+                        DiagnosticSource.WriteConnectionClosed(_connection.Value,
+                            ConnectionId,
+                            instanceId,
+                            startTimestamp,
+                            currentTimestamp,
+                            async: false);
                     }
                     catch (Exception e)
                     {
-                        DiagnosticSource.WriteError(_connection.Value, ConnectionId, e);
+                        var currentTimestamp = Stopwatch.GetTimestamp();
+                        DiagnosticSource.WriteConnectionError(_connection.Value,
+                            ConnectionId,
+                            e,
+                            instanceId,
+                            startTimestamp,
+                            currentTimestamp,
+                            async: false);
                         throw;
                     }
                 }

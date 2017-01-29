@@ -67,7 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _diagnosticSource = diagnosticSource;
             _transactionOwned = transactionOwned;
 
-            _diagnosticSource.WriteTransactionStarted(_dbTransaction, _relationalConnection.ConnectionId);
+            _diagnosticSource.WriteTransactionStarted(_relationalConnection.DbConnection, 
+                _relationalConnection.ConnectionId, 
+                _dbTransaction);
         }
 
         /// <summary>
@@ -79,15 +81,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 RelationalEventId.CommittingTransaction,
                 () => RelationalStrings.RelationalLoggerCommittingTransaction);
 
+            var startTimestamp = Stopwatch.GetTimestamp();
+
             try
             {
                 _dbTransaction.Commit();
 
-                _diagnosticSource.WriteTransactionCommit(_dbTransaction, _relationalConnection.ConnectionId);
+                var currentTimestamp = Stopwatch.GetTimestamp();
+                _diagnosticSource.WriteTransactionCommit(_relationalConnection.DbConnection, 
+                    _relationalConnection.ConnectionId,
+                    _dbTransaction,
+                    startTimestamp,
+                    currentTimestamp);
             }
             catch (Exception e)
             {
-                _diagnosticSource.WriteError(_relationalConnection.DbConnection, _relationalConnection.ConnectionId, e);
+                var currentTimestamp = Stopwatch.GetTimestamp();
+                _diagnosticSource.WriteTransactionError(_relationalConnection.DbConnection, 
+                    _relationalConnection.ConnectionId,
+                    _dbTransaction, 
+                    "Commit",
+                    e,
+                    startTimestamp,
+                    currentTimestamp);
                 throw;
             }
 
@@ -103,15 +119,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 RelationalEventId.RollingbackTransaction,
                 () => RelationalStrings.RelationalLoggerRollingbackTransaction);
 
+            var startTimestamp = Stopwatch.GetTimestamp();
+
             try
             {
                 _dbTransaction.Rollback();
 
-                _diagnosticSource.WriteTransactionRollback(_dbTransaction, _relationalConnection.ConnectionId);
+                var currentTimestamp = Stopwatch.GetTimestamp();
+                _diagnosticSource.WriteTransactionRollback(_relationalConnection.DbConnection,
+                    _relationalConnection.ConnectionId,
+                    _dbTransaction,
+                    startTimestamp,
+                    currentTimestamp);
             }
             catch (Exception e)
             {
-                _diagnosticSource.WriteError(_relationalConnection.DbConnection, _relationalConnection.ConnectionId, e);
+                var currentTimestamp = Stopwatch.GetTimestamp();
+                _diagnosticSource.WriteTransactionError(_relationalConnection.DbConnection,
+                    _relationalConnection.ConnectionId,
+                    _dbTransaction,
+                    "Rollback",
+                    e,
+                    startTimestamp,
+                    currentTimestamp);
                 throw;
             }
 
@@ -130,7 +160,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (_transactionOwned)
                 {
                     _dbTransaction.Dispose();
-                    _diagnosticSource.WriteTransactionDisposed(_dbTransaction, _relationalConnection.ConnectionId);
+                    _diagnosticSource.WriteTransactionDisposed(_relationalConnection.DbConnection, 
+                        _relationalConnection.ConnectionId, 
+                        _dbTransaction);
                 }
 
                 ClearTransaction();
