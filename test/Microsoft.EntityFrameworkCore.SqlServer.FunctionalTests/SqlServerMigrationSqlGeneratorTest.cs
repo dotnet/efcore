@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Sql);
         }
 
-#if NET451
+#if NET452
 
         [Fact]
         public virtual void CreateDatabaseOperation_with_filename_and_datadirectory()

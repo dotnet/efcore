@@ -133,13 +133,13 @@ namespace MyNamespace
             {
                 References =
                 {
-#if NETCOREAPP1_1
-                    BuildReference.ByName("System.Text.RegularExpressions"),
-#else
+#if NET452
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+#else
+                    BuildReference.ByName("System.Text.RegularExpressions"),
 #endif
-                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests", depContextAssembly: GetType().GetTypeInfo().Assembly),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
@@ -338,14 +338,13 @@ namespace MyNamespace
             {
                 References =
                 {
-#if NETCOREAPP1_1
-                    BuildReference.ByName("System.Runtime"),
-                    BuildReference.ByName("System.Text.RegularExpressions"),
-#else
+#if NET452
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+#else
+                    BuildReference.ByName("System.Text.RegularExpressions"),
 #endif
-                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests", depContextAssembly: GetType().GetTypeInfo().Assembly),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
