@@ -1,115 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{305B30D3-0E30-46E9-BA9D-060E0B79BE98}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore.InMemory.FunctionalTests</RootNamespace>
-    <AssemblyName>Microsoft.EntityFrameworkCore.InMemory.FunctionalTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="project.json" />
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.InMemory\Microsoft.EntityFrameworkCore.InMemory.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.InMemory\Microsoft.EntityFrameworkCore.InMemory.csproj">
-      <Project>{6b102cc4-4396-4a7b-9f72-2c6b5c4d8310}</Project>
-      <Name>Microsoft.EntityFrameworkCore.InMemory</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj">
-      <Project>{1a73d95e-e8b5-4f96-908c-7b040e4f7afe}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Specification.Tests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
-      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
-      <Name>Microsoft.EntityFrameworkCore</Name>
-    </ProjectReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-*" />
+    <PackageReference Include="xunit" Version="2.2.0-*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-*" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AsNoTrackingInMemoryTest.cs" />
-    <Compile Include="AsTrackingInMemoryTest.cs" />
-    <Compile Include="AsyncQueryInMemoryTest.cs" />
-    <Compile Include="BuiltInDataTypesInMemoryFixture.cs" />
-    <Compile Include="BuiltInDataTypesInMemoryTest.cs" />
-    <Compile Include="ChangeTrackingInMemoryTest.cs" />
-    <Compile Include="CompiledQueryInMemoryTest.cs" />
-    <Compile Include="ComplexNavigationsQueryInMemoryFixture.cs" />
-    <Compile Include="ComplexNavigationsQueryInMemoryTest.cs" />
-    <Compile Include="CompositeKeyEndToEndTest.cs" />
-    <Compile Include="ConfigPatternsInMemoryTest.cs" />
-    <Compile Include="CustomValueGeneratorTest.cs" />
-    <Compile Include="DataAnnotationInMemoryFixture.cs" />
-    <Compile Include="DataAnnotationInMemoryTest.cs" />
-    <Compile Include="DatabaseErrorLogStateTest.cs" />
-    <Compile Include="DatabaseInMemoryTest.cs" />
-    <Compile Include="DatabindingInMemoryTest.cs" />
-    <Compile Include="F1InMemoryFixture.cs" />
-    <Compile Include="FieldMappingInMemoryTest.cs" />
-    <Compile Include="FindInMemoryTest.cs" />
-    <Compile Include="InMemoryServiceCollectionExtensionsTest.cs" />
-    <Compile Include="InMemoryTestHelpers.cs" />
-    <Compile Include="LoadInMemoryTest.cs" />
-    <Compile Include="ModelSourceTest.cs" />
-    <Compile Include="PropertyValuesInMemoryTest.cs" />
-    <Compile Include="StoreGeneratedFixupInMemoryTest.cs" />
-    <Compile Include="WarningsTest.cs" />
-    <Compile Include="EndToEndTest.cs" />
-    <Compile Include="GearsOfWarQueryInMemoryFixture.cs" />
-    <Compile Include="GearsOfWarQueryInMemoryTest.cs" />
-    <Compile Include="GraphUpdatesInMemoryTest.cs" />
-    <Compile Include="GuidValueGeneratorEndToEndTest.cs" />
-    <Compile Include="IncludeInMemoryTest.cs" />
-    <Compile Include="IncludeOneToOneInMemoryTest.cs" />
-    <Compile Include="InheritanceInMemoryFixture.cs" />
-    <Compile Include="InheritanceInMemoryTest.cs" />
-    <Compile Include="QueryBugsInMemoryTest.cs" />
-    <Compile Include="InMemoryFixture.cs" />
-    <Compile Include="InMemoryTestStore.cs" />
-    <Compile Include="IntegerGeneratorEndToEndInMemoryTest.cs" />
-    <Compile Include="MonsterFixupInMemoryTest.cs" />
-    <Compile Include="MusicStoreQueryTests.cs" />
-    <Compile Include="NamedDatabaseTest.cs" />
-    <Compile Include="NorthwindQueryInMemoryFixture.cs" />
-    <Compile Include="NotificationEntitiesInMemoryTest.cs" />
-    <Compile Include="NullKeysInMemoryTest.cs" />
-    <Compile Include="OneToOneQueryInMemoryFixture.cs" />
-    <Compile Include="QueryInMemoryTest.cs" />
-    <Compile Include="QueryNavigationsInMemoryTest.cs" />
-    <Compile Include="ShadowStateUpdateTest.cs" />
-    <Compile Include="StoreGeneratedInMemoryTest.cs" />
-    <Compile Include="UpdatesInMemoryFixture.cs" />
-    <Compile Include="UpdatesInMemoryTest.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
         }
 
-#if NET451
+#if NET452
 
         [Fact]
         public void The_BindingList_returned_from_ObservableHasSet_is_cached()

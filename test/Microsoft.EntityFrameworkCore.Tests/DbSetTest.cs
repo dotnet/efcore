@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder) 
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Ignore<IgnoredEntity>();
         }
 
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-#if NET451
+#if NET452
         [Fact]
         public void Throws_when_using_with_IListSource()
         {

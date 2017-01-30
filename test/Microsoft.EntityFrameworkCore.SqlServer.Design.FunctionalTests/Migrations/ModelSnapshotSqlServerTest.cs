@@ -9,9 +9,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Xunit;
 
-#if NETCOREAPP1_1
+#if !NET452
 using System.Reflection;
 #endif
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class ModelSnapshotSqlServerTest : ModelSnapshotTest
@@ -59,12 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected override ICollection<BuildReference> GetReferences()
         {
             var references = base.GetReferences();
-#if NETCOREAPP1_1
-            references.Add(BuildReference.ByName(
-                "Microsoft.EntityFrameworkCore.SqlServer", depContextAssembly: typeof(ModelSnapshotSqlServerTest).GetTypeInfo().Assembly));
-#else
             references.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"));
-#endif
+
             return references;
         }
 
