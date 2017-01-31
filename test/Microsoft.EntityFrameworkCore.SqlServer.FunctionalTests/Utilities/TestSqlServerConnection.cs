@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -137,5 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         }
 
         public ISqlServerConnection CreateMasterConnection() => new TestSqlServerConnection(_realConnection.CreateMasterConnection());
+
+        public Guid ConnectionId { get; } = Guid.NewGuid();
     }
 }

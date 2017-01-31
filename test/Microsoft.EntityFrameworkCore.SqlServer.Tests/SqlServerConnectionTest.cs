@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.SqlClient;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                           .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
                           .Options;
 
-            return new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(new LoggerFactory()));
+            return new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(new LoggerFactory()), new DiagnosticListener("Fake"));
         }
     }
 }

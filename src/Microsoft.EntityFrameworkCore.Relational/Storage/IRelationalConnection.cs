@@ -32,6 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         DbConnection DbConnection { get; }
 
         /// <summary>
+        ///     Gets the connection identifier.
+        /// </summary>
+        Guid ConnectionId { get; }
+
+        /// <summary>
         ///     Gets the timeout for executing a command against the database.
         /// </summary>
         int? CommandTimeout { get; set; }

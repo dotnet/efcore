@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -30,15 +31,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="contextOptions"> The options for the current context instance. </param>
         /// <param name="logger"> The logger to write to. </param>
+        /// <param name="diagnosticSource"> The diagnostic source to write to. </param>
         public RelationalConnectionDependencies(
             [NotNull] IDbContextOptions contextOptions,
-            [NotNull] ILogger<IRelationalConnection> logger)
+            [NotNull] ILogger<IRelationalConnection> logger,
+            [NotNull] DiagnosticSource diagnosticSource)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
 
             ContextOptions = contextOptions;
             Logger = logger;
+            DiagnosticSource = diagnosticSource;
         }
 
         /// <summary>
@@ -52,6 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public ILogger<IRelationalConnection> Logger { get; }
 
         /// <summary>
+        ///     The diagnostic source to write to.
+        /// </summary>
+        public DiagnosticSource DiagnosticSource { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="contextOptions">
@@ -59,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns></returns>
         public RelationalConnectionDependencies With([NotNull] IDbContextOptions contextOptions)
-            => new RelationalConnectionDependencies(Check.NotNull(contextOptions, nameof(contextOptions)), Logger);
+            => new RelationalConnectionDependencies(Check.NotNull(contextOptions, nameof(contextOptions)), Logger, DiagnosticSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -69,6 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns></returns>
         public RelationalConnectionDependencies With([NotNull] ILogger<IRelationalConnection> logger)
-            => new RelationalConnectionDependencies(ContextOptions, Check.NotNull(logger, nameof(logger)));
+            => new RelationalConnectionDependencies(ContextOptions, Check.NotNull(logger, nameof(logger)), DiagnosticSource);
     }
 }

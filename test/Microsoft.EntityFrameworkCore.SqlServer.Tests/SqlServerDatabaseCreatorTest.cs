@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -155,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             private readonly IDbContextOptions _options;
             private readonly ILoggerFactory _loggerFactory;
 
-            public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory)
-                : base(new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(loggerFactory)))
+            public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory, DiagnosticSource diagnosticSource)
+                : base(new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(loggerFactory), diagnosticSource))
             {
                 _options = options;
                 _loggerFactory = loggerFactory;
@@ -184,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 return Task.FromResult(0);
             }
 
-            public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory);
+            public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory, Dependencies.DiagnosticSource);
         }
 
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory

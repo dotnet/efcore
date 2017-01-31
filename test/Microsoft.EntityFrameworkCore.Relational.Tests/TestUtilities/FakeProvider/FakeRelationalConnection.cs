@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         public FakeRelationalConnection(IDbContextOptions options)
             : base(new RelationalConnectionDependencies(
                 options,
-                new Logger<FakeRelationalConnection>(new LoggerFactory())))
+                new Logger<FakeRelationalConnection>(new LoggerFactory()), 
+                new DiagnosticListener("FakeDiagnosticListener")))
         {
         }
 
