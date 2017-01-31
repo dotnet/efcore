@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses.Expressions;
@@ -75,6 +77,29 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return node;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitExtension(Expression node)
+        {
+            var nullConditionalExpression = node as NullConditionalExpression;
+            if (nullConditionalExpression != null)
+            {
+                var newNullableCaller = Visit(nullConditionalExpression.NullableCaller);
+                var newCaller = Visit(nullConditionalExpression.Caller);
+                var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
+
+                return newNullableCaller != nullConditionalExpression.NullableCaller
+                    || newCaller != nullConditionalExpression.Caller
+                    || newAccessOperation != nullConditionalExpression.AccessOperation
+                    ? new NullConditionalExpression(newNullableCaller, newCaller, newAccessOperation)
+                    : node;
+            }
+
+            return base.VisitExtension(node);
         }
 
         /// <summary>

@@ -2159,6 +2159,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Client_side_equality_with_parameter_works_with_optional_navigations()
+        {
+            using (var context = CreateContext())
+            {
+                var prm = "Marcus's Tag";
+                var query = context.Gears.Where(g => ClientEquals(g.Tag.Note, prm));
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Marcus", result[0].Nickname);
+            }
+        }
+
+        private static bool ClientEquals(string first, string second)
+            => first == second;
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)
