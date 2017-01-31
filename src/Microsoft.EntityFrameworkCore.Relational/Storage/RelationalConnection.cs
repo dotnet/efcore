@@ -75,7 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        public Guid ConnectionId { get; } = Guid.NewGuid();
+        /// <summary>
+        ///     The unique identifier for this connection.
+        /// </summary>
+        public virtual Guid ConnectionId { get; } = Guid.NewGuid();
 
         /// <summary>
         ///     Parameter object containing service dependencies.
@@ -96,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the diagnostic source.
         /// </summary>
-        protected virtual DiagnosticSource DiagnosticSource=> Dependencies.DiagnosticSource;
+        protected virtual DiagnosticSource DiagnosticSource => Dependencies.DiagnosticSource;
 
         /// <summary>
         ///     Gets the connection string for the database.
