@@ -75,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (!_disposed)
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
-                _diagnosticSource.WriteDataReaderDisposing(_connection.DbConnection,
+
+                _diagnosticSource.WriteDataReaderDisposing(
+                    _connection.DbConnection,
                     _connection.ConnectionId,
                     _reader,
                     _reader.RecordsAffected,

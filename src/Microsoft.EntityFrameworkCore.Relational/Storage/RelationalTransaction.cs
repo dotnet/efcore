@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _diagnosticSource = diagnosticSource;
             _transactionOwned = transactionOwned;
 
-            _diagnosticSource.WriteTransactionStarted(_relationalConnection.DbConnection, 
+            _diagnosticSource.WriteTransactionStarted(
+                _relationalConnection.DbConnection, 
                 _relationalConnection.ConnectionId, 
                 _dbTransaction);
         }
@@ -88,7 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _dbTransaction.Commit();
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
-                _diagnosticSource.WriteTransactionCommit(_relationalConnection.DbConnection, 
+
+                _diagnosticSource.WriteTransactionCommit(
+                    _relationalConnection.DbConnection, 
                     _relationalConnection.ConnectionId,
                     _dbTransaction,
                     startTimestamp,
@@ -97,7 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             catch (Exception e)
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
-                _diagnosticSource.WriteTransactionError(_relationalConnection.DbConnection, 
+
+                _diagnosticSource.WriteTransactionError(
+                    _relationalConnection.DbConnection, 
                     _relationalConnection.ConnectionId,
                     _dbTransaction, 
                     "Commit",
@@ -126,7 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _dbTransaction.Rollback();
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
-                _diagnosticSource.WriteTransactionRollback(_relationalConnection.DbConnection,
+
+                _diagnosticSource.WriteTransactionRollback(
+                    _relationalConnection.DbConnection,
                     _relationalConnection.ConnectionId,
                     _dbTransaction,
                     startTimestamp,
@@ -135,7 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             catch (Exception e)
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
-                _diagnosticSource.WriteTransactionError(_relationalConnection.DbConnection,
+
+                _diagnosticSource.WriteTransactionError(
+                    _relationalConnection.DbConnection,
                     _relationalConnection.ConnectionId,
                     _dbTransaction,
                     "Rollback",
@@ -160,7 +169,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (_transactionOwned)
                 {
                     _dbTransaction.Dispose();
-                    _diagnosticSource.WriteTransactionDisposed(_relationalConnection.DbConnection, 
+
+                    _diagnosticSource.WriteTransactionDisposed(
+                        _relationalConnection.DbConnection, 
                         _relationalConnection.ConnectionId, 
                         _dbTransaction);
                 }
