@@ -253,6 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     connection.ConnectionId,
                     dbCommand,
                     executeMethod,
+                    result,
                     instanceId,
                     startTimestamp,
                     currentTimestamp);
@@ -375,6 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     connection.ConnectionId,
                     dbCommand,
                     executeMethod,
+                    result,
                     instanceId,
                     startTimestamp,
                     currentTimestamp,
