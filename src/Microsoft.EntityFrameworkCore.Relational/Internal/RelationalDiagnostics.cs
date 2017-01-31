@@ -313,14 +313,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        public static void WriteDataReaderDisposing(this DiagnosticSource diagnosticSource, DbDataReader dataReader, Guid connectionId)
+        public static void WriteDataReaderDisposing(this DiagnosticSource diagnosticSource,
+            DbConnection connection,
+            Guid connectionId,
+            DbDataReader dataReader,
+            int recordsAffected,
+            long startTimestamp,
+            long currentTimestamp)
         {
             if (diagnosticSource.IsEnabled(DataReaderDisposing))
             {
                 diagnosticSource.Write(DataReaderDisposing, new
                 {
+                    Connection = connection,
+                    ConnectionId = connectionId,
                     DataReader = dataReader,
-                    ConnectionId = connectionId
+                    RecordsAffected = recordsAffected,
+                    Timestamp = currentTimestamp,
+                    Duration = currentTimestamp - startTimestamp
                 });
             }
         }

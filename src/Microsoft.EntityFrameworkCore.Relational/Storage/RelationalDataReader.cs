@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
         private readonly DiagnosticSource _diagnosticSource;
+        private readonly long _startTimestamp;
 
         private bool _disposed;
 
@@ -49,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _command = command;
             _reader = reader;
             _diagnosticSource = diagnosticSource;
+            _startTimestamp = Stopwatch.GetTimestamp();
         }
 
         /// <summary>
@@ -72,7 +74,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                _diagnosticSource.WriteDataReaderDisposing(_reader, _connection.ConnectionId);
+                var currentTimestamp = Stopwatch.GetTimestamp();
+                _diagnosticSource.WriteDataReaderDisposing(_connection.DbConnection,
+                    _connection.ConnectionId,
+                    _reader,
+                    _reader.RecordsAffected,
+                    _startTimestamp,
+                    currentTimestamp);
+
                 _reader.Dispose();
                 _command.Dispose();
                 _connection?.Close();
