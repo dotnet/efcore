@@ -112,10 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             get { throw new NotImplementedException(); }
         }
 
-        public override int RecordsAffected
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override int RecordsAffected => 0;
 
         public override bool GetBoolean(int ordinal) => (bool)_currentRow[ordinal];
 
