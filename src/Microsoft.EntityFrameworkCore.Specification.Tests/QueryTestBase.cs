@@ -6598,10 +6598,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ThenBy(c => c.ContactName)
                     .Skip(5)
                     .Take(15)
-                    .Distinct()
-                    .Take(8),
+                    .Distinct(),
                 assertOrder: false,
-                entryCount: 8);
+                entryCount: 15);
         }
 
         [ConditionalFact]

@@ -298,11 +298,10 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]",
             base.OrderBy_skip_take_distinct();
 
             Assert.Equal(
-                @"@__p_2: 8
-@__p_0: 5
+                @"@__p_0: 5
 @__p_1: 15
 
-SELECT DISTINCT TOP(@__p_2) [t].*
+SELECT DISTINCT [t].*
 FROM (
     SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
