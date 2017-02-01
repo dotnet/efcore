@@ -268,7 +268,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>
-        public virtual void Open()
+        /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
+        public virtual bool Open()
         {
             CheckForAmbientTransactions();
 
@@ -276,6 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _connection.Value.Close();
             }
+
+            var wasOpened = false;
 
             if (_connection.Value.State != ConnectionState.Open)
             {
@@ -302,6 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 try
                 {
                     _connection.Value.Open();
+                    wasOpened = true;
 
                     var currentTimestamp = Stopwatch.GetTimestamp();
                     DiagnosticSource.WriteConnectionOpened(_connection.Value, 
@@ -334,6 +338,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _openedCount++;
             }
+
+            return wasOpened;
         }
 
         /// <summary>
@@ -342,8 +348,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>
+        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     was actually opened.
+        /// </returns>
+        public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             CheckForAmbientTransactions();
 
@@ -351,6 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _connection.Value.Close();
             }
+
+            var wasOpened = false;
 
             if (_connection.Value.State != ConnectionState.Open)
             {
@@ -377,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 try
                 {
                     await _connection.Value.OpenAsync(cancellationToken);
+                    wasOpened = true;
 
                     var currentTimestamp = Stopwatch.GetTimestamp();
                     DiagnosticSource.WriteConnectionOpened(_connection.Value,
@@ -409,6 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _openedCount++;
             }
+
+            return wasOpened;
         }
 
         private void CheckForAmbientTransactions()
@@ -426,8 +440,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        public virtual void Close()
+        /// <returns> True if the underlying connection was actually closed; false otherwise. </returns>
+        public virtual bool Close()
         {
+            var wasClosed = false;
+
             if (_openedCount > 0
                 && --_openedCount == 0
                 && _openedInternally)
@@ -457,6 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     try
                     {
                         _connection.Value.Close();
+                        wasClosed = true;
 
                         var currentTimestamp = Stopwatch.GetTimestamp();
                         DiagnosticSource.WriteConnectionClosed(_connection.Value,
@@ -481,6 +499,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
                 _openedInternally = false;
             }
+
+            return wasClosed;
         }
 
         /// <summary>

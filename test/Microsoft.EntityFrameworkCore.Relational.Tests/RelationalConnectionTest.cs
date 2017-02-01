@@ -154,34 +154,34 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
-                connection.Open();
+                Assert.True(connection.Open());
 
                 Assert.Equal(1, connection.DbConnections.Count);
 
                 var dbConnection = connection.DbConnections[0];
                 Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Open();
-                connection.Open();
+                Assert.False(connection.Open());
+                Assert.False(connection.Open());
 
                 Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Close();
-                connection.Close();
+                Assert.False(connection.Close());
+                Assert.False(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(0, dbConnection.CloseCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
 
-                connection.Open();
+                Assert.True(connection.Open());
 
                 Assert.Equal(2, dbConnection.OpenCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(2, dbConnection.OpenCount);
                 Assert.Equal(2, dbConnection.CloseCount);
@@ -197,34 +197,34 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 Assert.Equal(0, connection.DbConnections.Count);
 
                 var cancellationToken = new CancellationTokenSource().Token;
-                await connection.OpenAsync(cancellationToken);
+                Assert.True(await connection.OpenAsync(cancellationToken));
 
                 Assert.Equal(1, connection.DbConnections.Count);
 
                 var dbConnection = connection.DbConnections[0];
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
 
-                await connection.OpenAsync(cancellationToken);
-                await connection.OpenAsync(cancellationToken);
+                Assert.False(await connection.OpenAsync(cancellationToken));
+                Assert.False(await connection.OpenAsync(cancellationToken));
 
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
 
-                connection.Close();
-                connection.Close();
+                Assert.False(connection.Close());
+                Assert.False(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
                 Assert.Equal(0, dbConnection.CloseCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
                 Assert.Equal(1, dbConnection.CloseCount);
 
-                await connection.OpenAsync(cancellationToken);
+                Assert.True(await connection.OpenAsync(cancellationToken));
 
                 Assert.Equal(2, dbConnection.OpenAsyncCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(2, dbConnection.OpenAsyncCount);
                 Assert.Equal(2, dbConnection.CloseCount);

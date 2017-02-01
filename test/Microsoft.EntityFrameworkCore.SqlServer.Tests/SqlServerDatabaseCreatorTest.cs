@@ -167,22 +167,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public int FailAfter { get; set; }
             public int OpenCount { get; set; }
 
-            public override void Open()
+            public override bool Open()
             {
                 if (++OpenCount < FailAfter)
                 {
                     throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
+
+                return true;
             }
 
-            public override Task OpenAsync(CancellationToken cancellationToken = new CancellationToken())
+            public override Task<bool> OpenAsync(CancellationToken cancellationToken = new CancellationToken())
             {
                 if (++OpenCount < FailAfter)
                 {
                     throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
 
-                return Task.FromResult(0);
+                return Task.FromResult(true);
             }
 
             public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory, Dependencies.DiagnosticSource);

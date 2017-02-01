@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly bool _enforceForeignKeys = true;
-        private int _openedCount;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -58,43 +57,30 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void Open()
+        public override bool Open()
         {
-            base.Open();
-
-            _openedCount++;
-
-            if (_openedCount == 1)
+            if (base.Open())
             {
                 EnableForeignKeys();
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            await base.OpenAsync(cancellationToken);
-
-            _openedCount++;
-
-            if (_openedCount == 1)
+            if (await base.OpenAsync(cancellationToken))
             {
                 EnableForeignKeys();
+                return true;
             }
-        }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override void Close()
-        {
-            base.Close();
-
-            _openedCount--;
+            return false;
         }
 
         private void EnableForeignKeys()

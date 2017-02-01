@@ -54,14 +54,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public virtual bool IsMultipleActiveResultSetsEnabled => _realConnection.IsMultipleActiveResultSetsEnabled;
 
-        public virtual void Open()
+        public virtual bool Open()
         {
             PreOpen();
 
-            _realConnection.Open();
+            return _realConnection.Open();
         }
 
-        public virtual Task OpenAsync(CancellationToken cancellationToken = new CancellationToken())
+        public virtual Task<bool> OpenAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             PreOpen();
 
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             }
         }
 
-        public virtual void Close() => _realConnection.Close();
+        public virtual bool Close() => _realConnection.Close();
 
         public virtual IDbContextTransaction BeginTransaction()
             => BeginTransaction(IsolationLevel.Unspecified);
