@@ -974,7 +974,7 @@ Logged Command",
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var diagnostic = new List<Tuple<string, object>>();
+            var diagnostic = new List<Tuple<string, dynamic>>();
 
             var relationalCommand = CreateRelationalCommand(
                 diagnosticSource: new ListDiagnosticSource(diagnostic),
@@ -1001,8 +1001,8 @@ Logged Command",
             Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
             Assert.Equal(RelationalDiagnostics.AfterExecuteCommand, diagnostic[1].Item1);
 
-            var beforeData = (RelationalDiagnosticSourceBeforeMessage)diagnostic[0].Item2;
-            var afterData = (RelationalDiagnosticSourceAfterMessage)diagnostic[1].Item2;
+            var beforeData = diagnostic[0].Item2;
+            var afterData = diagnostic[1].Item2;
 
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], beforeData.Command);
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], afterData.Command);
@@ -1037,7 +1037,7 @@ Logged Command",
 
             var options = CreateOptions(optionsExtension);
 
-            var diagnostic = new List<Tuple<string, object>>();
+            var diagnostic = new List<Tuple<string, dynamic>>();
 
             var fakeConnection = new FakeRelationalConnection(options);
 
@@ -1069,8 +1069,8 @@ Logged Command",
             Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
             Assert.Equal(RelationalDiagnostics.CommandExecutionError, diagnostic[1].Item1);
 
-            var beforeData = (RelationalDiagnosticSourceBeforeMessage)diagnostic[0].Item2;
-            var afterData = (RelationalDiagnosticSourceAfterMessage)diagnostic[1].Item2;
+            var beforeData = diagnostic[0].Item2;
+            var afterData = diagnostic[1].Item2;
 
             Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
             Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);

@@ -70,8 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _diagnosticSource.WriteTransactionStarted(
                 _relationalConnection.DbConnection, 
                 _relationalConnection.ConnectionId, 
-                _dbTransaction);
+                _dbTransaction,
+                TransactionId);
         }
+
+        /// <summary>
+        ///     Gets the unique identifier for this transaction.
+        /// </summary>
+        public virtual Guid TransactionId { get; } = Guid.NewGuid();
 
         /// <summary>
         ///     Commits all changes made to the database in the current transaction.
@@ -94,6 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _relationalConnection.DbConnection, 
                     _relationalConnection.ConnectionId,
                     _dbTransaction,
+                    TransactionId,
                     startTimestamp,
                     currentTimestamp);
             }
@@ -105,6 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _relationalConnection.DbConnection, 
                     _relationalConnection.ConnectionId,
                     _dbTransaction, 
+                    TransactionId,
                     "Commit",
                     e,
                     startTimestamp,
@@ -136,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _relationalConnection.DbConnection,
                     _relationalConnection.ConnectionId,
                     _dbTransaction,
+                    TransactionId,
                     startTimestamp,
                     currentTimestamp);
             }
@@ -147,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _relationalConnection.DbConnection,
                     _relationalConnection.ConnectionId,
                     _dbTransaction,
+                    TransactionId,
                     "Rollback",
                     e,
                     startTimestamp,
@@ -173,7 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _diagnosticSource.WriteTransactionDisposed(
                         _relationalConnection.DbConnection, 
                         _relationalConnection.ConnectionId, 
-                        _dbTransaction);
+                        _dbTransaction,
+                        TransactionId);
                 }
 
                 ClearTransaction();

@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -35,22 +36,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DbCommand command,
             string executeMethod,
             Guid instanceId,
+            IDbContextTransaction transaction,
             long startTimestamp,
             bool async)
         {
             if (diagnosticSource.IsEnabled(BeforeExecuteCommand))
             {
-                diagnosticSource.Write(
-                    BeforeExecuteCommand,
-                    new RelationalDiagnosticSourceBeforeMessage
-                    {
-                        ConnectionId = connectionId,
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        InstanceId = instanceId,
-                        Timestamp = startTimestamp,
-                        IsAsync = async
-                    });
+                diagnosticSource.Write(BeforeExecuteCommand, new
+                {
+                    ConnectionId = connectionId,
+                    Command = command,
+                    ExecuteMethod = executeMethod,
+                    InstanceId = instanceId,
+                    Transaction = transaction,
+                    Timestamp = startTimestamp,
+                    IsAsync = async
+                });
             }
         }
 
@@ -61,25 +62,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
             string executeMethod,
             object methodResult,
             Guid instanceId,
+            IDbContextTransaction transaction,
             long startTimestamp,
             long currentTimestamp,
             bool async = false)
         {
             if (diagnosticSource.IsEnabled(AfterExecuteCommand))
             {
-                diagnosticSource.Write(
-                    AfterExecuteCommand,
-                    new RelationalDiagnosticSourceAfterMessage
-                    {
-                        ConnectionId = connectionId,
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        Result = methodResult,
-                        InstanceId = instanceId,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp,
-                        IsAsync = async
-                    });
+                diagnosticSource.Write(AfterExecuteCommand, new
+                {
+                    ConnectionId = connectionId,
+                    Command = command,
+                    ExecuteMethod = executeMethod,
+                    Result = methodResult,
+                    InstanceId = instanceId,
+                    Transaction = transaction,
+                    Timestamp = currentTimestamp,
+                    Duration = currentTimestamp - startTimestamp,
+                    IsAsync = async
+                });
             }
         }
 
@@ -89,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DbCommand command,
             string executeMethod,
             Guid instanceId,
+            IDbContextTransaction transaction,
             long startTimestamp,
             long currentTimestamp,
             Exception exception,
@@ -96,19 +98,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (diagnosticSource.IsEnabled(CommandExecutionError))
             {
-                diagnosticSource.Write(
-                    CommandExecutionError,
-                    new RelationalDiagnosticSourceAfterMessage
-                    {
-                        ConnectionId = connectionId,
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        InstanceId = instanceId,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp,
-                        Exception = exception,
-                        IsAsync = async
-                    });
+                diagnosticSource.Write(CommandExecutionError, new
+                {
+                    ConnectionId = connectionId,
+                    Command = command,
+                    ExecuteMethod = executeMethod,
+                    InstanceId = instanceId,
+                    Transaction = transaction,
+                    Timestamp = currentTimestamp,
+                    Duration = currentTimestamp - startTimestamp,
+                    Exception = exception,
+                    IsAsync = async
+                });
             }
         }
 
@@ -234,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             this DiagnosticSource diagnosticSource,
             DbConnection connection,
             Guid connectionId,
-            DbTransaction transaction)
+            DbTransaction transaction,
+            Guid transactionId)
         {
             if (diagnosticSource.IsEnabled(TransactionStarted))
             {
@@ -243,7 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         Connection = connection,
                         ConnectionId = connectionId,
-                        Transaction = transaction
+                        Transaction = transaction,
+                        TransactionId = transactionId
                     });
             }
         }
@@ -253,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DbConnection connection,
             Guid connectionId,
             DbTransaction transaction,
+            Guid transactionId,
             long startTimestamp,
             long currentTimestamp)
         {
@@ -265,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         ConnectionId = connectionId,
                         Transaction = transaction,
                         Timestamp = currentTimestamp,
+                        TransactionId = transactionId,
                         Duration = currentTimestamp - startTimestamp
                     });
             }
@@ -275,6 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DbConnection connection,
             Guid connectionId,
             DbTransaction transaction,
+            Guid transactionId,
             long startTimestamp,
             long currentTimestamp)
         {
@@ -286,6 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Connection = connection,
                         ConnectionId = connectionId,
                         Transaction = transaction,
+                        TransactionId = transactionId,
                         Timestamp = currentTimestamp,
                         Duration = currentTimestamp - startTimestamp
                     });
@@ -296,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             this DiagnosticSource diagnosticSource,
             DbConnection connection,
             Guid connectionId,
-            DbTransaction transaction)
+            DbTransaction transaction,
+            Guid transactionId)
         {
             if (diagnosticSource.IsEnabled(TransactionDisposed))
             {
@@ -305,7 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         Connection = connection,
                         ConnectionId = connectionId,
-                        Transaction = transaction
+                        Transaction = transaction,
+                        TransactionId = transactionId
                     });
             }
         }
@@ -315,6 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DbConnection connection,
             Guid connectionId,
             DbTransaction transaction,
+            Guid transactionId,
             string action,
             Exception exception,
             long startTimestamp,
@@ -328,6 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Connection = connection,
                         ConnectionId = connectionId,
                         Transaction = transaction,
+                        TransactionId = transactionId,
                         Exception = exception,
                         Timestamp = currentTimestamp,
                         Duration = currentTimestamp - startTimestamp
@@ -339,6 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             this DiagnosticSource diagnosticSource,
             DbConnection connection,
             Guid connectionId,
+            IDbContextTransaction transaction,
             DbDataReader dataReader,
             int recordsAffected,
             long startTimestamp,
@@ -351,6 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         Connection = connection,
                         ConnectionId = connectionId,
+                        Transaction = transaction,
                         DataReader = dataReader,
                         RecordsAffected = recordsAffected,
                         Timestamp = currentTimestamp,
