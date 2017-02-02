@@ -20,7 +20,6 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
@@ -37,64 +36,57 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     providers after registering provider-specific services to fill-in the remaining services with
         ///     Entity Framework defaults.
         /// </summary>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
-        public static void TryAddDefaultRelationalServices([NotNull] IServiceCollection serviceCollection)
+        /// <param name="serviceCollectionMap"> The <see cref="IServiceCollection" /> to add services to. </param>
+        public static void TryAddDefaultRelationalServices([NotNull] ServiceCollectionMap serviceCollectionMap)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
+            Check.NotNull(serviceCollectionMap, nameof(serviceCollectionMap));
 
-            serviceCollection
-                .TryAdd(new ServiceCollection()
-                    .AddSingleton(s => new DiagnosticListener("Microsoft.EntityFrameworkCore"))
-                    .AddSingleton<DiagnosticSource>(s => s.GetService<DiagnosticListener>())
-                    .AddSingleton<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>()
-                    .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
-                    .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()
-                    .AddSingleton<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>()
-                    .AddSingleton<IModelSource, RelationalModelSource>()
-                    .AddScoped<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>()
-                    .AddScoped<IModelValidator, RelationalModelValidator>()
-                    .AddScoped<IMigrator, Migrator>()
-                    .AddScoped<IMigrationCommandExecutor, MigrationCommandExecutor>()
-                    .AddScoped<IMigrationsAssembly, MigrationsAssembly>()
-                    .AddScoped<IDatabase, RelationalDatabase>()
-                    .AddScoped<IBatchExecutor, BatchExecutor>()
-                    .AddScoped<IValueGeneratorSelector, RelationalValueGeneratorSelector>()
-                    .AddScoped<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>()
-                    .AddScoped<IRawSqlCommandBuilder, RawSqlCommandBuilder>()
-                    .AddScoped<ICommandBatchPreparer, CommandBatchPreparer>()
-                    .AddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()
-                    .AddScoped<IMigrationsSqlGenerator, MigrationsSqlGenerator>()
-                    .AddScoped<IExecutionStrategyFactory, RelationalExecutionStrategyFactory>()
-                    .AddScoped<IRelationalTypeMapper, RelationalTypeMapper>()
-                    .AddScoped<IRelationalValueBufferFactoryFactory, TypedRelationalValueBufferFactoryFactory>()
-                    .AddScoped<IDatabaseCreator>(p => p.GetService<IRelationalDatabaseCreator>())
-                    .AddScoped<IDbContextTransactionManager>(p => p.GetService<IRelationalConnection>())
-                    .AddScoped<IMaterializerFactory, MaterializerFactory>()
-                    .AddScoped<IShaperCommandContextFactory, ShaperCommandContextFactory>()
-                    .AddScoped<IConditionalRemovingExpressionVisitorFactory, ConditionalRemovingExpressionVisitorFactory>()
-                    .AddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
-                    .AddScoped<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>()
-                    .AddScoped<IQueryFlattenerFactory, QueryFlattenerFactory>()
-                    .AddScoped<ISelectExpressionFactory, SelectExpressionFactory>()
-                    .AddScoped<IExpressionPrinter, RelationalExpressionPrinter>()
-                    .AddScoped<IRelationalResultOperatorHandler, RelationalResultOperatorHandler>()
-                    .AddScoped<IQueryContextFactory, RelationalQueryContextFactory>()
-                    .AddScoped<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>()
-                    .AddScoped<IEntityQueryableExpressionVisitorFactory, RelationalEntityQueryableExpressionVisitorFactory>()
-                    .AddScoped<IEntityQueryModelVisitorFactory, RelationalQueryModelVisitorFactory>()
-                    .AddScoped<IProjectionExpressionVisitorFactory, RelationalProjectionExpressionVisitorFactory>()
-                    .AddScoped<ICompiledQueryCacheKeyGenerator, RelationalCompiledQueryCacheKeyGenerator>()
-                    .AddScoped<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>()
-                    .AddScoped<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>());
+            serviceCollectionMap
+                .TryAddSingleton(s => new DiagnosticListener("Microsoft.EntityFrameworkCore"))
+                .TryAddSingleton<DiagnosticSource>(s => s.GetService<DiagnosticListener>())
+                .TryAddSingleton<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>()
+                .TryAddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
+                .TryAddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()
+                .TryAddSingleton<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>()
+                .TryAddSingleton<IModelSource, RelationalModelSource>()
+                .TryAddScoped<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>()
+                .TryAddScoped<IModelValidator, RelationalModelValidator>()
+                .TryAddScoped<IMigrator, Migrator>()
+                .TryAddScoped<IMigrationCommandExecutor, MigrationCommandExecutor>()
+                .TryAddScoped<IMigrationsAssembly, MigrationsAssembly>()
+                .TryAddScoped<IDatabase, RelationalDatabase>()
+                .TryAddScoped<IBatchExecutor, BatchExecutor>()
+                .TryAddScoped<IValueGeneratorSelector, RelationalValueGeneratorSelector>()
+                .TryAddScoped<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>()
+                .TryAddScoped<IRawSqlCommandBuilder, RawSqlCommandBuilder>()
+                .TryAddScoped<ICommandBatchPreparer, CommandBatchPreparer>()
+                .TryAddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()
+                .TryAddScoped<IMigrationsSqlGenerator, MigrationsSqlGenerator>()
+                .TryAddScoped<IExecutionStrategyFactory, RelationalExecutionStrategyFactory>()
+                .TryAddScoped<IRelationalTypeMapper, RelationalTypeMapper>()
+                .TryAddScoped<IRelationalValueBufferFactoryFactory, TypedRelationalValueBufferFactoryFactory>()
+                .TryAddScoped<IDatabaseCreator>(p => p.GetService<IRelationalDatabaseCreator>())
+                .TryAddScoped<IDbContextTransactionManager>(p => p.GetService<IRelationalConnection>())
+                .TryAddScoped<IMaterializerFactory, MaterializerFactory>()
+                .TryAddScoped<IShaperCommandContextFactory, ShaperCommandContextFactory>()
+                .TryAddScoped<IConditionalRemovingExpressionVisitorFactory, ConditionalRemovingExpressionVisitorFactory>()
+                .TryAddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
+                .TryAddScoped<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>()
+                .TryAddScoped<IQueryFlattenerFactory, QueryFlattenerFactory>()
+                .TryAddScoped<ISelectExpressionFactory, SelectExpressionFactory>()
+                .TryAddScoped<IExpressionPrinter, RelationalExpressionPrinter>()
+                .TryAddScoped<IRelationalResultOperatorHandler, RelationalResultOperatorHandler>()
+                .TryAddScoped<IQueryContextFactory, RelationalQueryContextFactory>()
+                .TryAddScoped<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>()
+                .TryAddScoped<IEntityQueryableExpressionVisitorFactory, RelationalEntityQueryableExpressionVisitorFactory>()
+                .TryAddScoped<IEntityQueryModelVisitorFactory, RelationalQueryModelVisitorFactory>()
+                .TryAddScoped<IProjectionExpressionVisitorFactory, RelationalProjectionExpressionVisitorFactory>()
+                .TryAddScoped<ICompiledQueryCacheKeyGenerator, RelationalCompiledQueryCacheKeyGenerator>()
+                .TryAddScoped<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>()
+                .TryAddScoped<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>()
+                .TryAddScoped<RelationalConnectionDependencies, RelationalConnectionDependencies>();
 
-            // Add service dependencies parameter classes.
-            // These are added as concrete types because the classes are sealed and the registrations should
-            // not be changed by provider or application code.
-            serviceCollection
-                .TryAdd(new ServiceCollection()
-                    .AddScoped<RelationalConnectionDependencies>());
-
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollectionMap);
         }
     }
 }

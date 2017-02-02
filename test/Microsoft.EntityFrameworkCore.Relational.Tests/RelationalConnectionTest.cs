@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Throws_with_new_when_no_provider_use_Database()
         {
             var serviceCollection = new ServiceCollection();
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Throws_with_add_when_no_provider_use_Database()
         {
             var serviceCollection = new ServiceCollection();
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
 
             var appServiceProivder = serviceCollection
                 .AddDbContext<ConstructorTestContext1A>(

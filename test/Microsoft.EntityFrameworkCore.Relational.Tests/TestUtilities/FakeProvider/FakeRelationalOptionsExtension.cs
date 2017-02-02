@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
                 .AddScoped<IModificationCommandBatchFactory>(_ => null)
                 .AddScoped<IRelationalDatabaseCreator>(_ => null));
 
-            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(serviceCollection);
+            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(new ServiceCollectionMap(serviceCollection));
 
             return serviceCollection;
         }

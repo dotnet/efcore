@@ -22,7 +22,6 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -47,17 +46,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///          public void ConfigureServices(IServiceCollection services)
-        ///          {
-        ///              var connectionString = "connection string to database";
-        ///
-        ///              services
-        ///                  .AddEntityFrameworkSqlServer()
-        ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                      options.UseSqlServer(connectionString)
-        ///                             .UseInternalServiceProvider(serviceProvider));
-        ///          }
-        ///      </code>
+        ///           public void ConfigureServices(IServiceCollection services)
+        ///           {
+        ///               var connectionString = "connection string to database";
+        /// 
+        ///               services
+        ///                   .AddEntityFrameworkSqlServer()
+        ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                       options.UseSqlServer(connectionString)
+        ///                              .UseInternalServiceProvider(serviceProvider));
+        ///           }
+        ///       </code>
         /// </example>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
@@ -67,38 +66,36 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            serviceCollection.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IDatabaseProvider, DatabaseProvider<SqlServerOptionsExtension>>());
+            var serviceCollectionMap = new ServiceCollectionMap(serviceCollection)
+                .TryAddSingletonEnumerable<IDatabaseProvider, DatabaseProvider<SqlServerOptionsExtension>>()
+                .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
+                .TryAddSingleton<IValueGeneratorCache>(p => p.GetService<ISqlServerValueGeneratorCache>())
+                .TryAddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
+                .TryAddSingleton<ISqlGenerationHelper, SqlServerSqlGenerationHelper>()
+                .TryAddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
+                .TryAddSingleton<IMigrationsAnnotationProvider, SqlServerMigrationsAnnotationProvider>()
+                .TryAddScoped<IRelationalValueBufferFactoryFactory, UntypedRelationalValueBufferFactoryFactory>()
+                .TryAddScoped<IModelValidator, SqlServerModelValidator>()
+                .TryAddScoped<IConventionSetBuilder, SqlServerConventionSetBuilder>()
+                .TryAddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
+                .TryAddScoped<IUpdateSqlGenerator>(p => p.GetService<ISqlServerUpdateSqlGenerator>())
+                .TryAddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
+                .TryAddScoped<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
+                .TryAddScoped<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
+                .TryAddScoped<ISqlServerConnection, SqlServerConnection>()
+                .TryAddScoped<IRelationalConnection>(p => p.GetService<ISqlServerConnection>())
+                .TryAddScoped<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()
+                .TryAddScoped<IRelationalDatabaseCreator, SqlServerDatabaseCreator>()
+                .TryAddScoped<IHistoryRepository, SqlServerHistoryRepository>()
+                .TryAddScoped<IEntityQueryModelVisitorFactory, SqlServerQueryModelVisitorFactory>()
+                .TryAddScoped<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
+                .TryAddScoped<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
+                .TryAddScoped<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
+                .TryAddScoped<IMemberTranslator, SqlServerCompositeMemberTranslator>()
+                .TryAddScoped<IMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
+                .TryAddScoped<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>();
 
-            serviceCollection.TryAdd(new ServiceCollection()
-                .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
-                .AddSingleton<IValueGeneratorCache>(p => p.GetService<ISqlServerValueGeneratorCache>())
-                .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
-                .AddSingleton<ISqlGenerationHelper, SqlServerSqlGenerationHelper>()
-                .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
-                .AddSingleton<IMigrationsAnnotationProvider, SqlServerMigrationsAnnotationProvider>()
-                .AddScoped<IRelationalValueBufferFactoryFactory, UntypedRelationalValueBufferFactoryFactory>()
-                .AddScoped<IModelValidator, SqlServerModelValidator>()
-                .AddScoped<IConventionSetBuilder, SqlServerConventionSetBuilder>()
-                .AddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
-                .AddScoped<IUpdateSqlGenerator>(p => p.GetService<ISqlServerUpdateSqlGenerator>())
-                .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-                .AddScoped<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
-                .AddScoped<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
-                .AddScoped<ISqlServerConnection, SqlServerConnection>()
-                .AddScoped<IRelationalConnection>(p => p.GetService<ISqlServerConnection>())
-                .AddScoped<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()
-                .AddScoped<IRelationalDatabaseCreator, SqlServerDatabaseCreator>()
-                .AddScoped<IHistoryRepository, SqlServerHistoryRepository>()
-                .AddScoped<IEntityQueryModelVisitorFactory, SqlServerQueryModelVisitorFactory>()
-                .AddScoped<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
-                .AddScoped<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
-                .AddScoped<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
-                .AddScoped<IMemberTranslator, SqlServerCompositeMemberTranslator>()
-                .AddScoped<IMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
-                .AddScoped<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>());
-
-            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(serviceCollection);
+            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(serviceCollectionMap);
 
             return serviceCollection;
         }

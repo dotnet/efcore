@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public void Throws_on_attempt_to_use_store_with_no_store_services()
             {
                 var serviceCollection = new ServiceCollection();
-                ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollection);
+                ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (SqlServerNorthwindContext.GetSharedStore())

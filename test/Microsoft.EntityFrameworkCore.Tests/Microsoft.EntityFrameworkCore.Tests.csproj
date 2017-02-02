@@ -105,6 +105,7 @@
     <Compile Include="Infrastructure\DbContextAttributeTest.cs" />
     <Compile Include="Infrastructure\CoreModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ModelValidatorTest.cs" />
+    <Compile Include="Infrastructure\ServiceCollectionMapTest.cs" />
     <Compile Include="Metadata\Conventions\ConventionSetBuilderTests.cs" />
     <Compile Include="Metadata\Conventions\Internal\BackingFieldConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\BaseTypeDiscoveryConventionTest.cs" />

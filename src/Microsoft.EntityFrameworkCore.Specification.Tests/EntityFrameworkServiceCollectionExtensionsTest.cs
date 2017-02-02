@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -17,13 +18,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public void Calling_AddEntityFramework_explicitly_does_not_change_services()
+        {
+            var services1 = AddServices(new ServiceCollection());
+            var services2 = AddServices(new ServiceCollection());
+
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(services2));
+
+            AssertServicesSame(services1, services2);
+        }
+
+        [Fact]
         public virtual void Repeated_calls_to_add_do_not_modify_collection()
         {
-            var expectedCollection = AddServices(new ServiceCollection());
-
-            var actualCollection = AddServices(AddServices(new ServiceCollection()));
-
-            AssertServicesSame(expectedCollection, actualCollection);
+            AssertServicesSame(
+                AddServices(new ServiceCollection()),
+                AddServices(AddServices(new ServiceCollection())));
         }
 
         protected virtual void AssertServicesSame(IServiceCollection services1, IServiceCollection services2)
