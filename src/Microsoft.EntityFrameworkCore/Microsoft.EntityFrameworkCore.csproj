@@ -152,6 +152,7 @@
     <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
     <Compile Include="EF.CompileAsyncQuery.cs" />
     <Compile Include="Infrastructure\IResettableService.cs" />
+    <Compile Include="Internal\IServiceInjectionSite.cs" />
     <Compile Include="Metadata\Internal\IndexExtensions.cs" />
     <Compile Include="Metadata\Conventions\Internal\NullConventionSetBuilder.cs" />
     <Compile Include="Query\AsyncEnumerable.cs" />

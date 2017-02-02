@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -29,6 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class ServiceCollectionProviderInfrastructure
     {
+        private static readonly HashSet<Type> _servicesToInject 
+            = new HashSet<Type> { typeof(IValueGeneratorSelector) };
+
         /// <summary>
         ///     Do not call this method from application code. This method must be called by database providers
         ///     after registering provider-specific services to fill-in the remaining services with Entity
@@ -106,6 +111,31 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped<ICompiledQueryCacheKeyGenerator, CompiledQueryCacheKeyGenerator>()
                 .AddScoped<IResultOperatorHandler, ResultOperatorHandler>()
                 .AddScoped<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>());
+
+            foreach (var descriptor in serviceCollection.ToList())
+            {
+                var serviceType = descriptor.ServiceType;
+
+                if (_servicesToInject.Contains(serviceType))
+                {
+                    var concreteType = descriptor.ImplementationType;
+
+                    serviceCollection.Add(
+                        new ServiceDescriptor(concreteType, concreteType, descriptor.Lifetime));
+
+                    serviceCollection[serviceCollection.IndexOf(descriptor)]
+                        = new ServiceDescriptor(serviceType, p => InjectAdditionalServices(p, concreteType), descriptor.Lifetime);
+                }
+            }
+        }
+
+        private static object InjectAdditionalServices(IServiceProvider serviceProvider, Type concreteType)
+        {
+            var service = serviceProvider.GetService(concreteType);
+
+            (service as IServiceInjectionSite)?.InjectServices(serviceProvider);
+
+            return service;
         }
 
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
