@@ -1896,6 +1896,90 @@ FROM (
                 Sql);
         }
 
+        public override void GroupJoin_in_subquery_with_client_result_operator()
+        {
+            base.GroupJoin_in_subquery_with_client_result_operator();
+
+            Assert.Equal(
+                @"SELECT [l1].[Id], [l1].[Name]
+FROM [Level1] AS [l1]
+WHERE [l1].[Id] < 3
+
+SELECT [l2_inner1].[Id], [l2_inner1].[Date], [l2_inner1].[Level1_Optional_Id], [l2_inner1].[Level1_Required_Id], [l2_inner1].[Name], [l2_inner1].[OneToMany_Optional_InverseId], [l2_inner1].[OneToMany_Optional_Self_InverseId], [l2_inner1].[OneToMany_Required_InverseId], [l2_inner1].[OneToMany_Required_Self_InverseId], [l2_inner1].[OneToOne_Optional_PK_InverseId], [l2_inner1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1_inner0]
+LEFT JOIN [Level2] AS [l2_inner1] ON [l1_inner0].[Id] = [l2_inner1].[Level1_Optional_Id]
+ORDER BY [l1_inner0].[Id]
+
+SELECT [l2_inner1].[Id], [l2_inner1].[Date], [l2_inner1].[Level1_Optional_Id], [l2_inner1].[Level1_Required_Id], [l2_inner1].[Name], [l2_inner1].[OneToMany_Optional_InverseId], [l2_inner1].[OneToMany_Optional_Self_InverseId], [l2_inner1].[OneToMany_Required_InverseId], [l2_inner1].[OneToMany_Required_Self_InverseId], [l2_inner1].[OneToOne_Optional_PK_InverseId], [l2_inner1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1_inner0]
+LEFT JOIN [Level2] AS [l2_inner1] ON [l1_inner0].[Id] = [l2_inner1].[Level1_Optional_Id]
+ORDER BY [l1_inner0].[Id]",
+                Sql);
+        }
+
+        public override void GroupJoin_in_subquery_with_client_projection()
+        {
+            base.GroupJoin_in_subquery_with_client_projection();
+
+            Assert.Equal(
+                @"SELECT [l1].[Id], [l1].[Name]
+FROM [Level1] AS [l1]
+WHERE [l1].[Id] < 3
+
+SELECT COUNT(*)
+FROM [Level1] AS [l1_inner0]
+LEFT JOIN [Level2] AS [l2_inner1] ON [l1_inner0].[Id] = [l2_inner1].[Level1_Optional_Id]
+
+SELECT COUNT(*)
+FROM [Level1] AS [l1_inner0]
+LEFT JOIN [Level2] AS [l2_inner1] ON [l1_inner0].[Id] = [l2_inner1].[Level1_Optional_Id]",
+                Sql);
+        }
+
+        public override void GroupJoin_in_subquery_with_client_projection_nested1()
+        {
+            base.GroupJoin_in_subquery_with_client_projection_nested1();
+
+            Assert.StartsWith(
+                @"SELECT [l1_outer].[Id], [l1_outer].[Name]
+FROM [Level1] AS [l1_outer]
+WHERE [l1_outer].[Id] < 2
+
+SELECT [l2_middle1].[Id], [l2_middle1].[Date], [l2_middle1].[Level1_Optional_Id], [l2_middle1].[Level1_Required_Id], [l2_middle1].[Name], [l2_middle1].[OneToMany_Optional_InverseId], [l2_middle1].[OneToMany_Optional_Self_InverseId], [l2_middle1].[OneToMany_Required_InverseId], [l2_middle1].[OneToMany_Required_Self_InverseId], [l2_middle1].[OneToOne_Optional_PK_InverseId], [l2_middle1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1_middle0]
+LEFT JOIN [Level2] AS [l2_middle1] ON [l1_middle0].[Id] = [l2_middle1].[Level1_Optional_Id]
+ORDER BY [l1_middle0].[Id]
+
+SELECT COUNT(*)
+FROM [Level1] AS [l1_inner2]
+LEFT JOIN [Level2] AS [l2_inner5] ON [l1_inner2].[Id] = [l2_inner5].[Level1_Optional_Id]
+
+SELECT COUNT(*)
+FROM [Level1] AS [l1_inner2]
+LEFT JOIN [Level2] AS [l2_inner5] ON [l1_inner2].[Id] = [l2_inner5].[Level1_Optional_Id]",
+                Sql);
+        }
+
+        public override void GroupJoin_in_subquery_with_client_projection_nested2()
+        {
+            base.GroupJoin_in_subquery_with_client_projection_nested2();
+
+            Assert.Equal(
+                @"SELECT [l1_outer].[Id], [l1_outer].[Name]
+FROM [Level1] AS [l1_outer]
+WHERE [l1_outer].[Id] < 2
+
+SELECT COUNT(*)
+FROM [Level1] AS [l1_middle0]
+LEFT JOIN [Level2] AS [l2_middle1] ON [l1_middle0].[Id] = [l2_middle1].[Level1_Optional_Id]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Level1] AS [l1_inner0]
+    LEFT JOIN [Level2] AS [l2_inner1] ON [l1_inner0].[Id] = [l2_inner1].[Level1_Optional_Id]
+) > 7",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

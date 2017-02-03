@@ -3722,5 +3722,174 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_in_subquery_with_client_result_operator()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne.ToList()
+                            where (from l1_inner in context.LevelOne.ToList()
+                                   join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                                   from l2_inner in grouping.DefaultIfEmpty()
+                                   select l1_inner).Distinct().Count() > 7
+                            where l1.Id < 3
+                            select l1.Name).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            where (from l1_inner in context.LevelOne
+                                   join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                                   from l2_inner in grouping.DefaultIfEmpty()
+                                   select l1_inner).Distinct().Count() > 7
+                            where l1.Id < 3
+                            select l1.Name;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_in_subquery_with_client_projection()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne.ToList()
+                            where (from l1_inner in context.LevelOne.ToList()
+                                   join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                                   from l2_inner in grouping.DefaultIfEmpty()
+                                   select l1_inner).Distinct().Count() > 7
+                            where l1.Id < 3
+                            select l1.Name).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            where (from l1_inner in context.LevelOne
+                                   join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                                   from l2_inner in grouping.DefaultIfEmpty()
+                                   select ClientStringMethod(l1_inner.Name)).Count() > 7
+                            where l1.Id < 3
+                            select l1.Name;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_in_subquery_with_client_projection_nested1()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1_outer in context.LevelOne.ToList()
+                            where (from l1_middle in context.LevelOne.ToList()
+                                   join l2_middle in context.LevelTwo.ToList() on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                                   from l2_middle in grouping_middle.DefaultIfEmpty()
+                                   where (from l1_inner in context.LevelOne.ToList()
+                                          join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                          from l2_inner in grouping_inner.DefaultIfEmpty()
+                                          select ClientStringMethod(l1_inner.Name)).Count() > 7
+                                   select l1_middle).Take(10).Count() > 4
+                            where l1_outer.Id < 2
+                            select l1_outer.Name).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1_outer in context.LevelOne
+                            where (from l1_middle in context.LevelOne
+                                   join l2_middle in context.LevelTwo on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                                   from l2_middle in grouping_middle.DefaultIfEmpty()
+                                   where (from l1_inner in context.LevelOne
+                                          join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                          from l2_inner in grouping_inner.DefaultIfEmpty()
+                                          select ClientStringMethod(l1_inner.Name)).Count() > 7
+                                   select l1_middle).Take(10).Count() > 4
+                            where l1_outer.Id < 2
+                            select l1_outer.Name;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_in_subquery_with_client_projection_nested2()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1_outer in context.LevelOne.ToList()
+                            where (from l1_middle in context.LevelOne.ToList()
+                                   join l2_middle in context.LevelTwo.ToList() on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                                   from l2_middle in grouping_middle.DefaultIfEmpty()
+                                   where (from l1_inner in context.LevelOne.ToList()
+                                          join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                          from l2_inner in grouping_inner.DefaultIfEmpty()
+                                          select l1_inner.Name).Count() > 7
+                                   select ClientStringMethod(l1_middle.Name)).Count() > 4
+                            where l1_outer.Id < 2
+                            select l1_outer.Name).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1_outer in context.LevelOne
+                            where (from l1_middle in context.LevelOne
+                                   join l2_middle in context.LevelTwo on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                                   from l2_middle in grouping_middle.DefaultIfEmpty()
+                                   where (from l1_inner in context.LevelOne
+                                          join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                          from l2_inner in grouping_inner.DefaultIfEmpty()
+                                          select l1_inner.Name).Count() > 7
+                                   select ClientStringMethod(l1_middle.Name)).Count() > 4
+                            where l1_outer.Id < 2
+                            select l1_outer.Name;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        private static string ClientStringMethod(string argument)
+        {
+            return argument;
+        }
     }
 }
