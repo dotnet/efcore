@@ -420,15 +420,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     node,
                     (ps, qs) =>
                         {
-                            return RewriteNavigationProperties(
-                                ps.ToList(),
-                                qs,
-                                node,
-                                node.Expression,
-                                node.Member.Name,
-                                node.Type,
-                                e => Expression.MakeMemberAccess(e, node.Member),
-                                e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
+                            if (qs != null)
+                            {
+                                return RewriteNavigationProperties(
+                                    ps.ToList(),
+                                    qs,
+                                    node,
+                                    node.Expression,
+                                    node.Member.Name,
+                                    node.Type,
+                                    e => Expression.MakeMemberAccess(e, node.Member),
+                                    e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
+                            }
+
+                            return null;
                         });
 
             if (result != null)
@@ -504,15 +509,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     node,
                     (ps, qs) =>
                         {
-                            return RewriteNavigationProperties(
-                                ps.ToList(),
-                                qs,
-                                node,
-                                node.Arguments[0],
-                                (string)((ConstantExpression)node.Arguments[1]).Value,
-                                node.Type,
-                                e => Expression.Call(node.Method, e, node.Arguments[1]),
-                                e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                            if (qs != null)
+                            {
+                                return RewriteNavigationProperties(
+                                    ps.ToList(),
+                                    qs,
+                                    node,
+                                    node.Arguments[0],
+                                    (string)((ConstantExpression)node.Arguments[1]).Value,
+                                    node.Type,
+                                    e => Expression.Call(node.Method, e, node.Arguments[1]),
+                                    e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                            }
+
+                            return null;
                         });
 
                 if (result != null)
@@ -956,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 : propertyCreator(querySourceReferenceExpression);
         }
 
-        private void RewriteNavigationIntoGroupJoin(
+        private static void RewriteNavigationIntoGroupJoin(
             JoinClause joinClause,
             INavigation navigation,
             IEntityType targetEntityType,

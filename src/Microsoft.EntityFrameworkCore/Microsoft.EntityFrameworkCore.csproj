@@ -158,6 +158,7 @@
     <Compile Include="Metadata\Internal\IndexExtensions.cs" />
     <Compile Include="Metadata\Conventions\Internal\NullConventionSetBuilder.cs" />
     <Compile Include="Query\AsyncEnumerable.cs" />
+    <Compile Include="Query\Internal\IncludeCompiler.cs" />
     <Compile Include="Query\INodeTypeProviderFactory.cs" />
     <Compile Include="Query\Internal\CompiledAsyncTaskQuery.cs" />
     <Compile Include="Query\Internal\CompiledAsyncEnumerableQuery.cs" />
