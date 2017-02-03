@@ -175,11 +175,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             VisitQueryModel(subQueryModel);
 
-            if ((subQueryModel.ResultOperators
-                     .All(ro => ro is CastResultOperator)
-                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause))
-                || (queryModel.IsIdentityQuery()
-                    && !queryModel.ResultOperators.Any()))
+            if (subQueryModel.ResultOperators
+                    .All(ro => ro is CastResultOperator)
+                && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)
+                || queryModel.IsIdentityQuery()
+                && !queryModel.ResultOperators.Any())
             {
                 string itemName;
 
@@ -288,8 +288,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             querySourceMapping.AddMapping(oldQuerySource, newExpression);
 
             queryModel.TransformExpressions(e =>
-                                ReferenceReplacingExpressionVisitor
-                                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+                ReferenceReplacingExpressionVisitor
+                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
             var qsre = newExpression as QuerySourceReferenceExpression;
             if (qsre != null)

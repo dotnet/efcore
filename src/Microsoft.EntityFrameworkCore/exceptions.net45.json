@@ -128,5 +128,26 @@
     "OldMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ValueBuffer valueBuffer, System.Func<Microsoft.EntityFrameworkCore.Storage.ValueBuffer, System.Object> materializer)",
     "NewMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ValueBuffer valueBuffer, System.Func<Microsoft.EntityFrameworkCore.Storage.ValueBuffer, System.Object> materializer, System.Collections.Generic.Dictionary<System.Type, System.Int32[]> typeIndexMap = null)",
     "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor : Remotion.Linq.QueryModelVisitorBase",
+    "NewTypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor : Remotion.Linq.QueryModelVisitorBase",
+    "OldMemberId": "protected virtual System.Void OptimizeQueryModel(Remotion.Linq.QueryModel queryModel)",
+    "NewMemberId": "protected virtual System.Void OptimizeQueryModel(Remotion.Linq.QueryModel queryModel, System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal.IncludeResultOperator> includeResultOperators)",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor : Remotion.Linq.QueryModelVisitorBase",
+    "NewTypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor : Remotion.Linq.QueryModelVisitorBase",
+    "OldMemberId": "public static System.Linq.Expressions.Expression CreatePropertyExpression(System.Linq.Expressions.Expression target, Microsoft.EntityFrameworkCore.Metadata.IProperty property)",
+    "NewMemberId": "public static System.Linq.Expressions.Expression CreatePropertyExpression(System.Linq.Expressions.Expression target, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase property)",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor : Remotion.Linq.QueryModelVisitorBase",
+    "NewTypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor : Remotion.Linq.QueryModelVisitorBase",
+    "OldMemberId": "protected virtual System.Void IncludeNavigations(Remotion.Linq.QueryModel queryModel)",
+    "NewMemberId": "protected virtual System.Void IncludeNavigations(Remotion.Linq.QueryModel queryModel, System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal.IncludeResultOperator> includeResultOperators)",
+    "Kind": "Modification"
   }
 ]

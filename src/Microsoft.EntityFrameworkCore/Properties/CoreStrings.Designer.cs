@@ -1345,11 +1345,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.
+        /// The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results.
         /// </summary>
-        public static string LogIgnoredInclude([CanBeNull] object navigation)
+        public static string LogIgnoredInclude([CanBeNull] object include)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "navigation"), navigation);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "include"), include);
         }
 
         /// <summary>

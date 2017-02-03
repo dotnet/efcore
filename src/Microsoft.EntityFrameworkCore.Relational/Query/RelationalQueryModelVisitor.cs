@@ -1300,14 +1300,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Applies optimizations to the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
-        protected override void OptimizeQueryModel(QueryModel queryModel)
+        /// <param name="includeResultOperators">TODO: This parameter is to be removed.</param>
+        protected override void OptimizeQueryModel(
+            QueryModel queryModel,
+            ICollection<IncludeResultOperator> includeResultOperators)
         {
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(includeResultOperators, nameof(includeResultOperators));
+
             var typeIsExpressionTranslatingVisitor
                 = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
 
             queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
 
-            base.OptimizeQueryModel(queryModel);
+            base.OptimizeQueryModel(queryModel, includeResultOperators);
         }
 
         /// <summary>

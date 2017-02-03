@@ -24,6 +24,7 @@ using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -71,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="target"> The entity. </param>
         /// <param name="property"> The property to be accessed. </param>
         /// <returns> The newly created expression. </returns>
-        public static Expression CreatePropertyExpression([NotNull] Expression target, [NotNull] IProperty property)
+        public static Expression CreatePropertyExpression(
+            [NotNull] Expression target, [NotNull] IPropertyBase property)
             => Expression.Call(
                 null,
                 EF.PropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
@@ -252,7 +254,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 ExtractQueryAnnotations(queryModel);
 
-                OptimizeQueryModel(queryModel);
+                var includeResultOperators
+                    = QueryCompilationContext.QueryAnnotations
+                        .OfType<IncludeResultOperator>()
+                        .ToList();
+
+                OptimizeQueryModel(queryModel, includeResultOperators);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
@@ -261,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 SingleResultToSequence(queryModel);
 
-                IncludeNavigations(queryModel);
+                IncludeNavigations(queryModel, includeResultOperators);
 
                 TrackEntitiesInResults<TResult>(queryModel);
 
@@ -270,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return CreateExecutorLambda<IEnumerable<TResult>>();
             }
         }
-
+        
         /// <summary>
         ///     Creates an action to asynchronously execute this query.
         /// </summary>
@@ -292,7 +299,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 ExtractQueryAnnotations(queryModel);
 
-                OptimizeQueryModel(queryModel);
+                var includeResultOperators
+                    = QueryCompilationContext.QueryAnnotations
+                        .OfType<IncludeResultOperator>()
+                        .ToList();
+
+                OptimizeQueryModel(queryModel, includeResultOperators);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
@@ -301,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 SingleResultToSequence(queryModel, _expression.Type.GetTypeInfo().GenericTypeArguments[0]);
 
-                IncludeNavigations(queryModel);
+                IncludeNavigations(queryModel, includeResultOperators);
 
                 TrackEntitiesInResults<TResult>(queryModel);
 
@@ -340,9 +352,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Applies optimizations to the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
-        protected virtual void OptimizeQueryModel([NotNull] QueryModel queryModel)
+        /// <param name="includeResultOperators">TODO: This parameter is to be removed.</param>
+        protected virtual void OptimizeQueryModel(
+            [NotNull] QueryModel queryModel, 
+            [NotNull] ICollection<IncludeResultOperator> includeResultOperators)
         {
             Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(includeResultOperators, nameof(includeResultOperators));
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
@@ -356,7 +372,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
                 .VisitQueryModel(queryModel);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel, parentQueryModel: null);
+            new IncludeCompiler(
+                    QueryCompilationContext,
+                    _querySourceTracingExpressionVisitorFactory)
+                .CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel));
+
+            _navigationRewritingExpressionVisitorFactory
+                .Create(this).Rewrite(queryModel, parentQueryModel: null);
 
             QueryCompilationContext.Logger
                 .LogDebug(
@@ -440,7 +462,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Includes related data requested in the LINQ query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
-        protected virtual void IncludeNavigations([NotNull] QueryModel queryModel)
+        /// <param name="includeResultOperators"></param>
+        protected virtual void IncludeNavigations(
+            [NotNull] QueryModel queryModel,
+            [NotNull] ICollection<IncludeResultOperator> includeResultOperators)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
@@ -450,8 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var includeSpecifications
-                = QueryCompilationContext.QueryAnnotations
-                    .OfType<IncludeResultOperator>()
+                = includeResultOperators
                     .Select(includeResultOperator =>
                         {
                             var entityType = QueryCompilationContext.Model.FindEntityType(
@@ -572,21 +596,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var lastTrackingModifier
-                = QueryCompilationContext.QueryAnnotations
-                    .OfType<TrackingResultOperator>()
-                    .LastOrDefault();
-
-            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo
-                || !QueryCompilationContext.TrackQueryResults
-                && lastTrackingModifier == null
-                || lastTrackingModifier != null
-                && !lastTrackingModifier.IsTracking)
+            if (!TrackResults(queryModel))
             {
                 return;
             }
 
-            var outputExpression = queryModel.SelectClause.Selector;
+            var outputExpression 
+                = new IncludeRemovingExpressionVisitor()
+                    .Visit(queryModel.SelectClause.Selector);
 
             var resultItemType = _expression.Type.GetSequenceType();
             var isGrouping = resultItemType.IsGrouping();
@@ -618,7 +635,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var entityTrackingInfos
-                = _entityResultFindingExpressionVisitorFactory.Create(QueryCompilationContext)
+                = _entityResultFindingExpressionVisitorFactory
+                    .Create(QueryCompilationContext)
                     .FindEntitiesInResult(outputExpression);
 
             if (entityTrackingInfos.Any())
@@ -662,10 +680,39 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        private class IncludeRemovingExpressionVisitor : RelinqExpressionVisitor
+        {
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (node.Method.IsGenericMethod
+                    && node.Method.GetGenericMethodDefinition() == IncludeCompiler.IncludeMethodInfo)
+                {
+                    return node.Arguments[0];
+                }
+
+                return base.VisitMethodCall(node);
+            }
+        }
+
+        private bool TrackResults(QueryModel queryModel)
+        {
+            // TODO: Unify with QCC
+
+            var lastTrackingModifier
+                = QueryCompilationContext.QueryAnnotations
+                    .OfType<TrackingResultOperator>()
+                    .LastOrDefault();
+
+            return !(queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
+                   && (QueryCompilationContext.TrackQueryResults || lastTrackingModifier != null)
+                   && (lastTrackingModifier == null
+                       || lastTrackingModifier.IsTracking);
+        }
+
         private static readonly MethodInfo _getEntityAccessors
             = typeof(EntityQueryModelVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetEntityAccessors));
-
+        
         [UsedImplicitly]
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
             IEnumerable<EntityTrackingInfo> entityTrackingInfos,
@@ -1464,8 +1511,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             querySourceReferenceExpression = null;
 
             while (memberExpression?.Expression != null
-                   || (IsPropertyMethod(methodCallExpression?.Method)
-                       && methodCallExpression?.Arguments[0] != null))
+                   || IsPropertyMethod(methodCallExpression?.Method)
+                   && methodCallExpression?.Arguments[0] != null)
             {
                 var propertyName = memberExpression?.Member.Name
                                    ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;

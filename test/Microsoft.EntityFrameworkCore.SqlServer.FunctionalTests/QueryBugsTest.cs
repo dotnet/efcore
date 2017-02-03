@@ -391,9 +391,9 @@ ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
                     Assert.NotNull(result[4].Customer);
 
                     var expectedSql =
-                        @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
+                        @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [o.Customer].[FirstName], [o.Customer].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
+LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].[FirstName]) AND ([o].[CustomerLastName] = [o.Customer].[LastName])";
 
                     Assert.Equal(expectedSql, Sql);
                 }
@@ -911,7 +911,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         #endregion
 
         #region Bug3409
-        [Fact]
+
+        [Fact(Skip = "Issue #7573")]
         public void ThenInclude_with_interface_navigations_3409()
         {
             using (CreateDatabase3409())
@@ -926,6 +927,40 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     Assert.Equal(1, results.Count);
                     Assert.Equal(1, results[0].ChildCollection.Count);
                     Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
+                }
+
+                using (var context = new MyContext3409(_options))
+                {
+                    var results = context.Children
+                        .Select(c => new
+                        {
+                            c.SelfReferenceBackNavigation,
+                            c.SelfReferenceBackNavigation.ParentBackNavigation
+                        })
+                        .ToList();
+
+                    Assert.Equal(3, results.Count);
+                    Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                    Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+                }
+
+                using (var context = new MyContext3409(_options))
+                {
+                    var results = context.Children
+                        .Select(c => new
+                        {
+                            SelfReferenceBackNavigation
+                            = EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                            ParentBackNavigationB
+                            = EF.Property<IParent3409>(
+                                EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                                "ParentBackNavigation")
+                        })
+                        .ToList();
+
+                    Assert.Equal(3, results.Count);
+                    Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                    Assert.Equal(1, results.Count(c => c.ParentBackNavigationB != null));
                 }
 
                 using (var context = new MyContext3409(_options))

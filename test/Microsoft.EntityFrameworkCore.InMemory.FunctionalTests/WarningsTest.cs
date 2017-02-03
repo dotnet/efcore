@@ -51,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             using (var context = new WarningAsErrorContext())
             {
-                //context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
-
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(CoreEventId)}.{nameof(CoreEventId.IncludeIgnoredWarning)}",
