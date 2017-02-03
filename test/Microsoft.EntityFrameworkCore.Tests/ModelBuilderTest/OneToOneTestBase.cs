@@ -3642,7 +3642,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
 
-            [ConditionalFact(Skip = "Test is flaky due to concurrency issue.")] //TODO: Issue#7531
+            [Fact]
             public virtual void Can_use_self_referencing_overlapping_FK_PK()
             {
                 var modelBuilder = CreateModelBuilder();

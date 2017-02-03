@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public DbSet<Question> Questions { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(databaseName: "issue7119");
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
