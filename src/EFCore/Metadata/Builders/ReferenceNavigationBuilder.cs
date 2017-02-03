@@ -166,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder WithOne([CanBeNull] string reference = null)
             => new ReferenceReferenceBuilder(
-                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))),
                 DeclaringEntityType,
-                RelatedEntityType);
+                RelatedEntityType,
+                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

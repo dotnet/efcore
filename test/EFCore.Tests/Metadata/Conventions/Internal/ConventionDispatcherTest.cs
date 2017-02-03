@@ -65,7 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [InlineData(false, false)]
+        [InlineData(true, false)]
         [InlineData(false, true)]
+        [InlineData(true, true)]
         [Theory]
         public void OnEntityTypeAdded_calls_apply_on_conventions_in_order_for_delegated_identity(bool useBuilder, bool useScope)
         {
@@ -83,7 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
-            if (!useBuilder)
+            if (useBuilder)
+            {
+                var result = orderDetails.Owns(typeof(Order), nameof(OrderDetails.Order), ConfigurationSource.Convention);
+
+                Assert.Equal(!useScope, result == null);
+            }
+            else
             {
                 var result = builder.Metadata.AddDelegatedIdentityEntityType(
                     typeof(Order), nameof(OrderDetails.Order), orderDetails.Metadata, ConfigurationSource.Convention);
@@ -132,7 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
                     {
                         if (_delegatedIdentity)
                         {
-                            entityTypeBuilder.Metadata.Model.RemoveDelegatedIdentityEntityType(entityTypeBuilder.Metadata);
+                            entityTypeBuilder.ModelBuilder.RemoveDelegatedIdentityEntityType(
+                                entityTypeBuilder.Metadata, ConfigurationSource.Convention);
                         }
                     }
                     else

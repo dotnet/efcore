@@ -99,10 +99,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new bool IsUnique { get; set; }
 
         /// <summary>
-        ///     Gets or sets a value indicating if this relationship is required. If true, the dependent entity must always be
+        ///     Gets or sets a value indicating whether this relationship is required. If true, the dependent entity must always be
         ///     assigned to a valid principal entity.
         /// </summary>
         new bool IsRequired { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether this relationship defines ownership. If true, the dependent entity must always be
+        ///     accessed via the navigation from the principal entity.
+        /// </summary>
+        new bool IsOwnership { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating how a delete operation is applied to dependent entities in the relationship when the

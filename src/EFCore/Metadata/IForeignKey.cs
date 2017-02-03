@@ -58,6 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsRequired { get; }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether this relationship defines ownership. If true, the dependent entity must always be
+        ///     accessed via the navigation from the principal entity.
+        /// </summary>
+        bool IsOwnership { get; }
+
+        /// <summary>
         ///     Gets a value indicating how a delete operation is applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>

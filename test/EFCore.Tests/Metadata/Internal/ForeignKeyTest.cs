@@ -576,6 +576,25 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Can_change_cascade_ownership()
+        {
+            var entityType = new Model().AddEntityType("E");
+            var keyProp = entityType.AddProperty("Id", typeof(int));
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("U", typeof(int));
+            entityType.GetOrSetPrimaryKey(keyProp);
+            var principalKey = entityType.AddKey(principalProp);
+
+            var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
+
+            Assert.False(foreignKey.IsOwnership);
+
+            foreignKey.IsOwnership = true;
+
+            Assert.True(foreignKey.IsOwnership);
+        }
+
+        [Fact]
         public void Can_find_targets_for_non_hierarchical_foreign_keys()
         {
             var fk = CreateOneToManyFK();

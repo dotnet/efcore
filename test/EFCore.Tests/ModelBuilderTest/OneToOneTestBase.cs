@@ -3614,7 +3614,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder.Entity<Book>().HasOne(e => e.Details).WithOne(e => e.AnotherBook).HasPrincipalKey<Book>(e => e.Id);
 
-                Assert.Equal("Id", modelBuilder.Model.FindEntityType(typeof(Book)).FindNavigation(Book.BookdDetailsNavigation.Name).ForeignKey.Properties.Single().Name);
+                Assert.Equal("Id", modelBuilder.Model.FindEntityType(typeof(Book)).FindNavigation(Book.BookDetailsNavigation.Name).ForeignKey.Properties.Single().Name);
             }
 
             [Fact]

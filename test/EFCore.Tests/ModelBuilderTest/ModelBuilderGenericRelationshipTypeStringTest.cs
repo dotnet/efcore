@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 => new GenericTypeTestModelBuilder(ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
-                        buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+                    buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
 
             public override TestModelBuilder Ignore<TEntity>()
                 => new GenericTypeTestModelBuilder(ModelBuilder.Ignore<TEntity>());
@@ -45,11 +45,24 @@ namespace Microsoft.EntityFrameworkCore.Tests
             protected override TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
                 => new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
 
-            public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> reference = null)
-                => new GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(reference));
+            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
+                Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
+                => new GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsOne(navigationExpression));
+
+            public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
+                Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
+                Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
+                => Wrap(EntityTypeBuilder.OwnsOne(
+                    navigationExpression,
+                    r => buildAction(new GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+
+            public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
+                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
+                => new GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(navigationExpression));
         }
 
-        private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+        private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+            : GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -58,11 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
             }
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> reference = null)
-                => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.WithOne(reference?.GetPropertyAccess().Name));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
+                Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
+                => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.WithOne(navigationExpression?.GetPropertyAccess().Name));
         }
 
-        private class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity> : GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+        private class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+            : GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -71,14 +86,37 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
             }
 
-            protected override GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
+            protected override GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(
+                ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
                 => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(params string[] foreignKeyPropertyNames)
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
+                params string[] foreignKeyPropertyNames)
                 => Wrap(ReferenceReferenceBuilder.HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(params string[] keyPropertyNames)
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
+                params string[] keyPropertyNames)
                 => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames));
+        }
+
+        private class GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>
+            : GenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            public GenericTypeTestReferenceOwnershipBuilder(ReferenceOwnershipBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder)
+                : base(referenceOwnershipBuilder)
+            {
+            }
+
+            protected override GenericTestReferenceOwnershipBuilder<TNewEntity, TNewRelatedEntity> Wrap<TNewEntity, TNewRelatedEntity>(
+                ReferenceOwnershipBuilder<TNewEntity, TNewRelatedEntity> referenceOwnershipBuilder)
+                => new GenericTypeTestReferenceOwnershipBuilder<TNewEntity, TNewRelatedEntity>(referenceOwnershipBuilder);
+
+            public override TestReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
+                Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression = null)
+                => new GenericTypeTestReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity>(
+                    ReferenceOwnershipBuilder.HasOne(navigationExpression));
         }
     }
 }

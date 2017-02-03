@@ -1339,11 +1339,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] string navigationToTargetName,
             [CanBeNull] string inverseNavigationName,
-            ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource,
+            bool setTargetAsPrincipal = false)
             => Relationship(
                 Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder)),
                 PropertyIdentity.Create(navigationToTargetName),
                 PropertyIdentity.Create(inverseNavigationName),
+                setTargetAsPrincipal,
                 configurationSource);
 
         /// <summary>
@@ -1354,17 +1356,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] PropertyInfo navigationToTarget,
             [CanBeNull] PropertyInfo inverseNavigation,
-            ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource,
+            bool setTargetAsPrincipal = false)
             => Relationship(
                 Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder)),
                 PropertyIdentity.Create(navigationToTarget),
                 PropertyIdentity.Create(inverseNavigation),
+                setTargetAsPrincipal,
                 configurationSource);
 
         private InternalRelationshipBuilder Relationship(
             InternalEntityTypeBuilder targetEntityTypeBuilder,
             PropertyIdentity? navigationToTarget,
             PropertyIdentity? inverseNavigation,
+            bool setTargetAsPrincipal,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder));
@@ -1380,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     targetEntityTypeBuilder.Metadata.ClrType.GetTypeInfo()))
             {
                 // Only one nav specified and it can't be the nav to principal
-                return targetEntityTypeBuilder.Relationship(this, null, navigationToTarget, configurationSource);
+                return targetEntityTypeBuilder.Relationship(this, null, navigationToTarget, setTargetAsPrincipal, configurationSource);
             }
 
             var existingRelationship = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
@@ -1409,7 +1414,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
                 existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
-                return existingRelationship;
+                if (!setTargetAsPrincipal)
+                {
+                    return existingRelationship;
+                }
             }
 
             existingRelationship = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
@@ -1424,80 +1432,101 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (navigationToTarget != null)
                 {
                     existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                    if (navigationToTarget.Value.Name != null)
+                    {
+                        Metadata.Unignore(navigationToTarget.Value.Name);
+                    }
                 }
                 if (inverseNavigation != null)
                 {
                     existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                    if (inverseNavigation.Value.Name != null)
+                    {
+                        targetEntityTypeBuilder.Metadata.Unignore(inverseNavigation.Value.Name);
+                    }
                 }
                 existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
-                return existingRelationship;
+                if (!setTargetAsPrincipal)
+                {
+                    return existingRelationship;
+                }
             }
 
             InternalRelationshipBuilder relationship;
-            InternalRelationshipBuilder newRelationship;
+            InternalRelationshipBuilder newRelationship = null;
             using (var batcher = Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                relationship = CreateForeignKey(
-                    targetEntityTypeBuilder,
-                    null,
-                    null,
-                    null,
-                    null,
-                    configurationSource);
-
-                newRelationship = relationship;
-
-                if (inverseNavigation == null)
+                if (existingRelationship != null)
                 {
-                    newRelationship = navigationProperty != null
-                        ? newRelationship.DependentToPrincipal(navigationProperty, configurationSource)
-                        : newRelationship.DependentToPrincipal(navigationToTarget.Value.Name, configurationSource);
-                }
-                else if (navigationToTarget == null)
-                {
-                    newRelationship = inverseProperty != null
-                        ? newRelationship.PrincipalToDependent(inverseProperty, configurationSource)
-                        : newRelationship.PrincipalToDependent(inverseNavigation.Value.Name, configurationSource);
+                    relationship = existingRelationship;
                 }
                 else
                 {
-                    newRelationship = navigationProperty != null || inverseProperty != null
-                        ? newRelationship.Navigations(navigationProperty, inverseProperty, configurationSource)
-                        : newRelationship.Navigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
+                    newRelationship = CreateForeignKey(
+                        targetEntityTypeBuilder,
+                        null,
+                        null,
+                        null,
+                        null,
+                        configurationSource);
+
+                    relationship = newRelationship;
                 }
 
-                if (newRelationship == null)
+                if (setTargetAsPrincipal)
                 {
-                    relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
-                    return null;
+                    relationship = relationship
+                        .RelatedEntityTypes(targetEntityTypeBuilder.Metadata, Metadata, configurationSource);
                 }
 
-                newRelationship = batcher.Run(newRelationship);
+                if (inverseNavigation == null)
+                {
+                    relationship = navigationProperty != null
+                        ? relationship.DependentToPrincipal(navigationProperty, configurationSource)
+                        : relationship.DependentToPrincipal(navigationToTarget.Value.Name, configurationSource);
+                }
+                else if (navigationToTarget == null)
+                {
+                    relationship = inverseProperty != null
+                        ? relationship.PrincipalToDependent(inverseProperty, configurationSource)
+                        : relationship.PrincipalToDependent(inverseNavigation.Value.Name, configurationSource);
+                }
+                else
+                {
+                    relationship = navigationProperty != null || inverseProperty != null
+                        ? relationship.Navigations(navigationProperty, inverseProperty, configurationSource)
+                        : relationship.Navigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
+                }
+
+                if (relationship != null)
+                {
+                    relationship = batcher.Run(relationship);
+                }
             }
 
-            if (newRelationship != null
+            if (relationship != null
                 && ((navigationToTarget != null
-                     && newRelationship.Metadata.DependentToPrincipal?.Name != navigationToTarget.Value.Name)
+                     && relationship.Metadata.DependentToPrincipal?.Name != navigationToTarget.Value.Name)
                     || (inverseNavigation != null
-                        && newRelationship.Metadata.PrincipalToDependent?.Name != inverseNavigation.Value.Name))
+                        && relationship.Metadata.PrincipalToDependent?.Name != inverseNavigation.Value.Name))
                 && ((inverseNavigation != null
-                     && newRelationship.Metadata.DependentToPrincipal?.Name != inverseNavigation.Value.Name)
+                     && relationship.Metadata.DependentToPrincipal?.Name != inverseNavigation.Value.Name)
                     || (navigationToTarget != null
-                        && newRelationship.Metadata.PrincipalToDependent?.Name != navigationToTarget.Value.Name)))
+                        && relationship.Metadata.PrincipalToDependent?.Name != navigationToTarget.Value.Name)))
             {
-                newRelationship = null;
+                relationship = null;
             }
 
-            if (newRelationship == null)
+            if (relationship == null)
             {
-                if (relationship.Metadata.Builder != null)
+                if (newRelationship?.Metadata.Builder != null)
                 {
-                    relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
+                    newRelationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(newRelationship.Metadata, configurationSource);
                 }
                 return null;
             }
 
-            return newRelationship;
+            return relationship;
         }
 
         /// <summary>
@@ -1581,14 +1610,108 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalRelationshipBuilder Owns(
+            [NotNull] string targetEntityTypeName,
+            [NotNull] string navigationName,
+            ConfigurationSource configurationSource)
+            => Owns(new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationName), configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Owns(
+            [NotNull] string targetEntityTypeName,
+            [NotNull] PropertyInfo navigationProperty,
+            ConfigurationSource configurationSource)
+            => Owns(new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationProperty), configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Owns(
+            [NotNull] Type targetEntityType,
+            [NotNull] string navigationName,
+            ConfigurationSource configurationSource)
+            => Owns(new TypeIdentity(targetEntityType), PropertyIdentity.Create(navigationName), configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Owns(
+            [NotNull] Type targetEntityType,
+            [NotNull] PropertyInfo navigationProperty,
+            ConfigurationSource configurationSource)
+            => Owns(new TypeIdentity(targetEntityType), PropertyIdentity.Create(navigationProperty), configurationSource);
+
+        private InternalRelationshipBuilder Owns(
+            TypeIdentity targetEntityType,
+            PropertyIdentity navigation,
+            ConfigurationSource configurationSource)
+        {
+            PropertyIdentity? inverse = null;
+            InternalEntityTypeBuilder ownedEntityType;
+            InternalRelationshipBuilder relationship;
+            using (var batch = Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                var existingNavigation = Metadata
+                    .FindNavigationsInHierarchy(navigation.Name)
+                    .SingleOrDefault(n => n.GetTargetType().Name == targetEntityType.Name && n.GetTargetType().HasDelegatedIdentity());
+                var builder = existingNavigation?.ForeignKey.Builder;
+                if (builder != null)
+                {
+                    builder = builder.RelatedEntityTypes(Metadata, existingNavigation.GetTargetType(), configurationSource);
+                    builder = builder?.IsOwnership(true, configurationSource);
+                    builder = builder?.Navigations(inverse, navigation, configurationSource);
+                    return builder == null ? null : batch.Run(builder);
+                }
+
+                ownedEntityType = targetEntityType.Type == null
+                    ? ModelBuilder.AddDelegatedIdentityEntity(targetEntityType.Name, navigation.Name, Metadata, configurationSource)
+                    : ModelBuilder.AddDelegatedIdentityEntity(targetEntityType.Type, navigation.Name, Metadata, configurationSource);
+
+                if (ownedEntityType == null)
+                {
+                    return null;
+                }
+
+                relationship = ownedEntityType.Relationship(
+                    targetEntityTypeBuilder: this,
+                    navigationToTarget: inverse,
+                    inverseNavigation: navigation,
+                    setTargetAsPrincipal: true,
+                    configurationSource: configurationSource);
+                relationship = batch.Run(relationship.IsOwnership(true, configurationSource));
+            }
+
+            if (relationship?.Metadata.Builder == null)
+            {
+                if (ownedEntityType.Metadata.Builder != null)
+                {
+                    ModelBuilder.RemoveDelegatedIdentityEntityType(ownedEntityType.Metadata, configurationSource);
+                }
+                return null;
+            }
+
+            return relationship;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Navigation(
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] string navigationName,
-            ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource,
+            bool setTargetAsPrincipal = false)
             => Relationship(
                 Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder)),
                 PropertyIdentity.Create(navigationName),
                 null,
+                setTargetAsPrincipal,
                 configurationSource);
 
         /// <summary>
@@ -1599,11 +1722,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] PropertyInfo navigationProperty,
             ConfigurationSource configurationSource,
-            bool strictPrincipalEnd = false)
+            bool setTargetAsPrincipal = false)
             => Relationship(
                 Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder)),
                 PropertyIdentity.Create(navigationProperty),
                 null,
+                setTargetAsPrincipal,
                 configurationSource);
 
         /// <summary>

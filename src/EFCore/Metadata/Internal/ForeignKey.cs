@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
+        private bool? _isOwnership;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _foreignKeyPropertiesConfigurationSource;
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _isRequiredConfigurationSource;
         private ConfigurationSource? _deleteBehaviorConfigurationSource;
         private ConfigurationSource? _principalEndConfigurationSource;
+        private ConfigurationSource? _isOwnershipConfigurationSource;
         private ConfigurationSource? _dependentToPrincipalConfigurationSource;
         private ConfigurationSource? _principalToDependentConfigurationSource;
 
@@ -480,6 +482,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void UpdateDeleteBehaviorConfigurationSource(ConfigurationSource configurationSource)
             => _deleteBehaviorConfigurationSource = configurationSource.Max(_deleteBehaviorConfigurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool IsOwnership
+        {
+            get { return _isOwnership ?? DefaultIsOwnership; }
+            set { SetIsOwnership(value, ConfigurationSource.Explicit); }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ForeignKey SetIsOwnership(bool ownership, ConfigurationSource configurationSource)
+        {
+            _isOwnership = ownership;
+            UpdateIsOwnershipConfigurationSource(configurationSource);
+
+            return this;
+        }
+
+        private bool DefaultIsOwnership => false;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ConfigurationSource? GetIsOwnershipConfigurationSource() => _isOwnershipConfigurationSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void UpdateIsOwnershipConfigurationSource(ConfigurationSource configurationSource)
+            => _isOwnershipConfigurationSource = configurationSource.Max(_isOwnershipConfigurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

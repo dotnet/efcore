@@ -15,11 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     <para>
     ///         Provides a simple API for configuring a one-to-one relationship.
     ///     </para>
-    ///     <para>
-    ///         If multiple reference key properties are specified, the order of reference key properties should
-    ///         match the order that the primary key or unique index properties were configured on the principal
-    ///         entity type.
-    ///     </para>
     /// </summary>
     public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceReferenceBuilder
         where TEntity : class
@@ -33,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType relatedEntityType,
             [NotNull] InternalRelationshipBuilder builder)
-            : base(builder, declaringEntityType, relatedEntityType)
+            : base(declaringEntityType, relatedEntityType, builder)
         {
         }
 
@@ -53,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists it's value will be updated.
+        ///     <paramref name="annotation" /> already exists its value will be updated.
         /// </summary>
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
@@ -73,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -124,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
+        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             [NotNull] params string[] foreignKeyPropertyNames)
             where TDependentEntity : class
             => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
@@ -135,6 +130,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
+        /// <remarks>
+        ///     If multiple principal key properties are specified, the order of principal key properties should
+        ///     match the order that the primary key or unique constraint properties were configured on the principal
+        ///     entity type.
+        /// </remarks>
         /// <param name="principalEntityType">
         ///     The entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </typeparam>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
+        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
             [NotNull] params string[] keyPropertyNames)
             where TPrincipalEntity : class
             => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(string, string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -214,6 +214,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     constraint
         ///     will be introduced.
         /// </summary>
+        /// <remarks>
+        ///     If multiple principal key properties are specified, the order of principal key properties should
+        ///     match the order that the primary key or unique constraint properties were configured on the principal
+        ///     entity type.
+        /// </remarks>
         /// <param name="principalEntityTypeName">
         ///     The name of entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
@@ -237,14 +242,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Configures the property(s) to use as the foreign key for this relationship.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(Type,string[])" />
-        ///         is not specified, then an attempt will be made to match the data type and order of foreign key
-        ///         properties against the primary key of the principal entity type. If they do not match, new shadow
-        ///         state properties that form a unique index will be
+        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
+        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
+        ///         that does not have a corresponding property in the entity class. The current value for the
+        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
+        ///         of the entity class.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="HasPrincipalKey{T}(string[])" /> is not specified, then an attempt will be made to
+        ///         match the data type and order of foreign key properties against the primary key of the principal
+        ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
-        ///         A shadow state property is one that does not have a corresponding property in the entity class. The
-        ///         current value for the property is stored in the <see cref="ChangeTracker" /> rather than being
-        ///         stored in instances of the entity class.
         ///     </para>
         /// </summary>
         /// <typeparam name="TDependentEntity">
@@ -279,6 +287,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
+        /// <remarks>
+        ///     If multiple principal key properties are specified, the order of principal key properties should
+        ///     match the order that the primary key or unique constraint properties were configured on the principal
+        ///     entity type.
+        /// </remarks>
         /// <typeparam name="TPrincipalEntity">
         ///     The entity type that is the principal in this relationship. That is, the type
         ///     that has the reference key properties.

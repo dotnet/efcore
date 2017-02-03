@@ -114,6 +114,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static bool IsOwned([NotNull] this IEntityType entityType)
+            => entityType.HasDelegatedIdentity() && entityType.GetForeignKeys().Any(fk => fk.IsOwnership);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static INavigation FindDefiningNavigation([NotNull] this IEntityType entityType)
             => entityType.HasDelegatedIdentity() ? entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName) : null;
 

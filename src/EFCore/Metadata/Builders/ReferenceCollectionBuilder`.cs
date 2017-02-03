@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists it's value will be updated.
+        ///     <paramref name="annotation" /> already exists its value will be updated.
         /// </summary>
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>

@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         if (!newAccessOperation.Type.IsNullableType())
                         {
                             // since we are in the NullConditionalExpression, member we are trying to bind to could be coming from Left Join
-                            // and therefore it's value could be null, even though the property type itself is not nullable
+                            // and therefore its value could be null, even though the property type itself is not nullable
                             // we need to compensate for this with additional check
                             var nullableAccessOperation = TryCreateNullableAccessOperation(newAccessOperation);
                             if (nullableAccessOperation != null)
@@ -226,9 +226,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var tryReadValueMethodInfo = EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(accessOperation.Type.MakeNullable());
 
                 return Expression.Call(
-                    tryReadValueMethodInfo, 
-                    methodCallExpression.Arguments[0], 
-                    methodCallExpression.Arguments[1], 
+                    tryReadValueMethodInfo,
+                    methodCallExpression.Arguments[0],
+                    methodCallExpression.Arguments[1],
                     methodCallExpression.Arguments[2]);
             }
 

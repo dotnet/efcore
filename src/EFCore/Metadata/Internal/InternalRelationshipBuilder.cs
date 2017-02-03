@@ -105,10 +105,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 PropertyIdentity.Create(navigationToDependentProperty),
                 configurationSource);
 
-        private InternalRelationshipBuilder Navigations(
-            PropertyIdentity? navigationToPrincipal,
-            PropertyIdentity? navigationToDependent,
-            ConfigurationSource? configurationSource)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Navigations(
+            [CanBeNull] PropertyIdentity? navigationToPrincipal,
+            [CanBeNull] PropertyIdentity? navigationToDependent,
+            [CanBeNull] ConfigurationSource? configurationSource)
             => Navigations(
                 navigationToPrincipal,
                 navigationToDependent,
@@ -185,10 +189,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToDependent = PropertyIdentity.Create(navigationProperty);
             }
 
-            bool? shouldInvert;
-            bool? shouldBeUnique;
-            bool removeOppositeNavigation;
-            bool removeConflictingNavigations;
             if (!CanSetNavigations(
                 navigationToPrincipal,
                 navigationToDependent,
@@ -197,10 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource,
                 shouldThrow,
                 true,
-                out shouldInvert,
-                out shouldBeUnique,
-                out removeOppositeNavigation,
-                out removeConflictingNavigations))
+                out bool? shouldInvert,
+                out bool? shouldBeUnique,
+                out bool removeOppositeNavigation,
+                out bool removeConflictingNavigations))
             {
                 return null;
             }
@@ -350,6 +350,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
 
+                    if (dependentEntityType.HasDelegatedIdentity()
+                        && dependentEntityType.FindDefiningNavigation() == null
+                        && Metadata.GetPrincipalEndConfigurationSource().HasValue)
+                    {
+                        IsOwnership(true, ConfigurationSource.Convention);
+                    }
+
                     builder = batch.Run(builder);
                 }
             }
@@ -401,17 +408,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigation = PropertyIdentity.Create(navigationProperty);
             }
 
-            bool? _;
-            bool __;
             return CanSetNavigation(
                 navigation,
                 pointsToPrincipal,
                 configurationSource,
                 false,
                 overrideSameSource,
-                out _,
-                out __,
-                out __);
+                out bool? _,
+                out bool __,
+                out bool ___);
         }
 
         /// <summary>
@@ -423,19 +428,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool pointsToPrincipal,
             ConfigurationSource? configurationSource,
             bool overrideSameSource = true)
-        {
-            bool? _;
-            bool __;
-            return CanSetNavigation(
+            => CanSetNavigation(
                 PropertyIdentity.Create(navigationProperty),
                 pointsToPrincipal,
                 configurationSource,
                 false,
                 overrideSameSource,
-                out _,
-                out __,
-                out __);
-        }
+                out bool? _,
+                out bool __,
+                out bool ___);
 
         private bool CanSetNavigation(
             PropertyIdentity navigation,
@@ -446,16 +447,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             out bool? shouldBeUnique,
             out bool removeOppositeNavigation,
             out bool removeConflictingNavigations)
-        {
-            bool? _;
-            return pointsToPrincipal
+            => pointsToPrincipal
                 ? CanSetNavigations(
                     navigation,
                     null,
                     configurationSource,
                     shouldThrow,
                     overrideSameSource,
-                    out _,
+                    out bool? _,
                     out shouldBeUnique,
                     out removeOppositeNavigation,
                     out removeConflictingNavigations)
@@ -469,7 +468,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     out shouldBeUnique,
                     out removeOppositeNavigation,
                     out removeConflictingNavigations);
-        }
 
         private bool CanSetNavigations(
             PropertyIdentity? navigationToPrincipal,
@@ -605,7 +603,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 shouldInvert = false;
             }
 
-            bool? _;
             if (navigationToDependentProperty != null
                 && !IsCompatible(
                     navigationToDependentProperty,
@@ -613,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     principalEntityType.ClrType,
                     dependentEntityType.ClrType,
                     false,
-                    out _))
+                    out bool? _))
             {
                 shouldInvert = false;
             }
@@ -625,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentEntityType.ClrType,
                     principalEntityType.ClrType,
                     shouldThrow && shouldInvert != null,
-                    out _))
+                    out bool? __))
             {
                 if (shouldInvert != null)
                 {
@@ -845,6 +842,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalRelationshipBuilder IsOwnership(bool ownership, ConfigurationSource configurationSource)
+        {
+            if (Metadata.IsOwnership == ownership)
+            {
+                Metadata.SetIsOwnership(ownership, configurationSource);
+                return this;
+            }
+
+            if (!configurationSource.Overrides(Metadata.GetIsOwnershipConfigurationSource()))
+            {
+                return null;
+            }
+
+            Metadata.SetIsOwnership(ownership, configurationSource);
+            return this;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder DeleteBehavior(DeleteBehavior deleteBehavior, ConfigurationSource configurationSource)
         {
             if (Metadata.DeleteBehavior == deleteBehavior)
@@ -895,8 +913,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return this;
             }
 
-            bool resetToDependent;
-            if (!CanSetUnique(unique, configurationSource, out resetToDependent))
+            if (!CanSetUnique(unique, configurationSource, out bool resetToDependent))
             {
                 return null;
             }
@@ -1086,12 +1103,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? principalEndConfigurationSource,
             ConfigurationSource? configurationSource)
         {
-            bool shouldInvert;
-            bool shouldResetToPrincipal;
-            bool shouldResetToDependent;
-            bool shouldResetPrincipalProperties;
-            bool shouldResetDependentProperties;
-            bool? shouldBeUnique;
             if (!CanSetRelatedTypes(
                 principalEntityType,
                 dependentEntityType,
@@ -1100,12 +1111,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 null,
                 configurationSource,
                 configurationSource == ConfigurationSource.Explicit,
-                out shouldInvert,
-                out shouldResetToPrincipal,
-                out shouldResetToDependent,
-                out shouldResetPrincipalProperties,
-                out shouldResetDependentProperties,
-                out shouldBeUnique)
+                out bool shouldInvert,
+                out bool shouldResetToPrincipal,
+                out bool shouldResetToDependent,
+                out bool shouldResetPrincipalProperties,
+                out bool shouldResetDependentProperties,
+                out bool? shouldBeUnique)
                 && configurationSource != ConfigurationSource.Explicit)
             {
                 return null;
@@ -1292,9 +1303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return builder;
             }
 
-            bool resetIsRequired;
-            bool resetPrincipalKey;
-            if (!CanSetForeignKey(properties, dependentEntityType, configurationSource, out resetIsRequired, out resetPrincipalKey))
+            if (!CanSetForeignKey(properties, dependentEntityType, configurationSource, out bool resetIsRequired, out bool resetPrincipalKey))
             {
                 return null;
             }
@@ -1316,16 +1325,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? configurationSource,
             EntityType dependentEntityType = null,
             bool overrideSameSource = true)
-        {
-            bool _;
-            return CanSetForeignKey(
+            => CanSetForeignKey(
                 properties,
                 dependentEntityType,
                 configurationSource,
-                out _,
+                out bool _,
                 out _,
                 overrideSameSource);
-        }
 
         private bool CanSetForeignKey(
             IReadOnlyList<Property> properties,
@@ -1374,7 +1380,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource,
                 shouldThrow: false))
             {
-                if (!configurationSource.Overrides(Metadata.GetIsRequiredConfigurationSource()))
+                if (!configurationSource.HasValue
+                    || !configurationSource.Value.Overrides(Metadata.GetIsRequiredConfigurationSource()))
                 {
                     return false;
                 }
@@ -1391,7 +1398,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Metadata.DeclaringEntityType,
                         shouldThrow: false)))
             {
-                if (!configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()))
+                if (!configurationSource.HasValue
+                    || !configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()))
                 {
                     return false;
                 }
@@ -1430,8 +1438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             properties = Metadata.PrincipalEntityType.Builder.GetActualProperties(properties, configurationSource);
-            bool resetDependent;
-            if (!CanSetPrincipalKey(properties, configurationSource, out resetDependent))
+            if (!CanSetPrincipalKey(properties, configurationSource, out bool resetDependent))
             {
                 return null;
             }
@@ -1657,7 +1664,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             InternalRelationshipBuilder newRelationshipBuilder;
             using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                bool? existingRelationshipInverted;
                 newRelationshipBuilder = GetOrCreateRelationshipBuilder(
                     principalEntityType,
                     dependentEntityType,
@@ -1669,7 +1675,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     removeCurrent,
                     principalEndConfigurationSource,
                     configurationSource,
-                    out existingRelationshipInverted);
+                    out bool? existingRelationshipInverted);
 
                 if (newRelationshipBuilder == null)
                 {
@@ -2096,11 +2102,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             InternalRelationshipBuilder newRelationshipBuilder = null;
             foreach (var candidateRelationship in candidates)
             {
-                bool candidateRelationshipInverted;
-                bool shouldResetToPrincipal;
-                bool shouldResetToDependent;
-                bool _;
-                bool? __;
                 if (!candidateRelationship.CanSetRelatedTypes(
                     principalEntityType,
                     dependentEntityType,
@@ -2109,12 +2110,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     navigationToDependent,
                     configurationSource,
                     false,
-                    out candidateRelationshipInverted,
-                    out shouldResetToPrincipal,
-                    out shouldResetToDependent,
-                    out _,
-                    out _,
-                    out __))
+                    out bool candidateRelationshipInverted,
+                    out bool shouldResetToPrincipal,
+                    out bool shouldResetToDependent,
+                    out bool _,
+                    out bool __,
+                    out bool? ___))
                 {
                     continue;
                 }
@@ -2125,7 +2126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && candidateRelationship.Metadata.DependentToPrincipal != null
                     && candidateRelationship.Metadata.PrincipalToDependent != null)
                 {
-                    // Favor derived bi-derectional relationships over one-directional on base
+                    // Favor derived bi-directional relationships over one-directional on base
                     continue;
                 }
 
@@ -2451,9 +2452,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (dependentProperties != null
                 && dependentProperties.Count != 0)
             {
-                bool _;
-                bool resetPrincipalKey;
-                if (!CanSetForeignKey(dependentProperties, Metadata.DeclaringEntityType, configurationSource, out _, out resetPrincipalKey))
+                if (!CanSetForeignKey(
+                    dependentProperties, Metadata.DeclaringEntityType, configurationSource, out bool _, out bool resetPrincipalKey))
                 {
                     dependentProperties = new List<Property>();
                 }
@@ -2565,10 +2565,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var strictPrincipal = principalEndConfigurationSource.HasValue
                                   && principalEndConfigurationSource.Value.Overrides(Metadata.GetPrincipalEndConfigurationSource());
             var canInvert = CanInvert(configurationSource);
-            bool invertedShouldResetToPrincipal;
-            bool invertedShouldResetToDependent;
-            bool? invertedShouldBeUnique;
-            bool _;
             if ((!strictPrincipal
                  || canInvert)
                 && CanSetRelatedTypes(
@@ -2579,11 +2575,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     configurationSource,
                     strictPrincipal,
                     false,
-                    out invertedShouldResetToPrincipal,
-                    out invertedShouldResetToDependent,
-                    out _,
-                    out _,
-                    out invertedShouldBeUnique)
+                    out bool invertedShouldResetToPrincipal,
+                    out bool invertedShouldResetToDependent,
+                    out bool _,
+                    out bool __,
+                    out bool? invertedShouldBeUnique)
                 && (!someAspectsFitNonInverted
                     || (!invertedShouldResetToPrincipal
                         && !invertedShouldResetToDependent)))
@@ -2638,10 +2634,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            bool __;
             if (navigationToPrincipal != null)
             {
-                bool? _;
                 if (!configurationSource.HasValue
                     || !CanSetNavigation(
                         navigationToPrincipal.Value,
@@ -2649,9 +2643,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         configurationSource.Value,
                         shouldThrow,
                         overrideSameSource: true,
-                        shouldBeUnique: out _,
-                        removeOppositeNavigation: out __,
-                        removeConflictingNavigations: out __))
+                        shouldBeUnique: out bool? _,
+                        removeOppositeNavigation: out bool __,
+                        removeConflictingNavigations: out bool ___))
                 {
                     return false;
                 }
@@ -2691,7 +2685,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigationToDependent != null)
             {
-                bool? toDependentShouldBeUnique;
                 if (!configurationSource.HasValue
                     || !CanSetNavigation(
                         navigationToDependent.Value,
@@ -2699,9 +2692,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         configurationSource.Value,
                         shouldThrow,
                         overrideSameSource: true,
-                        shouldBeUnique: out toDependentShouldBeUnique,
-                        removeOppositeNavigation: out __,
-                        removeConflictingNavigations: out __))
+                        shouldBeUnique: out bool? toDependentShouldBeUnique,
+                        removeOppositeNavigation: out bool __,
+                        removeConflictingNavigations: out bool ___))
                 {
                     return false;
                 }
@@ -2747,7 +2740,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (shouldBeUnique.HasValue
-                && !CanSetUnique(shouldBeUnique.Value, configurationSource, out __))
+                && !CanSetUnique(shouldBeUnique.Value, configurationSource, out bool ____))
             {
                 return false;
             }

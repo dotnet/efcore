@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -35,18 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Creates a new builder based on the provided internal builder. This overridden implementation creates
-        ///     <see cref="EntityTypeBuilder{TEntity}" /> instances so that logic inherited from the base class will
-        ///     use those instead of <see cref="EntityTypeBuilder" />.
-        /// </summary>
-        /// <param name="builder"> The internal builder to create the new builder from. </param>
-        /// <returns> The newly created builder. </returns>
-        protected override EntityTypeBuilder New(InternalEntityTypeBuilder builder)
-            => new EntityTypeBuilder<TEntity>(builder);
-
-        /// <summary>
         ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists it's value will be updated.
+        ///     <paramref name="annotation" /> already exists its value will be updated.
         /// </summary>
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
@@ -60,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] string name)
-            => (EntityTypeBuilder<TEntity>)base.HasBaseType(name);
+            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(name, ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Sets the base type of this entity in an inheritance hierarchy.
@@ -68,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityType"> The base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] Type entityType)
-            => (EntityTypeBuilder<TEntity>)base.HasBaseType(entityType);
+            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(entityType, ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Sets the base type of this entity in an inheritance hierarchy.
@@ -76,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TBaseType"> The base type. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> HasBaseType<TBaseType>()
-            => (EntityTypeBuilder<TEntity>)base.HasBaseType(typeof(TBaseType));
+            => HasBaseType(typeof(TBaseType));
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
@@ -135,14 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     (<c>blog => blog.Url</c>).
         /// </param>
         public virtual EntityTypeBuilder<TEntity> Ignore([NotNull] Expression<Func<TEntity, object>> propertyExpression)
-        {
-            Check.NotNull(propertyExpression, nameof(propertyExpression));
-
-            var propertyName = propertyExpression.GetPropertyAccess().Name;
-            Builder.Ignore(propertyName, ConfigurationSource.Explicit);
-
-            return this;
-        }
+            => (EntityTypeBuilder<TEntity>)base.Ignore(
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().Name);
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -150,13 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="propertyName"> The name of then property to be removed from the entity type. </param>
         public new virtual EntityTypeBuilder<TEntity> Ignore([NotNull] string propertyName)
-        {
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            Builder.Ignore(propertyName, ConfigurationSource.Explicit);
-
-            return this;
-        }
+            => (EntityTypeBuilder<TEntity>)base.Ignore(propertyName);
 
         /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
@@ -176,6 +156,83 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
             => new IndexBuilder(Builder.HasIndex(
                 Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///         The target entity key value is always propagated from the entity it belongs to.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the reference navigation property on this entity type that represents
+        ///     the relationship (<c>customer => customer.Address</c>).
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        public virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
+            [NotNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
+            where TRelatedEntity : class
+            => OwnsOneBuilder<TRelatedEntity>(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess());
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///         The target entity key value is always propagated from the entity it belongs to.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the reference navigation property on this entity type that represents
+        ///     the relationship (<c>customer => customer.Address</c>).
+        /// </param>
+        /// <param name="buildAction"> An action that performs configuration of the relationship. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual EntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
+            [NotNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
+            [NotNull] Action<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
+            where TRelatedEntity : class
+        {
+            Check.NotNull(navigationExpression, nameof(navigationExpression));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(navigationExpression.GetPropertyAccess()));
+                return this;
+            }
+        }
+
+        private ReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOneBuilder<TRelatedEntity>(PropertyInfo navigation)
+            where TRelatedEntity : class
+        {
+            InternalRelationshipBuilder relationship;
+            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                relationship = Builder.Owns(typeof(TRelatedEntity), navigation, ConfigurationSource.Explicit);
+                relationship.IsUnique(true, ConfigurationSource.Explicit);
+            }
+
+            return new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
+                Builder.Metadata,
+                relationship.Metadata.DeclaringEntityType,
+                relationship);
+        }
 
         /// <summary>
         ///     <para>
@@ -211,7 +268,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigation,
-                HasOneBuilder(relatedEntityType, navigation));
+                Builder.Navigation(relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
+                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
         }
 
         /// <summary>
@@ -241,11 +299,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
             var navigation = navigationExpression?.GetPropertyAccess();
 
+            InternalRelationshipBuilder relationship;
+            using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                relationship = relatedEntityType.Builder
+                    .Relationship(Builder, ConfigurationSource.Explicit)
+                    .IsUnique(false, ConfigurationSource.Explicit)
+                    .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
+                    .PrincipalToDependent(navigation, ConfigurationSource.Explicit);
+                relationship = batch.Run(relationship);
+            }
+
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
                 navigation,
-                HasManyBuilder(relatedEntityType, navigation));
+                relationship);
         }
 
         /// <summary>

@@ -36,19 +36,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder Entity(
+            [NotNull] string name, ConfigurationSource configurationSource)
+            => Entity(new TypeIdentity(name), configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityTypeBuilder Entity(
+            [NotNull] Type type, ConfigurationSource configurationSource)
+            => Entity(new TypeIdentity(type), configurationSource);
+
+        private InternalEntityTypeBuilder Entity(
+            TypeIdentity type, ConfigurationSource configurationSource)
         {
-            if (IsIgnored(name, configurationSource))
+            if (IsIgnored(type, configurationSource))
             {
                 return null;
             }
 
-            var entityType = Metadata.FindEntityType(name);
+            var clrType = type.Type;
+            var entityType = clrType == null
+                ? Metadata.FindEntityType(type.Name)
+                : Metadata.FindEntityType(clrType);
             if (entityType == null)
             {
-                Metadata.Unignore(name);
+                if (clrType == null)
+                {
+                    Metadata.Unignore(type.Name);
 
-                entityType = Metadata.AddEntityType(name, configurationSource);
+                    entityType = Metadata.AddEntityType(type.Name, configurationSource);
+                }
+                else
+                {
+                    Metadata.Unignore(clrType);
+
+                    entityType = Metadata.AddEntityType(clrType, configurationSource);
+                }
             }
             else
             {
@@ -62,23 +87,60 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder AddDelegatedIdentityEntity(
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] EntityType definingEntityType,
+            ConfigurationSource configurationSource)
+            => AddDelegatedIdentityEntity(new TypeIdentity(name), definingNavigationName, definingEntityType, configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityTypeBuilder AddDelegatedIdentityEntity(
+            [NotNull] Type type,
+            [NotNull] string definingNavigationName,
+            [NotNull] EntityType definingEntityType,
+            ConfigurationSource configurationSource)
+            => AddDelegatedIdentityEntity(new TypeIdentity(type), definingNavigationName, definingEntityType, configurationSource);
+
+        private InternalEntityTypeBuilder AddDelegatedIdentityEntity(
+            TypeIdentity type,
+            string definingNavigationName,
+            EntityType definingEntityType,
+            ConfigurationSource configurationSource)
         {
             if (IsIgnored(type, configurationSource))
             {
                 return null;
             }
 
-            var entityType = Metadata.FindEntityType(type);
-            if (entityType == null)
+            var clrType = type.Type;
+            var entityType = clrType == null
+                ? Metadata.FindEntityType(type.Name)
+                : Metadata.FindEntityType(clrType);
+            if (entityType != null)
             {
-                Metadata.Unignore(type);
+                if (!configurationSource.Overrides(entityType.GetConfigurationSource()))
+                {
+                    return null;
+                }
 
-                entityType = Metadata.AddEntityType(type, configurationSource);
+                Ignore(entityType, configurationSource);
+            }
+
+            if (clrType == null)
+            {
+                Metadata.Unignore(type.Name);
+
+                entityType = Metadata.AddDelegatedIdentityEntityType(type.Name, definingNavigationName, definingEntityType, configurationSource);
             }
             else
             {
-                entityType.UpdateConfigurationSource(configurationSource);
+                Metadata.Unignore(clrType);
+
+                entityType = Metadata.AddDelegatedIdentityEntityType(clrType, definingNavigationName, definingEntityType, configurationSource);
             }
 
             return entityType?.Builder;
@@ -89,20 +151,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsIgnored([NotNull] Type type, ConfigurationSource configurationSource)
-            => IsIgnored(type.DisplayName(), configurationSource);
+            => IsIgnored(new TypeIdentity(type), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsIgnored([NotNull] string name, ConfigurationSource configurationSource)
+            => IsIgnored(new TypeIdentity(name), configurationSource);
+
+        private bool IsIgnored(TypeIdentity type, ConfigurationSource configurationSource)
         {
             if (configurationSource == ConfigurationSource.Explicit)
             {
                 return false;
             }
 
-            var ignoredConfigurationSource = Metadata.FindIgnoredTypeConfigurationSource(name);
+            var ignoredConfigurationSource = Metadata.FindIgnoredTypeConfigurationSource(type.Name);
             return ignoredConfigurationSource.HasValue
                    && ignoredConfigurationSource.Value.Overrides(configurationSource);
         }
@@ -127,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (ignoredConfigurationSource.HasValue)
             {
                 if (configurationSource.Overrides(ignoredConfigurationSource)
-                    && (configurationSource != ignoredConfigurationSource))
+                    && configurationSource != ignoredConfigurationSource)
                 {
                     Metadata.Ignore(name, configurationSource);
                 }
@@ -161,10 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             using (Metadata.ConventionDispatcher.StartBatch())
             {
-                // Set base type as null to remove the entityType from directly derived types of the base type
-                var baseType = entityType.BaseType;
-                entityType.Builder.HasBaseType((EntityType)null, configurationSource);
-
                 if (entityType.HasClrType())
                 {
                     Metadata.Ignore(entityType.ClrType, configurationSource);
@@ -174,26 +235,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Metadata.Ignore(entityType.Name, configurationSource);
                 }
 
-                var entityTypeBuilder = entityType.Builder;
-                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
-                {
-                    var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
-                    Debug.Assert(removed.HasValue);
-                }
+                return RemoveEntityType(entityType, configurationSource);
+            }
+        }
 
-                foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
-                {
-                    var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
-                    Debug.Assert(removed.HasValue);
-                }
+        private bool RemoveEntityType(EntityType entityType, ConfigurationSource configurationSource)
+        {
+            var entityTypeConfigurationSource = entityType.GetConfigurationSource();
+            if (!configurationSource.Overrides(entityTypeConfigurationSource))
+            {
+                return false;
+            }
 
-                foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
-                {
-                    var derivedEntityTypeBuilder = directlyDerivedType.Builder
-                        .HasBaseType(baseType, configurationSource);
-                    Debug.Assert(derivedEntityTypeBuilder != null);
-                }
+            // Set base type as null to remove the entityType from directly derived types of the base type
+            var baseType = entityType.BaseType;
+            entityType.Builder.HasBaseType((EntityType)null, configurationSource);
 
+            var entityTypeBuilder = entityType.Builder;
+            foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+            {
+                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
+                Debug.Assert(removed.HasValue);
+            }
+
+            foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
+            {
+                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
+                Debug.Assert(removed.HasValue);
+            }
+
+            foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
+            {
+                var derivedEntityTypeBuilder = directlyDerivedType.Builder
+                    .HasBaseType(baseType, configurationSource);
+                Debug.Assert(derivedEntityTypeBuilder != null);
+            }
+
+            foreach (var definedDelegatedTypes in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())
+            {
+                RemoveDelegatedIdentityEntityType(definedDelegatedTypes, configurationSource);
+            }
+
+            if (entityType.HasDelegatedIdentity())
+            {
+                Metadata.RemoveDelegatedIdentityEntityType(entityType);
+            }
+            else
+            {
                 Metadata.RemoveEntityType(entityType.Name);
             }
 
@@ -211,6 +299,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 // Ignoring the type prevents it from being rediscovered by conventions that run as part of the removal
                 Ignore(orphan, configurationSource);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool RemoveDelegatedIdentityEntityType([NotNull] EntityType entityType, ConfigurationSource configurationSource)
+        {
+            if (!entityType.HasDelegatedIdentity())
+            {
+                return false;
+            }
+
+            using (Metadata.ConventionDispatcher.StartBatch())
+            {
+                RemoveEntityType(entityType, configurationSource);
+
+                return true;
             }
         }
 
