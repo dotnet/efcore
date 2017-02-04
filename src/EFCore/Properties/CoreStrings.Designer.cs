@@ -1613,6 +1613,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string ConventionsInfiniteLoop
             => GetString("ConventionsInfiniteLoop");
 
+        /// <summary>
+        ///     There is no navigation '{navigation}' on '{definingEntityType}' that was used to define the entity type with delegated identity '{entityType}'
+        /// </summary>
+        public static string NoDefiningNavigation([CanBeNull] object navigation, [CanBeNull] object definingEntityType, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NoDefiningNavigation", nameof(navigation), nameof(definingEntityType), nameof(entityType)),
+                navigation, definingEntityType, entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is the target of multiple ownership relationships.
+        /// </summary>
+        public static string MultipleOwnerships([CanBeNull] object entityType)
+            => string.Format(
+                GetString("MultipleOwnerships", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The ownership navigation '{ownershipNavigation}' should be the same as the defining navigation '{definingNavigation}' for entity type '{entityType}'
+        /// </summary>
+        public static string NonDefiningOwnership([CanBeNull] object ownershipNavigation, [CanBeNull] object definingNavigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NonDefiningOwnership", nameof(ownershipNavigation), nameof(definingNavigation), nameof(entityType)),
+                ownershipNavigation, definingNavigation, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

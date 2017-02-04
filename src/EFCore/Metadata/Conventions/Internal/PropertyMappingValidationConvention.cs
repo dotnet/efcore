@@ -46,9 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
 
-                    var entityTypeBuilder = modelBuilder.Entity(entityType.ClrType, ConfigurationSource.Convention);
-
-                    clrProperties.RemoveWhere(p => entityTypeBuilder.IsIgnored(p, ConfigurationSource.Convention));
+                    clrProperties.RemoveWhere(p => entityType.Builder.IsIgnored(p, ConfigurationSource.Convention));
 
                     if (clrProperties.Count > 0)
                     {
@@ -65,10 +63,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             }
 
                             var targetType = FindCandidateNavigationPropertyType(actualProperty);
+                            var targetEntityType = targetType == null ? null
+                                : modelBuilder.Metadata.FindEntityType(targetType);
+                            var isDelegatedIdentityEntityType = targetType != null
+                                                                && modelBuilder.Metadata.IsDelegatedIdentityEntityType(targetType);
                             if (targetType != null
-                                && modelBuilder.Metadata.FindEntityType(targetType) != null)
+                                && (targetEntityType != null
+                                || isDelegatedIdentityEntityType))
                             {
-                                if (entityType.GetDerivedTypes().All(dt => dt.FindDeclaredNavigation(actualProperty.Name) == null))
+                                if ((!isDelegatedIdentityEntityType
+                                     || !targetType.GetTypeInfo().Equals(entityType.ClrType.GetTypeInfo()))
+                                    && entityType.GetDerivedTypes().All(dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
+                                    && !entityType.IsInDefinitionPath(targetType))
                                 {
                                     throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
                                         entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));

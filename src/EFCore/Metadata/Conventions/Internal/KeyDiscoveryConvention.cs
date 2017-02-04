@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -16,8 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class KeyDiscoveryConvention
-        : IEntityTypeConvention, IPropertyConvention, IKeyRemovedConvention, IBaseTypeConvention, IPropertyFieldChangedConvention
+    public class KeyDiscoveryConvention :
+        IEntityTypeConvention,
+        IPropertyConvention,
+        IKeyRemovedConvention,
+        IBaseTypeConvention,
+        IPropertyFieldChangedConvention,
+        IForeignKeyConvention,
+        IForeignKeyRemovedConvention
     {
         private const string KeySuffix = "Id";
 
@@ -33,19 +38,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (entityType.BaseType == null
                 && ConfigurationSource.Convention.Overrides(entityType.GetPrimaryKeyConfigurationSource()))
             {
-                var candidateProperties = entityType.GetProperties().Where(p =>
-                    !p.IsShadowProperty
-                    || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
-                var keyProperties = DiscoverKeyProperties(entityType, candidateProperties).Select(p => p.Name).ToList();
-                if (keyProperties.Count > 1)
+                IReadOnlyList<string> keyPropertyNames = null;
+                if (entityType.HasDelegatedIdentity())
                 {
-                    //TODO - log using Strings.MultiplePropertiesMatchedAsKeys()
-                    return entityTypeBuilder;
+                    var definingFk = entityType.FindDefiningNavigation()?.ForeignKey;
+                    if (definingFk != null)
+                    {
+                        // Make sure that the properties won't be reuniquified
+                        definingFk.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Convention);
+                        keyPropertyNames = definingFk.Properties.Select(p => p.Name).ToList();
+                    }
                 }
 
-                if (keyProperties.Count > 0)
+                if (keyPropertyNames == null)
                 {
-                    entityTypeBuilder.PrimaryKey(keyProperties, ConfigurationSource.Convention);
+                    var candidateProperties = entityType.GetProperties().Where(p =>
+                        !p.IsShadowProperty
+                        || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
+                    keyPropertyNames = DiscoverKeyProperties(entityType, candidateProperties).Select(p => p.Name).ToList();
+                    if (keyPropertyNames.Count > 1)
+                    {
+                        //TODO - log using Strings.MultiplePropertiesMatchedAsKeys()
+                        return entityTypeBuilder;
+                    }
+                }
+
+                if (keyPropertyNames.Any())
+                {
+                    entityTypeBuilder.PrimaryKey(keyPropertyNames, ConfigurationSource.Convention);
                 }
             }
 
@@ -56,14 +76,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<Property> DiscoverKeyProperties([NotNull] EntityType entityType, [NotNull] IReadOnlyList<Property> candidateProperties)
+        public virtual IEnumerable<Property> DiscoverKeyProperties(
+            [NotNull] EntityType entityType, [NotNull] IReadOnlyList<Property> candidateProperties)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase));
             if (!keyProperties.Any())
             {
-                var entityTypeName = entityType.DisplayName();
+                var entityTypeName = entityType.ShortName();
                 keyProperties = candidateProperties.Where(
                     p => p.Name.Length == entityTypeName.Length + KeySuffix.Length
                          && p.Name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
@@ -110,6 +131,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
         {
             if (entityTypeBuilder.Metadata.FindPrimaryKey() == null)
+            {
+                Apply(entityTypeBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        {
+            var entityType = relationshipBuilder.Metadata.DeclaringEntityType;
+            if (entityType.HasDelegatedIdentity())
+            {
+                Apply(entityType.Builder);
+            }
+
+            return relationshipBuilder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
+        {
+            if (entityTypeBuilder.Metadata.HasDelegatedIdentity())
             {
                 Apply(entityTypeBuilder);
             }

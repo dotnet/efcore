@@ -34,27 +34,30 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Null(fk.GetDependentToPrincipalConfigurationSource());
             Assert.Null(fk.GetPrincipalToDependentConfigurationSource());
             Assert.Null(fk.GetIsRequiredConfigurationSource());
+            Assert.Null(fk.GetIsOwnershipConfigurationSource());
             Assert.Null(fk.GetIsUniqueConfigurationSource());
             Assert.Null(fk.GetDeleteBehaviorConfigurationSource());
 
             relationshipBuilder = relationshipBuilder.PrincipalEntityType(principalEntityBuilder, ConfigurationSource.Explicit)
-                .HasForeignKey(new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                }, ConfigurationSource.Explicit)
                 .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.Explicit)
                 .DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Explicit)
                 .PrincipalToDependent(Customer.OrdersProperty.Name, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .IsRequired(false, ConfigurationSource.Explicit)
-                .DeleteBehavior(DeleteBehavior.Cascade, ConfigurationSource.Explicit);
+                .IsOwnership(false, ConfigurationSource.Explicit)
+                .DeleteBehavior(DeleteBehavior.Cascade, ConfigurationSource.Explicit)
+                .HasForeignKey(new[]
+                {
+                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                }, ConfigurationSource.Explicit);
 
             Assert.Null(relationshipBuilder.HasForeignKey(new[] { Order.IdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.DataAnnotation));
             var shadowId = principalEntityBuilder.Property("ShadowId", typeof(int), ConfigurationSource.Convention).Metadata;
             Assert.Null(relationshipBuilder.HasPrincipalKey(new[] { shadowId.Name, Customer.UniqueProperty.Name }, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsUnique(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation));
+            Assert.Null(relationshipBuilder.IsOwnership(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.DeleteBehavior(DeleteBehavior.Restrict, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.DependentEntityType(
                 relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.DataAnnotation));
@@ -79,8 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             foreignKey.HasDependentToPrincipal(Order.CustomerProperty);
             foreignKey.HasPrincipalToDependent(Customer.OrdersProperty);
-            foreignKey.IsRequired = false;
             foreignKey.IsUnique = false;
+            foreignKey.IsRequired = false;
+            foreignKey.IsOwnership = false;
             foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
 
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetConfigurationSource());
@@ -89,8 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalEndConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetDependentToPrincipalConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalToDependentConfigurationSource());
-            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsRequiredConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsUniqueConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsRequiredConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsOwnershipConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetDeleteBehaviorConfigurationSource());
         }
 
@@ -506,6 +511,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(relationshipBuilder.Metadata.IsRequired);
             Assert.NotEqual(new[] { Order.CustomerIdProperty.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
+        }
+
+        [Fact]
+        public void Can_only_override_lower_or_equal_source_Ownership()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
+            Assert.False(relationshipBuilder.Metadata.IsOwnership);
+
+            relationshipBuilder = relationshipBuilder.IsOwnership(true, ConfigurationSource.Convention);
+            Assert.True(relationshipBuilder.Metadata.IsOwnership);
+
+            relationshipBuilder = relationshipBuilder.IsOwnership(false, ConfigurationSource.DataAnnotation);
+            Assert.False(relationshipBuilder.Metadata.IsOwnership);
+
+            Assert.Null(relationshipBuilder.IsOwnership(true, ConfigurationSource.Convention));
+            Assert.False(relationshipBuilder.Metadata.IsOwnership);
         }
 
         [Fact]

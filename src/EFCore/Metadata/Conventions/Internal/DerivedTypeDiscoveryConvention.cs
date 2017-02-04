@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityType = entityTypeBuilder.Metadata;
             var clrType = entityType.ClrType;
-            if (clrType == null)
+            if (clrType == null
+                || entityType.HasDelegatedIdentity())
             {
                 return entityTypeBuilder;
             }

@@ -735,4 +735,13 @@
   <data name="ConventionsInfiniteLoop" xml:space="preserve">
     <value>The convention invocations have reached the recursion limit. This is likely an issue in EF Core, please report it.</value>
   </data>
+  <data name="NoDefiningNavigation" xml:space="preserve">
+    <value>There is no navigation '{navigation}' on '{definingEntityType}' that was used to define the entity type with delegated identity '{entityType}'</value>
+  </data>
+  <data name="MultipleOwnerships" xml:space="preserve">
+    <value>The entity type '{entityType}' is the target of multiple ownership relationships.</value>
+  </data>
+  <data name="NonDefiningOwnership" xml:space="preserve">
+    <value>The ownership navigation '{ownershipNavigation}' should be the same as the defining navigation '{definingNavigation}' for entity type '{entityType}'</value>
+  </data>
 </root>

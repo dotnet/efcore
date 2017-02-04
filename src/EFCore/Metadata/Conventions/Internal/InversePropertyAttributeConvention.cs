@@ -40,6 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(navigationPropertyInfo, nameof(navigationPropertyInfo));
             Check.NotNull(attribute, nameof(attribute));
 
+            if (entityTypeBuilder.Metadata.HasDelegatedIdentity()
+                || entityTypeBuilder.ModelBuilder.Metadata.IsDelegatedIdentityEntityType(targetClrType))
+            {
+                return entityTypeBuilder;
+            }
+
             var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(targetClrType, ConfigurationSource.DataAnnotation);
             if (targetEntityTypeBuilder == null)
             {
@@ -157,8 +163,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public override InternalRelationshipBuilder Apply(
             InternalRelationshipBuilder relationshipBuilder, Navigation navigation, InversePropertyAttribute attribute)
-            => ConfigureInverseNavigation(
+        {
+            if (relationshipBuilder.Metadata.DeclaringEntityType.HasDelegatedIdentity()
+                || relationshipBuilder.Metadata.PrincipalEntityType.HasDelegatedIdentity())
+            {
+                return relationshipBuilder;
+            }
+
+            return ConfigureInverseNavigation(
                 navigation.DeclaringEntityType.Builder, navigation.PropertyInfo, navigation.GetTargetType().Builder, attribute);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -249,8 +263,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
                 var inverseTargetEntityType = entityType.Model.FindEntityType(referencingTuple.Item2);
-                if (inverseTargetEntityType == null
-                    || inverseTargetEntityType.Builder.IsIgnored(referencingTuple.Item1.Name, ConfigurationSource.DataAnnotation))
+
+                var isInverseDelegated = entityType.Model.IsDelegatedIdentityEntityType(referencingTuple.Item2);
+                if ((inverseTargetEntityType == null
+                     || inverseTargetEntityType.Builder.IsIgnored(referencingTuple.Item1.Name, ConfigurationSource.DataAnnotation))
+                    && !isInverseDelegated)
                 {
                     continue;
                 }
@@ -260,7 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return true;
                 }
 
-                if (!entityType.IsSameHierarchy(inverseTargetEntityType))
+                if ((isInverseDelegated && entityType.ClrType != referencingTuple.Item2)
+                    || (!isInverseDelegated && !entityType.IsSameHierarchy(inverseTargetEntityType)))
                 {
                     return true;
                 }
@@ -279,8 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 SetInverseNavigations(targetEntityType.Builder, inverseNavigations);
             }
 
-            List<Tuple<PropertyInfo, Type>> referencingNavigationsWithAttribute;
-            if (!inverseNavigations.TryGetValue(inverseNavigation, out referencingNavigationsWithAttribute))
+            if (!inverseNavigations.TryGetValue(inverseNavigation, out List<Tuple<PropertyInfo, Type>> referencingNavigationsWithAttribute))
             {
                 referencingNavigationsWithAttribute = new List<Tuple<PropertyInfo, Type>>();
                 inverseNavigations[inverseNavigation] = referencingNavigationsWithAttribute;
@@ -288,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
-                if (Equals(referencingTuple.Item1, navigation)
+                if (referencingTuple.Item1.IsSameAs(navigation)
                     && referencingTuple.Item2 == entityType.ClrType)
                 {
                     return referencingNavigationsWithAttribute;
@@ -317,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 for (var index = 0; index < referencingNavigationsWithAttribute.Count; index++)
                 {
                     var referencingTuple = referencingNavigationsWithAttribute[index];
-                    if (Equals(referencingTuple.Item1, navigation)
+                    if (referencingTuple.Item1.IsSameAs(navigation)
                         && referencingTuple.Item2 == entityType.ClrType)
                     {
                         referencingNavigationsWithAttribute.RemoveAt(index);
@@ -327,13 +344,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         }
                         if (referencingNavigationsWithAttribute.Count == 1)
                         {
-                            var otherEntityTypeBuilder = entityType.Model.Builder.Entity(
-                                referencingNavigationsWithAttribute[0].Item2, ConfigurationSource.DataAnnotation);
-                            targetEntityType.Builder.Relationship(
-                                otherEntityTypeBuilder,
-                                inverseNavigation,
-                                referencingNavigationsWithAttribute[0].Item1,
-                                ConfigurationSource.DataAnnotation);
+                            var clrType = referencingNavigationsWithAttribute[0].Item2;
+                            if (!entityType.Model.IsDelegatedIdentityEntityType(clrType))
+                            {
+                                targetEntityType.Builder.Relationship(
+                                    entityType.Model.Builder.Entity(clrType, ConfigurationSource.DataAnnotation),
+                                    inverseNavigation,
+                                    referencingNavigationsWithAttribute[0].Item1,
+                                    ConfigurationSource.DataAnnotation);
+                            }
                         }
 
                         return true;

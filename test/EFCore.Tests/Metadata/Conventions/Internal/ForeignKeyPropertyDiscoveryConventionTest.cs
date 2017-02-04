@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
+            var relationshipBuilder = PrincipalType.Relationship(DependentType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
@@ -627,28 +627,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.False(fk.IsRequired);
         }
 
-        // TODO: Issue #4440 For non-required FK, nullable property should be matched over any other
-        // [Fact]
-        public void Inverts_if_principal_entity_type_can_have_nullable_fk_property_for_non_required_relationship()
+        [Fact]
+        public void Does_not_invert_if_principal_entity_type_is_defining_the_dependent_entity_type()
         {
-            DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
-            var fkProperty = PrincipalType.Property(PrincipalEntity.DependentEntityKayPeeProperty, ConfigurationSource.Convention).Metadata;
-
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
-                .IsUnique(true, ConfigurationSource.Convention)
-                .IsRequired(false, ConfigurationSource.DataAnnotation);
+            PrincipalType.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
+            PrincipalType.Metadata.Model.RemoveEntityType(typeof(DependentEntity));
+            var relationshipBuilder = PrincipalType.Owns(
+                typeof(DependentEntity), nameof(PrincipalEntity.InverseReferenceNav), ConfigurationSource.Convention);
+            var dependentTypeBuilder = relationshipBuilder.Metadata.DeclaringEntityType.Builder;
+            dependentTypeBuilder.PrimaryKey(new[] { nameof(DependentEntity.KayPee) }, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
+            Assert.Same(dependentTypeBuilder.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
-            var fk = (IForeignKey)PrincipalType.Metadata.GetForeignKeys().Single();
+            newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
+
+            var fk = (IForeignKey)dependentTypeBuilder.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
-            Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(DependentType.Metadata.FindPrimaryKey(), fk.PrincipalKey);
+            Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
             Assert.True(fk.IsUnique);
-            Assert.False(fk.IsRequired);
-            Assert.Empty(DependentType.Metadata.GetForeignKeys());
         }
 
         [Fact]

@@ -29,6 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DebuggerStepThrough]
+        public static string ShortName([NotNull] this IEntityType type)
+            => ((ITypeBase)type).DisplayName();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [DebuggerStepThrough]
         public static string DisplayName([NotNull] this IEntityType type)
         {
             if (type.ClrType == null)
@@ -114,13 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsOwned([NotNull] this IEntityType entityType)
-            => entityType.HasDelegatedIdentity() && entityType.GetForeignKeys().Any(fk => fk.IsOwnership);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static INavigation FindDefiningNavigation([NotNull] this IEntityType entityType)
             => entityType.HasDelegatedIdentity() ? entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName) : null;
 
@@ -135,20 +136,67 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsInDefinitionPath([NotNull] this IEntityType type, [NotNull] Type targetType)
+        public static IEntityType FindInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
         {
-            var root = type;
+            var root = entityType;
             while (root != null)
             {
                 if (root.ClrType == targetType)
                 {
-                    return true;
+                    return root;
                 }
                 root = root.DefiningEntityType;
             }
 
-            return false;
+            return null;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static EntityType FindInDefinitionPath([NotNull] this EntityType entityType, [NotNull] Type targetType)
+            => (EntityType)((IEntityType)entityType).FindInDefinitionPath(targetType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEntityType FindInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] string targetTypeName)
+        {
+            var root = entityType;
+            while (root != null)
+            {
+                if (root.Name == targetTypeName)
+                {
+                    return root;
+                }
+                root = root.DefiningEntityType;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static EntityType FindInDefinitionPath([NotNull] this EntityType entityType, [NotNull] string targetTypeName)
+            => (EntityType)((IEntityType)entityType).FindInDefinitionPath(targetTypeName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
+            => FindInDefinitionPath(entityType, targetType) != null;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] string targetTypeName)
+            => FindInDefinitionPath(entityType, targetTypeName) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -4605,6 +4605,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             protected virtual void OnModelCreating(ModelBuilder modelBuilder)
             {
+                modelBuilder.Entity<SingleShadowFk>()
+                    .Property<int?>("ParentId");
+
                 modelBuilder.Entity<Parent>(b =>
                     {
                         b.Property(e => e.AlternateId).ValueGeneratedOnAdd();

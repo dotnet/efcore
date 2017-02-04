@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             public int Id { get; set; }
             public int Number { get; set; }
             public string Name { get; set; }
+            public ReferencedEntity ReferencedEntity { get; set; }
         }
 
         public class ReferencedEntity

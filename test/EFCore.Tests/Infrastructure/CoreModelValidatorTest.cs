@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -251,6 +252,79 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             entityGeneric.HasBaseType(entityAbstract);
 
             VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), model);
+        }
+
+        [Fact]
+        public virtual void Pases_on_valid_delegated_identity_entity_types()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
+            var ownershipBuilder = entityTypeBuilder.Owns(
+                typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
+            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+
+            Validate(modelBuilder.Metadata);
+        }
+
+        [Fact]
+        public virtual void Detects_delegated_identity_entity_type_without_defining_navigation()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
+            var ownershipBuilder = entityTypeBuilder.Owns(
+                typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
+            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+
+            entityTypeBuilder.Metadata.RemoveNavigation(nameof(SampleEntity.ReferencedEntity));
+
+            VerifyError(CoreStrings.NoDefiningNavigation(
+                nameof(SampleEntity.ReferencedEntity), nameof(SampleEntity),
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "->" + nameof(ReferencedEntity)),
+                modelBuilder.Metadata);
+        }
+
+        [Fact]
+        public virtual void Detects_delegated_identity_entity_type_with_multiple_ownerships()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
+            var ownershipBuilder = entityTypeBuilder.Owns(
+                typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
+            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+
+            ownedTypeBuilder.Relationship(entityTypeBuilder, (string)null, null, ConfigurationSource.Convention, setTargetAsPrincipal: true)
+                .Metadata.IsOwnership = true;
+
+            VerifyError(CoreStrings.MultipleOwnerships(
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "->" + nameof(ReferencedEntity)),
+                modelBuilder.Metadata);
+        }
+
+        [Fact]
+        public virtual void Detects_delegated_identity_entity_type_with_non_defining_ownership()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
+            var ownershipBuilder = entityTypeBuilder.Owns(
+                typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
+            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+
+            ownedTypeBuilder.Relationship(entityTypeBuilder, (string)null, null, ConfigurationSource.Convention, setTargetAsPrincipal: true)
+                .IsOwnership(true, ConfigurationSource.Convention);
+
+            VerifyError(CoreStrings.NonDefiningOwnership(
+                nameof(SampleEntity),
+                nameof(SampleEntity.ReferencedEntity),
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "->" + nameof(ReferencedEntity)),
+                modelBuilder.Metadata);
         }
 
         [Theory]

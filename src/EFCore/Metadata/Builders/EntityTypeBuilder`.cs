@@ -261,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
             where TRelatedEntity : class
         {
-            var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
+            var relatedEntityType = Builder.Metadata.FindInDefinitionPath(typeof(TRelatedEntity)) ??
+                                    Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
             var navigation = navigationExpression?.GetPropertyAccess();
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(

@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             EnsureNoShadowKeys(model);
             EnsureClrInheritance(model);
             EnsureChangeTrackingStrategy(model);
+            ValidateDelegatedIdentityNavigations(model);
             EnsureFieldMapping(model);
         }
 
@@ -195,6 +196,44 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected virtual void ValidateDelegatedIdentityNavigations([NotNull] IModel model)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                if (entityType.DefiningEntityType != null)
+                {
+                    if (entityType.FindDefiningNavigation() == null
+                         || (entityType.DefiningEntityType as EntityType)?.Builder == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.NoDefiningNavigation(
+                            entityType.DefiningNavigationName, entityType.DefiningEntityType.DisplayName(), entityType.DisplayName()));
+                    }
+
+                    if (entityType.GetForeignKeys().Count(fk => fk.IsOwnership) > 1)
+                    {
+                        throw new InvalidOperationException(CoreStrings.MultipleOwnerships(entityType.DisplayName()));
+                    }
+
+                    var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                    if (ownership != null
+                        && ownership.PrincipalToDependent?.Name != entityType.DefiningNavigationName)
+                    {
+                        var ownershipNavigation = ownership.PrincipalToDependent == null
+                            ? ""
+                            : "." + ownership.PrincipalToDependent.Name;
+                        throw new InvalidOperationException(CoreStrings.NonDefiningOwnership(
+                            ownership.PrincipalEntityType.DisplayName() + ownershipNavigation,
+                            entityType.DefiningNavigationName,
+                            entityType.DisplayName()));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureFieldMapping([NotNull] IModel model)
         {
             foreach (var entityType in model.GetEntityTypes())
@@ -203,14 +242,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .GetDeclaredProperties().Where(e => !e.IsShadowProperty).Cast<IPropertyBase>()
                     .Concat(entityType.GetDeclaredNavigations()))
                 {
-                    MemberInfo _;
-                    string errorMessage;
-
                     if (!propertyBase.TryGetMemberInfo(
                         forConstruction: true,
                         forSet: true,
-                        memberInfo: out _,
-                        errorMessage: out errorMessage))
+                        memberInfo: out var _,
+                        errorMessage: out var errorMessage))
                     {
                         ShowError(errorMessage);
                     }

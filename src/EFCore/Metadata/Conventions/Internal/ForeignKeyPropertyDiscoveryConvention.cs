@@ -45,14 +45,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true);
             if (foreignKeyProperties == null)
             {
+                if (foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType)
+                {
+                    relationshipBuilder = relationshipBuilder
+                        .RelatedEntityTypes(foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType, ConfigurationSource.Convention);
+                }
                 // Try to invert if one to one or can be converted to one to one
-                if ((foreignKey.IsUnique
-                     || foreignKey.PrincipalToDependent == null)
-                    && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
+                else if ((foreignKey.IsUnique
+                          || foreignKey.PrincipalToDependent == null)
+                         && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
                     var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
-                    if (candidatePropertiesOnPrincipal != null
-                        && !foreignKey.PrincipalEntityType.FindForeignKeysInHierarchy(candidatePropertiesOnPrincipal).Any())
+
+                    if ((candidatePropertiesOnPrincipal != null
+                         && !foreignKey.PrincipalEntityType.FindForeignKeysInHierarchy(candidatePropertiesOnPrincipal).Any())
+                        || foreignKey.PrincipalEntityType.DefiningEntityType == foreignKey.DeclaringEntityType)
                     {
                         var invertedRelationshipBuilder = relationshipBuilder
                             .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
@@ -100,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     foreignKey.Properties,
                     foreignKey.PrincipalKey.Properties,
                     foreignKey.IsRequired,
-                    foreignKey.DependentToPrincipal == null
-                        ? foreignKey.PrincipalEntityType.DisplayName() : foreignKey.DependentToPrincipal.Name);
+                    foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName());
                 return newTemporaryProperties != null
                     ? batch.Run(relationshipBuilder.HasForeignKey(
                         newTemporaryProperties, foreignKey.DeclaringEntityType, null))
@@ -168,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeToReference = onDependent
                 ? foreignKey.PrincipalEntityType
                 : foreignKey.DeclaringEntityType;
-            baseNames.Add(entityTypeToReference.DisplayName());
+            baseNames.Add(entityTypeToReference.ShortName());
 
             baseNames.Add("");
 

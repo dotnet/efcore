@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -102,8 +103,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether this entity type has delegated identity.
         /// </summary>
         /// <returns> True if this entity type has delegated identity. </returns>
+        [DebuggerStepThrough]
         public static bool HasDelegatedIdentity([NotNull] this IEntityType entityType)
             => entityType.DefiningEntityType != null;
+
+        /// <summary>
+        ///     Gets a value indicating whether this entity type is owned by another entity type.
+        /// </summary>
+        /// <returns> True if this entity type is owned by another entity type. </returns>
+        [DebuggerStepThrough]
+        public static bool IsOwned([NotNull] this IEntityType entityType)
+            => entityType.GetForeignKeys().Any(fk => fk.IsOwnership);
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns null if no key is defined

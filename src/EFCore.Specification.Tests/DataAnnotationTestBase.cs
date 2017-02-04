@@ -1615,13 +1615,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             Assert.Equal(nameof(P.QRef), qEntity.FindNavigation(nameof(Q.PRef)).FindInverse().Name);
             Assert.Equal(nameof(E.QRefDerived), qEntity.FindNavigation(nameof(Q.ERef)).FindInverse().Name);
-            Assert.Equal(qEntity.GetDeclaredForeignKeys().Count(), qEntity.GetDeclaredIndexes().Count());
-
-            var pEntity = modelBuilder.Model.FindEntityType(typeof(P));
-            Assert.Equal(pEntity.GetDeclaredForeignKeys().Count(), pEntity.GetDeclaredIndexes().Count());
-
-            var eEntity = modelBuilder.Model.FindEntityType(typeof(E));
-            Assert.Equal(eEntity.GetDeclaredForeignKeys().Count(), eEntity.GetDeclaredIndexes().Count());
         }
 
         public class Q

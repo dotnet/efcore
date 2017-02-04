@@ -77,10 +77,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var cascadeDeleteConvention = new CascadeDeleteConvention();
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention());
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.ForeignKeyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyAddedConventions.Add(keyConvention);
             conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyIndexConvention);
 
+            conventionSet.ForeignKeyRemovedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 

@@ -11,6 +11,7 @@
     <SignAssembly>True</SignAssembly>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+    <DebugType Condition="'$(Configuration)' == 'Debug' AND '$(OS)' == 'Windows_NT'">full</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.rd.xml" />
