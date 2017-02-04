@@ -48,11 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var count = QueryableArgQuery(context, new [] { "ALFKI" }.AsQueryable()).Count();
+                var count = QueryableArgQuery(context, new[] { "ALFKI" }.AsQueryable()).Count();
 
                 Assert.Equal(1, count);
 
-                count = QueryableArgQuery(context, new [] { "FOO" }.AsQueryable()).Count();
+                count = QueryableArgQuery(context, new[] { "FOO" }.AsQueryable()).Count();
 
                 Assert.Equal(0, count);
             }
@@ -709,7 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Where_indexer_closure()
         {
             // ReSharper disable once ConvertToConstant.Local
-            var city = new [] { "London" };
+            var city = new[] { "London" };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city[0]),
@@ -6291,7 +6291,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Bitwise_or_with_boolean_operators_in_predicate()
+        public virtual void Where_bitwise_or()
         {
             AssertQuery<Customer>(cs =>
                         cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"),
@@ -6299,14 +6299,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Bitwise_and_with_boolean_operators_in_predicate()
+        public virtual void Where_bitwise_and()
         {
             AssertQuery<Customer>(cs =>
                     cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
         }
 
         [ConditionalFact]
-        public virtual void Bitwise_or_with_boolean_operators_in_projection()
+        public virtual void Select_bitwise_or()
         {
             using (var context = CreateContext())
             {
@@ -6318,7 +6318,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Bitwise_or_multiple_with_boolean_operators_in_projection()
+        public virtual void Select_bitwise_or_multiple()
         {
             using (var context = CreateContext())
             {
@@ -6331,7 +6331,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Bitwise_and_with_boolean_operators_in_projection()
+        public virtual void Select_bitwise_and()
         {
             using (var context = CreateContext())
             {
@@ -6342,7 +6342,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Bitwise_and_or_with_boolean_operators_in_projection()
+        public virtual void Select_bitwise_and_or()
         {
             using (var context = CreateContext())
             {
@@ -6350,6 +6350,68 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToList();
 
                 Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_or_with_logical_or()
+        {
+            AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_with_logical_and()
+        {
+            AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_or_with_logical_and()
+        {
+            AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" && c.Country == "Germany"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_with_logical_or()
+        {
+            AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
+                    entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_or_with_logical_or()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new
+                {
+                    c.CustomerID,
+                    Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
+                }).ToList();
+
+                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
+                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_and_with_logical_and()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new
+                {
+                    c.CustomerID,
+                    Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
+                }).ToList();
+
+                Assert.All(query, t => Assert.Equal(false, t.Value));
             }
         }
 

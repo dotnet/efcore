@@ -900,8 +900,8 @@ WHERE [w].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
 
             Assert.Equal(
                 @"SELECT [w].[Id], CASE
-    WHEN [w].[IsAutomatic] = 1
-    THEN CAST(0 AS BIT) ELSE CAST(1 AS BIT)
+    WHEN [w].[IsAutomatic] = 0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 FROM [Weapon] AS [w]
 WHERE [w].[IsAutomatic] = 1",
