@@ -2105,13 +2105,30 @@ ORDER BY [s].[Id]",
             base.Any_with_optional_navigation_as_subquery_predicate_is_translated_to_sql();
 
             Assert.Equal(
-                @"SELECT [s].[Name]
+                @"SELECT [s].[Id], [s].[Name]
 FROM [Squad] AS [s]
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM [Gear] AS [m]
-    LEFT JOIN [CogTag] AS [m.Tag] ON ([m].[Nickname] = [m.Tag].[GearNickName]) AND ([m].[SquadId] = [m.Tag].[GearSquadId])
-    WHERE ((([m].[Discriminator] = N'Officer') OR ([m].[Discriminator] = N'Gear')) AND ([m.Tag].[Note] = N'Dom''s Tag')) AND ([s].[Id] = [m].[SquadId]))",
+
+@_outer_Id: 1
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Gear] AS [m]
+        LEFT JOIN [CogTag] AS [m.Tag] ON ([m].[Nickname] = [m.Tag].[GearNickName]) AND ([m].[SquadId] = [m.Tag].[GearSquadId])
+        WHERE ((([m].[Discriminator] = N'Officer') OR ([m].[Discriminator] = N'Gear')) AND ([m.Tag].[Note] = N'Dom''s Tag')) AND (@_outer_Id = [m].[SquadId]))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+
+@_outer_Id: 2
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Gear] AS [m]
+        LEFT JOIN [CogTag] AS [m.Tag] ON ([m].[Nickname] = [m.Tag].[GearNickName]) AND ([m].[SquadId] = [m.Tag].[GearSquadId])
+        WHERE ((([m].[Discriminator] = N'Officer') OR ([m].[Discriminator] = N'Gear')) AND ([m.Tag].[Note] = N'Dom''s Tag')) AND (@_outer_Id = [m].[SquadId]))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
                 Sql);
         }
 

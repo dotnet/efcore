@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public virtual ISet<IQuerySource> FindQuerySourcesRequiringMaterialization([NotNull] QueryModel queryModel)
         {
+            _querySources.Clear();
             _queryModel = queryModel;
             _selector = queryModel.SelectClause.Selector;
 
