@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
         ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
         ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
