@@ -44,6 +44,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Entity_key_on_shadow_property_is_discovered_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Order>().Property<int>("Id");
+
+                var entity = modelBuilder.Model.FindEntityType(typeof(Order));
+
+                modelBuilder.Validate();
+                Assert.Equal("Id", entity.FindPrimaryKey().Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Entity_key_on_secondary_property_is_discovered_by_convention_when_first_ignored()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRef>()
+                    .Ignore(s => s.SelfRef1)
+                    .Ignore(s => s.SelfRef2)
+                    .Ignore(s => s.Id);
+
+                modelBuilder.Validate();
+                var entity = modelBuilder.Model.FindEntityType(typeof(SelfRef));
+                Assert.Equal(nameof(SelfRef.SelfRefId), entity.FindPrimaryKey().Properties.Single().Name);
+            }
+
+            [Fact]
             public virtual void Can_set_entity_key_from_property_name_when_no_clr_property()
             {
                 var modelBuilder = CreateModelBuilder();

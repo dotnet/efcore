@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         var referencingFk = key.GetReferencingForeignKeys().FirstOrDefault();
                         var conventionalKey = key as Key;
-                        if (referencingFk != null
+                        if (!key.IsPrimaryKey()
+                            && referencingFk != null
                             && conventionalKey != null
                             && ConfigurationSource.Convention.Overrides(conventionalKey.GetConfigurationSource()))
                         {
