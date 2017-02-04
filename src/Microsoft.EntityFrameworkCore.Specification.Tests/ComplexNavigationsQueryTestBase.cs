@@ -3891,5 +3891,461 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             return argument;
         }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_reference_to_group_in_OrderBy()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            orderby groupJoin.Count()
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            orderby groupJoin.Count()
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_client_method_on_outer()
+        {
+            List<Tuple<int, int>> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select new Tuple<int, int>(l1.Id, ClientMethod(l1.Id))).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select new { l1.Id, client = ClientMethod(l1.Id) };
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Any(e => e.Item1 == resultItem.Id && e.Item2 == resultItem.client));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_client_method_in_OrderBy()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            orderby ClientMethod(l1.Id), ClientMethod(l2 != null ? l2.Id : (int?)null)
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            orderby ClientMethod(l1.Id), ClientMethod(l2 != null ? l2.Id : (int?)null)
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        private static int ClientMethod(int? id)
+        {
+            return id ?? 0;
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_without_DefaultIfEmpty()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.Select(gg => gg)
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.Select(gg => gg)
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_subquery_on_inner()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10).DefaultIfEmpty()
+                            orderby l2 == null ? null : l2.Name, l1.Id
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10).DefaultIfEmpty()
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10)
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10)
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_in_subquery_with_unrelated_projection()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne.Include(l1 => l1.OneToOne_Optional_FK)
+                    .ToList()
+                    .Where(l1 => l1.OneToOne_Optional_FK?.Name != "Foo")
+                    .Take(15)
+                    .Select(l1 => l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l1 => l1.OneToOne_Optional_FK.Name != "Foo")
+                    .Take(15)
+                    .Select(l1 => l1.Id);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in (from l1 in context.LevelOne.ToList()
+                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where l2?.Name != "Foo"
+                                        select l1).Take(15)
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in (from l1 in context.LevelOne
+                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where (l2 != null ? l2.Name : null) != "Foo"
+                                        select l1).Take(15)
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in (from l1 in context.LevelOne.ToList()
+                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where l2?.Name != "Foo"
+                                        select l1).Distinct()
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in (from l1 in context.LevelOne
+                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where (l2 != null ? l2.Name : null) != "Foo"
+                                        select l1).Distinct()
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection3()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in (from l1 in context.LevelOne.ToList()
+                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where l2?.Name != "Foo"
+                                        select l1.Id).Distinct()
+                            select l1).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in (from l1 in context.LevelOne
+                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where (l2 != null ? l2.Name : null) != "Foo"
+                                        select l1.Id).Distinct()
+                            select l1;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection4()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in (from l1 in context.LevelOne.ToList()
+                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where l2?.Name != "Foo"
+                                        select l1.Id).Distinct().Take(20)
+                            select l1).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in (from l1 in context.LevelOne
+                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                                        from l2 in grouping.DefaultIfEmpty()
+                                        where (l2 != null ? l2.Name : null) != "Foo"
+                                        select l1.Id).Distinct().Take(20)
+                            select l1;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Explicit_GroupJoin_in_subquery_with_scalar_result_operator()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne.ToList()
+                            where (from l1_inner in context.LevelOne.ToList()
+                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                                   from l2 in grouping.DefaultIfEmpty()
+                                   select l1_inner).Count() > 4
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            where (from l1_inner in context.LevelOne
+                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                                   from l2 in grouping.DefaultIfEmpty()
+                                   select l1_inner).Count() > 4
+                            select l1;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem.Id));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Explicit_GroupJoin_in_subquery_with_multiple_result_operator_distinct_count_materializes_main_clause()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne.ToList()
+                            where (from l1_inner in context.LevelOne.ToList()
+                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                                   from l2 in grouping.DefaultIfEmpty()
+                                   select l1_inner).Distinct().Count() > 4
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            where (from l1_inner in context.LevelOne
+                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                                   from l2 in grouping.DefaultIfEmpty()
+                                   select l1_inner).Distinct().Count() > 4
+                            select l1;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem.Id));
+                }
+            }
+        }
     }
 }

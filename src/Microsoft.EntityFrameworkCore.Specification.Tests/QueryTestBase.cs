@@ -5045,6 +5045,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupJoin_outer_projection3()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                        cs.GroupJoin(os, c => c.CustomerID, o => o.CustomerID, (c, g) => new { g = g.Select(o => o.CustomerID) }),
+                asserter: (l2oResults, efResults) => { Assert.Equal(l2oResults.Count, efResults.Count); });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_outer_projection4()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                        cs.GroupJoin(os, c => c.CustomerID, o => o.CustomerID, (c, g) => g.Select(o => o.CustomerID)),
+                asserter: (l2oResults, efResults) => { Assert.Equal(l2oResults.Count, efResults.Count); });
+        }
+
+        [ConditionalFact]
         public virtual void GroupJoin_outer_projection_reverse()
         {
             AssertQuery<Customer, Order>((cs, os) =>

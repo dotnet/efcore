@@ -340,33 +340,68 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            _querySourcesRequiringMaterialization
+            var requiresMaterializationExpressionVisitor
                 = _requiresMaterializationExpressionVisitorFactory
-                    .Create(queryModelVisitor)
+                    .Create(queryModelVisitor);
+
+            _querySourcesRequiringMaterialization = requiresMaterializationExpressionVisitor
                     .FindQuerySourcesRequiringMaterialization(queryModel);
 
-            var groupJoinClauses = queryModel.BodyClauses.OfType<GroupJoinClause>().ToList();
-            if (groupJoinClauses.Any())
+            var groupJoinMaterializationExpressionVisitor = new RequiresMaterializationForGroupJoinExpressionVisitor();
+            var groupJoinMaterializationQueryModelVistor = new RequiresMaterializationForGroupJoinQueryModelVisitor(
+                groupJoinMaterializationExpressionVisitor,
+                _querySourcesRequiringMaterialization,
+                requiresMaterializationExpressionVisitor);
+
+            groupJoinMaterializationExpressionVisitor.QueryModelVisitor = groupJoinMaterializationQueryModelVistor;
+            groupJoinMaterializationQueryModelVistor.VisitQueryModel(queryModel);
+        }
+
+        private class RequiresMaterializationForGroupJoinQueryModelVisitor : ExpressionTransformingQueryModelVisitor<RequiresMaterializationForGroupJoinExpressionVisitor>
+        {
+            private readonly ISet<IQuerySource> _querySourcesRequiringMaterialization;
+            private readonly RequiresMaterializationExpressionVisitor _requiresMaterializationExpressionVisitor;
+
+            public RequiresMaterializationForGroupJoinQueryModelVisitor(
+                RequiresMaterializationForGroupJoinExpressionVisitor transformingVisitor,
+                ISet<IQuerySource> querySourcesRequiringMaterialization,
+                RequiresMaterializationExpressionVisitor requiresMaterializationExpressionVisitor)
+                : base(transformingVisitor)
+            {
+                transformingVisitor.QueryModelVisitor = this;
+                _querySourcesRequiringMaterialization = querySourcesRequiringMaterialization;
+                _requiresMaterializationExpressionVisitor = requiresMaterializationExpressionVisitor;
+            }
+
+            public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
             {
                 _querySourcesRequiringMaterialization.Add(queryModel.MainFromClause);
-                foreach (var groupJoinClause in groupJoinClauses)
+                _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
+
+                var subQueryInnerSequence = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
+                if (subQueryInnerSequence != null)
                 {
-                    _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
+                    var subQuerySourcesRequiringMaterialization = 
+                        _requiresMaterializationExpressionVisitor
+                            .FindQuerySourcesRequiringMaterialization(subQueryInnerSequence.QueryModel);
 
-                    var subQueryInnerSequence = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
-                    if (subQueryInnerSequence != null)
+                    foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
                     {
-                        var subQuerySourcesRequiringMaterialization
-                            = _requiresMaterializationExpressionVisitorFactory
-                                .Create(queryModelVisitor)
-                                .FindQuerySourcesRequiringMaterialization(subQueryInnerSequence.QueryModel);
-
-                        foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
-                        {
-                            _querySourcesRequiringMaterialization.Add(subQuerySource);
-                        }
+                        _querySourcesRequiringMaterialization.Add(subQuerySource);
                     }
                 }
+            }
+        }
+
+        private class RequiresMaterializationForGroupJoinExpressionVisitor : ExpressionVisitorBase
+        {
+            public QueryModelVisitorBase QueryModelVisitor { get; set; }
+
+            protected override Expression VisitSubQuery(SubQueryExpression expression)
+            {
+                QueryModelVisitor.VisitQueryModel(expression.QueryModel);
+
+                return expression;
             }
         }
 
