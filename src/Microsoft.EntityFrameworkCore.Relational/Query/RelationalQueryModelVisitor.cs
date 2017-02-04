@@ -1010,7 +1010,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = (RelationalQueryModelVisitor)QueryCompilationContext
                     .CreateQueryModelVisitor(this);
 
-            subQueryModelVisitor.VisitSubQueryModel(subQueryExpression.QueryModel);
+            var subQueryModel = subQueryExpression.QueryModel;
+
+            var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
+            subQueryModel.PopulateQueryModelMapping(queryModelMapping);
+
+            subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
             if (subQueryModelVisitor.Queries.Count == 1
                 && !subQueryModelVisitor.RequiresClientEval
@@ -1047,6 +1052,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return newExpression;
                 }
             }
+
+            subQueryModel.RecreateQueryModelFromMapping(queryModelMapping);
 
             return expression;
         }
