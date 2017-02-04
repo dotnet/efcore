@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -19,13 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerExecutionStrategyFactory(
-            [NotNull] IDbContextOptions options,
-            [NotNull] ICurrentDbContext currentDbContext,
-            [NotNull] ILogger<IExecutionStrategy> logger)
-            : base(options, currentDbContext, logger)
+            [NotNull] ExecutionStrategyContextDependencies dependencies)
+            : base(dependencies)
         {
         }
 
-        protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyContext context) => SqlServerExecutionStrategy.Instance;
+        protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyContext context)
+            => SqlServerExecutionStrategy.Instance;
     }
 }

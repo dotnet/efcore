@@ -4,16 +4,11 @@
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
@@ -32,54 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerQueryModelVisitor(
-            [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
-            [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
-            [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
-            [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
-            [NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor,
-            [NotNull] IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory,
-            [NotNull] IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory,
-            [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
-            [NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory,
-            [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
-            [NotNull] IRelationalResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IExpressionPrinter expressionPrinter,
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
-            [NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory,
-            [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
-            [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
-            [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
-            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
-            [NotNull] IDbContextOptions contextOptions,
+            [NotNull] EntityQueryModelVisitorDependencies dependencies,
+            [NotNull] RelationalQueryModelVisitorDependencies relationalDependencies,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             // ReSharper disable once SuggestBaseTypeForParameter
             [CanBeNull] SqlServerQueryModelVisitor parentQueryModelVisitor)
-            : base(
-                queryOptimizer,
-                navigationRewritingExpressionVisitorFactory,
-                subQueryMemberPushDownExpressionVisitor,
-                querySourceTracingExpressionVisitorFactory,
-                entityResultFindingExpressionVisitorFactory,
-                taskBlockingExpressionVisitor,
-                memberAccessBindingExpressionVisitorFactory,
-                orderingExpressionVisitorFactory,
-                projectionExpressionVisitorFactory,
-                entityQueryableExpressionVisitorFactory,
-                queryAnnotationExtractor,
-                resultOperatorHandler,
-                entityMaterializerSource,
-                expressionPrinter,
-                relationalAnnotationProvider,
-                includeExpressionVisitorFactory,
-                sqlTranslatingExpressionVisitorFactory,
-                compositePredicateExpressionVisitorFactory,
-                conditionalRemovingExpressionVisitorFactory,
-                queryFlattenerFactory,
-                contextOptions,
-                queryCompilationContext,
-                parentQueryModelVisitor)
+            : base(dependencies, relationalDependencies, queryCompilationContext, parentQueryModelVisitor)
         {
         }
 

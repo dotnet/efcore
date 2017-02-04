@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -14,24 +13,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
     /// </summary>
     public class RelationalProjectionExpressionVisitorFactory : IProjectionExpressionVisitorFactory
     {
-        private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalProjectionExpressionVisitorFactory" />.
         /// </summary>
-        /// <param name="sqlTranslatingExpressionVisitorFactory"> The SQL translating expression visitor factory. </param>
-        /// <param name="entityMaterializerSource"> The entity materializer source. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalProjectionExpressionVisitorFactory(
-            [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource)
+            [NotNull] RelationalProjectionExpressionVisitorDependencies dependencies)
         {
-            Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
-            _entityMaterializerSource = entityMaterializerSource;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="RelationalProjectionExpressionVisitorFactory" />
+        /// </summary>
+        protected virtual RelationalProjectionExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new ExpressionVisitor.
@@ -44,8 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         public virtual ExpressionVisitor Create(
             EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
             => new RelationalProjectionExpressionVisitor(
-                _sqlTranslatingExpressionVisitorFactory,
-                _entityMaterializerSource,
+                Dependencies,
                 (RelationalQueryModelVisitor)Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)),
                 Check.NotNull(querySource, nameof(querySource)));
     }

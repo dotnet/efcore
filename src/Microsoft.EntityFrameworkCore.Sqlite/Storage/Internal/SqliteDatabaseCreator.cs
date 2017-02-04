@@ -4,9 +4,6 @@
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -22,22 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly ISqliteRelationalConnection _connection;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public SqliteDatabaseCreator(
+            [NotNull] RelationalDatabaseCreatorDependencies dependencies,
             [NotNull] ISqliteRelationalConnection connection,
-            [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
-            [NotNull] IModel model,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            : base(model, connection, modelDiffer, migrationsSqlGenerator, migrationCommandExecutor, executionStrategyFactory)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            : base(dependencies)
         {
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-
             _connection = connection;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
         }
@@ -48,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override void Create()
         {
-            Connection.Open();
-            Connection.Close();
+            Dependencies.Connection.Open();
+            Dependencies.Connection.Close();
         }
 
         /// <summary>
@@ -81,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             var count = (long)_rawSqlCommandBuilder
                 .Build("SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;")
-                .ExecuteScalar(Connection);
+                .ExecuteScalar(Dependencies.Connection);
 
             return count != 0;
         }
@@ -94,11 +81,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             string path = null;
 
-            Connection.Open();
+            Dependencies.Connection.Open();
             try
             {
-                path = Connection.DbConnection.DataSource;
-                Connection.Close();
+                path = Dependencies.Connection.DbConnection.DataSource;
+                Dependencies.Connection.Close();
             }
             catch
             {

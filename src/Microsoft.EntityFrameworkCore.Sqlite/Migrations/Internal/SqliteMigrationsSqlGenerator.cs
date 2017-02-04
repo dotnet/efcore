@@ -13,16 +13,12 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     {
-        public SqliteMigrationsSqlGenerator(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
+        public SqliteMigrationsSqlGenerator([NotNull] MigrationsSqlGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 
@@ -61,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .Append("DROP INDEX ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
         }
 
@@ -75,10 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder
                     .Append("ALTER TABLE ")
-                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" RENAME TO ")
-                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.NewName))
-                    .AppendLine(SqlGenerationHelper.StatementTerminator)
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.NewName))
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                     .EndCommand();
             }
         }
@@ -137,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     builder
                         .Append(" CONSTRAINT ")
-                        .Append(SqlGenerationHelper.DelimitIdentifier(inlinePkName));
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(inlinePkName));
                 }
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = annotatable[SqliteFullAnnotationNames.Instance.Autoincrement] as bool?

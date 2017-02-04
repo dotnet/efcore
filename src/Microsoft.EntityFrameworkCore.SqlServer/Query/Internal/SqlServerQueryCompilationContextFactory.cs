@@ -2,10 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -20,19 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerQueryCompilationContextFactory(
-            [NotNull] IModel model,
-            [NotNull] ISensitiveDataLogger<SqlServerQueryCompilationContextFactory> logger,
-            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
-            [NotNull] ICurrentDbContext currentContext)
-            : base(
-                model,
-                logger,
-                entityQueryModelVisitorFactory,
-                requiresMaterializationExpressionVisitorFactory,
-                nodeTypeProviderFactory,
-                currentContext)
+            [NotNull] QueryCompilationContextDependencies dependencies,
+            [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies)
+            : base(dependencies, relationalDependencies)
         {
         }
 
@@ -43,22 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public override QueryCompilationContext Create(bool async)
             => async
                 ? new SqlServerQueryCompilationContext(
-                    Model,
-                    (ISensitiveDataLogger)Logger,
-                    EntityQueryModelVisitorFactory,
-                    RequiresMaterializationExpressionVisitorFactory,
+                    Dependencies,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
-                    ContextType,
                     TrackQueryResults)
                 : new SqlServerQueryCompilationContext(
-                    Model,
-                    (ISensitiveDataLogger)Logger,
-                    EntityQueryModelVisitorFactory,
-                    RequiresMaterializationExpressionVisitorFactory,
+                    Dependencies,
                     new LinqOperatorProvider(),
                     new QueryMethodProvider(),
-                    ContextType,
                     TrackQueryResults);
     }
 }

@@ -40,28 +40,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryCompilationContext(
-            [NotNull] IModel model,
-            [NotNull] ILogger logger,
-            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+            [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] Type contextType,
             bool trackQueryResults)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
-            Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
-            Check.NotNull(contextType, nameof(contextType));
 
-            Model = model;
-            Logger = logger;
+            Model = dependencies.Model;
+            Logger = dependencies.Logger;
 
-            _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
-            _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
+            _entityQueryModelVisitorFactory = dependencies.EntityQueryModelVisitorFactory;
+            _requiresMaterializationExpressionVisitorFactory = dependencies.RequiresMaterializationExpressionVisitorFactory;
 
             LinqOperatorProvider = linqOperatorProvider;
-            ContextType = contextType;
+            ContextType = dependencies.CurrentContext.Context.GetType();
             TrackQueryResults = trackQueryResults;
         }
 

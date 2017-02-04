@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
-            Assert.Equal("nvarchar(64)", new SqlServerTypeMapper().FindMapping(property).StoreType);
+            Assert.Equal("nvarchar(64)", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
 
             return modelBuilder;
         }
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
-            Assert.Equal("rowversion", new SqlServerTypeMapper().FindMapping(property).StoreType);
+            Assert.Equal("rowversion", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
 
             return modelBuilder;
         }
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp");
-            Assert.Equal("rowversion", new SqlServerTypeMapper().FindMapping(property).StoreType);
+            Assert.Equal("rowversion", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
 
             return modelBuilder;
         }

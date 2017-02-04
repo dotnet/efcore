@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -14,6 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class ParameterNameGeneratorFactory : IParameterNameGeneratorFactory
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ParameterNameGeneratorFactory" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public ParameterNameGeneratorFactory([NotNull] ParameterNameGeneratorDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
+
         /// <summary>
         ///     Creates a new <see cref="ParameterNameGenerator" />.
         /// </summary>

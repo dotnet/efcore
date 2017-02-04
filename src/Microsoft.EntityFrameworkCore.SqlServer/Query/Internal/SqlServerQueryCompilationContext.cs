@@ -1,11 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -20,22 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerQueryCompilationContext(
-            [NotNull] IModel model,
-            [NotNull] ISensitiveDataLogger logger,
-            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+            [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] Type contextType,
             bool trackQueryResults)
             : base(
-                model,
-                logger,
-                entityQueryModelVisitorFactory,
-                requiresMaterializationExpressionVisitorFactory,
+                dependencies,
                 linqOperatorProvider,
                 queryMethodProvider,
-                contextType,
                 trackQueryResults)
         {
         }

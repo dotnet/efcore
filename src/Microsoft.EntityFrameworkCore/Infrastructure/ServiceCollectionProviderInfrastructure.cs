@@ -101,7 +101,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .TryAddScopedEnumerable<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>())
                 .TryAddScopedEnumerable<IEntityStateListener, ILocalViewListener>(p => p.GetService<ILocalViewListener>())
                 .TryAddScopedEnumerable<IResettableService, IStateManager>(p => p.GetService<IStateManager>())
-                .TryAddScopedEnumerable<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
+                .TryAddScopedEnumerable<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>())
+                .TryAddSingleton<DatabaseProviderDependencies, DatabaseProviderDependencies>()
+                .TryAddSingleton<ResultOperatorHandlerDependencies, ResultOperatorHandlerDependencies>()
+                .TryAddSingleton<ModelSourceDependencies, ModelSourceDependencies>()
+                .TryAddSingleton<ValueGeneratorCacheDependencies, ValueGeneratorCacheDependencies>()
+                .TryAddScoped(typeof(SensitiveDataLoggerDependencies<>), typeof(SensitiveDataLoggerDependencies<>))
+                .TryAddScoped<ExecutionStrategyContextDependencies, ExecutionStrategyContextDependencies>()
+                .TryAddScoped<CompiledQueryCacheKeyGeneratorDependencies, CompiledQueryCacheKeyGeneratorDependencies>()
+                .TryAddScoped<QueryContextDependencies, QueryContextDependencies>()
+                .TryAddScoped<ModelValidatorDependencies, ModelValidatorDependencies>()
+                .TryAddScoped<ValueGeneratorSelectorDependencies, ValueGeneratorSelectorDependencies>()
+                .TryAddScoped<EntityQueryModelVisitorDependencies, EntityQueryModelVisitorDependencies>()
+                .TryAddScoped<DatabaseDependencies, DatabaseDependencies>()
+                .TryAddScoped<ModelCustomizerDependencies, ModelCustomizerDependencies>()
+                .TryAddScoped<ModelCacheKeyFactoryDependencies, ModelCacheKeyFactoryDependencies>()
+                .TryAddScoped<QueryCompilationContextDependencies, QueryCompilationContextDependencies>();
 
             // Note: does TryAdd on all services
             serviceCollectionMap.ServiceCollection.AddMemoryCache();

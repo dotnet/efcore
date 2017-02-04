@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,60 +21,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
-        private readonly IMigrationsModelDiffer _modelDiffer;
-        private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
         /// </summary>
-        /// <param name="model"> The <see cref="IModel" /> for the context this creator is being used with. </param>
-        /// <param name="connection"> The <see cref="IRelationalConnection" /> to be used. </param>
-        /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer" /> to be used. </param>
-        /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator" /> to be used. </param>
-        /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
-        /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory" /> to be used. </param>
-        protected RelationalDatabaseCreator(
-            [NotNull] IModel model,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected RelationalDatabaseCreator([NotNull] RelationalDatabaseCreatorDependencies dependencies)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(modelDiffer, nameof(modelDiffer));
-            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
-            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            Model = model;
-            Connection = connection;
-            _modelDiffer = modelDiffer;
-            _migrationsSqlGenerator = migrationsSqlGenerator;
-            MigrationCommandExecutor = migrationCommandExecutor;
-            ExecutionStrategyFactory = executionStrategyFactory;
+            Dependencies = dependencies;
         }
 
         /// <summary>
-        ///     Gets the model for the context this creator is being used with.
+        ///     Parameter object containing service dependencies.
         /// </summary>
-        protected virtual IModel Model { get; }
-
-        /// <summary>
-        ///     Gets the connection for the database.
-        /// </summary>
-        protected virtual IRelationalConnection Connection { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="IMigrationCommandExecutor" /> to be used.
-        /// </summary>
-        protected virtual IMigrationCommandExecutor MigrationCommandExecutor { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
-        /// </summary>
-        protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; private set; }
+        protected virtual RelationalDatabaseCreatorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Determines whether the physical database exists. No attempt is made to determine if the database
@@ -151,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     to incrementally update the schema. It is assumed that none of the tables exist in the database.
         /// </summary>
         public virtual void CreateTables()
-            => MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Connection);
+            => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Dependencies.Connection);
 
         /// <summary>
         ///     Asynchronously creates all tables for the current model in the database. No attempt is made
@@ -162,14 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation.
         /// </returns>
         public virtual async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => await MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateTablesCommands(), Connection, cancellationToken);
+            => await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateTablesCommands(), Dependencies.Connection, cancellationToken);
 
         /// <summary>
         ///     Gets the commands that will create all tables from the model.
         /// </summary>
         /// <returns> The generated commands. </returns>
         protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands()
-            => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
+            => Dependencies.MigrationsSqlGenerator.Generate(Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model), Dependencies.Model);
 
         /// <summary>
         ///     Determines whether the database contains any tables. No attempt is made to determine if

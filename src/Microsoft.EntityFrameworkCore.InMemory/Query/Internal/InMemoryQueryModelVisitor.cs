@@ -10,9 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -31,38 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryQueryModelVisitor(
-            [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
-            [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
-            [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
-            [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
-            [NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor,
-            [NotNull] IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory,
-            [NotNull] IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory,
-            [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
-            [NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory,
-            [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
-            [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IExpressionPrinter expressionPrinter,
+            [NotNull] EntityQueryModelVisitorDependencies dependencies,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] QueryCompilationContext queryCompilationContext)
-            : base(
-                Check.NotNull(queryOptimizer, nameof(queryOptimizer)),
-                Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory)),
-                Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor)),
-                Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory)),
-                Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory)),
-                Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor)),
-                Check.NotNull(memberAccessBindingExpressionVisitorFactory, nameof(memberAccessBindingExpressionVisitorFactory)),
-                Check.NotNull(orderingExpressionVisitorFactory, nameof(orderingExpressionVisitorFactory)),
-                Check.NotNull(projectionExpressionVisitorFactory, nameof(projectionExpressionVisitorFactory)),
-                Check.NotNull(entityQueryableExpressionVisitorFactory, nameof(entityQueryableExpressionVisitorFactory)),
-                Check.NotNull(queryAnnotationExtractor, nameof(queryAnnotationExtractor)),
-                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
-                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(expressionPrinter, nameof(expressionPrinter)),
-                Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)))
+            : base(dependencies, queryCompilationContext)
         {
             Check.NotNull(materializerFactory, nameof(materializerFactory));
 
@@ -358,23 +328,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<IEntityType, ValueBuffer, object> materializer,
             bool queryStateManager)
             where TEntity : class
-        => ((InMemoryQueryContext)queryContext).Store
-            .GetTables(entityType)
-            .SelectMany(t =>
-                t.Rows.Select(vs =>
-                    {
-                        var valueBuffer = new ValueBuffer(vs);
+            => ((InMemoryQueryContext)queryContext).Store
+                .GetTables(entityType)
+                .SelectMany(t =>
+                    t.Rows.Select(vs =>
+                        {
+                            var valueBuffer = new ValueBuffer(vs);
 
-                        return (TEntity)queryContext
-                            .QueryBuffer
-                            .GetEntity(
-                                key,
-                                new EntityLoadInfo(
-                                    valueBuffer,
-                                    vr => materializer(t.EntityType, vr)),
-                                queryStateManager,
-                                throwOnNullKey: false);
-                    }));
+                            return (TEntity)queryContext
+                                .QueryBuffer
+                                .GetEntity(
+                                    key,
+                                    new EntityLoadInfo(
+                                        valueBuffer,
+                                        vr => materializer(t.EntityType, vr)),
+                                    queryStateManager,
+                                    throwOnNullKey: false);
+                        }));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -386,8 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         private static IEnumerable<ValueBuffer> ProjectionQuery(
-                QueryContext queryContext,
-                IEntityType entityType)
+            QueryContext queryContext,
+            IEntityType entityType)
             => ((InMemoryQueryContext)queryContext).Store
                 .GetTables(entityType)
                 .SelectMany(t => t.Rows.Select(vs => new ValueBuffer(vs)));

@@ -19,7 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Action<ModelBuilder> onModelCreating,
             IDbSetFinder setFinder,
             ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(setFinder, coreConventionSetBuilder, new ModelCustomizer(), new ModelCacheKeyFactory())
+            : base(
+                new ModelSourceDependencies(
+                    setFinder,
+                    coreConventionSetBuilder,
+                    new ModelCustomizer(new ModelCustomizerDependencies()),
+                    new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
         {
             _onModelCreating = onModelCreating;
         }

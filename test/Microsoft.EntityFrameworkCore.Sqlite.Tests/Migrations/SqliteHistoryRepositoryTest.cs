@@ -101,32 +101,34 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         private static IHistoryRepository CreateHistoryRepository()
         {
             var annotationsProvider = new SqliteAnnotationProvider();
-            var sqlGenerator = new SqliteSqlGenerationHelper();
-            var typeMapper = new SqliteTypeMapper();
+            var sqlGenerator = new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
+            var typeMapper = new SqliteTypeMapper(new RelationalTypeMapperDependencies());
 
             return new SqliteHistoryRepository(
-                Mock.Of<IRelationalDatabaseCreator>(),
-                Mock.Of<IRawSqlCommandBuilder>(),
-                Mock.Of<IRelationalConnection>(),
-                new DbContextOptions<DbContext>(
-                    new Dictionary<Type, IDbContextOptionsExtension>
-                    {
-                        { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
-                    }),
-                new MigrationsModelDiffer(
-                    new SqliteTypeMapper(),
+                new HistoryRepositoryDependencies(
+                    Mock.Of<IRelationalDatabaseCreator>(),
+                    Mock.Of<IRawSqlCommandBuilder>(),
+                    Mock.Of<IRelationalConnection>(),
+                    new DbContextOptions<DbContext>(
+                        new Dictionary<Type, IDbContextOptionsExtension>
+                        {
+                            { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
+                        }),
+                    new MigrationsModelDiffer(
+                        new SqliteTypeMapper(new RelationalTypeMapperDependencies()),
+                        annotationsProvider,
+                        new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
+                    new SqliteMigrationsSqlGenerator(
+                        new MigrationsSqlGeneratorDependencies(
+                            new RelationalCommandBuilderFactory(
+                                new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                                new DiagnosticListener("Fake"),
+                                typeMapper),
+                            new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
+                            typeMapper,
+                            annotationsProvider)),
                     annotationsProvider,
-                    new SqliteMigrationsAnnotationProvider()),
-                new SqliteMigrationsSqlGenerator(
-                    new RelationalCommandBuilderFactory(
-                        new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                        new DiagnosticListener("Fake"),
-                        typeMapper),
-                    new SqliteSqlGenerationHelper(),
-                    typeMapper,
-                    annotationsProvider),
-                annotationsProvider,
-                sqlGenerator);
+                    sqlGenerator));
         }
 
         private class Context : DbContext

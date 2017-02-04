@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -16,6 +17,15 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
     {
         private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache
             = new ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState>();
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public SqlServerValueGeneratorCache([NotNull] ValueGeneratorCacheDependencies dependencies)
+            : base(dependencies)
+        {
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

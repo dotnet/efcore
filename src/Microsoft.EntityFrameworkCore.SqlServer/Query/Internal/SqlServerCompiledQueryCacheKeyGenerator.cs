@@ -3,11 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -17,21 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCacheKeyGenerator
     {
-        private readonly IDbContextOptions _contextOptions;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerCompiledQueryCacheKeyGenerator(
-            [NotNull] IModel model,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDbContextOptions contextOptions)
-            : base(model, currentContext, contextOptions)
+            [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
+            [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
+            : base(dependencies, relationalDependencies)
         {
-            Check.NotNull(contextOptions, nameof(contextOptions));
-
-            _contextOptions = contextOptions;
         }
 
         /// <summary>
@@ -41,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public override object GenerateCacheKey(Expression query, bool async)
             => new SqlServerCompiledQueryCacheKey(
                 GenerateCacheKeyCore(query, async),
-                _contextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false);
+                RelationalDependencies.ContextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false);
 
         private struct SqlServerCompiledQueryCacheKey
         {
@@ -62,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool Equals(SqlServerCompiledQueryCacheKey other)
                 => _relationalCompiledQueryCacheKey.Equals(other._relationalCompiledQueryCacheKey)
-                   && (_useRowNumberOffset == other._useRowNumberOffset);
+                   && _useRowNumberOffset == other._useRowNumberOffset;
 
             public override int GetHashCode()
             {

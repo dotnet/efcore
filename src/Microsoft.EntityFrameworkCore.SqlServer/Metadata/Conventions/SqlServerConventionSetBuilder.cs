@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -15,11 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
         public SqlServerConventionSetBuilder(
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [CanBeNull] ICurrentDbContext currentContext,
-            [CanBeNull] IDbSetFinder setFinder,
+            [NotNull] RelationalConventionSetBuilderDependencies dependencies,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            : base(typeMapper, currentContext, setFinder)
+            : base(dependencies)
         {
             _sqlGenerationHelper = sqlGenerationHelper;
         }
@@ -54,7 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         public static ConventionSet Build()
-            => new SqlServerConventionSetBuilder(new SqlServerTypeMapper(), null, null, new SqlServerSqlGenerationHelper())
+            => new SqlServerConventionSetBuilder(
+                    new RelationalConventionSetBuilderDependencies(
+                        new SqlServerTypeMapper(
+                            new RelationalTypeMapperDependencies()),
+                        null,
+                        null),
+                    new SqlServerSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies()))
                 .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
     }
 }

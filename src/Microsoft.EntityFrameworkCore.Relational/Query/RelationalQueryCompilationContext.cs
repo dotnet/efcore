@@ -32,22 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalQueryCompilationContext(
-            [NotNull] IModel model,
-            [NotNull] ISensitiveDataLogger logger,
-            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+            [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] Type contextType,
             bool trackQueryResults)
-            : base(
-                model,
-                logger,
-                entityQueryModelVisitorFactory,
-                requiresMaterializationExpressionVisitorFactory,
-                linqOperatorProvider,
-                contextType,
-                trackQueryResults)
+            : base(dependencies, linqOperatorProvider, trackQueryResults)
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
 

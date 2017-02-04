@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,7 +72,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeRawSqlCommandBuilder(blockSize),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
+                new SqlServerUpdateSqlGenerator(
+                    new UpdateSqlGeneratorDependencies(
+                        new SqlServerSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies())), 
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())),
                 state,
                 CreateConnection());
 
@@ -118,7 +124,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
             var executor = new FakeRawSqlCommandBuilder(blockSize);
-            var sqlGenerator = new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper());
+            var sqlGenerator = new SqlServerUpdateSqlGenerator(
+                new UpdateSqlGeneratorDependencies(
+                    new SqlServerSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies())),
+                new SqlServerTypeMapper(new RelationalTypeMapperDependencies()));
 
             var tests = new Func<Task>[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -161,7 +171,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeRawSqlCommandBuilder(4),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
+                new SqlServerUpdateSqlGenerator(
+                    new UpdateSqlGeneratorDependencies(
+                        new SqlServerSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies())),
+                    new SqlServerTypeMapper(new RelationalTypeMapperDependencies())),
                 state,
                 CreateConnection());
 

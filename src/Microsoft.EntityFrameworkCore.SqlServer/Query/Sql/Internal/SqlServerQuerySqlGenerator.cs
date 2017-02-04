@@ -23,17 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerQuerySqlGenerator(
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper,
+            [NotNull] QuerySqlGeneratorDependencies dependencies,
             [NotNull] SelectExpression selectExpression)
-            : base(
-                relationalCommandBuilderFactory,
-                sqlGenerationHelper,
-                parameterNameGeneratorFactory,
-                relationalTypeMapper,
-                selectExpression)
+            : base(dependencies, selectExpression)
         {
         }
 

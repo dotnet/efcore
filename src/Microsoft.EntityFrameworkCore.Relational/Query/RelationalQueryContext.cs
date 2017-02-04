@@ -7,8 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -30,17 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalQueryContext(
+            [NotNull] QueryContextDependencies dependencies,
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IRelationalConnection connection,
-            [NotNull] LazyRef<IStateManager> stateManager,
-            [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            : base(
-                Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),
-                Check.NotNull(stateManager, nameof(stateManager)),
-                Check.NotNull(concurrencyDetector, nameof(concurrencyDetector)))
+            : base(dependencies, queryBufferFactory)
         {
             Check.NotNull(connection, nameof(connection));
+            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
 
             Connection = connection;
             ExecutionStrategyFactory = executionStrategyFactory;

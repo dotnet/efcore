@@ -52,6 +52,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             };
 
         /// <summary>
+        ///     Initializes a new instance of the <see cref="ResultOperatorHandler" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public ResultOperatorHandler([NotNull] ResultOperatorHandlerDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
+
+        /// <summary>
         ///     Handles the result operator.
         /// </summary>
         /// <param name="entityQueryModelVisitor"> The entity query model visitor. </param>
@@ -205,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.FirstOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.First)
-                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleGroup(
@@ -259,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.Last)
-                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleLongCount(EntityQueryModelVisitor entityQueryModelVisitor)
@@ -288,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.SingleOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.Single)
-                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleSkip(

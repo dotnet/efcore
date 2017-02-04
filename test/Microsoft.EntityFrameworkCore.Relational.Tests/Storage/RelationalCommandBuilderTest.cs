@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var commandBuilder = new RelationalCommandBuilder(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
                 new DiagnosticListener("Fake"),
-                new FakeRelationalTypeMapper());
+                new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 
             var command = commandBuilder.Build();
 
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var commandBuilder = new RelationalCommandBuilder(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
                 new DiagnosticListener("Fake"),
-                new FakeRelationalTypeMapper());
+                new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 
             commandBuilder.ParameterBuilder.AddParameter(
                 "InvariantName",

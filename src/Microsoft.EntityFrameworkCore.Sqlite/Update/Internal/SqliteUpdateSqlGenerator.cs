@@ -5,7 +5,6 @@ using System;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -20,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqliteUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            : base(sqlGenerationHelper)
+        public SqliteUpdateSqlGenerator([NotNull] UpdateSqlGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 

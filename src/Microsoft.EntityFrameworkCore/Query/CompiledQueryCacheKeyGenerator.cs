@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -22,22 +21,21 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class CompiledQueryCacheKeyGenerator : ICompiledQueryCacheKeyGenerator
     {
-        private readonly IModel _model;
-        private readonly DbContext _context;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="CompiledQueryCacheKeyGenerator" /> class.
         /// </summary>
-        /// <param name="model"> The model that queries will be written against. </param>
-        /// <param name="currentContext"> The context that queries will be executed for. </param>
-        public CompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] ICurrentDbContext currentContext)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public CompiledQueryCacheKeyGenerator([NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _model = model;
-            _context = currentContext.Context;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="CompiledQueryCacheKeyGenerator" />
+        /// </summary>
+        protected virtual CompiledQueryCacheKeyGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Generates the cache key for the given query.
@@ -57,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
             => new CompiledQueryCacheKey(
                 Check.NotNull(query, nameof(query)),
-                _model,
-                _context.ChangeTracker.QueryTrackingBehavior,
+                Dependencies.Model,
+                Dependencies.Context.Context.ChangeTracker.QueryTrackingBehavior,
                 async);
 
         /// <summary>

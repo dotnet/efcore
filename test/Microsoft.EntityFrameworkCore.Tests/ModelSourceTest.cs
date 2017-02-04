@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
     public class ModelSourceTest
     {
         private readonly CoreModelValidator _coreModelValidator
-            = new CoreModelValidator(new Logger<ModelValidator>(new LoggerFactory()));
+            = new CoreModelValidator(new ModelValidatorDependencies(new Logger<ModelValidator>(new LoggerFactory())));
 
         private readonly NullConventionSetBuilder _nullConventionSetBuilder
             = new NullConventionSetBuilder();
@@ -97,7 +97,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private class ConcreteModelSource : ModelSource
         {
             public ConcreteModelSource(IDbSetFinder setFinder)
-                : base(setFinder, new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
+                : base(new ModelSourceDependencies(
+                    setFinder,
+                    new CoreConventionSetBuilder(),
+                    new ModelCustomizer(new ModelCustomizerDependencies()),
+                    new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
             {
             }
         }

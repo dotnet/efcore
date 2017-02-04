@@ -27,23 +27,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalProjectionExpressionVisitor" />.
         /// </summary>
-        /// <param name="sqlTranslatingExpressionVisitorFactory"> The SQL translating expression visitor factory. </param>
-        /// <param name="entityMaterializerSource"> The entity materializer source. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="queryModelVisitor"> The query model visitor. </param>
         /// <param name="querySource"> The query source. </param>
         public RelationalProjectionExpressionVisitor(
-            [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] RelationalProjectionExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
-            Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(querySource, nameof(querySource));
 
-            _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
-            _entityMaterializerSource = entityMaterializerSource;
+            _sqlTranslatingExpressionVisitorFactory = dependencies.SqlTranslatingExpressionVisitorFactory;
+            _entityMaterializerSource = dependencies.EntityMaterializerSource;
             _querySource = querySource;
         }
 
@@ -126,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
 
-            if ((node != null)
+            if (node != null
                 && !(node is ConstantExpression)
-                && (selectExpression != null))
+                && selectExpression != null)
             {
                 var existingProjectionsCount = selectExpression.Projection.Count;
 
@@ -204,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                                 var outputDataInfo
                                     = (node as SubQueryExpression)?.QueryModel
-                                        .GetOutputDataInfo();
+                                    .GetOutputDataInfo();
 
                                 if (outputDataInfo is StreamedScalarValueInfo)
                                 {

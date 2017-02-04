@@ -23,10 +23,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
-                    new SqlServerTypeMapper()),
-                new SqlServerSqlGenerationHelper(),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
-                new UntypedRelationalValueBufferFactoryFactory(),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())),
+                new SqlServerSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()),
+                new SqlServerUpdateSqlGenerator(
+                    new UpdateSqlGeneratorDependencies(
+                        new SqlServerSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies())),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())),
+                new UntypedRelationalValueBufferFactoryFactory(
+                    new RelationalValueBufferFactoryDependencies()),
                 optionsBuilder.Options);
 
             var batch = factory.Create();
@@ -45,10 +53,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
-                    new SqlServerTypeMapper()),
-                new SqlServerSqlGenerationHelper(),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
-                new UntypedRelationalValueBufferFactoryFactory(),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())),
+                new SqlServerSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()),
+                new SqlServerUpdateSqlGenerator(
+                    new UpdateSqlGeneratorDependencies(
+                        new SqlServerSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies())),
+                    new SqlServerTypeMapper(new RelationalTypeMapperDependencies())),
+                new UntypedRelationalValueBufferFactoryFactory(
+                    new RelationalValueBufferFactoryDependencies()),
                 optionsBuilder.Options);
 
             var batch = factory.Create();

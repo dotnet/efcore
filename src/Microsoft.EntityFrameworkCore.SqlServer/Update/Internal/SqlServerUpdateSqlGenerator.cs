@@ -23,13 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     {
         private readonly IRelationalTypeMapper _typeMapper;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper,
+        public SqlServerUpdateSqlGenerator(
+            [NotNull] UpdateSqlGeneratorDependencies dependencies,
             [NotNull] IRelationalTypeMapper typeMapper)
-            : base(sqlGenerationHelper)
+            : base(dependencies)
         {
             _typeMapper = typeMapper;
         }
@@ -46,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(modificationCommands, nameof(modificationCommands));
 
-            if ((modificationCommands.Count == 1)
+            if (modificationCommands.Count == 1
                 && modificationCommands[0].ColumnModifications.All(o =>
                     !o.IsKey
                     || !o.IsRead
-                    || (o.Property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)))
+                    || o.Property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
@@ -67,8 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             if (defaultValuesOnly)
             {
-                if ((nonIdentityOperations.Count == 0)
-                    || (readOperations.Count == 0))
+                if (nonIdentityOperations.Count == 0
+                    || readOperations.Count == 0)
                 {
                     foreach (var modification in modificationCommands)
                     {

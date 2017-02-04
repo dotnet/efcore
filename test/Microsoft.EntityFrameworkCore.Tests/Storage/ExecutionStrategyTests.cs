@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -21,12 +20,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public class TestExecutionStrategy : ExecutionStrategy
         {
             public TestExecutionStrategy(DbContext context)
-                : base(new ExecutionStrategyContext(context, null), DefaultMaxRetryCount, DefaultMaxDelay)
+                : base(
+                    new ExecutionStrategyContext(
+                        new ExecutionStrategyContextDependencies(
+                            new CurrentDbContext(context), null, null)),
+                    DefaultMaxRetryCount,
+                    DefaultMaxDelay)
             {
             }
 
             public TestExecutionStrategy(DbContext context, int retryCount)
-                : base(new ExecutionStrategyContext(context, null), retryCount, DefaultMaxDelay)
+                : base(
+                    new ExecutionStrategyContext(
+                        new ExecutionStrategyContextDependencies(new CurrentDbContext(context), null, null)),
+                    retryCount,
+                    DefaultMaxDelay)
             {
             }
 
@@ -291,8 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
             {
-                    CallBase = true
-                };
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e => TimeSpan.FromTicks(0));
@@ -477,9 +485,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private async Task ExecuteAsync_doesnt_retry_if_suspended(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionStrategyMock = new Mock<TestExecutionStrategy>(CreateContext())
-                {
-                    CallBase = true
-                };
+            {
+                CallBase = true
+            };
 
             executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
                 e =>
@@ -616,18 +624,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 e => e is ArgumentOutOfRangeException);
 
             Assert.IsType<ArgumentOutOfRangeException>(
-                (await Assert.ThrowsAsync<RetryLimitExceededException>(
-                    () =>
-                        executeAsync(
-                            executionStrategyMock.Object, ct =>
+            (await Assert.ThrowsAsync<RetryLimitExceededException>(
+                () =>
+                    executeAsync(
+                        executionStrategyMock.Object, ct =>
+                            {
+                                if (executionCount++ < 3)
                                 {
-                                    if (executionCount++ < 3)
-                                    {
-                                        throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                                    }
-                                    Assert.True(false);
-                                    return Task.FromResult(0);
-                                }))).InnerException.InnerException);
+                                    throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                                }
+                                Assert.True(false);
+                                return Task.FromResult(0);
+                            }))).InnerException.InnerException);
 
             Assert.Equal(3, executionCount);
         }

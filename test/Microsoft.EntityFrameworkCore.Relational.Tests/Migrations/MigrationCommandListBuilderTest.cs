@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -120,6 +121,6 @@ Statement3
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
-                    new FakeRelationalTypeMapper()));
+                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())));
     }
 }

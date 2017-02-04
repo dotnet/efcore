@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -128,6 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design
         }
 
         private static ScaffoldingTypeMapper CreateMapper()
-            => new ScaffoldingTypeMapper(new SqliteTypeMapper());
+            => new ScaffoldingTypeMapper(new SqliteTypeMapper(new RelationalTypeMapperDependencies()));
     }
 }

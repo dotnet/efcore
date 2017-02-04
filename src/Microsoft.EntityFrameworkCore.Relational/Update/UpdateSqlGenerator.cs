@@ -12,14 +12,23 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
-        protected UpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+        /// <summary>
+        ///     Initializes a new instance of the this class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected UpdateSqlGenerator([NotNull] UpdateSqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            SqlGenerationHelper = sqlGenerationHelper;
+            Dependencies = dependencies;
         }
 
-        protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected virtual UpdateSqlGeneratorDependencies Dependencies { get; }
+
+        protected virtual ISqlGenerationHelper SqlGenerationHelper => Dependencies.SqlGenerationHelper;
 
         public virtual ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {

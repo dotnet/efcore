@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Sql
@@ -16,60 +15,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
     public abstract class QuerySqlGeneratorFactoryBase : IQuerySqlGeneratorFactory
     {
         /// <summary>
-        ///     Specialised constructor for use only by derived class.
+        ///     Initializes a new instance of the this class.
         /// </summary>
-        /// <param name="commandBuilderFactory"> The command builder factory. </param>
-        /// <param name="sqlGenerationHelper"> The SQL generation helper. </param>
-        /// <param name="parameterNameGeneratorFactory"> The parameter name generator factory. </param>
-        /// <param name="relationalTypeMapper"> The relational type mapper. </param>
-        protected QuerySqlGeneratorFactoryBase(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected QuerySqlGeneratorFactoryBase([NotNull] QuerySqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
-            Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            CommandBuilderFactory = commandBuilderFactory;
-            SqlGenerationHelper = sqlGenerationHelper;
-            ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
-            RelationalTypeMapper = relationalTypeMapper;
+            Dependencies = dependencies;
         }
 
         /// <summary>
-        ///     Gets the command builder factory.
+        ///     Parameter object containing service dependencies.
         /// </summary>
-        /// <value>
-        ///     The command builder factory.
-        /// </value>
-        protected virtual IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
-
-        /// <summary>
-        ///     Gets the SQL generation helper.
-        /// </summary>
-        /// <value>
-        ///     The SQL generation helper.
-        /// </value>
-        protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
-
-        /// <summary>
-        ///     Gets the parameter name generator factory.
-        /// </summary>
-        /// <value>
-        ///     The parameter name generator factory.
-        /// </value>
-        protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
-
-        /// <summary>
-        ///     Gets the relational type mapper.
-        /// </summary>
-        /// <value>
-        ///     The relational type mapper.
-        /// </value>
-        protected virtual IRelationalTypeMapper RelationalTypeMapper { get; }
+        protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a default query SQL generator.
@@ -94,10 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             string sql,
             Expression arguments)
             => new FromSqlNonComposedQuerySqlGenerator(
-                CommandBuilderFactory,
-                SqlGenerationHelper,
-                ParameterNameGeneratorFactory,
-                RelationalTypeMapper,
+                Dependencies,
                 Check.NotNull(selectExpression, nameof(selectExpression)),
                 Check.NotEmpty(sql, nameof(sql)),
                 Check.NotNull(arguments, nameof(arguments)));

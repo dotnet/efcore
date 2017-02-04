@@ -22,24 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         private readonly string _sql;
         private readonly Expression _arguments;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public FromSqlNonComposedQuerySqlGenerator(
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper,
+            [NotNull] QuerySqlGeneratorDependencies dependencies,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] Expression arguments)
-            : base(
-                Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory)),
-                Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper)),
-                Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory)),
-                Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper)),
-                Check.NotNull(selectExpression, nameof(selectExpression)))
+            : base(dependencies, selectExpression)
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(arguments, nameof(arguments));

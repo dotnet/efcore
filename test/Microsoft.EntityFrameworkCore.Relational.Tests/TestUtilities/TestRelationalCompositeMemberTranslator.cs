@@ -7,5 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
 {
     public class TestRelationalCompositeMemberTranslator : RelationalCompositeMemberTranslator
     {
+        public TestRelationalCompositeMemberTranslator(RelationalCompositeMemberTranslatorDependencies dependencies)
+            : base(dependencies)
+        {
+        }
     }
 }

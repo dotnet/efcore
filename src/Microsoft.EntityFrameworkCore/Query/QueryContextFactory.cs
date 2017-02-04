@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -19,17 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected QueryContextFactory(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IConcurrencyDetector concurrencyDetector)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected QueryContextFactory([NotNull] QueryContextDependencies dependencies)
         {
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(concurrencyDetector, nameof(concurrencyDetector));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            StateManager = new LazyRef<IStateManager>(() => currentContext.Context.GetService<IStateManager>());
-            ConcurrencyDetector = concurrencyDetector;
-            ChangeDetector = new LazyRef<IChangeDetector>(() => currentContext.Context.GetService<IChangeDetector>());
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual QueryContextDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a query buffer.
@@ -38,31 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The new query buffer.
         /// </returns>
         protected virtual IQueryBuffer CreateQueryBuffer()
-            => new QueryBuffer(StateManager, ChangeDetector);
-
-        /// <summary>
-        ///     Gets the change detector.
-        /// </summary>
-        /// <value>
-        ///     The change detector.
-        /// </value>
-        protected virtual LazyRef<IChangeDetector> ChangeDetector { get; }
-
-        /// <summary>
-        ///     Gets the state manager.
-        /// </summary>
-        /// <value>
-        ///     The state manager.
-        /// </value>
-        protected virtual LazyRef<IStateManager> StateManager { get; }
-
-        /// <summary>
-        ///     Gets the concurrency detector.
-        /// </summary>
-        /// <value>
-        ///     The concurrency detector.
-        /// </value>
-        protected virtual IConcurrencyDetector ConcurrencyDetector { get; }
+            => new QueryBuffer(Dependencies.StateManager, Dependencies.ChangeDetector);
 
         /// <summary>
         ///     Creates a new QueryContext.

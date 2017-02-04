@@ -56,40 +56,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <summary>
         ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitor" />.
         /// </summary>
-        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
-        /// <param name="compositeExpressionFragmentTranslator"> The composite expression fragment translator. </param>
-        /// <param name="methodCallTranslator"> The method call translator. </param>
-        /// <param name="memberTranslator"> The member translator. </param>
-        /// <param name="relationalTypeMapper"> The relational type mapper. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="queryModelVisitor"> The query model visitor. </param>
         /// <param name="targetSelectExpression"> The target select expression. </param>
         /// <param name="topLevelPredicate"> The top level predicate. </param>
         /// <param name="bindParentQueries"> true to bind parent queries. </param>
         /// <param name="inProjection"> true if the expression to be translated is a LINQ projection. </param>
         public SqlTranslatingExpressionVisitor(
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
-            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
-            [NotNull] IMethodCallTranslator methodCallTranslator,
-            [NotNull] IMemberTranslator memberTranslator,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper,
+            [NotNull] SqlTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] SelectExpression targetSelectExpression = null,
             [CanBeNull] Expression topLevelPredicate = null,
             bool bindParentQueries = false,
             bool inProjection = false)
         {
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-            Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
-            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
-            Check.NotNull(memberTranslator, nameof(memberTranslator));
-            Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
-            _relationalAnnotationProvider = relationalAnnotationProvider;
-            _compositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
-            _methodCallTranslator = methodCallTranslator;
-            _memberTranslator = memberTranslator;
-            _relationalTypeMapper = relationalTypeMapper;
+            _relationalAnnotationProvider = dependencies.RelationalAnnotationProvider;
+            _compositeExpressionFragmentTranslator = dependencies.CompositeExpressionFragmentTranslator;
+            _methodCallTranslator = dependencies.MethodCallTranslator;
+            _memberTranslator = dependencies.MemberTranslator;
+            _relationalTypeMapper = dependencies.RelationalTypeMapper;
             _queryModelVisitor = queryModelVisitor;
             _targetSelectExpression = targetSelectExpression;
             _topLevelPredicate = topLevelPredicate;

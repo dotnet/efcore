@@ -381,6 +381,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public class TestTypedValueBufferFactoryFactory : TypedRelationalValueBufferFactoryFactory
         {
+            public TestTypedValueBufferFactoryFactory(RelationalValueBufferFactoryDependencies dependencies)
+                : base(dependencies)
+            {
+            }
         }
 
         [Fact]

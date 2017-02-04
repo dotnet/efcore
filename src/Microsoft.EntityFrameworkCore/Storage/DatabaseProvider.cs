@@ -1,8 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -24,6 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class DatabaseProvider<TOptionsExtension> : IDatabaseProvider
         where TOptionsExtension : class, IDbContextOptionsExtension
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DatabaseProvider{TOptionsExtension}" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public DatabaseProvider([NotNull] DatabaseProviderDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
+
         /// <summary>
         ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
         ///     for the providers runtime.

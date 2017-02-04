@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -189,9 +190,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
         protected override ModelValidator CreateModelValidator()
             => new SqlServerModelValidator(
-                new Logger<RelationalModelValidator>(
-                    new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
-                new TestSqlServerAnnotationProvider(),
-                new SqlServerTypeMapper());
+                new ModelValidatorDependencies(
+                    new Logger<RelationalModelValidator>(
+                        new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName))),
+                new RelationalModelValidatorDependencies(
+                    new TestSqlServerAnnotationProvider(),
+                    new SqlServerTypeMapper(new RelationalTypeMapperDependencies())));
     }
 }

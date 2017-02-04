@@ -3,10 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -21,14 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryQueryContext(
+            [NotNull] QueryContextDependencies dependencies,
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
-            [NotNull] IInMemoryStore store,
-            [NotNull] LazyRef<IStateManager> stateManager,
-            [NotNull] IConcurrencyDetector concurrencyDetector)
-            : base(
-                Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),
-                Check.NotNull(stateManager, nameof(stateManager)),
-                Check.NotNull(concurrencyDetector, nameof(concurrencyDetector)))
+            [NotNull] IInMemoryStore store)
+            : base(dependencies, queryBufferFactory)
         {
             Store = store;
         }

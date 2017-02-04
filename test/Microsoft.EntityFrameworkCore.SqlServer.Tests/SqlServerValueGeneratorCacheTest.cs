@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -66,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo()
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
@@ -108,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
@@ -123,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal(11, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
@@ -138,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.StartsWith(
                 CoreStrings.HiLoBadBlockSize,
@@ -155,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal(11, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
@@ -169,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo()
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
@@ -183,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
@@ -197,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
@@ -211,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
@@ -226,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
@@ -241,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
@@ -255,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
             Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
@@ -270,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
             Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
@@ -286,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
             Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
@@ -302,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .Property(e => e.Id)
                 .Metadata;
 
-            var cache = new SqlServerValueGeneratorCache();
+            var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
             Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);

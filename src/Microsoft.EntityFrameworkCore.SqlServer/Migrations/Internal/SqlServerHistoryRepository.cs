@@ -4,11 +4,7 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -23,24 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerHistoryRepository(
-            [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] ISqlServerConnection connection,
-            [NotNull] IDbContextOptions options,
-            [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IRelationalAnnotationProvider annotations,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            : base(
-                databaseCreator,
-                rawSqlCommandBuilder,
-                connection,
-                options,
-                modelDiffer,
-                migrationsSqlGenerator,
-                annotations,
-                sqlGenerationHelper)
+        public SqlServerHistoryRepository([NotNull] HistoryRepositoryDependencies dependencies)
+            : base(dependencies)
         {
         }
 

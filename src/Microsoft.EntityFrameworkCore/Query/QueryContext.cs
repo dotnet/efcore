@@ -30,19 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryContext(
-            [NotNull] Func<IQueryBuffer> queryBufferFactory,
-            [NotNull] LazyRef<IStateManager> stateManager,
-            [NotNull] IConcurrencyDetector concurrencyDetector)
+            [NotNull] QueryContextDependencies dependencies,
+            [NotNull] Func<IQueryBuffer> queryBufferFactory)
         {
             Check.NotNull(queryBufferFactory, nameof(queryBufferFactory));
-            Check.NotNull(stateManager, nameof(stateManager));
-            Check.NotNull(concurrencyDetector, nameof(concurrencyDetector));
+            Check.NotNull(dependencies, nameof(dependencies));
 
             _queryBufferFactory = queryBufferFactory;
-
-            StateManager = stateManager;
-            ConcurrencyDetector = concurrencyDetector;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual QueryContextDependencies Dependencies { get; }
 
         /// <summary>
         ///     The query buffer.
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The state manager.
         /// </value>
-        public virtual LazyRef<IStateManager> StateManager { get; }
+        public virtual LazyRef<IStateManager> StateManager => Dependencies.StateManager;
 
         /// <summary>
         ///     The query provider.
@@ -72,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The concurrency detector.
         /// </value>
-        public virtual IConcurrencyDetector ConcurrencyDetector { get; }
+        public virtual IConcurrencyDetector ConcurrencyDetector => Dependencies.ConcurrencyDetector;
 
         /// <summary>
         ///     Gets or sets the cancellation token.

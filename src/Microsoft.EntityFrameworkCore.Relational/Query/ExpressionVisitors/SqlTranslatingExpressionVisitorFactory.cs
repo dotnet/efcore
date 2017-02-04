@@ -3,10 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
@@ -16,39 +13,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
     /// </summary>
     public class SqlTranslatingExpressionVisitorFactory : ISqlTranslatingExpressionVisitorFactory
     {
-        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
-        private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
-        private readonly IMethodCallTranslator _methodCallTranslator;
-        private readonly IMemberTranslator _memberTranslator;
-        private readonly IRelationalTypeMapper _relationalTypeMapper;
-
         /// <summary>
         ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitorFactory" />.
         /// </summary>
-        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
-        /// <param name="compositeExpressionFragmentTranslator"> The composite expression fragment translator. </param>
-        /// <param name="methodCallTranslator"> The method call translator. </param>
-        /// <param name="memberTranslator"> The member translator. </param>
-        /// <param name="relationalTypeMapper"> The relational type mapper. </param>
-        public SqlTranslatingExpressionVisitorFactory(
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
-            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
-            [NotNull] IMethodCallTranslator methodCallTranslator,
-            [NotNull] IMemberTranslator memberTranslator,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public SqlTranslatingExpressionVisitorFactory([NotNull] SqlTranslatingExpressionVisitorDependencies dependencies)
         {
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-            Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
-            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
-            Check.NotNull(memberTranslator, nameof(memberTranslator));
-            Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _relationalAnnotationProvider = relationalAnnotationProvider;
-            _compositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
-            _methodCallTranslator = methodCallTranslator;
-            _memberTranslator = memberTranslator;
-            _relationalTypeMapper = relationalTypeMapper;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="RelationalProjectionExpressionVisitorFactory" />
+        /// </summary>
+        protected virtual SqlTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new SqlTranslatingExpressionVisitor.
@@ -68,11 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             bool bindParentQueries = false,
             bool inProjection = false)
             => new SqlTranslatingExpressionVisitor(
-                _relationalAnnotationProvider,
-                _compositeExpressionFragmentTranslator,
-                _methodCallTranslator,
-                _memberTranslator,
-                _relationalTypeMapper,
+                Dependencies,
                 Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
                 targetSelectExpression,
                 topLevelPredicate,

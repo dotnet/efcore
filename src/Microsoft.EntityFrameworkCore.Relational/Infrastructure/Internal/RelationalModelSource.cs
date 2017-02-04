@@ -4,7 +4,6 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
@@ -15,12 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     /// </summary>
     public class RelationalModelSource : ModelSource
     {
-        public RelationalModelSource(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
-            [NotNull] IModelCustomizer modelCustomizer,
-            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
+        public RelationalModelSource([NotNull] ModelSourceDependencies dependencies)
+            : base(dependencies)
         {
         }
 
@@ -32,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         {
             base.FindSets(modelBuilder, context);
 
-            var sets = SetFinder.CreateClrTypeDbSetMapping(context);
+            var sets = Dependencies.SetFinder.CreateClrTypeDbSetMapping(context);
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes().Cast<EntityType>())
             {

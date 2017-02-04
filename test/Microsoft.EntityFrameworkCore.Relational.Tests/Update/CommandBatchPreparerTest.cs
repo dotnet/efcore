@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     Mock.Of<IRelationalValueBufferFactoryFactory>());
 
             return new CommandBatchPreparer(modificationCommandBatchFactory,
-                new ParameterNameGeneratorFactory(),
+                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
                 new ModificationCommandComparer(),
                 new TestAnnotationProvider(),
                 new KeyValueIndexFactorySource());

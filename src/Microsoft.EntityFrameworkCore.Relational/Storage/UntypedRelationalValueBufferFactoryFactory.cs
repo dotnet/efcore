@@ -8,7 +8,9 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -29,6 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class UntypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="UntypedRelationalValueBufferFactoryFactory" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public UntypedRelationalValueBufferFactoryFactory([NotNull] RelationalValueBufferFactoryDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
+        }
+
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual RelationalValueBufferFactoryDependencies Dependencies { get; }
+
         private struct CacheKey
         {
             public CacheKey(IReadOnlyList<Type> valueTypes)
@@ -75,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var processValuesAction = _cache.GetOrAdd(new CacheKey(valueTypes), _createValueProcessorDelegate);
 
             return indexMap == null
-                ? (IRelationalValueBufferFactory)new UntypedRelationalValueBufferFactory(processValuesAction)
-                : new RemappingUntypedRelationalValueBufferFactory(indexMap, processValuesAction);
+                ? (IRelationalValueBufferFactory)new UntypedRelationalValueBufferFactory(Dependencies, processValuesAction)
+                : new RemappingUntypedRelationalValueBufferFactory(Dependencies, indexMap, processValuesAction);
         }
 
         private static readonly Func<CacheKey, Action<object[]>> _createValueProcessorDelegate = CreateValueProcessor;

@@ -56,9 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                     new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
                     idGenerator),
                 new MigrationsModelDiffer(
-                    new TestRelationalTypeMapper(),
+                    new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
                     new TestAnnotationProvider(),
-                    new MigrationsAnnotationProvider()),
+                    new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
                 idGenerator,
                 new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),
                 new MockHistoryRepository(),

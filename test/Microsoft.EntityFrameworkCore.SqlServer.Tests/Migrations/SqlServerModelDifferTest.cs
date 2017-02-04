@@ -5,10 +5,12 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -845,9 +847,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
 
         protected override MigrationsModelDiffer CreateModelDiffer()
             => new MigrationsModelDiffer(
-                new SqlServerTypeMapper(),
+                new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
                 new SqlServerAnnotationProvider(),
-                new SqlServerMigrationsAnnotationProvider());
+                new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()));
 
         private bool? IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerFullAnnotationNames.Instance.MemoryOptimized] as bool?;

@@ -77,8 +77,10 @@ namespace Microsoft.EntityFrameworkCore
             TimeSpan maxRetryDelay,
             [CanBeNull] ICollection<int> errorNumbersToAdd)
             : this(new ExecutionStrategyContext(
-                context, context.GetService<IDbContextServices>().LoggerFactory.CreateLogger<IExecutionStrategy>()),
-                maxRetryCount, maxRetryDelay, errorNumbersToAdd)
+                    context.GetService<ExecutionStrategyContextDependencies>()),
+                maxRetryCount,
+                maxRetryDelay,
+                errorNumbersToAdd)
         {
         }
 

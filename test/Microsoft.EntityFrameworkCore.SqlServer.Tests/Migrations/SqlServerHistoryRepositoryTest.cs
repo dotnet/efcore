@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
@@ -141,8 +141,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         private static IHistoryRepository CreateHistoryRepository(string schema = null)
         {
             var annotationsProvider = new SqlServerAnnotationProvider();
-            var sqlGenerator = new SqlServerSqlGenerationHelper();
-            var typeMapper = new SqlServerTypeMapper();
+            var sqlGenerator = new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
+            var typeMapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
 
             var commandBuilderFactory = new RelationalCommandBuilderFactory(
                 new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
@@ -150,29 +150,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 typeMapper);
 
             return new SqlServerHistoryRepository(
-                Mock.Of<IRelationalDatabaseCreator>(),
-                Mock.Of<IRawSqlCommandBuilder>(),
-                Mock.Of<ISqlServerConnection>(),
-                new DbContextOptions<DbContext>(
-                    new Dictionary<Type, IDbContextOptionsExtension>
-                    {
+                new HistoryRepositoryDependencies(
+                    Mock.Of<IRelationalDatabaseCreator>(),
+                    Mock.Of<IRawSqlCommandBuilder>(),
+                    Mock.Of<ISqlServerConnection>(),
+                    new DbContextOptions<DbContext>(
+                        new Dictionary<Type, IDbContextOptionsExtension>
                         {
-                            typeof(SqlServerOptionsExtension),
-                            new SqlServerOptionsExtension { MigrationsHistoryTableSchema = schema }
-                        }
-                    }),
-                new MigrationsModelDiffer(
-                    new SqlServerTypeMapper(),
+                            {
+                                typeof(SqlServerOptionsExtension),
+                                new SqlServerOptionsExtension { MigrationsHistoryTableSchema = schema }
+                            }
+                        }),
+                    new MigrationsModelDiffer(
+                        new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
+                        annotationsProvider,
+                        new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
+                    new SqlServerMigrationsSqlGenerator(
+                        new MigrationsSqlGeneratorDependencies(
+                            commandBuilderFactory,
+                            new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
+                            typeMapper,
+                            annotationsProvider),
+                        new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
                     annotationsProvider,
-                    new SqlServerMigrationsAnnotationProvider()),
-                new SqlServerMigrationsSqlGenerator(
-                    commandBuilderFactory,
-                    new SqlServerSqlGenerationHelper(),
-                    typeMapper,
-                    annotationsProvider,
-                    new SqlServerMigrationsAnnotationProvider()),
-                annotationsProvider,
-                sqlGenerator);
+                    sqlGenerator));
         }
 
         private class Context : DbContext

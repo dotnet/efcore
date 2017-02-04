@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
@@ -12,18 +11,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// </summary>
     public class SelectExpressionFactory : ISelectExpressionFactory
     {
-        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
-
         /// <summary>
         ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpressionFactory class.
         /// </summary>
-        /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
-        public SelectExpressionFactory([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public SelectExpressionFactory([NotNull] SelectExpressionDependencies dependencies)
         {
-            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _querySqlGeneratorFactory = querySqlGeneratorFactory;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="SelectExpression" />
+        /// </summary>
+        protected virtual SelectExpressionDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new SelectExpression.
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     A SelectExpression.
         /// </returns>
         public virtual SelectExpression Create(RelationalQueryCompilationContext queryCompilationContext)
-            => new SelectExpression(_querySqlGeneratorFactory, queryCompilationContext);
+            => new SelectExpression(Dependencies, queryCompilationContext);
 
         /// <summary>
         ///     Creates a new SelectExpression.
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         public virtual SelectExpression Create(RelationalQueryCompilationContext queryCompilationContext, string alias)
             => new SelectExpression(
-                _querySqlGeneratorFactory,
+                Dependencies,
                 queryCompilationContext,
                 Check.NotEmpty(alias, nameof(alias)));
     }
