@@ -2030,6 +2030,43 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_binary_or_with_logical_and()
+        {
+            AssertQuery<Order>(os => os
+                .Where(o => o.OrderID > 54321 | o.OrderID > 98765)
+                .Where(o => o.OrderID > 1234567));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_binary_and_with_logical_and()
+        {
+            AssertQuery<Order>(os => os
+                .Where(o => o.OrderID > 54321 & o.OrderID > 98765)
+                .Where(o => o.OrderID > 1234567));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_binary_or_with_logical_or()
+        {
+            AssertQuery<Order>(os => os
+                .Where(o => (o.OrderID > 54321 | o.OrderID > 98765) || o.OrderID > 1234567));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_binary_and_with_logical_or()
+        {
+            AssertQuery<Order>(os => os
+                .Where(o => (o.OrderID > 54321 & o.OrderID > 98765) || o.OrderID > 1234567));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_binary_or_with_binary_or()
+        {
+            AssertQuery<Order>(os => os
+                .Where(o => o.OrderID > 54321 | o.OrderID > 98765 | o.OrderID > 1234567));
+        }
+
+        [ConditionalFact]
         public virtual void Select_scalar()
         {
             AssertQuery<Customer>(

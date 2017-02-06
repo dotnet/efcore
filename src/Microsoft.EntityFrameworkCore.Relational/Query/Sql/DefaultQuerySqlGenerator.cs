@@ -1652,68 +1652,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             protected override Expression VisitBinary(BinaryExpression expression)
             {
-                Expression newLeft;
-                Expression newRight;
+                var parentIsSearchCondition = _isSearchCondition;
 
-                if (_isSearchCondition)
+                if (expression.IsLogicalOperation())
                 {
-                    if (expression.IsComparisonOperation()
-                        || expression.NodeType == ExpressionType.Or
-                        || expression.NodeType == ExpressionType.And)
-                    {
-                        var parentIsSearchCondition = _isSearchCondition;
-
-                        _isSearchCondition = false;
-
-                        newLeft = AdjustExpressionType(Visit(expression.Left), expression.Left.Type);
-                        newRight = AdjustExpressionType(Visit(expression.Right), expression.Right.Type);
-
-                        _isSearchCondition = parentIsSearchCondition;
-
-                        return Expression.MakeBinary(expression.NodeType, newLeft, newRight);
-                    }
+                    _isSearchCondition = true;
                 }
                 else
                 {
-                    if (expression.IsLogicalOperation()
-                        || expression.NodeType == ExpressionType.Or
-                        || expression.NodeType == ExpressionType.And)
-                    {
-                        var parentIsSearchCondition = _isSearchCondition;
-                        _isSearchCondition = expression.IsLogicalOperation();
-
-                        newLeft = Visit(expression.Left);
-                        newRight = Visit(expression.Right);
-
-                        _isSearchCondition = parentIsSearchCondition;
-                    }
-                    else
-                    {
-                        newLeft = Visit(expression.Left);
-                        newRight = Visit(expression.Right);
-                    }
-
-                    newLeft = AdjustExpressionType(newLeft, expression.Left.Type);
-                    newRight = AdjustExpressionType(newRight, expression.Right.Type);
-
-                    var newExpression
-                        = expression.Update(newLeft, expression.Conversion, newRight);
-
-                    if (IsSearchCondition(newExpression))
-                    {
-                        return Expression.Condition(
-                            newExpression.Type == typeof(bool)
-                                ? (Expression)newExpression
-                                : Expression.Convert(newExpression, typeof(bool)),
-                            Expression.Constant(true, typeof(bool)),
-                            Expression.Constant(false, typeof(bool)));
-                    }
+                    _isSearchCondition = false;
                 }
 
-                newLeft = AdjustExpressionType(Visit(expression.Left), expression.Left.Type);
-                newRight = AdjustExpressionType(Visit(expression.Right), expression.Right.Type);
+                var newLeft = AdjustExpressionType(Visit(expression.Left), expression.Left.Type);
+                var newRight = AdjustExpressionType(Visit(expression.Right), expression.Right.Type);
 
-                return expression.Update(newLeft, expression.Conversion, newRight);
+                _isSearchCondition = parentIsSearchCondition;
+
+                var newExpression = expression.Update(newLeft, expression.Conversion, newRight);
+
+                if (!_isSearchCondition 
+                    && IsSearchCondition(newExpression))
+                {
+                    return Expression.Condition(
+                        newExpression.Type == typeof(bool)
+                            ? (Expression)newExpression
+                            : Expression.Convert(newExpression, typeof(bool)),
+                        Expression.Constant(true, typeof(bool)),
+                        Expression.Constant(false, typeof(bool)));
+                }
+                else if (_isSearchCondition 
+                    && newExpression.Left is ConditionalExpression 
+                    && newExpression.Right is ConditionalExpression
+                    && (newExpression.NodeType == ExpressionType.Or
+                        || newExpression.NodeType == ExpressionType.And))
+                {
+                    return Expression.MakeBinary(
+                        ExpressionType.Equal, 
+                        newExpression, 
+                        Expression.Constant(true, typeof(bool)));
+                }
+
+                return newExpression;
             }
 
             private static Expression AdjustExpressionType(Expression expression, Type expectedType)
