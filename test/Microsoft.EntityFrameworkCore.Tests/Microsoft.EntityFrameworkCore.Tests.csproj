@@ -113,6 +113,7 @@
     <Compile Include="Metadata\Conventions\Internal\ConventionDispatcherTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\DerivedTypeDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\EntityTypeAttributeConventionTest.cs" />
+    <Compile Include="Metadata\Conventions\Internal\ForeignKeyIndexConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyPropertyDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\KeyConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\KeyDiscoveryConventionTest.cs" />
