@@ -82,8 +82,8 @@ namespace Microsoft.Data.Sqlite
         /// <value>The database file.</value>
         public virtual string DataSource
         {
-            get { return _dataSource; }
-            set { base[DataSourceKeyword] = _dataSource = value; }
+            get => _dataSource;
+            set => base[DataSourceKeyword] = _dataSource = value;
         }
 
         /// <summary>
@@ -92,8 +92,8 @@ namespace Microsoft.Data.Sqlite
         /// <value>The connection mode.</value>
         public virtual SqliteOpenMode Mode
         {
-            get { return _mode; }
-            set { base[ModeKeyword] = _mode = value; }
+            get => _mode;
+            set => base[ModeKeyword] = _mode = value;
         }
 
         /// <summary>
@@ -128,8 +128,8 @@ namespace Microsoft.Data.Sqlite
         /// <seealso href="http://sqlite.org/sharedcache.html">SQLite Shared-Cache Mode</seealso>
         public virtual SqliteCacheMode Cache
         {
-            get { return _cache; }
-            set { base[CacheKeyword] = _cache = value; }
+            get => _cache;
+            set => base[CacheKeyword] = _cache = value;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The value.</returns>
         public override object this[string keyword]
         {
-            get { return GetAt(GetIndex(keyword)); }
+            get => GetAt(GetIndex(keyword));
             set
             {
                 if (value == null)
@@ -173,14 +173,12 @@ namespace Microsoft.Data.Sqlite
         private TEnum ConvertToEnum<TEnum>(string keyword, object value)
             where TEnum : struct
         {
-            var stringValue = value as string;
-            if (stringValue != null)
+            if (value is string stringValue)
             {
                 return (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true);
             }
 
-            TEnum enumValue;
-            if (value is TEnum)
+            if (value is TEnum enumValue)
             {
                 enumValue = (TEnum)value;
             }
@@ -232,8 +230,7 @@ namespace Microsoft.Data.Sqlite
         /// <returns>true if the key was used; otherwise, false.</returns>
         public override bool Remove(string keyword)
         {
-            Keywords index;
-            if (!_keywords.TryGetValue(keyword, out index)
+            if (!_keywords.TryGetValue(keyword, out var index)
                 || !base.Remove(_validKeywords[(int)index]))
             {
                 return false;
@@ -250,10 +247,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="keyword">The key to check.</param>
         /// <returns>true if it should be serialized; otherwise, false.</returns>
         public override bool ShouldSerialize(string keyword)
-        {
-            Keywords index;
-            return _keywords.TryGetValue(keyword, out index) && base.ShouldSerialize(_validKeywords[(int)index]);
-        }
+            => _keywords.TryGetValue(keyword, out var index) && base.ShouldSerialize(_validKeywords[(int)index]);
 
         /// <summary>
         /// Gets the value of the specified key if it is used.
@@ -263,8 +257,7 @@ namespace Microsoft.Data.Sqlite
         /// <returns>true if the key was used; otherwise, false.</returns>
         public override bool TryGetValue(string keyword, out object value)
         {
-            Keywords index;
-            if (!_keywords.TryGetValue(keyword, out index))
+            if (!_keywords.TryGetValue(keyword, out var index))
             {
                 value = null;
 
@@ -290,21 +283,15 @@ namespace Microsoft.Data.Sqlite
                     return Cache;
 
                 default:
-                    Debug.Fail("Unexpected keyword: " + index);
+                    Debug.Assert(false, "Unexpected keyword: " + index);
                     return null;
             }
         }
 
         private Keywords GetIndex(string keyword)
-        {
-            Keywords index;
-            if (!_keywords.TryGetValue(keyword, out index))
-            {
-                throw new ArgumentException(Strings.KeywordNotSupported(keyword));
-            }
-
-            return index;
-        }
+            => !_keywords.TryGetValue(keyword, out var index)
+                ? throw new ArgumentException(Strings.KeywordNotSupported(keyword))
+                : index;
 
         private void Reset(Keywords index)
         {
@@ -323,7 +310,7 @@ namespace Microsoft.Data.Sqlite
                     return;
 
                 default:
-                    Debug.Fail("Unexpected keyword: " + index);
+                    Debug.Assert(false, "Unexpected keyword: " + index);
                     return;
             }
         }

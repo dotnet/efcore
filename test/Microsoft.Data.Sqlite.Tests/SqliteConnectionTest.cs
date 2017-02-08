@@ -4,21 +4,13 @@
 using System;
 using System.Data;
 using System.IO;
-using Microsoft.Data.Sqlite.Utilities;
+using SQLitePCL;
 using Xunit;
-
-using static Microsoft.Data.Sqlite.TestUtilities.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteConnectionTest
     {
-#if NET452
-        private static readonly string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-#else
-        private static readonly string BaseDirectory = AppContext.BaseDirectory;
-#endif
-
         [Fact]
         public void Ctor_sets_connection_string()
         {
@@ -114,10 +106,10 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_adjusts_relative_path()
         {
-            var connection = new SqliteConnection("Filename=./local.db");
+            var connection = new SqliteConnection("Filename=local.db");
             connection.Open();
 
-            Assert.Equal(Path.Combine(BaseDirectory, "local.db"), connection.DataSource);
+            Assert.Equal(Path.Combine(AppContext.BaseDirectory, "local.db"), connection.DataSource);
         }
 
         [Fact]
@@ -127,7 +119,7 @@ namespace Microsoft.Data.Sqlite
 
             var ex = Assert.Throws<SqliteException>(() => connection.Open());
 
-            Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
+            Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
         }
 
         [Fact]
@@ -177,7 +169,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<SqliteException>(
                     () => connection.ExecuteNonQuery("INSERT INTO Idomic VALUES ('arimfexendrapuse');"));
 
-                Assert.Equal(SQLITE_READONLY, ex.SqliteErrorCode);
+                Assert.Equal(raw.SQLITE_READONLY, ex.SqliteErrorCode);
             }
         }
 
@@ -188,7 +180,7 @@ namespace Microsoft.Data.Sqlite
             {
                 var ex = Assert.Throws<SqliteException>(() => connection.Open());
 
-                Assert.Equal(SQLITE_CANTOPEN, ex.SqliteErrorCode);
+                Assert.Equal(raw.SQLITE_CANTOPEN, ex.SqliteErrorCode);
             }
         }
 
@@ -222,7 +214,7 @@ namespace Microsoft.Data.Sqlite
             {
                 var ex = Assert.Throws<SqliteException>(() => connection.Open());
 
-                Assert.Equal(SQLITE_CANTOPEN, ex.SqliteErrorCode);
+                Assert.Equal(raw.SQLITE_CANTOPEN, ex.SqliteErrorCode);
             }
         }
 

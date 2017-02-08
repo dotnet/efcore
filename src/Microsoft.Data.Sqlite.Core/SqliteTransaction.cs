@@ -4,7 +4,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -67,21 +66,13 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The isolation level for the transaction.</value>
         public override IsolationLevel IsolationLevel
-        {
-            get
-            {
-                if (_completed || _connection.State != ConnectionState.Open)
-                {
-                    throw new InvalidOperationException(Strings.TransactionCompleted);
-                }
-
-                return _isolationLevel != IsolationLevel.Unspecified
+            => _completed || _connection.State != ConnectionState.Open
+                ? throw new InvalidOperationException(Strings.TransactionCompleted)
+                : _isolationLevel != IsolationLevel.Unspecified
                     ? _isolationLevel
                     : _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0
                         ? IsolationLevel.ReadUncommitted
                         : IsolationLevel.Serializable;
-            }
-        }
 
         /// <summary>
         /// Applies the changes made in the transaction.

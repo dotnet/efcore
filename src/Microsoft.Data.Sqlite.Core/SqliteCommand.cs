@@ -9,8 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite.Interop;
-using static Microsoft.Data.Sqlite.Interop.Constants;
+using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -70,7 +69,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>A value indicating how <see cref="CommandText" /> is interpreted.</value>
         public override CommandType CommandType
         {
-            get { return CommandType.Text; }
+            get => CommandType.Text;
             set
             {
                 if (value != CommandType.Text)
@@ -98,8 +97,8 @@ namespace Microsoft.Data.Sqlite
         /// <value>The connection used by the command.</value>
         protected override DbConnection DbConnection
         {
-            get { return Connection; }
-            set { Connection = (SqliteConnection)value; }
+            get => Connection;
+            set => Connection = (SqliteConnection)value;
         }
 
         /// <summary>
@@ -114,8 +113,8 @@ namespace Microsoft.Data.Sqlite
         /// <value>The transaction within which the command executes.</value>
         protected override DbTransaction DbTransaction
         {
-            get { return Transaction; }
-            set { Transaction = (SqliteTransaction)value; }
+            get => Transaction;
+            set => Transaction = (SqliteTransaction)value;
         }
 
         /// <summary>
@@ -220,29 +219,26 @@ namespace Microsoft.Data.Sqlite
                         : Strings.TransactionConnectionMismatch);
             }
 
-            /*
-              This is not a guarantee. SQLITE_BUSY can still be thrown before the command timeout.
-              This sets a timeout handler but this can be cleared by concurrent commands.
-            */
-            NativeMethods.sqlite3_busy_timeout(Connection.DbHandle, CommandTimeout * 1000);
+            // This is not a guarantee. SQLITE_BUSY can still be thrown before the command timeout.
+            // This sets a timeout handler but this can be cleared by concurrent commands.
+            raw.sqlite3_busy_timeout(Connection.Handle, CommandTimeout * 1000);
 
             var hasChanges = false;
             var changes = 0;
-            var stmts = new Queue<Tuple<Sqlite3StmtHandle, bool>>();
+            var stmts = new Queue<(sqlite3_stmt stmt, bool hasRows)>();
             var tail = CommandText;
 
             do
             {
-                Sqlite3StmtHandle stmt;
-                var rc = NativeMethods.sqlite3_prepare_v2(
-                        Connection.DbHandle,
+                var rc = raw.sqlite3_prepare_v2(
+                        Connection.Handle,
                         tail,
-                        out stmt,
+                        out var stmt,
                         out tail);
-                MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
+                SqliteException.ThrowExceptionForRC(rc, Connection.Handle);
 
                 // Statement was empty, white space, or a comment
-                if (stmt.IsInvalid)
+                if (stmt.ptr == IntPtr.Zero)
                 {
                     if (!string.IsNullOrEmpty(tail))
                     {
@@ -259,13 +255,13 @@ namespace Microsoft.Data.Sqlite
                     boundParams = _parameters.Value.Bind(stmt);
                 }
 
-                var expectedParams = NativeMethods.sqlite3_bind_parameter_count(stmt);
+                var expectedParams = raw.sqlite3_bind_parameter_count(stmt);
                 if (expectedParams != boundParams)
                 {
                     var unboundParams = new List<string>();
                     for (var i = 1; i <= expectedParams; i++)
                     {
-                        var name = NativeMethods.sqlite3_bind_parameter_name(stmt, i);
+                        var name = raw.sqlite3_bind_parameter_name(stmt, i);
 
                         if (_parameters.IsValueCreated
                             ||
@@ -274,23 +270,24 @@ namespace Microsoft.Data.Sqlite
                             unboundParams.Add(name);
                         }
                     }
+
                     throw new InvalidOperationException(Strings.MissingParameters(string.Join(", ", unboundParams)));
                 }
 
                 try
                 {
                     var timer = Stopwatch.StartNew();
-                    while (SQLITE_LOCKED == (rc = NativeMethods.sqlite3_step(stmt)) || rc == SQLITE_BUSY)
+                    while (raw.SQLITE_LOCKED == (rc = raw.sqlite3_step(stmt)) || rc == raw.SQLITE_BUSY)
                     {
                         if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
                         {
                             break;
                         }
 
-                        NativeMethods.sqlite3_reset(stmt);
+                        raw.sqlite3_reset(stmt);
                     }
 
-                    MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
+                    SqliteException.ThrowExceptionForRC(rc, Connection.Handle);
                 }
                 catch
                 {
@@ -300,14 +297,14 @@ namespace Microsoft.Data.Sqlite
 
                 // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements. It
                 //     will result in unexpected corner cases, but it's the best we can do without re-parsing SQL
-                if (NativeMethods.sqlite3_stmt_readonly(stmt) != 0)
+                if (raw.sqlite3_stmt_readonly(stmt) != 0)
                 {
-                    stmts.Enqueue(Tuple.Create(stmt, rc != SQLITE_DONE));
+                    stmts.Enqueue((stmt, hasRows: rc != raw.SQLITE_DONE));
                 }
                 else
                 {
                     hasChanges = true;
-                    changes += NativeMethods.sqlite3_changes(Connection.DbHandle);
+                    changes += raw.sqlite3_changes(Connection.Handle);
                     stmt.Dispose();
                 }
             }

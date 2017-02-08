@@ -7,12 +7,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
-using Microsoft.Data.Sqlite.Interop;
-using Microsoft.Data.Sqlite.Utilities;
-using static Microsoft.Data.Sqlite.Interop.Constants;
-#if NET451
-using System.Data;
-#endif
+using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -21,13 +16,12 @@ namespace Microsoft.Data.Sqlite
     /// </summary>
     public class SqliteDataReader : DbDataReader
     {
-        // TODO can be Array.Empty<T>() when upgrading to net46
         private static readonly byte[] _emptyByteArray = new byte[0];
 
         private readonly SqliteConnection _connection;
         private readonly bool _closeConnection;
-        private readonly Queue<Tuple<Sqlite3StmtHandle, bool>> _stmtQueue;
-        private Sqlite3StmtHandle _stmt;
+        private readonly Queue<(sqlite3_stmt stmt, bool hasRows)> _stmtQueue;
+        private sqlite3_stmt _stmt;
         private bool _hasRows;
         private bool _stepped;
         private bool _done;
@@ -35,15 +29,13 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteDataReader(
             SqliteConnection connection,
-            Queue<Tuple<Sqlite3StmtHandle, bool>> stmtQueue,
+            Queue<(sqlite3_stmt stmt, bool hasRows)> stmtQueue,
             int recordsAffected,
             bool closeConnection)
         {
             if (stmtQueue.Count != 0)
             {
-                var tuple = stmtQueue.Dequeue();
-                _stmt = tuple.Item1;
-                _hasRows = tuple.Item2;
+                (_stmt, _hasRows) = stmtQueue.Dequeue();
             }
 
             _connection = connection;
@@ -64,25 +56,17 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The number of columns in the current row.</value>
         public override int FieldCount
-        {
-            get
-            {
-                if (_closed)
-                {
-                    throw new InvalidOperationException(Strings.DataReaderClosed("FieldCount"));
-                }
-
-                return NativeMethods.sqlite3_column_count(_stmt);
-            }
-        }
+            => _closed
+                ? throw new InvalidOperationException(Strings.DataReaderClosed("FieldCount"))
+                : raw.sqlite3_column_count(_stmt);
 
         /// <summary>
         /// Gets a handle to underlying prepared statement.
         /// </summary>
         /// <value>A handle to underlying prepared statement.</value>
         /// <seealso href="http://sqlite.org/c3ref/stmt.html">Prepared Statement Object</seealso>
-        public virtual IntPtr Handle
-            => _stmt?.DangerousGetHandle() ?? IntPtr.Zero;
+        public virtual sqlite3_stmt Handle
+            => _stmt;
 
         /// <summary>
         /// Gets a value indicating whether the data reader contains any rows.
@@ -145,10 +129,10 @@ namespace Microsoft.Data.Sqlite
                 return _hasRows;
             }
 
-            var rc = NativeMethods.sqlite3_step(_stmt);
-            MarshalEx.ThrowExceptionForRC(rc, _connection.DbHandle);
+            var rc = raw.sqlite3_step(_stmt);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
 
-            _done = rc == SQLITE_DONE;
+            _done = rc == raw.SQLITE_DONE;
 
             return !_done;
         }
@@ -166,30 +150,19 @@ namespace Microsoft.Data.Sqlite
 
             _stmt.Dispose();
 
-            var tuple = _stmtQueue.Dequeue();
-            _stmt = tuple.Item1;
-            _hasRows = tuple.Item2;
+            (_stmt, _hasRows) = _stmtQueue.Dequeue();
             _stepped = false;
             _done = false;
 
             return true;
         }
 
-#if NET451
+#if NET451 // NB: This works around dotnet/corefx#2249
         /// <summary>
         /// Closes the data reader.
         /// </summary>
         public override void Close()
             => Dispose(true);
-
-        /// <summary>
-        /// Returns a data table that describes the column metadata.
-        /// </summary>
-        /// <returns>The data table.</returns>
-        public override DataTable GetSchemaTable()
-        {
-            throw new NotSupportedException();
-        }
 #endif
 
         /// <summary>
@@ -213,7 +186,7 @@ namespace Microsoft.Data.Sqlite
 
             while (_stmtQueue.Count != 0)
             {
-                _stmtQueue.Dequeue().Item1.Dispose();
+                _stmtQueue.Dequeue().stmt.Dispose();
             }
 
             _closed = true;
@@ -236,7 +209,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.DataReaderClosed("GetName"));
             }
 
-            var name = NativeMethods.sqlite3_column_name(_stmt, ordinal);
+            var name = raw.sqlite3_column_name(_stmt, ordinal);
             if (name == null
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
@@ -281,7 +254,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.DataReaderClosed("GetDataTypeName"));
             }
 
-            var typeName = NativeMethods.sqlite3_column_decltype(_stmt, ordinal);
+            var typeName = raw.sqlite3_column_decltype(_stmt, ordinal);
             if (typeName != null)
             {
                 var i = typeName.IndexOf('(');
@@ -294,23 +267,23 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case SQLITE_INTEGER:
+                case raw.SQLITE_INTEGER:
                     return "INTEGER";
 
-                case SQLITE_FLOAT:
+                case raw.SQLITE_FLOAT:
                     return "REAL";
 
-                case SQLITE_TEXT:
+                case raw.SQLITE_TEXT:
                     return "TEXT";
 
-                case SQLITE_BLOB:
+                case raw.SQLITE_BLOB:
                     return "BLOB";
 
-                case SQLITE_NULL:
+                case raw.SQLITE_NULL:
                     return "INTEGER";
 
                 default:
-                    Debug.Fail("Unexpected column type: " + sqliteType);
+                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
                     return "INTEGER";
             }
         }
@@ -330,31 +303,31 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case SQLITE_INTEGER:
+                case raw.SQLITE_INTEGER:
                     return typeof(long);
 
-                case SQLITE_FLOAT:
+                case raw.SQLITE_FLOAT:
                     return typeof(double);
 
-                case SQLITE_TEXT:
+                case raw.SQLITE_TEXT:
                     return typeof(string);
 
-                case SQLITE_BLOB:
+                case raw.SQLITE_BLOB:
                     return typeof(byte[]);
 
-                case SQLITE_NULL:
+                case raw.SQLITE_NULL:
                     return typeof(int);
 
                 default:
-                    Debug.Fail("Unexpected column type: " + sqliteType);
+                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
                     return typeof(int);
             }
         }
 
         private int GetSqliteType(int ordinal)
         {
-            var type = NativeMethods.sqlite3_column_type(_stmt, ordinal);
-            if (type == SQLITE_NULL
+            var type = raw.sqlite3_column_type(_stmt, ordinal);
+            if (type == raw.SQLITE_NULL
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
                 // NB: Message is provided by the framework
@@ -370,18 +343,11 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>true if the specified column is <see cref="DBNull" />; otherwise, false.</returns>
         public override bool IsDBNull(int ordinal)
-        {
-            if (_closed)
-            {
-                throw new InvalidOperationException(Strings.DataReaderClosed("IsDBNull"));
-            }
-            if (!_stepped || _done)
-            {
-                throw new InvalidOperationException(Strings.NoData);
-            }
-
-            return GetSqliteType(ordinal) == SQLITE_NULL;
-        }
+            => _closed
+                ? throw new InvalidOperationException(Strings.DataReaderClosed("IsDBNull"))
+                : !_stepped || _done
+                    ? throw new InvalidOperationException(Strings.NoData)
+                    : GetSqliteType(ordinal) == raw.SQLITE_NULL;
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="bool" />.
@@ -429,14 +395,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override double GetDouble(int ordinal)
-        {
-            if (IsDBNull(ordinal))
-            {
-                throw new InvalidCastException();
-            }
-
-            return NativeMethods.sqlite3_column_double(_stmt, ordinal);
-        }
+            => IsDBNull(ordinal)
+                ? throw new InvalidCastException()
+                : raw.sqlite3_column_double(_stmt, ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="float" />.
@@ -476,14 +437,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override long GetInt64(int ordinal)
-        {
-            if (IsDBNull(ordinal))
-            {
-                throw new InvalidCastException();
-            }
-
-            return NativeMethods.sqlite3_column_int64(_stmt, ordinal);
-        }
+            => IsDBNull(ordinal)
+                ? throw new InvalidCastException()
+                : raw.sqlite3_column_int64(_stmt, ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="string" />.
@@ -491,14 +447,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override string GetString(int ordinal)
-        {
-            if (IsDBNull(ordinal))
-            {
-                throw new InvalidCastException();
-            }
-
-            return NativeMethods.sqlite3_column_text(_stmt, ordinal);
-        }
+            => IsDBNull(ordinal)
+                ? throw new InvalidCastException()
+                : raw.sqlite3_column_text(_stmt, ordinal);
 
         /// <summary>
         /// Reads a stream of bytes from the specified column. Not supported.
@@ -510,9 +461,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="length">The maximum number of bytes to read.</param>
         /// <returns>The actual number of bytes read.</returns>
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
 
         /// <summary>
         /// Reads a stream of characters from the specified column. Not supported.
@@ -524,9 +473,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="length">The maximum number of characters to read.</param>
         /// <returns>The actual number of characters read.</returns>
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
 
         /// <summary>
         /// Gets the value of the specified column.
@@ -641,19 +588,19 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case SQLITE_INTEGER:
+                case raw.SQLITE_INTEGER:
                     return GetInt64(ordinal);
 
-                case SQLITE_FLOAT:
+                case raw.SQLITE_FLOAT:
                     return GetDouble(ordinal);
 
-                case SQLITE_TEXT:
+                case raw.SQLITE_TEXT:
                     return GetString(ordinal);
 
-                case SQLITE_BLOB:
+                case raw.SQLITE_BLOB:
                     return GetBlob(ordinal);
 
-                case SQLITE_NULL:
+                case raw.SQLITE_NULL:
                     if (!_stepped || _done)
                     {
                         throw new InvalidOperationException(Strings.NoData);
@@ -662,7 +609,7 @@ namespace Microsoft.Data.Sqlite
                     return DBNull.Value;
 
                 default:
-                    Debug.Fail("Unexpected column type: " + sqliteType);
+                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
                     return GetInt32(ordinal);
             }
         }
@@ -684,13 +631,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         private byte[] GetBlob(int ordinal)
-        {
-            if (IsDBNull(ordinal))
-            {
-                throw new InvalidCastException();
-            }
-
-            return NativeMethods.sqlite3_column_blob(_stmt, ordinal) ?? _emptyByteArray;
-        }
+            => IsDBNull(ordinal)
+                ? throw new InvalidCastException()
+                : raw.sqlite3_column_blob(_stmt, ordinal) ?? _emptyByteArray;
     }
 }

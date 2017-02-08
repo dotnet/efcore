@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <Description>SQLite implementation of the System.Data.Common provider model.
+
+Commonly Used Types:
+Microsoft.Data.Sqlite.SqliteCommand
+Microsoft.Data.Sqlite.SqliteConnection
+Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+Microsoft.Data.Sqlite.SqliteDataReader
+Microsoft.Data.Sqlite.SqliteException
+Microsoft.Data.Sqlite.SqliteFactory
+Microsoft.Data.Sqlite.SqliteParameter
+Microsoft.Data.Sqlite.SqliteTransaction</Description>
+    <TargetFrameworks>net451;netstandard1.2</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)$(MSBuildProjectName).ruleset</CodeAnalysisRuleSet>
+    <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="stylecop.json" />
+    <None Include="$(CodeAnalysisRuleSet)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SQLitePCLRaw.core" Version="1.1.2" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Data.Common" Version="4.4.0-*" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0-*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="SqliteCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="SqliteConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>

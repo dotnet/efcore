@@ -5,14 +5,12 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
-using Microsoft.Data.Sqlite.Interop;
-
-#if !NET451
 using Microsoft.Data.Sqlite.Utilities;
-#endif
+using SQLitePCL;
 
-using static Microsoft.Data.Sqlite.Interop.Constants;
+#if NET451
+using System.IO;
+#endif
 
 namespace Microsoft.Data.Sqlite
 {
@@ -25,7 +23,12 @@ namespace Microsoft.Data.Sqlite
 
         private string _connectionString;
         private ConnectionState _state;
-        private Sqlite3Handle _db;
+        private sqlite3 _db;
+
+        static SqliteConnection()
+        {
+            BundleInitializer.Initialize();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteConnection" /> class.
@@ -44,16 +47,13 @@ namespace Microsoft.Data.Sqlite
             ConnectionString = connectionString;
         }
 
-        internal virtual Sqlite3Handle DbHandle
-            => _db;
-
         /// <summary>
         /// Gets a handle to underlying database connection.
         /// </summary>
         /// <value>A handle to underlying database connection.</value>
         /// <seealso href="http://sqlite.org/c3ref/sqlite3.html">Database Connection Handle</seealso>
-        public virtual IntPtr Handle
-            => _db?.DangerousGetHandle() ?? IntPtr.Zero;
+        public virtual sqlite3 Handle
+            => _db;
 
         /// <summary>
         /// Gets or sets a string used to open the connection.
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Sqlite
         /// <seealso cref="SqliteConnectionStringBuilder" />
         public override string ConnectionString
         {
-            get { return _connectionString; }
+            get => _connectionString;
             set
             {
                 if (State != ConnectionState.Closed)
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Sqlite
                 string dataSource = null;
                 if (State == ConnectionState.Open)
                 {
-                    dataSource = VersionedMethods.GetFilename(_db, MainDatabaseName);
+                    dataSource = raw.sqlite3_db_filename(_db, MainDatabaseName);
                 }
 
                 return dataSource ?? ConnectionStringBuilder.DataSource;
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The version of SQLite used by the connection.</value>
         public override string ServerVersion
-            => NativeMethods.sqlite3_libversion();
+            => raw.sqlite3_libversion();
 
         /// <summary>
         /// Gets the current state of the connection.
@@ -152,24 +152,24 @@ namespace Microsoft.Data.Sqlite
 
             if (filename.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
             {
-                flags |= SQLITE_OPEN_URI;
+                flags |= raw.SQLITE_OPEN_URI;
             }
 
             switch (ConnectionStringBuilder.Mode)
             {
                 case SqliteOpenMode.ReadOnly:
-                    flags |= SQLITE_OPEN_READONLY;
+                    flags |= raw.SQLITE_OPEN_READONLY;
                     break;
 
                 case SqliteOpenMode.ReadWrite:
-                    flags |= SQLITE_OPEN_READWRITE;
+                    flags |= raw.SQLITE_OPEN_READWRITE;
                     break;
 
                 case SqliteOpenMode.Memory:
-                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_MEMORY;
-                    if ((flags & SQLITE_OPEN_URI) == 0)
+                    flags |= raw.SQLITE_OPEN_READWRITE | raw.SQLITE_OPEN_CREATE | raw.SQLITE_OPEN_MEMORY;
+                    if ((flags & raw.SQLITE_OPEN_URI) == 0)
                     {
-                        flags |= SQLITE_OPEN_URI;
+                        flags |= raw.SQLITE_OPEN_URI;
                         filename = "file:" + filename;
                     }
                     break;
@@ -178,18 +178,18 @@ namespace Microsoft.Data.Sqlite
                     Debug.Assert(
                         ConnectionStringBuilder.Mode == SqliteOpenMode.ReadWriteCreate,
                         "ConnectionStringBuilder.Mode is not ReadWriteCreate");
-                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+                    flags |= raw.SQLITE_OPEN_READWRITE | raw.SQLITE_OPEN_CREATE;
                     break;
             }
 
             switch (ConnectionStringBuilder.Cache)
             {
                 case SqliteCacheMode.Shared:
-                    flags |= SQLITE_OPEN_SHAREDCACHE;
+                    flags |= raw.SQLITE_OPEN_SHAREDCACHE;
                     break;
 
                 case SqliteCacheMode.Private:
-                    flags |= SQLITE_OPEN_PRIVATECACHE;
+                    flags |= raw.SQLITE_OPEN_PRIVATECACHE;
                     break;
 
                 default:
@@ -199,29 +199,22 @@ namespace Microsoft.Data.Sqlite
                     break;
             }
 
-            if ((flags & SQLITE_OPEN_URI) == 0
+#if NET451
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
+            if (!string.IsNullOrEmpty(dataDirectory)
+                && (flags & raw.SQLITE_OPEN_URI) == 0
                 && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase)
                 && !Path.IsPathRooted(filename))
             {
-                filename = Path.GetFullPath(Path.Combine(BaseDirectory, filename));
+                filename = Path.Combine(dataDirectory, filename);
             }
+#endif
 
-            var rc = NativeMethods.sqlite3_open_v2(filename, out _db, flags, vfs: null);
-            MarshalEx.ThrowExceptionForRC(rc, _db);
+            var rc = raw.sqlite3_open_v2(filename, out _db, flags, vfs: null);
+            SqliteException.ThrowExceptionForRC(rc, _db);
 
             SetState(ConnectionState.Open);
         }
-
-#if !NET451
-        private static string BaseDirectory
-            => Environment.GetEnvironmentVariable("ADONET_DATA_DIR")
-                ?? ApplicationDataHelper.LocalFolderPath
-                ?? AppContext.BaseDirectory;
-#else
-        private static string BaseDirectory
-            => AppDomain.CurrentDomain.GetData("DataDirectory") as string
-                ?? AppDomain.CurrentDomain.BaseDirectory;
-#endif
 
         /// <summary>
         /// Closes the connection to the database. Open transactions are rolled back.
@@ -229,7 +222,7 @@ namespace Microsoft.Data.Sqlite
         public override void Close()
         {
             if (_db == null
-                || _db.IsInvalid)
+                || _db.ptr == IntPtr.Zero)
             {
                 return;
             }
@@ -318,9 +311,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="databaseName">The name of the database to use.</param>
         /// <exception cref="NotSupportedException">Always.</exception>
         public override void ChangeDatabase(string databaseName)
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
 
         /// <summary>
         /// Enables extension loading on the connection.
@@ -330,13 +321,13 @@ namespace Microsoft.Data.Sqlite
         public virtual void EnableExtensions(bool enable = true)
         {
             if (_db == null
-                || _db.IsInvalid)
+                || _db.ptr == IntPtr.Zero)
             {
                 throw new InvalidOperationException(Strings.CallRequiresOpenConnection(nameof(EnableExtensions)));
             }
 
-            var rc = NativeMethods.sqlite3_enable_load_extension(_db, enable ? 1 : 0);
-            MarshalEx.ThrowExceptionForRC(rc, _db);
+            var rc = raw.sqlite3_enable_load_extension(_db, enable ? 1 : 0);
+            SqliteException.ThrowExceptionForRC(rc, _db);
         }
     }
 }

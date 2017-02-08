@@ -3,8 +3,7 @@
 
 using System;
 using System.Data;
-using Microsoft.Data.Sqlite.Utilities;
-using static Microsoft.Data.Sqlite.Interop.Constants;
+using SQLitePCL;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -86,7 +85,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void IsolationLevel_is_infered_when_unspecified()
+        public void IsolationLevel_is_inferred_when_unspecified()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
@@ -228,7 +227,7 @@ namespace Microsoft.Data.Sqlite
                     {
                         connectionB.Open();
                         var ex = Assert.Throws<SqliteException>(() => new SqliteTransaction(connectionB, IsolationLevel.Serializable, 1));
-                        Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
+                        Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
                     }
                 }
             }

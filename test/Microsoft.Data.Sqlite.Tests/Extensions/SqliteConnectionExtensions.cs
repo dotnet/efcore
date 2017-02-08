@@ -1,13 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Data.Common;
-
-namespace Microsoft.Data.Sqlite.TestUtilities
+namespace Microsoft.Data.Sqlite
 {
-    internal static class DbConnectionExtensions
+    internal static class SqliteConnectionExtensions
     {
-        public static DbDataReader ExecuteReader(this DbConnection connection, string commandText)
+        public static SqliteDataReader ExecuteReader(this SqliteConnection connection, string commandText)
         {
             var command = connection.CreateCommand();
             command.CommandText = commandText;

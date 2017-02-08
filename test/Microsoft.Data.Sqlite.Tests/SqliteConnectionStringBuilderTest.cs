@@ -75,7 +75,9 @@ namespace Microsoft.Data.Sqlite
 
         [Fact]
         public void Mode_defaults_to_ReadWriteCreate()
-            => Assert.Equal(SqliteOpenMode.ReadWriteCreate, new SqliteConnectionStringBuilder().Mode);
+        {
+            Assert.Equal(SqliteOpenMode.ReadWriteCreate, new SqliteConnectionStringBuilder().Mode);
+        }
 
         [Fact]
         public void Cache_defaults()
@@ -234,8 +236,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void TryGetValue_returns_false_when_not_exists()
         {
-            object value;
-            var retrieved = new SqliteConnectionStringBuilder().TryGetValue("Invalid", out value);
+            var retrieved = new SqliteConnectionStringBuilder().TryGetValue("Invalid", out var value);
 
             Assert.False(retrieved);
             Assert.Null(value);
@@ -246,8 +247,7 @@ namespace Microsoft.Data.Sqlite
         {
             var builder = new SqliteConnectionStringBuilder("Data Source=test.db");
 
-            object value;
-            var retrieved = builder.TryGetValue("Data Source", out value);
+            var retrieved = builder.TryGetValue("Data Source", out var value);
 
             Assert.True(retrieved);
             Assert.Equal("test.db", value);

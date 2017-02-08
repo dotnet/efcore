@@ -1,0 +1,16 @@
+[
+  {
+    "OldTypeId": "public class Microsoft.Data.Sqlite.SqliteConnection : System.Data.Common.DbConnection",
+    "NewTypeId": "public class Microsoft.Data.Sqlite.SqliteConnection : System.Data.Common.DbConnection",
+    "OldMemberId": "public virtual System.IntPtr get_Handle()",
+    "NewMemberId": "public virtual SQLitePCL.sqlite3 get_Handle()",
+    "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public class Microsoft.Data.Sqlite.SqliteDataReader : System.Data.Common.DbDataReader",
+    "NewTypeId": "public class Microsoft.Data.Sqlite.SqliteDataReader : System.Data.Common.DbDataReader",
+    "OldMemberId": "public virtual System.IntPtr get_Handle()",
+    "NewMemberId": "public virtual SQLitePCL.sqlite3_stmt get_Handle()",
+    "Kind": "Modification"
+  }
+]

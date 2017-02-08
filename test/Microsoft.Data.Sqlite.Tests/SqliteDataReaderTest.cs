@@ -3,8 +3,6 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.Data.Sqlite.TestUtilities;
-using Microsoft.Data.Sqlite.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -40,18 +38,19 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void FieldCount_throws_when_closed() => X_throws_when_closed(r => { var x = r.FieldCount; }, "FieldCount");
+        public void FieldCount_throws_when_closed()
+            => X_throws_when_closed(r => { var x = r.FieldCount; }, "FieldCount");
 
         [Fact]
-        public void GetBoolean_works() =>
-            GetX_works(
+        public void GetBoolean_works()
+            => GetX_works(
                 "SELECT 1;",
                 r => r.GetBoolean(0),
                 true);
 
         [Fact]
-        public void GetByte_works() =>
-            GetX_works(
+        public void GetByte_works()
+            => GetX_works(
                 "SELECT 1;",
                 r => r.GetByte(0),
                 (byte)1);
@@ -75,8 +74,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetChar_works() =>
-            GetX_works(
+        public void GetChar_works()
+            => GetX_works(
                 "SELECT 1;",
                 r => r.GetChar(0),
                 (char)1);
@@ -100,8 +99,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetDateTime_works() =>
-            GetX_works(
+        public void GetDateTime_works()
+            => GetX_works(
                 "SELECT '2014-04-15 10:47:16';",
                 r => r.GetDateTime(0),
                 new DateTime(2014, 4, 15, 10, 47, 16));
@@ -158,20 +157,21 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetDataTypeName_throws_when_closed() => X_throws_when_closed(r => r.GetDataTypeName(0), "GetDataTypeName");
+        public void GetDataTypeName_throws_when_closed()
+            => X_throws_when_closed(r => r.GetDataTypeName(0), "GetDataTypeName");
 
         [Theory]
         [InlineData("3.14", 3.14)]
         [InlineData("1.0e-2", 0.01)]
-        public void GetDecimal_works(string input, decimal expected) =>
-            GetX_works(
+        public void GetDecimal_works(string input, decimal expected)
+            => GetX_works(
                 "SELECT '" + input + "';",
                 r => r.GetDecimal(0),
                 expected);
 
         [Fact]
-        public void GetDouble_throws_when_null() =>
-            GetX_throws_when_null(
+        public void GetDouble_throws_when_null()
+            => GetX_throws_when_null(
                 r => r.GetDouble(0));
 
         [Fact]
@@ -222,75 +222,77 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetFieldValue_of_byteArray_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_byteArray_works()
+            => GetFieldValue_works(
                 "SELECT X'7E57';",
                 new byte[] { 0x7e, 0x57 });
 
         [Fact]
-        public void GetFieldValue_of_byteArray_empty() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_byteArray_empty()
+            => GetFieldValue_works(
                 "SELECT X'';",
                 new byte[0]);
 
         [Fact]
-        public void GetFieldValue_of_byteArray_throws_when_null() =>
-            GetX_throws_when_null(
+        public void GetFieldValue_of_byteArray_throws_when_null()
+            => GetX_throws_when_null(
                 r => r.GetFieldValue<byte[]>(0));
 
         [Fact]
-        public void GetFieldValue_of_DateTime_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_DateTime_works()
+            => GetFieldValue_works(
                 "SELECT '2014-04-15 11:58:13';",
                 new DateTime(2014, 4, 15, 11, 58, 13));
 
         [Fact]
-        public void GetFieldValue_of_DateTimeOffset_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_DateTimeOffset_works()
+            => GetFieldValue_works(
                 "SELECT '2014-04-15 11:58:13-08:00';",
                 new DateTimeOffset(2014, 4, 15, 11, 58, 13, new TimeSpan(-8, 0, 0)));
 
         [Fact]
-        public void GetFieldValue_of_DBNull_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_DBNull_works()
+            => GetFieldValue_works(
                 "SELECT NULL;",
                 DBNull.Value);
 
         [Fact]
-        public void GetFieldValue_of_decimal_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_decimal_works()
+            => GetFieldValue_works(
                 "SELECT '3.14';",
                 3.14m);
 
         [Fact]
-        public void GetFieldValue_of_Enum_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_Enum_works()
+            => GetFieldValue_works(
                 "SELECT 1;",
                 MyEnum.One);
 
         [Fact]
-        public void GetFieldValue_of_Guid_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_Guid_works()
+            => GetFieldValue_works(
                 "SELECT X'0E7E0DDC5D364849AB9B8CA8056BF93A';",
                 new Guid("dc0d7e0e-365d-4948-ab9b-8ca8056bf93a"));
 
         [Fact]
-        public void GetFieldValue_of_Nullable_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_Nullable_works()
+            => GetFieldValue_works(
                 "SELECT 1;",
                 (int?)1);
 
         [Fact]
-        public void GetFieldValue_of_TimeSpan_works() =>
-            GetFieldValue_works(
+        public void GetFieldValue_of_TimeSpan_works()
+            => GetFieldValue_works(
                 "SELECT '12:06:29';",
                 new TimeSpan(12, 6, 29));
 
         [Fact]
-        public void GetFieldValue_throws_before_read() => X_throws_before_read(r => r.GetFieldValue<DBNull>(0));
+        public void GetFieldValue_throws_before_read()
+            => X_throws_before_read(r => r.GetFieldValue<DBNull>(0));
 
         [Fact]
-        public void GetFieldValue_throws_when_done() => X_throws_when_done(r => r.GetFieldValue<DBNull>(0));
+        public void GetFieldValue_throws_when_done()
+            => X_throws_when_done(r => r.GetFieldValue<DBNull>(0));
 
         [Theory]
         [InlineData("SELECT 1;", typeof(long))]
@@ -329,14 +331,15 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetFieldType_throws_when_closed() => X_throws_when_closed(r => r.GetFieldType(0), "GetFieldType");
+        public void GetFieldType_throws_when_closed()
+            => X_throws_when_closed(r => r.GetFieldType(0), "GetFieldType");
 
         [Theory]
         [InlineData("3", 3f)]
         [InlineData("9e999", float.PositiveInfinity)]
         [InlineData("-9e999", float.NegativeInfinity)]
-        public void GetFloat_works(string val, float result) =>
-            GetX_works(
+        public void GetFloat_works(string val, float result)
+            => GetX_works(
                 "SELECT " + val,
                 r => r.GetFloat(0),
                 result);
@@ -347,43 +350,43 @@ namespace Microsoft.Data.Sqlite
         [InlineData("-9e999", double.NegativeInfinity)]
         [InlineData("'3.14'", 3.14)]
         [InlineData("'1.2e-03'", 0.0012)]
-        public void GetDouble_works(string val, double result) =>
-            GetX_works(
+        public void GetDouble_works(string val, double result)
+            => GetX_works(
                 "SELECT " + val,
                 r => r.GetDouble(0),
                 result);
 
         [Fact]
-        public void GetGuid_works() =>
-            GetX_works(
+        public void GetGuid_works()
+            => GetX_works(
                 "SELECT X'0E7E0DDC5D364849AB9B8CA8056BF93A';",
                 r => r.GetGuid(0),
                 new Guid("dc0d7e0e-365d-4948-ab9b-8ca8056bf93a"));
 
         [Fact]
-        public void GetInt16_works() =>
-            GetX_works(
+        public void GetInt16_works()
+            => GetX_works(
                 "SELECT 1;",
                 r => r.GetInt16(0),
                 (short)1);
 
         [Fact]
-        public void GetInt32_works() =>
-            GetX_works(
+        public void GetInt32_works()
+            => GetX_works(
                 "SELECT 1;",
                 r => r.GetInt32(0),
                 1);
 
         [Fact]
-        public void GetInt64_works() =>
-            GetX_works(
+        public void GetInt64_works()
+            => GetX_works(
                 "SELECT 1;",
                 r => r.GetInt64(0),
                 1L);
 
         [Fact]
-        public void GetInt64_throws_when_null() =>
-            GetX_throws_when_null(
+        public void GetInt64_throws_when_null()
+            => GetX_throws_when_null(
                 r => r.GetInt64(0));
 
         [Fact]
@@ -418,7 +421,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetName_throws_when_closed() => X_throws_when_closed(r => r.GetName(0), "GetName");
+        public void GetName_throws_when_closed()
+            => X_throws_when_closed(r => r.GetName(0), "GetName");
 
         [Fact]
         public void GetOrdinal_works()
@@ -452,37 +456,37 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetString_works_utf8() =>
-            GetX_works(
+        public void GetString_works_utf8()
+            => GetX_works(
                 "SELECT '测试测试测试';",
                 r => r.GetString(0),
                 "测试测试测试");
 
         [Fact]
-        public void GetFieldValue_works_utf8() =>
-            GetX_works(
+        public void GetFieldValue_works_utf8()
+            => GetX_works(
                 "SELECT '测试测试测试';",
                 r => r.GetFieldValue<string>(0),
                 "测试测试测试");
 
         [Fact]
-        public void GetValue_to_string_works_utf8() =>
-            GetX_works(
+        public void GetValue_to_string_works_utf8()
+            => GetX_works(
                 "SELECT '测试测试测试';",
                 r => r.GetValue(0) as string,
                 "测试测试测试");
 
 
         [Fact]
-        public void GetString_works() =>
-            GetX_works(
+        public void GetString_works()
+            => GetX_works(
                 "SELECT 'test';",
                 r => r.GetString(0),
                 "test");
 
         [Fact]
-        public void GetString_throws_when_null() =>
-            GetX_throws_when_null(
+        public void GetString_throws_when_null()
+            => GetX_throws_when_null(
                 r => r.GetString(0));
 
         [Theory]
@@ -506,25 +510,28 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetValue_works_when_blob() =>
-            GetValue_works(
+        public void GetValue_works_when_blob()
+            => GetValue_works(
                 "SELECT X'7E57';",
                 new byte[] { 0x7e, 0x57 });
 
         [Fact]
-        public void GetValue_works_when_null() =>
-            GetValue_works(
+        public void GetValue_works_when_null()
+            => GetValue_works(
                 "SELECT NULL;",
                 DBNull.Value);
 
         [Fact]
-        public void GetValue_throws_before_read() => X_throws_before_read(r => r.GetValue(0));
+        public void GetValue_throws_before_read()
+            => X_throws_before_read(r => r.GetValue(0));
 
         [Fact]
-        public void GetValue_throws_when_done() => X_throws_when_done(r => r.GetValue(0));
+        public void GetValue_throws_when_done()
+            => X_throws_when_done(r => r.GetValue(0));
 
         [Fact]
-        public void GetValue_throws_when_closed() => X_throws_when_closed(r => r.GetValue(0), "GetValue");
+        public void GetValue_throws_when_closed()
+            => X_throws_when_closed(r => r.GetValue(0), "GetValue");
 
         [Fact]
         public void GetValues_works()
@@ -634,7 +641,7 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 var reader = connection.ExecuteReader("SELECT 1;");
-#if NET452
+#if NET46
                 reader.Close();
 #else
                 ((IDisposable)reader).Dispose();
@@ -662,13 +669,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void IsDBNull_throws_before_read() => X_throws_before_read(r => r.IsDBNull(0));
+        public void IsDBNull_throws_before_read()
+            => X_throws_before_read(r => r.IsDBNull(0));
 
         [Fact]
-        public void IsDBNull_throws_when_done() => X_throws_when_done(r => r.IsDBNull(0));
+        public void IsDBNull_throws_when_done()
+            => X_throws_when_done(r => r.IsDBNull(0));
 
         [Fact]
-        public void IsDBNull_throws_when_closed() => X_throws_when_closed(r => r.IsDBNull(0), "IsDBNull");
+        public void IsDBNull_throws_when_closed()
+            => X_throws_when_closed(r => r.IsDBNull(0), "IsDBNull");
 
         [Fact]
         public void Item_by_ordinal_works()
@@ -797,7 +807,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Read_throws_when_closed() => X_throws_when_closed(r => r.Read(), "Read");
+        public void Read_throws_when_closed()
+            => X_throws_when_closed(r => r.Read(), "Read");
 
         [Fact]
         public void RecordsAffected_works()

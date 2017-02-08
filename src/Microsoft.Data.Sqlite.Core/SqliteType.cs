@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using static Microsoft.Data.Sqlite.Interop.Constants;
+using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -14,21 +14,21 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// A signed integer.
         /// </summary>
-        Integer = SQLITE_INTEGER,
+        Integer = raw.SQLITE_INTEGER,
 
         /// <summary>
         /// A floating point value.
         /// </summary>
-        Real = SQLITE_FLOAT,
+        Real = raw.SQLITE_FLOAT,
 
         /// <summary>
         /// A text string.
         /// </summary>
-        Text = SQLITE_TEXT,
+        Text = raw.SQLITE_TEXT,
 
         /// <summary>
         /// A blob of data.
         /// </summary>
-        Blob = SQLITE_BLOB
+        Blob = raw.SQLITE_BLOB
     }
 }

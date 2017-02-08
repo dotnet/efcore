@@ -2,7 +2,7 @@
   <Import Project="..\version.props" />
   <PropertyGroup>
     <Product>Microsoft .NET</Product>
-    <RepositoryUrl>https://github.com/aspnet/Microsoft.Data.Sqlite</RepositoryUrl>
+    <RepositoryUrl>https://github.com/aspnet/Microsoft.Data.Sqlite.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -10,10 +10,8 @@
     <NetCoreAppImplicitPackageVersion>1.2.0-*</NetCoreAppImplicitPackageVersion>
     <NetStandardImplicitPackageVersion>1.6.2-*</NetStandardImplicitPackageVersion>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+    <PackageTags>SQLite;Data;ADO.NET</PackageTags>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="**\*.rd.xml" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Internal.AspNetCore.Sdk" Version="1.0.1-*">
       <PrivateAssets>All</PrivateAssets>

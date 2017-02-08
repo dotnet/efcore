@@ -3,10 +3,8 @@
 
 using System;
 using System.Data;
-using Microsoft.Data.Sqlite.Utilities;
+using SQLitePCL;
 using Xunit;
-
-using static Microsoft.Data.Sqlite.TestUtilities.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -62,7 +60,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Prepare_is_noop()
+        public void Prepare_does_nothing()
         {
             new SqliteCommand().Prepare();
         }
@@ -110,7 +108,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<SqliteException>(() => command.ExecuteReader());
 
-                Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 

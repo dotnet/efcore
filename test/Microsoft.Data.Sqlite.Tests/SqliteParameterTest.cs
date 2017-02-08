@@ -204,31 +204,38 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Bind_works_when_DateTime() => Bind_works(new DateTime(2014, 4, 14, 11, 13, 59), "2014-04-14 11:13:59");
+        public void Bind_works_when_DateTime()
+            => Bind_works(new DateTime(2014, 4, 14, 11, 13, 59), "2014-04-14 11:13:59");
 
         [Fact]
-        public void Bind_works_when_DateTimeOffset() => Bind_works(new DateTimeOffset(2014, 4, 14, 11, 13, 59, new TimeSpan(-8, 0, 0)), "2014-04-14 11:13:59-08:00");
+        public void Bind_works_when_DateTimeOffset()
+            => Bind_works(new DateTimeOffset(2014, 4, 14, 11, 13, 59, new TimeSpan(-8, 0, 0)), "2014-04-14 11:13:59-08:00");
 
         [Fact]
-        public void Bind_works_when_DBNull() => Bind_works(DBNull.Value, DBNull.Value);
+        public void Bind_works_when_DBNull()
+            => Bind_works(DBNull.Value, DBNull.Value);
 
         [Fact]
-        public void Bind_works_when_decimal() => Bind_works(3.14m, "3.14");
+        public void Bind_works_when_decimal()
+            => Bind_works(3.14m, "3.14");
 
         [Fact]
-        public void Bind_works_when_Enum() => Bind_works(MyEnum.One, 1L);
+        public void Bind_works_when_Enum()
+            => Bind_works(MyEnum.One, 1L);
 
         [Fact]
-        public void Bind_works_when_Guid() =>
-            Bind_works(
+        public void Bind_works_when_Guid()
+            => Bind_works(
                 new Guid("1c902ddb-f4b6-4945-af38-0dc1b0760465"),
                 new byte[] { 0xDB, 0x2D, 0x90, 0x1C, 0xB6, 0xF4, 0x45, 0x49, 0xAF, 0x38, 0x0D, 0xC1, 0xB0, 0x76, 0x04, 0x65 });
 
         [Fact]
-        public void Bind_works_when_Nullable() => Bind_works((int?)1, 1L);
+        public void Bind_works_when_Nullable()
+            => Bind_works((int?)1, 1L);
 
         [Fact]
-        public void Bind_works_when_TimeSpan() => Bind_works(new TimeSpan(11, 19, 32), "11:19:32");
+        public void Bind_works_when_TimeSpan()
+            => Bind_works(new TimeSpan(11, 19, 32), "11:19:32");
 
         [Fact]
         public void Bind_throws_when_unknown()
@@ -296,7 +303,6 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(Strings.AmbiguousParameterName("Param"), ex.Message);
             }
         }
-
 
         [Fact]
         public void Bind_with_prefixed_names()

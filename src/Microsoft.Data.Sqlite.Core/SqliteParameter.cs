@@ -5,10 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
-using Microsoft.Data.Sqlite.Interop;
-using Microsoft.Data.Sqlite.Utilities;
-
-using static Microsoft.Data.Sqlite.Interop.Constants;
+using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -23,7 +20,7 @@ namespace Microsoft.Data.Sqlite
     {
         private string _parameterName = string.Empty;
         private object _value;
-        private Action<Sqlite3StmtHandle, int> _bindAction;
+        private Action<sqlite3_stmt, int> _bindAction;
         private bool _bindActionValid;
 
         /// <summary>
@@ -112,7 +109,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>The direction of the parameter.</value>
         public override ParameterDirection Direction
         {
-            get { return ParameterDirection.Input; }
+            get => ParameterDirection.Input;
             set
             {
                 if (value != ParameterDirection.Input)
@@ -134,7 +131,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>The name of the parameter.</value>
         public override string ParameterName
         {
-            get { return _parameterName; }
+            get => _parameterName;
             set
             {
                 if (string.IsNullOrEmpty(value))
@@ -164,14 +161,6 @@ namespace Microsoft.Data.Sqlite
         /// <value>A value indicating whether the source column is nullable.</value>
         public override bool SourceColumnNullMapping { get; set; }
 
-#if NET451
-        /// <summary>
-        /// Gets or sets the version to use when loading the value.
-        /// </summary>
-        /// <value>The version to use when loading the value.</value>
-        public override DataRowVersion SourceVersion { get; set; }
-#endif
-
         /// <summary>
         /// Gets or sets the value of the parameter.
         /// </summary>
@@ -180,7 +169,7 @@ namespace Microsoft.Data.Sqlite
         /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
         public override object Value
         {
-            get { return _value; }
+            get => _value;
             set
             {
                 _value = value;
@@ -203,14 +192,14 @@ namespace Microsoft.Data.Sqlite
             SqliteType = SqliteType.Text;
         }
 
-        internal bool Bind(Sqlite3StmtHandle stmt)
+        internal bool Bind(sqlite3_stmt stmt)
         {
             if (_parameterName.Length == 0)
             {
                 throw new InvalidOperationException(Strings.RequiresSet("ParameterName"));
             }
 
-            var index = NativeMethods.sqlite3_bind_parameter_index(stmt, _parameterName);
+            var index = raw.sqlite3_bind_parameter_index(stmt, _parameterName);
             if (index == 0 &&
                 (index = FindPrefixedParameter(stmt)) == 0)
             {
@@ -228,12 +217,12 @@ namespace Microsoft.Data.Sqlite
                 if (type == typeof(bool))
                 {
                     var value = (bool)_value ? 1L : 0;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(byte))
                 {
                     var value = (long)(byte)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(byte[]))
                 {
@@ -243,7 +232,7 @@ namespace Microsoft.Data.Sqlite
                 else if (type == typeof(char))
                 {
                     var value = (long)(char)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(DateTime))
                 {
@@ -257,7 +246,7 @@ namespace Microsoft.Data.Sqlite
                 }
                 else if (type == typeof(DBNull))
                 {
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_null(s, i);
+                    _bindAction = (s, i) => raw.sqlite3_bind_null(s, i);
                 }
                 else if (type == typeof(decimal))
                 {
@@ -282,22 +271,22 @@ namespace Microsoft.Data.Sqlite
                 else if (type == typeof(int))
                 {
                     var value = (long)(int)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(long))
                 {
                     var value = (long)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(sbyte))
                 {
                     var value = (long)(sbyte)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(short))
                 {
                     var value = (long)(short)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(string))
                 {
@@ -312,17 +301,17 @@ namespace Microsoft.Data.Sqlite
                 else if (type == typeof(uint))
                 {
                     var value = (long)(uint)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(ulong))
                 {
                     var value = (long)(ulong)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else if (type == typeof(ushort))
                 {
                     var value = (long)(ushort)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                    _bindAction = (s, i) => raw.sqlite3_bind_int64(s, i, value);
                 }
                 else
                 {
@@ -337,25 +326,25 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-        private static void BindBlob(Sqlite3StmtHandle stmt, int index, byte[] value)
-            => NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, SQLITE_TRANSIENT);
+        private static void BindBlob(sqlite3_stmt stmt, int index, byte[] value)
+            => raw.sqlite3_bind_blob(stmt, index, value);
 
-        private static void BindText(Sqlite3StmtHandle stmt, int index, string value)
-            => NativeMethods.sqlite3_bind_text(stmt, index, value, SQLITE_TRANSIENT);
+        private static void BindText(sqlite3_stmt stmt, int index, string value)
+            => raw.sqlite3_bind_text(stmt, index, value);
 
-        private static void BindDouble(Sqlite3StmtHandle stmt, int index, double value)
+        private static void BindDouble(sqlite3_stmt stmt, int index, double value)
         {
             if (double.IsNaN(value))
             {
                 throw new InvalidOperationException(Strings.CannotStoreNaN);
             }
 
-            NativeMethods.sqlite3_bind_double(stmt, index, value);
+            raw.sqlite3_bind_double(stmt, index, value);
         }
 
         private readonly static char[] _parameterPrefixes = { '@', '$', ':' };
 
-        private int FindPrefixedParameter(Sqlite3StmtHandle stmt)
+        private int FindPrefixedParameter(sqlite3_stmt stmt)
         {
             var index = 0;
             int nextIndex;
@@ -369,7 +358,7 @@ namespace Microsoft.Data.Sqlite
                     return 0;
                 }
 
-                nextIndex = NativeMethods.sqlite3_bind_parameter_index(stmt, prefix + _parameterName);
+                nextIndex = raw.sqlite3_bind_parameter_index(stmt, prefix + _parameterName);
 
                 if (nextIndex == 0)
                 {

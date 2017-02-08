@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using Microsoft.Data.Sqlite.Interop;
+using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -38,29 +38,6 @@ namespace Microsoft.Data.Sqlite
         public override object SyncRoot
             => ((ICollection)_parameters).SyncRoot;
 
-#if NET451
-        /// <summary>
-        /// Gets a value indicating whether the collection is a fixed size.
-        /// </summary>
-        /// <value>A value indicating whether the collection is a fixed size.</value>
-        public override bool IsFixedSize
-            => false;
-
-        /// <summary>
-        /// Gets a value indicating whether the collection is read-only.
-        /// </summary>
-        /// <value>A value indicating whether the collection is read-only.</value>
-        public override bool IsReadOnly
-            => false;
-
-        /// <summary>
-        /// Gets a value indicating whether the collection is synchronized.
-        /// </summary>
-        /// <value>A value indicating whether the collection is synchronized.</value>
-        public override bool IsSynchronized
-            => false;
-#endif
-
         /// <summary>
         /// Gets or sets the parameter at the specified index.
         /// </summary>
@@ -68,12 +45,10 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The parameter.</returns>
         public new virtual SqliteParameter this[int index]
         {
-            get { return _parameters[index]; }
+            get => _parameters[index];
             set
             {
-                var current = _parameters[index];
-
-                if (current == value)
+                if (_parameters[index] == value)
                 {
                     return;
                 }
@@ -89,8 +64,8 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The parameter.</returns>
         public new virtual SqliteParameter this[string parameterName]
         {
-            get { return this[IndexOfChecked(parameterName)]; }
-            set { this[IndexOfChecked(parameterName)] = value; }
+            get => this[IndexOfChecked(parameterName)];
+            set => this[IndexOfChecked(parameterName)] = value;
         }
 
         /// <summary>
@@ -344,7 +319,7 @@ namespace Microsoft.Data.Sqlite
         protected override void SetParameter(string parameterName, DbParameter value)
             => SetParameter(IndexOfChecked(parameterName), value);
 
-        internal int Bind(Sqlite3StmtHandle stmt)
+        internal int Bind(sqlite3_stmt stmt)
         {
             var bound = 0;
             foreach (var parameter in _parameters)

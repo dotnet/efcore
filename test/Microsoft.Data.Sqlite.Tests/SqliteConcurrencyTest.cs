@@ -7,15 +7,16 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite.Interop;
+using SQLitePCL;
 using Xunit;
 
-using static Microsoft.Data.Sqlite.Interop.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteConcurrencyTest : IDisposable
     {
+        private const string FileName = "concurrency.db";
+
         public SqliteConcurrencyTest()
         {
             using (var connection = CreateConnection())
@@ -57,7 +58,7 @@ INSERT INTO a VALUES (2);";
                             }
                             else
                             {
-                                command.CommandText = "INSERT INTO a VALUES ( 1);";
+                                command.CommandText = "INSERT INTO a VALUES (1);";
                                 Assert.Equal(1, command.ExecuteNonQuery());
                             }
                         }
@@ -85,9 +86,9 @@ INSERT INTO a VALUES (2);";
                     reader.Read();
                     var ex = Assert.Throws<SqliteException>(() => dropCommand.ExecuteNonQuery());
 
-                    Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
-                    var message = NativeMethods.sqlite3_errmsg(connection.DbHandle);
-                    Assert.Equal(Strings.SqliteNativeError(SQLITE_LOCKED, message), ex.Message);
+                    Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
+                    var message = raw.sqlite3_errmsg(connection.Handle);
+                    Assert.Equal(Strings.SqliteNativeError(raw.SQLITE_LOCKED, message), ex.Message);
                 }
 
                 dropCommand.ExecuteNonQuery();
@@ -114,10 +115,10 @@ INSERT INTO a VALUES (2);";
                         reader.Read();
                         var ex = Assert.Throws<SqliteException>(() => dropCommand.ExecuteNonQuery());
 
-                        Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                        Assert.Equal(raw.SQLITE_BUSY, ex.SqliteErrorCode);
 
-                        var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                        Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                        var message = raw.sqlite3_errstr(raw.SQLITE_BUSY);
+                        Assert.Equal(Strings.SqliteNativeError(raw.SQLITE_BUSY, message), ex.Message);
                     }
 
                     dropCommand.ExecuteNonQuery();
@@ -197,10 +198,10 @@ INSERT INTO a VALUES (2);";
                             var ex = Assert.Throws<SqliteException>(() => insertCommand.ExecuteNonQuery());
                             waitHandle.Release();
 
-                            Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                            Assert.Equal(raw.SQLITE_BUSY, ex.SqliteErrorCode);
 
-                            var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                            Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                            var message = raw.sqlite3_errstr(raw.SQLITE_BUSY);
+                            Assert.Equal(Strings.SqliteNativeError(raw.SQLITE_BUSY, message), ex.Message);
                         });
 
                     t1.Start();
@@ -211,18 +212,22 @@ INSERT INTO a VALUES (2);";
             }
         }
 
-        private Version CurrentVersion => new Version(NativeMethods.sqlite3_libversion());
+        private SqliteConnection CreateConnection(bool shared = false)
+        {
+            var builder = new SqliteConnectionStringBuilder
+            {
+                DataSource = FileName,
+                Cache = shared
+                    ? SqliteCacheMode.Shared
+                    : SqliteCacheMode.Private
+            };
 
-        private const string FileName = "./concurrency.db";
-
-        private SqliteConnection CreateConnection(bool shared = false) => new SqliteConnection($"Data Source={FileName};Cache={(shared ? "Shared" : "Private")}");
+            return new SqliteConnection(builder.ToString());
+        }
 
         public void Dispose()
         {
-            if (File.Exists(FileName))
-            {
-                File.Delete(FileName);
-            }
+            File.Delete(FileName);
         }
     }
 }

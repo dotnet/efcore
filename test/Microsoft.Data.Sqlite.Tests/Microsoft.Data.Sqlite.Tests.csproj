@@ -1,19 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp1.1</TargetFrameworks>
-    <RuntimeIdentifier Condition="'$(TargetFramework)' != 'netcoreapp1.1'">win7-x64</RuntimeIdentifier>
+    <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Sqlite\Microsoft.Data.Sqlite.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-*" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.2" />
     <PackageReference Include="xunit" Version="2.2.0-*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-*" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <PackageReference Include="System.AppContext" Version="4.4.0-*" />
   </ItemGroup>
 </Project>
