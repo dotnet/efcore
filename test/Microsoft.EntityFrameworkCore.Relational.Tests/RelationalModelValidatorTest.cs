@@ -335,6 +335,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
+        public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Animal_Person_Name").Metadata;
+            var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.SetNull).Metadata;
+
+            Validate(modelBuilder.Model);
+
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name0", fk2.Relational().Name);
+        }
+
+        [Fact]
         public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
@@ -423,6 +439,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                     "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
                     nameof(Animal), "IX_Animal_Name"),
                 modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name").Metadata;
+            var index2 = modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).Metadata;
+
+            Validate(modelBuilder.Model);
+
+            Assert.Equal("IX_Animal_Name", index1.Relational().Name);
+            Assert.Equal("IX_Animal_Name0", index2.Relational().Name);
         }
 
         [Fact]

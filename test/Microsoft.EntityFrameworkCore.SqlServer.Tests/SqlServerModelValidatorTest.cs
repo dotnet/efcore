@@ -50,17 +50,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
-        public virtual void Throws_for_unsupported_data_types()
-        {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-            modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("nvarchar");
-
-            Assert.Equal(
-                SqlServerStrings.UnqualifiedDataType("nvarchar"),
-                Assert.Throws<ArgumentException>(() => Validate(modelBuilder.Model)).Message);
-        }
-
-        [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_unicode()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
@@ -70,6 +59,51 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.Cascade).ForSqlServerHasConstraintName("FK_Animal_Person_Name").Metadata;
+            var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.SetNull).Metadata;
+
+            Validate(modelBuilder.Model);
+
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name", fk1.SqlServer().Name);
+            Assert.Equal("FK_Animal_Person_Name", fk2.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name0", fk2.SqlServer().Name);
+        }
+
+        [Fact]
+        public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().ForSqlServerHasName("IX_Animal_Name").Metadata;
+            var index2 = modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).Metadata;
+
+            Validate(modelBuilder.Model);
+
+            Assert.Equal("IX_Animal_Name", index1.Relational().Name);
+            Assert.Equal("IX_Animal_Name", index1.SqlServer().Name);
+            Assert.Equal("IX_Animal_Name", index2.Relational().Name);
+            Assert.Equal("IX_Animal_Name0", index2.SqlServer().Name);
+        }
+
+        [Fact]
+        public virtual void Throws_for_unsupported_data_types()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("nvarchar");
+
+            Assert.Equal(
+                SqlServerStrings.UnqualifiedDataType("nvarchar"),
+                Assert.Throws<ArgumentException>(() => Validate(modelBuilder.Model)).Message);
         }
 
         [Fact]
@@ -132,10 +166,5 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                     new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
                 new TestSqlServerAnnotationProvider(),
                 new SqlServerTypeMapper());
-    }
-
-    public class TestSqlServerAnnotationProvider : TestAnnotationProvider
-    {
-        public override IRelationalPropertyAnnotations For(IProperty property) => new SqlServerPropertyAnnotations(property);
     }
 }
