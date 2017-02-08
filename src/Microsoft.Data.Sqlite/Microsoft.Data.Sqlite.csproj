@@ -1,8 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <Summary>SQLite implementation of the System.Data.Common provider model.</Summary>
-    <Description>$(Summary)
+    <Description>SQLite implementation of the System.Data.Common provider model.
 
 Commonly Used Types:
 Microsoft.Data.Sqlite.SqliteCommand
@@ -19,20 +18,17 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)$(MSBuildProjectName).ruleset</CodeAnalysisRuleSet>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
-
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Microsoft.Data.Sqlite.rd.xml" />
-    <AdditionalFiles Include="stylecop.json" />
+    <None Include="stylecop.json" />
     <None Include="$(CodeAnalysisRuleSet)" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="SQLite" Version="3.12.3" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Data.Common" Version="4.4.0-*" />
   </ItemGroup>
-
 </Project>

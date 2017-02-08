@@ -4,9 +4,7 @@
 using System;
 using System.Data;
 using System.IO;
-using Microsoft.AspNetCore.Testing.xunit;
 using Microsoft.Data.Sqlite.Utilities;
-using Microsoft.Extensions.PlatformAbstractions;
 using Xunit;
 
 using static Microsoft.Data.Sqlite.TestUtilities.Constants;
@@ -15,6 +13,12 @@ namespace Microsoft.Data.Sqlite
 {
     public class SqliteConnectionTest
     {
+#if NET451
+        private static readonly string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+#else
+        private static readonly string BaseDirectory = AppContext.BaseDirectory;
+#endif
+
         [Fact]
         public void Ctor_sets_connection_string()
         {
@@ -65,8 +69,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal("test.db", connection.DataSource);
         }
 
-        [ConditionalFact]
-        [SqliteVersionCondition(Min = "3.7.10")]
+        [Fact]
         public void DataSource_returns_actual_filename_when_open()
         {
             using (var connection = new SqliteConnection("Data Source=test.db"))
@@ -113,7 +116,8 @@ namespace Microsoft.Data.Sqlite
         {
             var connection = new SqliteConnection("Filename=./local.db");
             connection.Open();
-            Assert.Equal(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "local.db"), connection.DataSource);
+
+            Assert.Equal(Path.Combine(BaseDirectory, "local.db"), connection.DataSource);
         }
 
         [Fact]
@@ -163,10 +167,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                if (connection.ExecuteScalar<long>("SELECT COUNT(*) FROM sqlite_master WHERE name = 'Idomic';") == 0)
-                {
-                    connection.ExecuteNonQuery("CREATE TABLE Idomic (Word TEXT);");
-                }
+                connection.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Idomic (Word TEXT);");
             }
 
             using (var connection = new SqliteConnection("Data Source=readonly.db;Mode=ReadOnly"))

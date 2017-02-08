@@ -21,6 +21,9 @@ namespace Microsoft.Data.Sqlite
     /// </summary>
     public class SqliteDataReader : DbDataReader
     {
+        // TODO can be Array.Empty<T>() when upgrading to net46
+        private static readonly byte[] _emptyByteArray = new byte[0];
+
         private readonly SqliteConnection _connection;
         private readonly bool _closeConnection;
         private readonly Queue<Tuple<Sqlite3StmtHandle, bool>> _stmtQueue;
@@ -687,7 +690,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidCastException();
             }
 
-            return NativeMethods.sqlite3_column_blob(_stmt, ordinal);
+            return NativeMethods.sqlite3_column_blob(_stmt, ordinal) ?? _emptyByteArray;
         }
     }
 }

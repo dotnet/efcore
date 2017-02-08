@@ -116,11 +116,8 @@ INSERT INTO a VALUES (2);";
 
                         Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
 
-                        if (CurrentVersion >= new Version("3.7.15"))
-                        {
-                            var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                            Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
-                        }
+                        var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
+                        Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
                     }
 
                     dropCommand.ExecuteNonQuery();
@@ -202,11 +199,8 @@ INSERT INTO a VALUES (2);";
 
                             Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
 
-                            if (CurrentVersion >= new Version("3.7.15"))
-                            {
-                                var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                                Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
-                            }
+                            var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
+                            Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
                         });
 
                     t1.Start();

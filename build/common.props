@@ -1,6 +1,5 @@
 <Project ToolsVersion="15.0">
   <Import Project="..\version.props" />
-
   <PropertyGroup>
     <Product>Microsoft .NET</Product>
     <RepositoryUrl>https://github.com/aspnet/Microsoft.Data.Sqlite</RepositoryUrl>
@@ -10,15 +9,17 @@
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
     <NetCoreAppImplicitPackageVersion>1.2.0-*</NetCoreAppImplicitPackageVersion>
     <NetStandardImplicitPackageVersion>1.6.2-*</NetStandardImplicitPackageVersion>
-    <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+    <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" Version="1.0.1-*" PrivateAssets="All" />
+    <EmbeddedResource Include="**\*.rd.xml" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework' AND '$(OutputType)'=='library'">
+  <ItemGroup>
+    <PackageReference Include="Internal.AspNetCore.Sdk" Version="1.0.1-*">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' And '$(OutputType)' == 'library'">
     <PackageReference Include="NETStandard.Library" Version="$(NetStandardImplicitPackageVersion)" />
   </ItemGroup>
-
 </Project>

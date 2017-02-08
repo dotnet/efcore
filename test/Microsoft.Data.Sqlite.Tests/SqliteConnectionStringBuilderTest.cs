@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Testing.xunit;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -218,19 +217,13 @@ namespace Microsoft.Data.Sqlite
             Assert.False(new SqliteConnectionStringBuilder().ShouldSerialize("Invalid"));
         }
 
-        [ConditionalFact]
-        [FrameworkSkipCondition(
-            RuntimeFrameworks.Mono,
-            SkipReason = "Test fails with Mono 4.0.4. Build rarely reaches testing with Mono 4.2.1")]
+        [Fact]
         public void ShouldSerialize_returns_false_when_unset()
         {
             Assert.False(new SqliteConnectionStringBuilder().ShouldSerialize("Data Source"));
         }
 
-        [ConditionalFact]
-        [FrameworkSkipCondition(
-            RuntimeFrameworks.Mono,
-            SkipReason = "Test fails with Mono 4.0.4. Build rarely reaches testing with Mono 4.2.1")]
+        [Fact]
         public void ShouldSerialize_returns_true_when_set()
         {
             var builder = new SqliteConnectionStringBuilder("Data Source=test.db");
