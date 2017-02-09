@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"" AS ProductName, ""ProductName"" AS ProductID, ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                            .FromSql(@"SELECT ""ProductID"" AS ""ProductName"", ""ProductName"" AS ""ProductID"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
                             .ToList()).Message);
             }
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS SupplierID, ""SupplierID"" AS ProductName, ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS ""SupplierID"", ""SupplierID"" AS ""ProductName"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
                             .ToList()).Message);
             }
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     CoreStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS SupplierID, ""SupplierID"" AS ProductName, ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS ""SupplierID"", ""SupplierID"" AS ""ProductName"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
                             .Select(p => p.ProductName)
                             .ToList()).Message);
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
                             .AsNoTracking()
-                            .FromSql(@"SELECT ""ProductID"" AS ProductName, ""ProductName"" AS ProductID, ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                            .FromSql(@"SELECT ""ProductID"" AS ""ProductName"", ""ProductName"" AS ""ProductID"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
                             .ToList()).Message);
             }
