@@ -1,0 +1,3259 @@
+{
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Relational.Design, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "Types": [
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Metadata.ScaffoldingMetadataExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Scaffolding",
+          "Parameters": [
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingModelAnnotations",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Scaffolding",
+          "Parameters": [
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingPropertyAnnotations",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Internal.RelationalDesignLoggerExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "LogWarning",
+          "Parameters": [
+            {
+              "Name": "logger",
+              "Type": "Microsoft.Extensions.Logging.ILogger"
+            },
+            {
+              "Name": "eventId",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.RelationalDesignEventId"
+            },
+            {
+              "Name": "formatter",
+              "Type": "System.Func<System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "LogDebug",
+          "Parameters": [
+            {
+              "Name": "logger",
+              "Type": "Microsoft.Extensions.Logging.ILogger"
+            },
+            {
+              "Name": "eventId",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.RelationalDesignEventId"
+            },
+            {
+              "Name": "formatter",
+              "Type": "System.Func<System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Internal.RelationalDesignStrings",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "CannotFindTypeMappingForColumn",
+          "Parameters": [
+            {
+              "Name": "columnName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "dateType",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForeignKeyScaffoldErrorPrincipalKeyNotFound",
+          "Parameters": [
+            {
+              "Name": "foreignKeyName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "columnsList",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "principalEntityType",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForeignKeyScaffoldErrorPrincipalTableNotFound",
+          "Parameters": [
+            {
+              "Name": "foreignKeyName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForeignKeyScaffoldErrorPrincipalTableScaffoldingError",
+          "Parameters": [
+            {
+              "Name": "foreignKeyName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "principalTableName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForeignKeyScaffoldErrorPropertyNotFound",
+          "Parameters": [
+            {
+              "Name": "foreignKeyName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "columnNames",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "PrimaryKeyErrorPropertyNotFound",
+          "Parameters": [
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "columnNames",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "MissingPrimaryKey",
+          "Parameters": [
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ProviderReturnedNullModel",
+          "Parameters": [
+            {
+              "Name": "providerTypeName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ReadOnlyFiles",
+          "Parameters": [
+            {
+              "Name": "outputDirectoryName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "readOnlyFiles",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "UnableToGenerateEntityType",
+          "Parameters": [
+            {
+              "Name": "tableName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "UnableToScaffoldIndexMissingProperty",
+          "Parameters": [
+            {
+              "Name": "indexName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "columnNames",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_MissingUseProviderMethodNameAnnotation",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ExistingFiles",
+          "Parameters": [
+            {
+              "Name": "outputDirectoryName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "existingFiles",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_SequencesRequireName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "BadSequenceType",
+          "Parameters": [
+            {
+              "Name": "sequenceName",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "typeName",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "MissingSchema",
+          "Parameters": [
+            {
+              "Name": "schema",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "MissingTable",
+          "Parameters": [
+            {
+              "Name": "table",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.RelationalDesignEventId",
+      "Visibility": "Public",
+      "Kind": "Enumeration",
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Field",
+          "Name": "MissingSchemaWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "1"
+        },
+        {
+          "Kind": "Field",
+          "Name": "MissingTableWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "2"
+        },
+        {
+          "Kind": "Field",
+          "Name": "SequenceMustBeNamedWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "3"
+        },
+        {
+          "Kind": "Field",
+          "Name": "SequenceTypeNotSupportedWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "4"
+        },
+        {
+          "Kind": "Field",
+          "Name": "UnableToGenerateEntityTypeWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "5"
+        },
+        {
+          "Kind": "Field",
+          "Name": "ColumnTypeNotMappedWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "6"
+        },
+        {
+          "Kind": "Field",
+          "Name": "MissingPrimaryKeyWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "7"
+        },
+        {
+          "Kind": "Field",
+          "Name": "PrimaryKeyColumnsNotMappedWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "8"
+        },
+        {
+          "Kind": "Field",
+          "Name": "IndexColumnsNotMappedWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "9"
+        },
+        {
+          "Kind": "Field",
+          "Name": "ForeignKeyReferencesMissingTableWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "10"
+        },
+        {
+          "Kind": "Field",
+          "Name": "ForeignKeyColumnsNotMappedWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "11"
+        },
+        {
+          "Kind": "Field",
+          "Name": "ForeignKeyReferencesMissingPrincipalKeyWarning",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "12"
+        },
+        {
+          "Kind": "Field",
+          "Name": "FoundTable",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "13"
+        },
+        {
+          "Kind": "Field",
+          "Name": "TableSkipped",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "14"
+        },
+        {
+          "Kind": "Field",
+          "Name": "FoundColumn",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "15"
+        },
+        {
+          "Kind": "Field",
+          "Name": "ColumnSkipped",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "16"
+        },
+        {
+          "Kind": "Field",
+          "Name": "FoundIndex",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "17"
+        },
+        {
+          "Kind": "Field",
+          "Name": "FoundIndexColumn",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "18"
+        },
+        {
+          "Kind": "Field",
+          "Name": "IndexColumnSkipped",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "19"
+        },
+        {
+          "Kind": "Field",
+          "Name": "FoundForeignKeyColumn",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "20"
+        },
+        {
+          "Kind": "Field",
+          "Name": "FoundSequence",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "21"
+        },
+        {
+          "Kind": "Field",
+          "Name": "ForeignKeyReferencesMissingTable",
+          "Parameters": [],
+          "GenericParameter": [],
+          "Literal": "22"
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Create",
+          "Parameters": [
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Create",
+          "Parameters": [
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.RelationalScaffoldingModelFactory",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Logger",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.ILogger",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_TypeMapper",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_CandidateNamingService",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CandidateNamingService",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Create",
+          "Parameters": [
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CheckSelectionsMatched",
+          "Parameters": [
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateFromDatabaseModel",
+          "Parameters": [
+            {
+              "Name": "databaseModel",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetEntityTypeName",
+          "Parameters": [
+            {
+              "Name": "table",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetPropertyName",
+          "Parameters": [
+            {
+              "Name": "column",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitDatabaseModel",
+          "Parameters": [
+            {
+              "Name": "modelBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
+            },
+            {
+              "Name": "databaseModel",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitSequences",
+          "Parameters": [
+            {
+              "Name": "modelBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
+            },
+            {
+              "Name": "sequences",
+              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.SequenceModel>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitSequence",
+          "Parameters": [
+            {
+              "Name": "modelBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
+            },
+            {
+              "Name": "sequence",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.SequenceModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitTables",
+          "Parameters": [
+            {
+              "Name": "modelBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
+            },
+            {
+              "Name": "tables",
+              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitTable",
+          "Parameters": [
+            {
+              "Name": "modelBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
+            },
+            {
+              "Name": "table",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitColumns",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
+            },
+            {
+              "Name": "columns",
+              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitColumn",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
+            },
+            {
+              "Name": "column",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetTypeMapping",
+          "Parameters": [
+            {
+              "Name": "column",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitPrimaryKey",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
+            },
+            {
+              "Name": "table",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitIndexes",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
+            },
+            {
+              "Name": "indexes",
+              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexModel>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitIndex",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
+            },
+            {
+              "Name": "index",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitForeignKeys",
+          "Parameters": [
+            {
+              "Name": "modelBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
+            },
+            {
+              "Name": "foreignKeys",
+              "Type": "System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyModel>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitForeignKey",
+          "Parameters": [
+            {
+              "Name": "modelBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
+            },
+            {
+              "Name": "foreignKey",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyModel"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "AddNavigationProperties",
+          "Parameters": [
+            {
+              "Name": "foreignKey",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ExistingIdentifiers",
+          "Parameters": [
+            {
+              "Name": "entityType",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IEntityType"
+            }
+          ],
+          "ReturnType": "System.Collections.Generic.List<System.String>",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "loggerFactory",
+              "Type": "Microsoft.Extensions.Logging.ILoggerFactory"
+            },
+            {
+              "Name": "typeMapper",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper"
+            },
+            {
+              "Name": "databaseModelFactory",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory"
+            },
+            {
+              "Name": "candidateNamingService",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CandidateNamingService"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldingTypeMapper",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_TypeMapper",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FindMapping",
+          "Parameters": [
+            {
+              "Name": "storeType",
+              "Type": "System.String"
+            },
+            {
+              "Name": "keyOrIndex",
+              "Type": "System.Boolean"
+            },
+            {
+              "Name": "rowVersion",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.TypeScaffoldingInfo",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "typeMapper",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Schemas",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet+Selection>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Tables",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet+Selection>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "tables",
+              "Type": "System.Collections.Generic.IEnumerable<System.String>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "tables",
+              "Type": "System.Collections.Generic.IEnumerable<System.String>"
+            },
+            {
+              "Name": "schemas",
+              "Type": "System.Collections.Generic.IEnumerable<System.String>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "All",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.TypeScaffoldingInfo",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_ClrType",
+          "Parameters": [],
+          "ReturnType": "System.Type",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IsInferred",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ScaffoldUnicode",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Boolean>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ScaffoldMaxLength",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "clrType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "inferred",
+              "Type": "System.Boolean"
+            },
+            {
+              "Name": "scaffoldUnicode",
+              "Type": "System.Nullable<System.Boolean>"
+            },
+            {
+              "Name": "scaffoldMaxLength",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Table",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Table",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Name",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Name",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_PrimaryKeyOrdinal",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_PrimaryKeyOrdinal",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Ordinal",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Ordinal",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IsNullable",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_IsNullable",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DataType",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_DataType",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultValue",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_DefaultValue",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ComputedValue",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_ComputedValue",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_MaxLength",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_MaxLength",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Precision",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Precision",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Scale",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Scale",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ValueGenerated",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<Microsoft.EntityFrameworkCore.Metadata.ValueGenerated>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_ValueGenerated",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<Microsoft.EntityFrameworkCore.Metadata.ValueGenerated>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DisplayName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DatabaseName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_DatabaseName",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultSchemaName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_DefaultSchemaName",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Tables",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Sequences",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.SequenceModel>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyColumnModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Ordinal",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Ordinal",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Column",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Column",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_PrincipalColumn",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_PrincipalColumn",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Table",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Table",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_PrincipalTable",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_PrincipalTable",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Columns",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyColumnModel>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Name",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Name",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_OnDelete",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<Microsoft.EntityFrameworkCore.Migrations.ReferentialAction>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_OnDelete",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<Microsoft.EntityFrameworkCore.Migrations.ReferentialAction>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DisplayName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexColumnModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Ordinal",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Ordinal",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Column",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Column",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Index",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Index",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Table",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Table",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Name",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Name",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IndexColumns",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexColumnModel>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_IndexColumns",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexColumnModel>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IsUnique",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_IsUnique",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingModelAnnotations",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_UseProviderMethodName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_UseProviderMethodName",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_EntityTypeErrors",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IDictionary<System.String, System.String>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_EntityTypeErrors",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Collections.Generic.IDictionary<System.String, System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingPropertyAnnotations",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_ColumnOrdinal",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_ColumnOrdinal",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.SequenceModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Database",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Database",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Name",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Name",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_SchemaName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_SchemaName",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DataType",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_DataType",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Start",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int64>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Start",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int64>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IncrementBy",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_IncrementBy",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Min",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int64>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Min",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int64>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Max",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int64>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Max",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int64>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IsCyclic",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Boolean>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_IsCyclic",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Boolean>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Database",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Database",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Name",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Name",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_SchemaName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_SchemaName",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Columns",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Columns",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Indexes",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexModel>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ForeignKeys",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyModel>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DisplayName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Field",
+          "Name": "Prefix",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": [],
+          "Constant": true,
+          "Literal": "\"Scaffolding:\""
+        },
+        {
+          "Kind": "Field",
+          "Name": "UseProviderMethodName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": [],
+          "Constant": true,
+          "Literal": "\"UseProviderMethodName\""
+        },
+        {
+          "Kind": "Field",
+          "Name": "ColumnOrdinal",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": [],
+          "Constant": true,
+          "Literal": "\"ColumnOrdinal\""
+        },
+        {
+          "Kind": "Field",
+          "Name": "DependentEndNavigation",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": [],
+          "Constant": true,
+          "Literal": "\"DependentEndNavigation\""
+        },
+        {
+          "Kind": "Field",
+          "Name": "PrincipalEndNavigation",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": [],
+          "Constant": true,
+          "Literal": "\"PrincipalEndNavigation\""
+        },
+        {
+          "Kind": "Field",
+          "Name": "EntityTypeErrors",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": [],
+          "Constant": true,
+          "Literal": "\"EntityTypeErrors\""
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingFullAnnotationNames",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Instance",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingFullAnnotationNames",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "prefix",
+              "Type": "System.String"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "UseProviderMethodName",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "ColumnOrdinal",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "DependentEndNavigation",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "PrincipalEndNavigation",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "EntityTypeErrors",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CandidateNamingService",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "GenerateCandidateIdentifier",
+          "Parameters": [
+            {
+              "Name": "originalIdentifier",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetDependentEndCandidateNavigationPropertyName",
+          "Parameters": [
+            {
+              "Name": "foreignKey",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IForeignKey"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetPrincipalEndCandidateNavigationPropertyName",
+          "Parameters": [
+            {
+              "Name": "foreignKey",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IForeignKey"
+            },
+            {
+              "Name": "dependentEndNavigationPropertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpNamer<T0>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "GetName",
+          "Parameters": [
+            {
+              "Name": "item",
+              "Type": "T0"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "nameGetter",
+              "Type": "System.Func<T0, System.String>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "NameCache",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.Dictionary<T0, System.String>",
+          "ReadOnly": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "T",
+          "ParameterPosition": 0,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpUniqueNamer<T0>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpNamer<T0>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "GetName",
+          "Parameters": [
+            {
+              "Name": "item",
+              "Type": "T0"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "nameGetter",
+              "Type": "System.Func<T0, System.String>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "nameGetter",
+              "Type": "System.Func<T0, System.String>"
+            },
+            {
+              "Name": "usedNames",
+              "Type": "System.Collections.Generic.IEnumerable<System.String>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "T",
+          "ParameterPosition": 0,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpUtilities",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Instance",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpUtilities",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "DelimitString",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "EscapeString",
+          "Parameters": [
+            {
+              "Name": "str",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "EscapeVerbatimString",
+          "Parameters": [
+            {
+              "Name": "str",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Byte[]"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Int64"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Decimal"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Single"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Double"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.TimeSpan"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.DateTime"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.DateTimeOffset"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Guid"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateVerbatimStringLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "IsCSharpKeyword",
+          "Parameters": [
+            {
+              "Name": "identifier",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateCSharpIdentifier",
+          "Parameters": [
+            {
+              "Name": "identifier",
+              "Type": "System.String"
+            },
+            {
+              "Name": "existingIdentifiers",
+              "Type": "System.Collections.Generic.ICollection<System.String>"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateCSharpIdentifier",
+          "Parameters": [
+            {
+              "Name": "identifier",
+              "Type": "System.String"
+            },
+            {
+              "Name": "existingIdentifiers",
+              "Type": "System.Collections.Generic.ICollection<System.String>"
+            },
+            {
+              "Name": "uniquifier",
+              "Type": "System.Func<System.String, System.Collections.Generic.ICollection<System.String>, System.String>"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Uniquifier",
+          "Parameters": [
+            {
+              "Name": "proposedIdentifier",
+              "Type": "System.String"
+            },
+            {
+              "Name": "existingIdentifiers",
+              "Type": "System.Collections.Generic.ICollection<System.String>"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetTypeName",
+          "Parameters": [
+            {
+              "Name": "propertyType",
+              "Type": "System.Type"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "IsValidIdentifier",
+          "Parameters": [
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.DbDataReaderExtension",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "GetValueOrDefault<T0>",
+          "Parameters": [
+            {
+              "Name": "reader",
+              "Type": "System.Data.Common.DbDataReader"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "T0",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "T",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IInternalDatabaseModelFactory",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Create",
+          "Parameters": [
+            {
+              "Name": "connection",
+              "Type": "System.Data.Common.DbConnection"
+            },
+            {
+              "Name": "tableSelectionSet",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.TableSelectionSet+Selection",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Text",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IsMatched",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_IsMatched",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "selectionText",
+              "Type": "System.String"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    }
+  ]
+}
