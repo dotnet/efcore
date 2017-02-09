@@ -402,5 +402,12 @@
     "OldMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, System.Data.Common.DbTransaction transaction, Microsoft.Extensions.Logging.ILogger logger, System.Boolean transactionOwned)",
     "NewMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, System.Data.Common.DbTransaction transaction, Microsoft.Extensions.Logging.ILogger logger, System.Diagnostics.DiagnosticSource diagnosticSource, System.Boolean transactionOwned)",
     "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "OldMemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddInnerJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
+    "NewMemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddInnerJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection, System.Linq.Expressions.Expression innerPredicate)",
+    "Kind": "Modification"
   }
 ]

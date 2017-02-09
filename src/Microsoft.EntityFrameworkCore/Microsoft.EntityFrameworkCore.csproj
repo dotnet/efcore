@@ -151,6 +151,7 @@
     <Compile Include="ChangeTracking\ReferenceEntry.cs" />
     <Compile Include="ChangeTracking\ReferenceEntry`.cs" />
     <Compile Include="EF.CompileAsyncQuery.cs" />
+    <Compile Include="Extensions\Internal\AsyncQueryProviderExtensions.cs" />
     <Compile Include="Internal\IPatchServiceInjectionSite.cs" />
     <Compile Include="Infrastructure\IResettableService.cs" />
     <Compile Include="Infrastructure\ServiceCollectionMap.cs" />

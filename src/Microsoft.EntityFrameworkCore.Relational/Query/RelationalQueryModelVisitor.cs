@@ -379,11 +379,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var typeIsExpressionTranslatingVisitor
-                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
-
-            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
-
             base.VisitQueryModel(queryModel);
 
             var compositePredicateVisitor = _compositePredicateExpressionVisitorFactory.Create();
@@ -707,11 +702,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (predicate != null)
                     {
-                        QueriesBySource.Remove(joinClause);
-
                         previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
-
                         var tableExpression = selectExpression.Tables.Single();
+
+                        if (groupJoin
+                            && selectExpression.Predicate != null)
+                        {
+                            selectExpression.PushDownSubquery();
+                            selectExpression.ExplodeStarProjection();
+                            tableExpression = selectExpression.Tables.Single();
+                            tableExpression.QuerySource = joinClause;
+
+                            predicate = sqlTranslatingExpressionVisitor.Visit(
+                                Expression.Equal(joinClause.OuterKeySelector, joinClause.InnerKeySelector));
+                        }
+
+                        QueriesBySource.Remove(joinClause);
 
                         var projection
                             = QueryCompilationContext
@@ -719,11 +725,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 ? selectExpression.Projection
                                 : Enumerable.Empty<Expression>();
 
-                        var joinExpression
-                            = !groupJoin
-                                ? previousSelectExpression.AddInnerJoin(tableExpression, projection)
-                                : previousSelectExpression.AddLeftOuterJoin(tableExpression, projection);
-
+                        var joinExpression = !groupJoin
+                            ? previousSelectExpression.AddInnerJoin(tableExpression, projection, selectExpression.Predicate)
+                            : previousSelectExpression.AddLeftOuterJoin(tableExpression, projection);
                         joinExpression.Predicate = predicate;
 
                         if (groupJoin)
@@ -1290,6 +1294,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 WarnClientEval(resultOperator);
             }
+        }
+
+        /// <summary>
+        ///     Applies optimizations to the query.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
+        protected override void OptimizeQueryModel(QueryModel queryModel)
+        {
+            var typeIsExpressionTranslatingVisitor
+                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
+
+            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
+
+            base.OptimizeQueryModel(queryModel);
         }
 
         /// <summary>

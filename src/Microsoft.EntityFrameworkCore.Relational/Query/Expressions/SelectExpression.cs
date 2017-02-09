@@ -1000,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            return AddInnerJoin(tableExpression, Enumerable.Empty<AliasExpression>());
+            return AddInnerJoin(tableExpression, Enumerable.Empty<AliasExpression>(), innerPredicate: null);
         }
 
         /// <summary>
@@ -1008,9 +1008,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
+        /// <param name="innerPredicate">A predicate which should be appended to current predicate. </param>
         public virtual JoinExpressionBase AddInnerJoin(
             [NotNull] TableExpressionBase tableExpression,
-            [NotNull] IEnumerable<Expression> projection)
+            [NotNull] IEnumerable<Expression> projection,
+            [CanBeNull] Expression innerPredicate)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
@@ -1019,6 +1021,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             _tables.Add(innerJoinExpression);
             _projection.AddRange(projection);
+
+            if (innerPredicate != null)
+            {
+                Predicate = Predicate == null ? innerPredicate : AndAlso(Predicate, innerPredicate);
+            }
 
             return innerJoinExpression;
         }

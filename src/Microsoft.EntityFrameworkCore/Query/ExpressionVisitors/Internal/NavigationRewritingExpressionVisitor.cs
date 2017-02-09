@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -764,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var mainFromClause
                 = new MainFromClause(
                     "subQuery",
-                    targetEntityType.ClrType, CreateEntityQueryable(targetEntityType));
+                    targetEntityType.ClrType, _entityQueryProvider.CreateEntityQueryable(targetEntityType));
 
             var querySourceReference = new QuerySourceReferenceExpression(mainFromClause);
             var subQueryModel = new QueryModel(mainFromClause, new SelectClause(querySourceReference));
@@ -868,7 +869,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (navigation.IsCollection())
                 {
-                    _queryModel.MainFromClause.FromExpression = CreateEntityQueryable(targetEntityType);
+                    _queryModel.MainFromClause.FromExpression = _entityQueryProvider.CreateEntityQueryable(targetEntityType);
 
                     var innerQuerySourceReferenceExpression
                         = new QuerySourceReferenceExpression(_queryModel.MainFromClause);
@@ -1157,7 +1158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = new JoinClause(
                     $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}", // Interpolation okay; strings
                     targetEntityType.ClrType,
-                    CreateEntityQueryable(targetEntityType),
+                    _entityQueryProvider.CreateEntityQueryable(targetEntityType),
                     outerKeySelector,
                     Expression.Constant(null));
 
@@ -1245,24 +1246,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             return type == typeof(CompositeKey);
         }
-
-        private ConstantExpression CreateEntityQueryable(IEntityType targetEntityType)
-            => Expression.Constant(
-                _createEntityQueryableMethod
-                    .MakeGenericMethod(targetEntityType.ClrType)
-                    .Invoke(null, new object[]
-                    {
-                        _entityQueryProvider
-                    }));
-
-        private static readonly MethodInfo _createEntityQueryableMethod
-            = typeof(NavigationRewritingExpressionVisitor)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_CreateEntityQueryable));
-
-        [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
-        private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
-            => new EntityQueryable<TResult>(entityQueryProvider);
 
         private static Expression CompensateForNullabilityDifference(Expression expression, Type originalType)
         {

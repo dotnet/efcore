@@ -398,6 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 queryModel.TransformExpressions(new RecursiveQueryModelExpressionVisitor(this).Visit);
             }
 
+
             private class RecursiveQueryModelExpressionVisitor : ExpressionVisitorBase
             {
                 private readonly NondeterministicResultCheckingVisitor _parentVisitor;
