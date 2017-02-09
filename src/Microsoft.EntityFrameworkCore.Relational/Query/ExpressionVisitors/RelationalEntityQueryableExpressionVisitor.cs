@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -247,6 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
             {
+                Dictionary<Type, int[]> typeIndexMap;
+
                 var materializer
                     = _materializerFactory
                         .CreateMaterializer(
@@ -257,7 +260,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                                     _relationalAnnotationProvider.For(p).ColumnName,
                                     p,
                                     _querySource),
-                            _querySource).Compile();
+                            _querySource,
+                            out typeIndexMap).Compile();
 
                 shaper
                     = (Shaper)_createEntityShaperMethodInfo.MakeGenericMethod(elementType)
@@ -268,6 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             QueryModelVisitor.QueryCompilationContext.IsTrackingQuery,
                             entityType.FindPrimaryKey(),
                             materializer,
+                            typeIndexMap,
                             QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
                         });
             }
@@ -347,6 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             bool trackingQuery,
             IKey key,
             Func<ValueBuffer, object> materializer,
+            Dictionary<Type, int[]> typeIndexMap,
             bool useQueryBuffer)
             where TEntity : class
         => !useQueryBuffer
@@ -361,6 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 entityType,
                 trackingQuery,
                 key,
-                materializer);
+                materializer,
+                typeIndexMap);
     }
 }

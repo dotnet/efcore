@@ -121,5 +121,12 @@
     "OldMemberId": "public .ctor(System.Collections.Generic.IList<System.Object> values, System.Int32 offset)",
     "NewMemberId": "public .ctor(System.Object[] values, System.Int32 offset)",
     "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public struct Microsoft.EntityFrameworkCore.Query.EntityLoadInfo",
+    "NewTypeId": "public struct Microsoft.EntityFrameworkCore.Query.EntityLoadInfo",
+    "OldMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ValueBuffer valueBuffer, System.Func<Microsoft.EntityFrameworkCore.Storage.ValueBuffer, System.Object> materializer)",
+    "NewMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ValueBuffer valueBuffer, System.Func<Microsoft.EntityFrameworkCore.Storage.ValueBuffer, System.Object> materializer, System.Collections.Generic.Dictionary<System.Type, System.Int32[]> typeIndexMap = null)",
+    "Kind": "Modification"
   }
 ]
