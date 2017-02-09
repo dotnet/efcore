@@ -609,23 +609,23 @@ ORDER BY [o].[OrderID]",
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 
-@_outer_CustomerID: ALFKI (Size = 450)
+@_outer_CustomerID1: ALFKI (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
-@_outer_CustomerID: ANATR (Size = 450)
+@_outer_CustomerID1: ANATR (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -5394,6 +5394,20 @@ SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
 ORDER BY [o].[OrderID]",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level()
+        {
+            base.Select_nested_collection_multi_level();
+
+            Assert.StartsWith(@"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+
+SELECT [o].[CustomerID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10500",
                 Sql);
         }
 

@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             RelationalQueryModelVisitor queryModelVisitor,
             Func<RelationalQueryModelVisitor, AliasExpression> binder)
         {
-            if (queryModelVisitor == null)
+            if (queryModelVisitor == null || queryModelVisitor.RequiresClientProjection)
             {
                 return null;
             }

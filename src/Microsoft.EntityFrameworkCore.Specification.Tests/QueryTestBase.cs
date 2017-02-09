@@ -2205,6 +2205,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Orders = c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Take(3)
+                            .Select(o => new { Date = o.OrderDate })
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.All(customers, t => Assert.True(t.Orders.Count() <= 3));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_correlated_subquery_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
