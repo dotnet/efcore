@@ -309,10 +309,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                                    var maybeMethodCallExpression = newExpression.Arguments[0] as MethodCallExpression;
 
-                                   if ((maybeMethodCallExpression != null
-                                        && maybeMethodCallExpression.Method.IsGenericMethod
-                                        && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
-                                        == DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
+                                   if (maybeMethodCallExpression != null
+                                       && maybeMethodCallExpression.Method.IsGenericMethod
+                                       && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
+                                           .Equals(DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
                                        || (newExpression.Arguments[0].NodeType == ExpressionType.Parameter
                                            && !property.IsShadowProperty))
                                    {

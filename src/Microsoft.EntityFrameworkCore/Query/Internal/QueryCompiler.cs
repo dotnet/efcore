@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
             {
-                if ((methodCallExpression.Method == _guidNewGuid)
+                if (_guidNewGuid.Equals(methodCallExpression.Method) 
                     || _randomNext.Contains(methodCallExpression.Method))
                 {
                     return false;

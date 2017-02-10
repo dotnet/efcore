@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     /// </summary>
     public abstract class SingleOverloadStaticMethodCallTranslator : IMethodCallTranslator
     {
-        private readonly Type _declaringType;
-        private readonly string _clrMethodName;
+        private readonly MethodInfo _methodInfo;
         private readonly string _sqlFunctionName;
 
         /// <summary>
@@ -31,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             [NotNull] string clrMethodName,
             [NotNull] string sqlFunctionName)
         {
-            _declaringType = declaringType;
-            _clrMethodName = clrMethodName;
+            _methodInfo = declaringType.GetTypeInfo().GetDeclaredMethods(clrMethodName).Single();
             _sqlFunctionName = sqlFunctionName;
         }
 
@@ -43,12 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        public virtual Expression Translate(MethodCallExpression methodCallExpression)
-        {
-            var methodInfo = _declaringType.GetTypeInfo().GetDeclaredMethods(_clrMethodName).SingleOrDefault();
-            return methodInfo == methodCallExpression.Method
-                ? new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments)
-                : null;
-        }
+        public virtual Expression Translate(MethodCallExpression methodCallExpression) 
+            => _methodInfo.Equals(methodCallExpression.Method)
+            ? new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments)
+            : null;
     }
 }

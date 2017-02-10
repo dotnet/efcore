@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var inverseTargetType = inverseCandidateTuple.Value;
 
                     if (inverseTargetType != entityType.ClrType
-                        || navigationPropertyInfo == inversePropertyInfo
+                        || Equals(navigationPropertyInfo, inversePropertyInfo)
                         || candidateTargetEntityTypeBuilder.IsIgnored(inversePropertyInfo.Name, ConfigurationSource.Convention))
                     {
                         continue;

@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void SetFieldInfo(
             [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
         {
-            if (ReferenceEquals(FieldInfo, fieldInfo))
+            if (Equals(FieldInfo, fieldInfo))
             {
                 UpdateFieldInfoConfigurationSource(configurationSource);
                 return;

@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var existingGroupJoinIncludeExpression 
                     = existingGroupJoinIncludeWithAccessor != null
-                          && existingGroupJoinIncludeWithAccessor.Method == withAccessorMethodInfo
+                          && existingGroupJoinIncludeWithAccessor.Method.Equals(withAccessorMethodInfo)
                     ? existingGroupJoinIncludeWithAccessor.Object
                     : existingGroupJoinIncludeArgument;
 

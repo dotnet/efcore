@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         aliasExpression
                             = selectExpression.Projection
                                 .OfType<AliasExpression>()
-                                .SingleOrDefault(ae => ae.SourceMember == expression.Member);
+                                .SingleOrDefault(ae => Equals(ae.SourceMember, expression.Member));
                     }
                 }
             }

@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             ConstantExpression constant)
         {
             if ((methodCall != null)
-                && (methodCall.Method == _methodInfo)
+                && (methodCall.Method.Equals(_methodInfo))
                 && (methodCall.Type == typeof(int))
                 && (constant != null)
                 && (constant.Type == typeof(int)))

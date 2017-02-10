@@ -48,11 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
-                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p == propertyGetter);
+                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => propertyGetter.Equals(p));
                 var targetMethod = interfaceMapping.TargetMethods[index];
                 foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
                 {
-                    if (targetMethod == runtimeProperty.GetMethod)
+                    if (targetMethod.Equals(runtimeProperty.GetMethod))
                     {
                         return runtimeProperty;
                     }

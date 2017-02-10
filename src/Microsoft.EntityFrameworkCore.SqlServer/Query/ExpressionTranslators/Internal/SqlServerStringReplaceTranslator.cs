@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
-            => methodCallExpression.Method == _methodInfo
+            => _methodInfo.Equals(methodCallExpression.Method) 
                 ? new SqlFunctionExpression(
                     "REPLACE",
                     methodCallExpression.Type,

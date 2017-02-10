@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     /// </summary>
     public abstract class ParameterlessInstanceMethodCallTranslator : IMethodCallTranslator
     {
-        private readonly Type _declaringType;
-        private readonly string _clrMethodName;
+        private readonly MethodInfo _methodInfo;
         private readonly string _sqlFunctionName;
 
         /// <summary>
@@ -29,8 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         protected ParameterlessInstanceMethodCallTranslator(
             [NotNull] Type declaringType, [NotNull] string clrMethodName, [NotNull] string sqlFunctionName)
         {
-            _declaringType = declaringType;
-            _clrMethodName = clrMethodName;
+            _methodInfo = declaringType.GetTypeInfo()
+                .GetDeclaredMethods(clrMethodName).Single(m => !m.GetParameters().Any());
+
             _sqlFunctionName = sqlFunctionName;
         }
 
@@ -43,10 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            var methodInfo = _declaringType.GetTypeInfo()
-                .GetDeclaredMethods(_clrMethodName).SingleOrDefault(m => !m.GetParameters().Any());
-
-            if (methodInfo == methodCallExpression.Method)
+            if (_methodInfo.Equals(methodCallExpression.Method))
             {
                 var sqlArguments = new[] { methodCallExpression.Object }.Concat(methodCallExpression.Arguments);
                 return new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, sqlArguments);
