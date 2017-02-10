@@ -368,21 +368,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var navigation in relationshipCandidate.NavigationProperties)
                 {
+                    if (InversePropertyAttributeConvention.IsAmbiguous(
+                        entityTypeBuilder.Metadata, navigation, relationshipCandidate.TargetTypeBuilder.Metadata))
+                    {
+                        continue;
+                    }
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
                     if (inverse == null)
                     {
-                        if (!InversePropertyAttributeConvention.IsAmbiguous(
-                            entityTypeBuilder.Metadata, navigation, relationshipCandidate.TargetTypeBuilder.Metadata))
-                        {
-                            entityTypeBuilder.Navigation(
-                                relationshipCandidate.TargetTypeBuilder,
-                                navigation,
-                                ConfigurationSource.Convention);
-                        }
+                        entityTypeBuilder.Navigation(
+                            relationshipCandidate.TargetTypeBuilder,
+                            navigation,
+                            ConfigurationSource.Convention);
                     }
-                    else if (!InversePropertyAttributeConvention.IsAmbiguous(
-                        relationshipCandidate.TargetTypeBuilder.Metadata, inverse, entityTypeBuilder.Metadata))
+                    else
                     {
+                        if (InversePropertyAttributeConvention.IsAmbiguous(
+                            relationshipCandidate.TargetTypeBuilder.Metadata, inverse, entityTypeBuilder.Metadata))
+                        {
+                            continue;
+                        }
                         entityTypeBuilder.Relationship(
                             relationshipCandidate.TargetTypeBuilder,
                             navigation,
