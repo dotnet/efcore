@@ -6827,6 +6827,74 @@ ORDER BY [e1].[EmployeeID]",
                 Sql);
         }
 
+        public override void Skip_Count()
+        {
+            base.Skip_Count();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY (SELECT 1)
+    OFFSET @__p_0 ROWS
+) AS [t]",
+                Sql);
+        }
+
+        public override void Skip_LongCount()
+        {
+            base.Skip_LongCount();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY (SELECT 1)
+    OFFSET @__p_0 ROWS
+) AS [t]",
+                Sql);
+        }
+
+        public override void OrderBy_Skip_Count()
+        {
+            base.OrderBy_Skip_Count();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[Country]
+    OFFSET @__p_0 ROWS
+) AS [t]",
+                Sql);
+        }
+
+        public override void OrderBy_Skip_LongCount()
+        {
+            base.OrderBy_Skip_LongCount();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[Country]
+    OFFSET @__p_0 ROWS
+) AS [t]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
