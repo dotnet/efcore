@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var shaper
                     = ((ConstantExpression)methodCallExpression.Arguments[2]).Value
-                        as Shaper;
+                        as IShaper;
 
                 if (shaper != null
                     && shaper.IsShaperForQuerySource(_querySource))
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var shaper
                 = ((ConstantExpression)methodCallExpression.Arguments[shaperArgumentIndex]).Value
-                    as Shaper;
+                    as IShaper;
 
             if (shaper != null
                 && shaper.IsShaperForQuerySource(_querySource))

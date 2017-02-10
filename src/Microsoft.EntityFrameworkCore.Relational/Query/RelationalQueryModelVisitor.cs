@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var shaper = shapedQueryExpression.Arguments[2] as ConstantExpression;
 
-            return shaper?.Value is Shaper;
+            return shaper?.Value is IShaper;
         }
 
         /// <summary>
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
-                var shaper = constantExpression.Value as Shaper;
+                var shaper = constantExpression.Value as IShaper;
 
                 if (shaper != null)
                 {
@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         return Expression.Call(
                             _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
-                                .MakeGenericMethod(((Shaper)((ConstantExpression)arguments[2]).Value).Type),
+                                .MakeGenericMethod(((IShaper)((ConstantExpression)arguments[2]).Value).Type),
                             arguments);
                     }
 
