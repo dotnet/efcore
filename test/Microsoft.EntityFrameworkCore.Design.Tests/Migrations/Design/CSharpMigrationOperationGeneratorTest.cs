@@ -714,14 +714,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                     Schema = "dbo",
                     Table = "Post",
                     Columns = new[] { "Title" },
-                    IsUnique = true
+                    IsUnique = true,
+                    Filter = "[Title] IS NOT NULL"
                 },
                 "mb.CreateIndex(" + EOL +
                 "    name: \"IX_Post_Title\"," + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\"," + EOL +
                 "    column: \"Title\"," + EOL +
-                "    unique: true);",
+                "    unique: true," + EOL +
+                "    filter: \"[Title] IS NOT NULL\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
