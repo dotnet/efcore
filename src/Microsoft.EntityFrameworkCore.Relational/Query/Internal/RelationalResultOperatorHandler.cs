@@ -379,6 +379,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleCount(HandlerContext handlerContext)
         {
+            if (handlerContext.SelectExpression.Offset != null)
+            {
+                handlerContext.SelectExpression.PushDownSubquery();
+            }
+
             handlerContext.SelectExpression
                 .SetProjectionExpression(
                     new SqlFunctionExpression(
@@ -579,6 +584,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleLongCount(HandlerContext handlerContext)
         {
+            if (handlerContext.SelectExpression.Offset != null)
+            {
+                handlerContext.SelectExpression.PushDownSubquery();
+            }
+
             handlerContext.SelectExpression
                 .SetProjectionExpression(
                     new SqlFunctionExpression(

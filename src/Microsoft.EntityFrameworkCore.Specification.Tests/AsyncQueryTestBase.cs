@@ -3593,6 +3593,33 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual async Task Skip_CountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Skip(7).CountAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task Skip_LongCountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Skip(7).LongCountAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task OrderBy_Skip_CountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).CountAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task OrderBy_Skip_LongCountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).LongCountAsync());
+        }
 
         protected NorthwindContext CreateContext()
         {
@@ -3608,6 +3635,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private async Task AssertQuery<TItem>(
             Func<IQueryable<TItem>, Task<int>> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, Task<long>> query,
             bool assertOrder = false)
             where TItem : class
         {

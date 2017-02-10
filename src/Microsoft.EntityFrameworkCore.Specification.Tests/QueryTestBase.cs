@@ -6767,6 +6767,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       select new { City1 = e1.City, City2 = e2 != null ? e2.City : null });
         }
 
+        [ConditionalFact]
+        public virtual void Skip_Count()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Skip(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_LongCount()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Skip(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Skip_Count()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Skip_LongCount()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).LongCount());
+        }
+
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         {
             return source?.Count() == 0 ? new[] { default(TElement) } : source;
