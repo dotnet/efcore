@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-rc3-000000-01",
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.2",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.2",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.3",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.3",
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
   },
   "publishOptions": {
