@@ -2204,8 +2204,7 @@ LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearS
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]
 FROM [Gear] AS [g]
 LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[Nickname], [g].[SquadId]",
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
                 Sql);
         }
 
