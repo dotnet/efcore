@@ -97,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (declaringType == typeof(Queryable)
                 || declaringType == typeof(EntityFrameworkQueryableExtensions)
                 && (!methodInfo.IsGenericMethod
-                    || methodInfo.GetGenericMethodDefinition() 
-                        != EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
+                    || !methodInfo.GetGenericMethodDefinition() 
+                        .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo)))
             {
                 return base.VisitMethodCall(methodCallExpression);
             }

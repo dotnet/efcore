@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             var binaryExpression = expression as BinaryExpression;
             if (binaryExpression != null
                 && binaryExpression.NodeType == ExpressionType.Add
-                && binaryExpression.Method == _stringConcatMethodInfo)
+                && _stringConcatMethodInfo.Equals(binaryExpression.Method))
             {
                 var newLeft = binaryExpression.Left.Type != typeof(string)
                     ? new ExplicitCastExpression(HandleNullTypedConstant(binaryExpression.Left.RemoveConvert()), typeof(string))

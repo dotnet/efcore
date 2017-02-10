@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     True if <paramref name="methodInfo" /> is referencing <see cref="EF.Property{TProperty}(object, string)" />; otherwise fale;
         /// </returns>
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
-            ReferenceEquals(methodInfo, EF.PropertyMethod)
+            Equals(methodInfo, EF.PropertyMethod)
             ||
             (
                 // fallback to string comparison because MethodInfo.Equals is not

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            return ReferenceEquals(methodCallExpression.Method, _methodInfo)
+            return Equals(methodCallExpression.Method, _methodInfo)
                 ? Expression.MakeBinary(
                     ExpressionType.OrElse,
                     new IsNullExpression(methodCallExpression.Arguments[0]),

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if ((_trimStart == methodCallExpression.Method)
+            if (_trimStart.Equals(methodCallExpression.Method)
                 // SqlServer LTRIM does not take arguments
                 && (((methodCallExpression.Arguments[0] as ConstantExpression)?.Value as Array)?.Length == 0))
             {

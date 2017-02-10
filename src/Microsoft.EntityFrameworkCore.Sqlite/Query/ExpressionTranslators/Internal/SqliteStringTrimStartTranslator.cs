@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (_trimStart == methodCallExpression.Method)
+            if (_trimStart.Equals(methodCallExpression.Method))
             {
                 var sqlArguments = new List<Expression> { methodCallExpression.Object };
                 var charactersToTrim = (methodCallExpression.Arguments[0] as ConstantExpression)?.Value as char[];

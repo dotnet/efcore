@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                      || PropertyBase.IsCompatible(
                          fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
                          shouldThrow: configurationSource == ConfigurationSource.Explicit)))
-                || Metadata.FieldInfo == fieldInfo)
+                || Equals(Metadata.FieldInfo, fieldInfo))
             {
                 Metadata.SetFieldInfo(fieldInfo, configurationSource);
                 return true;

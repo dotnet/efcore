@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         navigationPropertyInfo.Name, entityType.DisplayName(), attribute.Property, targetClrType.ShortDisplayName()));
             }
 
-            if (inverseNavigationPropertyInfo == navigationPropertyInfo)
+            if (Equals(inverseNavigationPropertyInfo, navigationPropertyInfo))
             {
                 throw new InvalidOperationException(
                     CoreStrings.SelfReferencingNavigationWithInverseProperty(
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
-                if (referencingTuple.Item1 == navigation
+                if (Equals(referencingTuple.Item1, navigation)
                     && referencingTuple.Item2 == entityType.ClrType)
                 {
                     return referencingNavigationsWithAttribute;
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 for (var index = 0; index < referencingNavigationsWithAttribute.Count; index++)
                 {
                     var referencingTuple = referencingNavigationsWithAttribute[index];
-                    if (referencingTuple.Item1 == navigation
+                    if (Equals(referencingTuple.Item1, navigation)
                         && referencingTuple.Item2 == entityType.ClrType)
                     {
                         referencingNavigationsWithAttribute.RemoveAt(index);
