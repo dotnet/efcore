@@ -628,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .AppendLine(",")
                         .Append("filter: ")
-                        .Append(operation.Filter);
+                        .Append(_code.Literal(operation.Filter));
                 }
 
                 builder.Append(")");
