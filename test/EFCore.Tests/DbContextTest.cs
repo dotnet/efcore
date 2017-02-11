@@ -2248,7 +2248,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class FakeModelSource : IModelSource
         {
-            public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null)
+            public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null, IDbFunctionInitalizer dbFunctionInitialzer = null)
                 => null;
         }
 

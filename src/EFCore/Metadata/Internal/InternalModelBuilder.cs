@@ -84,6 +84,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalDbFunctionBuilder DbFunction([NotNull] Type declaringType, [NotNull] string methodName)
+        {
+            var methodInfos = declaringType.GetTypeInfo().GetDeclaredMethods(methodName);
+
+            //TODO - create an error message here
+            if (methodInfos.Count() == 0)
+                throw new ArgumentException(CoreStrings.DbFunctionMethodNotFound(declaringType.Name, methodName));
+
+            if (methodInfos.Count() > 1)
+                throw new ArgumentException(CoreStrings.DbFunctionMethodTooManyOverloads(declaringType.Name, methodName));
+
+            return DbFunction(methodInfos.Single());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalDbFunctionBuilder DbFunction([NotNull] MethodInfo dbFunctionMethod, bool runConventions = true)
+        {
+            var dbFunction = Metadata.FindDbFunction(dbFunctionMethod);
+
+            if (dbFunction == null)
+                dbFunction = Metadata.AddDbFunction(dbFunctionMethod, runConventions);
+
+            return dbFunction?.Builder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalModelBuilder LoadDbFunctions([NotNull] Type functionContainingType, bool runConventions = true)
+        {
+            var functionMIs = DbFunctionFinder.FindFunctions(functionContainingType);
+
+            foreach (var functionMI in functionMIs)
+                DbFunction(functionMI, runConventions);
+
+            return this;
+        }
+
+        /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>

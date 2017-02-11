@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -182,6 +184,125 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity(name));
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given database fuction in the model.
+        ///     If the database function is not already part of the model, it will be added to the model.
+        ///     This overload requires methodName to be unique on the declaringType. 
+        ///     If there are multiple overloads pass in the MethodInfo.
+        /// </summary>
+        /// <param name="declaringType"> The type which declares the method. </param>
+        /// <param name="methodName"> The method name. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual DbFunctionBuilder DbFunction([NotNull] Type declaringType, [NotNull] string methodName)
+        {
+            Check.NotNull(declaringType, nameof(declaringType));
+            Check.NotEmpty(methodName, nameof(methodName));
+
+            return new DbFunctionBuilder(Builder.DbFunction(declaringType, methodName));
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given database fuction in the model.
+        ///     If the database function is not already part of the model, it will be added to the model.
+        /// </summary>
+        /// <param name="dbFunctionMethodInfo"> The MethodInfo for the dbFunction to be configured. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual DbFunctionBuilder DbFunction([NotNull] MethodInfo dbFunctionMethodInfo)
+        {
+            Check.NotNull(dbFunctionMethodInfo, nameof(dbFunctionMethodInfo));
+
+            return new DbFunctionBuilder(Builder.DbFunction(dbFunctionMethodInfo));
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given database fuction in the model.
+        ///     If the database function is not already part of the model, it will be added to the model.
+        ///     This overload requires methodName to be unique on the declaringType. 
+        ///     If there are multiple overloads pass in the MethodInfo.
+        /// </summary>
+        /// <param name="declaringType"> The type which declares the method. </param>
+        /// <param name="methodName"> The method name. </param>
+        /// <param name="buildAction"> An action that performs configuration of the db function. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual ModelBuilder DbFunction([NotNull] Type declaringType, [NotNull] string methodName, [NotNull] Action<DbFunctionBuilder> buildAction)
+        {
+            Check.NotNull(declaringType, nameof(declaringType));
+            Check.NotEmpty(methodName, nameof(methodName));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(DbFunction(declaringType, methodName));
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given database fuction in the model.
+        ///     If the database function is not already part of the model, it will be added to the model.
+        /// </summary>
+        /// <param name="dbFunctionMethodInfo"> The MethodInfo for the dbFunction to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the db function. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual ModelBuilder DbFunction([NotNull] MethodInfo dbFunctionMethodInfo, [NotNull] Action<DbFunctionBuilder> buildAction)
+        {
+            Check.NotNull(dbFunctionMethodInfo, nameof(dbFunctionMethodInfo));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(DbFunction(dbFunctionMethodInfo));
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given database fuction in the model.
+        ///     If the database functions are not already part of the model, it will be added to the model.
+        ///     the build action will be run for each method info in the dbFunctionMethodInfos array
+        /// </summary>
+        /// <param name="dbFunctionMethodInfos"> The list of MethodInfo for the dbFunction to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the db function. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual ModelBuilder DbFunction([NotNull] IEnumerable<MethodInfo> dbFunctionMethodInfos, [NotNull] Action<DbFunctionBuilder> buildAction)
+        {
+            Check.NotNull(dbFunctionMethodInfos, nameof(dbFunctionMethodInfos));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            foreach (var dbFunctionMI in dbFunctionMethodInfos)
+                buildAction(DbFunction(dbFunctionMI));
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given database fuction in the model.
+        ///     If the database functions are not already part of the model, it will be added to the model.
+        ///     the build action will be run for each method info in the dbFunctionMethodInfos array
+        /// </summary>
+        /// <param name="dbFunctionMethodInfos"> The list of MethodInfo for the dbFunction to be configured. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual ModelBuilder DbFunction([NotNull] IEnumerable<MethodInfo> dbFunctionMethodInfos)
+        {
+            Check.NotNull(dbFunctionMethodInfos, nameof(dbFunctionMethodInfos));
+
+            foreach (var dbFunctionMI in dbFunctionMethodInfos)
+                DbFunction(dbFunctionMI);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Allows loading of all functions marked with DbFunctionAttribute
+        ///     from a custom type.
+        /// </summary>
+        /// <param name="functionContainingType"> The type containing the functions to load </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual ModelBuilder LoadDbFunctions([NotNull] Type functionContainingType)
+        {
+            Check.NotNull(functionContainingType, nameof(functionContainingType));
+
+            Builder.LoadDbFunctions(functionContainingType);
 
             return this;
         }

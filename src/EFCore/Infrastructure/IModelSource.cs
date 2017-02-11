@@ -25,10 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
+        /// <param name="dbFunctionInitalizer"> The dbFunctionInializer used to setup built in database functions. </param>
         /// <returns> The model to be used. </returns>
         IModel GetModel(
             [NotNull] DbContext context, 
-            [NotNull] IConventionSetBuilder conventionSetBuilder, 
-            [NotNull] IModelValidator validator);
+            [CanBeNull] IConventionSetBuilder conventionSetBuilder, 
+            [NotNull] IModelValidator validator, 
+            [CanBeNull] IDbFunctionInitalizer dbFunctionInitalizer);
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             _onModelCreating = onModelCreating;
         }
 
-        protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
+        protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator, IDbFunctionInitalizer dbFunctionInitializer)
         {
             var conventionSet = CreateConventionSet(conventionSetBuilder);
 
@@ -30,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             model.SetProductVersion(ProductInfo.GetVersion());
 
             FindSets(modelBuilder, context);
+
+            FindFunctions(modelBuilder, context);
+
+            dbFunctionInitializer?.Initialize(modelBuilder);
 
             _onModelCreating(modelBuilder);
 

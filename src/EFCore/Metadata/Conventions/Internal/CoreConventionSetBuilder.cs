@@ -123,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyFieldChangedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(timestampAttributeConvention);
 
+            conventionSet.DbFunctionAddedConventions.Add(new DefaultDbFunctionConvention());
+
             return conventionSet;
         }
     }

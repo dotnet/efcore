@@ -528,11 +528,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Level1>(
                   l1s =>
                       from e1 in l1s
-                      where e1.OneToOne_Optional_FK.Date.AddDays(10).AddDays(15).AddMonths(2) > new DateTime(2002, 2, 1)
+                      where e1.OneToOne_Optional_FK.Date.AddDays(10).AddDays(15).AddYears(2) > new DateTime(2002, 2, 1)
                       select e1,
                   l1s =>
                       from e1 in l1s
-                      where MaybeScalar<DateTime>(e1.OneToOne_Optional_FK, () => e1.OneToOne_Optional_FK.Date.AddDays(10).AddDays(15).AddMonths(2)) > new DateTime(2000, 2, 1)
+                      where MaybeScalar<DateTime>(e1.OneToOne_Optional_FK, () => e1.OneToOne_Optional_FK.Date.AddDays(10).AddDays(15).AddYears(2)) > new DateTime(2000, 2, 1)
                       select e1,
                   e => e.Id,
                   (e, a) => Assert.Equal(e.Id, a.Id));

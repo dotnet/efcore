@@ -84,21 +84,21 @@
   {
     "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
     "NewTypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
-    "NewMemberId": "Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator)",
+    "NewMemberId": "Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator, Microsoft.EntityFrameworkCore.Infrastructure.IDbFunctionInitializer dbFunctionInitalizer)",
     "Kind": "Addition"
   },
   {
     "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
     "NewTypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
     "OldMemberId": "public Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Internal.IModelValidator validator)",
-    "NewMemberId": "public Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator)",
+    "NewMemberId": "public Microsoft.EntityFrameworkCore.Metadata.IModel GetModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator, Microsoft.EntityFrameworkCore.Infrastructure.IDbFunctionInitializer dbFunctionInitalizer)",
     "Kind": "Modification"
   },
   {
     "OldTypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
     "NewTypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
     "OldMemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IModel CreateModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Internal.IModelValidator validator)",
-    "NewMemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IModel CreateModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator)",
+    "NewMemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IModel CreateModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator validator, Microsoft.EntityFrameworkCore.Infrastructure.IDbFunctionInitializer dbFunctionInitalizer)",
     "Kind": "Modification"
   },
   {
@@ -149,5 +149,11 @@
     "OldMemberId": "protected virtual System.Void IncludeNavigations(Remotion.Linq.QueryModel queryModel)",
     "NewMemberId": "protected virtual System.Void IncludeNavigations(Remotion.Linq.QueryModel queryModel, System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal.IncludeResultOperator> includeResultOperators)",
     "Kind": "Modification"
+  },
+  {
+    "OldTypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IModel : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "NewTypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IModel : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "NewMemberId": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IDbFunction> GetDbFunctions()",
+    "Kind": "Addition"
   }
 ]

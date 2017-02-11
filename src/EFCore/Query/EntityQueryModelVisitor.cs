@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -995,7 +996,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(whereClause, nameof(whereClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var predicate = ReplaceClauseReferences(whereClause.Predicate);
+            var predicate = new DbFunctionUnwindingExpressionVisitor().Visit(whereClause.Predicate) ;
+
+            predicate = ReplaceClauseReferences(predicate);
 
             _expression
                 = Expression.Call(
@@ -1021,7 +1024,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
             Check.NotNull(orderByClause, nameof(orderByClause));
 
-            var expression = ReplaceClauseReferences(ordering.Expression);
+            var expression = new DbFunctionUnwindingExpressionVisitor().Visit(ordering.Expression);
+
+            expression = ReplaceClauseReferences(expression);
 
             _expression
                 = Expression.Call(
@@ -1054,11 +1059,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return;
             }
 
-            var selector
+            var projectionExpression = _projectionExpressionVisitorFactory
+                                            .Create(this, queryModel.MainFromClause)
+                                            .Visit(selectClause.Selector);
+
+            
+            var selector = new DbFunctionUnwindingExpressionVisitor().Visit(projectionExpression);
+
+            selector
                 = ReplaceClauseReferences(
-                    _projectionExpressionVisitorFactory
-                        .Create(this, queryModel.MainFromClause)
-                        .Visit(selectClause.Selector),
+                    selector,
                     inProjection: true);
 
             if ((selector.Type != sequenceType

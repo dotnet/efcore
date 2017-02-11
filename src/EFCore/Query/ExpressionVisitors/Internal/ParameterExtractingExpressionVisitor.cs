@@ -335,6 +335,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private Expression TryExtractParameter(Expression expression)
         {
+            if (expression.Type == typeof(EFFunctions))
+                return expression;
+
             string parameterName;
 
             var parameterValue = Evaluate(expression, out parameterName);
