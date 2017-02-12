@@ -106,7 +106,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_adjusts_relative_path()
         {
-            var connection = new SqliteConnection("Filename=local.db");
+            var connection = new SqliteConnection("Data Source=local.db");
             connection.Open();
 
             Assert.Equal(Path.Combine(AppContext.BaseDirectory, "local.db"), connection.DataSource);

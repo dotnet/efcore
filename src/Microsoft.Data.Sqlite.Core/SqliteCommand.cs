@@ -18,8 +18,6 @@ namespace Microsoft.Data.Sqlite
     /// </summary>
     public class SqliteCommand : DbCommand
     {
-        internal const int DefaultCommandTimeout = 30;
-
         private readonly Lazy<SqliteParameterCollection> _parameters = new Lazy<SqliteParameterCollection>(
             () => new SqliteParameterCollection());
 
@@ -132,13 +130,13 @@ namespace Microsoft.Data.Sqlite
             => Parameters;
 
         /// <summary>
-        /// Gets or sets the wait time before terminating the attempt to execute the command.
+        /// Gets or sets the number of seconds to wait before terminating the attempt to execute the command. Defaults to 30.
         /// </summary>
-        /// <value>The wait time before terminating the attempt to execute the command.</value>
+        /// <value>The number of seconds to wait before terminating the attempt to execute the command.</value>
         /// <remarks>
         /// The timeout is used when the command is waiting to obtain a lock on the table.
         /// </remarks>
-        public override int CommandTimeout { get; set; } = DefaultCommandTimeout;
+        public override int CommandTimeout { get; set; } = 30;
 
         /// <summary>
         /// Gets or sets a value indicating whether the command should be visible in an interface control.

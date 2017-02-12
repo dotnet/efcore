@@ -3,6 +3,10 @@
 
 using System;
 using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using SQLitePCL;
 using Xunit;
 
@@ -528,7 +532,7 @@ namespace Microsoft.Data.Sqlite
         [Theory]
         [InlineData(CommandBehavior.KeyInfo)]
         [InlineData(CommandBehavior.SchemaOnly)]
-        public void ExecuteReader_throws_for_unsupported_(CommandBehavior behavior)
+        public void ExecuteReader_throws_for_unsupported_CommandBehavior(CommandBehavior behavior)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
@@ -538,6 +542,123 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<ArgumentException>(() => command.ExecuteReader(behavior));
                 Assert.Equal(Strings.InvalidCommandBehavior(behavior), ex.Message);
+            }
+        }
+
+        [Fact]
+        public Task ExecuteReader_retries_when_locked()
+        {
+            const string connectionString = "Data Source=locked;Mode=Memory;Cache=Shared";
+
+            var selectedSignal = new AutoResetEvent(initialState: false);
+
+            return Task.WhenAll(
+                Task.Run(
+                    async () =>
+                    {
+                        using (var connection = new SqliteConnection(connectionString))
+                        {
+                            connection.Open();
+
+                            connection.ExecuteNonQuery(
+                                "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                            using (connection.ExecuteReader("SELECT * FROM Data;"))
+                            {
+                                selectedSignal.Set();
+
+                                await Task.Delay(1000);
+                            }
+                        }
+                    }),
+                Task.Run(
+                    () =>
+                    {
+                        using (var connection = new SqliteConnection(connectionString))
+                        {
+                            connection.Open();
+
+                            selectedSignal.WaitOne();
+
+                            var command = connection.CreateCommand();
+                            command.CommandText = "DROP TABLE Data;";
+
+                            command.ExecuteNonQuery();
+                        }
+                    }));
+        }
+
+        [Fact]
+        public async Task ExecuteReader_retries_when_busy()
+        {
+            const string connectionString = "Data Source=busy.db";
+
+            var selectedSignal = new AutoResetEvent(initialState: false);
+
+            try
+            {
+                await Task.WhenAll(
+                    Task.Run(
+                        async () =>
+                        {
+                            using (var connection = new SqliteConnection(connectionString))
+                            {
+                                connection.Open();
+
+                                connection.ExecuteNonQuery(
+                                    "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                                using (connection.ExecuteReader("SELECT * FROM Data;"))
+                                {
+                                    selectedSignal.Set();
+
+                                    await Task.Delay(1000);
+                                }
+                            }
+                        }),
+                    Task.Run(
+                        () =>
+                        {
+                            using (var connection = new SqliteConnection(connectionString))
+                            {
+                                connection.Open();
+
+                                selectedSignal.WaitOne();
+
+                                var command = connection.CreateCommand();
+                                command.CommandText = "DROP TABLE Data;";
+
+                                command.ExecuteNonQuery();
+                            }
+                        }));
+            }
+            finally
+            {
+                File.Delete("busy.db");
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_honors_CommandTimeout()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                using (connection.ExecuteReader("SELECT * FROM Data;"))
+                {
+                    var command = connection.CreateCommand();
+                    command.CommandText = "DROP TABLE Data;";
+                    command.CommandTimeout = 1;
+
+                    var stopwatch = Stopwatch.StartNew();
+                    Assert.Throws<SqliteException>(() => command.ExecuteNonQuery());
+                    stopwatch.Stop();
+
+                    Assert.InRange(stopwatch.ElapsedMilliseconds, 1000, 1999);
+                }
             }
         }
     }

@@ -3,6 +3,8 @@
 
 using System;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 using SQLitePCL;
 using Xunit;
 
@@ -38,33 +40,71 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact]
-        public void Ctor_throws_when_invalid_isolation_level()
+        [Theory]
+        [InlineData(IsolationLevel.Chaos)]
+        [InlineData(IsolationLevel.Snapshot)]
+        public void Ctor_throws_when_invalid_isolation_level(IsolationLevel isolationLevel)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(IsolationLevel.Snapshot));
+                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(isolationLevel));
 
-                Assert.Equal(Strings.InvalidIsolationLevel(IsolationLevel.Snapshot), ex.Message);
+                Assert.Equal(Strings.InvalidIsolationLevel(isolationLevel), ex.Message);
             }
         }
 
         [Fact]
-        public void Ctor_throws_when_invalid_isolation_level_without_cache()
+        public void ReadUncommitted_allows_dirty_reads()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(IsolationLevel.ReadUncommitted));
-                Assert.Equal(Strings.InvalidIsolationLevelForUnsharedCache(IsolationLevel.ReadUncommitted), ex.Message);
-            }
+            const string connectionString = "Data Source=read-uncommitted;Mode=Memory;Cache=Shared";
 
-            using (var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared"))
+            using (var connection1 = new SqliteConnection(connectionString))
+            using (var connection2 = new SqliteConnection(connectionString))
             {
-                connection.Open();
-                connection.BeginTransaction(IsolationLevel.ReadUncommitted);
+                connection1.Open();
+                connection2.Open();
+
+                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                using (connection1.BeginTransaction())
+                using (connection2.BeginTransaction(IsolationLevel.ReadUncommitted))
+                {
+                    connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
+
+                    var value = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+
+                    Assert.Equal(1, value);
+                }
+            }
+        }
+
+        [Fact]
+        public void Serialized_disallows_dirty_reads()
+        {
+            const string connectionString = "Data Source=serialized;Mode=Memory;Cache=Shared";
+
+            using (var connection1 = new SqliteConnection(connectionString))
+            using (var connection2 = new SqliteConnection(connectionString))
+            {
+                connection1.Open();
+                connection2.Open();
+
+                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                using (connection1.BeginTransaction())
+                using (connection2.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
+
+                    var command = connection2.CreateCommand();
+                    command.CommandText = "SELECT * FROM Data;";
+                    command.CommandTimeout = 0;
+
+                    var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
+                    Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
+                }
             }
         }
 
@@ -87,7 +127,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void IsolationLevel_is_inferred_when_unspecified()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared"))
             {
                 connection.Open();
                 connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
@@ -95,6 +135,23 @@ namespace Microsoft.Data.Sqlite
                 using (var transaction = connection.BeginTransaction())
                 {
                     Assert.Equal(IsolationLevel.ReadUncommitted, transaction.IsolationLevel);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(IsolationLevel.ReadUncommitted)]
+        [InlineData(IsolationLevel.ReadCommitted)]
+        [InlineData(IsolationLevel.RepeatableRead)]
+        public void IsolationLevel_is_increased_when_unsupported(IsolationLevel isolationLevel)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction(isolationLevel))
+                {
+                    Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
                 }
             }
         }
@@ -212,24 +269,6 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
-            }
-        }
-
-        [Fact]
-        public void Serializable_locks()
-        {
-            using (var connectionA = new SqliteConnection("Data Source=testdb;Mode=Memory;Cache=Shared"))
-            {
-                connectionA.Open();
-                using (var transactionA = connectionA.BeginTransaction(IsolationLevel.Serializable))
-                {
-                    using (var connectionB = new SqliteConnection("Data Source=testdb;Mode=Memory;Cache=Shared"))
-                    {
-                        connectionB.Open();
-                        var ex = Assert.Throws<SqliteException>(() => new SqliteTransaction(connectionB, IsolationLevel.Serializable, 1));
-                        Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
-                    }
-                }
             }
         }
 

@@ -285,11 +285,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Begins a transaction on the connection.
         /// </summary>
-        /// <param name="isolationLevel">
-        /// The isolation level of the transaction.
-        /// <para>Only <see cref="IsolationLevel.ReadUncommitted" /> and <see cref="IsolationLevel.Serializable" /> are
-        /// supported.</para>
-        /// </param>
+        /// <param name="isolationLevel">The isolation level of the transaction.</param>
         /// <returns>The transaction.</returns>
         public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
@@ -302,7 +298,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.ParallelTransactionsNotSupported);
             }
 
-            return Transaction = new SqliteTransaction(this, isolationLevel, SqliteCommand.DefaultCommandTimeout);
+            return Transaction = new SqliteTransaction(this, isolationLevel);
         }
 
         /// <summary>

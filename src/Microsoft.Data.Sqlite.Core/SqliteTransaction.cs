@@ -16,17 +16,21 @@ namespace Microsoft.Data.Sqlite
         private readonly IsolationLevel _isolationLevel;
         private bool _completed;
 
-        internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel, int commandTimeout)
+        internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
         {
+            if ((isolationLevel == IsolationLevel.ReadUncommitted
+                    && connection.ConnectionStringBuilder.Cache != SqliteCacheMode.Shared)
+                || isolationLevel == IsolationLevel.ReadCommitted
+                || isolationLevel == IsolationLevel.RepeatableRead)
+            {
+                isolationLevel = IsolationLevel.Serializable;
+            }
+
             _connection = connection;
             _isolationLevel = isolationLevel;
 
             if (isolationLevel == IsolationLevel.ReadUncommitted)
             {
-                if (connection.ConnectionStringBuilder.Cache != SqliteCacheMode.Shared)
-                {
-                    throw new ArgumentException(Strings.InvalidIsolationLevelForUnsharedCache(isolationLevel));
-                }
                 connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
             }
             else if (isolationLevel == IsolationLevel.Serializable)
@@ -40,10 +44,7 @@ namespace Microsoft.Data.Sqlite
 
             // TODO: Register transaction hooks to detect when a user manually completes a transaction created using
             //       this API
-            var beginCommand = (isolationLevel == IsolationLevel.Serializable)
-                ? "BEGIN IMMEDIATE"
-                : "BEGIN";
-            connection.ExecuteNonQuery(beginCommand, commandTimeout);
+            connection.ExecuteNonQuery("BEGIN;");
         }
 
         /// <summary>
@@ -70,7 +71,8 @@ namespace Microsoft.Data.Sqlite
                 ? throw new InvalidOperationException(Strings.TransactionCompleted)
                 : _isolationLevel != IsolationLevel.Unspecified
                     ? _isolationLevel
-                    : _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0
+                    : (_connection.ConnectionStringBuilder.Cache == SqliteCacheMode.Shared
+                            && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
                         ? IsolationLevel.ReadUncommitted
                         : IsolationLevel.Serializable;
 

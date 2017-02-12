@@ -76,14 +76,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cache=Shared' in the connection string.
-        /// </summary>
-        internal static string InvalidIsolationLevelForUnsharedCache(object isolationLevel)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidIsolationLevelForUnsharedCache", "isolationLevel"), isolationLevel);
-        }
-
-        /// <summary>
         /// The ParameterDirection '{direction}' is invalid.
         /// </summary>
         internal static string InvalidParameterDirection(object direction)

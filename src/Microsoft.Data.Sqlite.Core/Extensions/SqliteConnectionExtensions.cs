@@ -7,11 +7,9 @@ namespace Microsoft.Data.Sqlite
     {
         public static int ExecuteNonQuery(
             this SqliteConnection connection,
-            string commandText,
-            int timeout = SqliteCommand.DefaultCommandTimeout)
+            string commandText)
         {
             var command = connection.CreateCommand();
-            command.CommandTimeout = timeout;
             command.CommandText = commandText;
 
             return command.ExecuteNonQuery();
@@ -19,14 +17,12 @@ namespace Microsoft.Data.Sqlite
 
         public static T ExecuteScalar<T>(
             this SqliteConnection connection,
-            string commandText,
-            int timeout = SqliteCommand.DefaultCommandTimeout)
-            => (T)connection.ExecuteScalar(commandText, timeout);
+            string commandText)
+            => (T)connection.ExecuteScalar(commandText);
 
-        private static object ExecuteScalar(this SqliteConnection connection, string commandText, int timeout)
+        private static object ExecuteScalar(this SqliteConnection connection, string commandText)
         {
             var command = connection.CreateCommand();
-            command.CommandTimeout = timeout;
             command.CommandText = commandText;
 
             return command.ExecuteScalar();
