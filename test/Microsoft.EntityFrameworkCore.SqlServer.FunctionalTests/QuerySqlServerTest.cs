@@ -4900,6 +4900,17 @@ WHERE ROUND([od].[UnitPrice], 0) > 10.0",
                 Sql);
         }
 
+        public override void Where_math_round2()
+        {
+            base.Where_math_round2();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ROUND([od].[UnitPrice], 2) > 100.0",
+                Sql);
+        }
+
         public override void Where_math_truncate()
         {
             base.Where_math_truncate();
