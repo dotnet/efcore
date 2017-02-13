@@ -13,7 +13,7 @@ namespace Microsoft.Data.Sqlite
 {
     public class SqliteConnectionTest
     {
-#if NET451
+#if NET452
         private static readonly string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 #else
         private static readonly string BaseDirectory = AppContext.BaseDirectory;
