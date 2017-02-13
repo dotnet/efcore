@@ -24,7 +24,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.3",
+          "version": "1.0.4",
           "type": "platform"
         }
       }
