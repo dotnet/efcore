@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
 #if DEBUG
         // For breakpoint conditions
-        private string DebugName { get; }
+        private string DebugName { [UsedImplicitly] get; }
 #endif
 
         /// <summary>
@@ -104,23 +104,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+        public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(name, nameof(name));
 
             ConfigurationSource existingIgnoredConfigurationSource;
             if (_ignoredMembers.TryGetValue(name, out existingIgnoredConfigurationSource))
             {
-                configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
+                _ignoredMembers[name] = configurationSource.Max(existingIgnoredConfigurationSource);
+                return;
             }
 
             _ignoredMembers[name] = configurationSource;
 
-            if (runConventions)
-            {
-                OnTypeMemberIgnored(name);
-            }
+            OnTypeMemberIgnored(name);
         }
 
         /// <summary>

@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [DebuggerStepThrough]
         public PropertyIdentity([NotNull] string name)
             : this((object)name)
         {
@@ -78,13 +79,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public string Name => Property?.Name ?? (string)_nameOrProperty;
+        public string Name
+        {
+            [DebuggerStepThrough]
+            get { return Property?.Name ?? (string)_nameOrProperty; }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public PropertyInfo Property => _nameOrProperty as PropertyInfo;
+        public PropertyInfo Property
+        {
+            [DebuggerStepThrough]
+            get { return _nameOrProperty as PropertyInfo; }
+        }
 
         private string DebuggerDisplay()
             => Name ?? "NONE";

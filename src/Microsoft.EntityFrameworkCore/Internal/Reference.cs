@@ -1,43 +1,52 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
-using System.Reflection;
+using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public static class TypeBaseExtensions
+    public class Reference<T> : IDisposable
     {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static string DisplayName([NotNull] this ITypeBase type)
-            => type.ClrType != null
-                ? type.ClrType.ShortDisplayName()
-                : type.Name;
+        private readonly IReferenceRoot<T> _root;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [DebuggerStepThrough]
-        public static bool HasClrType([NotNull] this ITypeBase type)
-            => type.ClrType != null;
+        public Reference([CanBeNull] T @object)
+            : this(@object, null)
+        {
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [DebuggerStepThrough]
-        public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+        public Reference([CanBeNull] T @object, [CanBeNull] IReferenceRoot<T> root)
+        {
+            Object = @object;
+            _root = root;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual T Object { get; [param: NotNull]set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Dispose()
+        {
+            _root?.Release(this);
+            Object = default(T);
+        }
     }
 }

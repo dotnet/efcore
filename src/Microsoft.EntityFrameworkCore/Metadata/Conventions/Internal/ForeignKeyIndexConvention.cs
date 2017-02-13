@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
                 else
                 {
-                    index.IsUnique = foreignKey.IsUnique;
+                    index.Builder.IsUnique(foreignKey.IsUnique, ConfigurationSource.Convention);
                 }
             }
 

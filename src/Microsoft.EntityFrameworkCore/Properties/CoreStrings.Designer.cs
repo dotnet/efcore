@@ -1568,6 +1568,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("PoolingOptionsModified"); }
         }
 
+        /// <summary>
+        /// The property list {propertyList} cannot be used, because it contains a duplicate - '{property}'.
+        /// </summary>
+        public static string DuplicatePropertyInList([CanBeNull] object propertyList, [CanBeNull] object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertyInList", "propertyList", "property"), propertyList, property);
+        }
+
+        /// <summary>
+        /// The convention invocations have reached the recursion limit. This is likely an issue in EF Core, please report it.
+        /// </summary>
+        public static string ConventionsInfiniteLoop
+        {
+            get { return GetString("ConventionsInfiniteLoop"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

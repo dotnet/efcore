@@ -1916,21 +1916,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             ConfigurationSource addConfigurationSource,
             bool ignoredFirst,
             bool setBaseFirst)
-        {
-            VerifyIgnoreMember(ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
+            => VerifyIgnoreMember(ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
                 et => et.Metadata.FindNavigation(Order.CustomerProperty.Name) != null,
                 et => et.Relationship(
-                          et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit),
-                          Order.CustomerProperty.Name,
-                          Customer.OrdersProperty.Name,
-                          addConfigurationSource) != null,
+                    et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit),
+                    Order.CustomerProperty.Name,
+                    Customer.OrdersProperty.Name,
+                    addConfigurationSource) != null,
                 et => et.Relationship(
-                          et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit),
-                          Order.CustomerProperty.Name,
-                          Customer.OrdersProperty.Name,
-                          ignoreConfigurationSource) != null,
+                    et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit),
+                    Order.CustomerProperty.Name,
+                    Customer.OrdersProperty.Name,
+                    ignoreConfigurationSource) != null,
                 Order.CustomerProperty.Name);
-        }
 
         [Fact]
         public void Can_merge_with_intrahierarchal_relationship_of_higher_source()
@@ -2220,9 +2218,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             dependentEntityBuilder.Relationship(
                 principalEntityBuilder, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit);
 
+            var derivedPrincipalEntityBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit)
+                .HasBaseType((string)null, ConfigurationSource.Explicit);
             var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedDependentEntityBuilder.Relationship(
-                principalEntityBuilder, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit);
+                derivedPrincipalEntityBuilder, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit);
 
             Assert.Null(derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Null(derivedDependentEntityBuilder.Metadata.BaseType);
@@ -2236,7 +2236,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Can_only_set_base_type_if_relationship_with_conflicting_foreign_key_of_data_annotation_or_lower_source()
+        public void Can_set_base_type_if_relationship_with_conflicting_foreign_key_of_data_annotation_or_lower_source()
         {
             var modelBuilder = CreateModelBuilder();
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -2245,12 +2245,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedDependentEntityBuilder.HasForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit);
 
-            Assert.Null(derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
-            Assert.Null(derivedDependentEntityBuilder.Metadata.BaseType);
-            Assert.Equal(1, derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Count());
-
             Assert.Same(derivedDependentEntityBuilder,
-                derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit));
+                derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Same(dependentEntityBuilder.Metadata, derivedDependentEntityBuilder.Metadata.BaseType);
             Assert.Equal(1, dependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Count());
             Assert.Equal(0, derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Count());

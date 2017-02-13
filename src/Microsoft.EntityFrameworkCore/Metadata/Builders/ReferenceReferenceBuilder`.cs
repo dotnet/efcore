@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
-                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
                 foreignKeySet: true);
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
                     principalEntityType.ShortDisplayName(),
-                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
+                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
                 principalKeySet: true);
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
-                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
                 foreignKeySet: true);
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
                     principalEntityTypeName,
-                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
+                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
                 principalKeySet: true);

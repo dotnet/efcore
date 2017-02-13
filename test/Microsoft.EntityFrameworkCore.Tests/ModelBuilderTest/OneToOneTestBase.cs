@@ -627,8 +627,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<BigMak>();
-                modelBuilder.Entity<Bun>();
+                modelBuilder.Entity<BigMak>().Ignore(m => m.Bun);
+                modelBuilder.Entity<Bun>().Ignore(b => b.BigMak);
                 modelBuilder.Ignore<Pickle>();
 
                 var dependentType = model.FindEntityType(typeof(Bun));
@@ -642,6 +642,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder
                     .Entity<BigMak>().HasOne<Bun>().WithOne()
                     .HasForeignKey<Bun>(e => e.BurgerId);
+
+                modelBuilder.Validate();
 
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
 
@@ -1963,7 +1965,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Ignore<Moostard>();
 
                 var principalType = model.FindEntityType(typeof(Whoopper));
-                Assert.Equal(2, dependentType.GetForeignKeys().Count());
 
                 var principalKey = principalType.FindPrimaryKey();
                 var dependentKey = dependentType.FindPrimaryKey();
@@ -1971,6 +1972,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder
                     .Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne(e => e.Whoopper)
                     .HasForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+
+                modelBuilder.Validate();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal("Whoopper", dependentType.GetNavigations().Single().Name);
@@ -2159,7 +2162,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentKey = dependentType.FindPrimaryKey();
 
                 modelBuilder
-                    .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard);
+                    .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard)
+                    .HasForeignKey<Moostard>();
+
+                modelBuilder.Validate();
 
                 var fk = dependentType.GetForeignKeys().Single();
 
@@ -2201,7 +2207,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentKey = dependentType.FindPrimaryKey();
 
                 modelBuilder
-                    .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard);
+                    .Entity<Whoopper>().HasOne(e => e.Moostard).WithOne(e => e.Whoopper)
+                    .HasForeignKey<Moostard>();
+
+                modelBuilder.Validate();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -2349,7 +2358,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<ToastedBun>();
+                modelBuilder.Entity<ToastedBun>().HasOne(b => b.Whoopper).WithOne(w => w.ToastedBun).HasPrincipalKey<ToastedBun>();
                 modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
                 modelBuilder.Ignore<Tomato>();
                 modelBuilder.Ignore<Moostard>();
@@ -2366,6 +2375,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder
                     .Entity<Whoopper>().HasOne<ToastedBun>().WithOne()
                     .HasForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+
+                modelBuilder.Validate();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -2713,7 +2724,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentType = model.FindEntityType(typeof(CustomerDetails));
                 var fk = dependentType.GetForeignKeys().Single();
                 AssertEqual(new[] { dependentType.FindProperty(nameof(CustomerDetails.Id)), guidProperty }, fk.Properties);
-                Assert.Equal(2, fk.PrincipalKey.Properties.Count());
+                Assert.Equal(2, fk.PrincipalKey.Properties.Count);
             }
 
             [Fact]

@@ -78,24 +78,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource, bool runConventions = true)
+        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
             if (fieldName == null)
             {
-                SetFieldInfo(null, configurationSource, runConventions);
+                SetFieldInfo(null, configurationSource);
                 return;
             }
 
             if (FieldInfo?.Name == fieldName)
             {
-                SetFieldInfo(FieldInfo, configurationSource, runConventions);
+                SetFieldInfo(FieldInfo, configurationSource);
                 return;
             }
 
             var fieldInfo = GetFieldInfo(fieldName, DeclaringType.ClrType, Name, shouldThrow: true);
             if (fieldInfo != null)
             {
-                SetFieldInfo(fieldInfo, configurationSource, runConventions);
+                SetFieldInfo(fieldInfo, configurationSource);
             }
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetFieldInfo(
-            [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource, bool runConventions = true)
+            [CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
         {
             if (Equals(FieldInfo, fieldInfo))
             {
@@ -143,10 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            if (runConventions)
-            {
-                OnFieldInfoSet(oldFieldInfo);
-            }
+            OnFieldInfoSet(oldFieldInfo);
         }
 
         /// <summary>

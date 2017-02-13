@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
             Assert.IsType<IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single();
+            var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
 
             Assert.Equal("V2.Annotation", index["Annotation"]);
             Assert.Equal("V2.Metadata", index["Metadata"]);
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
             Assert.IsType<IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single();
+            var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
 
             Assert.Equal("V2.Annotation", index["Annotation"]);
             Assert.Equal("V2.Metadata", index["Metadata"]);

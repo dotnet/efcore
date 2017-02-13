@@ -144,12 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var leastDerivedEntityTypes = modelBuilder.FindLeastDerivedEntityTypes(declaringType,
                 t => !t.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.DataAnnotation));
-            if (leastDerivedEntityTypes.Count != 1)
+            foreach (var leastDerivedEntityType in leastDerivedEntityTypes)
             {
-                return true;
+                Apply(leastDerivedEntityType, navigationPropertyInfo, targetClrType, attribute);
             }
-
-            Apply(leastDerivedEntityTypes.Single(), navigationPropertyInfo, targetClrType, attribute);
             return true;
         }
 

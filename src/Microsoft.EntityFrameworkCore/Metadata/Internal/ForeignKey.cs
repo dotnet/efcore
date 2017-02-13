@@ -71,31 +71,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<Property> Properties { get; }
+        public virtual IReadOnlyList<Property> Properties { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Key PrincipalKey { get; }
+        public virtual Key PrincipalKey { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType DeclaringEntityType { get; }
+        public virtual EntityType DeclaringEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType PrincipalEntityType { get; }
+        public virtual EntityType PrincipalEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder Builder { get; [param: CanBeNull] set; }
+        public virtual InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -183,9 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] string name,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
-            => Navigation(PropertyIdentity.Create(name), configurationSource, runConventions, pointsToPrincipal: true);
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -193,9 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] PropertyInfo property,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
-            => Navigation(PropertyIdentity.Create(property), configurationSource, runConventions, pointsToPrincipal: true);
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -223,9 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] string name,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
-            => Navigation(PropertyIdentity.Create(name), configurationSource, runConventions, pointsToPrincipal: false);
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            => Navigation(PropertyIdentity.Create(name), configurationSource,  pointsToPrincipal: false);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -233,9 +231,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] PropertyInfo property,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
-            => Navigation(PropertyIdentity.Create(property), configurationSource, runConventions, pointsToPrincipal: false);
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -257,7 +255,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Navigation Navigation(
             PropertyIdentity? propertyIdentity,
             ConfigurationSource configurationSource,
-            bool runConventions,
             bool pointsToPrincipal)
         {
             var name = propertyIdentity?.Name;
@@ -314,35 +311,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 UpdatePrincipalToDependentConfigurationSource(configurationSource);
             }
 
-            if (runConventions)
+            if (oldNavigation != null)
             {
-                if (oldNavigation != null)
-                {
-                    Debug.Assert(oldNavigation.Name != null);
+                Debug.Assert(oldNavigation.Name != null);
 
-                    if (pointsToPrincipal)
-                    {
-                        DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                            DeclaringEntityType.Builder,
-                            PrincipalEntityType.Builder,
-                            oldNavigation.Name,
-                            oldNavigation.PropertyInfo);
-                    }
-                    else
-                    {
-                        DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                            PrincipalEntityType.Builder,
-                            DeclaringEntityType.Builder,
-                            oldNavigation.Name,
-                            oldNavigation.PropertyInfo);
-                    }
-                }
-
-                if (navigation != null)
+                if (pointsToPrincipal)
                 {
-                    var builder = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation);
-                    navigation = pointsToPrincipal ? builder?.Metadata.DependentToPrincipal : builder?.Metadata.PrincipalToDependent;
+                    DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                        DeclaringEntityType.Builder,
+                        PrincipalEntityType.Builder,
+                        oldNavigation.Name,
+                        oldNavigation.PropertyInfo);
                 }
+                else
+                {
+                    DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                        PrincipalEntityType.Builder,
+                        DeclaringEntityType.Builder,
+                        oldNavigation.Name,
+                        oldNavigation.PropertyInfo);
+                }
+            }
+
+            if (navigation != null)
+            {
+                var builder = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation);
+                navigation = pointsToPrincipal ? builder?.Metadata.DependentToPrincipal : builder?.Metadata.PrincipalToDependent;
             }
 
             return navigation ?? oldNavigation;
@@ -362,14 +356,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ForeignKey SetIsUnique(bool unique, ConfigurationSource configurationSource, bool runConventions = true)
+        public virtual ForeignKey SetIsUnique(bool unique, ConfigurationSource configurationSource)
         {
             var isChanging = IsUnique != unique;
             _isUnique = unique;
             UpdateIsUniqueConfigurationSource(configurationSource);
 
-            if (isChanging
-                && runConventions)
+            if (isChanging)
             {
                 return DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata;
             }

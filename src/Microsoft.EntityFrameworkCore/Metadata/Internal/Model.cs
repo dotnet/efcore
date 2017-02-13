@@ -43,9 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public Model([NotNull] ConventionSet conventions)
         {
-            ConventionDispatcher = new ConventionDispatcher(conventions);
-            Builder = new InternalModelBuilder(this);
-            ConventionDispatcher.OnModelInitialized(Builder);
+            var dispatcher = new ConventionDispatcher(conventions);
+            var builder = new InternalModelBuilder(this);
+            ConventionDispatcher = dispatcher;
+            Builder = builder;
+            dispatcher.OnModelInitialized(builder);
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalModelBuilder Builder { get; }
+        public virtual InternalModelBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -80,14 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType AddEntityType(
             [NotNull] string name,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotEmpty(name, nameof(name));
 
             var entityType = new EntityType(name, this, configurationSource);
 
-            return AddEntityType(entityType, runConventions);
+            return AddEntityType(entityType);
         }
 
         /// <summary>
@@ -97,18 +98,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType AddEntityType(
             [NotNull] Type type,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(type, nameof(type));
 
             var entityType = new EntityType(type, this, configurationSource);
 
             _clrTypeMap[type] = entityType;
-            return AddEntityType(entityType, runConventions);
+            return AddEntityType(entityType);
         }
 
-        private EntityType AddEntityType(EntityType entityType, bool runConventions)
+        private EntityType AddEntityType(EntityType entityType)
         {
             var previousLength = _entityTypes.Count;
             _entityTypes[entityType.Name] = entityType;
@@ -117,11 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
             }
 
-            if (runConventions)
-            {
-                return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
-            }
-            return entityType;
+            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -230,37 +226,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Ignore([NotNull] Type type,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
-            => Ignore(Check.NotNull(type, nameof(type)).DisplayName(), type, configurationSource, runConventions);
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            => Ignore(Check.NotNull(type, nameof(type)).DisplayName(), type, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Ignore([NotNull] string name,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
-            => Ignore(Check.NotNull(name, nameof(name)), null, configurationSource, runConventions);
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            => Ignore(Check.NotNull(name, nameof(name)), null, configurationSource);
 
         private void Ignore([NotNull] string name,
             [CanBeNull] Type type,
-            ConfigurationSource configurationSource,
-            bool runConventions)
+            ConfigurationSource configurationSource)
         {
             ConfigurationSource existingIgnoredConfigurationSource;
             if (_ignoredTypeNames.TryGetValue(name, out existingIgnoredConfigurationSource))
             {
                 configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
-                runConventions = false;
+                _ignoredTypeNames[name] = configurationSource;
+                return;
             }
 
             _ignoredTypeNames[name] = configurationSource;
 
-            if (runConventions)
-            {
-                ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
-            }
+            ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
         }
 
         /// <summary>

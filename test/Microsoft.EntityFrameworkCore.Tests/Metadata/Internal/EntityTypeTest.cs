@@ -1072,6 +1072,18 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Adding_an_index_throws_if_duplicate_properties()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
+
+            Assert.Equal(
+                CoreStrings.DuplicatePropertyInList("{'" + Customer.IdProperty.Name + "', '" + Customer.IdProperty.Name + "'}", Customer.IdProperty.Name),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { idProperty, idProperty })).Message);
+        }
+
+        [Fact]
         public void Adding_an_index_throws_when_parent_type_has_index_on_same_properties()
         {
             var model = new Model();
@@ -1363,6 +1375,18 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(
                 CoreStrings.DuplicateKey("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).Name, typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, nameProperty })).Message);
+        }
+
+        [Fact]
+        public void Adding_a_key_throws_if_duplicated_properties()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
+
+            Assert.Equal(
+                CoreStrings.DuplicatePropertyInList("{'" + Customer.IdProperty.Name + "', '" + Customer.IdProperty.Name + "'}", Customer.IdProperty.Name),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, idProperty })).Message);
         }
 
         [Fact]
@@ -1663,6 +1687,27 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                     "{'" + Customer.IdProperty.Name + "'}",
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(customerFk1, customerKey, customerType)).Message);
+        }
+
+        [Fact]
+        public void Adding_a_foreign_key_throws_if_duplicated_properties()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(
+                new[]
+                {
+                    customerType.GetOrAddProperty(nameof(Customer.Id), typeof(int)),
+                    customerType.GetOrAddProperty(nameof(Customer.AlternateId), typeof(int))
+                });
+            var orderType = model.AddEntityType(typeof(Order));
+            var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+
+            Assert.Equal(
+                CoreStrings.DuplicatePropertyInList(
+                    "{'" + Order.CustomerIdProperty.Name + "', '" + Order.CustomerIdProperty.Name + "'}",
+                    Order.CustomerIdProperty.Name),
+                Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(new[] { customerFk1, customerFk1 }, customerKey, customerType)).Message);
         }
 
         [Fact]

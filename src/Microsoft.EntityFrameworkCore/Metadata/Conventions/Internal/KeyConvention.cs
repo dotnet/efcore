@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool Apply(InternalKeyBuilder keyBuilder, Key previousPrimaryKey)
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, Key previousPrimaryKey)
         {
             if (previousPrimaryKey != null)
             {
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            SetKeyValueGeneration(keyBuilder.Metadata.Properties, keyBuilder.Metadata.DeclaringEntityType);
+            SetKeyValueGeneration(entityTypeBuilder.Metadata.FindPrimaryKey()?.Properties, entityTypeBuilder.Metadata);
 
             return true;
         }
@@ -81,10 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Property FindValueGeneratedOnAddProperty(
-            [NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
+            [CanBeNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
         {
-            Check.NotNull(properties, nameof(properties));
             Check.NotNull(entityType, nameof(entityType));
+
+            if (properties == null)
+            {
+                return null;
+            }
 
             if (entityType.FindPrimaryKey(properties) != null
                 && properties.Count == 1)
@@ -103,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
             }
+
             return null;
         }
 

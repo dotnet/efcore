@@ -36,8 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource,
-            bool runConventions = true)
+        public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
             if (IsIgnored(name, configurationSource))
             {
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Metadata.Unignore(name);
 
-                entityType = Metadata.AddEntityType(name, configurationSource, runConventions);
+                entityType = Metadata.AddEntityType(name, configurationSource);
             }
             else
             {
@@ -63,8 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource,
-            bool runConventions = true)
+        public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
             if (IsIgnored(type, configurationSource))
             {
@@ -76,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Metadata.Unignore(type);
 
-                entityType = Metadata.AddEntityType(type, configurationSource, runConventions);
+                entityType = Metadata.AddEntityType(type, configurationSource);
             }
             else
             {
@@ -161,35 +159,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            // Set base type as null to remove the entityType from directly derived types of the base type
-            var baseType = entityType.BaseType;
-            entityType.Builder.HasBaseType((EntityType)null, configurationSource);
-
-            Metadata.Ignore(entityType.Name, configurationSource, runConventions: false);
-
-            var entityTypeBuilder = entityType.Builder;
-            foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+            using (Metadata.ConventionDispatcher.StartBatch())
             {
-                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
-                Debug.Assert(removed.HasValue);
+                // Set base type as null to remove the entityType from directly derived types of the base type
+                var baseType = entityType.BaseType;
+                entityType.Builder.HasBaseType((EntityType)null, configurationSource);
+
+                if (entityType.HasClrType())
+                {
+                    Metadata.Ignore(entityType.ClrType, configurationSource);
+                }
+                else
+                {
+                    Metadata.Ignore(entityType.Name, configurationSource);
+                }
+
+                var entityTypeBuilder = entityType.Builder;
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+                {
+                    var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
+                    Debug.Assert(removed.HasValue);
+                }
+
+                foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
+                {
+                    var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
+                    Debug.Assert(removed.HasValue);
+                }
+
+                foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
+                {
+                    var derivedEntityTypeBuilder = directlyDerivedType.Builder
+                        .HasBaseType(baseType, configurationSource);
+                    Debug.Assert(derivedEntityTypeBuilder != null);
+                }
+
+                Metadata.RemoveEntityType(entityType.Name);
             }
-
-            foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
-            {
-                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
-                Debug.Assert(removed.HasValue);
-            }
-
-            foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
-            {
-                var derivedEntityTypeBuilder = directlyDerivedType.Builder
-                    .HasBaseType(baseType, configurationSource);
-                Debug.Assert(derivedEntityTypeBuilder != null);
-            }
-
-            Metadata.RemoveEntityType(entityType.Name);
-
-            Metadata.ConventionDispatcher.OnEntityTypeIgnored(this, entityType.Name, entityType.ClrType);
 
             return true;
         }

@@ -2,42 +2,58 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public static class TypeBaseExtensions
+    public class MetadataTracker : IReferenceRoot<ForeignKey>
     {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static string DisplayName([NotNull] this ITypeBase type)
-            => type.ClrType != null
-                ? type.ClrType.ShortDisplayName()
-                : type.Name;
+        private Reference<ForeignKey> _trackedForeignKey;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [DebuggerStepThrough]
-        public static bool HasClrType([NotNull] this ITypeBase type)
-            => type.ClrType != null;
+        public virtual void Update([NotNull] ForeignKey oldForeignKey, [NotNull] ForeignKey newForeignKey)
+        {
+            Debug.Assert(oldForeignKey.Builder == null && newForeignKey.Builder != null);
+
+            if (_trackedForeignKey?.Object == oldForeignKey)
+            {
+                _trackedForeignKey.Object = newForeignKey;
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [DebuggerStepThrough]
-        public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+        public virtual Reference<ForeignKey> Track(ForeignKey foreignKey)
+        {
+            var canTrack = _trackedForeignKey == null;
+            var reference = new Reference<ForeignKey>(foreignKey, canTrack ? this : null);
+            if (canTrack)
+            {
+                _trackedForeignKey = reference;
+            }
+
+            return reference;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        void IReferenceRoot<ForeignKey>.Release(Reference<ForeignKey> foreignKeyReference)
+        {
+            Debug.Assert(foreignKeyReference == _trackedForeignKey);
+            _trackedForeignKey = null;
+        }
     }
 }

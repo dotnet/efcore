@@ -44,11 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            var relationshipCandidates = FindRelationshipCandidates(entityTypeBuilder);
-            relationshipCandidates = RemoveIncompatibleWithExistingRelationships(relationshipCandidates, entityTypeBuilder);
-            relationshipCandidates = RemoveInheritedInverseNavigations(relationshipCandidates);
-            relationshipCandidates = RemoveSingleSidedBaseNavigations(relationshipCandidates, entityTypeBuilder);
-            CreateRelationships(relationshipCandidates, entityTypeBuilder);
+            using (entityTypeBuilder.Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                var relationshipCandidates = FindRelationshipCandidates(entityTypeBuilder);
+                relationshipCandidates = RemoveIncompatibleWithExistingRelationships(relationshipCandidates, entityTypeBuilder);
+                relationshipCandidates = RemoveInheritedInverseNavigations(relationshipCandidates);
+                relationshipCandidates = RemoveSingleSidedBaseNavigations(relationshipCandidates, entityTypeBuilder);
+                CreateRelationships(relationshipCandidates, entityTypeBuilder);
+            }
 
             return entityTypeBuilder;
         }
@@ -403,57 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
-        {
-            if (!entityTypeBuilder.Metadata.HasClrType())
-            {
-                return entityTypeBuilder;
-            }
-
-            if (entityTypeBuilder.Metadata.FindAnnotation(NavigationCandidatesAnnotationName) == null)
-            {
-                var modelBuilder = entityTypeBuilder.ModelBuilder;
-                var discoveredEntityTypes = new List<InternalEntityTypeBuilder>();
-                var unvisitedEntityTypes = new Stack<InternalEntityTypeBuilder>();
-                unvisitedEntityTypes.Push(entityTypeBuilder);
-
-                while (unvisitedEntityTypes.Count > 0)
-                {
-                    var nextEntityTypeBuilder = unvisitedEntityTypes.Pop();
-                    nextEntityTypeBuilder = nextEntityTypeBuilder.Metadata.Builder
-                                            ?? modelBuilder.Entity(nextEntityTypeBuilder.Metadata.ClrType, ConfigurationSource.Convention);
-                    if (nextEntityTypeBuilder == null)
-                    {
-                        continue;
-                    }
-
-                    discoveredEntityTypes.Add(nextEntityTypeBuilder);
-                    var navigationCandidates = GetNavigationCandidates(nextEntityTypeBuilder.Metadata).Reverse();
-                    foreach (var candidateTuple in navigationCandidates)
-                    {
-                        var targetClrType = candidateTuple.Value;
-                        if (modelBuilder.Metadata.FindEntityType(targetClrType) != null
-                            || nextEntityTypeBuilder.IsIgnored(candidateTuple.Key.Name, ConfigurationSource.Convention))
-                        {
-                            continue;
-                        }
-
-                        var candidateTargetEntityTypeBuilder = modelBuilder.Entity(
-                            targetClrType, ConfigurationSource.Convention, runConventions: false);
-                        if (candidateTargetEntityTypeBuilder != null)
-                        {
-                            unvisitedEntityTypes.Push(candidateTargetEntityTypeBuilder);
-                        }
-                    }
-                }
-
-                for (var i = 1; i < discoveredEntityTypes.Count; i++)
-                {
-                    modelBuilder.Metadata.ConventionDispatcher.OnEntityTypeAdded(discoveredEntityTypes[i]);
-                }
-            }
-
-            return DiscoverRelationships(entityTypeBuilder);
-        }
+            => !entityTypeBuilder.Metadata.HasClrType() ? entityTypeBuilder : DiscoverRelationships(entityTypeBuilder);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

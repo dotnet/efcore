@@ -699,4 +699,10 @@
   <data name="PoolingOptionsModified" xml:space="preserve">
     <value>OnConfiguring cannot be used to modify DbContextOptions when DbContext pooling is enabled.</value>
   </data>
+  <data name="DuplicatePropertyInList" xml:space="preserve">
+    <value>The property list {propertyList} cannot be used, because it contains a duplicate - '{property}'.</value>
+  </data>
+  <data name="ConventionsInfiniteLoop" xml:space="preserve">
+    <value>The convention invocations have reached the recursion limit. This is likely an issue in EF Core, please report it.</value>
+  </data>
 </root>

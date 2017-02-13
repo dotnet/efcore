@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -42,6 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             : this(builder, null)
         {
             Check.NotNull(builder, nameof(builder));
+            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
+            Check.NotNull(relatedEntityType, nameof(relatedEntityType));
+
             _declaringEntityType = declaringEntityType;
             _relatedEntityType = relatedEntityType;
         }
@@ -167,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
-                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
                 true);
@@ -235,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder(
                 HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
-                    Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
                 true);
@@ -276,9 +280,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
             var principalEntityType = GetOtherEntityType(dependentEntityType);
 
-            var builder = Builder.RelatedEntityTypes(principalEntityType, dependentEntityType, ConfigurationSource.Explicit);
+            using (var batch = dependentEntityType.Model.ConventionDispatcher.StartBatch())
+            {
+                var builder = Builder.RelatedEntityTypes(principalEntityType, dependentEntityType, ConfigurationSource.Explicit);
+                builder = hasForeignKey(builder, dependentEntityType);
 
-            return hasForeignKey(builder, dependentEntityType);
+                return batch.Run(builder);
+            }
         }
 
         /// <summary>
@@ -300,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
                     principalEntityType.ShortDisplayName(),
-                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
+                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
                 principalKeySet: true);
@@ -341,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
                     principalEntityTypeName,
-                    Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
+                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != ResolveEntityType(principalEntityTypeName).Name,
                 principalKeySet: true);
@@ -381,9 +389,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     principalEntityTypeName));
             }
 
-            var builder = Builder.RelatedEntityTypes(principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
+            using (var batch = principalEntityType.Model.ConventionDispatcher.StartBatch())
+            {
+                var builder = Builder.RelatedEntityTypes(
+                    principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
+                builder = hasPrincipalKey(builder);
 
-            return hasPrincipalKey(builder);
+                return batch.Run(builder);
+            }
         }
 
         /// <summary>

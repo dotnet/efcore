@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Does_nothing_if_a_foreign_key_on_the_best_candidate_property_already_exists()
+        public void Does_not_match_if_a_foreign_key_on_the_best_candidate_property_already_exists()
         {
             var fkProperty = DependentType.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention).Metadata;
             DependentType.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
@@ -554,11 +554,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             relationshipBuilder = DependentType.Relationship(
                 PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
 
-            Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
+            Assert.Equal(nameof(PrincipalEntity) + nameof(PrincipalEntity.PeeKay), relationshipBuilder.Metadata.Properties.Single().Name);
 
-            var newFk = (IForeignKey)relationshipBuilder.Metadata;
+            var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
+
+            var newFk = newRelationshipBuilder.Metadata;
             Assert.Equal(2, DependentType.Metadata.GetForeignKeys().Count());
-            Assert.NotEqual(fkProperty.Name, newFk.Properties.Single().Name);
+            Assert.Equal("SomeNav" + nameof(PrincipalEntity.PeeKay), newFk.Properties.Single().Name);
+            Assert.Null(newFk.GetForeignKeyPropertiesConfigurationSource());
         }
 
         [Fact]
@@ -680,6 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.Same(fk, DependentType.Metadata.GetForeignKeys().Single());
             Assert.Null(fk.GetForeignKeyPropertiesConfigurationSource());
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
+            Assert.True(fk.Properties.Single().IsShadowProperty);
             Assert.False(fk.IsUnique);
 
             var property = DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);

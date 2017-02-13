@@ -1488,22 +1488,27 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 })
                     .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 });
 
-                var existingFk = dependentType.GetNavigations().Single().ForeignKey;
+                var navigation = dependentType.GetNavigations().Single();
+                var existingFk = navigation.ForeignKey;
                 Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);
-                Assert.Equal(nameof(Tomato.Whoopper), existingFk.DependentToPrincipal.Name);
-                Assert.Equal(nameof(Whoopper.ToastedBun), existingFk.PrincipalToDependent.Name);
-                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Equal(nameof(ToastedBun.Whoopper), navigation.Name);
+                Assert.Equal(nameof(Whoopper.ToastedBun), navigation.FindInverse().Name);
+                Assert.Equal(existingFk.DeclaringEntityType == dependentType ? 0 : 1, principalType.GetForeignKeys().Count());
                 Assert.Equal(2, principalType.GetKeys().Count());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
-                Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
                 Assert.NotSame(principalKey, fk.PrincipalKey);
-                Assert.Empty(principalType.GetIndexes());
+                Assert.Equal(principalType.GetForeignKeys().Count(), principalType.GetIndexes().Count());
                 Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
                 Assert.True(existingFk.DeclaringEntityType.FindIndex(existingFk.Properties).IsUnique);
                 Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+                Assert.Equal(CoreStrings.AmbiguousOneToOneRelationship(
+                    existingFk.DeclaringEntityType.DisplayName() + "." + existingFk.DependentToPrincipal.Name,
+                    existingFk.PrincipalEntityType.DisplayName() + "." + existingFk.PrincipalToDependent.Name),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
             [Fact]

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(entityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(new[] { properties[1] }, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(entityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(entityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.HasKey(new List<string> { "Number" }, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(entityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Id", "Number" }, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(entityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(entityBuilder, (Key)null));
 
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(entityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var properties = new List<string> { "Id" };
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var properties = new List<string> { "Id" };
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             referencedEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 
-            Assert.True(new KeyConvention().Apply(keyBuilder, null));
+            Assert.True(new KeyConvention().Apply(referencedEntityBuilder, (Key)null));
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }

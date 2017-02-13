@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var fieldInfo = TryMatchFieldName(type, propertyBase.ClrType, propertyBase.Name);
                     if (fieldInfo != null)
                     {
-                        propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Convention, runConventions: false);
+                        propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Convention);
                         return;
                     }
                 }

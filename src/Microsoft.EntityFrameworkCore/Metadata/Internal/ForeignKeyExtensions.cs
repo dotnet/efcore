@@ -265,17 +265,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             builder
-                .Append(string.Join(
-                    ", ",
-                    foreignKey.Properties.Select(
-                        p => singleLine
-                            ? p.DeclaringEntityType.DisplayName() + "." + p.Name
-                            : p.Name)))
+                .Append(foreignKey.DeclaringEntityType.DisplayName())
+                .Append(" ")
+                .Append(Property.Format(foreignKey.Properties))
                 .Append(" -> ")
-                .Append(string.Join(
-                    ", ",
-                    foreignKey.PrincipalKey.Properties.Select(
-                        p => p.DeclaringEntityType.DisplayName() + "." + p.Name)));
+                .Append(foreignKey.PrincipalEntityType.DisplayName())
+                .Append(" ")
+                .Append(Property.Format(foreignKey.PrincipalKey.Properties));
 
             if (foreignKey.IsUnique)
             {

@@ -92,8 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void HasBaseType(
             [CanBeNull] EntityType entityType,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             if (_baseType == entityType)
             {
@@ -176,10 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateBaseTypeConfigurationSource(configurationSource);
             entityType?.UpdateConfigurationSource(configurationSource);
 
-            if (runConventions)
-            {
-                Model.ConventionDispatcher.OnBaseEntityTypeSet(Builder, originalBaseType);
-            }
+            Model.ConventionDispatcher.OnBaseEntityTypeSet(Builder, originalBaseType);
         }
 
         /// <summary>
@@ -301,8 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Key SetPrimaryKey(
             [CanBeNull] IReadOnlyList<Property> properties,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             if (_baseType != null)
             {
@@ -310,6 +305,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var oldPrimaryKey = _primaryKey;
+            if (oldPrimaryKey == null
+                && (properties?.Count ?? 0) == 0)
+            {
+                return null;
+            }
+
+            Key newKey = null;
+            if ((properties?.Count ?? 0) != 0)
+            {
+                newKey = GetOrAddKey(properties);
+                if (oldPrimaryKey == newKey)
+                {
+                    UpdatePrimaryKeyConfigurationSource(configurationSource);
+                    return newKey;
+                }
+            }
+
             if (oldPrimaryKey != null)
             {
                 foreach (var property in _primaryKey.Properties)
@@ -326,33 +338,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if ((properties != null)
-                && (properties.Count != 0))
+            if ((properties?.Count ?? 0) != 0)
             {
-                var key = GetOrAddKey(properties);
-
-                foreach (var property in key.Properties)
+                foreach (var property in newKey.Properties)
                 {
                     _properties.Remove(property.Name);
-                    property.PrimaryKey = key;
+                    property.PrimaryKey = newKey;
                 }
 
-                _primaryKey = key;
+                _primaryKey = newKey;
 
-                foreach (var property in key.Properties)
+                foreach (var property in newKey.Properties)
                 {
                     _properties.Add(property.Name, property);
                 }
+
+                UpdatePrimaryKeyConfigurationSource(configurationSource);
+            }
+            else
+            {
+                SetPrimaryKeyConfigurationSource(null);
             }
 
             PropertyMetadataChanged();
-            UpdatePrimaryKeyConfigurationSource(configurationSource);
-
-            if (runConventions
-                && _primaryKey != null)
-            {
-                Model.ConventionDispatcher.OnPrimaryKeySet(_primaryKey.Builder, oldPrimaryKey);
-            }
+            Model.ConventionDispatcher.OnPrimaryKeySet(Builder, oldPrimaryKey);
 
             return _primaryKey;
         }
@@ -417,6 +426,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        private void SetPrimaryKeyConfigurationSource(ConfigurationSource? configurationSource)
+            => _primaryKeyConfigurationSource = configurationSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         private void UpdatePrimaryKeyConfigurationSource(ConfigurationSource configurationSource)
             => _primaryKeyConfigurationSource = configurationSource.Max(_primaryKeyConfigurationSource);
 
@@ -442,9 +458,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(this.DisplayName(), _baseType.DisplayName()));
             }
 
-            foreach (var property in properties)
+            for (var i = 0; i < properties.Count; i++)
             {
-                if (FindProperty(property.Name) != property)
+                var property = properties[i];
+                for (var j = i + 1; j < properties.Count; j++)
+                {
+                    if (property == properties[j])
+                    {
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(Property.Format(properties), property.Name));
+                    }
+                }
+
+                if (FindProperty(property.Name) != property
+                    || property.Builder == null)
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
@@ -544,17 +570,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // ReSharper disable once MethodOverloadWithOptionalParameter
-        public virtual Key RemoveKey([NotNull] IReadOnlyList<IProperty> properties, bool runConventions = true)
+        public virtual Key RemoveKey([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
             var key = FindDeclaredKey(properties);
             return key == null
                 ? null
-                : RemoveKey(key, runConventions);
+                : RemoveKey(key);
         }
 
-        private Key RemoveKey([NotNull] Key key, bool runConventions)
+        private Key RemoveKey([NotNull] Key key)
         {
             CheckKeyNotInUse(key);
 
@@ -581,10 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            if (runConventions)
-            {
-                Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
-            }
+            Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
             return key;
         }
 
@@ -627,19 +650,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] Key principalKey,
             [NotNull] EntityType principalEntityType,
-            ConfigurationSource? configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+            ConfigurationSource? configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            foreach (var property in properties)
+            for (var i = 0; i < properties.Count; i++)
             {
+                var property = properties[i];
+                for (var j = i + 1; j < properties.Count; j++)
+                {
+                    if (property == properties[j])
+                    {
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(Property.Format(properties), property.Name));
+                    }
+                }
+
                 var actualProperty = FindProperty(property.Name);
                 if (actualProperty == null
-                    || !actualProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType))
+                    || !actualProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType)
+                    || property.Builder == null)
                 {
                     throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
@@ -715,16 +747,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            if (runConventions)
-            {
-                var builder = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder);
-                if (builder != null
-                    && configurationSource.HasValue)
-                {
-                    builder = Model.ConventionDispatcher.OnPrincipalEndSet(builder);
-                }
-                foreignKey = builder?.Metadata;
-            }
+            var builder = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder);
+
+            foreignKey = builder?.Metadata;
 
             return foreignKey;
         }
@@ -889,19 +914,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ForeignKey RemoveForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            bool runConventions = true)
+            [NotNull] IEntityType principalEntityType)
         {
             Check.NotEmpty(properties, nameof(properties));
 
             var foreignKey = FindDeclaredForeignKey(properties, principalKey, principalEntityType);
             return foreignKey == null
                 ? null
-                : RemoveForeignKey(foreignKey, runConventions);
+                : RemoveForeignKey(foreignKey);
         }
 
-        private ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey, bool runConventions)
+        private ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
             if (foreignKey.DependentToPrincipal != null)
             {
@@ -935,28 +958,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (removed)
             {
-                if (runConventions)
+                if (foreignKey.DependentToPrincipal != null)
                 {
-                    if (foreignKey.DependentToPrincipal != null)
-                    {
-                        Model.ConventionDispatcher.OnNavigationRemoved(
-                            Builder,
-                            foreignKey.PrincipalEntityType.Builder,
-                            foreignKey.DependentToPrincipal.Name,
-                            foreignKey.DependentToPrincipal.PropertyInfo);
-                    }
-
-                    if (foreignKey.PrincipalToDependent != null)
-                    {
-                        Model.ConventionDispatcher.OnNavigationRemoved(
-                            foreignKey.PrincipalEntityType.Builder,
-                            Builder,
-                            foreignKey.PrincipalToDependent.Name,
-                            foreignKey.PrincipalToDependent.PropertyInfo);
-                    }
-
-                    Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
+                    Model.ConventionDispatcher.OnNavigationRemoved(
+                        Builder,
+                        foreignKey.PrincipalEntityType.Builder,
+                        foreignKey.DependentToPrincipal.Name,
+                        foreignKey.DependentToPrincipal.PropertyInfo);
                 }
+
+                if (foreignKey.PrincipalToDependent != null)
+                {
+                    Model.ConventionDispatcher.OnNavigationRemoved(
+                        foreignKey.PrincipalEntityType.Builder,
+                        Builder,
+                        foreignKey.PrincipalToDependent.Name,
+                        foreignKey.PrincipalToDependent.PropertyInfo);
+                }
+
+                Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
+
                 return foreignKey;
             }
 
@@ -1123,6 +1144,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual IEnumerable<Navigation> GetDerivedNavigationsInclusive()
+            => GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredNavigations());
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Navigation> FindDerivedNavigations([NotNull] string navigationName)
         {
             Check.NotNull(navigationName, nameof(navigationName));
@@ -1187,9 +1215,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
 
-            foreach (var property in properties)
+            for (var i = 0; i < properties.Count; i++)
             {
-                if (FindProperty(property.Name) != property)
+                var property = properties[i];
+                for (var j = i + 1; j < properties.Count; j++)
+                {
+                    if (property == properties[j])
+                    {
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(Property.Format(properties), property.Name));
+                    }
+                }
+
+                if (FindProperty(property.Name) != property
+                    || property.Builder == null)
                 {
                     throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
@@ -1304,17 +1342,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Index RemoveIndex([NotNull] IReadOnlyList<IProperty> properties, bool runConventions = true)
+        public virtual Index RemoveIndex([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
             var index = FindDeclaredIndex(properties);
             return index == null
                 ? null
-                : RemoveIndex(index, runConventions);
+                : RemoveIndex(index);
         }
 
-        private Index RemoveIndex(Index index, bool runConventions)
+        private Index RemoveIndex(Index index)
         {
             _indexes.Remove(index.Properties);
             index.Builder = null;
@@ -1331,10 +1369,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (runConventions)
-            {
-                Model.ConventionDispatcher.OnIndexRemoved(Builder, index);
-            }
+            Model.ConventionDispatcher.OnIndexRemoved(Builder, index);
 
             return index;
         }
@@ -1356,9 +1391,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Property AddProperty(
             [NotNull] string name,
             [CanBeNull] Type propertyType = null,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(name, nameof(name));
 
@@ -1369,8 +1404,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 propertyType,
                 ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
                 configurationSource,
-                typeConfigurationSource,
-                runConventions);
+                typeConfigurationSource);
         }
 
         /// <summary>
@@ -1379,8 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Property AddProperty(
             [NotNull] MemberInfo memberInfo,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            bool runConventions = true)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
 
@@ -1398,7 +1431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
             }
 
-            return AddProperty(memberInfo.Name, memberInfo.GetMemberType(), memberInfo, configurationSource, configurationSource, runConventions);
+            return AddProperty(memberInfo.Name, memberInfo.GetMemberType(), memberInfo, configurationSource, configurationSource);
         }
 
         private void ValidateCanAddProperty(string name)
@@ -1423,8 +1456,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type propertyType,
             MemberInfo memberInfo,
             ConfigurationSource configurationSource,
-            ConfigurationSource? typeConfigurationSource,
-            bool runConventions)
+            ConfigurationSource? typeConfigurationSource)
         {
             Check.NotNull(name, nameof(name));
 
@@ -1456,10 +1488,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            if (runConventions)
-            {
-                property = Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
-            }
+            property = Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
 
             return property;
         }

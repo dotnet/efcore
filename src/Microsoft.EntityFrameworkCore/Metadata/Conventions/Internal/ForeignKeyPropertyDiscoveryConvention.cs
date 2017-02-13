@@ -32,6 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKey = relationshipBuilder.Metadata;
             if (!ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
             {
+                var conflictingForeignKeys = foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKey.Properties)
+                    .Where(fk => ConfigurationSource.Convention.Overrides(fk.GetForeignKeyPropertiesConfigurationSource()))
+                    .ToList();
+                foreach (var conflictingForeignKey in conflictingForeignKeys)
+                {
+                    conflictingForeignKey.Builder.HasForeignKey((IReadOnlyList<Property>)null, ConfigurationSource.Convention);
+                }
                 return relationshipBuilder;
             }
 
@@ -78,8 +85,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            if (foreignKeyProperties == null
-                && foreignKey.GetForeignKeyPropertiesConfigurationSource() == null)
+            relationshipBuilder = SetForeignKeyProperties(relationshipBuilder, foreignKeyProperties);
+            foreignKey = relationshipBuilder?.Metadata;
+
+            if (relationshipBuilder == null
+                || foreignKey.GetForeignKeyPropertiesConfigurationSource() != null)
+            {
+                return relationshipBuilder;
+            }
+
+            using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 var newTemporaryProperties = foreignKey.DeclaringEntityType.Builder.ReUniquifyTemporaryProperties(
                     foreignKey.Properties,
@@ -88,16 +103,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     foreignKey.DependentToPrincipal == null
                         ? foreignKey.PrincipalEntityType.DisplayName() : foreignKey.DependentToPrincipal.Name);
                 return newTemporaryProperties != null
-                    ? relationshipBuilder.HasForeignKey(
-                        newTemporaryProperties, foreignKey.DeclaringEntityType, null, runConventions: true)
+                    ? batch.Run(relationshipBuilder.HasForeignKey(
+                        newTemporaryProperties, foreignKey.DeclaringEntityType, null))
                     : relationshipBuilder;
             }
+        }
 
+        private InternalRelationshipBuilder SetForeignKeyProperties(
+            InternalRelationshipBuilder relationshipBuilder, IReadOnlyList<Property> foreignKeyProperties)
+        {
             if (foreignKeyProperties == null)
             {
                 return relationshipBuilder;
             }
 
+            var foreignKey = relationshipBuilder.Metadata;
             if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
                 && !foreignKey.IsSelfReferencing()
                 && (foreignKey.PrincipalToDependent?.IsCollection() != true))

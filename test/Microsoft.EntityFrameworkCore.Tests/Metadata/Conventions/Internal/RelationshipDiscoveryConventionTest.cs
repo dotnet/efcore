@@ -312,6 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<MultipleNavigationsFirst>(
                 MultipleNavigationsSecond.IgnoreCollectionNavigation, MultipleNavigationsSecond.IgnoreNonCollectionNavigation);
+            entityBuilder.ModelBuilder.Entity(typeof(MultipleNavigationsSecond), ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 

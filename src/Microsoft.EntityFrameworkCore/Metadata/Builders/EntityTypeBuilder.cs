@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual EntityTypeBuilder New([NotNull] InternalEntityTypeBuilder builder)
             => new EntityTypeBuilder(builder);
 
-        private InternalEntityTypeBuilder Builder { get; }
+        private InternalEntityTypeBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     Gets the internal builder being used to configure the entity type.
@@ -355,11 +357,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var navigationProperty = navigation.Property;
             if (relatedEntityType == Metadata)
             {
-                var relationship = Builder.Relationship(relatedEntityType.Builder, ConfigurationSource.Explicit)
-                    .RelatedEntityTypes(relatedEntityType, Builder.Metadata, ConfigurationSource.Explicit);
-                return navigationProperty != null
-                    ? relationship.DependentToPrincipal(navigationProperty, ConfigurationSource.Explicit)
-                    : relationship.DependentToPrincipal(navigation.Name, ConfigurationSource.Explicit);
+                using (var batch = relatedEntityType.Model.ConventionDispatcher.StartBatch())
+                {
+                    var relationship = Builder.Relationship(relatedEntityType.Builder, ConfigurationSource.Explicit)
+                        .RelatedEntityTypes(relatedEntityType, Builder.Metadata, ConfigurationSource.Explicit);
+                    relationship = navigationProperty != null
+                        ? relationship.DependentToPrincipal(navigationProperty, ConfigurationSource.Explicit)
+                        : relationship.DependentToPrincipal(navigation.Name, ConfigurationSource.Explicit);
+
+                    return batch.Run(relationship);
+                }
             }
 
             return navigationProperty != null

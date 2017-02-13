@@ -504,11 +504,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .HasPrincipalKey(c => new { c.Id })
                     .HasForeignKey(o => new { o.CustomerId });
 
+                modelBuilder.Validate();
+
                 var dependentEntityType = dependentEntityBuilder.Metadata;
                 var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
-                var fk = dependentEntityType.GetForeignKeys().Single();
-                Assert.Null(dependentEntityType.FindIndex(fk.Properties));
-                Assert.True(dependentEntityType.GetIndexes().Single().IsUnique);
+                var index = dependentEntityType.FindIndex(dependentEntityType.GetForeignKeys().Single().Properties);
+                Assert.False(index.IsUnique);
+                Assert.True(dependentEntityType.GetIndexes().Single(i => i != index).IsUnique);
                 Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
@@ -526,8 +528,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.False(derivedDependentEntityType.FindIndex(derivedFk.Properties).IsUnique);
 
                 derivedDependentEntityBuilder.HasBaseType<Order>();
+                modelBuilder.Validate();
 
-                Assert.True(dependentEntityType.GetIndexes().Single().IsUnique);
+                var baseFK = dependentEntityType.GetForeignKeys().Single();
+                var baseIndex = dependentEntityType.FindIndex(baseFK.Properties);
+                Assert.False(baseIndex.IsUnique);
+                Assert.True(dependentEntityType.GetIndexes().Single(i => i != baseIndex).IsUnique);
                 Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
@@ -539,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 dependentEntityBuilder.HasIndex(o => new { o.CustomerId, o.AnotherCustomerId })
                     .IsUnique(false);
 
-                Assert.False(dependentEntityType.GetIndexes().Single().IsUnique);
+                Assert.True(dependentEntityType.GetIndexes().All(i => !i.IsUnique));
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
             }
 
@@ -652,6 +658,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(CityViewModel.Police), policeNavigation.FindInverse().Name);
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(CityViewModel)).GetForeignKeys());
+
+                modelBuilder.Entity<CityViewModel>();
+                modelBuilder.Validate();
             }
 
             [Fact]

@@ -68,8 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             if (targetType != null
                                 && modelBuilder.Metadata.FindEntityType(targetType) != null)
                             {
-                                throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                if (entityType.GetDerivedTypes().All(dt => dt.FindDeclaredNavigation(actualProperty.Name) == null))
+                                {
+                                    throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
+                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                }
                             }
                             else if (propertyType.IsPrimitive())
                             {

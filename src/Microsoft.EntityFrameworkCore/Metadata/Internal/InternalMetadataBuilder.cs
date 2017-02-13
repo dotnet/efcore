@@ -25,13 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConventionalAnnotatable Metadata { get; }
+        public virtual ConventionalAnnotatable Metadata { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public abstract InternalModelBuilder ModelBuilder { get; }
+        public abstract InternalModelBuilder ModelBuilder { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

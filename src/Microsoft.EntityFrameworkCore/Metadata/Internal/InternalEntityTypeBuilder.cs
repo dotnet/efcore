@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -33,27 +34,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
+        public virtual InternalKeyBuilder PrimaryKey([CanBeNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => PrimaryKey(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+        public virtual InternalKeyBuilder PrimaryKey([CanBeNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
             => PrimaryKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
         private InternalKeyBuilder PrimaryKey(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
+            var previousPrimaryKey = Metadata.FindPrimaryKey();
             if (properties == null)
             {
-                return null;
+                if (previousPrimaryKey == null)
+                {
+                    return null;
+                }
             }
-
-            if (Metadata.FindPrimaryKey(properties) != null)
+            else if (previousPrimaryKey != null
+                && PropertyListComparer.Instance.Compare(previousPrimaryKey.Properties, properties) == 0)
             {
-                Metadata.SetPrimaryKey(properties, configurationSource);
-                return HasKeyInternal(properties, configurationSource);
+                return Metadata.SetPrimaryKey(properties, configurationSource).Builder;
             }
 
             var primaryKeyConfigurationSource = Metadata.GetPrimaryKeyConfigurationSource();
@@ -63,48 +67,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var keyBuilder = HasKeyInternal(properties, configurationSource);
-            if (keyBuilder == null)
+            InternalKeyBuilder keyBuilder = null;
+            if (properties == null)
             {
-                return null;
+                Metadata.SetPrimaryKey(properties, configurationSource);
             }
-
-            var previousPrimaryKey = Metadata.FindPrimaryKey();
-            Metadata.SetPrimaryKey(keyBuilder.Metadata.Properties, configurationSource, runConventions: false);
-            UpdateReferencingForeignKeys(keyBuilder.Metadata);
-
-            keyBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnPrimaryKeySet(keyBuilder, previousPrimaryKey);
-
-            if (previousPrimaryKey != null)
+            else
             {
-                RemoveKeyIfUnused(previousPrimaryKey, runConventions: true);
-            }
-
-            return keyBuilder;
-        }
-
-        private void UpdateReferencingForeignKeys(Key newKey)
-        {
-            foreach (var key in Metadata.GetDeclaredKeys().ToList())
-            {
-                if (key == newKey)
+                using (ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
                 {
-                    continue;
-                }
+                    keyBuilder = HasKeyInternal(properties, configurationSource);
+                    if (keyBuilder == null)
+                    {
+                        return null;
+                    }
 
-                var referencingForeignKeys = key.GetReferencingForeignKeys().Where(fk => fk.GetPrincipalKeyConfigurationSource() == null)
-                    .ToList();
-                if (referencingForeignKeys.Count == 0)
-                {
-                    continue;
-                }
+                    Metadata.SetPrimaryKey(keyBuilder.Metadata.Properties, configurationSource);
+                    foreach (var key in Metadata.GetDeclaredKeys().ToList())
+                    {
+                        if (key == keyBuilder.Metadata)
+                        {
+                            continue;
+                        }
 
-                var detachedRelationships = referencingForeignKeys.Select(DetachRelationship).ToList();
-                foreach (var relationshipSnapshot in detachedRelationships)
-                {
-                    relationshipSnapshot.Attach();
+                        var referencingForeignKeys = key
+                            .GetReferencingForeignKeys()
+                            .Where(fk => fk.GetPrincipalKeyConfigurationSource() == null)
+                            .ToList();
+                        foreach (var referencingForeignKey in referencingForeignKeys)
+                        {
+                            DetachRelationship(referencingForeignKey).Attach();
+                        }
+                    }
                 }
             }
+
+            if (previousPrimaryKey?.Builder != null)
+            {
+                RemoveKeyIfUnused(previousPrimaryKey);
+            }
+
+            return keyBuilder?.Metadata.Builder == null ? null : keyBuilder;
         }
 
         /// <summary>
@@ -159,26 +162,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                var modifiedRelationships = containingForeignKeys
-                    .Where(fk => fk.GetForeignKeyPropertiesConfigurationSource() != ConfigurationSource.Explicit)  // let it throw for explicit
-                    .Select(foreignKey => foreignKey.Builder.HasForeignKey(null, configurationSource, runConventions: false))
-                    .ToList();
-
-                foreach (var actualProperty in actualProperties)
+                using (Metadata.Model.ConventionDispatcher.StartBatch())
                 {
-                    actualProperty.Builder.IsRequired(true, configurationSource.Value);
+                    foreach (var foreignKey in containingForeignKeys
+                        // let it throw for explicit
+                        .Where(fk => fk.GetForeignKeyPropertiesConfigurationSource() != ConfigurationSource.Explicit)
+                        .ToList())
+                    {
+                        foreignKey.Builder.HasForeignKey(null, configurationSource);
+                    }
+
+                    foreach (var actualProperty in actualProperties)
+                    {
+                        actualProperty.Builder.IsRequired(true, configurationSource.Value);
+                    }
+
+                    key = Metadata.AddKey(actualProperties, configurationSource.Value);
                 }
-
-                key = Metadata.AddKey(actualProperties, configurationSource.Value);
-
-                foreach (var foreignKey in containingForeignKeys)
+                if (key.Builder == null)
                 {
-                    ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(foreignKey.DeclaringEntityType.Builder, foreignKey);
-                }
-
-                foreach (var relationship in modifiedRelationships)
-                {
-                    ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(relationship);
+                    key = Metadata.FindDeclaredKey(actualProperties);
                 }
             }
             else if (configurationSource.HasValue)
@@ -193,8 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? RemoveKey(
-            [NotNull] Key key, ConfigurationSource configurationSource, bool runConventions = true)
+        public virtual ConfigurationSource? RemoveKey([NotNull] Key key, ConfigurationSource configurationSource)
         {
             var currentConfigurationSource = key.GetConfigurationSource();
             if (!configurationSource.Overrides(currentConfigurationSource))
@@ -202,32 +204,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var referencingForeignKeys = key.GetReferencingForeignKeys().ToList();
-
-            foreach (var foreignKey in referencingForeignKeys)
+            using (Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource, runConventions: false);
-                Debug.Assert(removed.HasValue);
-            }
-
-            var removedKey = Metadata.RemoveKey(key.Properties, runConventions);
-            if (removedKey == null)
-            {
-                return null;
-            }
-            Debug.Assert(removedKey == key);
-
-            foreach (var foreignKey in referencingForeignKeys)
-            {
-                Metadata.Model.ConventionDispatcher.OnForeignKeyRemoved(foreignKey.DeclaringEntityType.Builder, foreignKey);
-            }
-
-            RemoveShadowPropertiesIfUnused(key.Properties);
-            foreach (var property in key.Properties)
-            {
-                if (property.ClrType.IsNullableType())
+                foreach (var foreignKey in key.GetReferencingForeignKeys().ToList())
                 {
-                    property.Builder?.IsRequired(false, configurationSource);
+                    var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
+                    Debug.Assert(removed.HasValue);
+                }
+
+                var removedKey = Metadata.RemoveKey(key.Properties);
+                Debug.Assert(removedKey == key);
+
+                RemoveShadowPropertiesIfUnused(key.Properties);
+                foreach (var property in key.Properties)
+                {
+                    if (property.ClrType.IsNullableType())
+                    {
+                        // TODO: This should be handled by reference tracking
+                        property.Builder?.IsRequired(false, configurationSource);
+                    }
                 }
             }
 
@@ -253,20 +248,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     var detachedKeyBuilder = keyTuple.Item1;
                     var detachedConfigurationSource = keyTuple.Item2;
-                    if (detachedKeyBuilder.Attach(detachedConfigurationSource) == null)
-                    {
-                        detachedKeyBuilder.ModelBuilder.Metadata.ConventionDispatcher
-                            .OnKeyRemoved(detachedKeyBuilder.Metadata.DeclaringEntityType.Builder, detachedKeyBuilder.Metadata);
-                    }
-                    else if (PrimaryKey != null
-                             && PrimaryKey.Item1 == detachedKeyBuilder)
+                    var attachedKey = detachedKeyBuilder.Attach(detachedConfigurationSource);
+                    if (attachedKey != null
+                        && PrimaryKey != null
+                        && PrimaryKey.Item1 == detachedKeyBuilder)
                     {
                         var rootType = detachedKeyBuilder.Metadata.DeclaringEntityType.RootType();
                         var primaryKeyConfigurationSource = rootType.GetPrimaryKeyConfigurationSource();
                         if (primaryKeyConfigurationSource == null
                             || !primaryKeyConfigurationSource.Value.Overrides(PrimaryKey.Item2))
                         {
-                            rootType.Builder.PrimaryKey(detachedKeyBuilder.Metadata.Properties, PrimaryKey.Item2);
+                            rootType.Builder.PrimaryKey(attachedKey.Metadata.Properties, PrimaryKey.Item2);
                         }
                     }
                 }
@@ -293,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Debug.Assert(primaryKeyConfigurationSource.HasValue);
                     primaryKey = Tuple.Create(keyBuilder, primaryKeyConfigurationSource.Value);
                 }
-                var removedConfigurationSource = entityTypeBuilder.RemoveKey(keyToDetach, ConfigurationSource.Explicit, runConventions: false);
+                var removedConfigurationSource = entityTypeBuilder.RemoveKey(keyToDetach, ConfigurationSource.Explicit);
                 Debug.Assert(removedConfigurationSource != null);
 
                 detachedKeys.Add(Tuple.Create(keyBuilder, removedConfigurationSource.Value));
@@ -352,29 +344,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Metadata.Unignore(propertyName);
 
-            PropertyBuildersSnapshot detachedProperties = null;
+            IEnumerable<Property> propertiesToDetach = null;
             var existingProperty = Metadata.FindProperty(propertyName);
-            if (existingProperty == null)
+            if (existingProperty != null)
             {
-                detachedProperties = DetachProperties(Metadata.FindDerivedProperties(propertyName));
+                if (existingProperty.DeclaringEntityType != Metadata)
+                {
+                    if (memberInfo != null
+                        && existingProperty.MemberInfo == null)
+                    {
+                        propertiesToDetach = new[] { existingProperty };
+                    }
+                    else
+                    {
+                        return existingProperty.DeclaringEntityType.Builder
+                            .Property(existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
+                    }
+                }
             }
-            else if (existingProperty.DeclaringEntityType != Metadata)
+            else
             {
-                if (memberInfo != null
-                    && existingProperty.MemberInfo == null)
-                {
-                    detachedProperties = DetachProperties(new[] { existingProperty });
-                }
-                else
-                {
-                    return existingProperty.DeclaringEntityType.Builder
-                        .Property(existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
-                }
+                propertiesToDetach = Metadata.FindDerivedProperties(propertyName);
             }
 
-            var builder = Property(existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
+            InternalPropertyBuilder builder;
+            using (Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                var detachedProperties = propertiesToDetach == null ? null : DetachProperties(propertiesToDetach);
 
-            detachedProperties?.Attach(this);
+                builder = Property(existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
+
+                detachedProperties?.Attach(this);
+            }
 
             if (builder != null
                 && builder.Metadata.Builder == null)
@@ -407,14 +408,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.PropertyCalledOnNavigation(propertyName, Metadata.DisplayName()));
                 }
 
-                if (clrProperty != null)
-                {
-                    property = Metadata.AddProperty(clrProperty, configurationSource.Value);
-                }
-                else
-                {
-                    property = Metadata.AddProperty(propertyName, propertyType,  configurationSource.Value, typeConfigurationSource);
-                }
+                property = clrProperty != null
+                    ? Metadata.AddProperty(clrProperty, configurationSource.Value)
+                    : Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource);
             }
             else
             {
@@ -429,18 +425,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return null;
                     }
 
-                    var detachedProperties = DetachProperties(new[] { existingProperty });
-
-                    if (clrProperty != null)
+                    using (Metadata.Model.ConventionDispatcher.StartBatch())
                     {
-                        property = Metadata.AddProperty(clrProperty, configurationSource.Value);
-                    }
-                    else
-                    {
-                        property = Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource.Value);
-                    }
+                        var detachedProperties = DetachProperties(new[] { existingProperty });
 
-                    detachedProperties.Attach(this);
+                        property = clrProperty != null
+                            ? Metadata.AddProperty(clrProperty, configurationSource.Value)
+                            : Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource);
+
+                        detachedProperties.Attach(this);
+                    }
                 }
                 else
                 {
@@ -529,79 +523,80 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            Metadata.Ignore(name, configurationSource, runConventions: false);
-
-            var navigation = Metadata.FindNavigation(name);
-            if (navigation != null)
+            using (Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                var foreignKey = navigation.ForeignKey;
-                if (navigation.DeclaringEntityType != Metadata)
-                {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(CoreStrings.InheritedPropertyCannotBeIgnored(
-                            name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
-                    }
-                    return false;
-                }
+                Metadata.Ignore(name, configurationSource);
 
-                if (foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(
-                    foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                var navigation = Metadata.FindNavigation(name);
+                if (navigation != null)
                 {
-                    Metadata.Unignore(name);
-                    return false;
-                }
-            }
-            else
-            {
-                var property = Metadata.FindProperty(name);
-                if (property != null)
-                {
-                    if (property.DeclaringEntityType != Metadata)
+                    var foreignKey = navigation.ForeignKey;
+                    if (navigation.DeclaringEntityType != Metadata)
                     {
                         if (configurationSource == ConfigurationSource.Explicit)
                         {
                             throw new InvalidOperationException(CoreStrings.InheritedPropertyCannotBeIgnored(
-                                name, Metadata.DisplayName(), property.DeclaringEntityType.DisplayName()));
+                                name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
                         }
                         return false;
                     }
 
-                    if (property.DeclaringEntityType.Builder.RemoveProperty(
-                        property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                    if (foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(
+                        foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
                     {
                         Metadata.Unignore(name);
                         return false;
                     }
                 }
-            }
-
-            foreach (var derivedType in Metadata.GetDerivedTypes())
-            {
-                var derivedNavigation = derivedType.FindDeclaredNavigation(name);
-                if (derivedNavigation != null)
-                {
-                    var foreignKey = derivedNavigation.ForeignKey;
-                    foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource, canOverrideSameSource: false);
-                }
                 else
                 {
-                    var derivedProperty = derivedType.FindDeclaredProperty(name);
-                    if (derivedProperty != null)
+                    var property = Metadata.FindProperty(name);
+                    if (property != null)
                     {
-                        derivedType.Builder.RemoveProperty(derivedProperty, configurationSource, canOverrideSameSource: false);
+                        if (property.DeclaringEntityType != Metadata)
+                        {
+                            if (configurationSource == ConfigurationSource.Explicit)
+                            {
+                                throw new InvalidOperationException(CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    name, Metadata.DisplayName(), property.DeclaringEntityType.DisplayName()));
+                            }
+                            return false;
+                        }
+
+                        if (property.DeclaringEntityType.Builder.RemoveProperty(
+                            property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                        {
+                            Metadata.Unignore(name);
+                            return false;
+                        }
                     }
                 }
 
-                var derivedIgnoredSource = derivedType.FindDeclaredIgnoredMemberConfigurationSource(name);
-                if (derivedIgnoredSource.HasValue
-                    && configurationSource.Overrides(derivedIgnoredSource))
+                foreach (var derivedType in Metadata.GetDerivedTypes())
                 {
-                    derivedType.Unignore(name);
+                    var derivedNavigation = derivedType.FindDeclaredNavigation(name);
+                    if (derivedNavigation != null)
+                    {
+                        var foreignKey = derivedNavigation.ForeignKey;
+                        foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource, canOverrideSameSource: false);
+                    }
+                    else
+                    {
+                        var derivedProperty = derivedType.FindDeclaredProperty(name);
+                        if (derivedProperty != null)
+                        {
+                            derivedType.Builder.RemoveProperty(derivedProperty, configurationSource, canOverrideSameSource: false);
+                        }
+                    }
+
+                    var derivedIgnoredSource = derivedType.FindDeclaredIgnoredMemberConfigurationSource(name);
+                    if (derivedIgnoredSource.HasValue
+                        && configurationSource.Overrides(derivedIgnoredSource))
+                    {
+                        derivedType.Unignore(name);
+                    }
                 }
             }
-
-            Metadata.Model.ConventionDispatcher.OnEntityTypeMemberIgnored(this, name);
 
             return true;
         }
@@ -657,178 +652,170 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var detachedRelationships = new List<RelationshipBuilderSnapshot>();
-            PropertyBuildersSnapshot detachedProperties = null;
-            KeyBuildersSnapshot detachedKeys = null;
-            var changedRelationships = new List<InternalRelationshipBuilder>();
-            IReadOnlyList<RelationshipSnapshot> relationshipsToBeRemoved = new List<RelationshipSnapshot>();
-            // We use at least DataAnnotation as ConfigurationSource while removing to allow us
-            // to remove metadata object which were defined in derived type
-            // while corresponding annotations were present on properties in base type.
-            var configurationSourceForRemoval = ConfigurationSource.DataAnnotation.Max(configurationSource);
-            if (baseEntityType != null)
+            using (Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())))
+                List<RelationshipBuilderSnapshot> detachedRelationships = null;
+                PropertyBuildersSnapshot detachedProperties = null;
+                KeyBuildersSnapshot detachedKeys = null;
+                // We use at least DataAnnotation as ConfigurationSource while removing to allow us
+                // to remove metadata object which were defined in derived type
+                // while corresponding annotations were present on properties in base type.
+                var configurationSourceForRemoval = ConfigurationSource.DataAnnotation.Max(configurationSource);
+                if (baseEntityType != null)
                 {
-                    return null;
-                }
-
-                relationshipsToBeRemoved = FindConflictingRelationships(baseEntityType, configurationSourceForRemoval);
-                if (relationshipsToBeRemoved == null)
-                {
-                    return null;
-                }
-
-                var foreignKeysUsingKeyProperties = Metadata.GetDerivedForeignKeysInclusive()
-                    .Where(fk => relationshipsToBeRemoved.All(r => r.ForeignKey != fk)
-                                 && fk.Properties.Any(p => baseEntityType.FindProperty(p.Name)?.IsKey() == true)).ToList();
-
-                if (foreignKeysUsingKeyProperties.Any(fk =>
-                    !configurationSourceForRemoval.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
-                {
-                    return null;
-                }
-
-                changedRelationships.AddRange(
-                    foreignKeysUsingKeyProperties.Select(foreignKeyUsingKeyProperties =>
-                        foreignKeyUsingKeyProperties.Builder.HasForeignKey(null, configurationSourceForRemoval, runConventions: false)));
-
-                foreach (var relationshipToBeRemoved in relationshipsToBeRemoved)
-                {
-                    var removedConfigurationSource = relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder
-                        .RemoveForeignKey(relationshipToBeRemoved.ForeignKey, configurationSourceForRemoval, runConventions: false);
-                    Debug.Assert(removedConfigurationSource.HasValue);
-                }
-
-                foreach (var key in Metadata.GetDeclaredKeys().ToList())
-                {
-                    foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
+                    if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())))
                     {
-                        detachedRelationships.Add(DetachRelationship(referencingForeignKey));
+                        return null;
                     }
-                }
 
-                detachedKeys = DetachKeys(Metadata.GetDeclaredKeys());
-
-                var duplicatedProperties = baseEntityType.GetProperties()
-                    .SelectMany(p => Metadata.FindDerivedPropertiesInclusive(p.Name))
-                    .Where(p => p != null);
-
-                detachedProperties = DetachProperties(duplicatedProperties);
-
-                var propertiesToRemove = Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredProperties())
-                    .Where(p => !p.GetConfigurationSource().Overrides(baseEntityType.FindIgnoredMemberConfigurationSource(p.Name))).ToList();
-                foreach (var property in propertiesToRemove)
-                {
-                    property.DeclaringEntityType.Builder.RemoveProperty(property, ConfigurationSource.Explicit);
-                }
-
-                foreach (var ignoredMember in Metadata.GetIgnoredMembers().ToList())
-                {
-                    var ignoredSource = Metadata.FindDeclaredIgnoredMemberConfigurationSource(ignoredMember);
-                    var baseIgnoredSource = baseEntityType.FindIgnoredMemberConfigurationSource(ignoredMember);
-
-                    if (baseIgnoredSource.HasValue
-                        && baseIgnoredSource.Value.Overrides(ignoredSource))
+                    var relationshipsToBeDetached = FindConflictingRelationships(baseEntityType, configurationSourceForRemoval);
+                    if (relationshipsToBeDetached == null)
                     {
-                        Metadata.Unignore(ignoredMember);
+                        return null;
                     }
-                }
 
-                baseEntityType.UpdateConfigurationSource(configurationSource);
-            }
+                    var foreignKeysUsingKeyProperties = Metadata.GetDerivedForeignKeysInclusive()
+                        .Where(fk => fk.Properties.Any(p => baseEntityType.FindProperty(p.Name)?.IsKey() == true)).ToList();
 
-            var detachedIndexes = new List<IndexBuilderSnapshot>();
-            HashSet<Property> removedInheritedPropertiesToDuplicate = null;
-            if (Metadata.BaseType != null)
-            {
-                var removedInheritedProperties = new HashSet<Property>(Metadata.BaseType.GetProperties()
-                    .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
-                if (removedInheritedProperties.Count != 0)
-                {
-                    removedInheritedPropertiesToDuplicate = new HashSet<Property>();
-                    foreach (var foreignKey in Metadata.GetDerivedForeignKeysInclusive()
-                        .Where(fk => fk.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                    if (foreignKeysUsingKeyProperties.Any(fk =>
+                        !configurationSourceForRemoval.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
                     {
-                        foreach (var property in foreignKey.Properties)
+                        return null;
+                    }
+
+                    foreach (var foreignKeyUsingKeyProperties in foreignKeysUsingKeyProperties)
+                    {
+                        foreignKeyUsingKeyProperties.Builder.HasForeignKey((IReadOnlyList<Property>)null, configurationSourceForRemoval);
+                    }
+
+                    foreach (var relationshipToBeRemoved in relationshipsToBeDetached)
+                    {
+                        if (detachedRelationships == null)
                         {
-                            if (removedInheritedProperties.Contains(property))
-                            {
-                                removedInheritedPropertiesToDuplicate.Add(property);
-                            }
+                            detachedRelationships = new List<RelationshipBuilderSnapshot>();
                         }
-                        detachedRelationships.Add(DetachRelationship(foreignKey));
+                        detachedRelationships.Add(DetachRelationship(relationshipToBeRemoved));
                     }
 
-                    foreach (var index in Metadata.GetDerivedIndexesInclusive()
-                        .Where(i => i.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                    foreach (var key in Metadata.GetDeclaredKeys().ToList())
                     {
-                        foreach (var property in index.Properties)
+                        foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
                         {
-                            if (removedInheritedProperties.Contains(property))
+                            if (detachedRelationships == null)
                             {
-                                removedInheritedPropertiesToDuplicate.Add(property);
+                                detachedRelationships = new List<RelationshipBuilderSnapshot>();
                             }
+                            detachedRelationships.Add(DetachRelationship(referencingForeignKey));
                         }
-                        detachedIndexes.Add(DetachIndex(index));
+                    }
+
+                    detachedKeys = DetachKeys(Metadata.GetDeclaredKeys());
+
+                    var duplicatedProperties = baseEntityType.GetProperties()
+                        .SelectMany(p => Metadata.FindDerivedPropertiesInclusive(p.Name))
+                        .Where(p => p != null);
+
+                    detachedProperties = DetachProperties(duplicatedProperties);
+
+                    var propertiesToRemove = Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredProperties())
+                        .Where(p => !p.GetConfigurationSource().Overrides(baseEntityType.FindIgnoredMemberConfigurationSource(p.Name))).ToList();
+                    foreach (var property in propertiesToRemove)
+                    {
+                        property.DeclaringEntityType.Builder.RemoveProperty(property, ConfigurationSource.Explicit);
+                    }
+
+                    foreach (var ignoredMember in Metadata.GetIgnoredMembers().ToList())
+                    {
+                        var ignoredSource = Metadata.FindDeclaredIgnoredMemberConfigurationSource(ignoredMember);
+                        var baseIgnoredSource = baseEntityType.FindIgnoredMemberConfigurationSource(ignoredMember);
+
+                        if (baseIgnoredSource.HasValue
+                            && baseIgnoredSource.Value.Overrides(ignoredSource))
+                        {
+                            Metadata.Unignore(ignoredMember);
+                        }
+                    }
+
+                    baseEntityType.UpdateConfigurationSource(configurationSource);
+                }
+
+                List<IndexBuilderSnapshot> detachedIndexes = null;
+                HashSet<Property> removedInheritedPropertiesToDuplicate = null;
+                if (Metadata.BaseType != null)
+                {
+                    var removedInheritedProperties = new HashSet<Property>(Metadata.BaseType.GetProperties()
+                        .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
+                    if (removedInheritedProperties.Count != 0)
+                    {
+                        removedInheritedPropertiesToDuplicate = new HashSet<Property>();
+                        foreach (var foreignKey in Metadata.GetDerivedForeignKeysInclusive()
+                            .Where(fk => fk.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                        {
+                            foreach (var property in foreignKey.Properties)
+                            {
+                                if (removedInheritedProperties.Contains(property))
+                                {
+                                    removedInheritedPropertiesToDuplicate.Add(property);
+                                }
+                            }
+
+                            if (detachedRelationships == null)
+                            {
+                                detachedRelationships = new List<RelationshipBuilderSnapshot>();
+                            }
+                            detachedRelationships.Add(DetachRelationship(foreignKey));
+                        }
+
+                        foreach (var index in Metadata.GetDerivedIndexesInclusive()
+                            .Where(i => i.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                        {
+                            foreach (var property in index.Properties)
+                            {
+                                if (removedInheritedProperties.Contains(property))
+                                {
+                                    removedInheritedPropertiesToDuplicate.Add(property);
+                                }
+                            }
+
+                            if (detachedIndexes == null)
+                            {
+                                detachedIndexes = new List<IndexBuilderSnapshot>();
+                            }
+                            detachedIndexes.Add(DetachIndex(index));
+                        }
+                    }
+                }
+
+                Metadata.HasBaseType(baseEntityType, configurationSource);
+
+                if (removedInheritedPropertiesToDuplicate != null)
+                {
+                    foreach (var property in removedInheritedPropertiesToDuplicate)
+                    {
+                        property.Builder?.Attach(this, property.GetConfigurationSource());
+                    }
+                }
+
+                detachedProperties?.Attach(this);
+
+                detachedKeys?.Attach();
+
+                if (detachedIndexes != null)
+                {
+                    foreach (var indexBuilderSnapshot in detachedIndexes)
+                    {
+                        indexBuilderSnapshot.Attach();
+                    }
+                }
+
+                if (detachedRelationships != null)
+                {
+                    foreach (var detachedRelationship in detachedRelationships)
+                    {
+                        detachedRelationship.Attach();
                     }
                 }
             }
-
-            var originalBaseType = Metadata.BaseType;
-            Metadata.HasBaseType(baseEntityType, configurationSource, runConventions: false);
-
-            if (removedInheritedPropertiesToDuplicate != null)
-            {
-                foreach (var property in removedInheritedPropertiesToDuplicate)
-                {
-                    property.Builder?.Attach(this, property.GetConfigurationSource());
-                }
-            }
-
-            detachedProperties?.Attach(this);
-
-            detachedKeys?.Attach();
-
-            foreach (var indexBuilderSnapshot in detachedIndexes)
-            {
-                indexBuilderSnapshot.Attach();
-            }
-
-            foreach (var detachedRelationship in detachedRelationships)
-            {
-                detachedRelationship.Attach();
-            }
-
-            foreach (var relationshipToBeRemoved in relationshipsToBeRemoved)
-            {
-                var dependentEntityType = relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder;
-                var principalEntityType = relationshipToBeRemoved.ForeignKey.PrincipalEntityType.Builder;
-                var source = relationshipToBeRemoved.IsDependent ? dependentEntityType : principalEntityType;
-                var target = relationshipToBeRemoved.IsDependent ? principalEntityType : dependentEntityType;
-
-                var from = relationshipToBeRemoved.NavigationFrom;
-                if (from != null)
-                {
-                    ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(source, target, from.Name, from.PropertyInfo);
-                }
-
-                var to = relationshipToBeRemoved.NavigationTo;
-                if (to != null)
-                {
-                    ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(target, source, to.Name, to.PropertyInfo);
-                }
-
-                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(
-                    relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder, relationshipToBeRemoved.ForeignKey);
-            }
-
-            foreach (var changedRelationship in changedRelationships)
-            {
-                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(changedRelationship);
-            }
-
-            ModelBuilder.Metadata.ConventionDispatcher.OnBaseEntityTypeSet(this, originalBaseType);
 
             return this;
         }
@@ -913,88 +900,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private IReadOnlyList<RelationshipSnapshot> FindConflictingRelationships(
+        private List<ForeignKey> FindConflictingRelationships(
             EntityType baseEntityType,
             ConfigurationSource configurationSource)
         {
-            var relationshipsToBeRemoved = new List<RelationshipSnapshot>();
-            var baseRelationshipsByTargetType = GroupRelationshipsByTargetType(baseEntityType);
-            var relationshipsByTargetType = GroupRelationshipsByTargetType(Metadata);
-
-            foreach (var relatedEntityType in relationshipsByTargetType.Keys)
+            var relationshipsToBeDetached = new List<ForeignKey>();
+            foreach (var navigation in Metadata.GetDerivedNavigationsInclusive())
             {
-                if (!baseRelationshipsByTargetType.ContainsKey(relatedEntityType))
+                if (!navigation.ForeignKey.GetConfigurationSource().Overrides(
+                    baseEntityType.FindIgnoredMemberConfigurationSource(navigation.Name)))
+                {
+                    relationshipsToBeDetached.Add(navigation.ForeignKey);
+                    continue;
+                }
+
+                var baseNavigation = baseEntityType.FindNavigation(navigation.Name);
+                if (baseNavigation == null)
                 {
                     continue;
                 }
 
-                foreach (var baseRelationship in baseRelationshipsByTargetType[relatedEntityType])
+                // When reattached the FK will override the other one if not compatible
+                if (navigation.ForeignKey.DeclaringEntityType.Builder
+                    .CanRemoveForeignKey(navigation.ForeignKey, configurationSource))
                 {
-                    foreach (var relationship in relationshipsByTargetType[relatedEntityType])
-                    {
-                        if ((baseRelationship.IsDependent
-                             && relationship.IsDependent
-                             && PropertyListComparer.Instance.Equals(
-                                 baseRelationship.ForeignKey.Properties,
-                                 relationship.ForeignKey.Properties))
-                            || ((relationship.NavigationFrom != null)
-                                && (baseRelationship.NavigationFrom?.Name == relationship.NavigationFrom.Name)))
-                        {
-                            if (relationship.ForeignKey.DeclaringEntityType.Builder
-                                .CanRemoveForeignKey(relationship.ForeignKey, configurationSource))
-                            {
-                                relationshipsToBeRemoved.Add(relationship);
-                            }
-                            else if (baseRelationship.ForeignKey.DeclaringEntityType.Builder
-                                .CanRemoveForeignKey(baseRelationship.ForeignKey, configurationSource))
-                            {
-                                relationshipsToBeRemoved.Add(baseRelationship);
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        }
-                    }
+                    relationshipsToBeDetached.Add(baseNavigation.ForeignKey);
+                }
+                else if (baseNavigation.ForeignKey.DeclaringEntityType.Builder
+                    .CanRemoveForeignKey(baseNavigation.ForeignKey, configurationSource))
+                {
+                    relationshipsToBeDetached.Add(navigation.ForeignKey);
+                }
+                else
+                {
+                    return null;
                 }
             }
 
-            foreach (var ignoredNavigation in Metadata.GetDerivedTypesInclusive()
-                .SelectMany(et => et.GetDeclaredNavigations())
-                .Where(n => !n.ForeignKey.GetConfigurationSource().Overrides(baseEntityType.FindIgnoredMemberConfigurationSource(n.Name))))
-            {
-                var foreignKey = ignoredNavigation.ForeignKey;
-                if (relationshipsToBeRemoved.Any(r => r.ForeignKey == foreignKey))
-                {
-                    continue;
-                }
-                relationshipsToBeRemoved.Add(
-                    new RelationshipSnapshot(foreignKey,
-                        foreignKey.DependentToPrincipal,
-                        foreignKey.PrincipalToDependent,
-                        isDependent: ignoredNavigation == foreignKey.DependentToPrincipal));
-            }
-
-            return relationshipsToBeRemoved;
+            return relationshipsToBeDetached;
         }
-
-        private static Dictionary<EntityType, List<RelationshipSnapshot>> GroupRelationshipsByTargetType(EntityType entityType)
-            => entityType.GetForeignKeys()
-                .Select(foreignKey =>
-                    new RelationshipSnapshot(foreignKey,
-                        foreignKey.DependentToPrincipal,
-                        foreignKey.PrincipalToDependent,
-                        isDependent: true))
-                .Concat(entityType.GetReferencingForeignKeys().Where(foreignKey => !foreignKey.IsSelfReferencing())
-                    .Select(foreignKey =>
-                        new RelationshipSnapshot(foreignKey,
-                            foreignKey.PrincipalToDependent,
-                            foreignKey.DependentToPrincipal,
-                            isDependent: false)))
-                .GroupBy(relationship => relationship.IsDependent
-                    ? relationship.ForeignKey.PrincipalEntityType
-                    : relationship.ForeignKey.DeclaringEntityType)
-                .ToDictionary(g => g.Key, g => g.ToList());
 
         private ConfigurationSource? RemoveProperty(
             Property property, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
@@ -1006,46 +950,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var detachedRelationships = property.GetContainingForeignKeys().ToList()
-                .Select(DetachRelationship).ToList();
-
-            var removedKeys = new List<Key>();
-            foreach (var key in property.GetContainingKeys().ToList())
+            using (Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                detachedRelationships.AddRange(key.GetReferencingForeignKeys().ToList()
-                    .Select(DetachRelationship));
-                var removed = RemoveKey(key, configurationSource, runConventions: false);
-                Debug.Assert(removed.HasValue);
-                removedKeys.Add(key);
-            }
+                var detachedRelationships = property.GetContainingForeignKeys().ToList()
+                    .Select(DetachRelationship).ToList();
 
-            var removedIndexes = new List<Index>();
-            foreach (var index in property.GetContainingIndexes().ToList())
-            {
-                var removed = RemoveIndex(index, configurationSource, runConventions: false);
-                Debug.Assert(removed.HasValue);
-                removedIndexes.Add(index);
-            }
+                foreach (var key in property.GetContainingKeys().ToList())
+                {
+                    detachedRelationships.AddRange(key.GetReferencingForeignKeys().ToList()
+                        .Select(DetachRelationship));
+                    var removed = RemoveKey(key, configurationSource);
+                    Debug.Assert(removed.HasValue);
+                }
 
-            if (Metadata.GetProperties().Contains(property))
-            {
-                var removedProperty = Metadata.RemoveProperty(property.Name);
-                Debug.Assert(removedProperty == property);
-            }
+                foreach (var index in property.GetContainingIndexes().ToList())
+                {
+                    var removed = RemoveIndex(index, configurationSource);
+                    Debug.Assert(removed.HasValue);
+                }
 
-            foreach (var index in removedIndexes)
-            {
-                Metadata.Model.ConventionDispatcher.OnIndexRemoved(this, index);
-            }
+                if (property.Builder != null)
+                {
+                    var removedProperty = Metadata.RemoveProperty(property.Name);
+                    Debug.Assert(removedProperty == property);
+                }
 
-            foreach (var key in removedKeys)
-            {
-                Metadata.Model.ConventionDispatcher.OnKeyRemoved(this, key);
-            }
-
-            foreach (var detachedRelationship in detachedRelationships)
-            {
-                detachedRelationship.Attach();
+                foreach (var detachedRelationship in detachedRelationships)
+                {
+                    detachedRelationship.Attach();
+                }
             }
 
             return currentConfigurationSource;
@@ -1055,7 +988,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var relationshipBuilder = foreignKey.Builder;
             var relationshipConfigurationSource = foreignKey.DeclaringEntityType.Builder
-                .RemoveForeignKey(foreignKey, ConfigurationSource.Explicit, runConventions: false);
+                .RemoveForeignKey(foreignKey, ConfigurationSource.Explicit);
             Debug.Assert(relationshipConfigurationSource != null);
 
             return new RelationshipBuilderSnapshot(relationshipBuilder, relationshipConfigurationSource.Value);
@@ -1065,18 +998,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? RemoveForeignKey([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
-            => RemoveForeignKey(foreignKey, configurationSource, runConventions: true);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual ConfigurationSource? RemoveForeignKey(
             [NotNull] ForeignKey foreignKey,
             ConfigurationSource configurationSource,
-            bool canOverrideSameSource = true,
-            bool runConventions = true)
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            bool canOverrideSameSource = true)
         {
             Debug.Assert(foreignKey.DeclaringEntityType == Metadata);
 
@@ -1088,7 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var removedForeignKey = Metadata.RemoveForeignKey(
-                foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType, runConventions);
+                foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType);
 
             if (removedForeignKey == null)
             {
@@ -1096,13 +1022,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             Debug.Assert(removedForeignKey == foreignKey);
 
-            RemoveShadowPropertiesIfUnused(foreignKey.Properties.Where(p => p.DeclaringEntityType.FindDeclaredProperty(p.Name) != null).ToList());
-            foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey, runConventions);
+            RemoveShadowPropertiesIfUnused(foreignKey.Properties.Where(p => p.DeclaringEntityType.FindDeclaredProperty(p.Name) != null));
+            foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey);
 
             return currentConfigurationSource;
         }
 
-        private void RemoveKeyIfUnused(Key key, bool runConventions)
+        private void RemoveKeyIfUnused(Key key)
         {
             if (Metadata.FindPrimaryKey() == key)
             {
@@ -1114,14 +1040,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            RemoveKey(key, ConfigurationSource.Convention, runConventions);
+            RemoveKey(key, ConfigurationSource.Convention);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void RemoveShadowPropertiesIfUnused([NotNull] IReadOnlyList<Property> properties)
+        public virtual void RemoveShadowPropertiesIfUnused([NotNull] IEnumerable<Property> properties)
         {
             foreach (var property in properties.ToList())
             {
@@ -1227,7 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource, bool runConventions = true)
+        public virtual ConfigurationSource? RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
         {
             var currentConfigurationSource = index.GetConfigurationSource();
             if (!configurationSource.Overrides(currentConfigurationSource))
@@ -1235,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var removedIndex = Metadata.RemoveIndex(index.Properties, runConventions);
+            var removedIndex = Metadata.RemoveIndex(index.Properties);
             Debug.Assert(removedIndex == index);
 
             RemoveShadowPropertiesIfUnused(index.Properties);
@@ -1405,26 +1331,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return relationship;
         }
 
-        private InternalRelationshipBuilder CreateRelationshipBuilder(
-            EntityType principalType,
-            IReadOnlyList<Property> dependentProperties,
-            Key principalKey,
-            ConfigurationSource configurationSource,
-            bool runConventions)
-        {
-            var foreignKey = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null, runConventions: false);
-            foreignKey.UpdateConfigurationSource(configurationSource);
-            principalType.UpdateConfigurationSource(configurationSource);
-
-            var value = foreignKey.Builder;
-            if (runConventions)
-            {
-                value = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(value);
-            }
-
-            return value;
-        }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -1527,34 +1433,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return existingRelationship;
             }
 
-            var relationship = CreateForeignKey(
-                targetEntityTypeBuilder,
-                null,
-                null,
-                null,
-                null,
-                configurationSource,
-                runConventions: false);
+            InternalRelationshipBuilder relationship;
+            InternalRelationshipBuilder newRelationship;
+            using (var batcher = Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                relationship = CreateForeignKey(
+                    targetEntityTypeBuilder,
+                    null,
+                    null,
+                    null,
+                    null,
+                    configurationSource);
 
-            var newRelationship = relationship;
+                newRelationship = relationship;
 
-            if (inverseNavigation == null)
-            {
-                newRelationship = navigationProperty != null
-                    ? newRelationship.DependentToPrincipal(navigationProperty, configurationSource)
-                    : newRelationship.DependentToPrincipal(navigationToTarget.Value.Name, configurationSource);
+                if (inverseNavigation == null)
+                {
+                    newRelationship = navigationProperty != null
+                        ? newRelationship.DependentToPrincipal(navigationProperty, configurationSource)
+                        : newRelationship.DependentToPrincipal(navigationToTarget.Value.Name, configurationSource);
+                }
+                else if (navigationToTarget == null)
+                {
+                    newRelationship = inverseProperty != null
+                        ? newRelationship.PrincipalToDependent(inverseProperty, configurationSource)
+                        : newRelationship.PrincipalToDependent(inverseNavigation.Value.Name, configurationSource);
+                }
+                else
+                {
+                    newRelationship = navigationProperty != null || inverseProperty != null
+                        ? newRelationship.Navigations(navigationProperty, inverseProperty, configurationSource)
+                        : newRelationship.Navigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
+                }
+
+                if (newRelationship == null)
+                {
+                    relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
+                    return null;
+                }
+
+                newRelationship = batcher.Run(newRelationship);
             }
-            else if (navigationToTarget == null)
+
+            if (newRelationship != null
+                && ((navigationToTarget != null
+                     && newRelationship.Metadata.DependentToPrincipal?.Name != navigationToTarget.Value.Name)
+                    || (inverseNavigation != null
+                        && newRelationship.Metadata.PrincipalToDependent?.Name != inverseNavigation.Value.Name))
+                && ((inverseNavigation != null
+                     && newRelationship.Metadata.DependentToPrincipal?.Name != inverseNavigation.Value.Name)
+                    || (navigationToTarget != null
+                        && newRelationship.Metadata.PrincipalToDependent?.Name != navigationToTarget.Value.Name)))
             {
-                newRelationship = inverseProperty != null
-                    ? newRelationship.PrincipalToDependent(inverseProperty, configurationSource)
-                    : newRelationship.PrincipalToDependent(inverseNavigation.Value.Name, configurationSource);
-            }
-            else
-            {
-                newRelationship = navigationProperty != null || inverseProperty != null
-                    ? newRelationship.Navigations(navigationProperty, inverseProperty, configurationSource)
-                    : newRelationship.Navigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
+                newRelationship = null;
             }
 
             if (newRelationship == null)
@@ -1564,11 +1495,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
                 }
                 return null;
-            }
-
-            if (newRelationship.Metadata == relationship.Metadata)
-            {
-                return Metadata.Model.ConventionDispatcher.OnForeignKeyAdded(newRelationship);
             }
 
             return newRelationship;
@@ -1617,27 +1543,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Key principalKey,
             ConfigurationSource configurationSource)
         {
-            var relationship = CreateForeignKey(
-                targetEntityTypeBuilder,
-                null,
-                principalKey,
-                null,
-                null,
-                configurationSource,
-                runConventions: true);
-
-            if (principalKey == null)
+            InternalRelationshipBuilder relationship;
+            InternalRelationshipBuilder newRelationship;
+            using (var batch = Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                return relationship;
+                relationship = CreateForeignKey(
+                    targetEntityTypeBuilder,
+                    null,
+                    principalKey,
+                    null,
+                    null,
+                    configurationSource);
+
+                newRelationship = relationship;
+                if (principalKey != null)
+                {
+                    newRelationship = newRelationship?.RelatedEntityTypes(targetEntityTypeBuilder.Metadata, Metadata, configurationSource)
+                        ?.HasPrincipalKey(principalKey.Properties, configurationSource);
+                }
+
+                newRelationship = batch.Run(newRelationship);
             }
 
-            var newRelationship = relationship?.RelatedEntityTypes(targetEntityTypeBuilder.Metadata, Metadata, configurationSource)
-                ?.HasPrincipalKey(principalKey.Properties, configurationSource);
-
-            if (newRelationship == null
-                && relationship?.Metadata.Builder != null)
+            if (newRelationship == null)
             {
-                relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
+                if (relationship?.Metadata.Builder != null)
+                {
+                    relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
+                }
                 return null;
             }
 
@@ -1683,73 +1616,79 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Key principalKey,
             [CanBeNull] string navigationToPrincipalName,
             bool? isRequired,
-            ConfigurationSource configurationSource,
-            bool runConventions)
+            ConfigurationSource configurationSource)
         {
-            var principalType = principalEntityTypeBuilder.Metadata;
-            var principalBaseEntityTypeBuilder = principalType.RootType().Builder;
-            if (principalKey == null)
+            using (var batch = ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
             {
-                principalKey = principalType.FindPrimaryKey();
-                if (principalKey != null
-                    && dependentProperties != null)
+                var principalType = principalEntityTypeBuilder.Metadata;
+                var principalBaseEntityTypeBuilder = principalType.RootType().Builder;
+                if (principalKey == null)
                 {
-                    if (!ForeignKey.AreCompatible(
-                        principalKey.Properties,
-                        dependentProperties,
-                        principalType,
-                        Metadata,
-                        shouldThrow: false))
+                    principalKey = principalType.FindPrimaryKey();
+                    if (principalKey != null
+                        && dependentProperties != null)
                     {
-                        if (dependentProperties.All(p => p.GetTypeConfigurationSource() == null))
+                        if (!ForeignKey.AreCompatible(
+                            principalKey.Properties,
+                            dependentProperties,
+                            principalType,
+                            Metadata,
+                            shouldThrow: false))
                         {
-                            var detachedProperties = DetachProperties(dependentProperties);
-                            GetOrCreateProperties(dependentProperties.Select(p => p.Name).ToList(), configurationSource, principalKey.Properties);
-                            detachedProperties.Attach(this);
+                            if (dependentProperties.All(p => p.GetTypeConfigurationSource() == null))
+                            {
+                                var detachedProperties = DetachProperties(dependentProperties);
+                                GetOrCreateProperties(dependentProperties.Select(p => p.Name).ToList(), configurationSource, principalKey.Properties);
+                                detachedProperties.Attach(this);
+                            }
+                            else
+                            {
+                                principalKey = null;
+                            }
                         }
-                        else
+                        else if (Metadata.FindForeignKeysInHierarchy(dependentProperties, principalKey, principalType).Any())
                         {
                             principalKey = null;
                         }
                     }
-                    else if (Metadata.FindForeignKeysInHierarchy(dependentProperties, principalKey, principalType).Any())
-                    {
-                        principalKey = null;
-                    }
                 }
-            }
 
-            if (dependentProperties != null)
-            {
-                dependentProperties = GetActualProperties(dependentProperties, ConfigurationSource.Convention);
-                if (principalKey == null)
+                if (dependentProperties != null)
                 {
-                    var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
-                        dependentProperties.Count, null, Enumerable.Repeat("", dependentProperties.Count), dependentProperties.Select(p => p.ClrType), isRequired: true, baseName: "TempId");
-                    var keyBuilder = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention);
+                    dependentProperties = GetActualProperties(dependentProperties, ConfigurationSource.Convention);
+                    if (principalKey == null)
+                    {
+                        var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
+                            dependentProperties.Count, null, Enumerable.Repeat("", dependentProperties.Count), dependentProperties.Select(p => p.ClrType), isRequired: true, baseName: "TempId");
+                        var keyBuilder = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention);
 
-                    principalKey = keyBuilder.Metadata;
+                        principalKey = keyBuilder.Metadata;
+                    }
+                    else
+                    {
+                        Debug.Assert(Metadata.FindForeignKey(dependentProperties, principalKey, principalType) == null);
+                    }
                 }
                 else
                 {
-                    Debug.Assert(Metadata.FindForeignKey(dependentProperties, principalKey, principalType) == null);
+                    if (principalKey == null)
+                    {
+                        var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
+                            1, null, new[] { "TempId" }, new[] { typeof(int) }, isRequired: true, baseName: "");
+
+                        principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention).Metadata;
+                    }
+
+                    var baseName = string.IsNullOrEmpty(navigationToPrincipalName) ? principalType.DisplayName() : navigationToPrincipalName;
+                    dependentProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, baseName);
                 }
+
+                var foreignKey = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null);
+                foreignKey.UpdateConfigurationSource(configurationSource);
+                principalType.UpdateConfigurationSource(configurationSource);
+
+                return batch.Run(foreignKey)?.Builder;
             }
-            else
-            {
-                if (principalKey == null)
-                {
-                    var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
-                        1, null, new[] { "TempId" }, new[] { typeof(int) }, isRequired: true, baseName: "");
-
-                    principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention).Metadata;
-                }
-
-                var baseName = string.IsNullOrEmpty(navigationToPrincipalName) ? principalType.DisplayName() : navigationToPrincipalName;
-                dependentProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, baseName);
-            }
-
-            return CreateRelationshipBuilder(principalType, dependentProperties, principalKey, configurationSource, runConventions);
         }
 
         /// <summary>

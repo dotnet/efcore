@@ -169,9 +169,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Can_upgrade_candidate_key_to_primary_key()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Entity<Customer>().Property<int>(Customer.IdProperty.Name);
                 modelBuilder.Entity<Customer>().HasAlternateKey(b => b.Name);
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<Order>();
 
                 var entity = modelBuilder.Model.FindEntityType(typeof(Customer));
                 var key = entity.FindKey(entity.FindProperty(Customer.NameProperty));
