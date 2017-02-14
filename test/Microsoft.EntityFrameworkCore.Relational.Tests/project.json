@@ -4,7 +4,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.1",
     "Microsoft.EntityFrameworkCore.Tests": {
       "target": "project"
     }
