@@ -33,7 +33,7 @@
         "Microsoft.CSharp": "4.4.0-*"
       }
     },
-    "net452": {
+    "net451": {
       "frameworkAssemblies": {
         "System.Collections": {
           "type": "build"
