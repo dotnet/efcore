@@ -19,7 +19,7 @@
         }
       }
     },
-    "net451": {
+    "net452": {
       "frameworkAssemblies": {
         "System.Text.RegularExpressions": ""
       }

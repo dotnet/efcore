@@ -3,6 +3,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);CSPROJ</DefineConstants>
     <DefineConstants Condition=" '$(TargetFrameworkMoniker)' == '.NETFramework,Version=v4.5.1' ">$(DefineConstants);NET451</DefineConstants>
+    <DefineConstants Condition=" '$(TargetFrameworkMoniker)' == '.NETFramework,Version=v4.5.2' ">$(DefineConstants);NET452</DefineConstants>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <NoWarn>$(NoWarn);</NoWarn>
     <NuGetTarget Condition=" '$(NuGetTarget)' == '' ">$(TargetFrameworkMoniker)</NuGetTarget>

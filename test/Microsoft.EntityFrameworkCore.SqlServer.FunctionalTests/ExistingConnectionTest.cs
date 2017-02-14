@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                                 closeCount++;
                             }
                         };
-#if NET451
+#if NET452
                     connection.Disposed += (_, __) => disposeCount++;
 #endif
 
