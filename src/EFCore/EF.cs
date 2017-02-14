@@ -41,5 +41,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
         }
+
+        /// <summary>
+        ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
+        ///     Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException"/>.
+        /// </summary>
+        public static DbFunctions Functions { get; } = new DbFunctions();
     }
 }

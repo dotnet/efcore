@@ -597,7 +597,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     = methodCallExpression.Arguments
                         .Where(e => !(e is QuerySourceReferenceExpression)
                                     && !(e is SubQueryExpression))
-                        .Select(e => (e as ConstantExpression)?.Value is Array ? e : Visit(e))
+                        .Select(e => (e as ConstantExpression)?.Value is Array || e.Type == typeof(DbFunctions)
+                            ? e
+                            : Visit(e))
                         .Where(e => e != null)
                         .ToArray();
 
