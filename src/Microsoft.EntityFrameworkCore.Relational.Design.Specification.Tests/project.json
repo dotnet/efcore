@@ -40,7 +40,7 @@
         "System.Threading.Tasks.Parallel": "4.4.0-*"
       }
     },
-    "net452": {
+    "net451": {
       "frameworkAssemblies": {
         "System.Collections.Concurrent": {
           "type": "build"

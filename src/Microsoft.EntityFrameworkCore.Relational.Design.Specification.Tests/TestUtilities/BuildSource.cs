@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
     {
         public ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NET452
+#if NET451
             BuildReference.ByName("mscorlib")
 #else
                 BuildReference.ByName("System.Runtime")
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
                         $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
-#if NET452
+#if NET451
                 assembly = Assembly.Load(stream.ToArray());
 #else
                 assembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")
