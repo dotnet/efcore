@@ -390,8 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var selectExpression in QueriesBySource.Values)
             {
-                selectExpression.Predicate
-                    = compositePredicateVisitor.Visit(selectExpression.Predicate);
+                compositePredicateVisitor.Visit(selectExpression);
             }
         }
 

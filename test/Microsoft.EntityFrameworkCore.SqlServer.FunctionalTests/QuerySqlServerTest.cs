@@ -6906,6 +6906,21 @@ FROM (
                 Sql);
         }
 
+        public override void Contains_with_DateTime_Date()
+        {
+            base.Contains_with_DateTime_Date();
+
+            Assert.Equal(
+                @"SELECT [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE CONVERT(date, [e].[OrderDate]) IN ('1996-07-04T00:00:00.000', '1996-07-16T00:00:00.000')
+
+SELECT [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE CONVERT(date, [e].[OrderDate]) IN ('1996-07-04T00:00:00.000')",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

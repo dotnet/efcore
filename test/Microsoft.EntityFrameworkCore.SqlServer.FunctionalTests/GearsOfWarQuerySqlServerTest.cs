@@ -756,7 +756,7 @@ END, CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END, [g].[Rank] & 1
 FROM [Gear] AS [g]
-WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND (([g].[Rank] & 1) = 1)",
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)",
                 Sql);
         }
 
@@ -797,12 +797,12 @@ FROM [Gear] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & (
     SELECT TOP(1) [x].[Rank]
     FROM [Gear] AS [x]
-    WHERE ([x].[Discriminator] = N'Officer') OR ([x].[Discriminator] = N'Gear')
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
 )) = (
     SELECT TOP(1) [x].[Rank]
     FROM [Gear] AS [x]
-    WHERE ([x].[Discriminator] = N'Officer') OR ([x].[Discriminator] = N'Gear')
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
 ))
 
@@ -811,12 +811,12 @@ FROM [Gear] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & (
     SELECT TOP(1) [x].[Rank]
     FROM [Gear] AS [x]
-    WHERE ([x].[Discriminator] = N'Officer') OR ([x].[Discriminator] = N'Gear')
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
 )) = (
     SELECT TOP(1) [x].[Rank]
     FROM [Gear] AS [x]
-    WHERE ([x].[Discriminator] = N'Officer') OR ([x].[Discriminator] = N'Gear')
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
 ))",
                 Sql);
@@ -861,7 +861,7 @@ END, CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 FROM [Gear] AS [g]
-WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND (([g].[Rank] & 1) = 1)",
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)",
                 Sql);
         }
 
@@ -1107,7 +1107,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (LEN([g].[LeaderNickname]
     END ELSE NULL
 END
 FROM [Gear] AS [g]
-WHERE ([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')",
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
                 Sql);
         }
 
@@ -1122,7 +1122,7 @@ WHERE ([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')",
 END
 FROM [Gear] AS [g1]
 CROSS JOIN [Gear] AS [g2]
-WHERE ([g1].[Discriminator] = N'Officer') OR ([g1].[Discriminator] = N'Gear')",
+WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')",
                 Sql);
         }
 
@@ -1284,9 +1284,9 @@ FROM [Gear] AS [g]
 INNER JOIN [CogTag] AS [t] ON [g].[FullName] = (
     SELECT TOP(1) [subQuery0].[FullName]
     FROM [Gear] AS [subQuery0]
-    WHERE (([subQuery0].[Discriminator] = N'Officer') OR ([subQuery0].[Discriminator] = N'Gear')) AND (([subQuery0].[Nickname] = [t].[GearNickName]) AND ([subQuery0].[SquadId] = [t].[GearSquadId]))
+    WHERE [subQuery0].[Discriminator] IN (N'Officer', N'Gear') AND (([subQuery0].[Nickname] = [t].[GearNickName]) AND ([subQuery0].[SquadId] = [t].[GearSquadId]))
 )
-WHERE ([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')",
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
                 Sql);
         }
 
@@ -1378,7 +1378,7 @@ FROM [City] AS [c]
 WHERE ([c].[Location] = 'Unknown') AND ((
     SELECT COUNT(*)
     FROM [Gear] AS [g]
-    WHERE ((([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND ([g].[Nickname] = N'Paduk')) AND ([c].[Name] = [g].[CityOrBirthName])
+    WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] = N'Paduk')) AND ([c].[Name] = [g].[CityOrBirthName])
 ) = 1)", Sql);
         }
 
@@ -1889,7 +1889,7 @@ WHERE ([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL",
             Assert.Equal(
                 @"SELECT [g].[FullName]
 FROM [Gear] AS [g]
-WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND [g].[CityOrBirthName] IN (N'Ephyra', N'Hanover')
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g].[CityOrBirthName] IN (N'Ephyra', N'Hanover')
 
 @_outer_FullName: Augustus Cole (Size = 450)
 

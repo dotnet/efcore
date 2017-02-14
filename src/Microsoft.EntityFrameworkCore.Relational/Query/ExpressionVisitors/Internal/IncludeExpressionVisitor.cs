@@ -279,9 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     if (selectExpression.Predicate != oldPredicate)
                     {
-                        selectExpression.Predicate
-                            = compositePredicateExpressionVisitor
-                                .Visit(selectExpression.Predicate);
+                        compositePredicateExpressionVisitor.Visit(selectExpression);
 
                         var newJoinExpression = AdjustJoinExpression(selectExpression, joinExpression);
 
@@ -387,9 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             subqueryExpression,
                             BuildJoinEqualityExpression(navigation, targetTableExpression, subqueryTable, querySource));
 
-                        subqueryExpression.Predicate
-                            = compositePredicateExpressionVisitor
-                                .Visit(subqueryExpression.Predicate);
+                        compositePredicateExpressionVisitor.Visit(subqueryExpression);
 
                         var pkPropertiesToFkPropertiesMap = navigation.ForeignKey.PrincipalKey.Properties
                             .Zip(navigation.ForeignKey.Properties, (k, v) => new { PkProperty = k, FkProperty = v })
@@ -436,9 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 querySource);
                     }
 
-                    targetSelectExpression.Predicate
-                        = compositePredicateExpressionVisitor
-                            .Visit(targetSelectExpression.Predicate);
+                    compositePredicateExpressionVisitor.Visit(targetSelectExpression);
 
                     selectExpression = targetSelectExpression;
 

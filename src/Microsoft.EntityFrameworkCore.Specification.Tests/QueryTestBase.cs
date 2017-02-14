@@ -6802,6 +6802,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 cs => cs.OrderBy(c => c.Country).Skip(7).LongCount());
         }
 
+        [ConditionalFact]
+        public virtual void Contains_with_DateTime_Date()
+        {
+            var dates = new[] { new DateTime(1996, 07, 04), new DateTime(1996, 07, 16) };
+
+            AssertQuery<Order>(es =>
+                es.Where(e => dates.Contains(e.OrderDate.Value.Date)), entryCount: 2);
+
+            dates = new[] { new DateTime(1996, 07, 04) };
+
+            AssertQuery<Order>(es =>
+                es.Where(e => dates.Contains(e.OrderDate.Value.Date)), entryCount: 1);
+        }
+
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         {
             return source?.Count() == 0 ? new[] { default(TElement) } : source;

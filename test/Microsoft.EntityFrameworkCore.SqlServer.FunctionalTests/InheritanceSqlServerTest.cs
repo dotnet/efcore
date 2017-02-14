@@ -324,7 +324,7 @@ WHERE [k].[Discriminator] = N'Kiwi'",
             Assert.Equal(
                 @"SELECT [b].[IsFlightless], [b].[Discriminator]
 FROM [Animal] AS [b]
-WHERE ([b].[Discriminator] = N'Kiwi') OR ([b].[Discriminator] = N'Eagle')",
+WHERE [b].[Discriminator] IN (N'Kiwi', N'Eagle')",
                 Sql);
         }
 
