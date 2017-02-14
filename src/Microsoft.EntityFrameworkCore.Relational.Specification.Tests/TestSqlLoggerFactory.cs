@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public static IReadOnlyList<DbCommandLogData> CommandLogData => Logger.SqlLoggerData._logData;
 
-#if NET451
+#if NET452
         [Serializable]
 #endif
         private class SqlLoggerData
@@ -65,23 +65,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public string LogText => _log.ToString();
 
             // ReSharper disable InconsistentNaming
-#if NET451
+#if NET452
             [NonSerialized]
 #endif
             public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
 
             public readonly List<string> _sqlStatements = new List<string>();
-#if NET451
+#if NET452
             [NonSerialized]
 #endif
             public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
 
-#if NET451
+#if NET452
             [NonSerialized]
 #endif
             public ITestOutputHelper _testOutputHelper;
 
-#if NET451
+#if NET452
             [NonSerialized]
 #endif
             public CancellationTokenSource _cancellationTokenSource;
