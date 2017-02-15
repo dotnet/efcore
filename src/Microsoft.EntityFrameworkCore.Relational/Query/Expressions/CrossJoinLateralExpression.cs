@@ -9,15 +9,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     /// <summary>
-    ///     Represents a SQL CROSS JOIN expression.
+    ///     Represents a SQL CROSS JOIN LATERAL expression.
     /// </summary>
-    public class CrossJoinExpression : JoinExpressionBase
+    public class CrossJoinLateralExpression : JoinExpressionBase
     {
         /// <summary>
-        ///     Creates a new instance of a CrossJoinExpression.
+        ///     Creates a new instance of CrossJoinLateralExpression.
         /// </summary>
-        /// <param name="tableExpression"> The table expression. </param>
-        public CrossJoinExpression([NotNull] TableExpressionBase tableExpression)
+        /// <param name="tableExpression"> The target table expression. </param>
+        public CrossJoinLateralExpression([NotNull] TableExpressionBase tableExpression)
             : base(Check.NotNull(tableExpression, nameof(tableExpression)))
         {
         }
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitCrossJoin(this)
+                ? specificVisitor.VisitCrossJoinLateral(this)
                 : base.Accept(visitor);
         }
 
@@ -40,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>
-        public override string ToString() => "CROSS JOIN " + TableExpression;
+        public override string ToString() => "CROSS JOIN LATERAL " + TableExpression;
     }
 }

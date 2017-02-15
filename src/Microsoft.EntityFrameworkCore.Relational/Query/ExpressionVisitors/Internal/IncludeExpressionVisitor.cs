@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                         selectExpression.Predicate = oldPredicate;
                         selectExpression.RemoveTable(joinExpression);
-                        selectExpression.AddTable(newJoinExpression, createUniqueAlias: false);
+                        selectExpression.AddTable(newJoinExpression);
                         joinExpression = newJoinExpression;
                     }
 
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             targetTableAlias,
                             querySource);
 
-                    targetSelectExpression.AddTable(targetTableExpression, createUniqueAlias: false);
+                    targetSelectExpression.AddTable(targetTableExpression);
 
                     Dictionary<Type, int[]> _;
                     var materializer
@@ -457,8 +457,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 relatedEntitiesLoaders);
         }
 
-        private JoinExpressionBase AdjustJoinExpression(
-            SelectExpression selectExpression, JoinExpressionBase joinExpression)
+        private PredicateJoinExpressionBase AdjustJoinExpression(
+            SelectExpression selectExpression, PredicateJoinExpressionBase joinExpression)
         {
             var subquery
                 = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext)
@@ -467,14 +467,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 };
 
             // Don't create new alias when adding tables to subquery
-            subquery.AddTable(joinExpression.TableExpression, createUniqueAlias: false);
+            subquery.AddTable(joinExpression.TableExpression);
             subquery.ProjectStarAlias = joinExpression.Alias;
             subquery.IsProjectStar = true;
             subquery.Predicate = selectExpression.Predicate;
 
             var newJoinExpression
                 = joinExpression is LeftOuterJoinExpression
-                    ? (JoinExpressionBase)new LeftOuterJoinExpression(subquery)
+                    ? (PredicateJoinExpressionBase)new LeftOuterJoinExpression(subquery)
                     : new InnerJoinExpression(subquery);
 
             newJoinExpression.QuerySource = joinExpression.QuerySource;
@@ -521,7 +521,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var index = orderingExpression is ColumnExpression || orderingExpression.IsAliasWithColumnExpression()
                     ? innerJoinSelectExpression.AddToProjection(orderingExpression)
-                    : innerJoinSelectExpression.AddAliasToProjection(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, orderingExpression);
+                    : innerJoinSelectExpression.AddToProjection(
+                        new AliasExpression(
+                            innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count,
+                            orderingExpression));
 
                 var expression = innerJoinSelectExpression.Projection[index];
 

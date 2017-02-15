@@ -930,13 +930,13 @@ WHERE EXISTS (
         SELECT [o].[OrderID], [o].[ProductID]
         FROM [Order Details] AS [o]
         WHERE [p].[ProductID] = [o].[ProductID]
-    ) AS [t00]
+    ) AS [t0]
     INNER JOIN (
         SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[Quantity] = 1
         ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
-    ) AS [t1] ON ([t00].[OrderID] = [t1].[OrderID]) AND ([t00].[ProductID] = [t1].[ProductID]))",
+    ) AS [t1] ON ([t0].[OrderID] = [t1].[OrderID]) AND ([t0].[ProductID] = [t1].[ProductID]))",
                 Sql);
         }
 
@@ -953,12 +953,12 @@ WHERE EXISTS (
         SELECT [o].[OrderID], [o].[ProductID]
         FROM [Order Details] AS [o]
         WHERE [p].[ProductID] = [o].[ProductID]
-    ) AS [t00]
+    ) AS [t0]
     INNER JOIN (
         SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
-    ) AS [t1] ON ([t00].[OrderID] = [t1].[OrderID]) AND ([t00].[ProductID] = [t1].[ProductID]))",
+    ) AS [t1] ON ([t0].[OrderID] = [t1].[OrderID]) AND ([t0].[ProductID] = [t1].[ProductID]))",
                 Sql);
         }
 
