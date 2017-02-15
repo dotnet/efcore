@@ -602,21 +602,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
-        ///     Visit a LateralJoin expression.
+        ///     Visit a CrossJoinLateralExpression expression.
         /// </summary>
-        /// <param name="lateralJoinExpression"> The lateral join expression. </param>
+        /// <param name="crossJoinLateralExpression"> The cross join lateral expression. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        public virtual Expression VisitLateralJoin(LateralJoinExpression lateralJoinExpression)
+        public virtual Expression VisitCrossJoinLateral(CrossJoinLateralExpression crossJoinLateralExpression)
         {
-            Check.NotNull(lateralJoinExpression, nameof(lateralJoinExpression));
+            Check.NotNull(crossJoinLateralExpression, nameof(crossJoinLateralExpression));
 
             _relationalCommandBuilder.Append("CROSS JOIN LATERAL ");
 
-            Visit(lateralJoinExpression.TableExpression);
+            Visit(crossJoinLateralExpression.TableExpression);
 
-            return lateralJoinExpression;
+            return crossJoinLateralExpression;
         }
 
         /// <summary>
