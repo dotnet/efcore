@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq;
+using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -67,6 +69,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(materializerFactory, nameof(materializerFactory));
 
             _materializerFactory = materializerFactory;
+        }
+
+        public override void VisitWhereClause([NotNull] WhereClause whereClause, [NotNull] QueryModel queryModel, int index)
+        {
+            Check.NotNull(whereClause, nameof(whereClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var byteArrayEqualityRewritingExpressionVisitor
+                = new ByteArrayEqualityRewritingExpressionVisitor(QueryCompilationContext.Model);
+
+            byteArrayEqualityRewritingExpressionVisitor.Rewrite(queryModel);
+
+            base.VisitWhereClause(whereClause, queryModel, index);
         }
 
         /// <summary>

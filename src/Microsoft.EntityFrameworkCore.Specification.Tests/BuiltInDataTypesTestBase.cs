@@ -265,7 +265,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         Enum64 = Enum64.SomeValue,
                         Enum32 = Enum32.SomeValue,
                         Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue
+                        Enum8 = Enum8.SomeValue,
+                        TestString = "TestString",
+                        TestByteArray = new byte[] { 10, 9, 8, 7, 6 }
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -362,6 +364,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     sbyte? param20 = -128;
                     Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableSignedByte == param20));
                 }
+
+                string param21 = "TestString";
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestString == param21));
+                
+                byte[] param22 = new byte[] { 10, 9, 8, 7, 6 };
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestByteArray == param22));
             }
         }
 
