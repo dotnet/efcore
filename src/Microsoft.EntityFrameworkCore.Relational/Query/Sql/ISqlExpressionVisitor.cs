@@ -85,13 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitCrossJoin([NotNull] CrossJoinExpression crossJoinExpression);
 
         /// <summary>
-        ///     Visit a LateralJoinExpression.
+        ///     Visit a CrossJoinLateralExpression.
         /// </summary>
-        /// <param name="lateralJoinExpression"> The lateral join expression. </param>
+        /// <param name="crossJoinLateralExpression"> The cross join lateral expression. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        Expression VisitLateralJoin([NotNull] LateralJoinExpression lateralJoinExpression);
+        Expression VisitCrossJoinLateral([NotNull] CrossJoinLateralExpression crossJoinLateralExpression);
 
         /// <summary>
         ///     Visit an InnerJoinExpression.
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     An Expression.
         /// </returns>
         Expression VisitPropertyParameter([NotNull] PropertyParameterExpression propertyParameterExpression);
-        
+
         /// <summary>
         ///     Visit a SqlFragmentExpression.
         /// </summary>

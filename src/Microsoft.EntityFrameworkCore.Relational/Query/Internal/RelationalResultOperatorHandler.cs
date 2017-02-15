@@ -297,15 +297,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (entityType != null)
                     {
-                        var outterSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
-                        outterSelectExpression.SetProjectionExpression(Expression.Constant(1));
+                        var outerSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
+                        outerSelectExpression.SetProjectionExpression(Expression.Constant(1));
 
                         var collectionSelectExpression
                             = handlerContext.SelectExpression.Clone(handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias());
-                        outterSelectExpression.AddTable(collectionSelectExpression);
+                        outerSelectExpression.AddTable(collectionSelectExpression);
 
                         itemSelectExpression.Alias = handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias();
-                        var joinExpression = outterSelectExpression.AddInnerJoin(itemSelectExpression);
+                        var joinExpression = outerSelectExpression.AddInnerJoin(itemSelectExpression);
 
                         foreach (var property in entityType.FindPrimaryKey().Properties)
                         {
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         SetProjectionConditionalExpression(
                             handlerContext,
                             Expression.Condition(
-                                new ExistsExpression(outterSelectExpression),
+                                new ExistsExpression(outerSelectExpression),
                                 Expression.Constant(true),
                                 Expression.Constant(false),
                                 typeof(bool)));
@@ -407,14 +407,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext, "empty");
             emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
 
-            selectExpression.AddTable(emptySelectExpression, createUniqueAlias: false);
+            selectExpression.AddTable(emptySelectExpression);
 
             var leftOuterJoinExpression = new LeftOuterJoinExpression(subquery);
             var constant1 = Expression.Constant(1);
 
             leftOuterJoinExpression.Predicate = Expression.Equal(constant1, constant1);
 
-            selectExpression.AddTable(leftOuterJoinExpression, createUniqueAlias: false);
+            selectExpression.AddTable(leftOuterJoinExpression);
 
             selectExpression.ProjectStarAlias = subquery.Alias;
 

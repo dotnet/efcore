@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// <summary>
     ///     Represents a SQL LEFT OUTER JOIN expression.
     /// </summary>
-    public class LeftOuterJoinExpression : JoinExpressionBase
+    public class LeftOuterJoinExpression : PredicateJoinExpressionBase
     {
         /// <summary>
         ///     Creates a new instance of LeftOuterJoinExpression.

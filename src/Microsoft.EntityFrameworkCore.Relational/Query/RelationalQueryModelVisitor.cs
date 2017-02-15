@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         previousSelectExpression
-                            .AddLateralJoin(selectExpression.Tables.First(), selectExpression.Projection);
+                            .AddCrossJoinLateral(selectExpression.Tables.First(), selectExpression.Projection);
                     }
                     else
                     {

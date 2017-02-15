@@ -162,9 +162,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var name = _relationalAnnotationProvider.For(entityType).TableName;
 
             var tableAlias
-                = _querySource.HasGeneratedItemName()
-                    ? name[0].ToString().ToLowerInvariant()
-                    : _querySource.ItemName;
+                = relationalQueryCompilationContext.CreateUniqueTableAlias(
+                    _querySource.HasGeneratedItemName()
+                        ? name[0].ToString().ToLowerInvariant()
+                        : (_querySource as GroupJoinClause)?.JoinClause.ItemName
+                            ?? _querySource.ItemName);
 
             var fromSqlAnnotation
                 = relationalQueryCompilationContext
