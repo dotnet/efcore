@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "Microsoft.Extensions.Caching.Memory": "1.0.2",
-    "Microsoft.Extensions.DependencyInjection": "1.0.1",
+    "Microsoft.Extensions.DependencyInjection": "1.0.2",
     "Microsoft.Extensions.Logging": "1.0.2",
     "Remotion.Linq": "2.1.1",
     "System.Collections.Immutable": "1.2.0",
