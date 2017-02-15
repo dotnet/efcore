@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <ImmutableCollectionsVersion>1.3.1</ImmutableCollectionsVersion>
+    <DependencyModelVersion>1.1.0</DependencyModelVersion>
+    <CoreFxVersion>4.3.0</CoreFxVersion>
+  </PropertyGroup>
+</Project>
