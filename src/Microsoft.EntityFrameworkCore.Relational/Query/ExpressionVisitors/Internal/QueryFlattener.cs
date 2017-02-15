@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var outerShapedQuery = (MethodCallExpression)methodCallExpression.Arguments[0];
 
-                var outerShaper = (Shaper)((ConstantExpression)outerShapedQuery.Arguments[2]).Value;
+                var outerShaper = (IShaper)((ConstantExpression)outerShapedQuery.Arguments[2]).Value;
 
                 var innerLambda
                     = methodCallExpression.Arguments[1] as LambdaExpression; // SelectMany case
@@ -71,13 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     innerShapedQuery = (MethodCallExpression)innerShapedQuery.Arguments.Single();
                 }
 
-                var innerShaper = (Shaper)((ConstantExpression)innerShapedQuery.Arguments[2]).Value;
+                var innerShaper = (IShaper)((ConstantExpression)innerShapedQuery.Arguments[2]).Value;
 
-                var innerEntityShaper = innerShaper as EntityShaper;
+                var innerOffsetableShaper = innerShaper as IOffsettableShaper;
 
-                if (innerEntityShaper != null)
+                if (innerOffsetableShaper != null)
                 {
-                    innerShaper = innerEntityShaper.WithOffset(_readerOffset);
+                    innerShaper = innerOffsetableShaper.WithOffset(_readerOffset);
                 }
 
                 var materializerLambda = (LambdaExpression)methodCallExpression.Arguments.Last();
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (_operatorToFlatten.Name != "_GroupJoin")
                 {
                     var compositeShaper
-                        = (Shaper)_createCompositeShaperMethodInfo
+                        = (IShaper)_createCompositeShaperMethodInfo
                             .MakeGenericMethod(
                                 outerShaper.Type,
                                 innerShaper.Type,

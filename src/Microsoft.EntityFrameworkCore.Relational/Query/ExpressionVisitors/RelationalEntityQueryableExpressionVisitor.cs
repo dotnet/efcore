@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 Expression.Constant(shaper));
         }
 
-        private Shaper CreateShaper(Type elementType, IEntityType entityType, SelectExpression selectExpression)
+        private IShaper CreateShaper(Type elementType, IEntityType entityType, SelectExpression selectExpression)
         {
-            Shaper shaper;
+            IShaper shaper;
 
             if (QueryModelVisitor.QueryCompilationContext
                     .QuerySourceRequiresMaterialization(_querySource)
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             out typeIndexMap).Compile();
 
                 shaper
-                    = (Shaper)_createEntityShaperMethodInfo.MakeGenericMethod(elementType)
+                    = (IShaper)_createEntityShaperMethodInfo.MakeGenericMethod(elementType)
                         .Invoke(null, new object[]
                         {
                             _querySource,

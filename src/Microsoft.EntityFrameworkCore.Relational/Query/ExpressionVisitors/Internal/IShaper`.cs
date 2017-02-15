@@ -1,9 +1,9 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -12,25 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public interface IShaper
+    public interface IShaper<out T>
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Type Type { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        IQuerySource QuerySource { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        void UpdateQuerySource([NotNull] IQuerySource querySource);
+        T Shape([NotNull] QueryContext queryContext, ValueBuffer valueBuffer);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
