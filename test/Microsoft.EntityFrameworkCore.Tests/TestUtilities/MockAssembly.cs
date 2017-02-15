@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if !NET451
+#if !NET452
 using Moq;
 #endif
 namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
         {
             var definedTypeInfos = definedTypes.Select(t => t.GetTypeInfo()).ToArray();
 
-#if NET451
+#if NET452
             return new MockAssembly(definedTypeInfos);
 #else
             var assembly = new Mock<Assembly>();
@@ -28,13 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 #endif
         }
 
-#if !NET451
+#if !NET452
         public AssemblyName GetName()
             => new AssemblyName(nameof(MockAssembly));
 #endif
     }
 
-#if NET451
+#if NET452
     public partial class MockAssembly : Assembly
     {
         public MockAssembly(IEnumerable<TypeInfo> definedTypes)

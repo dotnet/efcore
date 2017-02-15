@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
             if (useFileName)
             {
-#if NET451
+#if NET452
 
                 var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 

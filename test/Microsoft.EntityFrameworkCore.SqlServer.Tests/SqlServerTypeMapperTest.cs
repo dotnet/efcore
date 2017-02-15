@@ -883,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public override bool IsNullable { get; set; }
             public override string ParameterName { get; set; }
             public override string SourceColumn { get; set; }
-#if NET451
+#if NET452
             public override DataRowVersion SourceVersion { get; set; }
 #endif
             public override object Value { get; set; }
