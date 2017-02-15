@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="1.3.0" />
     <PackageReference Include="Microsoft.DotNet.InternalAbstractions" Version="1.0.1-*" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="1.2.0-*" />
-    <PackageReference Include="System.Threading.Tasks.Parallel" Version="4.4.0-*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(DependencyModelVersion)" />
+    <PackageReference Include="System.Threading.Tasks.Parallel" Version="$(CoreFxVersion)" />
   </ItemGroup>
 </Project>

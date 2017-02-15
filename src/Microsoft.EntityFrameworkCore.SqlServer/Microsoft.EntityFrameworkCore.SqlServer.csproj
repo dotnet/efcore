@@ -14,9 +14,9 @@
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.4.0-*" />
+    <PackageReference Include="System.Data.SqlClient" Version="$(CoreFxVersion)" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <PackageReference Include="System.Threading.Thread" Version="4.4.0-*" />
+    <PackageReference Include="System.Threading.Thread" Version="$(CoreFxVersion)" />
   </ItemGroup>
 </Project>

@@ -17,8 +17,8 @@ Microsoft.EntityFrameworkCore.DbSet</Description>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.2.0-*" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.2.0-*" />
     <PackageReference Include="Remotion.Linq" Version="2.1.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.4.0-*" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.0-*" />
+    <PackageReference Include="System.Collections.Immutable" Version="$(ImmutableCollectionsVersion)" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.Interactive.Async" Version="3.1.1" />
   </ItemGroup>
 </Project>

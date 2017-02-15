@@ -1,9 +1,8 @@
 <Project>
+  <Import Project="dependencies.props" />
   <Import Project="..\version.props" />
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
-    <NetCoreAppImplicitPackageVersion>1.2.0-*</NetCoreAppImplicitPackageVersion>
-    <NetStandardImplicitPackageVersion>1.6.2-*</NetStandardImplicitPackageVersion>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">True</PublicSign>

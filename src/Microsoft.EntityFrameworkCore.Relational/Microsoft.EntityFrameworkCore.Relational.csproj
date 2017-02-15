@@ -13,9 +13,9 @@
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.0-*" />
-    <PackageReference Include="System.Data.Common" Version="4.4.0-*" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0-*" />
+    <PackageReference Include="Microsoft.CSharp" Version="$(CoreFxVersion)" />
+    <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(CoreFxVersion)" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
     <Reference Include="System.Transactions" />
