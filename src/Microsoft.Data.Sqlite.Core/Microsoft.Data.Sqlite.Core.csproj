@@ -30,7 +30,6 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Data.Common" Version="4.4.0-*" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0-*" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SqliteCommand.cs">

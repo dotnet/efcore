@@ -20,7 +20,7 @@ namespace Microsoft.Data.Sqlite
 
         private readonly SqliteConnection _connection;
         private readonly bool _closeConnection;
-        private readonly Queue<(sqlite3_stmt stmt, bool hasRows)> _stmtQueue;
+        private readonly Queue<Tuple<sqlite3_stmt, bool>> _stmtQueue;
         private sqlite3_stmt _stmt;
         private bool _hasRows;
         private bool _stepped;
@@ -29,13 +29,15 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteDataReader(
             SqliteConnection connection,
-            Queue<(sqlite3_stmt stmt, bool hasRows)> stmtQueue,
+            Queue<Tuple<sqlite3_stmt, bool>> stmtQueue,
             int recordsAffected,
             bool closeConnection)
         {
             if (stmtQueue.Count != 0)
             {
-                (_stmt, _hasRows) = stmtQueue.Dequeue();
+                var tuple = stmtQueue.Dequeue();
+                _stmt = tuple.Item1;
+                _hasRows = tuple.Item2;
             }
 
             _connection = connection;
@@ -150,7 +152,9 @@ namespace Microsoft.Data.Sqlite
 
             _stmt.Dispose();
 
-            (_stmt, _hasRows) = _stmtQueue.Dequeue();
+            var tuple = _stmtQueue.Dequeue();
+            _stmt = tuple.Item1;
+            _hasRows = tuple.Item2;
             _stepped = false;
             _done = false;
 
@@ -186,7 +190,7 @@ namespace Microsoft.Data.Sqlite
 
             while (_stmtQueue.Count != 0)
             {
-                _stmtQueue.Dequeue().stmt.Dispose();
+                _stmtQueue.Dequeue().Item1.Dispose();
             }
 
             _closed = true;

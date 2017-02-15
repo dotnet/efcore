@@ -225,7 +225,7 @@ namespace Microsoft.Data.Sqlite
 
             var hasChanges = false;
             var changes = 0;
-            var stmts = new Queue<(sqlite3_stmt stmt, bool hasRows)>();
+            var stmts = new Queue<Tuple<sqlite3_stmt, bool>>();
             var tail = CommandText;
 
             do
@@ -304,7 +304,7 @@ namespace Microsoft.Data.Sqlite
                 //     will result in unexpected corner cases, but it's the best we can do without re-parsing SQL
                 if (raw.sqlite3_stmt_readonly(stmt) != 0)
                 {
-                    stmts.Enqueue((stmt, hasRows: rc != raw.SQLITE_DONE));
+                    stmts.Enqueue(Tuple.Create(stmt, rc != raw.SQLITE_DONE));
                 }
                 else
                 {
