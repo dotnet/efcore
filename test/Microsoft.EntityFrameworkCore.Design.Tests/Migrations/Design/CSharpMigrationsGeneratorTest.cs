@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
 {
     public class CSharpMigrationsGeneratorTest
     {
-        [Fact]
+        [Fact(Skip = "Roslyn assembly missmatch")]
         public void Migrations_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -163,7 +163,7 @@ namespace MyNamespace
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
-        [Fact]
+        [Fact(Skip = "Roslyn assembly missmatch")]
         public void Snapshots_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -215,7 +215,7 @@ namespace MyNamespace
             Assert.Equal(1, snapshot.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [Fact(Skip = "Roslyn assembly missmatch")]
         public void Snapshot_with_default_values_are_round_tripped()
         {
             var codeHelper = new CSharpHelper();
