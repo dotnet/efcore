@@ -29,7 +29,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Data.Common" Version="4.4.0-*" />
+    <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SqliteCommand.cs">
