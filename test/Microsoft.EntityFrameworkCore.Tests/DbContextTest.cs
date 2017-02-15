@@ -127,60 +127,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void SaveChanges_calls_state_manager_SaveChanges()
-        {
-            var services = new ServiceCollection()
-                .AddScoped<IStateManager, FakeStateManager>()
-                .AddScoped<IChangeDetector, FakeChangeDetector>();
-
-            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
-
-            using (var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseInMemoryDatabase().Options))
-            {
-                var stateManager = (FakeStateManager)context.GetService<IStateManager>();
-
-                var entryMock = CreateInternalEntryMock();
-                entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
-                stateManager.InternalEntries = new[] { entryMock.Object };
-
-                Assert.False(stateManager.SaveChangesCalled);
-
-                context.SaveChanges();
-
-                Assert.True(stateManager.SaveChangesCalled);
-            }
-        }
-
-        [Fact]
-        public async Task SaveChangesAsync_calls_state_manager_SaveChangesAsync()
-        {
-            var services = new ServiceCollection()
-                .AddScoped<IStateManager, FakeStateManager>()
-                .AddScoped<IChangeDetector, FakeChangeDetector>();
-
-            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
-
-            using (var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseInMemoryDatabase().Options))
-            {
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                var stateManager = (FakeStateManager)context.GetService<IStateManager>();
-
-                var entryMock = CreateInternalEntryMock();
-                entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
-                stateManager.InternalEntries = new[] { entryMock.Object };
-
-                Assert.False(stateManager.SaveChangesAsyncCalled);
-
-                await context.SaveChangesAsync();
-
-                Assert.True(stateManager.SaveChangesAsyncCalled);
-            }
-        }
-
-        [Fact]
         public void Entry_methods_check_arguments()
         {
             var services = new ServiceCollection()
@@ -5232,18 +5178,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 base.DetectChanges(stateManager);
             }
-        }
-
-        private static Mock<InternalEntityEntry> CreateInternalEntryMock()
-        {
-            var entityTypeMock = new Mock<EntityType>("Entity", new Model(), ConfigurationSource.Explicit);
-            entityTypeMock.Setup(e => e.GetProperties()).Returns(new Property[0]);
-
-            entityTypeMock.Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
-
-            var internalEntryMock = new Mock<InternalEntityEntry>(
-                Mock.Of<IStateManager>(), entityTypeMock.Object);
-            return internalEntryMock;
         }
 
         [Fact]
