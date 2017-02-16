@@ -3,6 +3,8 @@
 
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -21,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<ReverseEngineeringGenerator>()
                 .AddSingleton<ScaffoldingUtilities>()
                 .AddSingleton<CandidateNamingService>()
+                .AddSingleton<IPluralizer, NullPluralizer>()
                 .AddSingleton<CSharpUtilities>()
                 .AddSingleton<ConfigurationFactory>()
                 .AddSingleton<DbContextWriter>()

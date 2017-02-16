@@ -36,22 +36,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private CSharpUniqueNamer<TableModel> _tableNamer;
         private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly HashSet<ColumnModel> _unmappedColumns = new HashSet<ColumnModel>();
+        private readonly IPluralizer _pluralizer;
 
         public RelationalScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
-            [NotNull] CandidateNamingService candidateNamingService)
+            [NotNull] CandidateNamingService candidateNamingService,
+            [NotNull] IPluralizer pluralizer)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
+            Check.NotNull(pluralizer, nameof(pluralizer));
 
             Logger = loggerFactory.CreateLogger<RelationalScaffoldingModelFactory>();
             TypeMapper = typeMapper;
             CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;
+            _pluralizer = pluralizer;
         }
 
         public virtual IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
@@ -99,7 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         protected virtual string GetEntityTypeName([NotNull] TableModel table)
-            => _tableNamer.GetName(Check.NotNull(table, nameof(table)));
+            => _pluralizer.Singularize(_tableNamer.GetName(Check.NotNull(table, nameof(table))));
+
+        protected virtual string GetDbSetName([NotNull] TableModel table)
+            => _pluralizer.Pluralize(_tableNamer.GetName(Check.NotNull(table, nameof(table))));
 
         protected virtual string GetPropertyName([NotNull] ColumnModel column)
         {
@@ -237,7 +244,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             Check.NotNull(table, nameof(table));
 
             var entityTypeName = GetEntityTypeName(table);
+
             var builder = modelBuilder.Entity(entityTypeName);
+
+            var dbSetName = GetDbSetName(table);
+            builder.Metadata.Scaffolding().DbSetName = dbSetName;
 
             builder.ToTable(table.Name, table.SchemaName);
 
