@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
             DependentEndNavigation = ScaffoldingAnnotationNames.DependentEndNavigation;
             PrincipalEndNavigation = ScaffoldingAnnotationNames.PrincipalEndNavigation;
             EntityTypeErrors = ScaffoldingAnnotationNames.EntityTypeErrors;
+            DbSetName = ScaffoldingAnnotationNames.DbSetName;
         }
 
         /// <summary>
@@ -62,5 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public readonly string EntityTypeErrors;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public readonly string DbSetName;
     }
 }
