@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
+// ReSharper disable ConvertToExpressionBodyWhenPossible
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable PossibleMultipleEnumeration
@@ -23,6 +24,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class QueryNavigationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        [ConditionalFact(Skip="#7220")]
+        public virtual void Join_with_nav_projected_in_subquery_when_client_eval()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join o in os.Select(o => ClientMethod2(o, o.Customer)) on c.CustomerID equals o.CustomerID
+                                  join od in ods.Select(od => ClientMethod2(od, od.Product)) on o.OrderID equals od.OrderID
+                                  select c),
+                entryCount: 91);
+        }
+
+        private static T ClientMethod2<T>(T t, object _) => t;
+
         [ConditionalFact]
         public virtual void Select_Where_Navigation()
         {
