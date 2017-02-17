@@ -2228,35 +2228,100 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 assertOrder: true);
         }
 
-        // TODO: Need to figure out how to do this 
-        //        [ConditionalFact]
-        //        public virtual async Task GroupBy_anonymous()
-        //        {
-        //            AssertQuery<Customer>(cs =>
-        //                cs.Select(c => new { c.City, c.CustomerID })
-        //                    .GroupBy(a => a.City),
-        //                assertOrder: true);
-        //        }
-        //
-        //        [ConditionalFact]
-        //        public virtual async Task GroupBy_anonymous_subquery()
-        //        {
-        //            AssertQuery<Customer>(cs =>
-        //                cs.Select(c => new { c.City, c.CustomerID })
-        //                    .GroupBy(a => from c2 in cs select c2),
-        //                assertOrder: true);
-        //        }
-        //
-        //        [ConditionalFact]
-        //        public virtual async Task GroupBy_nested_order_by_enumerable()
-        //        {
-        //            AssertQuery<Customer>(cs =>
-        //                cs.Select(c => new { c.City, c.CustomerID })
-        //                    .OrderBy(a => a.City)
-        //                    .GroupBy(a => a.City)
-        //                    .Select(g => g.OrderBy(a => a.CustomerID)),
-        //                assertOrder: true);
-        //        }
+        [ConditionalFact]
+        public virtual async Task GroupBy_anonymous()
+        {
+            await AssertQuery<Customer>(cs =>
+                cs.Select(c => new { c.City, c.CustomerID })
+                    .GroupBy(a => a.City),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
+
+                    foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
+                    {
+                        var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
+                    }
+                });
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_anonymous_with_where()
+        {
+            var countries = new[] { "Argentina", "Austria", "Brazil", "France", "Germany", "USA" };
+
+            await AssertQuery<Customer>(cs =>
+                    cs.Where(c => countries.Contains(c.Country))
+                        .Select(c => new { c.City, c.CustomerID })
+                        .GroupBy(a => a.City),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
+
+                    foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
+                    {
+                        var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
+                    }
+                });
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_anonymous_subquery_Key()
+        {
+            await AssertQuery<Customer>(cs =>
+                cs.Select(c => new { c.City, c.CustomerID })
+                    .GroupBy(a => from c2 in cs select c2),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var l2oElements = l2oResults
+                        .Cast<IGrouping<IQueryable<Customer>, dynamic>>()
+                        .SelectMany(g => g.Select(e => e))
+                        .OrderBy(e => e.City)
+                        .ThenBy(e => e.CustomerID);
+
+                    var efElements = efResults
+                        .Cast<IGrouping<IQueryable<Customer>, dynamic>>()
+                        .SelectMany(g => g.Select(e => e))
+                        .OrderBy(e => e.City)
+                        .ThenBy(e => e.CustomerID);
+
+                    Assert.Equal(l2oElements, efElements);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_anonymous_subquery_Element()
+        {
+            await AssertQuery<Customer>(cs =>
+                cs.GroupBy(c => c.CustomerID, c => from c2 in cs select c2),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var l2oKeys = l2oResults
+                        .Cast<IGrouping<string, IQueryable<Customer>>>()
+                        .Select(g => g.Key);
+
+                    var efKeys = efResults
+                        .Cast<IGrouping<string, IQueryable<Customer>>>()
+                        .Select(g => g.Key);
+
+                    Assert.Equal(l2oKeys, efKeys);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_nested_order_by_enumerable()
+        {
+            await AssertQuery<Customer>(cs =>
+                cs.Select(c => new { c.Country, c.CustomerID })
+                    .OrderBy(a => a.Country)
+                    .GroupBy(a => a.Country)
+                    .Select(g => g.OrderBy(a => a.CustomerID)),
+                assertOrder: true);
+        }
 
         [ConditionalFact]
         public virtual async Task GroupBy_SelectMany()
@@ -2321,10 +2386,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual async Task GroupBy_Sum()
+        public virtual async Task GroupBy_Average()
         {
             await AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Average(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -2339,6 +2404,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             await AssertQuery<Order>(os =>
                     os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_Max()
+        {
+            await AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Max(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_Min()
+        {
+            await AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Min(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_Sum()
+        {
+            await AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -2399,7 +2485,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual async Task GroupBy_with_element_selector_sum()
+        public virtual async Task GroupBy_with_element_selector_Average()
+        {
+            await AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Average()));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_with_element_selector_Max()
+        {
+            await AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Max()));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_with_element_selector_Min()
+        {
+            await AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Min()));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_with_element_selector_Sum()
         {
             await AssertQuery<Order>(os =>
                     os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
@@ -2481,6 +2588,38 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             await AssertQuery<Order>(os =>
                 os.GroupBy(o => new { o.CustomerID, o.OrderDate })
                     .Select(g => g.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_with_two_part_key_in_projection_whole()
+        {
+            await AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
+                    .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_with_two_part_key_in_projection_split()
+        {
+            await AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
+                    .Select(g => new { g.Key.CustomerID, g.Key.OrderDate, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_with_nested_key_in_projection_whole()
+        {
+            await AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, n = new { o.OrderDate } })
+                    .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_with_nested_key_in_projection_split()
+        {
+            await AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, n = new { o.OrderDate } })
+                    .Select(g => new { g.Key.CustomerID, g.Key.n.OrderDate, Sum = g.Sum(o => o.OrderID) }));
         }
 
         [ConditionalFact]
@@ -3895,6 +4034,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
+        private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<int?>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    await query(context.Set<TItem>()).ToArrayAsync(),
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
 
         private async Task AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<long>> query, bool assertOrder = false)
@@ -3906,6 +4061,40 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     await query(context.Set<TItem>()).ToArrayAsync(),
                     assertOrder);
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<double>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    await query(context.Set<TItem>()).ToArrayAsync(),
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<double?>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    await query(context.Set<TItem>()).ToArrayAsync(),
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
 

@@ -41,8 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(node, nameof(node));
 
-            if (node.Method.MethodIsClosedFormOf(
-                _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+            var queryMethods = _relationalQueryCompilationContext.QueryMethodProvider;
+
+            if (node.Method.MethodIsClosedFormOf(queryMethods.ShapedQueryMethod))
             {
                 var queryArguments = node.Arguments.ToList();
 
@@ -50,24 +51,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 return ResultOperatorHandler
                     .CallWithPossibleCancellationToken(
-                        _relationalQueryCompilationContext.QueryMethodProvider
-                            .GetResultMethod.MakeGenericMethod(typeof(TResult)),
-                        Expression.Call(
-                            _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod,
-                            queryArguments));
+                        queryMethods.GetResultMethod.MakeGenericMethod(typeof(TResult)),
+                        Expression.Call(queryMethods.QueryMethod, queryArguments));
             }
 
-            if (node.Method.MethodIsClosedFormOf(
-                _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
+            if (node.Method.MethodIsClosedFormOf(queryMethods.InjectParametersSequenceMethod))
             {
                 var sourceArgument = (MethodCallExpression)Visit(node.Arguments[1]);
-                if (sourceArgument.Method.MethodIsClosedFormOf(
-                    _relationalQueryCompilationContext.QueryMethodProvider.GetResultMethod))
+
+                if (sourceArgument.Method.MethodIsClosedFormOf(queryMethods.GetResultMethod))
                 {
-                    var getResultArgument = sourceArgument.Arguments[0];
                     var newGetResultArgument = Expression.Call(
-                        _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(typeof(ValueBuffer)),
-                        node.Arguments[0], getResultArgument, node.Arguments[2], node.Arguments[3]);
+                        queryMethods.InjectParametersSequenceMethod.MakeGenericMethod(typeof(ValueBuffer)),
+                        node.Arguments[0], 
+                        sourceArgument.Arguments[0], 
+                        node.Arguments[2], 
+                        node.Arguments[3]);
 
                     return ResultOperatorHandler.CallWithPossibleCancellationToken(sourceArgument.Method, newGetResultArgument);
                 }

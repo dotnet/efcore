@@ -10,6 +10,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses.Expressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
@@ -36,11 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            var queryModelVisitor = CreateQueryModelVisitor();
-
-            queryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-            var subExpression = queryModelVisitor.Expression;
+            var subExpression = base.VisitSubQuery(expression);
 
             if (subExpression.Type != expression.Type)
             {
@@ -79,6 +78,36 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             return subExpression;
+        }
+
+        /// <summary>
+        ///     Visit a member expression.
+        /// </summary>
+        /// <param name="node"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated member.
+        /// </returns>
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            var newExpression = Visit(node.Expression);
+
+            if (newExpression.Type == typeof(ValueBuffer))
+            {
+                var entityType = QueryModelVisitor.QueryCompilationContext.Model.FindEntityType(node.Expression.Type);
+                var property = entityType?.FindProperty(node.Member.Name);
+
+                if (property != null)
+                {
+                    return QueryModelVisitor.BindValueBufferReadExpression(
+                        new ValueBufferReadExpression(
+                            node,
+                            newExpression,
+                            property),
+                        property.GetIndex());
+                }
+            }
+
+            return node.Update(newExpression);
         }
     }
 }

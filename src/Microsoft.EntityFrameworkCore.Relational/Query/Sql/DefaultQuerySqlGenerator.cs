@@ -207,10 +207,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (selectExpression.IsProjectStar)
             {
                 var tableAlias = selectExpression.ProjectStarAlias;
-
+                
                 _relationalCommandBuilder
                     .Append(_sqlGenerationHelper.DelimitIdentifier(tableAlias))
-                    .Append(".*");
+                    .Append(".");
+                    
+                _relationalCommandBuilder.Append("*");
 
                 projectionAdded = true;
             }
@@ -250,6 +252,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     Visit(optimizedPredicate);
                 }
+            }
+
+            if (selectExpression.GroupBy.Any())
+            {
+                _relationalCommandBuilder.AppendLine();
+
+                GenerateGroupBy(selectExpression.GroupBy);
             }
 
             if (selectExpression.OrderBy.Any())
@@ -334,6 +343,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             projections
                 .Select(e => ApplyOptimizations(e, searchCondition: false))
                 .ToList());
+
+        /// <summary>
+        ///     Generates the GROUP BY SQL.
+        /// </summary>
+        /// <param name="expressions"> The expressions. </param>
+        protected virtual void GenerateGroupBy([NotNull] IReadOnlyList<Expression> expressions)
+        {
+            _relationalCommandBuilder.Append("GROUP BY ");
+
+            VisitJoin(expressions.Select(e => ApplyOptimizations(e, searchCondition: false)).ToList());
+        }
 
         /// <summary>
         ///     Generates the ORDER BY SQL.
@@ -576,9 +596,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     .Append(".");
             }
 
-            _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Table))
-                .Append(" AS ")
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
+            if (!string.IsNullOrEmpty(tableExpression.Alias))
+            {
+                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Table))
+                    .Append(" AS ")
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
+            }
 
             return tableExpression;
         }
@@ -617,6 +640,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Visit(crossJoinLateralExpression.TableExpression);
 
             return crossJoinLateralExpression;
+        }
+
+        /// <summary>
+        ///     Visit a LeftJoinLateralExpression expression.
+        /// </summary>
+        /// <param name="leftJoinLateralExpression"> The left lateral join expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitLeftJoinLateral(LeftJoinLateralExpression leftJoinLateralExpression)
+        {
+            Check.NotNull(leftJoinLateralExpression, nameof(leftJoinLateralExpression));
+
+            _relationalCommandBuilder.Append("LEFT JOIN LATERAL ");
+
+            Visit(leftJoinLateralExpression.TableExpression);
+
+            return leftJoinLateralExpression;
         }
 
         /// <summary>
@@ -919,7 +960,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotNull(leftOuterJoinExpression, nameof(leftOuterJoinExpression));
 
             _relationalCommandBuilder.Append("LEFT JOIN ");
-
+            
             Visit(leftOuterJoinExpression.TableExpression);
 
             _relationalCommandBuilder.Append(" ON ");

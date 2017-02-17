@@ -72,7 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .TryAddScoped<IConditionalRemovingExpressionVisitorFactory, ConditionalRemovingExpressionVisitorFactory>()
                 .TryAddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
                 .TryAddScoped<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>()
-                .TryAddScoped<IQueryFlattenerFactory, QueryFlattenerFactory>()
                 .TryAddScoped<ISelectExpressionFactory, SelectExpressionFactory>()
                 .TryAddScoped<IExpressionPrinter, RelationalExpressionPrinter>()
                 .TryAddScoped<IRelationalResultOperatorHandler, RelationalResultOperatorHandler>()
