@@ -4853,6 +4853,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_math_round2()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => Math.Round(od.UnitPrice, 2) > 100),
+                entryCount: 46);
+        }
+
+        [ConditionalFact]
         public virtual void Where_math_truncate()
         {
             AssertQuery<OrderDetail>(
