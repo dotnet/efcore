@@ -1579,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip="#7220")]
         public virtual void Include_with_groupjoin_skip_and_take()
         {
             List<KeyValuePair<Level1, IEnumerable<Level2>>> expected;

@@ -749,6 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var joinExpression = !groupJoin
                             ? previousSelectExpression.AddInnerJoin(tableExpression, projection, selectExpression.Predicate)
                             : previousSelectExpression.AddLeftOuterJoin(tableExpression, projection);
+
                         joinExpression.Predicate = predicate;
 
                         if (groupJoin)
