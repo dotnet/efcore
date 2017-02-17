@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "UnmappablePKColumn.expected"
         };
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Flaky in the patch build")]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Flaky in the patch build")]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Flaky in the patch build")]
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public void Sequences()
         {
