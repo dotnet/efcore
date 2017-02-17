@@ -759,38 +759,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Throws_setting_identity_generation_for_byte_property()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Byte)
-                .Metadata;
-
-            Assert.Equal(
-                SqlServerStrings.IdentityBadType("Byte", nameof(Customer), "byte"),
-                Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
-        }
-
-        [Fact]
-        public void Throws_setting_identity_generation_for_nullable_byte_property()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.NullableByte)
-                .Metadata;
-
-            Assert.Equal(
-                SqlServerStrings.IdentityBadType("NullableByte", nameof(Customer), "Nullable<byte>"),
-                Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
-        }
-
-        [Fact]
         public void Can_get_and_set_sequence_name_on_property()
         {
             var modelBuilder = GetModelBuilder();

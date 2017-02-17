@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -27,16 +28,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             base.Validate(model);
 
             EnsureNoDefaultDecimalMapping(model);
+            EnsureNoByteIdentityMapping(model);
             EnsureNoNonKeyValueGeneration(model);
         }
 
         protected virtual void EnsureNoDefaultDecimalMapping([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes().SelectMany(t => t.GetDeclaredProperties())
-                .Where(p => p.ClrType == typeof(decimal) && p.SqlServer().ColumnType == null))
+                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                            && p.SqlServer().ColumnType == null))
             {
                 ShowWarning(SqlServerEventId.DefaultDecimalTypeWarning,
                     SqlServerStrings.DefaultDecimalTypeColumn(property.Name, property.DeclaringEntityType.DisplayName()));
+            }
+        }
+
+        protected virtual void EnsureNoByteIdentityMapping([NotNull] IModel model)
+        {
+            foreach (var property in model.GetEntityTypes().SelectMany(t => t.GetDeclaredProperties())
+                .Where(p => p.ClrType.UnwrapNullableType() == typeof(byte)
+                            && p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+            {
+                ShowWarning(SqlServerEventId.ByteIdentityColumn,
+                    SqlServerStrings.ByteIdentityColumn(property.Name, property.DeclaringEntityType.DisplayName()));
             }
         }
 

@@ -56,6 +56,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.UnitPrice).ForSqlServerHasColumnType("money");
+            modelBuilder.Entity<Product>()
+                .Property(p => p.UnitPrice).ForSqlServerHasColumnType("money");
         }
 
         public override NorthwindContext CreateContext(

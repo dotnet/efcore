@@ -116,6 +116,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
+        public virtual void Detects_default_nullable_decimal_mapping()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>().Property<decimal?>("Price");
+
+            VerifyWarning(SqlServerStrings.DefaultDecimalTypeColumn("Price", nameof(Animal)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Detects_byte_identity_column()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Dog>().Property<byte>("Bite").UseSqlServerIdentityColumn();
+
+            VerifyError(SqlServerStrings.NonKeyValueGeneration("Bite", nameof(Dog)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Detects_nullable_byte_identity_column()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseSqlServerIdentityColumn();
+
+            VerifyError(SqlServerStrings.NonKeyValueGeneration("Bite", nameof(Dog)), modelBuilder.Model);
+        }
+
+        [Fact]
         public void Throws_for_non_key_identity()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());

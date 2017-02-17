@@ -93,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (!property.IsForeignKey())
                 {
                     var propertyType = property.ClrType.UnwrapNullableType();
-                    if (propertyType.IsInteger()
+                    if ((propertyType.IsInteger()
+                         && propertyType != typeof(byte))
                         || propertyType == typeof(Guid)
                         || propertyType == typeof(string)
                         || propertyType == typeof(byte[]))

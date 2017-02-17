@@ -141,6 +141,9 @@
   <data name="DefaultDecimalTypeColumn" xml:space="preserve">
     <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForSqlServerHasColumnType()'.</value>
   </data>
+  <data name="ByteIdentityColumn" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column. This requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.</value>
+  </data>
   <data name="NonKeyValueGeneration" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is configured to use 'Identity' or 'SequenceHiLo' value generator, which are only intended for keys. If this was intentional configure an alternate key on the property, otherwise call `ValueGeneratedNever` or configure store generation for this property.</value>
   </data>

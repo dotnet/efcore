@@ -81,6 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column. This requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.
+        /// </summary>
+        public static string ByteIdentityColumn([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ByteIdentityColumn", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
         /// The property '{property}' on entity type '{entityType}' is configured to use 'Identity' or 'SequenceHiLo' value generator, which are only intended for keys. If this was intentional configure an alternate key on the property, otherwise call `ValueGeneratedNever` or configure store generation for this property.
         /// </summary>
         public static string NonKeyValueGeneration([CanBeNull] object property, [CanBeNull] object entityType)

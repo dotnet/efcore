@@ -300,10 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private static bool IsCompatibleIdentityColumn(Type type)
-            => type == typeof(decimal)
-            || (type.IsInteger()
-                && type != typeof(byte)
-                && type != typeof(byte?));
+            => type.IsInteger() || type == typeof(decimal);
 
         private static bool IsCompatibleSequenceHiLo(Type type) => type.IsInteger();
     }
