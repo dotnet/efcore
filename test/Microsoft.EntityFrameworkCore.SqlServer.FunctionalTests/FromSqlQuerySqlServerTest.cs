@@ -91,10 +91,10 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (
-    SELECT [o0].[CustomerID]
+    SELECT [o].[CustomerID]
     FROM (
         SELECT * FROM ""Orders""
-    ) AS [o0]
+    ) AS [o]
 )",
                 Sql);
         }
@@ -107,10 +107,10 @@ WHERE [c].[CustomerID] IN (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IN (
-    SELECT [o0].[CustomerID]
+    SELECT [o].[CustomerID]
     FROM (
         SELECT * FROM ""Orders""
-    ) AS [o0]
+    ) AS [o]
 )",
                 Sql);
         }
