@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -95,6 +96,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual void Load(INavigation navigation, InternalEntityEntry entry)
         {
+            if (entry.EntityState == EntityState.Detached)
+            {
+                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
+            }
+
             var keyValues = GetLoadValues(navigation, entry);
             // Short-circuit for any null key values for perf and because of #6129
             if (keyValues != null)
@@ -114,6 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             InternalEntityEntry entry,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (entry.EntityState == EntityState.Detached)
+            {
+                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
+            }
+
             // Short-circuit for any null key values for perf and because of #6129
             var keyValues = GetLoadValues(navigation, entry);
             if (keyValues != null)
@@ -130,6 +141,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
         {
+            if (entry.EntityState == EntityState.Detached)
+            {
+                throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
+            }
+
             var keyValues = GetLoadValues(navigation, entry);
             // Short-circuit for any null key values for perf and because of #6129
             if (keyValues == null)

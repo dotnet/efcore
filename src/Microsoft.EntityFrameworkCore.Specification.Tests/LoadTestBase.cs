@@ -16,9 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         where TFixture : LoadTestBase<TTestStore, TFixture>.LoadFixtureBase
     {
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -27,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -51,9 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -62,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -88,9 +104,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -99,6 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -125,9 +149,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -136,6 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -162,9 +194,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -173,6 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -199,9 +239,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -210,6 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -236,9 +284,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -247,6 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -268,9 +324,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -279,6 +341,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -299,9 +363,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -311,6 +381,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
+                context.Entry(single).State = state;
+
                 Assert.False(referenceEntry.IsLoaded);
 
                 var parent = async
@@ -330,9 +402,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -342,6 +420,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
+                context.Entry(parent).State = state;
+
                 Assert.False(referenceEntry.IsLoaded);
 
                 var single = async
@@ -361,9 +441,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -372,6 +458,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -392,9 +480,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -403,6 +497,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -423,9 +519,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_null_FK(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_null_FK(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -434,6 +536,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -456,9 +560,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_null_FK(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_null_FK(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -467,6 +577,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -490,9 +602,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -501,6 +619,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -520,9 +640,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -531,6 +657,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -550,9 +678,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -561,6 +695,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -583,9 +719,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -594,6 +736,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -616,9 +760,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -627,6 +777,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -650,9 +802,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -661,6 +819,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -684,9 +844,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -695,6 +861,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -714,9 +882,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -725,6 +899,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -744,9 +920,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -755,6 +937,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -774,9 +958,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_not_found(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_not_found(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -785,6 +975,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -804,9 +996,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -815,6 +1013,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = state;
 
                 Assert.True(collectionEntry.IsLoaded);
 
@@ -839,9 +1039,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -850,6 +1056,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -876,9 +1084,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -887,6 +1101,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -913,9 +1129,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -924,6 +1146,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                context.Entry(parent).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -950,9 +1174,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -961,6 +1191,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -987,9 +1219,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -998,6 +1236,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                context.Entry(parent).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -1024,9 +1264,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1035,6 +1281,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = state;
 
                 Assert.True(collectionEntry.IsLoaded);
 
@@ -1056,9 +1304,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1067,6 +1321,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -1087,9 +1343,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1099,6 +1361,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
+                context.Entry(single).State = state;
+
                 Assert.True(referenceEntry.IsLoaded);
 
                 var parent = async
@@ -1118,9 +1382,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1130,6 +1400,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
+                context.Entry(parent).State = state;
+
                 Assert.True(referenceEntry.IsLoaded);
 
                 var single = async
@@ -1149,9 +1421,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1160,6 +1438,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -1180,9 +1460,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1191,6 +1477,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+
+                context.Entry(parent).State = state;
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -1211,9 +1499,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1222,6 +1516,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1246,9 +1542,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1257,6 +1559,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                context.Entry(child).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1283,9 +1587,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1294,6 +1604,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                context.Entry(single).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1320,9 +1632,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1331,6 +1649,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1357,9 +1677,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1368,6 +1694,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1389,9 +1717,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1400,6 +1734,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                context.Entry(child).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1420,9 +1756,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1431,6 +1773,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                context.Entry(single).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1451,9 +1795,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1462,6 +1812,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1482,9 +1834,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1493,6 +1851,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1515,9 +1875,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1526,6 +1892,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                context.Entry(child).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1548,9 +1916,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1559,6 +1933,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                context.Entry(single).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1582,9 +1958,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1593,6 +1975,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1616,9 +2000,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1627,6 +2017,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1646,9 +2038,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1657,6 +2055,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                context.Entry(child).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1676,9 +2076,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1687,6 +2093,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                context.Entry(single).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1706,9 +2114,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1717,6 +2131,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                context.Entry(parent).State = state;
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -1736,9 +2152,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1747,6 +2169,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                context.Entry(parent).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -1771,9 +2195,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1782,6 +2212,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                context.Entry(child).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -1808,9 +2240,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1819,6 +2257,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                context.Entry(single).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -1845,9 +2285,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1856,6 +2302,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                context.Entry(parent).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -1882,9 +2330,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1893,6 +2347,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Children");
+
+                context.Entry(parent).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -1914,9 +2370,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1925,6 +2387,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(child).Navigation("Parent");
+
+                context.Entry(child).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -1945,9 +2409,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1956,6 +2426,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(single).Navigation("Parent");
+
+                context.Entry(single).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -1976,9 +2448,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -1987,6 +2465,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var navigationEntry = context.Entry(parent).Navigation("Single");
+
+                context.Entry(parent).State = state;
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -2007,9 +2487,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2018,6 +2504,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenAk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -2042,9 +2530,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2053,6 +2547,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2079,9 +2575,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2090,6 +2592,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2116,9 +2620,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2127,6 +2637,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SingleAk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2153,9 +2665,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2164,6 +2682,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenAk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -2185,9 +2705,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2196,6 +2722,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2216,9 +2744,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2227,6 +2761,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2247,9 +2783,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2258,6 +2800,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SingleAk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2278,9 +2822,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_null_FK_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2289,6 +2839,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2311,9 +2863,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_null_FK_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2322,6 +2880,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2345,9 +2905,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2356,6 +2922,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2375,9 +2943,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2386,6 +2960,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2405,9 +2981,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2416,6 +2998,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenShadowFk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -2440,9 +3024,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2451,6 +3041,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2477,9 +3069,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2488,6 +3086,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2514,9 +3114,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2525,6 +3131,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SingleShadowFk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2551,9 +3159,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2562,6 +3176,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenShadowFk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -2583,9 +3199,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2594,6 +3216,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2614,9 +3238,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2625,6 +3255,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2645,9 +3277,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2656,6 +3294,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SingleShadowFk);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2676,9 +3316,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_null_FK_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2687,6 +3333,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2709,9 +3357,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_null_FK_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2720,6 +3374,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2743,9 +3399,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2754,6 +3416,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2773,9 +3437,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2784,6 +3454,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2803,9 +3475,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2814,6 +3492,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenCompositeKey);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -2838,9 +3518,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2849,6 +3535,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2875,9 +3563,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2886,6 +3580,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2912,9 +3608,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2923,6 +3625,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SingleCompositeKey);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -2949,9 +3653,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_Query_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_collection_using_Query_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2960,6 +3670,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenCompositeKey);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(collectionEntry.IsLoaded);
 
@@ -2981,9 +3693,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -2992,6 +3710,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -3012,9 +3732,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -3023,6 +3749,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -3043,9 +3771,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -3054,6 +3788,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.SingleCompositeKey);
+
+                context.Entry(parent).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -3074,9 +3810,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_null_FK_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -3085,6 +3827,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -3107,9 +3851,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_null_FK_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_null_FK_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -3118,6 +3868,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -3141,9 +3893,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -3152,6 +3910,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -3171,9 +3931,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(bool async)
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(EntityState state, bool async)
         {
             using (var context = CreateContext())
             {
@@ -3182,6 +3948,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
 
                 Assert.False(referenceEntry.IsLoaded);
 
@@ -3270,6 +4038,420 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(
                     CoreStrings.ReferenceMustBeLoaded("Parent", typeof(Child).Name),
                     Assert.Throws<InvalidOperationException>(() => referenceEntry.IsLoaded = false).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await collectionEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                collectionEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_using_string_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var collectionEntry = context.Entry(parent).Collection(nameof(Parent.Children));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await collectionEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                collectionEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_collection_with_navigation_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var collectionEntry = context.Entry(parent).Navigation(nameof(Parent.Children));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await collectionEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                collectionEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_reference_to_principal_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var child = context.Children.Single(e => e.Id == 12);
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_reference_with_navigation_to_principal_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var child = context.Children.Single(e => e.Id == 12);
+
+                var referenceEntry = context.Entry(child).Navigation(nameof(Child.Parent));
+
+                context.Entry(child).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_reference_using_string_to_principal_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var child = context.Children.Single(e => e.Id == 12);
+
+                var referenceEntry = context.Entry(child).Reference(nameof(Child.Parent));
+
+                context.Entry(child).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_reference_to_dependent_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_reference_to_dependent_with_navigation_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var referenceEntry = context.Entry(parent).Navigation(nameof(Parent.Single));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Load_reference_to_dependent_using_string_for_detached_throws(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var referenceEntry = context.Entry(parent).Reference(nameof(Parent.Single));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                        {
+                            if (async)
+                            {
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_collection_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_collection_using_string_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var collectionEntry = context.Entry(parent).Collection(nameof(Parent.Children));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_collection_with_navigation_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var collectionEntry = context.Entry(parent).Navigation(nameof(Parent.Children));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_reference_to_principal_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var child = context.Children.Single(e => e.Id == 12);
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_reference_with_navigation_to_principal_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var child = context.Children.Single(e => e.Id == 12);
+
+                var referenceEntry = context.Entry(child).Navigation(nameof(Child.Parent));
+
+                context.Entry(child).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_reference_using_string_to_principal_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var child = context.Children.Single(e => e.Id == 12);
+
+                var referenceEntry = context.Entry(child).Reference(nameof(Child.Parent));
+
+                context.Entry(child).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_reference_to_dependent_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_reference_to_dependent_with_navigation_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var referenceEntry = context.Entry(parent).Navigation(nameof(Parent.Single));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_reference_to_dependent_using_string_for_detached_throws()
+        {
+            using (var context = CreateContext())
+            {
+                var parent = context.Parents.Single();
+
+                var referenceEntry = context.Entry(parent).Reference(nameof(Parent.Single));
+
+                context.Entry(parent).State = EntityState.Detached;
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
             }
         }
 

@@ -1162,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
-        public virtual async Task Store_values_cannot_be_read_or_set_for_a_Detached_object_asynchronously()
+        public virtual async Task Store_values_can_be_read_or_set_for_a_Detached_object_asynchronously()
         {
             await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
         }
@@ -1194,6 +1194,83 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 values["Name"] = "Building One Optimal";
 
                 Assert.Equal("Building One Optimal", values["Name"]);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, true)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Detached, true)]
+        [InlineData(EntityState.Detached, false)]
+        public async Task Values_can_be_reloaded_from_database_for_entity_in_any_state(EntityState state, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var entry = context.Entry(building);
+
+                entry.Property(e => e.Name).OriginalValue = "Original Building";
+                building.Name = "Building One Prime";
+
+                entry.State = state;
+
+                if (async)
+                {
+                    await entry.ReloadAsync();
+                }
+                else
+                {
+                    entry.Reload();
+                }
+
+                Assert.Equal("Building One", entry.Property(e => e.Name).OriginalValue);
+                Assert.Equal("Building One", entry.Property(e => e.Name).CurrentValue);
+                Assert.Equal("Building One", building.Name);
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, true)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Detached, true)]
+        [InlineData(EntityState.Detached, false)]
+        public async Task Reload_when_entity_deleted_in_store_can_happen_for_any_state(EntityState state, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var building = Building.Create(Guid.NewGuid(), "Bag End", 77);
+                var entry = context.Entry(building);
+
+                entry.State = state;
+
+                if (async)
+                {
+                    await entry.ReloadAsync();
+                }
+                else
+                {
+                    entry.Reload();
+                }
+
+                Assert.Equal("Bag End", entry.Property(e => e.Name).OriginalValue);
+                Assert.Equal("Bag End", entry.Property(e => e.Name).CurrentValue);
+                Assert.Equal("Bag End", building.Name);
+
+                Assert.Equal(state == EntityState.Added ? EntityState.Added : EntityState.Detached, entry.State);
             }
         }
 

@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Theory]
-        public override async Task Load_collection(bool async)
+        public override async Task Load_collection(EntityState state, bool async)
         {
-            await base.Load_collection(async);
+            await base.Load_collection(state, async);
 
             if (!async)
             {
@@ -37,9 +37,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal(bool async)
+        public override async Task Load_many_to_one_reference_to_principal(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal(async);
+            await base.Load_many_to_one_reference_to_principal(state, async);
 
             if (!async)
             {
@@ -54,9 +54,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal(bool async)
+        public override async Task Load_one_to_one_reference_to_principal(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal(async);
+            await base.Load_one_to_one_reference_to_principal(state, async);
 
             if (!async)
             {
@@ -71,9 +71,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent(async);
+            await base.Load_one_to_one_reference_to_dependent(state, async);
 
             if (!async)
             {
@@ -88,9 +88,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_principal(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_principal(state, async);
 
             if (!async)
             {
@@ -105,9 +105,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_dependent(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_dependent(state, async);
 
             if (!async)
             {
@@ -122,9 +122,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query(bool async)
+        public override async Task Load_collection_using_Query(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query(async);
+            await base.Load_collection_using_Query(state, async);
 
             if (!async)
             {
@@ -139,9 +139,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query(state, async);
 
             if (!async)
             {
@@ -156,9 +156,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query(state, async);
 
             if (!async)
             {
@@ -173,9 +173,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query(state, async);
 
             if (!async)
             {
@@ -190,9 +190,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(state, async);
 
             if (!async)
             {
@@ -207,9 +207,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(state, async);
 
             if (!async)
             {
@@ -224,9 +224,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_null_FK(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_null_FK(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_null_FK(async);
+            await base.Load_many_to_one_reference_to_principal_null_FK(state, async);
 
             if (!async)
             {
@@ -235,9 +235,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_null_FK(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_null_FK(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_null_FK(async);
+            await base.Load_one_to_one_reference_to_principal_null_FK(state, async);
 
             if (!async)
             {
@@ -246,9 +246,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK(state, async);
 
             if (!async)
             {
@@ -261,9 +261,9 @@ WHERE 0 = 1",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK(state, async);
 
             if (!async)
             {
@@ -276,9 +276,9 @@ WHERE 0 = 1",
         }
 
         [Theory]
-        public override async Task Load_collection_not_found(bool async)
+        public override async Task Load_collection_not_found(EntityState state, bool async)
         {
-            await base.Load_collection_not_found(async);
+            await base.Load_collection_not_found(state, async);
 
             if (!async)
             {
@@ -293,9 +293,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_not_found(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_not_found(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_not_found(async);
+            await base.Load_many_to_one_reference_to_principal_not_found(state, async);
 
             if (!async)
             {
@@ -310,9 +310,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_not_found(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_not_found(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_not_found(async);
+            await base.Load_one_to_one_reference_to_principal_not_found(state, async);
 
             if (!async)
             {
@@ -327,9 +327,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_not_found(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_not_found(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_not_found(async);
+            await base.Load_one_to_one_reference_to_dependent_not_found(state, async);
 
             if (!async)
             {
@@ -344,9 +344,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_not_found(bool async)
+        public override async Task Load_collection_using_Query_not_found(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_not_found(async);
+            await base.Load_collection_using_Query_not_found(state, async);
 
             if (!async)
             {
@@ -361,9 +361,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_not_found(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_not_found(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_not_found(state, async);
 
             if (!async)
             {
@@ -378,9 +378,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_not_found(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_not_found(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_not_found(state, async);
 
             if (!async)
             {
@@ -395,9 +395,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_not_found(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_not_found(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_not_found(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_not_found(state, async);
 
             if (!async)
             {
@@ -412,9 +412,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_already_loaded(bool async)
+        public override async Task Load_collection_already_loaded(EntityState state, bool async)
         {
-            await base.Load_collection_already_loaded(async);
+            await base.Load_collection_already_loaded(state, async);
 
             if (!async)
             {
@@ -423,9 +423,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_already_loaded(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_already_loaded(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_already_loaded(async);
+            await base.Load_many_to_one_reference_to_principal_already_loaded(state, async);
 
             if (!async)
             {
@@ -434,9 +434,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_already_loaded(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_already_loaded(async);
+            await base.Load_one_to_one_reference_to_principal_already_loaded(state, async);
 
             if (!async)
             {
@@ -445,9 +445,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_already_loaded(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_already_loaded(async);
+            await base.Load_one_to_one_reference_to_dependent_already_loaded(state, async);
 
             if (!async)
             {
@@ -456,9 +456,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(state, async);
 
             if (!async)
             {
@@ -467,9 +467,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(state, async);
 
             if (!async)
             {
@@ -478,9 +478,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_already_loaded(bool async)
+        public override async Task Load_collection_using_Query_already_loaded(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_already_loaded(async);
+            await base.Load_collection_using_Query_already_loaded(state, async);
 
             if (!async)
             {
@@ -495,9 +495,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_already_loaded(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_already_loaded(state, async);
 
             if (!async)
             {
@@ -512,9 +512,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_already_loaded(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_already_loaded(state, async);
 
             if (!async)
             {
@@ -529,9 +529,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded(state, async);
 
             if (!async)
             {
@@ -546,9 +546,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(state, async);
 
             if (!async)
             {
@@ -563,9 +563,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(bool async)
+        public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
         {
-            await base.Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(async);
+            await base.Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(state, async);
 
             if (!async)
             {
@@ -580,9 +580,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_untyped(bool async)
+        public override async Task Load_collection_untyped(EntityState state, bool async)
         {
-            await base.Load_collection_untyped(async);
+            await base.Load_collection_untyped(state, async);
 
             if (!async)
             {
@@ -597,9 +597,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_untyped(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_untyped(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_untyped(async);
+            await base.Load_many_to_one_reference_to_principal_untyped(state, async);
 
             if (!async)
             {
@@ -614,9 +614,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_untyped(async);
+            await base.Load_one_to_one_reference_to_principal_untyped(state, async);
 
             if (!async)
             {
@@ -631,9 +631,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_untyped(async);
+            await base.Load_one_to_one_reference_to_dependent_untyped(state, async);
 
             if (!async)
             {
@@ -648,9 +648,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_untyped(bool async)
+        public override async Task Load_collection_using_Query_untyped(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_untyped(async);
+            await base.Load_collection_using_Query_untyped(state, async);
 
             if (!async)
             {
@@ -665,9 +665,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_untyped(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_untyped(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_untyped(state, async);
 
             if (!async)
             {
@@ -682,9 +682,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_untyped(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_untyped(state, async);
 
             if (!async)
             {
@@ -699,9 +699,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_untyped(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_untyped(state, async);
 
             if (!async)
             {
@@ -716,9 +716,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_not_found_untyped(bool async)
+        public override async Task Load_collection_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_collection_not_found_untyped(async);
+            await base.Load_collection_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -733,9 +733,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_not_found_untyped(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_not_found_untyped(async);
+            await base.Load_many_to_one_reference_to_principal_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -750,9 +750,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_not_found_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_not_found_untyped(async);
+            await base.Load_one_to_one_reference_to_principal_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -767,9 +767,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_not_found_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_not_found_untyped(async);
+            await base.Load_one_to_one_reference_to_dependent_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -784,9 +784,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_not_found_untyped(bool async)
+        public override async Task Load_collection_using_Query_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_not_found_untyped(async);
+            await base.Load_collection_using_Query_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -801,9 +801,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -818,9 +818,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -835,9 +835,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(state, async);
 
             if (!async)
             {
@@ -852,9 +852,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_already_loaded_untyped(bool async)
+        public override async Task Load_collection_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_collection_already_loaded_untyped(async);
+            await base.Load_collection_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -863,9 +863,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_already_loaded_untyped(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_already_loaded_untyped(async);
+            await base.Load_many_to_one_reference_to_principal_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -874,9 +874,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_already_loaded_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_already_loaded_untyped(async);
+            await base.Load_one_to_one_reference_to_principal_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -885,9 +885,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_already_loaded_untyped(async);
+            await base.Load_one_to_one_reference_to_dependent_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -896,9 +896,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_already_loaded_untyped(bool async)
+        public override async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_already_loaded_untyped(async);
+            await base.Load_collection_using_Query_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -913,9 +913,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -930,9 +930,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -947,9 +947,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(state, async);
 
             if (!async)
             {
@@ -964,9 +964,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_alternate_key(bool async)
+        public override async Task Load_collection_alternate_key(EntityState state, bool async)
         {
-            await base.Load_collection_alternate_key(async);
+            await base.Load_collection_alternate_key(state, async);
 
             if (!async)
             {
@@ -981,9 +981,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_alternate_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_alternate_key(async);
+            await base.Load_many_to_one_reference_to_principal_alternate_key(state, async);
 
             if (!async)
             {
@@ -998,9 +998,9 @@ WHERE [e].[AlternateId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_alternate_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_alternate_key(async);
+            await base.Load_one_to_one_reference_to_principal_alternate_key(state, async);
 
             if (!async)
             {
@@ -1015,9 +1015,9 @@ WHERE [e].[AlternateId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_alternate_key(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_alternate_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_alternate_key(async);
+            await base.Load_one_to_one_reference_to_dependent_alternate_key(state, async);
 
             if (!async)
             {
@@ -1032,9 +1032,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_alternate_key(bool async)
+        public override async Task Load_collection_using_Query_alternate_key(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_alternate_key(async);
+            await base.Load_collection_using_Query_alternate_key(state, async);
 
             if (!async)
             {
@@ -1049,9 +1049,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_alternate_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_alternate_key(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_alternate_key(state, async);
 
             if (!async)
             {
@@ -1066,9 +1066,9 @@ WHERE [e].[AlternateId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_alternate_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_alternate_key(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_alternate_key(state, async);
 
             if (!async)
             {
@@ -1083,9 +1083,9 @@ WHERE [e].[AlternateId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_alternate_key(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_alternate_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_alternate_key(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_alternate_key(state, async);
 
             if (!async)
             {
@@ -1100,9 +1100,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_null_FK_alternate_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_null_FK_alternate_key(async);
+            await base.Load_many_to_one_reference_to_principal_null_FK_alternate_key(state, async);
 
             if (!async)
             {
@@ -1111,9 +1111,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_null_FK_alternate_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_null_FK_alternate_key(async);
+            await base.Load_one_to_one_reference_to_principal_null_FK_alternate_key(state, async);
 
             if (!async)
             {
@@ -1122,9 +1122,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(state, async);
 
             if (!async)
             {
@@ -1137,9 +1137,9 @@ WHERE 0 = 1",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(state, async);
 
             if (!async)
             {
@@ -1152,9 +1152,9 @@ WHERE 0 = 1",
         }
 
         [Theory]
-        public override async Task Load_collection_shadow_fk(bool async)
+        public override async Task Load_collection_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_collection_shadow_fk(async);
+            await base.Load_collection_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1169,9 +1169,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_shadow_fk(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_shadow_fk(async);
+            await base.Load_many_to_one_reference_to_principal_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1186,9 +1186,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_shadow_fk(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_shadow_fk(async);
+            await base.Load_one_to_one_reference_to_principal_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1203,9 +1203,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_shadow_fk(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_shadow_fk(async);
+            await base.Load_one_to_one_reference_to_dependent_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1220,9 +1220,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_shadow_fk(bool async)
+        public override async Task Load_collection_using_Query_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_shadow_fk(async);
+            await base.Load_collection_using_Query_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1237,9 +1237,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_shadow_fk(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_shadow_fk(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1254,9 +1254,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_shadow_fk(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_shadow_fk(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1271,9 +1271,9 @@ WHERE [e].[Id] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1288,9 +1288,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_null_FK_shadow_fk(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_null_FK_shadow_fk(async);
+            await base.Load_many_to_one_reference_to_principal_null_FK_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1299,9 +1299,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_null_FK_shadow_fk(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_null_FK_shadow_fk(async);
+            await base.Load_one_to_one_reference_to_principal_null_FK_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1310,9 +1310,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1325,9 +1325,9 @@ WHERE 0 = 1",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(state, async);
 
             if (!async)
             {
@@ -1340,9 +1340,9 @@ WHERE 0 = 1",
         }
 
         [Theory]
-        public override async Task Load_collection_composite_key(bool async)
+        public override async Task Load_collection_composite_key(EntityState state, bool async)
         {
-            await base.Load_collection_composite_key(async);
+            await base.Load_collection_composite_key(state, async);
 
             if (!async)
             {
@@ -1358,9 +1358,9 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_composite_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_composite_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_composite_key(async);
+            await base.Load_many_to_one_reference_to_principal_composite_key(state, async);
 
             if (!async)
             {
@@ -1376,9 +1376,9 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_composite_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_composite_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_composite_key(async);
+            await base.Load_one_to_one_reference_to_principal_composite_key(state, async);
 
             if (!async)
             {
@@ -1394,9 +1394,9 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_composite_key(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_composite_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_composite_key(async);
+            await base.Load_one_to_one_reference_to_dependent_composite_key(state, async);
 
             if (!async)
             {
@@ -1412,9 +1412,9 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
         }
 
         [Theory]
-        public override async Task Load_collection_using_Query_composite_key(bool async)
+        public override async Task Load_collection_using_Query_composite_key(EntityState state, bool async)
         {
-            await base.Load_collection_using_Query_composite_key(async);
+            await base.Load_collection_using_Query_composite_key(state, async);
 
             if (!async)
             {
@@ -1430,9 +1430,9 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_composite_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_composite_key(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_composite_key(state, async);
 
             if (!async)
             {
@@ -1448,9 +1448,9 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_composite_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_composite_key(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_composite_key(state, async);
 
             if (!async)
             {
@@ -1466,9 +1466,9 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_composite_key(bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_composite_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_composite_key(async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_composite_key(state, async);
 
             if (!async)
             {
@@ -1484,9 +1484,9 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_null_FK_composite_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_null_FK_composite_key(async);
+            await base.Load_many_to_one_reference_to_principal_null_FK_composite_key(state, async);
 
             if (!async)
             {
@@ -1495,9 +1495,9 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_null_FK_composite_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_null_FK_composite_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_null_FK_composite_key(async);
+            await base.Load_one_to_one_reference_to_principal_null_FK_composite_key(state, async);
 
             if (!async)
             {
@@ -1506,9 +1506,9 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
         }
 
         [Theory]
-        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_composite_key(bool async)
+        public override async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_composite_key(EntityState state, bool async)
         {
-            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK_composite_key(async);
+            await base.Load_many_to_one_reference_to_principal_using_Query_null_FK_composite_key(state, async);
 
             if (!async)
             {
@@ -1521,9 +1521,9 @@ WHERE 0 = 1",
         }
 
         [Theory]
-        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(bool async)
+        public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(EntityState state, bool async)
         {
-            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(async);
+            await base.Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(state, async);
 
             if (!async)
             {
