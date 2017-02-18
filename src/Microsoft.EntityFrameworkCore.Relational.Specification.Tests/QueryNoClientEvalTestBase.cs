@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
                         RelationalStrings.ClientEvalWarning(
-                            "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}")),
+                            "[c2].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .Where(c1 => context.Customers
@@ -179,12 +179,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
-                        RelationalStrings.ClientEvalWarning("join Int32 i in __p_0 on [e1].EmployeeID equals [i]")),
+                        RelationalStrings.ClientEvalWarning("join Int32 i in __p_0 on [e1].EmployeeID equals [i] into IEnumerable`1 g")),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
                              join i in new[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-                             select e1)
+                             select new { e1, g })
                                 .ToList()).Message);
             }
         }

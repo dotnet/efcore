@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -827,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var fromExpression
                 = CompileAdditionalFromClauseExpression(fromClause, queryModel);
-
+            
             var innerItemParameter
                 = Expression.Parameter(
                     fromExpression.Type.GetSequenceType(), fromClause.ItemName);
@@ -880,12 +881,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
-
+            
             var outerKeySelectorExpression
-                = ReplaceClauseReferences(joinClause.OuterKeySelector, joinClause);
-
+                = CompileJoinClauseOuterKeySelectorExpression(
+                    joinClause,
+                    joinClause.OuterKeySelector,
+                    queryModel);
+            
             var innerSequenceExpression
-                = CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
+                = CompileJoinClauseInnerSequenceExpression(
+                    joinClause,
+                    joinClause.InnerSequence,
+                    queryModel);
 
             var innerItemParameter
                 = Expression.Parameter(
@@ -894,7 +901,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AddOrUpdateMapping(joinClause, innerItemParameter);
 
             var innerKeySelectorExpression
-                = ReplaceClauseReferences(joinClause.InnerKeySelector, joinClause);
+                = CompileJoinClauseInnerKeySelectorExpression(
+                    joinClause,
+                    joinClause.InnerKeySelector,
+                    innerItemParameter,
+                    queryModel);
 
             var transparentIdentifierType
                 = typeof(TransparentIdentifier<,>)
@@ -924,21 +935,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Compiles <see cref="JoinClause" /> nodes.
-        /// </summary>
-        /// <param name="joinClause"> The node being compiled. </param>
-        /// <param name="queryModel"> The query. </param>
-        /// <returns> The compiled result. </returns>
-        protected virtual Expression CompileJoinClauseInnerSequenceExpression(
-            [NotNull] JoinClause joinClause, [NotNull] QueryModel queryModel)
-        {
-            Check.NotNull(joinClause, nameof(joinClause));
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            return ReplaceClauseReferences(joinClause.InnerSequence, joinClause);
-        }
-
-        /// <summary>
         ///     Visits <see cref="GroupJoinClause" /> nodes
         /// </summary>
         /// <param name="groupJoinClause"> The node being visited. </param>
@@ -951,10 +947,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
 
             var outerKeySelectorExpression
-                = ReplaceClauseReferences(groupJoinClause.JoinClause.OuterKeySelector, groupJoinClause);
+                = CompileJoinClauseOuterKeySelectorExpression(
+                    groupJoinClause,
+                    groupJoinClause.JoinClause.OuterKeySelector,
+                    queryModel);
 
             var innerSequenceExpression
-                = CompileGroupJoinInnerSequenceExpression(groupJoinClause, queryModel);
+                = CompileJoinClauseInnerSequenceExpression(
+                    groupJoinClause, 
+                    groupJoinClause.JoinClause.InnerSequence,
+                    queryModel);
 
             var innerItemParameter
                 = Expression.Parameter(
@@ -964,7 +966,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AddOrUpdateMapping(groupJoinClause.JoinClause, innerItemParameter);
 
             var innerKeySelectorExpression
-                = ReplaceClauseReferences(groupJoinClause.JoinClause.InnerKeySelector, groupJoinClause);
+                = CompileJoinClauseInnerKeySelectorExpression(
+                    groupJoinClause,
+                    groupJoinClause.JoinClause.InnerKeySelector,
+                    innerItemParameter,
+                    queryModel);
 
             var innerItemsParameter
                 = Expression.Parameter(
@@ -981,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .MakeGenericMethod(
                             CurrentParameter.Type,
                             innerItemParameter.Type,
-                            outerKeySelectorExpression.Type,
+                            innerKeySelectorExpression.Type,
                             transparentIdentifierType),
                     _expression,
                     innerSequenceExpression,
@@ -999,18 +1005,66 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Compiles <see cref="GroupJoinClause" /> nodes.
+        ///     Compiles the outer key selector expression for <see cref="JoinClause" /> 
+        ///     and <see cref="GroupJoinClause" /> nodes.
         /// </summary>
-        /// <param name="groupJoinClause"> The node being compiled. </param>
+        /// <param name="querySource"> The node being compiled. </param>
+        /// <param name="outerKeySelector"> The outer key selector being compiled. </param>
         /// <param name="queryModel"> The query. </param>
         /// <returns> The compiled result. </returns>
-        protected virtual Expression CompileGroupJoinInnerSequenceExpression(
-            [NotNull] GroupJoinClause groupJoinClause, [NotNull] QueryModel queryModel)
+        protected virtual Expression CompileJoinClauseOuterKeySelectorExpression(
+            [NotNull] IQuerySource querySource,
+            [NotNull] Expression outerKeySelector,
+            [NotNull] QueryModel queryModel)
         {
-            Check.NotNull(groupJoinClause, nameof(groupJoinClause));
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            return ReplaceClauseReferences(groupJoinClause.JoinClause.InnerSequence, groupJoinClause.JoinClause);
+            return ReplaceClauseReferences(outerKeySelector, querySource);
+        }
+
+        /// <summary>
+        ///     Compiles the inner sequence expression for <see cref="JoinClause" /> 
+        ///     and <see cref="GroupJoinClause" /> nodes.
+        /// </summary>
+        /// <param name="querySource"> The node being compiled. </param>
+        /// <param name="innerSequence"> The inner sequence being compiled. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> The compiled result. </returns>
+        protected virtual Expression CompileJoinClauseInnerSequenceExpression(
+            [NotNull] IQuerySource querySource,
+            [NotNull] Expression innerSequence,
+            [NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(innerSequence, nameof(innerSequence));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            return ReplaceClauseReferences(innerSequence, querySource);
+        }
+
+        /// <summary>
+        ///     Compiles the inner key selector expression for <see cref="JoinClause" /> 
+        ///     and <see cref="GroupJoinClause" /> nodes.
+        /// </summary>
+        /// <param name="querySource"> The node being compiled. </param>
+        /// <param name="innerKeySelector"> The inner key selector being compiled. </param>
+        /// <param name="parameter"> The parameter that will be passed to the inner key selector. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> The compiled result. </returns>
+        protected virtual Expression CompileJoinClauseInnerKeySelectorExpression(
+            [NotNull] IQuerySource querySource,
+            [NotNull] Expression innerKeySelector,
+            [NotNull] ParameterExpression parameter,
+            [NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
+            Check.NotNull(parameter, nameof(parameter));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            return ReplaceClauseReferences(innerKeySelector, querySource);
         }
 
         /// <summary>
@@ -1083,12 +1137,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return;
             }
 
-            var selector
-                = ReplaceClauseReferences(
-                    _projectionExpressionVisitorFactory
-                        .Create(this, queryModel.MainFromClause)
-                        .Visit(selectClause.Selector),
-                    inProjection: true);
+            var projectionVisitor
+                = _projectionExpressionVisitorFactory
+                    .Create(this, queryModel.MainFromClause);
+
+            var selector = projectionVisitor.Visit(selectClause.Selector);
+
+            selector = ReplaceClauseReferences(selector, inProjection: true);
 
             if ((selector.Type != sequenceType
                  || !(selectClause.Selector is QuerySourceReferenceExpression))
@@ -1126,6 +1181,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Transparent Identifiers
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Type CreateTransparentIdentifierType([NotNull] Type outerType, [NotNull] Type innerType)
+            => typeof(TransparentIdentifier<,>)
+                .MakeGenericType(
+                    Check.NotNull(outerType, nameof(outerType)), 
+                    Check.NotNull(innerType, nameof(innerType)));
+
         private const string CreateTransparentIdentifierMethodName = "CreateTransparentIdentifier";
 
         private struct TransparentIdentifier<TOuter, TInner>
@@ -1147,9 +1212,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             public TInner Inner;
         }
 
-        private static Expression CallCreateTransparentIdentifier(
-            Type transparentIdentifierType, Expression outerExpression, Expression innerExpression)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Expression CallCreateTransparentIdentifier(
+            [NotNull] Type transparentIdentifierType,
+            [NotNull] Expression outerExpression,
+            [NotNull] Expression innerExpression)
         {
+            Check.NotNull(transparentIdentifierType, nameof(transparentIdentifierType));
+            Check.NotNull(outerExpression, nameof(outerExpression));
+            Check.NotNull(innerExpression, nameof(innerExpression));
+
             var createTransparentIdentifierMethodInfo
                 = transparentIdentifierType.GetTypeInfo().GetDeclaredMethod(CreateTransparentIdentifierMethodName);
 
@@ -1163,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return Expression.Field(targetExpression, fieldInfo);
         }
-
+        
         private static Expression AccessInnerTransparentField(
             Type transparentIdentifierType, Expression targetExpression)
         {
@@ -1172,9 +1247,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Expression.Field(targetExpression, fieldInfo);
         }
 
-        private void IntroduceTransparentScope(
-            IQuerySource fromClause, QueryModel queryModel, int index, Type transparentIdentifierType)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void IntroduceTransparentScope(
+            [NotNull] IQuerySource querySource,
+            [NotNull] QueryModel queryModel,
+            int index,
+            [NotNull] Type transparentIdentifierType)
         {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(transparentIdentifierType, nameof(transparentIdentifierType));
+
             CurrentParameter
                 = Expression.Parameter(
                     transparentIdentifierType,
@@ -1187,13 +1273,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             for (var i = 0; i < index; i++)
             {
-                var querySource = queryModel.BodyClauses[i] as IQuerySource;
+                var bodyClause = queryModel.BodyClauses[i] as IQuerySource;
 
-                if (querySource != null)
+                if (bodyClause != null)
                 {
-                    RescopeTransparentAccess(querySource, outerAccessExpression);
+                    RescopeTransparentAccess(bodyClause, outerAccessExpression);
 
-                    var groupJoinClause = querySource as GroupJoinClause;
+                    var groupJoinClause = bodyClause as GroupJoinClause;
 
                     if (groupJoinClause != null
                         && QueryCompilationContext.QuerySourceMapping
@@ -1204,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            AddOrUpdateMapping(fromClause, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
+            AddOrUpdateMapping(querySource, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
         }
 
         private void RescopeTransparentAccess(IQuerySource querySource, Expression targetExpression)
@@ -1260,15 +1346,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            expression
+            var entityQueryableExpressionVisitor
                 = _entityQueryableExpressionVisitorFactory
-                    .Create(this, querySource)
-                    .Visit(expression);
+                    .Create(this, querySource);
 
-            expression
+            expression = entityQueryableExpressionVisitor.Visit(expression);
+
+            var memberAccessBindingExpressionVisitor
                 = _memberAccessBindingExpressionVisitorFactory
-                    .Create(QueryCompilationContext.QuerySourceMapping, this, inProjection)
-                    .Visit(expression);
+                    .Create(QueryCompilationContext.QuerySourceMapping, this);
+
+            expression = memberAccessBindingExpressionVisitor.Visit(expression);
 
             if (!inProjection
                 && expression.Type != typeof(string)
@@ -1312,49 +1400,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region Binding
 
         /// <summary>
-        ///     Binds a method call to a value buffer access.
-        /// </summary>
-        /// <param name="methodCallExpression"> The method call expression. </param>
-        /// <param name="expression"> The target expression. </param>
-        /// <returns>
-        ///     A value buffer access expression.
-        /// </returns>
-        public virtual Expression BindMethodCallToValueBuffer(
-            [NotNull] MethodCallExpression methodCallExpression,
-            [NotNull] Expression expression)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-            Check.NotNull(expression, nameof(expression));
-
-            return BindMethodCallExpression(
-                methodCallExpression,
-                (property, querySource)
-                    => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex()));
-        }
-
-        /// <summary>
-        ///     Binds a member access to a value buffer access.
-        /// </summary>
-        /// <param name="memberExpression"> The member access expression. </param>
-        /// <param name="expression"> The target expression. </param>
-        /// <returns>
-        ///     A value buffer access expression.
-        /// </returns>
-        public virtual Expression BindMemberToValueBuffer(
-            [NotNull] MemberExpression memberExpression,
-            [NotNull] Expression expression)
-        {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-            Check.NotNull(expression, nameof(expression));
-
-            return BindMemberExpression(
-                memberExpression,
-                null,
-                (property, querySource)
-                    => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex()));
-        }
-
-        /// <summary>
         ///     Binds a value buffer read.
         /// </summary>
         /// <param name="memberType"> Type of the member. </param>
@@ -1376,6 +1421,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Binds a value buffer read.
+        /// </summary>
+        /// <param name="valueBufferRead"> The value buffer read expression. </param>
+        /// <param name="index"> A value buffer index. </param>
+        /// <returns>
+        ///     A value buffer read expression.
+        /// </returns>
+        public virtual Expression BindValueBufferReadExpression(
+            [NotNull] ValueBufferReadExpression valueBufferRead,
+            int index)
+        {
+            Check.NotNull(valueBufferRead, nameof(valueBufferRead));
+
+            return _entityMaterializerSource
+                .CreateReadValueExpression(
+                    valueBufferRead.ValueBuffer, 
+                    valueBufferRead.Type, 
+                    index);
+        }
+
+        /// <summary>
         ///     Binds a navigation path property expression.
         /// </summary>
         /// <typeparam name="TResult"> Type of the result. </typeparam>
@@ -1391,7 +1457,33 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(propertyExpression, nameof(propertyExpression));
             Check.NotNull(propertyBinder, nameof(propertyBinder));
 
-            return BindPropertyExpressionCore(propertyExpression, null, propertyBinder);
+            return BindExpressionCore(propertyExpression, propertyBinder);
+        }
+
+        /// <summary>
+        ///     Binds a member expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="memberExpression"> The member access expression. </param>
+        /// <param name="memberBinder"> The member binder. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
+        public virtual TResult BindMemberExpression<TResult>(
+            [NotNull] MemberExpression memberExpression,
+            [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
+        {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
+
+            return BindExpressionCore(memberExpression, (properties, querySource) =>
+            {
+                var property = properties.Count == 1 ? properties[0] as IProperty : null;
+
+                return property != null
+                    ? memberBinder(property, querySource)
+                    : default(TResult);
+            });
         }
 
         /// <summary>
@@ -1406,42 +1498,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(memberExpression, nameof(memberExpression));
             Check.NotNull(memberBinder, nameof(memberBinder));
 
-            BindMemberExpression(memberExpression, null,
-                (property, querySource) =>
-                    {
-                        memberBinder(property, querySource);
+            BindMemberExpression(memberExpression, (property, querySource) =>
+            {
+                memberBinder(property, querySource);
 
-                        return default(object);
-                    });
-        }
-
-        /// <summary>
-        ///     Binds a member expression.
-        /// </summary>
-        /// <typeparam name="TResult"> Type of the result. </typeparam>
-        /// <param name="memberExpression"> The member access expression. </param>
-        /// <param name="querySource"> The query source. </param>
-        /// <param name="memberBinder"> The member binder. </param>
-        /// <returns>
-        ///     A TResult.
-        /// </returns>
-        public virtual TResult BindMemberExpression<TResult>(
-            [NotNull] MemberExpression memberExpression,
-            [CanBeNull] IQuerySource querySource,
-            [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
-        {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-            Check.NotNull(memberBinder, nameof(memberBinder));
-
-            return BindPropertyExpressionCore(memberExpression, querySource,
-                (ps, qs) =>
-                    {
-                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
-
-                        return property != null
-                            ? memberBinder(property, qs)
-                            : default(TResult);
-                    });
+                return default(object);
+            });
         }
 
         /// <summary>
@@ -1449,66 +1511,53 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <typeparam name="TResult"> Type of the result. </typeparam>
         /// <param name="methodCallExpression"> The method call expression. </param>
-        /// <param name="querySource"> The query source. </param>
         /// <param name="methodCallBinder"> The method call binder. </param>
         /// <returns>
         ///     A TResult.
         /// </returns>
         public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
-            [CanBeNull] IQuerySource querySource,
             [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            return BindPropertyExpressionCore(methodCallExpression, querySource,
-                (ps, qs) =>
-                    {
-                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
+            return BindExpressionCore(methodCallExpression, (properties, querySource) =>
+            {
+                var property = properties.Count == 1 ? properties[0] as IProperty : null;
 
-                        return property != null
-                            ? methodCallBinder(property, qs)
-                            : default(TResult);
-                    });
+                return property != null ? methodCallBinder(property, querySource) : default(TResult);
+            });
         }
 
-        private TResult BindPropertyExpressionCore<TResult>(
-            Expression propertyExpression,
-            IQuerySource querySource,
+        /// <summary>
+        ///     Binds a method call expression.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="methodCallBinder"> The method call binder. </param>
+        public virtual void BindMethodCallExpression(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] Action<IProperty, IQuerySource> methodCallBinder)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
+
+            BindMethodCallExpression(methodCallExpression, (property, querySource) =>
+            {
+                methodCallBinder(property, querySource);
+
+                return default(object);
+            });
+        }
+
+        private TResult BindExpressionCore<TResult>(
+            Expression expression,
             Func<IReadOnlyList<IPropertyBase>, IQuerySource, TResult> propertyBinder)
         {
-            QuerySourceReferenceExpression querySourceReferenceExpression;
-
-            var properties
-                = IterateCompositePropertyExpression(propertyExpression, out querySourceReferenceExpression);
-
-            if (querySourceReferenceExpression != null
-                && (querySource == null
-                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
-            {
-                return propertyBinder(
-                    properties,
-                    querySourceReferenceExpression.ReferencedQuerySource);
-            }
-
-            if (properties.Count > 0)
-            {
-                return propertyBinder(
-                    properties,
-                    null);
-            }
-
-            return default(TResult);
-        }
-
-        private IReadOnlyList<IPropertyBase> IterateCompositePropertyExpression(
-            Expression expression, out QuerySourceReferenceExpression querySourceReferenceExpression)
-        {
+            QuerySourceReferenceExpression querySourceReferenceExpression = null;
             var properties = new List<IPropertyBase>();
             var memberExpression = expression as MemberExpression;
             var methodCallExpression = expression as MethodCallExpression;
-            querySourceReferenceExpression = null;
 
             while (memberExpression?.Expression != null
                    || IsPropertyMethod(methodCallExpression?.Method)
@@ -1556,47 +1605,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 methodCallExpression = expression as MethodCallExpression;
             }
 
-            return Enumerable.Reverse(properties).ToList();
-        }
-
-        /// <summary>
-        ///     Binds a method call expression.
-        /// </summary>
-        /// <typeparam name="TResult"> Type of the result. </typeparam>
-        /// <param name="methodCallExpression"> The method call expression. </param>
-        /// <param name="methodCallBinder"> The method call binder. </param>
-        /// <returns>
-        ///     A TResult.
-        /// </returns>
-        public virtual TResult BindMethodCallExpression<TResult>(
-            [NotNull] MethodCallExpression methodCallExpression,
-            [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
-
-            return BindMethodCallExpression(methodCallExpression, null, methodCallBinder);
-        }
-
-        /// <summary>
-        ///     Binds a method call expression.
-        /// </summary>
-        /// <param name="methodCallExpression"> The method call expression. </param>
-        /// <param name="methodCallBinder"> The method call binder. </param>
-        public virtual void BindMethodCallExpression(
-            [NotNull] MethodCallExpression methodCallExpression,
-            [NotNull] Action<IProperty, IQuerySource> methodCallBinder)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
-
-            BindMethodCallExpression(methodCallExpression, null,
-                (property, querySource) =>
-                    {
-                        methodCallBinder(property, querySource);
-
-                        return default(object);
-                    });
+            return propertyBinder(
+                properties.AsEnumerable().Reverse().ToList(),
+                querySourceReferenceExpression?.ReferencedQuerySource);
         }
 
         #endregion

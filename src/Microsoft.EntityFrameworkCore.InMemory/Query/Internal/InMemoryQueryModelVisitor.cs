@@ -11,10 +11,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq;
+using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -91,6 +94,42 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     querySourceRequiresTracking);
 
             Expression = includeExpressionVisitor.Visit(Expression);
+        }
+
+        public override Expression BindValueBufferReadExpression(
+            [NotNull] ValueBufferReadExpression valueBufferReadExpression, 
+            int index)
+        {
+            var propertyIndex = valueBufferReadExpression.Property.GetIndex();
+
+            return base.BindValueBufferReadExpression(valueBufferReadExpression, propertyIndex);
+        }
+
+        protected override Expression CompileJoinClauseInnerKeySelectorExpression(
+            [NotNull] IQuerySource querySource, 
+            [NotNull] Expression innerKeySelector, 
+            [NotNull] ParameterExpression parameter,
+            [NotNull] QueryModel queryModel)
+        {
+            var compiled = base.CompileJoinClauseInnerKeySelectorExpression(querySource, innerKeySelector, parameter, queryModel);
+
+            if (parameter.Type == typeof(ValueBuffer))
+            {
+                var test = IsValueBufferEmpty(parameter);
+                var ifTrue = Expression.Default(innerKeySelector.Type);
+                var ifFalse = compiled;
+
+                return Expression.Condition(test, ifTrue, ifFalse);
+            }
+
+            return compiled;
+        }
+        
+        private static Expression IsValueBufferEmpty(Expression valueBufferExpression)
+        {
+            return Expression.MakeMemberAccess(
+                valueBufferExpression,
+                typeof(ValueBuffer).GetRuntimeProperty(nameof(ValueBuffer.IsEmpty)));
         }
 
         private sealed class InMemoryIncludeExpressionVisitor : ExpressionVisitorBase

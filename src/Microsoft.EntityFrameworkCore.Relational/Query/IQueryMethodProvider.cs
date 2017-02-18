@@ -95,12 +95,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         MethodInfo CreateCollectionRelatedEntitiesLoaderMethod { get; }
 
         /// <summary>
-        ///     Gets the inject parameters method.
+        ///     Gets the inject parameters method for non-sequence results.
         /// </summary>
         /// <value>
         ///     The pre execute method.
         /// </value>
-        MethodInfo InjectParametersMethod { get; }
+        MethodInfo InjectParametersItemMethod { get; }
+
+        /// <summary>
+        ///     Gets the inject parameters method for sequence results.
+        /// </summary>
+        /// <value>
+        ///     The pre execute method.
+        /// </value>
+        MethodInfo InjectParametersSequenceMethod { get; }
 
         /// <summary>
         ///     Gets the type of the group join include.

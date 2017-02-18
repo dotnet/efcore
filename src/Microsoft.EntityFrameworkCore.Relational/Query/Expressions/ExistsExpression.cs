@@ -72,6 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     children, and if any of them change, should return a new copy of
         ///     itself with the modified children.
         /// </remarks>
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            visitor.Visit(Expression);
+
+            return this;
+        }
     }
 }

@@ -103,6 +103,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitInnerJoin([NotNull] InnerJoinExpression innerJoinExpression);
 
         /// <summary>
+        ///     Visit a LeftJoinLateralExpression.
+        /// </summary>
+        /// <param name="leftJoinLateralExpression"> The left join lateral expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        Expression VisitLeftJoinLateral([NotNull] LeftJoinLateralExpression leftJoinLateralExpression);
+
+        /// <summary>
         ///     Visit a LeftOuterJoinExpression.
         /// </summary>
         /// <param name="leftOuterJoinExpression"> The left outer join expression. </param>

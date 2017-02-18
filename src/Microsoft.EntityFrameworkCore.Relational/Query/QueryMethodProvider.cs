@@ -265,6 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             IEnumerable<ValueBuffer> source,
             IShaper<TOuter> outerShaper,
             IShaper<TInner> innerShaper,
+            IEqualityComparer<TOuter> outerComparer,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, IEnumerable<TInner>, TResult> resultSelector,
             GroupJoinInclude outerGroupJoinInclude,
@@ -279,9 +280,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 using (var sourceEnumerator = source.GetEnumerator())
                 {
-                    var comparer = EqualityComparer<TKey>.Default;
                     var hasNext = sourceEnumerator.MoveNext();
                     var nextOuter = default(TOuter);
+                    var innerComparer = EqualityComparer<TInner>.Default;
+                    var keyComparer = EqualityComparer<TKey>.Default;
 
                     while (hasNext)
                     {
@@ -297,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
                         var inners = new List<TInner>();
 
-                        if (inner == null)
+                        if (innerComparer.Equals(inner, default(TInner)))
                         {
                             yield return resultSelector(outer, inners);
 
@@ -322,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
 
-                                if (!Equals(outer, nextOuter))
+                                if (!outerComparer.Equals(nextOuter, outer))
                                 {
                                     break;
                                 }
@@ -331,14 +333,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
 
-                                if (inner == null)
+                                if (innerComparer.Equals(inner, default(TInner)))
                                 {
                                     break;
                                 }
 
                                 var innerKey = innerKeySelector(inner);
 
-                                if (!comparer.Equals(currentGroupKey, innerKey))
+                                if (!keyComparer.Equals(currentGroupKey, innerKey))
                                 {
                                     break;
                                 }
@@ -529,29 +531,62 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
+        public virtual MethodInfo InjectParametersItemMethod => _injectParametersItemMethodInfo;
 
-        private static readonly MethodInfo _injectParametersMethodInfo
+        private static readonly MethodInfo _injectParametersItemMethodInfo
             = typeof(QueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParametersItem));
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IEnumerable<TElement> _InjectParameters<TElement>(
+        private static TItem _InjectParametersItem<TItem>(
+            QueryContext queryContext,
+            Func<TItem> source,
+            string[] parameterNames,
+            object[] parameterValues)
+        {
+            for (var i = 0; i < parameterNames.Length; i++)
+            {
+                queryContext.AddParameter(parameterNames[i], parameterValues[i]);
+            }
+
+            var result = source();
+
+            for (var i = 0; i < parameterNames.Length; i++)
+            {
+                queryContext.RemoveParameter(parameterNames[i]);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo InjectParametersSequenceMethod => _injectParametersSequenceMethodInfo;
+
+        private static readonly MethodInfo _injectParametersSequenceMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParametersSequence));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IEnumerable<TElement> _InjectParametersSequence<TElement>(
             QueryContext queryContext,
             IEnumerable<TElement> source,
             string[] parameterNames,
             object[] parameterValues)
-            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
+            => new SequenceParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
 
-        private sealed class ParameterInjector<TElement> : IEnumerable<TElement>
+        private sealed class SequenceParameterInjector<TElement> : IEnumerable<TElement>
         {
             private readonly QueryContext _queryContext;
             private readonly IEnumerable<TElement> _innerEnumerable;
             private readonly string[] _parameterNames;
             private readonly object[] _parameterValues;
 
-            public ParameterInjector(
+            public SequenceParameterInjector(
                 QueryContext queryContext,
                 IEnumerable<TElement> innerEnumerable,
                 string[] parameterNames,
@@ -569,11 +604,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private sealed class InjectParametersEnumerator : IEnumerator<TElement>
             {
-                private readonly ParameterInjector<TElement> _parameterInjector;
+                private readonly SequenceParameterInjector<TElement> _parameterInjector;
                 private readonly IEnumerator<TElement> _innerEnumerator;
                 private bool _disposed;
 
-                public InjectParametersEnumerator(ParameterInjector<TElement> parameterInjector)
+                public InjectParametersEnumerator(SequenceParameterInjector<TElement> parameterInjector)
                 {
                     _parameterInjector = parameterInjector;
 

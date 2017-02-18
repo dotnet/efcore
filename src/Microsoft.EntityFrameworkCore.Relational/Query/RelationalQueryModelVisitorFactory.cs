@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
-            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions)
             : base(
                 queryOptimizer,
@@ -64,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(conditionalRemovingExpressionVisitorFactory, nameof(conditionalRemovingExpressionVisitorFactory));
-            Check.NotNull(queryFlattenerFactory, nameof(queryFlattenerFactory));
             Check.NotNull(contextOptions, nameof(contextOptions));
 
             RelationalAnnotationProvider = relationalAnnotationProvider;
@@ -72,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             ConditionalRemovingExpressionVisitorFactory = conditionalRemovingExpressionVisitorFactory;
-            QueryFlattenerFactory = queryFlattenerFactory;
             ContextOptions = contextOptions;
         }
 
@@ -115,14 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The conditional removing expression visitor factory.
         /// </value>
         protected virtual IConditionalRemovingExpressionVisitorFactory ConditionalRemovingExpressionVisitorFactory { get; }
-
-        /// <summary>
-        ///     Gets the query flattener factory.
-        /// </summary>
-        /// <value>
-        ///     The query flattener factory.
-        /// </value>
-        protected virtual IQueryFlattenerFactory QueryFlattenerFactory { get; }
 
         /// <summary>
         ///     Gets options for controlling the context.
@@ -169,7 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 ContextOptions,
                 (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                 (RelationalQueryModelVisitor)parentEntityQueryModelVisitor);

@@ -110,7 +110,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     children, and if any of them change, should return a new copy of
         ///     itself with the modified children.
         /// </remarks>
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            if (SubQuery != null)
+            {
+                visitor.Visit(SubQuery);
+            }
+
+            return this;
+        }
 
         /// <summary>
         ///     Creates a <see cref="String" /> representation of the Expression.

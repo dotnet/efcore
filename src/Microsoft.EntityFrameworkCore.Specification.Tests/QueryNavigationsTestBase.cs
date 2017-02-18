@@ -943,6 +943,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 91);
         }
 
+        [ConditionalFact]
+        public virtual void Where_OrderBy_Skip_Take_projection()
+        {
+            AssertQuery<OrderDetail, int>(
+                ods => (from od in ods
+                       where od.Order.Customer.City == "Berlin"
+                       orderby od.OrderID, od.ProductID
+                       select od)
+                       .Skip(1)
+                       .Take(5)
+                       .Select(od => od.OrderID));
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;

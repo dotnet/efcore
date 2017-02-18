@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 
 #if !NET452
 using System.Threading;
@@ -31,7 +32,6 @@ FROM (
     ORDER BY ""c"".""ContactName""
     LIMIT @__p_0
 ) AS ""t""
-ORDER BY ""t"".""ContactName""
 LIMIT -1 OFFSET @__p_1",
                 Sql);
         }
@@ -122,6 +122,12 @@ WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'",
 FROM ""Products"" AS ""p""
 WHERE ""p"".""ProductID"" < 40",
                 Sql);
+        }
+
+        [ConditionalFact(Skip = "Test does not pass due to ordering assumptions which do not hold for SQLite")]
+        public override void GroupJoin_with_different_outer_elements_with_same_key_projected_from_another_entity()
+        {
+            base.GroupJoin_with_different_outer_elements_with_same_key_projected_from_another_entity();
         }
 
         private const string FileLineEnding = @"

@@ -1451,7 +1451,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Result_operator_nav_prop_reference_optional()
+        public virtual void Sum_nav_prop_reference_optional()
         {
             int expected;
             using (var context = CreateContext())
@@ -1473,7 +1473,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty()
+        public virtual void Sum_nav_prop_reference_optional_via_DefaultIfEmpty()
         {
             int expected;
             using (var context = CreateContext())
@@ -1495,6 +1495,106 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                               join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
                               from l2 in groupJoin.DefaultIfEmpty()
                               select l2).Sum(e => e == null ? 0 : e.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Max_nav_prop_reference_optional()
+        {
+            int expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .Max(e => e.OneToOne_Optional_FK?.Level1_Required_Id ?? 0);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = context.LevelOne.Max(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Max_nav_prop_reference_optional_via_DefaultIfEmpty()
+        {
+            int expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select l2).Max(e => e == null ? 0 : e.Level1_Required_Id);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = (from l1 in context.LevelOne
+                              join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                              from l2 in groupJoin.DefaultIfEmpty()
+                              select l2).Max(e => e == null ? 0 : e.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Min_nav_prop_reference_optional()
+        {
+            int expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .Min(e => e.OneToOne_Optional_FK?.Level1_Required_Id ?? int.MaxValue);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = context.LevelOne.Min(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Min_nav_prop_reference_optional_via_DefaultIfEmpty()
+        {
+            int expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select l2).Min(e => e == null ? 0 : e.Level1_Required_Id);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = (from l1 in context.LevelOne
+                              join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                              from l2 in groupJoin.DefaultIfEmpty()
+                              select l2).Min(e => e == null ? 0 : e.Level1_Required_Id);
 
                 Assert.Equal(expected, result);
             }
@@ -2161,7 +2261,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
+        public virtual void Order_by_key_of_projected_navigation_gets_optimized_into_FK_access_subquery()
         {
             AssertQuery<Level3>(
                   l3s => l3s
@@ -2260,7 +2360,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                   );
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#6782
+        [ConditionalFact]
         public virtual void Where_predicate_on_optional_reference_navigation()
         {
             List<string> expected;
@@ -3037,7 +3137,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefautltIfEmpty()
+        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty()
         {
             AssertQuery<Level1>(
                   l1s => from l1 in l1s
@@ -3148,6 +3248,156 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     from l1 in grouping.DefaultIfEmpty()
                     select new { Id = l2.Id, Nane = l1 != null ? l1.Name : null },
                 e => e.Id);
+        }
+
+        [ConditionalFact(Skip = "Work in progress")]
+        public virtual void Select_with_nested_aggregation_Sum_Count()
+        {
+            AssertQuery<Level1>(
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = l1.OneToMany_Optional.Sum(l2 => l2.OneToMany_Optional.Count())
+                    },
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = MaybeScalar(l1.OneToMany_Optional, ()
+                            => l1.OneToMany_Optional.Sum(l2
+                                => MaybeScalar<int>(l2.OneToMany_Optional, ()
+                                    => l2.OneToMany_Optional.Count()))).GetValueOrDefault()
+                    },
+                e => e.Id,
+                (a, b) => Assert.Equal(a.Sum, b.Sum));
+        }
+
+        [ConditionalFact(Skip = "Work in progress")]
+        public virtual void Select_with_nested_aggregation_Sum_LongCount()
+        {
+            AssertQuery<Level1>(
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = l1.OneToMany_Optional.Sum(l2 => l2.OneToMany_Optional.LongCount())
+                    },
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = MaybeScalar(l1.OneToMany_Optional, ()
+                            => l1.OneToMany_Optional.Sum(l2
+                                => MaybeScalar<long>(l2.OneToMany_Optional, ()
+                                    => l2.OneToMany_Optional.LongCount()))).GetValueOrDefault()
+                    },
+                e => e.Id,
+                (a, b) => Assert.Equal(a.Sum, b.Sum));
+        }
+
+        [ConditionalFact(Skip = "Work in progress")]
+        public virtual void Select_with_nested_aggregation_Sum_Sum()
+        {
+            AssertQuery<Level1>(
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = l1.OneToMany_Optional.Sum(l2 => l2.OneToMany_Optional.Sum(l3 => l3.Id))
+                    },
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = MaybeScalar(l1.OneToMany_Optional, ()
+                            => l1.OneToMany_Optional.Sum(l2
+                                => MaybeScalar<int>(l2.OneToMany_Optional, ()
+                                    => l2.OneToMany_Optional.Sum(l3 => l3.Id)))).GetValueOrDefault()
+                    },
+                e => e.Id,
+                (a, b) => Assert.Equal(a.Sum, b.Sum));
+        }
+
+        [ConditionalFact(Skip = "Work in progress")]
+        public virtual void Select_with_nested_aggregation_Sum_Min()
+        {
+            AssertQuery<Level1>(
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = l1.OneToMany_Optional.Sum(l2 => l2.OneToMany_Optional.Min(l3 => l3.Id))
+                    },
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = MaybeScalar(l1.OneToMany_Optional, ()
+                            => l1.OneToMany_Optional.Sum(l2
+                                => MaybeScalar<int>(l2.OneToMany_Optional, ()
+                                    => l2.OneToMany_Optional.Select(l3 => l3.Id).DefaultIfEmpty().Min()))).GetValueOrDefault()
+                    },
+                e => e.Id,
+                (a, b) => Assert.Equal(a.Sum, b.Sum));
+        }
+
+        [ConditionalFact(Skip = "Work in progress")]
+        public virtual void Select_with_nested_aggregation_Sum_Max()
+        {
+            AssertQuery<Level1>(
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = l1.OneToMany_Optional.Sum(l2 => l2.OneToMany_Optional.Max(l3 => l3.Id))
+                    },
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = MaybeScalar(l1.OneToMany_Optional, ()
+                            => l1.OneToMany_Optional.Sum(l2
+                                => MaybeScalar<int>(l2.OneToMany_Optional, ()
+                                    => l2.OneToMany_Optional.Select(l3 => l3.Id).DefaultIfEmpty().Max()))).GetValueOrDefault()
+                    },
+                e => e.Id,
+                (a, b) => Assert.Equal(a.Sum, b.Sum));
+        }
+
+        [ConditionalFact(Skip = "Work in progress")]
+        public virtual void Select_with_nested_aggregation_Sum_Average()
+        {
+            AssertQuery<Level1>(
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = l1.OneToMany_Optional.Sum(l2 => l2.OneToMany_Optional.Select(l3 => l3.Id).DefaultIfEmpty().Average())
+                    },
+                l1s =>
+                    from l1 in l1s
+                    select new
+                    {
+                        Id = l1.Id,
+                        Sum = MaybeScalar(l1.OneToMany_Optional, ()
+                            => l1.OneToMany_Optional.Sum(l2
+                                => MaybeScalar<double>(l2.OneToMany_Optional, ()
+                                    => l2.OneToMany_Optional.Select(l3 => l3.Id).DefaultIfEmpty().Average()))).GetValueOrDefault()
+                    },
+                e => e.Id,
+                (a, b) => Assert.Equal(a.Sum, b.Sum));
         }
 
         private bool ClientMethod(int? id)

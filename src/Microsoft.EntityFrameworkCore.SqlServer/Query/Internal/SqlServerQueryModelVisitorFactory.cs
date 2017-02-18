@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
-            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions)
             : base(
                 queryOptimizer,
@@ -63,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 sqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
                 conditionalRemovingExpressionVisitorFactory,
-                queryFlattenerFactory,
                 contextOptions)
         {
         }
@@ -95,7 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 ContextOptions,
                 (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                 (SqlServerQueryModelVisitor)parentEntityQueryModelVisitor);

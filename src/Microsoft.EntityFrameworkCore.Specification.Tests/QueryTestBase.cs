@@ -3501,13 +3501,47 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void GroupBy_anonymous_subquery()
+        [ConditionalFact]
+        public virtual void GroupBy_anonymous_subquery_Key()
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => new { c.City, c.CustomerID })
                     .GroupBy(a => from c2 in cs select c2),
-                assertOrder: true);
+                asserter: (l2oResults, efResults) =>
+                {
+                    var l2oElements = l2oResults
+                        .Cast<IGrouping<IQueryable<Customer>, dynamic>>()
+                        .SelectMany(g => g.Select(e => e))
+                        .OrderBy(e => e.City)
+                        .ThenBy(e => e.CustomerID);
+
+                    var efElements = efResults
+                        .Cast<IGrouping<IQueryable<Customer>, dynamic>>()
+                        .SelectMany(g => g.Select(e => e))
+                        .OrderBy(e => e.City)
+                        .ThenBy(e => e.CustomerID);
+
+                    Assert.Equal(l2oElements, efElements);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_anonymous_subquery_Element()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.GroupBy(c => c.CustomerID, c => from c2 in cs select c2),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var l2oKeys = l2oResults
+                        .Cast<IGrouping<string, IQueryable<Customer>>>()
+                        .Select(g => g.Key);
+
+                    var efKeys = efResults
+                        .Cast<IGrouping<string, IQueryable<Customer>>>()
+                        .Select(g => g.Key);
+
+                    Assert.Equal(l2oKeys, efKeys);
+                });
         }
 
         [ConditionalFact]
@@ -3615,10 +3649,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Sum()
+        public virtual void GroupBy_Average()
         {
             AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Average(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -3633,6 +3667,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Order>(os =>
                     os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Max()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Max(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Min()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Min(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Sum()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -3693,7 +3748,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_with_element_selector_sum()
+        public virtual void GroupBy_with_element_selector_Average()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Average()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector_Max()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Max()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector_Min()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Min()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector_Sum()
         {
             AssertQuery<Order>(os =>
                     os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
@@ -3762,6 +3838,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupBy_with_binary_element_selector_Average()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID * o.EmployeeID).Select(g => g.Average()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_binary_element_selector_Max()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID * o.EmployeeID).Select(g => g.Max()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_binary_element_selector_Min()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID * o.EmployeeID).Select(g => g.Min()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_binary_element_selector_Sum()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID * o.EmployeeID).Select(g => g.Sum()));
+        }
+
+        [ConditionalFact]
         public virtual void GroupBy_with_anonymous_element()
         {
             AssertQuery<Order>(os =>
@@ -3775,6 +3879,38 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Order>(os =>
                 os.GroupBy(o => new { o.CustomerID, o.OrderDate })
                     .Select(g => g.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_two_part_key_in_projection_whole()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
+                    .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_two_part_key_in_projection_split()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
+                    .Select(g => new { g.Key.CustomerID, g.Key.OrderDate, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_nested_key_in_projection_whole()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, n = new { o.OrderDate } })
+                    .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_nested_key_in_projection_split()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, n = new { o.OrderDate } })
+                    .Select(g => new { g.Key.CustomerID, g.Key.n.OrderDate, Sum = g.Sum(o => o.OrderID) }));
         }
 
         [ConditionalFact]
@@ -4439,6 +4575,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).FirstOrDefault(c => c.City == "London"));
+        }
+
+        [ConditionalFact]
+        public virtual void FirstOrDefault_Predicate_after_projection()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName)
+                    .Select(c => new { c.City })
+                    .FirstOrDefault(c => c.City == "London"));
         }
 
         [ConditionalFact]
@@ -5347,6 +5492,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupJoin_SelectMany()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs
+                    .GroupJoin(
+                        os,
+                        c => c.CustomerID,
+                        o => o.CustomerID,
+                        (c, o) => new { c, o })
+                    .SelectMany(
+                        co => co.o,
+                        (co, o) => new { co.c.ContactName, o.OrderDate }));
+        }
+
+        [ConditionalFact]
         public virtual void SelectMany_Joined()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -5856,14 +6016,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Select_Property_when_shaow_unconstrained_generic_method()
+        public virtual void Select_Property_when_shadow_unconstrained_generic_method()
         {
             AssertQuery<Employee>(es =>
                     ShadowPropertySelect<Employee, string>(es, "Title"));
         }
 
         [ConditionalFact]
-        public virtual void Where_Property_when_shaow_unconstrained_generic_method()
+        public virtual void Where_Property_when_shadow_unconstrained_generic_method()
         {
             AssertQuery<Employee>(es =>
                         ShadowPropertyWhere(es, "Title", "Sales Representative"),
@@ -6764,14 +6924,57 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
         }
 
-        [ConditionalFact]
-        public virtual void Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ()
+        [ConditionalFact(Skip = "May be obsolete now")]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ()
         {
             AssertQuery<Employee>(
                 es => from e1 in es
                       join e2 in es on e1.EmployeeID equals e2.ReportsTo into grouping
                       from e2 in ClientDefaultIfEmpty(grouping)
                       select new { City1 = e1.City, City2 = e2 != null ? e2.City : null });
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_coalesce_take_distinct()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitPrice ?? 0)
+                    .Take(15)
+                    .Distinct()
+                    .Select(p => new { Price = p.UnitPrice ?? 0 }),
+                assertOrder: false);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_distinct2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(15)
+                    .Distinct()
+                    .OrderBy(c => c.ContactTitle)
+                    .Take(8),
+                assertOrder: false,
+                entryCount: 8);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_Count()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.GroupJoin(os, c => c.CustomerID, o => o.CustomerID, (c, o) => o).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_Where_DefaultIfEmpty()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into g
+                            from o in g.Where(o => o.OrderID > 7).DefaultIfEmpty()
+                            select o);
         }
 
         [ConditionalFact]
@@ -7013,7 +7216,50 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<int?>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<long>> query, bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<double>> query, bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<double?>> query, bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())

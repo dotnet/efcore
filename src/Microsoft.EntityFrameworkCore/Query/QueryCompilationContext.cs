@@ -30,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
         private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
+        private readonly IDictionary<QueryModel, EntityQueryModelVisitor> _entityQueryModelVisitors
+            = new Dictionary<QueryModel, EntityQueryModelVisitor>();
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
@@ -64,6 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             ContextType = contextType;
             TrackQueryResults = trackQueryResults;
         }
+
+        /// <summary>
+        /// The set of all query model visitors created for this compilation context.
+        /// </summary>
+        protected virtual IEnumerable<EntityQueryModelVisitor> EntityQueryModelVisitors
+            => _entityQueryModelVisitors.Values;
 
         /// <summary>
         ///     Gets the model.
@@ -266,22 +274,50 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates query model visitor.
         /// </summary>
+        /// <param name="queryModel"> The query model to create the query model visitor for. </param>
         /// <returns>
         ///     The new query model visitor.
         /// </returns>
-        public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
-            => CreateQueryModelVisitor(parentEntityQueryModelVisitor: null);
+        public virtual EntityQueryModelVisitor CreateQueryModelVisitor([NotNull] QueryModel queryModel)
+            => CreateQueryModelVisitor(queryModel, parentEntityQueryModelVisitor: null);
 
         /// <summary>
         ///     Creates query model visitor.
         /// </summary>
+        /// <param name="queryModel"> The query model to create the query model visitor for. </param>
         /// <param name="parentEntityQueryModelVisitor"> The parent entity query model visitor. </param>
         /// <returns>
         ///     The new query model visitor.
         /// </returns>
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor(
+            [NotNull] QueryModel queryModel,
             [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
-            => _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
+        { 
+            var entityQueryModelVisitor = _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
+
+            _entityQueryModelVisitors.Add(queryModel, entityQueryModelVisitor);
+
+            return entityQueryModelVisitor;
+        }
+
+        /// <summary>
+        /// Gets the query model visitor that was created for a given query model.
+        /// </summary>
+        /// <param name="queryModel"> The query model to get the query model visitor for. </param>
+        /// <returns> The query model visitor. </returns>
+        public virtual EntityQueryModelVisitor GetQueryModelVisitor([NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            EntityQueryModelVisitor entityQueryModelVisitor;
+
+            if (_entityQueryModelVisitors.TryGetValue(queryModel, out entityQueryModelVisitor))
+            {
+                return entityQueryModelVisitor;
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Adds a trackable include.
@@ -340,68 +376,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var requiresMaterializationExpressionVisitor
+            _querySourcesRequiringMaterialization
                 = _requiresMaterializationExpressionVisitorFactory
-                    .Create(queryModelVisitor);
-
-            _querySourcesRequiringMaterialization = requiresMaterializationExpressionVisitor
+                    .Create(queryModelVisitor)
                     .FindQuerySourcesRequiringMaterialization(queryModel);
-
-            var groupJoinMaterializationExpressionVisitor = new RequiresMaterializationForGroupJoinExpressionVisitor();
-            var groupJoinMaterializationQueryModelVistor = new RequiresMaterializationForGroupJoinQueryModelVisitor(
-                groupJoinMaterializationExpressionVisitor,
-                _querySourcesRequiringMaterialization,
-                requiresMaterializationExpressionVisitor);
-
-            groupJoinMaterializationExpressionVisitor.QueryModelVisitor = groupJoinMaterializationQueryModelVistor;
-            groupJoinMaterializationQueryModelVistor.VisitQueryModel(queryModel);
         }
 
-        private class RequiresMaterializationForGroupJoinQueryModelVisitor : ExpressionTransformingQueryModelVisitor<RequiresMaterializationForGroupJoinExpressionVisitor>
+        private void AddQuerySourcesRequiringMaterializationForSubquery(EntityQueryModelVisitor queryModelVisitor, QueryModel subQueryModel)
         {
-            private readonly ISet<IQuerySource> _querySourcesRequiringMaterialization;
-            private readonly RequiresMaterializationExpressionVisitor _requiresMaterializationExpressionVisitor;
+            var subQuerySourcesRequiringMaterialization
+                = _requiresMaterializationExpressionVisitorFactory
+                    .Create(queryModelVisitor)
+                    .FindQuerySourcesRequiringMaterialization(subQueryModel);
 
-            public RequiresMaterializationForGroupJoinQueryModelVisitor(
-                RequiresMaterializationForGroupJoinExpressionVisitor transformingVisitor,
-                ISet<IQuerySource> querySourcesRequiringMaterialization,
-                RequiresMaterializationExpressionVisitor requiresMaterializationExpressionVisitor)
-                : base(transformingVisitor)
+            foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
             {
-                transformingVisitor.QueryModelVisitor = this;
-                _querySourcesRequiringMaterialization = querySourcesRequiringMaterialization;
-                _requiresMaterializationExpressionVisitor = requiresMaterializationExpressionVisitor;
-            }
-
-            public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
-            {
-                _querySourcesRequiringMaterialization.Add(queryModel.MainFromClause);
-                _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
-
-                var subQueryInnerSequence = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
-                if (subQueryInnerSequence != null)
-                {
-                    var subQuerySourcesRequiringMaterialization = 
-                        _requiresMaterializationExpressionVisitor
-                            .FindQuerySourcesRequiringMaterialization(subQueryInnerSequence.QueryModel);
-
-                    foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
-                    {
-                        _querySourcesRequiringMaterialization.Add(subQuerySource);
-                    }
-                }
-            }
-        }
-
-        private class RequiresMaterializationForGroupJoinExpressionVisitor : ExpressionVisitorBase
-        {
-            public QueryModelVisitorBase QueryModelVisitor { get; set; }
-
-            protected override Expression VisitSubQuery(SubQueryExpression expression)
-            {
-                QueryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-                return expression;
+                _querySourcesRequiringMaterialization.Add(subQuerySource);
             }
         }
 
