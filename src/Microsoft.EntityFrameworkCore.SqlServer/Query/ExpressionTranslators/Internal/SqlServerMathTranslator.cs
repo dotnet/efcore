@@ -23,6 +23,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { nameof(Math.Ceiling), "CEILING" },
             { nameof(Math.Floor), "FLOOR" },
             { nameof(Math.Pow), "POWER" },
+            { nameof(Math.Exp), "EXP" },
+            { nameof(Math.Log10), "LOG10" },
+            { nameof(Math.Log), "LOG" },
+            { nameof(Math.Sqrt), "SQRT" },
+            { nameof(Math.Acos), "ACOS" },
+            { nameof(Math.Asin), "ASIN" },
+            { nameof(Math.Atan), "ATAN" },
+            { nameof(Math.Atan2), "ATN2" },
+            { nameof(Math.Cos), "COS" },
+            { nameof(Math.Sin), "SIN" },
+            { nameof(Math.Tan), "TAN" }
         };
 
         private static readonly IEnumerable<MethodInfo> _roundMethodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods(nameof(Math.Round))

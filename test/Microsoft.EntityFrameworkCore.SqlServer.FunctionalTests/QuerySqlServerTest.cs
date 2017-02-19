@@ -4964,7 +4964,7 @@ FROM [Order Details] AS [od]
 WHERE CEILING([od].[UnitPrice]) > 10.0",
                 Sql);
         }
-
+        
         public override void Where_math_floor()
         {
             base.Where_math_floor();
@@ -5035,6 +5035,116 @@ WHERE ROUND([od].[UnitPrice], 2) > 100.0",
 FROM [Order Details] AS [od]
 WHERE ROUND([od].[UnitPrice], 0, 1) > 10.0",
                 Sql);
+        }
+
+        public override void Where_math_exp()
+        {
+            base.Where_math_exp();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (EXP([od].[Discount]) > 1E0)", Sql);
+        }
+
+        public override void Where_math_log10()
+        {
+            base.Where_math_log10();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG10([od].[Discount]) < 0E0)", Sql);
+        }
+
+        public override void Where_math_log()
+        {
+            base.Where_math_log();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG([od].[Discount]) < 0E0)", Sql);
+        }
+
+        public override void Where_math_sqrt()
+        {
+            base.Where_math_sqrt();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (SQRT([od].[Discount]) > 0E0)", Sql);
+        }
+
+        public override void Where_math_acos()
+        {
+            base.Where_math_acos();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (ACOS([od].[Discount]) > 1E0)", Sql);
+        }
+
+        public override void Where_math_asin()
+        {
+            base.Where_math_asin();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (ASIN([od].[Discount]) > 0E0)", Sql);
+        }
+
+        public override void Where_math_atan()
+        {
+            base.Where_math_atan();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (ATAN([od].[Discount]) > 0E0)", Sql);
+        }
+
+        public override void Where_math_atan2()
+        {
+            base.Where_math_atan2();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (ATN2([od].[Discount], 1E0) > 0E0)", Sql);
+        }
+
+        public override void Where_math_cos()
+        {
+            base.Where_math_cos();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (COS([od].[Discount]) > 0E0)", Sql);
+        }
+
+        public override void Where_math_sin()
+        {
+            base.Where_math_sin();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (SIN([od].[Discount]) > 0E0)", Sql);
+        }
+
+        public override void Where_math_tan()
+        {
+            base.Where_math_tan();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (TAN([od].[Discount]) > 0E0)", Sql);
         }
 
         public override void Where_guid_newguid()
