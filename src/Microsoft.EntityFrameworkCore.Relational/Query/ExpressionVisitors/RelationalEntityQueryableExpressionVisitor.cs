@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
@@ -71,77 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
         /// <summary>
-        ///     Visit a sub-query expression.
-        /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <returns>
-        ///     An Expression corresponding to the translated sub-query.
-        /// </returns>
-        protected override Expression VisitSubQuery(SubQueryExpression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            var queryModelVisitor = (RelationalQueryModelVisitor)CreateQueryModelVisitor();
-
-            queryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-            if (_querySource != null)
-            {
-                QueryModelVisitor.RegisterSubQueryVisitor(_querySource, queryModelVisitor);
-            }
-
-            return queryModelVisitor.Expression;
-        }
-
-        /// <summary>
-        ///     Visit a member expression.
-        /// </summary>
-        /// <param name="node"> The expression to visit. </param>
-        /// <returns>
-        ///     An Expression corresponding to the translated member.
-        /// </returns>
-        protected override Expression VisitMember(MemberExpression node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            QueryModelVisitor
-                .BindMemberExpression(
-                    node,
-                    (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(
-                            _relationalAnnotationProvider.For(property).ColumnName,
-                            property,
-                            querySource),
-                    bindSubQueries: true);
-
-            return base.VisitMember(node);
-        }
-
-        /// <summary>
-        ///     Visit a method call expression.
-        /// </summary>
-        /// <param name="node"> The expression to visit. </param>
-        /// <returns>
-        ///     An Expression corresponding to the translated method call.
-        /// </returns>
-        protected override Expression VisitMethodCall(MethodCallExpression node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            QueryModelVisitor
-                .BindMethodCallExpression(
-                    node,
-                    (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(
-                            _relationalAnnotationProvider.For(property).ColumnName,
-                            property,
-                            querySource),
-                    bindSubQueries: true);
-
-            return base.VisitMethodCall(node);
-        }
-
-        /// <summary>
         ///     Visit an entity query root.
         /// </summary>
         /// <param name="elementType"> The CLR type of the entity root. </param>
@@ -157,7 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var selectExpression = _selectExpressionFactory.Create(relationalQueryCompilationContext);
 
-            QueryModelVisitor.AddQuery(_querySource, selectExpression);
+            selectExpression.QuerySource = _querySource;
+
+            QueryModelVisitor.MapQuery(_querySource, selectExpression);
 
             var name = _relationalAnnotationProvider.For(entityType).TableName;
 
@@ -187,13 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
             else
             {
-                selectExpression.AddTable(
-                    new FromSqlExpression(
-                        fromSqlAnnotation.Sql,
-                        fromSqlAnnotation.Arguments,
-                        tableAlias,
-                        _querySource));
-
                 var trimmedSql = fromSqlAnnotation.Sql.TrimStart('\r', '\n', '\t', ' ');
 
                 var useQueryComposition
@@ -211,6 +134,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             RelationalStrings.StoredProcedureIncludeNotSupported);
                     }
                 }
+
+                selectExpression.AddTable(
+                    new FromSqlExpression(
+                        fromSqlAnnotation.Sql,
+                        fromSqlAnnotation.Arguments,
+                        tableAlias,
+                        _querySource,
+                        useQueryComposition));
 
                 if (useQueryComposition
                     && fromSqlAnnotation.QueryModel.IsIdentityQuery()

@@ -327,6 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             IAsyncEnumerable<ValueBuffer> source,
             IShaper<TOuter> outerShaper,
             IShaper<TInner> innerShaper,
+            IEqualityComparer<TOuter> outerComparer,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector,
             AsyncGroupJoinInclude outerGroupJoinInclude,
@@ -336,6 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 source,
                 outerShaper,
                 innerShaper,
+                outerComparer,
                 innerKeySelector,
                 resultSelector,
                 outerGroupJoinInclude,
@@ -347,6 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly IAsyncEnumerable<ValueBuffer> _source;
             private readonly IShaper<TOuter> _outerShaper;
             private readonly IShaper<TInner> _innerShaper;
+            private readonly IEqualityComparer<TOuter> _outerComparer;
             private readonly Func<TInner, TKey> _innerKeySelector;
             private readonly Func<TOuter, IAsyncEnumerable<TInner>, TResult> _resultSelector;
             private readonly AsyncGroupJoinInclude _outerGroupJoinInclude;
@@ -358,6 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IAsyncEnumerable<ValueBuffer> source,
                 IShaper<TOuter> outerShaper,
                 IShaper<TInner> innerShaper,
+                IEqualityComparer<TOuter> outerComparer,
                 Func<TInner, TKey> innerKeySelector,
                 Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector,
                 AsyncGroupJoinInclude outerGroupJoinInclude,
@@ -367,6 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _source = source;
                 _outerShaper = outerShaper;
                 _innerShaper = innerShaper;
+                _outerComparer = outerComparer;
                 _innerKeySelector = innerKeySelector;
                 _resultSelector = resultSelector;
                 _outerGroupJoinInclude = outerGroupJoinInclude;
@@ -379,7 +384,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             private sealed class GroupJoinAsyncEnumerator : IAsyncEnumerator<TResult>
             {
                 private readonly GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> _groupJoinAsyncEnumerable;
-                private readonly IEqualityComparer<TKey> _comparer;
+                private readonly IEqualityComparer<TInner> _innerComparer;
+                private readonly IEqualityComparer<TKey> _keyComparer;
 
                 private IAsyncEnumerator<ValueBuffer> _sourceEnumerator;
                 private bool _hasNext;
@@ -393,7 +399,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> groupJoinAsyncEnumerable)
                 {
                     _groupJoinAsyncEnumerable = groupJoinAsyncEnumerable;
-                    _comparer = EqualityComparer<TKey>.Default;
+                    _innerComparer = EqualityComparer<TInner>.Default;
+                    _keyComparer = EqualityComparer<TKey>.Default;
                 }
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
@@ -439,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var inners = new List<TInner>();
 
-                        if (inner == null)
+                        if (_innerComparer.Equals(inner, default(TInner)))
                         {
                             Current
                                 = _groupJoinAsyncEnumerable._resultSelector(
@@ -481,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     = _groupJoinAsyncEnumerable._outerShaper
                                         .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
 
-                                if (!Equals(outer, _nextOuter))
+                                if (!_groupJoinAsyncEnumerable._outerComparer.Equals(outer, _nextOuter))
                                 {
                                     break;
                                 }
@@ -493,14 +500,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 = _groupJoinAsyncEnumerable._innerShaper
                                     .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
 
-                            if (inner == null)
+                            if (_innerComparer.Equals(inner, default(TInner)))
                             {
                                 break;
                             }
 
                             var innerKey = _groupJoinAsyncEnumerable._innerKeySelector(inner);
 
-                            if (!_comparer.Equals(currentGroupKey, innerKey))
+                            if (!_keyComparer.Equals(currentGroupKey, innerKey))
                             {
                                 break;
                             }
@@ -816,15 +823,48 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
+        public virtual MethodInfo InjectParametersItemMethod => _injectParametersItemMethodInfo;
 
-        private static readonly MethodInfo _injectParametersMethodInfo
+        private static readonly MethodInfo _injectParametersItemMethodInfo
             = typeof(AsyncQueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParametersItem));
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IAsyncEnumerable<TElement> _InjectParameters<TElement>(
+        private static async Task<TItem> _InjectParametersItem<TItem>(
+            QueryContext queryContext,
+            Func<Task<TItem>> task,
+            string[] parameterNames,
+            object[] parameterValues)
+        {
+            for (var i = 0; i < parameterNames.Length; i++)
+            {
+                queryContext.AddParameter(parameterNames[i], parameterValues[i]);
+            }
+
+            var result = await task();
+
+            for (var i = 0; i < parameterNames.Length; i++)
+            {
+                queryContext.RemoveParameter(parameterNames[i]);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo InjectParametersSequenceMethod => _injectParametersMethodInfo;
+
+        private static readonly MethodInfo _injectParametersMethodInfo
+            = typeof(AsyncQueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParametersSequence));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TElement> _InjectParametersSequence<TElement>(
             QueryContext queryContext,
             IAsyncEnumerable<TElement> source,
             string[] parameterNames,

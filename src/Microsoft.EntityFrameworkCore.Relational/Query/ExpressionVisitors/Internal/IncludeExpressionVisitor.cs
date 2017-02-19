@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (shaper != null
                 && shaper.IsShaperForQuerySource(_querySource))
             {
-                var groupJoinIncludeArgumentIndex = shaperArgumentIndex + 4;
+                var groupJoinIncludeArgumentIndex = shaperArgumentIndex + 5;
 
                 var existingGroupJoinIncludeArgument = methodCallExpression.Arguments[groupJoinIncludeArgumentIndex];
                 var existingGroupJoinIncludeWithAccessor = existingGroupJoinIncludeArgument as MethodCallExpression;
@@ -318,7 +318,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                               .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
                             // true when select is wrapped e.g. when RowNumber paging is enabled
                             ? selectExpression.Tables[0]
-                            : selectExpression.Tables.Last(t => t.QuerySource == querySource);
+                            : selectExpression.Tables.LastOrDefault(t => t.QuerySource == querySource)
+                                ?? selectExpression.GetTableForQuerySource(querySource);
 
                     var canGenerateExists
                         = selectExpression.Offset == null
@@ -375,7 +376,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                   .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
                                 // true when select is wrapped e.g. when RowNumber paging is enabled
                                 ? subqueryExpression.Tables[0]
-                                : subqueryExpression.Tables.Last(t => t.QuerySource == querySource);
+                                : subqueryExpression.Tables.LastOrDefault(t => t.QuerySource == querySource)
+                                    ?? selectExpression.GetTableForQuerySource(querySource);
 
                         var existsPredicateExpression = new ExistsExpression(subqueryExpression);
 

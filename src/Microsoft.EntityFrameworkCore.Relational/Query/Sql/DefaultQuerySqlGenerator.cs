@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (selectExpression.IsProjectStar)
             {
                 var tableAlias = selectExpression.ProjectStarAlias;
-
+                
                 _relationalCommandBuilder
                     .Append(_sqlGenerationHelper.DelimitIdentifier(tableAlias))
                     .Append(".*");
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Schema))
                     .Append(".");
             }
-
+            
             _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Table))
                 .Append(" AS ")
                 .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
@@ -617,6 +617,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Visit(crossJoinLateralExpression.TableExpression);
 
             return crossJoinLateralExpression;
+        }
+
+        /// <summary>
+        ///     Visit a LeftJoinLateralExpression expression.
+        /// </summary>
+        /// <param name="leftJoinLateralExpression"> The left lateral join expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitLeftJoinLateral(LeftJoinLateralExpression leftJoinLateralExpression)
+        {
+            Check.NotNull(leftJoinLateralExpression, nameof(leftJoinLateralExpression));
+
+            _relationalCommandBuilder.Append("LEFT JOIN LATERAL ");
+
+            Visit(leftJoinLateralExpression.TableExpression);
+
+            return leftJoinLateralExpression;
         }
 
         /// <summary>
@@ -919,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotNull(leftOuterJoinExpression, nameof(leftOuterJoinExpression));
 
             _relationalCommandBuilder.Append("LEFT JOIN ");
-
+            
             Visit(leftOuterJoinExpression.TableExpression);
 
             _relationalCommandBuilder.Append(" ON ");

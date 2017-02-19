@@ -46,20 +46,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(expression, nameof(expression));
 
-            var queryModelVisitor = CreateQueryModelVisitor();
+            var compilationContext = QueryModelVisitor.QueryCompilationContext;
 
-            queryModelVisitor.VisitQueryModel(expression.QueryModel);
+            var subQueryModelVisitor = compilationContext.GetQueryModelVisitor(expression.QueryModel);
 
-            return queryModelVisitor.Expression;
+            if (subQueryModelVisitor == null)
+            {
+                subQueryModelVisitor
+                    = compilationContext.CreateQueryModelVisitor(
+                        expression.QueryModel,
+                        QueryModelVisitor);
+
+                subQueryModelVisitor.VisitQueryModel(expression.QueryModel);
+            }
+
+            return subQueryModelVisitor.Expression;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual EntityQueryModelVisitor CreateQueryModelVisitor()
-            => QueryModelVisitor.QueryCompilationContext
-                .CreateQueryModelVisitor(_entityQueryModelVisitor);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

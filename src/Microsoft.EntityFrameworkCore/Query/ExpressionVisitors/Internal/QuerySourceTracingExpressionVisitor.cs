@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            Visit(expression.QueryModel.SelectClause.Selector);
+            expression.QueryModel.TransformExpressions(Visit);
 
             return expression;
         }

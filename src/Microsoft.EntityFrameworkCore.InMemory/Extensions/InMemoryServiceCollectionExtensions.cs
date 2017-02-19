@@ -68,7 +68,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAddScoped<IMaterializerFactory, MaterializerFactory>()
                 .TryAddScoped<IQueryContextFactory, InMemoryQueryContextFactory>()
                 .TryAddScoped<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
-                .TryAddScoped<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>();
+                .TryAddScoped<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>()
+                .TryAddScoped<IInMemoryResultOperatorHandler, InMemoryResultOperatorHandler>();
 
             ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollectionMap);
 

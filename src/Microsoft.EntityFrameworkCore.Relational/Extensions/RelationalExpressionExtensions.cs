@@ -34,5 +34,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                    || unwrappedExpression is ParameterExpression
                    || unwrappedExpression.IsAliasWithColumnExpression();
         }
+
+        public static Expression MaybeAnonymousSubquery([CanBeNull] this Expression expression)
+        {
+            var subquery = expression as SelectExpression;
+
+            if (subquery != null)
+            {
+                subquery.Alias = string.Empty;
+            }
+
+            return expression;
+        }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 
 #if !NET452
 using System.Threading;
@@ -31,7 +32,6 @@ FROM (
     ORDER BY ""c"".""ContactName""
     LIMIT @__p_0
 ) AS ""t""
-ORDER BY ""t"".""ContactName""
 LIMIT -1 OFFSET @__p_1",
                 Sql);
         }

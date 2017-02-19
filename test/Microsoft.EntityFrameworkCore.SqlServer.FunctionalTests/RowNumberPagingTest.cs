@@ -37,8 +37,7 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[__RowNumber__] > @__p_0
-ORDER BY [t].[CustomerID]",
+WHERE [t].[__RowNumber__] > @__p_0",
                 Sql);
         }
 
@@ -71,8 +70,7 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[ContactName]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -90,8 +88,7 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[OrderID]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -109,8 +106,7 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[OrderID]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -129,8 +125,7 @@ FROM (
     INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
     INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[OrderID]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -143,15 +138,14 @@ ORDER BY [t].[OrderID]",
 
 SELECT [t0].*
 FROM (
-    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[ContactName]) AS [__RowNumber__]
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
     FROM (
         SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [t]
 ) AS [t0]
-WHERE [t0].[__RowNumber__] > @__p_1
-ORDER BY [t0].[ContactName]",
+WHERE [t0].[__RowNumber__] > @__p_1",
                 Sql);
         }
 
@@ -167,7 +161,7 @@ SELECT DISTINCT [t0].*
 FROM (
     SELECT [t1].*
     FROM (
-        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[ContactName]) AS [__RowNumber__]
+        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
         FROM (
             SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
@@ -190,7 +184,7 @@ SELECT DISTINCT [t0].*
 FROM (
     SELECT [t1].*
     FROM (
-        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY COALESCE([t].[Region], N'ZZ')) AS [__RowNumber__]
+        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
         FROM (
             SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
@@ -266,8 +260,7 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[ContactTitle], [t].[ContactName]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -288,8 +281,7 @@ FROM (
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
-) AS [t]
-ORDER BY [t].[ContactTitle], [t].[ContactName]",
+) AS [t]",
                 Sql);
         }
 
@@ -337,11 +329,8 @@ FROM (
             ) AS [t2]
             WHERE ([t2].[__RowNumber__] > @__p_0) AND ([t2].[__RowNumber__] <= (@__p_0 + @__p_1))
         ) AS [t]
-        ORDER BY [t].[ContactTitle], [t].[ContactName]
     ) AS [t0]
-    ORDER BY [t0].[ContactTitle], [t0].[ContactName]
-) AS [t1]
-ORDER BY [t1].[ContactTitle], [t1].[ContactName]",
+) AS [t1]",
                 Sql);
         }
 
@@ -397,9 +386,9 @@ END",
 
 SELECT COUNT(*)
 FROM (
-    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    SELECT [t0].*
     FROM (
-        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
@@ -416,9 +405,9 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    SELECT [t0].*
     FROM (
-        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
@@ -435,9 +424,9 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    SELECT [t0].*
     FROM (
-        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
@@ -454,9 +443,9 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    SELECT [t0].*
     FROM (
-        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0

@@ -16,6 +16,8 @@ using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    using Remotion.Linq.Clauses.Expressions;
+    using Storage;
     using ResultHandler = Func<EntityQueryModelVisitor, ResultOperatorBase, QueryModel, Expression>;
 
     /// <summary>
@@ -164,11 +166,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             DefaultIfEmptyResultOperator defaultIfEmptyResultOperator,
             QueryModel queryModel)
         {
+            var sequenceType = entityQueryModelVisitor.Expression.Type.TryGetSequenceType();
+
             if (defaultIfEmptyResultOperator.OptionalDefaultValue == null)
             {
                 return Expression.Call(
                     entityQueryModelVisitor.LinqOperatorProvider.DefaultIfEmpty
-                        .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                        .MakeGenericMethod(sequenceType),
                     entityQueryModelVisitor.Expression);
             }
 
@@ -178,9 +182,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                         defaultIfEmptyResultOperator.OptionalDefaultValue,
                         queryModel.MainFromClause);
 
+            if (sequenceType == typeof(ValueBuffer))
+            {
+                var constantExpression = optionalDefaultValue as ConstantExpression;
+
+                if (constantExpression != null)
+                {
+                    optionalDefaultValue
+                        = Expression.Constant(
+                            new ValueBuffer(
+                                new[] { constantExpression.Value }));
+                }
+            }
+
             return Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.DefaultIfEmptyArg
-                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                    .MakeGenericMethod(sequenceType),
                 entityQueryModelVisitor.Expression,
                 optionalDefaultValue);
         }
