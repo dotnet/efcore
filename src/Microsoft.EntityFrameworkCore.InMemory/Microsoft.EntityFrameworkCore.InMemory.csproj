@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>In-memory database provider for Entity Framework Core (to be used for testing purposes).</Description>
     <TargetFrameworks>net451;netstandard1.3</TargetFrameworks>
-    <NoWarn>>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);In-Memory</PackageTags>
   </PropertyGroup>

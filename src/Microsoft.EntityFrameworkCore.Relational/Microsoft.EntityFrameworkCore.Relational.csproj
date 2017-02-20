@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>Shared Entity Framework Core components for relational database providers.</Description>
     <TargetFrameworks>net451;netstandard1.3</TargetFrameworks>
-    <NoWarn>>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@
     <Description>Shared test suite for Entity Framework Core database providers.</Description>
     <TargetFrameworks>net452;netstandard1.3</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard1.3</TargetFrameworks>
-    <NoWarn>>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
