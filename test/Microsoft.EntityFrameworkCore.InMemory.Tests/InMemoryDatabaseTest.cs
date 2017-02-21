@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         private static IInMemoryDatabase CreateStore(IServiceProvider serviceProvider, bool persist)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(nameof(InMemoryDatabaseTest));
 
             return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options).GetRequiredService<IInMemoryDatabase>();
         }

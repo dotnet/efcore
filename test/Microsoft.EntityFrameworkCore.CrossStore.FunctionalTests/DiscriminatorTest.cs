@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             public DbSet<SubIntProduct2> SubIntProducts2 { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(nameof(Context4285));
 
             protected override void OnModelCreating(ModelBuilder builder)
             {

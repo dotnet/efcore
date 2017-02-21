@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Xunit;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests
 {
-    using System.Linq.Expressions;
-    using System.Reflection;
-
     public class QueryProviderTest
     {
         [Fact]
@@ -24,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         #region Fixture
+
         private class TestEntity
         {
             public int Id { get; set; }
@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public DbSet<TestEntity> TestEntities { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseTransientInMemoryDatabase();
         }
+
         #endregion
     }
 }

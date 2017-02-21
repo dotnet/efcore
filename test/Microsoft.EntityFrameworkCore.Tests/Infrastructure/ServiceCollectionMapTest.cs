@@ -494,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
         [Fact]
         public virtual void Same_INavigationFixer_is_returned_for_all_registrations()
         {
-            using (var context = new DbContext(new DbContextOptionsBuilder().UseInMemoryDatabase().Options))
+            using (var context = new DbContext(new DbContextOptionsBuilder().UseTransientInMemoryDatabase().Options))
             {
                 var navFixer = context.GetService<INavigationFixer>();
 
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
         private static DbContext CreateContext(IServiceProvider serviceProvider)
             => new DbContext(new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(serviceProvider)
-                .UseInMemoryDatabase()
+                .UseTransientInMemoryDatabase()
                 .Options);
 
         private interface IFakeService

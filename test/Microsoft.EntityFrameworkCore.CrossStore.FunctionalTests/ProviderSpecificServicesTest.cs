@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                     new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider())
-                .UseInMemoryDatabase()
+                .UseTransientInMemoryDatabase()
                 .Options;
 
             using (var context = new ConstructorTestContext1A(options))
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
-                    (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                    (p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             using (var serviceScope = appServiceProivder

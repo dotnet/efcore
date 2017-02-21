@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     public class PropertyValuesInMemoryTest
         : PropertyValuesTestBase<InMemoryTestStore, PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture>
     {
+        private const string DatabaseName = "PropertyValues";
+
         public PropertyValuesInMemoryTest(PropertyValuesInMemoryFixture fixture)
             : base(fixture)
         {
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new AdvancedPatternsMasterContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(DatabaseName)
                     .UseInternalServiceProvider(_serviceProvider).Options);
 
             public class InMemoryPropertyValuesTestStore : InMemoryTestStore
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                 public override void Dispose()
                 {
-                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
+                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
 
                     base.Dispose();
                 }

@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
-            _optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(serviceProvider);
+            _optionsBuilder
+                .UseInMemoryDatabase(nameof(InheritanceInMemoryFixture))
+                .UseInternalServiceProvider(serviceProvider);
 
             using (var context = CreateContext())
             {

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             var optionsBuilder
                 = new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseTransientInMemoryDatabase()
                     .UseInternalServiceProvider(_fixture.ServiceProvider);
 
             using (var context = new DbContext(optionsBuilder.Options))
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var optionsBuilder
                 = new DbContextOptionsBuilder()
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                    .UseInMemoryDatabase()
+                    .UseTransientInMemoryDatabase()
                     .UseInternalServiceProvider(_fixture.ServiceProvider);
 
             using (var context = new DbContext(optionsBuilder.Options))
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseLoggerFactory(new FakeLoggerFactory())
-                    .UseInMemoryDatabase().ConfigureWarnings(c =>
+                    .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(c =>
                     {
                         if (_eventIds.Any())
                         {

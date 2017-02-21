@@ -606,15 +606,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
         private class MyContext : DbContext
         {
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseInMemoryDatabase(nameof(MyContext));
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<B>().HasKey(e => new { e.MyPrimaryKey, e.Id });
-            }
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder) 
+                => modelBuilder.Entity<B>().HasKey(e => new { e.MyPrimaryKey, e.Id });
         }
     }
 }

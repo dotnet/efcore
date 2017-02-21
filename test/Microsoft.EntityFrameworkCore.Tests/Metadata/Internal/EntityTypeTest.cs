@@ -2940,7 +2940,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         private class Levels : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseTransientInMemoryDatabase();
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {

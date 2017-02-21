@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(MusicStoreContext))
                 .UseInternalServiceProvider(serviceProvider);
 
             using (var db = new MusicStoreContext(optionsBuilder.Options))

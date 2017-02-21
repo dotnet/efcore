@@ -131,7 +131,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(_serviceProvider);
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(BronieContext))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             public DbSet<Pegasus> Pegasuses { get; set; }
         }

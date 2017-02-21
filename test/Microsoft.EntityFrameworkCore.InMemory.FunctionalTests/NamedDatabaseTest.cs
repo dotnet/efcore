@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     public class NamedDatabaseTest
     {
         [Fact]
-        public void Database_per_app_domain_is_default_with_internal_service_provider()
+        public void Transient_databases_are_not_shared()
         {
             using (var context = new PusheenContext())
             {
@@ -20,6 +20,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
 
             using (var context = new PusheenContext())
+            {
+                Assert.Empty(context.Pusheens);
+            }
+        }
+
+        [Fact]
+        public void Database_per_app_domain_is_default_with_internal_service_provider()
+        {
+            using (var context = new PusheenContext(nameof(PusheenContext)))
+            {
+                context.Add(new Pusheen { Activity = "In a box" });
+                context.SaveChanges();
+            }
+
+            using (var context = new PusheenContext(nameof(PusheenContext)))
             {
                 Assert.Equal("In a box", context.Pusheens.Single().Activity);
             }
@@ -31,13 +46,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var provider1 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
             var provider2 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
 
-            using (var context = new PusheenContext(provider1))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider1))
             {
                 context.Add(new Pusheen { Activity = "In a box" });
                 context.SaveChanges();
             }
 
-            using (var context = new PusheenContext(provider2))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider2))
             {
                 Assert.Empty(context.Pusheens);
 
@@ -45,12 +60,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new PusheenContext(provider1))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider1))
             {
                 Assert.Equal("In a box", context.Pusheens.Single().Activity);
             }
 
-            using (var context = new PusheenContext(provider2))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider2))
             {
                 Assert.Equal("With some yarn", context.Pusheens.Single().Activity);
             }
@@ -104,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new PusheenContext(provider1))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider1))
             {
                 Assert.Empty(context.Pusheens);
 
@@ -128,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new PusheenContext(provider2))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider2))
             {
                 Assert.Empty(context.Pusheens);
 
@@ -146,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal("With some yarn", context.Pusheens.Single().Activity);
             }
 
-            using (var context = new PusheenContext(provider1))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider1))
             {
                 Assert.Equal("On a scooter", context.Pusheens.Single().Activity);
             }
@@ -161,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal("Goes to sleep", context.Pusheens.Single().Activity);
             }
 
-            using (var context = new PusheenContext(provider2))
+            using (var context = new PusheenContext(nameof(PusheenContext), provider2))
             {
                 Assert.Equal("Loves magic unicorns", context.Pusheens.Single().Activity);
             }
@@ -185,9 +200,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public DbSet<Pusheen> Pusheens { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder
-                .UseInternalServiceProvider(_serviceProvider)
-                .UseInMemoryDatabase(_databaseName);
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder.UseInternalServiceProvider(_serviceProvider);
+
+                if (_databaseName == null)
+                {
+                    optionsBuilder.UseTransientInMemoryDatabase();
+                }
+                else
+                {
+                    optionsBuilder.UseInMemoryDatabase(_databaseName);
+                }
+                    
+            }
         }
 
         private class Pusheen

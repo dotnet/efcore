@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///             services
         ///                 .AddEntityFrameworkInMemoryDatabase()
         ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                     options.UseInMemoryDatabase()
+        ///                     options.UseInMemoryDatabase("MyDatabase")
         ///                            .UseInternalServiceProvider(serviceProvider));
         ///         }
         ///     </code>
@@ -58,8 +58,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var serviceCollectionMap = new ServiceCollectionMap(serviceCollection)
                 .TryAddSingletonEnumerable<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>()
-                .TryAddSingleton<IInMemoryStoreSource, InMemoryStoreSource>()
+                .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
                 .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
+                .TryAddScoped<IInMemoryStoreSource, InMemoryStoreSource>()
                 .TryAddScoped<IValueGeneratorSelector, InMemoryValueGeneratorSelector>()
                 .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>()
                 .TryAddScoped<IDatabase>(p => p.GetService<IInMemoryDatabase>())

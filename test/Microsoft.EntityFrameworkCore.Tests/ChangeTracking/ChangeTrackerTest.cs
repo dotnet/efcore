@@ -1030,7 +1030,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                     });
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(nameof(TheShadows));
         }
 
         private class Dark
@@ -1165,7 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseInMemoryDatabase();
+                    .UseInMemoryDatabase(nameof(EarlyLearningCenter));
         }
 
         public class KeyValueEntityTracker

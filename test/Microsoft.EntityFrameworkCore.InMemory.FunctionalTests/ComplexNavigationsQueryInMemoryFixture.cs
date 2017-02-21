@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             _options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(serviceProvider)
-                .UseInMemoryDatabase().Options;
+                .UseInMemoryDatabase(nameof(ComplexNavigationsQueryInMemoryFixture)).Options;
         }
 
         public override InMemoryTestStore CreateTestStore()

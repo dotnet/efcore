@@ -193,18 +193,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
 
             public override InMemoryTestStore CreateTestStore()
-                => InMemoryTestStore.CreateScratch(() =>
-                    {
-                        using (var context = CreateContext(null))
+                => InMemoryTestStore.CreateScratch(
+                    _serviceProvider,
+                    nameof(GraphUpdatesInMemoryFixture),
+                    () =>
                         {
-                            Seed(context);
-                        }
-                    },
-                    _serviceProvider);
+                            using (var context = CreateContext(null))
+                            {
+                                Seed(context);
+                            }
+                        });
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new GraphUpdatesContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(nameof(GraphUpdatesInMemoryFixture))
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                     .UseInternalServiceProvider(_serviceProvider).Options);
         }

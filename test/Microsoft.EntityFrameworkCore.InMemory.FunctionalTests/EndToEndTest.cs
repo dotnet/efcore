@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model)
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(EndToEndTest))
                 .UseInternalServiceProvider(_fixture.ServiceProvider);
 
             T entity;

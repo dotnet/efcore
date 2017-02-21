@@ -39,14 +39,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseInMemoryDatabase(nameof(ImplicitServicesAndConfigBlogContext));
         }
 
         [Fact]
         public void Can_save_and_query_with_implicit_services_and_explicit_config()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(nameof(ImplicitServicesExplicitConfigBlogContext));
 
             using (var context = new ImplicitServicesExplicitConfigBlogContext(optionsBuilder.Options))
             {
@@ -117,14 +118,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<Blog> Blogs { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInternalServiceProvider(_serviceProvider).UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .UseInMemoryDatabase(nameof(ExplicitServicesImplicitConfigBlogContext));
         }
 
         [Fact]
         public void Can_save_and_query_with_explicit_services_and_explicit_config()
         {
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(ExplicitServicesAndConfigBlogContext))
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
 
@@ -209,7 +212,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<Blog> Blogs { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(_serviceProvider);
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(ImplicitConfigButNoServicesBlogContext))
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         [Fact]
@@ -259,7 +264,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(_serviceProvider);
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(InjectContextBlogContext))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             public DbSet<Blog> Blogs { get; set; }
         }
@@ -268,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
         {
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase();
+                .UseInMemoryDatabase(nameof(InjectContextAndConfigurationBlogContext));
 
             var serviceProvider = new ServiceCollection()
                 .AddTransient<InjectContextAndConfigurationBlogContext>()
@@ -318,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public void Can_register_configuration_with_DI_container_and_have_it_injected()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(nameof(InjectConfigurationBlogContext));
 
             var services = new ServiceCollection();
             services.AddTransient<InjectConfigurationBlogContext>()
@@ -372,10 +379,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public void Can_inject_different_configurations_into_different_contexts()
         {
             var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsBlogContext>()
-                .UseInMemoryDatabase();
+                .UseInMemoryDatabase(nameof(InjectDifferentConfigurationsBlogContext));
 
             var accountOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsAccountContext>()
-                .UseInMemoryDatabase();
+                .UseInMemoryDatabase(nameof(InjectDifferentConfigurationsAccountContext));
 
             var serviceProvider = new ServiceCollection()
                 .AddTransient<InjectDifferentConfigurationsBlogContext>()

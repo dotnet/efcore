@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         private class FreezerContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(nameof(FreezerContext));
 
             public DbSet<Chunky> Icecream { get; set; }
         }

@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseInMemoryDatabase()
+                    .UseTransientInMemoryDatabase()
                     .UseInternalServiceProvider(_serviceProvider);
         }
     }

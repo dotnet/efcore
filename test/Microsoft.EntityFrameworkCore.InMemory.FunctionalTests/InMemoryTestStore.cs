@@ -22,8 +22,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             return this;
         }
 
-        public static InMemoryTestStore CreateScratch(Action initializeDatabase, IServiceProvider serviceProvider)
-            => CreateScratch(initializeDatabase, () => serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear());
+        public static InMemoryTestStore CreateScratch(
+            IServiceProvider serviceProvider,
+            string databaseName,
+            Action initializeDatabase)
+            => CreateScratch(
+                initializeDatabase, 
+                () => serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(databaseName).Clear());
 
         public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action deleteDatabase)
             => new InMemoryTestStore().CreateTransient(initializeDatabase, deleteDatabase);

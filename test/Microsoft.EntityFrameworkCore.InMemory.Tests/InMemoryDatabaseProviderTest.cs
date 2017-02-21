@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public void Is_configured_when_configuration_contains_associated_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             Assert.True(new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }

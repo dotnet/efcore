@@ -3759,7 +3759,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
         }
 
         private void AssertFixup(DbContext context, Action asserts)
@@ -3816,7 +3816,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public DbSet<TestClass> Classes { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder options)
-                => options.UseInMemoryDatabase();
+                => options.UseInMemoryDatabase(nameof(FixupContext));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {

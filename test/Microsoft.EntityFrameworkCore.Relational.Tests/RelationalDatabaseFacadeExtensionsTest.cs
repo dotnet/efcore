@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(
                     new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider())
-                .UseInMemoryDatabase();
+                .UseTransientInMemoryDatabase();
             var context = new DbContext(optionsBuilder.Options);
 
             Assert.Equal(

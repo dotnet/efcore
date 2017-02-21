@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         private class IdentityConflictContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(nameof(IdentityConflictContext));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
