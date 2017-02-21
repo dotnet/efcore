@@ -51,7 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
-            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             // ReSharper disable once SuggestBaseTypeForParameter
@@ -76,7 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 sqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
                 conditionalRemovingExpressionVisitorFactory,
-                queryFlattenerFactory,
                 contextOptions,
                 queryCompilationContext,
                 parentQueryModelVisitor)
@@ -95,18 +93,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var visitor = new RowNumberPagingExpressionVisitor();
 
-                SelectExpression mainSelectExpression;
-                if (QueriesBySource.TryGetValue(queryModel.MainFromClause, out mainSelectExpression))
+                var mainSelectExpression = TryGetQuery(queryModel.MainFromClause);
+                if (mainSelectExpression != null)
                 {
                     visitor.Visit(mainSelectExpression);
                 }
 
                 foreach (var additionalSource in queryModel.BodyClauses.OfType<IQuerySource>())
                 {
-                    SelectExpression additionalFromExpression;
-                    if (QueriesBySource.TryGetValue(additionalSource, out additionalFromExpression))
+                    var additionalFromExpression = TryGetQuery(additionalSource);
+                    if (additionalFromExpression != null)
                     {
-                        visitor.Visit(mainSelectExpression);
+                        visitor.Visit(additionalFromExpression);
                     }
                 }
             }

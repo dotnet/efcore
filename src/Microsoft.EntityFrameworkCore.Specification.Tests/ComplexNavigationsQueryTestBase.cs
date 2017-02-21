@@ -2161,7 +2161,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
+        public virtual void Order_by_key_of_projected_navigation_gets_optimized_into_FK_access_subquery()
         {
             AssertQuery<Level3>(
                   l3s => l3s
@@ -2260,7 +2260,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                   );
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#6782
+        [ConditionalFact]
         public virtual void Where_predicate_on_optional_reference_navigation()
         {
             List<string> expected;
@@ -3037,7 +3037,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefautltIfEmpty()
+        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty()
         {
             AssertQuery<Level1>(
                   l1s => from l1 in l1s

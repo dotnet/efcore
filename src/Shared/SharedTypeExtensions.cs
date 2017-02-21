@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 // ReSharper disable once CheckNamespace
 namespace System
@@ -83,7 +84,7 @@ namespace System
 
         public static bool IsGrouping(this Type type) => IsGrouping(type.GetTypeInfo());
 
-        private static bool IsGrouping(TypeInfo type)
+        public static bool IsGrouping(this TypeInfo type)
             => type.IsGenericType
                && (type.GetGenericTypeDefinition() == typeof(IGrouping<,>)
                    || type.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>));
@@ -99,6 +100,18 @@ namespace System
 
             var underlyingEnumType = Enum.GetUnderlyingType(underlyingNonNullableType);
             return isNullable ? MakeNullable(underlyingEnumType) : underlyingEnumType;
+        }
+
+        public static Type UnwrapTaskResultType(this Type type) => UnwrapTaskResultType(type.GetTypeInfo());
+
+        public static Type UnwrapTaskResultType(this TypeInfo typeInfo)
+        {
+            if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                return typeInfo.GenericTypeArguments[0];
+            }
+
+            return typeInfo.AsType();
         }
 
         public static Type GetSequenceType(this Type type)

@@ -5944,14 +5944,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Select_Property_when_shaow_unconstrained_generic_method()
+        public virtual void Select_Property_when_shadow_unconstrained_generic_method()
         {
             AssertQuery<Employee>(es =>
                     ShadowPropertySelect<Employee, string>(es, "Title"));
         }
 
         [ConditionalFact]
-        public virtual void Where_Property_when_shaow_unconstrained_generic_method()
+        public virtual void Where_Property_when_shadow_unconstrained_generic_method()
         {
             AssertQuery<Employee>(es =>
                         ShadowPropertyWhere(es, "Title", "Sales Representative"),
@@ -6852,8 +6852,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
         }
 
-        [ConditionalFact]
-        public virtual void Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ()
+        [ConditionalFact(Skip = "May be obsolete now")]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ()
         {
             AssertQuery<Employee>(
                 es => from e1 in es
@@ -7085,6 +7085,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<int>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<int?>> query,
             bool assertOrder = false,
             int entryCount = 0)
             where TItem : class

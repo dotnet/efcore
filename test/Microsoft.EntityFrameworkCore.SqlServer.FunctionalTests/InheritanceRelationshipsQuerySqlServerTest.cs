@@ -20,13 +20,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.Include_reference_with_inheritance1();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
     FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
     WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnBase] ON [e].[Id] = [e.BaseReferenceOnBase].[BaseParentId]
 WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')",
                 Sql);
         }
@@ -45,13 +45,13 @@ WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInh
             base.Include_reference_with_inheritance_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
 FROM [BaseReferenceOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseParent]
     WHERE [e.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[BaseParentId] = [t].[Id]
+) AS [e.BaseParent] ON [e].[BaseParentId] = [e.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')",
                 Sql);
         }
@@ -61,13 +61,13 @@ WHERE [e].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
             base.Include_self_refence_with_inheritence();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.DerivedSefReferenceOnBase].[Id], [e.DerivedSefReferenceOnBase].[Discriminator], [e.DerivedSefReferenceOnBase].[Name], [e.DerivedSefReferenceOnBase].[BaseId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.DerivedSefReferenceOnBase].[Id], [e.DerivedSefReferenceOnBase].[Discriminator], [e.DerivedSefReferenceOnBase].[Name], [e.DerivedSefReferenceOnBase].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.DerivedSefReferenceOnBase]
     WHERE [e.DerivedSefReferenceOnBase].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
-) AS [t] ON [e].[Id] = [t].[BaseId]
+) AS [e.DerivedSefReferenceOnBase] ON [e].[Id] = [e.DerivedSefReferenceOnBase].[BaseId]
 WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')",
                 Sql);
         }
@@ -77,13 +77,13 @@ WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInh
             base.Include_self_refence_with_inheritence_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseSelfRerefenceOnDerived].[Id], [e.BaseSelfRerefenceOnDerived].[Discriminator], [e.BaseSelfRerefenceOnDerived].[Name], [e.BaseSelfRerefenceOnDerived].[BaseId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseSelfRerefenceOnDerived].[Id], [e.BaseSelfRerefenceOnDerived].[Discriminator], [e.BaseSelfRerefenceOnDerived].[Name], [e.BaseSelfRerefenceOnDerived].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseSelfRerefenceOnDerived]
     WHERE [e.BaseSelfRerefenceOnDerived].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[BaseId] = [t].[Id]
+) AS [e.BaseSelfRerefenceOnDerived] ON [e].[BaseId] = [e.BaseSelfRerefenceOnDerived].[Id]
 WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
                 Sql);
         }
@@ -93,13 +93,13 @@ WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
             base.Include_reference_with_inheritance_with_filter1();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
     FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
     WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnBase] ON [e].[Id] = [e.BaseReferenceOnBase].[BaseParentId]
 WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)",
                 Sql);
         }
@@ -118,13 +118,13 @@ WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInh
             base.Include_reference_with_inheritance_with_filter_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
 FROM [BaseReferenceOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseParent]
     WHERE [e.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[BaseParentId] = [t].[Id]
+) AS [e.BaseParent] ON [e].[BaseParentId] = [e.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)",
                 Sql);
         }
@@ -146,13 +146,13 @@ WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInh
             base.Include_reference_without_inheritance_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
 FROM [ReferenceOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.Parent]
     WHERE [e.Parent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[ParentId] = [t].[Id]",
+) AS [e.Parent] ON [e].[ParentId] = [e.Parent].[Id]",
                 Sql);
         }
 
@@ -173,13 +173,13 @@ WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInh
             base.Include_reference_without_inheritance_with_filter_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
 FROM [ReferenceOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.Parent]
     WHERE [e.Parent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[ParentId] = [t].[Id]
+) AS [e.Parent] ON [e].[ParentId] = [e.Parent].[Id]
 WHERE ([e].[Name] <> N'Bar') OR [e].[Name] IS NULL",
                 Sql);
         }
@@ -218,13 +218,13 @@ ORDER BY [b].[BaseParentId]",
             base.Include_collection_with_inheritance_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedProperty], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedProperty], [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
 FROM [BaseCollectionOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseParent]
     WHERE [e.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[BaseParentId] = [t].[Id]
+) AS [e.BaseParent] ON [e].[BaseParentId] = [e.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase')",
                 Sql);
         }
@@ -263,13 +263,13 @@ ORDER BY [b].[BaseParentId]",
             base.Include_collection_with_inheritance_with_filter_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedProperty], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedProperty], [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
 FROM [BaseCollectionOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseParent]
     WHERE [e.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[BaseParentId] = [t].[Id]
+) AS [e.BaseParent] ON [e].[BaseParentId] = [e.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)",
                 Sql);
         }
@@ -299,13 +299,13 @@ ORDER BY [c].[ParentId]",
             base.Include_collection_without_inheritance_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
 FROM [CollectionOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.Parent]
     WHERE [e.Parent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[ParentId] = [t].[Id]",
+) AS [e.Parent] ON [e].[ParentId] = [e.Parent].[Id]",
                 Sql);
         }
 
@@ -334,13 +334,13 @@ ORDER BY [c].[ParentId]",
             base.Include_collection_without_inheritance_with_filter_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
 FROM [CollectionOnBase] AS [e]
 LEFT JOIN (
     SELECT [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.Parent]
     WHERE [e.Parent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t] ON [e].[ParentId] = [t].[Id]
+) AS [e.Parent] ON [e].[ParentId] = [e.Parent].[Id]
 WHERE ([e].[Name] <> N'Bar') OR [e].[Name] IS NULL",
                 Sql);
         }
@@ -350,13 +350,13 @@ WHERE ([e].[Name] <> N'Bar') OR [e].[Name] IS NULL",
             base.Include_reference_with_inheritance_on_derived1();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
     FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
     WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnBase] ON [e].[Id] = [e.BaseReferenceOnBase].[BaseParentId]
 WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
                 Sql);
         }
@@ -366,13 +366,13 @@ WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
             base.Include_reference_with_inheritance_on_derived2();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnDerived].[Id], [e.BaseReferenceOnDerived].[BaseParentId], [e.BaseReferenceOnDerived].[Discriminator], [e.BaseReferenceOnDerived].[Name], [e.BaseReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnDerived].[Id], [e.BaseReferenceOnDerived].[BaseParentId], [e.BaseReferenceOnDerived].[Discriminator], [e.BaseReferenceOnDerived].[Name], [e.BaseReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
     FROM [BaseReferenceOnDerived] AS [e.BaseReferenceOnDerived]
     WHERE [e.BaseReferenceOnDerived].[Discriminator] IN (N'DerivedReferenceOnDerived', N'BaseReferenceOnDerived')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnDerived] ON [e].[Id] = [e.BaseReferenceOnDerived].[BaseParentId]
 WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
                 Sql);
         }
@@ -391,13 +391,13 @@ WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
             base.Include_reference_with_inheritance_on_derived4();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.DerivedReferenceOnDerived].[Id], [e.DerivedReferenceOnDerived].[BaseParentId], [e.DerivedReferenceOnDerived].[Discriminator], [e.DerivedReferenceOnDerived].[Name], [e.DerivedReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.DerivedReferenceOnDerived].[Id], [e.DerivedReferenceOnDerived].[BaseParentId], [e.DerivedReferenceOnDerived].[Discriminator], [e.DerivedReferenceOnDerived].[Name], [e.DerivedReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
     FROM [BaseReferenceOnDerived] AS [e.DerivedReferenceOnDerived]
     WHERE [e.DerivedReferenceOnDerived].[Discriminator] = N'DerivedReferenceOnDerived'
-) AS [t] ON [e].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
+) AS [e.DerivedReferenceOnDerived] ON [e].[Id] = [e.DerivedReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
 WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
                 Sql);
         }
@@ -407,13 +407,13 @@ WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
             base.Include_reference_with_inheritance_on_derived_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedInheritanceRelationshipEntityId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedInheritanceRelationshipEntityId], [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
 FROM [BaseReferenceOnDerived] AS [e]
 LEFT JOIN (
     SELECT [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseParent]
     WHERE [e.BaseParent].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
-) AS [t] ON [e].[BaseParentId] = [t].[Id]
+) AS [e.BaseParent] ON [e].[BaseParentId] = [e.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'DerivedReferenceOnDerived', N'BaseReferenceOnDerived')",
                 Sql);
         }
@@ -423,13 +423,13 @@ WHERE [e].[Discriminator] IN (N'DerivedReferenceOnDerived', N'BaseReferenceOnDer
             base.Include_reference_with_inheritance_on_derived_with_filter1();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
     FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
     WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnBase] ON [e].[Id] = [e.BaseReferenceOnBase].[BaseParentId]
 WHERE ([e].[Discriminator] = N'DerivedInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)",
                 Sql);
         }
@@ -439,13 +439,13 @@ WHERE ([e].[Discriminator] = N'DerivedInheritanceRelationshipEntity') AND (([e].
             base.Include_reference_with_inheritance_on_derived_with_filter2();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnDerived].[Id], [e.BaseReferenceOnDerived].[BaseParentId], [e.BaseReferenceOnDerived].[Discriminator], [e.BaseReferenceOnDerived].[Name], [e.BaseReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnDerived].[Id], [e.BaseReferenceOnDerived].[BaseParentId], [e.BaseReferenceOnDerived].[Discriminator], [e.BaseReferenceOnDerived].[Name], [e.BaseReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
     FROM [BaseReferenceOnDerived] AS [e.BaseReferenceOnDerived]
     WHERE [e.BaseReferenceOnDerived].[Discriminator] IN (N'DerivedReferenceOnDerived', N'BaseReferenceOnDerived')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnDerived] ON [e].[Id] = [e.BaseReferenceOnDerived].[BaseParentId]
 WHERE ([e].[Discriminator] = N'DerivedInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)",
                 Sql);
         }
@@ -464,13 +464,13 @@ WHERE ([e].[Discriminator] = N'DerivedInheritanceRelationshipEntity') AND (([e].
             base.Include_reference_with_inheritance_on_derived_with_filter4();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.DerivedReferenceOnDerived].[Id], [e.DerivedReferenceOnDerived].[BaseParentId], [e.DerivedReferenceOnDerived].[Discriminator], [e.DerivedReferenceOnDerived].[Name], [e.DerivedReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.DerivedReferenceOnDerived].[Id], [e.DerivedReferenceOnDerived].[BaseParentId], [e.DerivedReferenceOnDerived].[Discriminator], [e.DerivedReferenceOnDerived].[Name], [e.DerivedReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
     FROM [BaseReferenceOnDerived] AS [e.DerivedReferenceOnDerived]
     WHERE [e.DerivedReferenceOnDerived].[Discriminator] = N'DerivedReferenceOnDerived'
-) AS [t] ON [e].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
+) AS [e.DerivedReferenceOnDerived] ON [e].[Id] = [e.DerivedReferenceOnDerived].[DerivedInheritanceRelationshipEntityId]
 WHERE ([e].[Discriminator] = N'DerivedInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)",
                 Sql);
         }
@@ -480,13 +480,13 @@ WHERE ([e].[Discriminator] = N'DerivedInheritanceRelationshipEntity') AND (([e].
             base.Include_reference_with_inheritance_on_derived_with_filter_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedInheritanceRelationshipEntityId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[BaseParentId], [e].[Discriminator], [e].[Name], [e].[DerivedInheritanceRelationshipEntityId], [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
 FROM [BaseReferenceOnDerived] AS [e]
 LEFT JOIN (
     SELECT [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseParent]
     WHERE [e.BaseParent].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
-) AS [t] ON [e].[BaseParentId] = [t].[Id]
+) AS [e.BaseParent] ON [e].[BaseParentId] = [e.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'DerivedReferenceOnDerived', N'BaseReferenceOnDerived') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)",
                 Sql);
         }
@@ -520,13 +520,13 @@ WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
             base.Include_reference_without_inheritance_on_derived_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Name], [e].[ParentId], [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
 FROM [ReferenceOnDerived] AS [e]
 LEFT JOIN (
     SELECT [e.Parent].[Id], [e.Parent].[Discriminator], [e.Parent].[Name], [e.Parent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.Parent]
     WHERE [e.Parent].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
-) AS [t] ON [e].[ParentId] = [t].[Id]",
+) AS [e.Parent] ON [e].[ParentId] = [e.Parent].[Id]",
                 Sql);
         }
 
@@ -593,13 +593,13 @@ ORDER BY [b].[ParentId]",
             base.Include_collection_with_inheritance_on_derived_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentId], [e].[DerivedInheritanceRelationshipEntityId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentId], [e].[DerivedInheritanceRelationshipEntityId], [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
 FROM [BaseCollectionOnDerived] AS [e]
 LEFT JOIN (
     SELECT [e.BaseParent].[Id], [e.BaseParent].[Discriminator], [e.BaseParent].[Name], [e.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.BaseParent]
     WHERE [e.BaseParent].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
-) AS [t] ON [e].[ParentId] = [t].[Id]
+) AS [e.BaseParent] ON [e].[ParentId] = [e.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'DerivedCollectionOnDerived', N'BaseCollectionOnDerived')",
                 Sql);
         }
@@ -609,18 +609,18 @@ WHERE [e].[Discriminator] IN (N'DerivedCollectionOnDerived', N'BaseCollectionOnD
             base.Nested_include_with_inheritance_reference_reference1();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t0].[Id], [t0].[Discriminator], [t0].[Name], [t0].[ParentCollectionId], [t0].[ParentReferenceId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name], [e.BaseReferenceOnBase.NestedReference].[Id], [e.BaseReferenceOnBase.NestedReference].[Discriminator], [e.BaseReferenceOnBase.NestedReference].[Name], [e.BaseReferenceOnBase.NestedReference].[ParentCollectionId], [e.BaseReferenceOnBase.NestedReference].[ParentReferenceId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
     FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
     WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnBase] ON [e].[Id] = [e.BaseReferenceOnBase].[BaseParentId]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase.NestedReference].[Id], [e.BaseReferenceOnBase.NestedReference].[Discriminator], [e.BaseReferenceOnBase.NestedReference].[Name], [e.BaseReferenceOnBase.NestedReference].[ParentCollectionId], [e.BaseReferenceOnBase.NestedReference].[ParentReferenceId]
     FROM [NestedReferenceBase] AS [e.BaseReferenceOnBase.NestedReference]
     WHERE [e.BaseReferenceOnBase.NestedReference].[Discriminator] IN (N'NestedReferenceDerived', N'NestedReferenceBase')
-) AS [t0] ON [t].[Id] = [t0].[ParentReferenceId]
+) AS [e.BaseReferenceOnBase.NestedReference] ON [e.BaseReferenceOnBase].[Id] = [e.BaseReferenceOnBase.NestedReference].[ParentReferenceId]
 WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')",
                 Sql);
         }
@@ -639,18 +639,18 @@ WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInh
             base.Nested_include_with_inheritance_reference_reference3();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t0].[Id], [t0].[Discriminator], [t0].[Name], [t0].[ParentCollectionId], [t0].[ParentReferenceId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name], [e.BaseReferenceOnBase.NestedReference].[Id], [e.BaseReferenceOnBase.NestedReference].[Discriminator], [e.BaseReferenceOnBase.NestedReference].[Name], [e.BaseReferenceOnBase.NestedReference].[ParentCollectionId], [e.BaseReferenceOnBase.NestedReference].[ParentReferenceId]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase].[Id], [e.BaseReferenceOnBase].[BaseParentId], [e.BaseReferenceOnBase].[Discriminator], [e.BaseReferenceOnBase].[Name]
     FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
     WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[Id] = [t].[BaseParentId]
+) AS [e.BaseReferenceOnBase] ON [e].[Id] = [e.BaseReferenceOnBase].[BaseParentId]
 LEFT JOIN (
     SELECT [e.BaseReferenceOnBase.NestedReference].[Id], [e.BaseReferenceOnBase.NestedReference].[Discriminator], [e.BaseReferenceOnBase.NestedReference].[Name], [e.BaseReferenceOnBase.NestedReference].[ParentCollectionId], [e.BaseReferenceOnBase.NestedReference].[ParentReferenceId]
     FROM [NestedReferenceBase] AS [e.BaseReferenceOnBase.NestedReference]
     WHERE [e.BaseReferenceOnBase.NestedReference].[Discriminator] IN (N'NestedReferenceDerived', N'NestedReferenceBase')
-) AS [t0] ON [t].[Id] = [t0].[ParentReferenceId]
+) AS [e.BaseReferenceOnBase.NestedReference] ON [e.BaseReferenceOnBase].[Id] = [e.BaseReferenceOnBase.NestedReference].[ParentReferenceId]
 WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
                 Sql);
         }
@@ -669,18 +669,18 @@ WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'",
             base.Nested_include_with_inheritance_reference_reference_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t0].[Id], [t0].[Discriminator], [t0].[Name], [t0].[BaseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [e.ParentReference].[Id], [e.ParentReference].[BaseParentId], [e.ParentReference].[Discriminator], [e.ParentReference].[Name], [e.ParentReference.BaseParent].[Id], [e.ParentReference.BaseParent].[Discriminator], [e.ParentReference.BaseParent].[Name], [e.ParentReference.BaseParent].[BaseId]
 FROM [NestedReferenceBase] AS [e]
 LEFT JOIN (
     SELECT [e.ParentReference].[Id], [e.ParentReference].[BaseParentId], [e.ParentReference].[Discriminator], [e.ParentReference].[Name]
     FROM [BaseReferenceOnBase] AS [e.ParentReference]
     WHERE [e.ParentReference].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[ParentReferenceId] = [t].[Id]
+) AS [e.ParentReference] ON [e].[ParentReferenceId] = [e.ParentReference].[Id]
 LEFT JOIN (
     SELECT [e.ParentReference.BaseParent].[Id], [e.ParentReference.BaseParent].[Discriminator], [e.ParentReference.BaseParent].[Name], [e.ParentReference.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.ParentReference.BaseParent]
     WHERE [e.ParentReference.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t0] ON [t].[BaseParentId] = [t0].[Id]
+) AS [e.ParentReference.BaseParent] ON [e.ParentReference].[BaseParentId] = [e.ParentReference.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'NestedReferenceDerived', N'NestedReferenceBase')",
                 Sql);
         }
@@ -768,18 +768,18 @@ ORDER BY [n].[ParentReferenceId]",
             base.Nested_include_with_inheritance_reference_collection_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t0].[Id], [t0].[Discriminator], [t0].[Name], [t0].[BaseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [e.ParentReference].[Id], [e.ParentReference].[BaseParentId], [e.ParentReference].[Discriminator], [e.ParentReference].[Name], [e.ParentReference.BaseParent].[Id], [e.ParentReference.BaseParent].[Discriminator], [e.ParentReference.BaseParent].[Name], [e.ParentReference.BaseParent].[BaseId]
 FROM [NestedCollectionBase] AS [e]
 LEFT JOIN (
     SELECT [e.ParentReference].[Id], [e.ParentReference].[BaseParentId], [e.ParentReference].[Discriminator], [e.ParentReference].[Name]
     FROM [BaseReferenceOnBase] AS [e.ParentReference]
     WHERE [e.ParentReference].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [t] ON [e].[ParentReferenceId] = [t].[Id]
+) AS [e.ParentReference] ON [e].[ParentReferenceId] = [e.ParentReference].[Id]
 LEFT JOIN (
     SELECT [e.ParentReference.BaseParent].[Id], [e.ParentReference.BaseParent].[Discriminator], [e.ParentReference.BaseParent].[Name], [e.ParentReference.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.ParentReference.BaseParent]
     WHERE [e.ParentReference.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t0] ON [t].[BaseParentId] = [t0].[Id]
+) AS [e.ParentReference.BaseParent] ON [e.ParentReference].[BaseParentId] = [e.ParentReference.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase')",
                 Sql);
         }
@@ -841,18 +841,18 @@ ORDER BY [b].[BaseParentId]",
             base.Nested_include_with_inheritance_collection_reference_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t].[DerivedProperty], [t0].[Id], [t0].[Discriminator], [t0].[Name], [t0].[BaseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [e.ParentCollection].[Id], [e.ParentCollection].[BaseParentId], [e.ParentCollection].[Discriminator], [e.ParentCollection].[Name], [e.ParentCollection].[DerivedProperty], [e.ParentCollection.BaseParent].[Id], [e.ParentCollection.BaseParent].[Discriminator], [e.ParentCollection.BaseParent].[Name], [e.ParentCollection.BaseParent].[BaseId]
 FROM [NestedReferenceBase] AS [e]
 LEFT JOIN (
     SELECT [e.ParentCollection].[Id], [e.ParentCollection].[BaseParentId], [e.ParentCollection].[Discriminator], [e.ParentCollection].[Name], [e.ParentCollection].[DerivedProperty]
     FROM [BaseCollectionOnBase] AS [e.ParentCollection]
     WHERE [e.ParentCollection].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase')
-) AS [t] ON [e].[ParentCollectionId] = [t].[Id]
+) AS [e.ParentCollection] ON [e].[ParentCollectionId] = [e.ParentCollection].[Id]
 LEFT JOIN (
     SELECT [e.ParentCollection.BaseParent].[Id], [e.ParentCollection.BaseParent].[Discriminator], [e.ParentCollection.BaseParent].[Name], [e.ParentCollection.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.ParentCollection.BaseParent]
     WHERE [e.ParentCollection.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t0] ON [t].[BaseParentId] = [t0].[Id]
+) AS [e.ParentCollection.BaseParent] ON [e.ParentCollection].[BaseParentId] = [e.ParentCollection.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'NestedReferenceDerived', N'NestedReferenceBase')",
                 Sql);
         }
@@ -922,18 +922,18 @@ ORDER BY [b0].[BaseParentId], [b0].[Id]",
             base.Nested_include_with_inheritance_collection_collection_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name], [t].[DerivedProperty], [t0].[Id], [t0].[Discriminator], [t0].[Name], [t0].[BaseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[ParentCollectionId], [e].[ParentReferenceId], [e.ParentCollection].[Id], [e.ParentCollection].[BaseParentId], [e.ParentCollection].[Discriminator], [e.ParentCollection].[Name], [e.ParentCollection].[DerivedProperty], [e.ParentCollection.BaseParent].[Id], [e.ParentCollection.BaseParent].[Discriminator], [e.ParentCollection.BaseParent].[Name], [e.ParentCollection.BaseParent].[BaseId]
 FROM [NestedCollectionBase] AS [e]
 LEFT JOIN (
     SELECT [e.ParentCollection].[Id], [e.ParentCollection].[BaseParentId], [e.ParentCollection].[Discriminator], [e.ParentCollection].[Name], [e.ParentCollection].[DerivedProperty]
     FROM [BaseCollectionOnBase] AS [e.ParentCollection]
     WHERE [e.ParentCollection].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase')
-) AS [t] ON [e].[ParentCollectionId] = [t].[Id]
+) AS [e.ParentCollection] ON [e].[ParentCollectionId] = [e.ParentCollection].[Id]
 LEFT JOIN (
     SELECT [e.ParentCollection.BaseParent].[Id], [e.ParentCollection.BaseParent].[Discriminator], [e.ParentCollection.BaseParent].[Name], [e.ParentCollection.BaseParent].[BaseId]
     FROM [BaseInheritanceRelationshipEntity] AS [e.ParentCollection.BaseParent]
     WHERE [e.ParentCollection.BaseParent].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-) AS [t0] ON [t].[BaseParentId] = [t0].[Id]
+) AS [e.ParentCollection.BaseParent] ON [e.ParentCollection].[BaseParentId] = [e.ParentCollection.BaseParent].[Id]
 WHERE [e].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase')",
                 Sql);
         }

@@ -21,11 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="arguments"> The arguments. </param>
         /// <param name="alias"> The alias. </param>
         /// <param name="querySource"> The query source. </param>
+        /// <param name="isComposable"> A value indicating whether or not this expression can be composed. </param>
         public FromSqlExpression(
             [NotNull] string sql,
             [NotNull] Expression arguments,
             [NotNull] string alias,
-            [NotNull] IQuerySource querySource)
+            [NotNull] IQuerySource querySource,
+            bool isComposable)
             : base(
                 Check.NotNull(querySource, nameof(querySource)),
                 Check.NotEmpty(alias, nameof(alias)))
@@ -35,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             Sql = sql;
             Arguments = arguments;
+            IsComposable = isComposable;
         }
 
         /// <summary>
@@ -52,6 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The arguments.
         /// </value>
         public virtual Expression Arguments { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether or not this expression can be composed.
+        /// </summary>
+        /// <value>
+        ///     A value indicating whether or not this expression can be composed.
+        /// </value>
+        public virtual bool IsComposable { get; }
 
         /// <summary>
         ///     Dispatches to the specific visit method for this node type.

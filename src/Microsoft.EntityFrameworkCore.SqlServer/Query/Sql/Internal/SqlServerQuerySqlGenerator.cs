@@ -56,6 +56,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public override Expression VisitLeftJoinLateral(LeftJoinLateralExpression leftJoinLateralExpression)
+        {
+            Check.NotNull(leftJoinLateralExpression, nameof(leftJoinLateralExpression));
+
+            Sql.Append("OUTER APPLY ");
+
+            Visit(leftJoinLateralExpression.TableExpression);
+
+            return leftJoinLateralExpression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             if (selectExpression.Projection.OfType<RowNumberExpression>().Any())
