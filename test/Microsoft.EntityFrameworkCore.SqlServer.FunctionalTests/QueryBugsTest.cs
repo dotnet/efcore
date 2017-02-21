@@ -1241,7 +1241,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 }
             }
         }
-        
+
         private SqlServerTestStore CreateDatabase3101()
             => CreateTestStore(() => new MyContext3101(_options),
                 context =>
@@ -1305,7 +1305,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public string Name { get; set; }
         }
 
-#endregion
+        #endregion
 
         #region Bug6986
 
@@ -1671,6 +1671,78 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     });
 
         #endregion
+
+        #region Bug7312
+
+        [Fact]
+        public virtual void Reference_include_on_derived_type_with_sibling_works_bug_7312()
+        {
+            using (CreateDatabase7312())
+            {
+                using (var context = new MyContext7312(_options))
+                {
+                    var query = context.Proposal.OfType<ProposalLeave7312>().Include(l => l.LeaveType).ToList();
+
+                    Assert.Equal(1, query.Count);
+                }
+            }
+        }
+
+        public class Proposal7312
+        {
+            public int Id { get; set; }
+        }
+
+        public class ProposalCustom7312 : Proposal7312
+        {
+            public string Name { get; set; }
+        }
+
+        public class ProposalLeave7312 : Proposal7312
+        {
+            public DateTime LeaveStart { get; set; }
+            public virtual ProposalLeaveType7312 LeaveType { get; set; }
+        }
+
+        public class ProposalLeaveType7312
+        {
+            public int Id { get; set; }
+            public ICollection<ProposalLeave7312> ProposalLeaves { get; set; }
+        }
+
+        private class MyContext7312 : DbContext
+        {
+            public MyContext7312(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Proposal7312> Proposal { get; set; }
+            public DbSet<ProposalCustom7312> ProposalCustoms { get; set; }
+            public DbSet<ProposalLeave7312> ProposalLeaves { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase7312()
+            => CreateTestStore(() => new MyContext7312(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Proposal7312(),
+                        new ProposalCustom7312
+                        {
+                            Name = "CustomProposal",
+                        },
+                        new ProposalLeave7312
+                        {
+                            LeaveStart = DateTime.Now,
+                            LeaveType = new ProposalLeaveType7312()
+                        }
+                    );
+                    context.SaveChanges();
+                });
+
+        #endregion
+
 
         private DbContextOptions _options;
 

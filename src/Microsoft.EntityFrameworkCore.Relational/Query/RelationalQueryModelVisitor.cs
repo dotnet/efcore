@@ -414,9 +414,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(mainFromClause, nameof(mainFromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileMainFromClauseExpression(mainFromClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = mainFromClause.FromExpression as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(mainFromClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(mainFromClause, mainFromClause.FromExpression, expression);
+            expression = expression ?? base.CompileMainFromClauseExpression(mainFromClause, queryModel);
+
+            return expression;
         }
 
         /// <summary>
@@ -492,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         previousSelectExpression
-                            .AddLateralJoin(selectExpression.Tables.First(), selectExpression.Projection);
+                            .AddCrossJoinLateral(selectExpression.Tables.First(), selectExpression.Projection);
                     }
                     else
                     {
@@ -573,9 +580,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(additionalFromClause, nameof(additionalFromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileAdditionalFromClauseExpression(additionalFromClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = additionalFromClause.FromExpression as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(additionalFromClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(additionalFromClause, additionalFromClause.FromExpression, expression);
+            expression = expression ?? base.CompileAdditionalFromClauseExpression(additionalFromClause, queryModel);
+
+            return expression;
         }
 
         /// <summary>
@@ -611,9 +625,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = joinClause.InnerSequence as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(joinClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(joinClause, joinClause.InnerSequence, expression);
+            expression = expression ?? base.CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
+
+            return expression;
         }
 
         /// <summary>
@@ -994,21 +1015,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(groupJoinClause, nameof(groupJoinClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileGroupJoinInnerSequenceExpression(groupJoinClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(groupJoinClause.JoinClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(groupJoinClause.JoinClause, groupJoinClause.JoinClause.InnerSequence, expression);
+            expression = expression ?? base.CompileGroupJoinInnerSequenceExpression(groupJoinClause, queryModel);
+
+            return expression;
         }
 
         private Expression LiftSubQuery(
-            IQuerySource querySource, Expression itemsExpression, Expression expression)
+            IQuerySource querySource, SubQueryExpression subQueryExpression)
         {
-            var subQueryExpression = itemsExpression as SubQueryExpression;
-
-            if (subQueryExpression == null)
-            {
-                return expression;
-            }
-
             var subQueryModelVisitor
                 = (RelationalQueryModelVisitor)QueryCompilationContext
                     .CreateQueryModelVisitor(this);
@@ -1058,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             subQueryModel.RecreateQueryModelFromMapping(queryModelMapping);
 
-            return expression;
+            return null;
         }
 
         private sealed class QuerySourceUpdater : ExpressionVisitorBase

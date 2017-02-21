@@ -11,14 +11,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// <summary>
     ///     Represents a SQL INNER JOIN expression.
     /// </summary>
-    public class InnerJoinExpression : JoinExpressionBase
+    public class InnerJoinExpression : PredicateJoinExpressionBase
     {
         /// <summary>
         ///     Creates a new instance of InnerJoinExpression.
         /// </summary>
         /// <param name="tableExpression"> The table expression. </param>
         public InnerJoinExpression([NotNull] TableExpressionBase tableExpression)
-            : base(tableExpression)
+            : base(Check.NotNull(tableExpression, nameof(tableExpression)))
         {
         }
 

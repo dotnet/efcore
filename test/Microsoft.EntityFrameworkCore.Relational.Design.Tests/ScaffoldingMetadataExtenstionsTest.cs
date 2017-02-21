@@ -39,5 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             model.Scaffolding().EntityTypeErrors.Clear();
             Assert.Empty(model.Scaffolding().EntityTypeErrors.Values);
         }
+
+        [Fact]
+        public void It_sets_DbSet_name()
+        {
+            var model = new Model();
+            var entity = model.AddEntityType("Blog");
+            entity.Scaffolding().DbSetName = "Blogs";
+
+            Assert.Equal("Blogs", entity.Scaffolding().DbSetName);
+        }
     }
 }

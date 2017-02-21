@@ -4820,7 +4820,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ods => ods.Where(od => Math.Ceiling(od.UnitPrice) > 10),
                 entryCount: 1677);
         }
-
+        
         [ConditionalFact]
         public virtual void Where_math_floor()
         {
@@ -4858,6 +4858,94 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<OrderDetail>(
                 ods => ods.Where(od => Math.Truncate(od.UnitPrice) > 10),
                 entryCount: 1658);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_exp()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Exp(od.Discount) > 1),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_log10()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log10(od.Discount) < 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_log()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount) < 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_sqrt()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Sqrt(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_acos()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Acos(od.Discount) > 1),
+                entryCount: 25);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_asin()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Asin(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_atan()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Atan(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_atan2()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Atan2(od.Discount, 1) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_cos()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Cos(od.Discount) > 0),
+                entryCount: 25);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_sin()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Sin(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_tan()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Tan(od.Discount) > 0),
+                entryCount: 13);
         }
 
         [ConditionalFact]

@@ -67,9 +67,9 @@ ORDER BY [od].[OrderID], [od].[ProductID]",
 
 SELECT [t].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c0].*
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
 ) AS [t]
 ORDER BY [t].[CustomerID]
 
@@ -100,9 +100,9 @@ SELECT (
     WHERE [t].[CustomerID] = [o].[CustomerID]
 )
 FROM (
-    SELECT TOP(@__p_0) [c0].*
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
 ) AS [t]
 ORDER BY [t].[CustomerID]",
                 Sql);
@@ -121,9 +121,9 @@ SELECT (
     WHERE [t].[CustomerID] = [o].[CustomerID]
 )
 FROM (
-    SELECT TOP(@__p_0) [c0].*
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
 ) AS [t]
 ORDER BY [t].[CustomerID]",
                 Sql);
@@ -138,9 +138,9 @@ ORDER BY [t].[CustomerID]",
 
 SELECT [t].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c0].*
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
 ) AS [t]
 ORDER BY [t].[CustomerID]
 
@@ -167,9 +167,9 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
 
 SELECT [t].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c0].*
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
 ) AS [t]
 ORDER BY [t].[CustomerID]
 
@@ -196,15 +196,14 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Assert.StartsWith(
                     @"@__p_0: 20
 
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
+SELECT [c0].[CustomerID]
+FROM [Customers] AS [c0]
+ORDER BY [c0].[CustomerID]
 OFFSET @__p_0 ROWS
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-ORDER BY [o].[OrderID]
-",
+ORDER BY [o].[OrderID]",
                     Sql);
             }
         }
@@ -930,13 +929,13 @@ WHERE EXISTS (
         SELECT [o].[OrderID], [o].[ProductID]
         FROM [Order Details] AS [o]
         WHERE [p].[ProductID] = [o].[ProductID]
-    ) AS [t00]
+    ) AS [t0]
     INNER JOIN (
         SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[Quantity] = 1
         ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
-    ) AS [t1] ON ([t00].[OrderID] = [t1].[OrderID]) AND ([t00].[ProductID] = [t1].[ProductID]))",
+    ) AS [t1] ON ([t0].[OrderID] = [t1].[OrderID]) AND ([t0].[ProductID] = [t1].[ProductID]))",
                 Sql);
         }
 
@@ -953,12 +952,12 @@ WHERE EXISTS (
         SELECT [o].[OrderID], [o].[ProductID]
         FROM [Order Details] AS [o]
         WHERE [p].[ProductID] = [o].[ProductID]
-    ) AS [t00]
+    ) AS [t0]
     INNER JOIN (
         SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
-    ) AS [t1] ON ([t00].[OrderID] = [t1].[OrderID]) AND ([t00].[ProductID] = [t1].[ProductID]))",
+    ) AS [t1] ON ([t0].[OrderID] = [t1].[OrderID]) AND ([t0].[ProductID] = [t1].[ProductID]))",
                 Sql);
         }
 
@@ -1159,10 +1158,10 @@ ORDER BY [od1].[OrderID], [od1].[ProductID]",
             Assert.Contains(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
-    SELECT [c20].[CustomerID], [c20].[Address], [c20].[City], [c20].[CompanyName], [c20].[ContactName], [c20].[ContactTitle], [c20].[Country], [c20].[Fax], [c20].[Phone], [c20].[PostalCode], [c20].[Region]
-    FROM [Order Details] AS [od0]
-    INNER JOIN [Orders] AS [o0] ON [od0].[OrderID] = 10260
-    INNER JOIN [Customers] AS [c20] ON [o0].[CustomerID] = [c20].[CustomerID]
+    SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+    FROM [Order Details] AS [od]
+    INNER JOIN [Orders] AS [o] ON [od].[OrderID] = 10260
+    INNER JOIN [Customers] AS [c2] ON [o].[CustomerID] = [c2].[CustomerID]
 ) AS [t]",
                 Sql);
 

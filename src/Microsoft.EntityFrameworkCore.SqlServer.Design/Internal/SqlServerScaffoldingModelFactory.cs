@@ -40,8 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
-            [NotNull] CandidateNamingService candidateNamingService)
-            : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService)
+            [NotNull] CandidateNamingService candidateNamingService,
+            [NotNull] IPluralizer pluralizer)
+            : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService, pluralizer)
         {
         }
 

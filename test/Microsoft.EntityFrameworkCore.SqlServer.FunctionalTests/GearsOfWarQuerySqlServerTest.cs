@@ -1963,7 +1963,7 @@ ORDER BY [t0].[SquadId]",
         LEFT JOIN (
             SELECT [t.Gear].[Nickname], [t.Gear].[SquadId], [t.Gear].[AssignedCityName], [t.Gear].[CityOrBirthName], [t.Gear].[Discriminator], [t.Gear].[FullName], [t.Gear].[HasSoulPatch], [t.Gear].[LeaderNickname], [t.Gear].[LeaderSquadId], [t.Gear].[Rank]
             FROM [Gear] AS [t.Gear]
-            WHERE ([t.Gear].[Discriminator] = N'Officer') OR ([t.Gear].[Discriminator] = N'Gear')
+            WHERE [t.Gear].[Discriminator] IN (N'Officer', N'Gear')
         ) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
         WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND ([t0].[HasSoulPatch] = 0))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -1986,7 +1986,7 @@ LEFT JOIN (
 WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND [t0].[SquadId] IN (
     SELECT [g].[SquadId]
     FROM [Gear] AS [g]
-    WHERE ([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 )",
                 Sql);
         }
@@ -2302,7 +2302,7 @@ SELECT CASE
         SELECT 1
         FROM [Gear] AS [m]
         LEFT JOIN [CogTag] AS [m.Tag] ON ([m].[Nickname] = [m.Tag].[GearNickName]) AND ([m].[SquadId] = [m.Tag].[GearSquadId])
-        WHERE ((([m].[Discriminator] = N'Officer') OR ([m].[Discriminator] = N'Gear')) AND ([m.Tag].[Note] = N'Dom''s Tag')) AND (@_outer_Id = [m].[SquadId]))
+        WHERE ([m].[Discriminator] IN (N'Officer', N'Gear') AND ([m.Tag].[Note] = N'Dom''s Tag')) AND (@_outer_Id = [m].[SquadId]))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
@@ -2313,7 +2313,7 @@ SELECT CASE
         SELECT 1
         FROM [Gear] AS [m]
         LEFT JOIN [CogTag] AS [m.Tag] ON ([m].[Nickname] = [m.Tag].[GearNickName]) AND ([m].[SquadId] = [m.Tag].[GearSquadId])
-        WHERE ((([m].[Discriminator] = N'Officer') OR ([m].[Discriminator] = N'Gear')) AND ([m.Tag].[Note] = N'Dom''s Tag')) AND (@_outer_Id = [m].[SquadId]))
+        WHERE ([m].[Discriminator] IN (N'Officer', N'Gear') AND ([m.Tag].[Note] = N'Dom''s Tag')) AND (@_outer_Id = [m].[SquadId]))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -2329,7 +2329,7 @@ END",
         SELECT 1
         FROM [Gear] AS [g]
         LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
-        WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND (([g.Tag].[Note] = N'Foo') AND [g.Tag].[Note] IS NOT NULL))
+        WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Note] = N'Foo'))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);

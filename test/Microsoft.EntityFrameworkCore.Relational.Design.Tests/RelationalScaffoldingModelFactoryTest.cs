@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Design
 {
@@ -776,6 +777,64 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     Assert.False(first.IsCyclic);
                 });
         }
+
+        [Fact]
+        public void DbSet_annotation_is_set()
+        {
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new TableModel
+                    {
+                        Name = "Blog",
+                        Columns = { IdColumn }
+                    }
+                }
+            };
+
+            var model = _factory.Create(info);
+            Assert.Equal("Blog", model.GetEntityTypes().Single().Scaffolding().DbSetName);
+        }
+
+        [Fact]
+        public void Pluralization()
+        {
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new TableModel
+                    {
+                        Name = "Blog",
+                        Columns = { IdColumn }
+                    },
+                    new TableModel
+                    {
+                        Name = "Posts",
+                        Columns = { IdColumn }
+                    }
+                }
+            };
+
+            var factory  = new FakeScaffoldingModelFactory(new TestLoggerFactory(), new FakePluralizer());
+            var model = factory.Create(info);
+
+            Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("Blog", entity.Relational().TableName);
+                    Assert.Equal("Blog", entity.Name);
+                    Assert.Equal("Blogs", entity.Scaffolding().DbSetName);
+                },
+                entity =>
+                {
+                    Assert.Equal("Posts", entity.Relational().TableName);
+                    Assert.Equal("Post", entity.Name);
+                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                }
+            );
+        }
     }
 
     public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
@@ -784,12 +843,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
         public FakeScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory)
+            : this(loggerFactory, new NullPluralizer())
+        { }
+
+        public FakeScaffoldingModelFactory(
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IPluralizer pluralizer)
             : base(loggerFactory,
                 new TestTypeMapper(),
                 new FakeDatabaseModelFactory(),
-                new CandidateNamingService())
-        {
-        }
+                new CandidateNamingService(),
+                pluralizer)
+        { }
     }
 
     public class FakeDatabaseModelFactory : IDatabaseModelFactory
@@ -827,5 +892,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             => _simpleNameMappings;
 
         protected override string GetColumnType(IProperty property) => ((Property)property).Relational().ColumnType;
+    }
+
+    public class FakePluralizer : IPluralizer
+    {
+        public string Pluralize(string name)
+        {
+            return name.EndsWith("s")
+                ? name
+                : name + "s";
+        }
+
+        public string Singularize(string name)
+        {
+            return name.EndsWith("s")
+                 ? name.Substring(0, name.Length - 1)
+                 : name;
+        }
     }
 }

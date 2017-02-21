@@ -242,12 +242,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(1, connection.DbConnections.Count);
 
             connection.Open();
+            Assert.Equal(1, dbConnection.OpenCount);
 
             connection.Close();
-            connection.Dispose();
-
-            Assert.Equal(1, dbConnection.OpenCount);
             Assert.Equal(1, dbConnection.CloseCount);
+
+            connection.Dispose();
             Assert.Equal(1, dbConnection.DisposeCount);
 
             Assert.Equal(1, connection.DbConnections.Count);
@@ -255,12 +255,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(2, connection.DbConnections.Count);
 
             connection.Open();
+            Assert.Equal(1, dbConnection.OpenCount);
 
             connection.Close();
-            connection.Dispose();
-
-            Assert.Equal(1, dbConnection.OpenCount);
             Assert.Equal(1, dbConnection.CloseCount);
+
+            connection.Dispose();
             Assert.Equal(1, dbConnection.DisposeCount);
         }
 
