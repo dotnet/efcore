@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { nameof(Math.Atan2), "ATN2" },
             { nameof(Math.Cos), "COS" },
             { nameof(Math.Sin), "SIN" },
-            { nameof(Math.Tan), "TAN" }
+            { nameof(Math.Tan), "TAN" },
+            { nameof(Math.Sign), "SIGN" }
         };
 
         private static readonly IEnumerable<MethodInfo> _roundMethodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods(nameof(Math.Round))

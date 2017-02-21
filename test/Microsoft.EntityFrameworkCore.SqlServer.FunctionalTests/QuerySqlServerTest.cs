@@ -5147,6 +5147,16 @@ FROM [Order Details] AS [od]
 WHERE ([od].[OrderID] = 11077) AND (TAN([od].[Discount]) > 0E0)", Sql);
         }
 
+        public override void Where_math_sign()
+        {
+            base.Where_math_sign();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE ([od].[OrderID] = 11077) AND (SIGN([od].[Discount]) > 0)", Sql);
+        }
+
         public override void Where_guid_newguid()
         {
             base.Where_guid_newguid();

@@ -4949,6 +4949,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_math_sign()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Sign(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalFact]
         public virtual void Where_guid_newguid()
         {
             AssertQuery<OrderDetail>(
