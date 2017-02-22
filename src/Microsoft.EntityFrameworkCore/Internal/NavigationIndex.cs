@@ -15,12 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         /// 
         /// </summary>
-        public virtual NavigationIndexMap ReferencedMap
-        {
-            [NotNull]
-            get;
-            [param: NotNull]
-            set; 
-        }
+        public virtual NavigationIndexMap ReferencedMap { [NotNull] get; [param: NotNull] set; }
     }
 }
